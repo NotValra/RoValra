@@ -308,12 +308,12 @@ async function addTrustedFriendButton(menu) {
         }
     } catch (err) {}
 }
-
+//test
 export function init() {
     chrome.storage.local.get(
-        { trustedConnectionsEnabled: true },
+        { trustedConnectionsEnabledv2: true },
         async (settings) => {
-            if (!settings.trustedConnectionsEnabled) return;
+            if (!settings.trustedConnectionsEnabledv2) return;
 
             registerProfileContextMenuAction(addTrustedFriendButton, () => {
                 const userId = getUserIdFromUrl();

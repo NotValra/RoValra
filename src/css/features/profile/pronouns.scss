@@ -1,0 +1,90 @@
+.rovalra-profile-username-row {
+    display: flex !important;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 8px;
+    row-gap: 4px;
+    min-width: 0;
+}
+
+.rovalra-profile-pronouns {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    white-space: nowrap;
+
+    &::before {
+        content: '';
+        display: block;
+        flex: 0 0 4px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: var(--rovalra-secondary-text-color);
+    }
+}
+
+.rovalra-profile-username-row:has(
+    > .rovalra-profile-views-pill,
+    > .rovalra-profile-customization-pill
+) {
+    display: grid !important;
+
+    grid-template-columns: max-content max-content max-content;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 4px;
+}
+
+.rovalra-profile-username-row
+    > :is(.rovalra-profile-views-pill, .rovalra-profile-customization-pill) {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+// Its cool dont get me wrong but it just doesnt match robloxs tooltips.
+/*
+.tooltip.rovalra-pronouns-tooltip {
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+
+    .tooltip-arrow {
+        display: none !important;
+    }
+
+    .tooltip-inner {
+        position: relative;
+        min-height: 0;
+        max-width: none;
+        padding: 7px 12px;
+        color: #f2f3f5;
+        background-color: #1e1f22;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18px;
+        text-align: center;
+        white-space: nowrap;
+
+        &::after {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-top: 5px solid #1e1f22;
+            border-right: 5px solid transparent;
+            border-left: 5px solid transparent;
+            content: '';
+            transform: translateX(-50%);
+        }
+    }
+}
+*/

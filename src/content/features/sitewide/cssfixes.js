@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeResize } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 
@@ -207,6 +207,102 @@ const applyFriendsCarouselPaddingFix = async () => {
     );
 };
 
+const applyNavbarSearchWidthFix = () => {
+    const setup = () => {
+        const rightNavigationHeader = document.getElementById(
+            'right-navigation-header',
+        );
+        const search = document.querySelector(
+            '[data-testid="navigation-search-input"].navbar-search',
+        );
+        const navbarRight =
+            rightNavigationHeader?.querySelector(
+                '.navbar-right.rbx-navbar-right',
+            ) || document.querySelector('.navbar-right.rbx-navbar-right');
+
+        if (!rightNavigationHeader || !search || !navbarRight) return;
+        if (search.dataset.navbarWidthFixApplied) return;
+        search.dataset.navbarWidthFixApplied = 'true';
+
+        const originalStyles = {
+            width: search.style.width,
+            flexBasis: search.style.flexBasis,
+            maxWidth: search.style.maxWidth,
+        };
+        let applyingStyles = false;
+
+        const restoreOriginalStyles = () => {
+            applyingStyles = true;
+            search.style.width = originalStyles.width;
+            search.style.flexBasis = originalStyles.flexBasis;
+            search.style.maxWidth = originalStyles.maxWidth;
+            applyingStyles = false;
+        };
+
+        const update = () => {
+            if (applyingStyles) return;
+
+            const searchRect = search.getBoundingClientRect();
+            const headerRect = rightNavigationHeader.getBoundingClientRect();
+            const rightRect = navbarRight.getBoundingClientRect();
+            const isRightNavbarWrapped =
+                rightRect.width > 0 && rightRect.top > headerRect.top + 2;
+
+            if (isRightNavbarWrapped && !search.dataset.navbarWidthFixActive) {
+                const nextWidth = Math.max(180, searchRect.width * 0.85);
+
+                applyingStyles = true;
+                search.style.setProperty(
+                    'width',
+                    `${nextWidth}px`,
+                    'important',
+                );
+                search.style.setProperty(
+                    'flex-basis',
+                    `${nextWidth}px`,
+                    'important',
+                );
+                search.style.setProperty(
+                    'max-width',
+                    `${nextWidth}px`,
+                    'important',
+                );
+                applyingStyles = false;
+                search.dataset.navbarWidthFixActive = 'true';
+            } else if (
+                !isRightNavbarWrapped &&
+                search.dataset.navbarWidthFixActive
+            ) {
+                restoreOriginalStyles();
+                delete search.dataset.navbarWidthFixActive;
+            }
+        };
+
+        const updateWhenUnfixed = () => {
+            if (!search.dataset.navbarWidthFixActive) update();
+        };
+
+        observeResize(rightNavigationHeader, updateWhenUnfixed);
+        observeResize(navbarRight, updateWhenUnfixed);
+        window.addEventListener('resize', () => {
+            if (search.dataset.navbarWidthFixActive) {
+                delete search.dataset.navbarWidthFixActive;
+                restoreOriginalStyles();
+            }
+            requestAnimationFrame(update);
+        });
+        update();
+        requestAnimationFrame(update);
+        setTimeout(update, 100);
+    };
+
+    observeElement('#right-navigation-header', setup);
+    observeElement(
+        '[data-testid="navigation-search-input"].navbar-search',
+        setup,
+    );
+};
+
 export function init() {
     chrome.storage.local.get(
         ['cssfixesEnabled', 'giantInvisibleLink'],
@@ -222,6 +318,7 @@ export function init() {
                 applyCartRemoveButtonFix();
                 applyProfileGameCardFix();
                 applyFriendsCarouselPaddingFix();
+                applyNavbarSearchWidthFix();
             }
         },
     );

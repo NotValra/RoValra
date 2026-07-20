@@ -1,0 +1,121 @@
+.rovalra-profile-note-host {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.rovalra-profile-note-card {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + var(--rovalra-profile-note-offset, 14px));
+    right: 0;
+    box-sizing: border-box;
+    width: 350px;
+    max-width: calc(100vw - 32px);
+    min-height: 76px;
+    padding: 10px 8px 12px;
+    overflow: visible;
+    text-align: left;
+    background: transparent;
+    border: 0;
+}
+
+.rovalra-profile-note-heading {
+    color: var(--rovalra-main-text-color);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+.rovalra-profile-note-editor-host {
+    margin-top: 5px;
+}
+
+.rovalra-profile-note-display {
+    display: block;
+    box-sizing: border-box;
+    width: calc(100% + 16px);
+    min-height: 36px;
+    margin-left: -8px;
+    padding: 7px 8px;
+    color: var(--rovalra-secondary-text-color);
+    font: inherit;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.rovalra-profile-note-display {
+    overflow: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    cursor: text;
+
+    &:focus-visible {
+        border-color: var(--rovalra-border-color);
+        outline: 0;
+    }
+}
+
+.rovalra-profile-note-placeholder {
+    font-style: italic;
+}
+
+.rovalra-profile-note-editor-host .rovalra-catalog-input-wrapper {
+    width: calc(100% + 16px);
+    margin-left: -8px;
+    transform-origin: top center;
+    animation: rovalra-profile-note-editor-in 180ms ease-out both;
+}
+
+.rovalra-profile-note-input {
+    max-height: calc(2 * 1.4375em + 16px);
+    overflow-y: auto !important;
+}
+
+@keyframes rovalra-profile-note-editor-in {
+    from {
+        opacity: 0;
+        transform: translateY(3px) scale(0.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 767px) {
+    .rovalra-profile-note-host {
+        flex-wrap: wrap;
+    }
+
+    .rovalra-profile-note-card {
+        position: relative;
+        top: auto;
+        right: auto;
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: none;
+        margin-top: 12px;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .rovalra-profile-note-display,
+    .rovalra-profile-note-editor-host .rovalra-catalog-input-wrapper {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rovalra-profile-note-editor-host .rovalra-catalog-input-wrapper {
+        animation: none;
+    }
+}

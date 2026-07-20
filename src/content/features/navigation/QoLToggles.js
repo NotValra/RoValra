@@ -81,6 +81,7 @@ export function init() {
             ),
             friendsAndFollowing: await t('qolToggles.friendsAndFollowing'),
             friends: await t('qolToggles.friends'),
+            trustedFriends: await t('qolToggles.trustedFriends'),
             noOne: await t('qolToggles.noOne'),
         };
 
@@ -211,8 +212,16 @@ export function init() {
                             : 'FriendsAndFollowing',
                     },
                     { label: tMap.friends, value: 'Friends' },
-                    { label: tMap.noOne, value: 'NoOne' },
                 ];
+
+                if (isOnlineStatus || isJoinStatus) {
+                    statusOptions.push({
+                        label: tMap.trustedFriends,
+                        value: 'TrustedFriends',
+                    });
+                }
+
+                statusOptions.push({ label: tMap.noOne, value: 'NoOne' });
 
                 let initialValue;
                 if (isOnlineStatus) initialValue = currentOnlineStatus;

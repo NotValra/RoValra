@@ -13,7 +13,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/NotValra/RoValra/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/NotValra/RoValra?label=License"></a>
   <a href="https://github.com/NotValra/RoValra/releases"><img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/NotValra/RoValra/total?label=Downloads"></a>
   <a href="https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli"><img alt="Chrome Webstore Installs" src="https://img.shields.io/chrome-web-store/users/njcickgebhnpgmoodjdgohkclfplejli?logo=googlechrome&logoColor=white&label=Weekly%20Users&link=https%3A%2F%2Fchromewebstore.google.com%2Fdetail%2Frovalra-roblox-improved%2Fnjcickgebhnpgmoodjdgohkclfplejli"></a>
   <a href="https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews"><img alt="Rating" src="https://img.shields.io/chrome-web-store/stars/njcickgebhnpgmoodjdgohkclfplejli?logo=reverbnation&logoColor=yellow&link=https%3A%2F%2Fchromewebstore.google.com%2Fdetail%2Frovalra-roblox-improved%2Fnjcickgebhnpgmoodjdgohkclfplejli%2Freviews&label=Rating"></a>
@@ -76,6 +75,23 @@ npm run build
     - `manifest.json`
 
 </details>
+
+---
+
+## License
+
+RoValra source code is licensed under the **GNU General Public License version 3.0** unless otherwise stated.
+
+The following image assets are **not** licensed under GPL-3.0 and are not available for reuse:
+
+- `public/Assets/Contributor.png`
+- `public/Assets/icon-16.png`
+- `public/Assets/icon-48.png`
+- `public/Assets/icon-128.png`
+- `public/Assets/RoValraLogo.png`
+- `public/Assets/DonatorTiers/`
+
+These images, including the RoValra logo and related logo/icon artwork, are fully copyrighted by Valra. All rights, title, and ownership in the RoValra logo belong to Valra. They may not be copied, redistributed, modified, published, used, or included in any other project, product, service, website, extension, fork, or derivative work without prior written permission from Valra.
 
 ---
 

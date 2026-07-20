@@ -89,18 +89,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            marketplace3DRenderEnabled: {
+            marketplace3DRenderEnabledV2: {
                 label: 'Enable Custom 3D Marketplace Item Renderer',
                 description: [
                     'Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.',
                     'This feature was made possible cause of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
                 ],
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['126448532'],
-
-                experimental:
-                    'This feature may cause performance issues. And may be buggy',
                 childSettings: {
                     marketplace3DRenderHoverPreviewDisabled: {
                         label: 'Disable Hover Preview',
@@ -240,6 +237,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            wideGameTileStatsEnabled: {
+                label: 'Wide Experience Tile Stats',
+                description: [
+                    'Shows the concurrent player count alongside the rating on wide experience tiles.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2963377564'],
+            },
             whatamIJoiningEnabled: {
                 label: 'What Am I Joining',
                 description: [
@@ -302,6 +308,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '10646979010'],
+            },
+            shopWidgetsEnabled: {
+                label: 'View In Game Shop',
+                description:
+                    'This adds a Shop tab to the experience store page which is the in game shop brought to the website.',
+                type: 'checkbox',
+                default: true,
             },
             QuickOutfitsEnabled: {
                 label: 'Quick Equip Outfits',
@@ -382,6 +395,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            badgeOwnershipEnabled: {
+                label: 'Dim Unowned Badges',
+                description: [
+                    "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)",
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: [546872490],
             },
             updateHistoryEnabled: {
                 label: 'Update History',
@@ -527,7 +549,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Full Server Indicators',
                         description: [
                             'This adds indicators when a server is full',
-                            "Like the queue size, and text telling you the server is full if we don't have region data.",
+                            "Like text that tells you the server is full if we don't have region data.",
                         ],
                         type: 'checkbox',
                         default: true,
@@ -565,15 +587,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            PlusPrivateServerTooltipEnabled: {
-                label: 'Roblox Plus Free Server Tooltip',
-                description: [
-                    'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
-                ],
-                type: 'checkbox',
-                default: true,
-                contributors: ['447170745', '546872490'],
-            },
         },
     },
     Profile: {
@@ -597,11 +610,69 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['9502859424'],
             },
+            profilePronouns: {
+                label: 'Profile Pronouns',
+                description: [
+                    'Displays your pronouns beside your username on your profile for other RoValra users.',
+                    'Maximum 15 characters.',
+                    'Emojis and spaces are allowed. Special characters such as /, comma, or ; are changed to |.',
+                ],
+                type: 'input',
+                placeholder: 'Enter Pronouns',
+                maxLength: 15,
+                showCharacterCount: true,
+                useGraphemeLength: true,
+                trim: true,
+                replaceSpecialCharactersWithPipe: true,
+                agreementKey: 'rovalra_pronouns_guidelines_agreed',
+                default: null,
+                contributors: ['10646979010'],
+            },
+            profileNotesEnabled: {
+                label: 'Profile Notes',
+                description: [
+                    'Adds a private note field to Roblox profiles.',
+                    'Notes are stored only locally and are never shared to RoValra or Roblox.',
+                    'Maximum 256 characters.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_profile_notes',
+                contributors: ['10646979010'],
+                childSettings: {
+                    profileNotesBackup: {
+                        label: 'Notes Backup',
+                        description: [
+                            'Export all profile notes or import them from a .json file.',
+                            'Imported notes are merged with notes already stored in this browser.',
+                        ],
+                        type: 'buttonGroup',
+                        buttons: [
+                            {
+                                id: 'export-rovalra-profile-notes',
+                                text: 'Export Notes',
+                            },
+                            {
+                                id: 'import-rovalra-profile-notes',
+                                text: 'Import Notes',
+                            },
+                        ],
+                    },
+                },
+            },
             profileViewsEnabled: {
                 label: 'Profile Views',
                 description: [
                     'Shows profile view counts on profiles.',
                     'Disabling this hides profile views locally and hides your profile views from other RoValra users.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            profileCustomizationEnabled: {
+                label: 'Profile Customization',
+                description: [
+                    'Adds a customization button to your own profile for quickly switching avatar borders.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -721,7 +792,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            trustedConnectionsEnabled: {
+            trustedConnectionsEnabledv2: {
                 label: 'Trusted Friends',
                 description: [
                     'This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.',
@@ -729,22 +800,11 @@ export const SETTINGS_CONFIG = {
                     '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
                 ],
                 type: 'checkbox',
-                default: true,
-                deprecated:
-                    'Roblox is working on an A/B test which does this exact thing. This feature will be disabled when it releases.',
-                locked: 'Roblox released their own version of this.',
+                default: false,
                 isPermanent: true,
+                locked: 'Seemingly broke after a Roblox update. And Roblox is rolling out their own version of it.',
             },
-            currencyTransferEnabled: {
-                label: 'Send Robux',
-                description: [
-                    'This allows Roblox Plus Subscribers to start a currency transfer by pressing the (...) on anyones profile.',
-                ],
-                type: 'checkbox',
-                default: true,
-                locked: 'Roblox released their own version of this feature',
-                isPermanent: true,
-            },
+
             lastOnlineEnabled: {
                 label: 'Show Last Online / Last Seen',
                 description: [
@@ -910,6 +970,16 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    robloxGroupFeaturesEnabled: {
+                        label: 'Roblox Group Badges',
+                        description: [
+                            'Enables Badges for groups, like star creator program, Roblox Community feedback Program etc.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             profileBackgroundGradientEnabled: {
                 label: 'Custom Profile Background Gradient',
@@ -975,9 +1045,9 @@ export const SETTINGS_CONFIG = {
                 contributors: [48255812],
                 childSettings: {
                     avatarBorderChoice: {
-                        label: 'Avatar Border',
+                        label: 'Get all Avatar borders for free',
                         description: [
-                            'Choose which border displays around your own avatar.',
+                            'Allows you to use any avatar border for completely free',
                         ],
                         type: 'button',
                         buttonText: 'Open Border Store',
@@ -985,7 +1055,7 @@ export const SETTINGS_CONFIG = {
                         avatarPreview: true,
                         donatorTier: 3,
                         donatorReason:
-                            'Donator Tier 3 is required to set a custom avatar border. This is a cosmetic perk to reward donators.',
+                            'Donator Tier 3 gets all avatar borders for free.',
                         default: 'none',
                     },
                 },
@@ -999,6 +1069,66 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['3602693727'],
             },
+            displayNameGradientEnabled: {
+                label: 'Gradient Display Name',
+                description: [
+                    'Shows three-color gradient display names on profiles to all RoValra users.',
+                    'Donator Tier 3 is required to set your own gradient display name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    displayNameGradient: {
+                        label: 'Display Name Gradient',
+                        description:
+                            'Choose the three colors used on your display name gradient.',
+                        type: 'gradient',
+                        colorCount: 3,
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to customize your display name gradient.',
+                        default: {
+                            enabled: false,
+                            color1: '#ff4ecd',
+                            color2: '#ffe66d',
+                            color3: '#4dd4ff',
+                            angle: 90,
+                            fade: 100,
+                        },
+                    },
+                    displayNameGradientEffect: {
+                        label: 'Display Name Effect',
+                        description:
+                            'Adds an optional shine, roll, or bloom effect to your gradient display name.',
+                        type: 'select',
+                        options: [
+                            { value: 'none', label: 'None' },
+                            { value: 'shine', label: 'Shine' },
+                            {
+                                value: 'shine-bloom',
+                                label: 'Shine + Bloom',
+                            },
+                            {
+                                value: 'roll',
+                                label: 'Gradient Roll',
+                            },
+                            {
+                                value: 'roll-bloom',
+                                label: 'Gradient Roll + Bloom',
+                            },
+                            { value: 'sparkles', label: 'Bloom' },
+                            {
+                                value: 'blooming-bloom',
+                                label: 'Blooming Bloom',
+                            },
+                        ],
+                        default: 'none',
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to use display name effects.',
+                    },
+                },
+            },
         },
     },
     Home: {
@@ -1011,6 +1141,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                childSettings: {
+                    accurateContinueAutoRefreshEnabled: {
+                        label: 'Auto Refresh Continue',
+                        description: [
+                            'Updates the Continue row after a game launches, without reloading the page.',
+                        ],
+                        type: 'checkbox',
+                        default: false, // Not on by default cuz people are used to it not updating, so it randomly uipdating will get annoying.
+                        contributors: ['10646979010'], // hi im rav4
+                    },
+                },
             },
             underratedGamesEnabled: {
                 label: 'Underrated Games',
@@ -1410,6 +1551,84 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
+    Plus: {
+        title: 'Roblox Plus',
+        settings: {
+            reducePlusAds: {
+                label: 'Less Roblox Plus',
+                description: [
+                    'Makes Roblox Plus advertising more subtle.',
+                    'Not recommended if you have an active Roblox Plus subscription.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    removeAllPlusAdds: {
+                        label: 'Remove all Roblox Plus advertising.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+                contributors: ['1564574922'],
+            },
+            PlusPrivateServerTooltipEnabled: {
+                label: 'Roblox Plus Free Server Tooltip',
+                description: [
+                    'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['447170745', '546872490'],
+            },
+            currencyTransferEnabled: {
+                label: 'Send Robux',
+                description: [
+                    'This allows Roblox Plus Subscribers to start a currency transfer by pressing the (...) on anyones profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+                locked: 'Roblox released their own version of this feature',
+                isPermanent: true,
+                hidden: true,
+            },
+            sendRobuxEnabled: {
+                label: 'Send Robux',
+                description: [
+                    'This allows Roblox Plus Subscribers to start a transfer by pressing the (...) on anyones profile but now directly on the website!',
+                    'You can also use the "Send" button on the [Buy Robux](https://www.roblox.com/upgrades/robux) page.',
+                    'If you have an account under 18 you may need to accept Robux transfers in the notifications tab.',
+                ],
+                childSettings: {
+                    keepRobuxAppButtonEnabled: {
+                        label: 'Keep The Open In App button',
+                        description: [
+                            'Keeps the profile item that opens the app to send Robux.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+                contributors: ['650766686'],
+                type: 'checkbox',
+                default: true,
+            },
+            plusStatsEnabled: {
+                label: 'Show Plus Stats',
+                description:
+                    'Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed',
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+            },
+            plusTransferLimitsEnabled: {
+                label: 'Show Plus Transfer Limits',
+                description:
+                    'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
+                type: 'checkbox',
+                default: true,
+            },
+        },
+    },
     Navigation: {
         title: 'Navigation',
         settings: {
@@ -1426,24 +1645,32 @@ export const SETTINGS_CONFIG = {
                 description: ['Adds a button to collapse the Roblox sidebar.'],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '2963377564'],
                 storageKey: 'rovalraSidebarCollapsed',
-                childSettings: {
-                    sidebarCollapseMoveContentEnabled: {
-                        label: 'Move content with collapsed sidebar',
-                        description:
-                            'Moves the page content to match the current sidebar width.',
-                        type: 'checkbox',
-                        default: true,
-                    },
-                },
+            },
+            sidebarLayoutEnabled: {
+                label: 'Sidebar Layout',
+                description: [
+                    'Lets you reorder and hide buttons in the Roblox sidebar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2963377564'],
+                storageKey: [
+                    'rovalra_sidebar_layout_order',
+                    'rovalra_sidebar_layout_hidden',
+                ],
             },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
-                description:
+                description: [
                     'Lets you choose which Roblox age theme is used across the site.',
+                    'Overrides **Theme Switcher** setting.',
+                ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '650766686'],
+                exclusiveWith: ['ThemeSwitcherEnabled'],
                 childSettings: {
                     ageThemeSelection: {
                         label: 'Theme',
@@ -1499,10 +1726,24 @@ export const SETTINGS_CONFIG = {
                         label: 'Custom Badge Text',
                         description: [
                             'The text you would like to display in the badge.',
+                            'Maximum 30 characters.',
                             'This will be overridden by the Hide The Badge setting',
                         ],
                         type: 'input',
+                        maxLength: 30,
+                        showCharacterCount: true,
                         default: null,
+                        contributors: ['10646979010'],
+                    },
+                    ageKidsTextPushNavbarEnabled: {
+                        label: 'Show Full Badge Text',
+                        description: [
+                            'Expands the badge to show all of your custom text.',
+                            'Moves the navigation links to the right when more room is needed.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['10646979010'],
                     },
                     ageKidsTextHiddenEnabled: {
                         label: 'Hide The Badge',
@@ -1526,6 +1767,16 @@ export const SETTINGS_CONFIG = {
                     'This allows you to toggle beta programs you are enrolled into easily.',
                 type: 'checkbox',
                 default: false,
+                childSettings: {
+                    previousBetaProgramsEnabled: {
+                        label: 'Show Previous Beta Programs',
+                        description:
+                            'Stores beta programs you have seen before and shows programs that are no longer returned by Roblox as disabled entries in the dropdown.',
+                        type: 'checkbox',
+                        default: true,
+                        storageKey: 'rovalra_previous_beta_programs',
+                    },
+                },
             },
             removeDownloadButton: {
                 label: 'Remove Download Button',
@@ -1590,6 +1841,14 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 storageKey: 'rovalra-group-funds-data',
                 childSettings: {
+                    GroupFundsNavbarTotalEnabled: {
+                        label: 'Combine Community Funds with Robux Balance',
+                        description:
+                            'Combines your Robux balance with your configured community funds in the navbar. Click the balance to see your Robux and each community separately.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['278039610'],
+                    },
                     GroupFundsIds: {
                         label: 'Community IDs',
                         description:
@@ -1610,12 +1869,14 @@ export const SETTINGS_CONFIG = {
                 label: 'Theme Switcher',
                 description: [
                     'Allows RoValra to apply themes selected from the theme gallery.',
+                    'Overrides the **Age Theme** setting.',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922', '447170745'],
                 beta: 'Can be slightly buggy',
                 keepChildSettingsEnabled: true,
+                exclusiveWith: ['ageKidsThemeEnabled'],
                 childSettings: {
                     openThemeCatalog: {
                         label: 'Theme Gallery',
@@ -1628,7 +1889,7 @@ export const SETTINGS_CONFIG = {
                     openCustomThemeEditor: {
                         label: 'Custom Theme Builder',
                         description: [
-                            'Opens the editor on the real Roblox home page so you can customize the theme against the actual UI.',
+                            'Opens the editor on roblox.com/theme so you can customize the theme against the actual UI.',
                             'Your custom theme appears in the Yours tab on the theme gallery.',
                         ],
                         type: 'button',
@@ -1887,30 +2148,14 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            reducePlusAds: {
-                label: 'Less Roblox Plus',
+            friendGameLinkEnabled: {
+                label: 'Clickable Friend Currently Playing Card',
                 description: [
-                    'Makes Roblox Plus advertising more subtle.',
-                    'Not recommended if you have an active Roblox Plus subscription.',
+                    'Makes the currently playing experience card in friend hover cards link directly to the experience the user is playing.',
                 ],
-                type: 'checkbox',
-                default: false,
-                childSettings: {
-                    removeAllPlusAdds: {
-                        label: 'Remove all Roblox Plus advertising.',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                },
-                contributors: ['1564574922'],
-            },
-            plusStatsEnabled: {
-                label: 'Show Plus Stats',
-                description:
-                    'Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed',
+                contributors: ['2963377564'],
                 type: 'checkbox',
                 default: true,
-                contributors: ['650766686'],
             },
             settingChangeNote: {
                 label: 'Setting changes alerts',
@@ -1924,6 +2169,14 @@ export const SETTINGS_CONFIG = {
             FunStuffEnabled: {
                 label: 'Fun Stuff tab',
                 description: ['Shows the Fun Stuff tab in RoValra settings.'],
+                type: 'checkbox',
+                default: false,
+            },
+            disableChannelTracking: {
+                label: 'Disable Channel Tracking',
+                description: [
+                    'Stops RoValra from sending your channel to the RoValra backends. We use this to improve RoValra and data is Public. We have safety messures in place to prevent private channels from ever being stored.',
+                ],
                 type: 'checkbox',
                 default: false,
             },
@@ -1962,6 +2215,7 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+
             spoofAsOffline: {
                 label: 'Spoof status as Offline',
                 description: [
@@ -2173,30 +2427,70 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
-    Developer: {
+    PublicDeveloper: {
         title: 'Developer',
         settings: {
+            EnableRobloxApiDocsv2: {
+                label: 'Roblox API docs',
+                description: [
+                    'Adds OpenAPI documentation for Roblox and RoValra APIs on https://www.roblox.com/docs.',
+                    'This documents undocumented Roblox APIs, which can be really useful for Developers.',
+                    'All Roblox APIs were documented by [Cam](https://www.roblox.com/users/4866259395/profile)',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4866259395', '447170745'],
+                childSettings: {
+                    apiDocsSidebarLinkEnabled: {
+                        label: 'API Docs sidebar link',
+                        description:
+                            'Adds an API Docs link below Communities in the Roblox sidebar.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
+        },
+    },
+    Developer: {
+        title: 'RoValra Developer',
+        settings: {
             info: {
-                label: ['Developer Settings'],
+                label: ['RoValra Developer Settings'],
                 description: [
                     "These are features used mostly to develop rovalra, if you don't know what your doing dont touch them.",
                 ],
                 type: 'yay',
             },
             alwaysShowDeveloperSettings: {
-                label: ['Always show developer settings tab'],
+                label: ['Always show RoValra developer settings tab'],
                 description: [
-                    'This will make the developer settings tab always show. So you dont have to do the easter egg every time.',
+                    'This will make the RoValra developer settings tab always show. So you dont have to do the easter egg every time.',
                 ],
                 type: 'checkbox',
                 default: false,
             },
-            EnableRobloxApiDocs: {
-                label: 'Roblox API docs',
+            overwriteRemoteSettingLocks: {
+                label: ['Override remotely disabled settings'],
                 description: [
-                    'This adds documentation for Roblox apis on https://www.roblox.com/docs',
-                    'All the apis are captured when you browse the site.',
-                    'This stores all the APIs in storage.',
+                    'Allows RoValra features to remain enabled even when they are disabled by the remote settings service. This is for testing and may expose unstable features.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            forceGuidelinesPopup: {
+                label: 'Force Guidelines Popup',
+                description: [
+                    'Shows the RoValra Guidelines every time you try to use a feature that requires them, even after you previously agreed.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['10646979010'],
+            },
+            alwaysShowAccountStandingTab: {
+                label: ['Always show Account Standing tab'],
+                description: [
+                    'This will make the Account Standing tab show even when your account has no current or previous RoValra moderation action.',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2225,6 +2519,15 @@ export const SETTINGS_CONFIG = {
                     'This will trick Roblox into thinking you are in an early access program, making Roblox add the early access program UI to your settings',
                     'This setting wont allow you to join any early access programs you werent invited to.',
                     'This will also overwrite any early access programs you might already be in.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            fakePreviousBetaProgramEnabled: {
+                label: ['Fake Previous Beta Program'],
+                description: [
+                    'Adds a fake previous beta program to the beta programs dropdown for testing.',
+                    'Requires previous beta programs to be enabled.',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2285,6 +2588,14 @@ export const SETTINGS_CONFIG = {
                 label: ['Force Review Popup'],
                 description: [
                     "When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes.",
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            forceRegionDonationPopup: {
+                label: ['Force Region Donation Popup'],
+                description: [
+                    "When enabled, shows the region selector donation popup every time it's triggered for non-donators, ignoring cadence requirements. For testing purposes.",
                 ],
                 type: 'checkbox',
                 default: false,

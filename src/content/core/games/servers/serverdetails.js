@@ -396,6 +396,17 @@ function injectStyles() {
     document.head.appendChild(style);
 }
 
+function shouldSpoilerServerId(server) {
+    return (
+        server.hasAttribute('data-rovalra-is-friend-server') ||
+        server.hasAttribute('data-rovalra-is-recent-server') ||
+        server.classList.contains('rbx-friends-game-server-item') ||
+        !!server.querySelector(
+            '.player-thumbnails-container .avatar-card-link[href*="/users/"]',
+        )
+    );
+}
+
 function enableAvatarLinks(server) {
     const avatarLinks = server.querySelectorAll('.avatar-card-link');
     avatarLinks.forEach((link) => {
@@ -804,10 +815,7 @@ export async function fetchAndDisplayRegion(
         if (info.status === 22) {
             if (isFullServerIndicatorsEnabled) {
                 if (joinBtn) {
-                    joinBtn.textContent =
-                        info.queuePosition > 0
-                            ? `Join (${info.queuePosition} In Queue)`
-                            : 'Server Full';
+                    joinBtn.textContent = 'Server Full';
                     joinBtn.classList.replace(
                         'btn-primary-md',
                         'btn-secondary-md',
@@ -1104,10 +1112,7 @@ export async function enhanceServer(server, context) {
         const uuidSpan = document.createElement('span');
         uuidSpan.textContent = serverId;
 
-        const hasFriendLink = server.hasAttribute(
-            'data-rovalra-is-friend-server',
-        );
-        if (hasFriendLink) {
+        if (shouldSpoilerServerId(server)) {
             uuidSpan.classList.add('show-on-hover');
         }
 

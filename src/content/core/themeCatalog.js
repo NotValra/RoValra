@@ -17,6 +17,7 @@ export const THEME_CATALOG_THEMES = [
             surface100: ['#191a2d', 100],
             surface200: ['#20223c', 100],
             surface300: ['#272958', 100],
+            shimmer: ['#393c44', 100],
             mainText: ['#f7f7f8', 100],
             secondaryText: ['#c7ccd8', 100],
             playButton: ['#4068f8', 100],
@@ -55,6 +56,7 @@ export const THEME_CATALOG_THEMES = [
             surface100: ['#fdffdc', 100],
             surface200: ['#fdffe1', 100],
             surface300: ['#fdffdc', 100],
+            shimmer: ['#e3e2e0', 100],
             mainText: ['#25251f', 100],
             secondaryText: ['#575a49', 100],
             playButton: ['#3369ff', 100],
@@ -93,6 +95,7 @@ export const THEME_CATALOG_THEMES = [
             surface100: ['#050505', 100],
             surface200: ['#0a0a0a', 100],
             surface300: ['#141414', 100],
+            shimmer: ['#212e3f', 100],
             mainText: ['#ffffff', 100],
             secondaryText: ['#cecece', 100],
             playButton: ['#0037ff', 100],
@@ -100,7 +103,7 @@ export const THEME_CATALOG_THEMES = [
             tertiaryText: ['#d1d1d1', 100],
             mainBackground: ['#000000', 100],
             buttonBackground: ['#d0d9fb', 12],
-            borderColor: ['#000000', 64],
+            borderColor: ['#000000', 0],
             grayText: ['#a5a6af', 100],
             profileHeaderBackground: ['#14151d', 100],
             iconBlocked: ['#502e2e', 100],
@@ -115,7 +118,7 @@ export const THEME_CATALOG_THEMES = [
             themeButtonBackground: ['#21272e', 100],
             themeButtonHover: ['#212e3f', 100],
             themeButtonActive: ['#04294e', 100],
-            themeButtonBorder: ['#ffffff', 10],
+            themeButtonBorder: ['#ffffff', 0],
 
             discordLink: ['#5479ff', 100],
             githubLink: ['#0fff47', 100],
@@ -151,7 +154,6 @@ export function catalogThemeToCustomTheme(theme) {
                 : field.default;
         customTheme[getCustomThemeAlphaKey(field.key)] = clampAlpha(alpha);
     }
-
     return sanitizeCustomTheme(customTheme);
 }
 
@@ -183,31 +185,26 @@ export function getCustomThemeSlotThemes(settings) {
         ? settings.customUserThemeSlots
         : [];
     const slotThemeMap = new Map();
-    slots
-        .slice(0, CUSTOM_THEME_SLOT_COUNT)
-        .forEach((slot, index) => {
-            const slotSource = slot && typeof slot === 'object' ? slot : {};
-            const themeValue = slotSource.theme || slotSource.colors || slot;
-            if (!themeValue || typeof themeValue !== 'object') return;
-            const rawSlotIndex = Number(slotSource.slot ?? slotSource.index);
-            const slotIndex = Number.isFinite(rawSlotIndex)
-                ? Math.max(
-                      0,
-                      Math.min(CUSTOM_THEME_SLOT_COUNT - 1, rawSlotIndex),
-                  )
-                : index;
+    slots.slice(0, CUSTOM_THEME_SLOT_COUNT).forEach((slot, index) => {
+        const slotSource = slot && typeof slot === 'object' ? slot : {};
+        const themeValue = slotSource.theme || slotSource.colors || slot;
+        if (!themeValue || typeof themeValue !== 'object') return;
+        const rawSlotIndex = Number(slotSource.slot ?? slotSource.index);
+        const slotIndex = Number.isFinite(rawSlotIndex)
+            ? Math.max(0, Math.min(CUSTOM_THEME_SLOT_COUNT - 1, rawSlotIndex))
+            : index;
 
-            slotThemeMap.set(
-                slotIndex,
-                customThemeToCatalogTheme(
-                    themeValue,
-                    slotSource.name || `Custom Theme ${index + 1}`,
-                    {
-                        userSlotIndex: slotIndex,
-                    },
-                ),
-            );
-        })
+        slotThemeMap.set(
+            slotIndex,
+            customThemeToCatalogTheme(
+                themeValue,
+                slotSource.name || `Custom Theme ${index + 1}`,
+                {
+                    userSlotIndex: slotIndex,
+                },
+            ),
+        );
+    });
     const slotThemes = [...slotThemeMap.values()].sort(
         (left, right) => left.userSlotIndex - right.userSlotIndex,
     );

@@ -1,24 +1,18 @@
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import { observeElement, observeIntersection } from '../../core/observer.js';
-import { callRobloxApi } from '../../core/api.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { getAssets } from '../../core/assets.js';
-import {
-    getCachedRolimonsItem,
-    queueRolimonsFetch,
-} from '../../core/trade/itemHandler.js';
+import { getTradeAnalysis } from '../../core/trade/tradeDetailsHandler.js';
 import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import * as CacheHandler from '../../core/storage/cacheHandler.js';
 
 let tradeData = [];
 let observer = null;
 let initialized = false;
 let featureSettings = { tradePreviewEnabled: true };
-const tradeDetailsCache = new Map();
 
 async function fetchAndRenderTradePreview(tradeId, row) {
     if (row.querySelector('.rovalra-trade-summary')) return;
@@ -26,110 +20,10 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     const myUserId = await getAuthenticatedUserId();
     if (!myUserId) return;
 
-    let storedTrade = await CacheHandler.get('trade_history', tradeId, 'local');
-
-    let myOffer = null;
-    let partnerOffer = null;
-
-    if (Array.isArray(storedTrade)) {
-        myOffer = { robux: storedTrade[0], items: storedTrade[1] };
-        partnerOffer = { robux: storedTrade[2], items: storedTrade[3] };
-    } else {
-        let data = tradeDetailsCache.get(tradeId);
-        if (!data) {
-            try {
-                const response = await callRobloxApi({
-                    subdomain: 'trades',
-                    endpoint: `/v2/trades/${tradeId}`,
-                    method: 'GET',
-                });
-                if (response.ok) {
-                    data = await response.json();
-                    tradeDetailsCache.set(tradeId, data);
-                }
-            } catch (e) {
-                return;
-            }
-        }
-
-        if (!data) return;
-
-        let rawMyOffer, rawPartnerOffer;
-
-        if (data.participantAOffer?.user?.id === myUserId) {
-            rawMyOffer = data.participantAOffer;
-            rawPartnerOffer = data.participantBOffer;
-        } else if (data.participantBOffer?.user?.id === myUserId) {
-            rawMyOffer = data.participantBOffer;
-            rawPartnerOffer = data.participantAOffer;
-        } else {
-            return;
-        }
-
-        const simplifyOffer = (offer) => ({
-            robux: offer.robux || 0,
-            items: (offer.items || []).map((item) => item.itemTarget.targetId),
-        });
-
-        myOffer = simplifyOffer(rawMyOffer);
-        partnerOffer = simplifyOffer(rawPartnerOffer);
-
-        await CacheHandler.set(
-            'trade_history',
-            tradeId,
-            [
-                myOffer.robux,
-                myOffer.items,
-                partnerOffer.robux,
-                partnerOffer.items,
-            ],
-            'local',
-        );
-    }
-
-    if (!row.isConnected) return;
-
-    const assetIds = [...myOffer.items, ...partnerOffer.items];
-    if (assetIds.length > 0) {
-        await queueRolimonsFetch(assetIds);
-    }
-
-    if (!row.isConnected) return;
-
-    const calculateStats = (offer) => {
-        let rap = 0;
-        let value = 0;
-
-        offer.items.forEach((assetId) => {
-            const roliData = getCachedRolimonsItem(assetId);
-
-            let itemRap = 0;
-            if (roliData && roliData.rap) {
-                itemRap = roliData.rap;
-            }
-
-            let itemValue = itemRap;
-            if (
-                roliData &&
-                roliData.default_price !== undefined &&
-                roliData.default_price !== null
-            ) {
-                itemValue = roliData.default_price;
-            }
-
-            rap += itemRap;
-            value += itemValue;
-        });
-        return { rap, value };
-    };
-
-    const myStats = calculateStats(myOffer);
-    const partnerStats = calculateStats(partnerOffer);
-
-    myStats.rap += myOffer.robux || 0;
-    myStats.value += myOffer.robux || 0;
-    partnerStats.rap += Math.floor((partnerOffer.robux || 0) * 0.7);
-    partnerStats.value += Math.floor((partnerOffer.robux || 0) * 0.7);
+    const analysis = await getTradeAnalysis(tradeId, { myUserId }).catch(
+        () => null,
+    );
+    if (!analysis || !row.isConnected) return;
 
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'rovalra-trade-summary';
@@ -156,20 +50,25 @@ async function fetchAndRenderTradePreview(tradeId, row) {
         zoom: '0.75',
     };
 
-    const rapDiff = partnerStats.rap - myStats.rap;
+    const rapDiff = analysis.comparison.rapDiff;
     const rapColor = rapDiff === 0 ? '' : '#fff';
 
-    const rapPill = createRapDiffPill(rapDiff, myStats.rap, pillStyles, {
-        ...iconStyles,
-        filter: rapColor,
-    });
+    const rapPill = createRapDiffPill(
+        rapDiff,
+        analysis.comparison.myRap,
+        pillStyles,
+        {
+            ...iconStyles,
+            filter: rapColor,
+        },
+    );
     rapPill.classList.add('rovalra-trade-preview-pill');
     summaryDiv.appendChild(rapPill);
 
-    const valDiff = partnerStats.value - myStats.value;
+    const valDiff = analysis.comparison.valueDiff;
     const valPill = createValueDiffPill(
         valDiff,
-        myStats.value,
+        analysis.comparison.myValue,
         pillStyles,
         iconStyles,
     );
@@ -231,28 +130,18 @@ async function processTradeRow(row) {
 
         if (featureSettings.tradePreviewEnabled) {
             let debounceTimer;
-            const cached = await CacheHandler.get(
-                'trade_history',
-                trade.id,
-                'local',
-            );
-
-            if (cached) {
-                fetchAndRenderTradePreview(trade.id, row);
-            } else {
-                const observerHandle = observeIntersection(row, (entry) => {
-                    if (entry.isIntersecting) {
-                        debounceTimer = setTimeout(() => {
-                            if (row.isConnected) {
-                                fetchAndRenderTradePreview(trade.id, row);
-                                observerHandle.unobserve();
-                            }
-                        }, 500);
-                    } else {
-                        clearTimeout(debounceTimer);
-                    }
-                });
-            }
+            const observerHandle = observeIntersection(row, (entry) => {
+                if (entry.isIntersecting) {
+                    debounceTimer = setTimeout(() => {
+                        if (row.isConnected) {
+                            fetchAndRenderTradePreview(trade.id, row);
+                            observerHandle.unobserve();
+                        }
+                    }, 500);
+                } else {
+                    clearTimeout(debounceTimer);
+                }
+            });
         }
     }
 
@@ -274,7 +163,6 @@ function onTradesData(e) {
             tradeData = [...tradeData, ...newTrades];
         } else {
             tradeData = trades;
-            tradeDetailsCache.clear();
             document
                 .querySelectorAll('.trade-row[data-rovalra-time-processed]')
                 .forEach((row) => {
@@ -308,7 +196,6 @@ export function init() {
                     initialized = false;
                 }
                 tradeData = [];
-                tradeDetailsCache.clear();
                 return;
             }
 

@@ -104,7 +104,7 @@ export async function findClosestServerViaApi(
                         try {
                             const joinRes = await callRobloxApi({
                                 subdomain: 'gamejoin',
-                                endpoint: '/v1/join-game-instance',
+                                endpoint: '/v2/join-game-instance',
                                 method: 'POST',
                                 body: {
                                     placeId: parseInt(placeId, 10),
@@ -143,7 +143,7 @@ export async function fetchServerRegion(server, placeId) {
     try {
         const res = await callRobloxApi({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: '/v2/join-game-instance',
             method: 'POST',
             body: {
                 placeId: parseInt(placeId, 10),
@@ -443,7 +443,7 @@ async function attemptJoinServers(
         try {
             const res = await callRobloxApi({
                 subdomain: 'gamejoin',
-                endpoint: '/v1/join-game-instance',
+                endpoint: '/v2/join-game-instance',
                 method: 'POST',
                 body: {
                     placeId: parseInt(placeId, 10),

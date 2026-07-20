@@ -1,7 +1,12 @@
 import { observeElement } from '../../core/observer.js';
-import { getCachedRolimonsItem } from '../../core/trade/itemHandler.js';
-import { callRobloxApiJson } from '../../core/api.js';
-import { getAuthenticatedUsername } from '../../core/user.js';
+import {
+    getAuthenticatedUserId,
+    getAuthenticatedUsername,
+} from '../../core/user.js';
+import {
+    getLatestTradeDetailsId,
+    getTradeAnalysis,
+} from '../../core/trade/tradeDetailsHandler.js';
 
 export function init() {
     chrome.storage.local.get({ tradeProofEnabled: true }, (settings) => {
@@ -39,93 +44,36 @@ async function copyTradeProof(container, btn) {
     const offers = container.querySelectorAll('.trade-list-detail-offer');
     if (offers.length < 2) return;
 
-    const scrapeOffer = (offerEl) => {
-        const itemNames = [];
-        let totalValue = 0;
+    const activeRow = document.querySelector('.trade-row.active');
+    const tradeId = activeRow?.dataset.tradeId || getLatestTradeDetailsId();
+    const myUserId = await getAuthenticatedUserId();
+    const analysis = tradeId
+        ? await getTradeAnalysis(tradeId, { myUserId }).catch(() => null)
+        : null;
 
-        offerEl.querySelectorAll('.item-card-container').forEach((card) => {
-            const assetId = card.dataset.rovalraAssetId;
-            const roli = assetId ? getCachedRolimonsItem(assetId) : null;
+    if (!analysis) return;
 
-            if (roli) {
-                itemNames.push(roli.acronym || roli.name);
-                totalValue +=
-                    roli.default_price !== undefined &&
-                    roli.default_price !== null
-                        ? roli.default_price
-                        : roli.rap || 0;
-            } else {
-                const nameEl = card.querySelector('.item-card-name');
-                if (nameEl) itemNames.push(nameEl.innerText.trim());
-
-                const valLabel = card.querySelector(
-                    '.rovalra-value-label .text-robux',
-                );
-                if (valLabel) {
-                    totalValue += parseInt(
-                        valLabel.innerText.replace(/,/g, ''),
-                        10,
-                    );
-                } else {
-                    const robuxLabel = card.querySelector('.text-robux');
-                    if (robuxLabel)
-                        totalValue += parseInt(
-                            robuxLabel.innerText.replace(/,/g, ''),
-                            10,
-                        );
-                }
-            }
-        });
-
-        const robuxValEl = offerEl.querySelector('.robux-line-value');
-        if (robuxValEl) {
-            const rVal = parseInt(robuxValEl.innerText.replace(/,/g, ''), 10);
-            if (!isNaN(rVal) && rVal > 0) {
-                totalValue += rVal;
-            }
-        }
+    const formatOffer = (offer, isReceiving) => {
+        const itemNames = offer.items.map(
+            (item) => item.acronym || item.name || 'Unknown Item',
+        );
+        const robuxValue = isReceiving
+            ? offer.stats.receivedRobux
+            : offer.stats.offeredRobux;
 
         return {
             items: itemNames.length > 0 ? itemNames.join(', ') : 'None',
-            value: totalValue,
+            value: offer.stats.value + robuxValue,
         };
     };
 
-    const sideA = scrapeOffer(offers[0]); // Give
-    const sideB = scrapeOffer(offers[1]); // Receive
+    const sideA = formatOffer(analysis.myOffer, false);
+    const sideB = formatOffer(analysis.partnerOffer, true);
 
     const authedUsername = await getAuthenticatedUsername();
-
-    const partnerLink =
-        container.querySelector('a.paired-name') ||
-        document.querySelector('.trade-list-detail-header .text-label a');
-    let partnerUsername = 'Unknown';
-    if (partnerLink) {
-        const userIdMatch = partnerLink.href.match(/\/users\/(\d+)/);
-        if (userIdMatch) {
-            try {
-                const userData = await callRobloxApiJson({
-                    subdomain: 'users',
-                    endpoint: `/v1/users/${userIdMatch[1]}`,
-                    method: 'GET',
-                });
-                if (userData && userData.name) {
-                    partnerUsername = userData.name;
-                }
-            } catch (e) {
-                const usernameSpan = partnerLink.querySelector(
-                    'span.element:last-of-type',
-                );
-                partnerUsername = usernameSpan
-                    ? usernameSpan.innerText.trim()
-                    : 'Unknown';
-            }
-        }
-    }
-
+    const partnerUsername = analysis.partnerOffer.user?.name || 'Unknown';
     const myUsername = authedUsername || 'Me';
 
-    const activeRow = document.querySelector('.trade-row.active');
     let dateStr =
         container.dataset.createdDate || activeRow?.dataset.createdDate;
     if (!dateStr) {

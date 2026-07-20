@@ -12,10 +12,12 @@ import {
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
 import { safeHtml } from '../../../core/packages/dompurify.js';
+import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import {
     performJoinAction,
     getSavedPreferredRegion,
 } from '../../../core/preferredregion.js';
+import { showRegionDonationPopup } from '../../../core/review/review.js';
 import { launchGame, followUser } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -24,6 +26,8 @@ import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { t, ts } from '../../../core/locale/i18n.js';
+import { applyBorderToContainer } from '../../profile/avatarBorder.js';
+import { applyDisplayNameGradientToElement } from '../../profile/header/displayNameGradient.js';
 
 let lastSearchedQuery = '';
 let userSearchAbortController = null;
@@ -32,6 +36,7 @@ const userCache = new Map();
 const assets = getAssets();
 const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
+const quickSearchCosmeticsPromises = new Map();
 let initialSearchValue = '';
 let searchHistoryRenderVersion = 0;
 let selectedIndex = 0;
@@ -179,6 +184,10 @@ let searchSettings = {
     gameSearchEnabled: true,
     friendSearchEnabled: true,
     searchHistoryEnabled: true,
+    profileBackgroundGradientEnabled: true,
+    applyGradientToAvatarTile: true,
+    avatarBorderEnabled: true,
+    displayNameGradientEnabled: true,
 };
 
 function updateSearchSettings() {
@@ -189,11 +198,128 @@ function updateSearchSettings() {
             'gameSearchEnabled',
             'friendSearchEnabled',
             'searchHistoryEnabled',
+            'profileBackgroundGradientEnabled',
+            'applyGradientToAvatarTile',
+            'avatarBorderEnabled',
+            'displayNameGradientEnabled',
         ],
         (result) => {
             if (result) Object.assign(searchSettings, result);
         },
     );
+}
+
+function parseGradientString(gradientStr) {
+    const parts = gradientStr.split(',').map((s) => s.trim());
+    if (parts.length < 3) return null;
+
+    const color1 = parts[0] || '#667eea';
+    const color2 = parts[1] || '#764ba2';
+    const parsedFade = parseInt(parts[2], 10);
+    const parsedAngle = parseInt(parts[3], 10);
+    const fade = Number.isFinite(parsedFade) ? parsedFade : 100;
+    const angle = Number.isFinite(parsedAngle) ? parsedAngle : 135;
+
+    const s1 = (100 - fade) / 2;
+    const s2 = 100 - s1;
+    return `linear-gradient(${angle}deg, ${color1} ${s1}%, ${color2} ${s2}%)`;
+}
+
+function getQuickSearchCosmetics(userId) {
+    const cacheKey = String(userId);
+    if (!quickSearchCosmeticsPromises.has(cacheKey)) {
+        quickSearchCosmeticsPromises.set(
+            cacheKey,
+            getUserSettings(userId, { useDescription: false }).catch(
+                (error) => {
+                    quickSearchCosmeticsPromises.delete(cacheKey);
+                    throw error;
+                },
+            ),
+        );
+    }
+
+    return quickSearchCosmeticsPromises.get(cacheKey);
+}
+
+function waitForConnectedElement(element, timeoutMs = 1500) {
+    if (element.isConnected) return Promise.resolve(true);
+
+    return new Promise((resolve) => {
+        const startedAt = Date.now();
+
+        const check = () => {
+            if (element.isConnected) {
+                resolve(true);
+                return;
+            }
+
+            if (Date.now() - startedAt >= timeoutMs) {
+                resolve(false);
+                return;
+            }
+
+            requestAnimationFrame(check);
+        };
+
+        requestAnimationFrame(check);
+    });
+}
+
+async function applyUserCosmetics(
+    userId,
+    thumbContainer,
+    displayNameEl = null,
+    hoverHost = null,
+) {
+    if (
+        !searchSettings.profileBackgroundGradientEnabled &&
+        !searchSettings.avatarBorderEnabled &&
+        !searchSettings.displayNameGradientEnabled
+    ) {
+        return;
+    }
+
+    try {
+        const userSettings = await getQuickSearchCosmetics(userId);
+
+        if (
+            searchSettings.profileBackgroundGradientEnabled &&
+            searchSettings.applyGradientToAvatarTile &&
+            userSettings?.gradient
+        ) {
+            const gradient = parseGradientString(userSettings.gradient);
+            if (gradient) {
+                thumbContainer.style.background = gradient;
+                thumbContainer.style.backgroundSize = '250% 250%';
+                thumbContainer.style.backgroundPosition = 'center';
+            }
+        }
+
+        if (
+            searchSettings.avatarBorderEnabled &&
+            userSettings?.border &&
+            userSettings.border !== 'none'
+        ) {
+            const connected = await waitForConnectedElement(thumbContainer);
+            if (!connected) return;
+
+            await applyBorderToContainer(thumbContainer, userSettings.border);
+        }
+
+        if (searchSettings.displayNameGradientEnabled && displayNameEl) {
+            applyDisplayNameGradientToElement(displayNameEl, userSettings, {
+                animate: false,
+                hoverHost,
+            });
+        }
+    } catch (e) {
+        console.warn(
+            'RoValra: Failed to apply quick search cosmetics for user',
+            userId,
+            e,
+        );
+    }
 }
 
 async function fetchWithRetry(options, retries = 3, signal = null) {
@@ -797,7 +923,7 @@ function createUserResultHtml(
 
         if (presenceClass) {
             const presenceIndicator = document.createElement('span');
-            presenceIndicator.className = presenceClass;
+            presenceIndicator.className = `${presenceClass} avatar-status`;
             presenceIndicator.setAttribute('data-testid', 'presence-icon');
             Object.assign(presenceIndicator.style, {
                 position: 'absolute',
@@ -872,6 +998,7 @@ function createUserResultHtml(
 
     link.appendChild(thumbContainer);
     link.appendChild(infoDiv);
+    applyUserCosmetics(user.id, thumbContainer, displayNameSpan, link);
 
     if (user.hasVerifiedBadge) {
         if (displayNameDiv) {
@@ -1094,6 +1221,7 @@ function createResultHtml(
             e.preventDefault();
             e.stopPropagation();
             const region = await getSavedPreferredRegion();
+            showRegionDonationPopup('quick_search_region');
             performJoinAction(
                 game.rootPlaceId,
                 game.universeId,
@@ -1642,7 +1770,10 @@ export function init() {
                 changes.userSearchEnabled ||
                 changes.gameSearchEnabled ||
                 changes.friendSearchEnabled ||
-                changes.searchHistoryEnabled
+                changes.searchHistoryEnabled ||
+                changes.profileBackgroundGradientEnabled ||
+                changes.applyGradientToAvatarTile ||
+                changes.avatarBorderEnabled
             ) {
                 updateSearchSettings();
             }

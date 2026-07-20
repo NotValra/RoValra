@@ -5,6 +5,7 @@ import {
     performJoinAction,
     getSavedPreferredRegion,
 } from '../../core/preferredregion.js';
+import { showRegionDonationPopup } from '../../core/review/review.js';
 import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 
@@ -225,6 +226,7 @@ function addCustomButton(container) {
         if (placeId) {
             const targetRegion =
                 currentRegion === 'AUTO' ? null : currentRegion;
+            showRegionDonationPopup('region_play_button');
             performJoinAction(placeId, universeId, targetRegion);
         }
     });

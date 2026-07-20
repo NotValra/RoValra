@@ -819,10 +819,9 @@ li.rovalra-offsale-toggle-item {
     }
 }
 
-:root:has(.light-theme),
+body.light-theme,
 :root.light-theme,
-:root[color-scheme='light'],
-:root:has(meta[name='theme-color'][content='#F9F9F9']) {
+:root[color-scheme='light'] {
     .rovalra-voting-controls {
         .vote-container {
             .vote-background.has-votes {

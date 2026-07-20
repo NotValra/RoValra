@@ -42,6 +42,7 @@ function createServerItem(serverData, userThumbnailUrl, userId) {
     serverItem.className = 'rbx-game-server-item';
     serverItem.dataset.rovalraServerid = presence.gameId;
     serverItem.dataset.placeid = presence.rootPlaceId;
+    serverItem.dataset.rovalraIsRecentServer = 'true';
 
     const lastJoinedInfo = timestamp
         ? `<p class="text-info" style="font-size: 12px; margin-top: 4px;">${ts('recentServers.lastJoined', { time: formatTimeAgo(timestamp) })}</p>`
@@ -92,6 +93,7 @@ function createModernServerItem(serverData, userThumbnailUrl, userId) {
         'flex items-center justify-between padding-y-medium width-full';
     serverItem.dataset.rovalraServerid = presence.gameId;
     serverItem.dataset.placeid = presence.rootPlaceId;
+    serverItem.dataset.rovalraIsRecentServer = 'true';
 
     const timeText = timestamp ? formatTimeAgo(timestamp) : '';
     const subtitle = ts('recentServers.lastJoined', { time: timeText });
@@ -164,7 +166,7 @@ async function checkServerIsActive(placeId, gameId) {
     try {
         const info = await callRobloxApiJson({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: '/v2/join-game-instance',
             method: 'POST',
             body: {
                 placeId: parseInt(placeId, 10),
@@ -177,8 +179,7 @@ async function checkServerIsActive(placeId, gameId) {
 
         if (
             info.joinScript ||
-            info.status === 2 ||
-            (info.queuePosition && info.queuePosition > 0)
+            info.status === 2
         ) {
             return true;
         }

@@ -10,6 +10,22 @@
         "settingsTitle": "Category Settings",
         "visibility": "Visibility",
         "visibilityDescription": "Choose whether this category appears on Home.",
+        "accurateContinue": "Accurate Continue",
+        "accurateContinueDescription": "Sort Continue by when you last played each game.",
+        "enable": "Enable",
+        "disable": "Disable",
+        "show": "Show",
+        "hide": "Hide"
+    },
+    "sidebarLayout": {
+        "untitled": "Untitled",
+        "empty": "RoValra was unable to find any sidebar buttons.",
+        "reset": "Reset",
+        "save": "Save",
+        "overlayTitle": "Sidebar Layout",
+        "button": "Customize Layout",
+        "myProfile": "My Profile",
+        "disabled": "Disabled",
         "show": "Show",
         "hide": "Hide"
     },
@@ -288,7 +304,7 @@
     "settings": {
         "tabs": {
             "info": "Info",
-            "credits": "Credits",
+            "credits": "Contributors",
             "donatorPerks": "Donator Perks",
             "settings": "Settings",
             "accountStanding": "Account Standing"
@@ -299,7 +315,6 @@
             "desc2": "Some free features still rely on RoValra servers and cost money to run.",
             "desc3": "Supporter donations help cover those costs, letting RoValra keep more features free for everyone while continuing to improve over time. ❤️",
             "desc4": "RoValra is a passion project and has always been one.",
-            "gilbert": "We try to make RoValra less professional, as being too professional is boring, which is why we have Gilbert, aka the logo, a silly fish from Fisch.",
             "suggestions": "If you have any feature suggestions please let me know in my Discord server or via GitHub",
             "bugs": "If you find any bugs let me know in my Discord server or via GitHub",
             "review": "If you like this extension please consider <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">leaving a review</a>, it helps a lot ❤️",
@@ -310,17 +325,18 @@
             "x": "X: ValraSwag"
         },
         "credits": {
-            "title": "RoValra Credits!",
-            "contributed": "Thanks to <b style=\"font-weight: bold;\">everyone who</b> <a href=\"https://github.com/NotValra/RoValra/graphs/contributors\" target=\"_blank\" class=\"rovalra-github-link\">contributed</a>",
-            "frames": "Thanks to <b style=\"font-weight: bold;\">Frames</b> for somehow getting the Roblox sales and revenue on some items",
-            "julia": "Thanks to <b style=\"font-weight: bold;\">Julia</b> for making a repo with all Roblox server datacenters which I used to use to get the regions, but now I switched to my own api.",
-            "aspect": "Thanks to <b style=\"font-weight: bold;\">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.",
-            "l5se": "Thanks to <b style=\"font-weight: bold;\">l5se</b> for allowing me to use their open source region selector as a template for my extension.",
-            "lz": "Thanks to <b style=\"font-weight: bold;\">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.",
-            "mmfw": "Thanks to <b style=\"font-weight: bold;\">mmfw</b> for making the screenshots on the chrome web store, and general help with UI design of the extension.",
-            "coweggs": "Thanks to <b style=\"font-weight: bold;\">Coweggs</b> for coming up with the very funny name that is \"RoValra\" as a joke that I then ended up using.",
-            "woozynate": "Thanks to <b style=\"font-weight: bold;\">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3",
             "contributorsTitle": "Contributors",
+            "contributorTooltips": {
+                "146089324": "WoozyNate made fisch, which is where the old RoValra logo is from. You should check out fisch!",
+                "1337447242": "Made the new logo and all store page images.",
+                "795922138": "Came up with the name 'RoValra' as a joke, which was too funny not to use."
+            },
+            "sortLabel": "Sort contributors",
+            "sortMost": "Most",
+            "sortLeast": "Least",
+            "contributionCount_one": "Contributed to {{count}} feature",
+            "contributionCount_other": "Contributed to {{count}} features",
+            "backendContributorsNote": "These people helped with non feature related things.",
             "loadingContributors": "Loading...",
             "failedToLoadContributors": "Failed to load contributors."
         },
@@ -331,22 +347,22 @@
             "howToGetDesc": "You can donate by purchasing a gamepasses in the support game.",
             "goToGame": "Go to Donation Game",
             "perkTiers": "Perk Tiers",
+            "perk": "Perk",
             "tier1": "Tier 1: Supporter",
             "tier1Desc": "Donate <strong>any amount</strong>",
             "tier1Reward": "Donator 1 Badge",
-            "tier1DiscordRole": "Donator 1 role in the RoValra Discord, with special Discord permissions and perks compared to regular members.",
+            "tier1DiscordRole": "Donator 1 Discord role + extra Discord perks.",
             "tier1Feature": "Set Status and environments without adding a string to your about me.",
             "tier2": "Tier 2: Supporter",
             "tier2Desc": "Donate <strong>200+ Robux</strong>",
             "tier2Reward": "Donator 2 Badge",
-            "tier2DiscordRole": "Donator 2 role in the RoValra Discord, with special Discord permissions and perks above the Supporter 1 role.",
+            "tier2DiscordRole": "Donator 2 Discord role + upgraded Discord perks.",
             "tier3": "Tier 3: Supporter",
             "tier3Desc": "Donate <strong>500+ Robux</strong>",
             "tier3Reward": "Donator 3 Badge",
-            "tier3DiscordRole": "Donator 3 role in the RoValra Discord, with the best donator Discord permissions and perks.",
+            "tier3DiscordRole": "Donator 3 Discord role + best Discord perks.",
             "previousRewards": "+ All previous tier rewards",
             "moreComingSoon": "More coming soon.",
-            "availableBadges": "Available Badges",
             "note": "Note:\n- Badges may take a few minutes to appear after donation.\n- To manage badge visibility, go to the 'Profile' settings tab. \n- Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.\n- When donating you agree to [RoValra's Terms of Use](https://www.rovalra.com/tou/)"
         },
         "search": {
@@ -363,6 +379,7 @@
         "friendsFollowingAndFollowers": "Friends, Followers, & Following",
         "friendsAndFollowing": "Friends & Following",
         "friends": "Friends",
+        "trustedFriends": "Trusted Friends",
         "noOne": "No one"
     },
     "groupFunds": {
@@ -371,7 +388,8 @@
         "noPermissions": "No Permission"
     },
     "navigation": {
-        "transactions": "Transactions"
+        "transactions": "Transactions",
+        "apiDocs": "API Docs"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
@@ -393,7 +411,9 @@
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
         "noPrograms": "You are not enrolled into any beta programs.",
-        "allowlist": "In an allowlist"
+        "allowlist": "In an allowlist",
+        "previousProgramsTitle": "Previously enrolled beta programs",
+        "previousProgramTooltip": "This beta program is no longer available."
     },
     "quickSearch": {
         "aborted": "Aborted",
@@ -453,6 +473,26 @@
         "order": {
             "ascending": "Sort Ascending",
             "descending": "Sort Descending"
+        }
+    },
+    "shop": {
+        "tab": "Shop",
+        "all": "All",
+        "category": "Category",
+        "product": "Product",
+        "gamePass": "Game Pass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bonus: {{item}}",
+        "bonusItemFallback": "Includes a bonus item",
+        "noItems": "No shop items found.",
+        "failedToLoad": "Failed to load shop items.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Product",
+            "GamePass": "Game Pass",
+            "Robux": "Robux bundle"
         }
     },
     "subplaces": {
@@ -630,6 +670,8 @@
     },
     "createRoblox": {
         "download": "Download",
+        "downloadMesh": "Download .mesh",
+        "downloadObj": "Download .obj",
         "explorer": {
             "button": "Explorer",
             "title": "Explorer",
@@ -771,7 +813,24 @@
     "privateGames": {
         "tabs": {
             "about": "About",
-            "store": "Store"
+            "store": "Store",
+            "servers": "Servers"
+        },
+        "servers": {
+            "title": "Your Private Servers",
+            "description": "Play in your own space, solo or with people you invite",
+            "friendsTitle": "Servers My Friends Are In",
+            "publicTitle": "Other Servers",
+            "privateServer": "Private server",
+            "players": "{{playing}} of {{maxPlayers}} people max",
+            "join": "Join",
+            "loadMore": "Load More",
+            "loading": "Loading servers...",
+            "noServers": "No Servers Found.",
+            "loadError": "Unable to load servers.",
+            "ownerAvatar": "Server owner",
+            "playerAvatar": "Player",
+            "morePlayers": "+{{count}}"
         },
         "privateExperience": "Private Experience",
         "experienceIsPrivate": "This experience is private.",
@@ -844,7 +903,7 @@
         "inventory": "Inventory",
         "by": "By",
         "usePassIn": "Use this Pass in:",
-        "rovalraNoticeDescription": "This game pass page is not viewable without RoValra."
+        "rovalraNoticeDescription": "This game pass is inactive and cannot be purchased due to Roblox limitations, possibly related to account age or game visibility."
     },
     "playabilityStatus": {
         "0": "This experience is unavailable",
@@ -923,6 +982,44 @@
         "joinedLabel": "Joined",
         "unknown": "Unknown"
     },
+    "profileCustomization": {
+        "pill": "Customization",
+        "pillTooltip": "Switch your avatar borders.",
+        "title": "Profile Customization",
+        "currentPreview": "Current Selection Preview",
+        "unequip": "Unequip",
+        "unequipTooltip": "Click to unequip this border",
+        "equip": "Equip",
+        "equipTooltip": "Equip this border",
+        "equipped": "Equipped",
+        "getMore": "Get More",
+        "owned": "Owned",
+        "unowned": "Unowned",
+        "unownedTooltip": "You do not own this border yet.",
+        "all": "All",
+        "new": "New",
+        "static": "STATIC",
+        "animated": "ANIMATED",
+        "free": "Free",
+        "noBorders": "No borders found.",
+        "noBordersInTab": "No borders found in this tab.",
+        "failedToLoad": "Failed to load your borders. Please try again later."
+    },
+    "profileNotes": {
+        "ariaLabel": "Private profile note",
+        "heading": "Note (only visible to you)",
+        "headingTooltip": "This note is stored only in this browser and is never sent to Roblox or RoValra.",
+        "addNote": "Click to add a note",
+        "editAriaLabel": "Edit private profile note",
+        "addAriaLabel": "Add private profile note",
+        "displayTooltip": "Click to edit. Notes are saved only in this browser.",
+        "inputPlaceholder": "Add a private note",
+        "inputTooltip": "Saved when you click outside. Press Escape to cancel or Ctrl+Enter to save."
+    },
+    "profilePronouns": {
+        "label": "Pronouns",
+        "ariaLabel": "Pronouns: {{pronouns}}"
+    },
     "profile": {
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
@@ -964,6 +1061,61 @@
         },
         "privateServerTooltip": {
             "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Send Robux",
+                "openInApp": "Open In App"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Cannot Send Robux",
+                "deletedAccountBody": "This user's account has been deleted, it cannot be sent Robux"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Send Robux",
+                    "titleSilly": "send bobux :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "Robux Amount to Send",
+                    "mutedNotice": "Robux are sent instantly with no fees",
+                    "minRobux": "You must send at least {{robuxAmount}} Robux",
+                    "maxRobux": "You must send no more than {{robuxAmount}} Robux",
+                    "notEnoughRobux": "You don't have enough Robux",
+                    "nextBtn": "Next"
+                },
+                "step2": {
+                    "sendBtn": "Send",
+                    "editBtn": "Edit",
+                    "mutedNotice": "No cancellations. You may need age check or parent approval.",
+                    "transferErrorGeneric": "An unknown error occured.",
+                    "transferErrorNoMessage": "Unknown error occured with no message provided",
+                    "transferSuccessBody": "The transfer was a success!",
+                    "transferSuccessBodySilly": "transfer was alright! very cool",
+                    "transferSuccessOkBtnSilly": "electric boogaloo",
+                    "userInfoFriendTime": "Friended {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} mutual friend",
+                    "userInfoMutualFriends_other": "{{count}} mutual friends",
+                    "userInfoJoin": "Joined in {{year}}",
+                    "paramPassedError": "An unknown error occured! Check console and report the issue to RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Ask",
+                    "sendRobuxBody": "To send Robux, you need parent permission",
+                    "receiveRobuxBody": "To receive Robux, you need parent permission",
+                    "askTitle": "Ask for Permission",
+                    "askTitleSilly": "ask parents for perms",
+                    "errorSending": "An unknown error occured, check the console and report it to RoValra",
+                    "errorReceivingTitle": "There was an error accepting the Robux",
+                    "errorReceivingBody": "An unknown error occured, you might have already accepted this Robux transfer. Check the console for details.",
+                    "errorReceivingOkBtnSilly": "aw",
+                    "successfulAskTitle": "Request Sent",
+                    "successfulAskTitleSilly": "we notified ur parents, prepare...",
+                    "successfulAskBody": "We have sent the request to your parents and guardians via email!",
+                    "successfulAskOkBtnSilly": "alright very cool, thanks"
+                }
+            }
         }
     }
 }

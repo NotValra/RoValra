@@ -15,7 +15,13 @@
     const GAME_SERVERS_API_URL = 'https://games.roblox.com/v1/games/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
+    const TRADE_DETAILS_API_URL = 'https://trades.roblox.com/v2/trades/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
+    const GROUP_ROLES_API_HOST = 'groups.roblox.com';
+    const GROUP_ROLES_API_PATH = /^\/v1\/users\/(\d+)\/groups\/roles$/;
+    const PROFILE_API_URL =
+        'https://apis.roblox.com/profile-platform-api/v1/profiles/get';
+    const ROBLOX_ADMIN_GROUP_ID = 1200769;
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
@@ -24,25 +30,6 @@
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
 
-    function dispatchCaptureEvent(url, method, body) {
-        if (typeof url !== 'string') return;
-        if (
-            url.match(
-                /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp3|ogg|wav|webm|mp4|json)$/i,
-            ) &&
-            !url.includes('apis.roblox.com') &&
-            !url.includes('games.roblox.com')
-        )
-            return;
-        if (!url.includes('roblox.com') && !url.includes('rovalra.com')) return;
-
-        document.dispatchEvent(
-            new CustomEvent('rovalra-traffic-capture', {
-                detail: { url, method: method || 'GET', body },
-            }),
-        );
-    }
-
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
     let accurateContinueEnabled = true;
@@ -50,6 +37,22 @@
     let homeLayoutOrder = [];
     let homeLayoutHidden = [];
     let homeExtraSorts = [];
+    let homeLayoutReady = false;
+    let homeLayoutReadyPromise = null;
+    let resolveHomeLayoutReady = null;
+    let robloxGroupFeaturesEnabled = true;
+
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        if (event.detail?.name === 'robloxGroupFeaturesEnabled') {
+            robloxGroupFeaturesEnabled = event.detail.value !== false;
+        }
+    });
+    document.addEventListener('rovalra:settingsState', (event) => {
+        if (typeof event.detail?.robloxGroupFeaturesEnabled === 'boolean') {
+            robloxGroupFeaturesEnabled =
+                event.detail.robloxGroupFeaturesEnabled;
+        }
+    });
 
     try {
         streamerModeEnabled =
@@ -89,6 +92,11 @@
         homeLayoutHidden = Array.isArray(e.detail?.hidden)
             ? e.detail.hidden
             : [];
+        homeLayoutReady = true;
+        if (resolveHomeLayoutReady) {
+            resolveHomeLayoutReady();
+            resolveHomeLayoutReady = null;
+        }
         try {
             sessionStorage.setItem(
                 'rovalra_homeLayoutOrder',
@@ -105,10 +113,88 @@
         homeExtraSorts = Array.isArray(e.detail?.sorts) ? e.detail.sorts : [];
     });
 
+    function waitForHomeLayoutState() {
+        if (homeLayoutReady) return Promise.resolve();
+
+        if (!homeLayoutReadyPromise) {
+            homeLayoutReadyPromise = new Promise((resolve) => {
+                const timeout = setTimeout(resolve, 700);
+                resolveHomeLayoutReady = () => {
+                    clearTimeout(timeout);
+                    resolve();
+                };
+            });
+        }
+
+        return homeLayoutReadyPromise;
+    }
+
     function getRequestUrl(url) {
         if (typeof url === 'string') return url;
         if (url instanceof Request) return url.url;
         return '';
+    }
+
+    function isRobloxAdminGroupMember(data) {
+        return data?.components?.Communities?.communityIds?.some(
+            (groupId) => Number(groupId) === ROBLOX_ADMIN_GROUP_ID,
+        );
+    }
+
+    function applyRobloxAdminProfileResponse(data) {
+        if (
+            robloxGroupFeaturesEnabled &&
+            isRobloxAdminGroupMember(data) &&
+            data?.components?.UserProfileHeader
+        ) {
+            data.components.UserProfileHeader.isRobloxAdmin = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    function responseWithJson(response, data) {
+        const newHeaders = new Headers(response.headers);
+        newHeaders.delete('content-length');
+        newHeaders.delete('content-encoding');
+
+        return new Response(JSON.stringify(data), {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders,
+        });
+    }
+
+    function getGroupRolesRequestUserId(url) {
+        if (typeof url !== 'string' || !url) return null;
+
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            const pathMatch = parsedUrl.pathname.match(GROUP_ROLES_API_PATH);
+            if (
+                parsedUrl.hostname !== GROUP_ROLES_API_HOST ||
+                !pathMatch ||
+                parsedUrl.searchParams.get('includeLocked') !== 'true'
+            ) {
+                return null;
+            }
+
+            return pathMatch[1];
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function dispatchGroupRolesResponse(url, data) {
+        const userId = getGroupRolesRequestUserId(url);
+        if (!userId) return;
+
+        document.dispatchEvent(
+            new CustomEvent('rovalra-group-roles-response', {
+                detail: { userId, data },
+            }),
+        );
     }
 
     function getHomeSortKey(sort) {
@@ -127,11 +213,53 @@
         );
     }
 
+    function isLikelyGameHomeSort(sort) {
+        if (!sort || typeof sort !== 'object' || isFriendCarouselSort(sort)) {
+            return false;
+        }
+
+        if (sort.treatmentType === 'Carousel') return true;
+        if (sort.topicId === 100000003) return true;
+        if (sort.numberOfRows !== undefined && sort.numberOfRows !== null) {
+            return true;
+        }
+
+        return ['Carousel', 'GameCarousel', 'EventTile'].includes(
+            sort.topicLayoutData?.componentType,
+        );
+    }
+
+    function getHomeSortGameCount(sort) {
+        if (!sort || typeof sort !== 'object' || isFriendCarouselSort(sort)) {
+            return null;
+        }
+
+        if (Array.isArray(sort.games)) return sort.games.length;
+
+        if (!Array.isArray(sort.recommendationList)) return null;
+
+        if (!sort.recommendationList.length) {
+            return isLikelyGameHomeSort(sort) ? 0 : null;
+        }
+
+        const gameRecommendations = sort.recommendationList.filter(
+            (item) => item?.contentType === 'Game',
+        );
+
+        return gameRecommendations.length ? gameRecommendations.length : null;
+    }
+
+    function canAdjustHomeSort(sort) {
+        const gameCount = getHomeSortGameCount(sort);
+        return gameCount === null || gameCount > 0;
+    }
+
     function dispatchHomeLayoutCategories(data) {
         if (data?.pageType !== 'Home' || !Array.isArray(data.sorts)) return;
 
         const seenKeys = new Set();
         const categories = data.sorts
+            .filter(canAdjustHomeSort)
             .map((sort) => ({
                 key: getHomeSortKey(sort),
                 topic: sort?.topic || 'Untitled',
@@ -365,6 +493,7 @@
         }
 
         try {
+            await waitForHomeLayoutState();
             const data = await response.clone().json();
             const addedExtraSorts = addHomeExtraSorts(data);
             const accurateContinue = applyAccurateContinue(data);
@@ -395,13 +524,8 @@
 
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
-        const [url, config] = args;
-        const method = config?.method || 'GET';
+        const [url] = args;
         const requestUrl = getRequestUrl(url);
-
-        try {
-            dispatchCaptureEvent(requestUrl, method, config?.body);
-        } catch (e) {}
 
         let response = await originalFetch(...args);
 
@@ -420,7 +544,7 @@
                 'apis.roblox.com/token-metadata-service/v1/sessions',
             ].some((path) => requestUrl.includes(path));
 
-            if (isSensitive) {
+            if (isSensitive && location.hostname != 'create.roblox.com') {
                 try {
                     const clone = response.clone();
                     const data = await clone.json();
@@ -480,6 +604,15 @@
         }
 
         response = await applyHomeLayoutToFetchResponse(requestUrl, response);
+
+        if (requestUrl.includes(PROFILE_API_URL)) {
+            try {
+                const data = await response.clone().json();
+                if (applyRobloxAdminProfileResponse(data)) {
+                    response = responseWithJson(response, data);
+                }
+            } catch (error) {}
+        }
 
         if (typeof requestUrl === 'string') {
             if (requestUrl.includes(CATALOG_API_URL)) {
@@ -593,6 +726,26 @@
                     )
                     .catch(() => {});
             }
+            if (requestUrl.includes(TRADE_DETAILS_API_URL)) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) =>
+                        document.dispatchEvent(
+                            new CustomEvent('rovalra-trade-details-response', {
+                                detail: d,
+                            }),
+                        ),
+                    )
+                    .catch(() => {});
+            }
+            if (getGroupRolesRequestUserId(requestUrl)) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) => dispatchGroupRolesResponse(requestUrl, d))
+                    .catch(() => {});
+            }
         }
 
         return response;
@@ -608,7 +761,8 @@
         if (
             streamerModeEnabled &&
             typeof url === 'string' &&
-            settingsPageInfoEnabled
+            settingsPageInfoEnabled &&
+            location.hostname != 'create.roblox.com'
         ) {
             if (url.includes('/my/settings/json'))
                 this._rovalra_spoof_settings = true;
@@ -629,20 +783,15 @@
         ) {
             this._rovalra_home_layout = true;
         }
+        if (typeof url === 'string' && url.includes(PROFILE_API_URL)) {
+            this._rovalra_profile_api = true;
+        }
 
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
 
     XMLHttpRequest.prototype.send = function (...args) {
         const xhr = this;
-        try {
-            dispatchCaptureEvent(
-                xhr._rovalra_url,
-                xhr._rovalra_method,
-                args[0],
-            );
-        } catch (e) {}
-
         if (
             xhr._rovalra_spoof_settings ||
             xhr._rovalra_spoof_phone ||
@@ -651,7 +800,8 @@
             xhr._rovalra_spoof_country ||
             xhr._rovalra_spoof_age_group ||
             xhr._rovalra_spoof_sessions ||
-            xhr._rovalra_home_layout
+            xhr._rovalra_home_layout ||
+            xhr._rovalra_profile_api
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
@@ -675,6 +825,9 @@
                             hideHomeSorts(data);
                             applyAccurateContinue(data);
                             reorderHomeSorts(data);
+                        }
+                        if (xhr._rovalra_profile_api) {
+                            applyRobloxAdminProfileResponse(data);
                         }
                         if (xhr._rovalra_spoof_settings) {
                             data.UserEmail = 'RoValra Streamer Mode Enabled';
@@ -809,9 +962,26 @@
                             'rovalra-trades-list-response',
                             JSON.parse(xhr.responseText),
                         );
+                    if (url.includes(TRADE_DETAILS_API_URL))
+                        triggerEvent(
+                            'rovalra-trade-details-response',
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (getGroupRolesRequestUserId(url))
+                        dispatchGroupRolesResponse(
+                            url,
+                            JSON.parse(xhr.responseText),
+                        );
                 } catch (e) {}
             }
         });
+
+        if (xhr._rovalra_home_layout && !homeLayoutReady) {
+            waitForHomeLayoutState().then(() => {
+                originalXhrSend.apply(xhr, args);
+            });
+            return undefined;
+        }
 
         return originalXhrSend.apply(this, args);
     };
@@ -947,6 +1117,6 @@
     initializeHooks();
 
     console.log(
-        'RoValra: Request capture, Privacy Spoofing, and Multi-Accessory loaded successfully.',
+        'RoValra: Privacy Spoofing and Multi-Accessory loaded successfully.',
     );
 })();

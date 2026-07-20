@@ -8,6 +8,11 @@ import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import {
+    getLatestTradeDetailsId,
+    getTradeAnalysis,
+    TRADE_DETAILS_RESPONSE_EVENT,
+} from '../../core/trade/tradeDetailsHandler.js';
+import {
     getCachedItemValue,
     getCachedRolimonsItem,
     getCachedRisk,
@@ -19,14 +24,14 @@ import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
-import * as CacheHandler from '../../core/storage/cacheHandler.js';
-import { cleanPrice } from '../../core/utils/priceCleaner.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
 
 let cardObserverRequest = null;
 let summaryObserverRequest = null;
 let robuxObserverRequest = null;
 let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
+let latestTradeDetailsId = null;
 const pendingCards = new Map();
 let featureSettings = {
     tradeValuesEnabled: true,
@@ -89,6 +94,10 @@ export function init() {
                     'rovalra-risk-data-update',
                     onRiskUpdate,
                 );
+                document.removeEventListener(
+                    TRADE_DETAILS_RESPONSE_EVENT,
+                    onTradeDetailsResponse,
+                );
                 pendingCards.clear();
                 if (updateSummaryTimeout) clearTimeout(updateSummaryTimeout);
                 return;
@@ -101,6 +110,10 @@ export function init() {
                 onRolimonsUpdate,
             );
             document.addEventListener('rovalra-risk-data-update', onRiskUpdate);
+            document.addEventListener(
+                TRADE_DETAILS_RESPONSE_EVENT,
+                onTradeDetailsResponse,
+            );
             initTradeSummary();
 
             dividerObserverRequest = observeElement(
@@ -217,6 +230,14 @@ function onRiskUpdate(e) {
         );
         cards.forEach((card) => updateItemCard(card, id));
     });
+}
+
+function onTradeDetailsResponse(event) {
+    if (event.detail?.tradeId) {
+        latestTradeDetailsId = String(event.detail.tradeId);
+    }
+
+    queueUpdateTradeSummary();
 }
 
 function isRolimonsBundle(card, options = {}) {
@@ -565,10 +586,14 @@ function initTradeSummary() {
 
 function queueUpdateTradeSummary() {
     if (updateSummaryTimeout) clearTimeout(updateSummaryTimeout);
-    updateSummaryTimeout = setTimeout(updateTradeSummary, 200);
+    updateSummaryTimeout = setTimeout(() => {
+        updateTradeSummary().catch((error) => {
+            console.warn('[RoValra] Failed to update trade summary', error);
+        });
+    }, 200);
 }
 
-function updateTradeSummary() {
+async function updateTradeSummary() {
     let offers = document.querySelectorAll('.trade-list-detail-offer');
     if (offers.length < 2) {
         offers = document.querySelectorAll('.trade-request-window-offer');
@@ -578,8 +603,19 @@ function updateTradeSummary() {
     const giveOffer = offers[0];
     const receiveOffer = offers[1];
 
-    const giveStats = calculateStats(giveOffer);
-    const receiveStats = calculateStats(receiveOffer);
+    let analysis = null;
+    const tradeId = getActiveTradeId(giveOffer);
+    if (tradeId) {
+        const myUserId = await getAuthenticatedUserId();
+        analysis = await getTradeAnalysis(tradeId, { myUserId }).catch(
+            () => null,
+        );
+    }
+
+    if (!analysis) return;
+
+    const giveStats = analysis.myOffer.stats;
+    const receiveStats = analysis.partnerOffer.stats;
 
     if (featureSettings.tradeShowTotalValue) {
         injectTotalValueLine(giveOffer, giveStats.value);
@@ -602,110 +638,20 @@ function updateTradeSummary() {
     renderSummary(giveOffer, receiveOffer, giveStats, receiveStats);
 }
 
-function calculateStats(offerEl) {
-    let rap = 0;
-    let value = 0;
-    let totalDemand = 0;
-    let itemCount = 0;
-    let robux = 0;
-
-    offerEl
-        .querySelectorAll('.item-card-container, .trade-request-item')
-        .forEach((card) => {
-            if (
-                card.classList.contains('trade-request-item') &&
-                (card.classList.contains('blank-item') ||
-                    (!card.hasAttribute('data-collectibleitemid') &&
-                        !card.hasAttribute('data-collectibleiteminstanceid')))
-            )
-                return;
-
-            let itemRap = 0;
-            let itemValue = 0;
-
-            if (card.classList.contains('trade-request-item')) {
-                const instanceId = card.getAttribute(
-                    'data-collectibleiteminstanceid',
-                );
-                if (instanceId) {
-                    const cached = getCachedItemValue(instanceId);
-                    if (cached && cached.rap) itemRap = cached.rap;
-                }
-                if (itemRap === 0) {
-                    const priceEl = card.querySelector(
-                        '.item-value .text-robux',
-                    );
-                    if (priceEl) {
-                        const r = cleanPrice(priceEl.innerText);
-                        if (!isNaN(r)) itemRap = r;
-                    }
-                }
-            } else {
-                const priceEl = card
-                    .closest('.item-card')
-                    .querySelector(
-                        '.item-card-price:not(.rovalra-value-label) .text-robux',
-                    );
-                if (priceEl) {
-                    const r = cleanPrice(priceEl.innerText);
-                    if (!isNaN(r)) itemRap = r;
-                }
-            }
-
-            const assetId = card.dataset.rovalraAssetId;
-            let itemDemand = -1;
-
-            if (assetId) {
-                const data = getCachedRolimonsItem(assetId);
-                if (data) {
-                    if (itemRap === 0 && data.rap) itemRap = data.rap;
-                    itemValue =
-                        data.default_price !== undefined &&
-                        data.default_price !== null
-                            ? data.default_price
-                            : itemRap;
-                    if (data.demand) {
-                        itemDemand = getDemandValue(data.demand);
-                    }
-                } else {
-                    itemValue = itemRap;
-                }
-            } else {
-                itemValue = itemRap;
-            }
-
-            totalDemand += itemDemand;
-            itemCount++;
-
-            rap += itemRap;
-            value += itemValue;
-        });
+function getActiveTradeId(offerEl) {
+    if (offerEl.closest('.trade-request-window-offers')) return null;
 
     const tradeRow = offerEl.closest('.trade-row');
-    if (tradeRow && tradeRow.dataset.tradeId) {
-        CacheHandler.get(
-            'trade_history',
-            tradeRow.dataset.tradeId,
-            'local',
-        ).then((storedTrade) => {
-            if (Array.isArray(storedTrade)) {
-                const offerIndex = Array.from(
-                    offerEl.parentNode.children,
-                ).indexOf(offerEl);
-                robux = offerIndex === 0 ? storedTrade[0] : storedTrade[2];
-            }
-        });
-    }
+    if (tradeRow?.dataset.tradeId) return tradeRow.dataset.tradeId;
 
-    if (robux === 0) {
-        const robuxLineVal = offerEl.querySelector('.robux-line-value');
-        if (robuxLineVal) {
-            const val = cleanPrice(robuxLineVal.innerText);
-            if (!isNaN(val)) robux = val;
-        }
-    }
-
-    return { rap, value, totalDemand, itemCount, robux };
+    const activeRow = document.querySelector(
+        '.trade-row.active[data-trade-id]',
+    );
+    return (
+        activeRow?.dataset.tradeId ||
+        latestTradeDetailsId ||
+        getLatestTradeDetailsId()
+    );
 }
 
 function injectTotalValueLine(offer, totalValue) {
@@ -826,7 +772,6 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         target.appendChild(summaryDiv);
     }
 
-    const assets = getAssets();
     summaryDiv.innerHTML = '';
 
     let myRap = giveStats.rap;
@@ -835,10 +780,10 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     let partnerValue = receiveStats.value;
 
     if (includeRobuxInCalculation) {
-        myRap += giveStats.robux;
-        myValue += giveStats.robux;
-        partnerRap += receiveStats.robux;
-        partnerValue += receiveStats.robux;
+        myRap += giveStats.offeredRobux;
+        myValue += giveStats.offeredRobux;
+        partnerRap += receiveStats.receivedRobux;
+        partnerValue += receiveStats.receivedRobux;
     }
 
     if (featureSettings.tradeShowDiffPills) {
@@ -901,16 +846,4 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         summaryDiv.style.flexDirection = 'row';
         summaryDiv.style.gap = '6px';
     }
-}
-// turns demand into numbers so we can add locale support.
-function getDemandValue(demandStr) {
-    const map = {
-        None: 0,
-        Terrible: 1,
-        Low: 2,
-        Normal: 3,
-        High: 4,
-        Amazing: 5,
-    };
-    return map[demandStr] !== undefined ? map[demandStr] : -1;
 }

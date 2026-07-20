@@ -3,6 +3,11 @@ import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { getCurrentUserTier } from '../settings/handlesettings.js';
 import {
+    getTemporaryLimitedUserMessage,
+    isTemporaryLimitedError,
+    refreshModerationStatusAfterLimitedError,
+} from '../moderationStatus.js';
+import {
     TRUSTED_USER_IDS,
     ARTIST_USER_IDS,
     RAT_BADGE_USER_ID,
@@ -12,6 +17,18 @@ import {
     GILBERT_USER_ID,
 } from '../configs/userIds.js';
 import * as cache from '../storage/cacheHandler.js';
+import { normalizeProfilePronouns } from '../profile/pronouns.js';
+
+const GRADIENT_NAME_API_KEY = 'GradientName';
+
+function extractProfilePronouns(apiSettings) {
+    const value =
+        apiSettings?.pronouns ??
+        apiSettings?.Pronouns ??
+        apiSettings?.user_tag ??
+        apiSettings?.userTag;
+    return normalizeProfilePronouns(value);
+}
 
 const BATCH_MAX_SIZE = 50;
 const BATCH_DELAY_MS = 10;
@@ -43,6 +60,15 @@ async function saveToCache(cacheKey, settings) {
     await cache.set('user_settings', cacheKey, cacheData, 'local');
 }
 
+async function invalidateAuthenticatedUserSettingsCache() {
+    const authenticatedUserId = await getAuthenticatedUserId();
+    if (!authenticatedUserId) return;
+
+    const cacheKey = String(authenticatedUserId);
+    memoryCache.delete(cacheKey);
+    await cache.remove('user_settings', cacheKey, 'local');
+}
+
 async function fetchAndProcessSettings(userId, options = {}) {
     assertValidUserId(userId);
 
@@ -54,7 +80,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let apiProvidedMeaningfulSettings = false;
     try {
         let data;
-        if (isOwnProfile) {
+        if (isOwnProfile && !options.forcePublicEndpoint) {
             const token = await getValidAccessToken(false, false);
             if (token) {
                 data = await callRobloxApiJson({
@@ -79,7 +105,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 subdomain: 'apis',
                 endpoint: `/v1/users/${userId}/settings`,
                 method: 'GET',
-                noCache: isOwnProfile,
+                noCache: options.noCache || isOwnProfile,
             });
         }
 
@@ -92,6 +118,10 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !apiSettings.status &&
                 !apiSettings.border &&
                 !apiSettings.gradient &&
+                !apiSettings[GRADIENT_NAME_API_KEY] &&
+                !apiSettings.GradientName &&
+                !apiSettings.gradientName &&
+                !extractProfilePronouns(apiSettings) &&
                 Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
@@ -108,12 +138,18 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let finalEnvironment = 1;
     let finalGradient = null;
     let finalBorder = null;
+    let finalGradientName = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
+        finalGradientName =
+            apiSettings[GRADIENT_NAME_API_KEY] ??
+            apiSettings.GradientName ??
+            apiSettings.gradientName ??
+            null;
     }
 
     if (
@@ -133,10 +169,13 @@ async function fetchAndProcessSettings(userId, options = {}) {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        GradientName: finalGradientName,
         border: finalBorder,
+        pronouns: extractProfilePronouns(apiSettings),
         Views: Number(apiSettings.Views) || 0,
         hide_views:
-            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
+            apiSettings.hide_views === 'true' ||
+            apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -280,6 +319,10 @@ async function processApiSettings(userId, apiSettings, options) {
             !apiSettings.status &&
             !apiSettings.border &&
             !apiSettings.gradient &&
+            !apiSettings[GRADIENT_NAME_API_KEY] &&
+            !apiSettings.GradientName &&
+            !apiSettings.gradientName &&
+            !extractProfilePronouns(apiSettings) &&
             Object.keys(apiSettings).length <= 4
         ) {
             apiProvidedMeaningfulSettings = false;
@@ -292,12 +335,18 @@ async function processApiSettings(userId, apiSettings, options) {
     let finalEnvironment = 1;
     let finalGradient = null;
     let finalBorder = null;
+    let finalGradientName = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
+        finalGradientName =
+            apiSettings[GRADIENT_NAME_API_KEY] ??
+            apiSettings.GradientName ??
+            apiSettings.gradientName ??
+            null;
     }
 
     if (
@@ -317,10 +366,13 @@ async function processApiSettings(userId, apiSettings, options) {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        GradientName: finalGradientName,
         border: finalBorder,
+        pronouns: extractProfilePronouns(apiSettings),
         Views: Number(apiSettings.Views) || 0,
         hide_views:
-            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
+            apiSettings.hide_views === 'true' ||
+            apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -429,7 +481,7 @@ export async function getUserSettings(userId, options = {}) {
  * @param {any} value The new value for the setting.
  * @returns {Promise<boolean>} True if the update was successful, false otherwise.
  */
-export async function updateUserSettingViaApi(key, value) {
+export async function updateUserSettingViaApi(key, value, options = {}) {
     try {
         const token = await getValidAccessToken(false, false);
         if (!token) return false;
@@ -447,17 +499,36 @@ export async function updateUserSettingViaApi(key, value) {
             response &&
             response.status === 'success' &&
             response.setting &&
-            response.setting.key === key &&
-            response.message === 'Updated successfully.'
+            response.setting.key === key
         ) {
+            await invalidateAuthenticatedUserSettingsCache();
             return response.setting.value;
+        }
+
+        if (
+            response?.status === 'success' &&
+            response.settings &&
+            Object.prototype.hasOwnProperty.call(response.settings, key)
+        ) {
+            await invalidateAuthenticatedUserSettingsCache();
+            return response.settings[key];
         }
         return false;
     } catch (error) {
-        console.error(
-            `RoValra: Failed to update setting '${key}' via API.`,
-            error,
-        );
+        if (isTemporaryLimitedError(error)) {
+            const moderationStatus =
+                await refreshModerationStatusAfterLimitedError(error);
+            error.userMessage =
+                getTemporaryLimitedUserMessage(moderationStatus);
+        }
+
+        if (!options.suppressErrorLog) {
+            console.error(
+                `RoValra: Failed to update setting '${key}' via API.`,
+                error,
+            );
+        }
+        if (options.throwOnError) throw error;
         return false;
     }
 }

@@ -10,10 +10,6 @@ import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { unzipSync } from 'fflate';
-import {
-    CATALOG_ITEM_TYPES,
-    getCatalogItemDetails,
-} from '../../core/apis/catalog.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { isDarkMode } from '../../core/theme.js';
@@ -36,77 +32,6 @@ function sortInstances(instances) {
 function classIconUrl(className) {
     const folder = isDarkMode() ? 'class_icons_dark' : 'class_icons_light';
     return `https://www.rovalra.com/static/${folder}/${encodeURIComponent(className)}.png`;
-}
-
-const CLASSIC_CLOTHING_ASSET_TYPES = new Set([
-    'TShirt',
-    'Shirt',
-    'Pants',
-    'ClassicTShirt',
-    'ClassicShirt',
-    'ClassicPants',
-]);
-const CLASSIC_CLOTHING_ASSET_TYPE_IDS = new Set([2, 11, 12]);
-
-function catalogAssetTypeName(details) {
-    const assetType = details?.assetType;
-    if (typeof assetType === 'string') return assetType;
-    if (assetType && typeof assetType === 'object') {
-        return assetType.name || assetType.displayName || assetType.Name || '';
-    }
-    return '';
-}
-
-function catalogAssetTypeId(details) {
-    const candidates = [
-        details?.assetType,
-        details?.assetTypeId,
-        details?.AssetTypeId,
-        details?.productType,
-        details?.assetType?.id,
-        details?.assetType?.assetTypeId,
-        details?.assetType?.Id,
-    ];
-    for (const candidate of candidates) {
-        const id = Number(candidate);
-        if (Number.isFinite(id)) return id;
-    }
-    return null;
-}
-
-function isClassicClothingDetails(details) {
-    const assetTypeName = catalogAssetTypeName(details).replace(
-        /[^A-Za-z0-9]/g,
-        '',
-    );
-    const assetTypeId = catalogAssetTypeId(details);
-    return (
-        CLASSIC_CLOTHING_ASSET_TYPES.has(assetTypeName) ||
-        CLASSIC_CLOTHING_ASSET_TYPE_IDS.has(assetTypeId)
-    );
-}
-
-async function isClassicClothingItem(assetId) {
-    try {
-        const details = await getCatalogItemDetails(
-            assetId,
-            CATALOG_ITEM_TYPES.ASSET,
-        );
-        if (isClassicClothingDetails(details)) return true;
-
-        const economyDetails = await callRobloxApiJson({
-            subdomain: 'economy',
-            endpoint: `/v2/assets/${assetId}/details`,
-            method: 'GET',
-        });
-        return isClassicClothingDetails(economyDetails);
-    } catch (error) {
-        console.warn(
-            '[RoValra Explorer] Failed to check catalog item type:',
-            error,
-        );
-        return false;
-    }
 }
 
 function applyMaskIcon(el, url) {
@@ -4243,7 +4168,59 @@ function openSource(title, source) {
     });
 }
 
-async function openExplorer(assetId, name, expandAll) {
+async function loadBundleTree(bundleId) {
+    const invalid = {
+        assetId: bundleId,
+        root: null,
+        format: null,
+        isValid: false,
+    };
+
+    if (!/\/bundles\//i.test(window.location.pathname)) return invalid;
+
+    try {
+        const details = await callRobloxApiJson({
+            subdomain: 'catalog',
+            endpoint: `/v1/bundles/${bundleId}/details`,
+            method: 'GET',
+        });
+
+        const items = (details?.items || []).filter(
+            (item) =>
+                item && item.id && String(item.type).toLowerCase() === 'asset',
+        );
+        if (items.length === 0) return invalid;
+
+        const folders = await Promise.all(
+            items.map(async (item) => {
+                const tree = await loadAssetTree(parseInt(item.id, 10));
+                if (!tree?.isValid || !tree.root || tree.root.length === 0) {
+                    return null;
+                }
+                return {
+                    ClassName: 'Folder',
+                    Properties: { Name: item.name || `Asset ${item.id}` },
+                    Children: tree.root,
+                };
+            }),
+        );
+
+        const root = folders.filter(Boolean);
+        if (root.length === 0) return invalid;
+
+        return { assetId: bundleId, root, format: 'Bundle', isValid: true };
+    } catch (error) {
+        console.error('[RoValra Explorer] loadBundleTree failed:', error);
+        return invalid;
+    }
+}
+
+async function openExplorer(
+    assetId,
+    name,
+    expandAll,
+    loadTree = loadAssetTree,
+) {
     const loading = document.createElement('div');
     loading.className = 'rovalra-explorer-loading';
     loading.textContent = ts('createRoblox.explorer.loading');
@@ -4256,7 +4233,7 @@ async function openExplorer(assetId, name, expandAll) {
     });
 
     try {
-        const asset = await loadAssetTree(parseInt(assetId, 10));
+        const asset = await loadTree(parseInt(assetId, 10));
 
         console.log('[RoValra Explorer] result', {
             assetId,
@@ -4285,15 +4262,20 @@ async function openExplorer(assetId, name, expandAll) {
 
 async function addCatalogButton(rightToolbar) {
     const assetId = getPlaceIdFromUrl();
+    const pageKey = `catalog:${assetId || ''}`;
     if (
         !assetId ||
-        rightToolbar.dataset.rovalraExplorerChecked ||
-        document.getElementById('rovalra-explorer-btn')
+        (rightToolbar.dataset.rovalraExplorerPageKey === pageKey &&
+            rightToolbar.parentElement?.querySelector(
+                '.rovalra-explorer-buttons',
+            ))
     )
         return;
-    rightToolbar.dataset.rovalraExplorerChecked = '1';
 
-    if (await isClassicClothingItem(assetId)) return;
+    rightToolbar.parentElement
+        ?.querySelector('.rovalra-explorer-buttons')
+        ?.remove();
+    rightToolbar.dataset.rovalraExplorerPageKey = pageKey;
 
     const assets = getAssets();
 
@@ -4326,13 +4308,75 @@ async function addCatalogButton(rightToolbar) {
     console.log('%cRoValra Explorer: button added (catalog)', 'color:#FF4500');
 }
 
+function addBundleButton(rightToolbar) {
+    const bundleId = getPlaceIdFromUrl();
+    const pageKey = `bundle:${bundleId || ''}`;
+    if (
+        !bundleId ||
+        (rightToolbar.dataset.rovalraExplorerPageKey === pageKey &&
+            rightToolbar.parentElement?.querySelector(
+                '.rovalra-explorer-buttons',
+            ))
+    )
+        return;
+
+    rightToolbar.parentElement
+        ?.querySelector('.rovalra-explorer-buttons')
+        ?.remove();
+    rightToolbar.dataset.rovalraExplorerPageKey = pageKey;
+
+    const assets = getAssets();
+
+    const container = document.createElement('div');
+    container.className = 'rovalra-explorer-buttons';
+
+    const button = document.createElement('button');
+    button.id = 'rovalra-explorer-btn';
+    button.type = 'button';
+    button.className =
+        'rbx-menu-item btn-generic-more-sm rovalra-explorer-header-btn';
+    button.title = ts('createRoblox.explorer.button');
+    button.setAttribute('aria-label', ts('createRoblox.explorer.button'));
+
+    const icon = document.createElement('span');
+    icon.className = 'rovalra-explorer-header-icon';
+    applyMaskIcon(icon, assets.explorerTreeIcon);
+    button.appendChild(icon);
+
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const name = document
+            .querySelector('.item-details-name-row h1')
+            ?.textContent?.trim();
+        openExplorer(bundleId, name, true, loadBundleTree);
+    });
+
+    container.appendChild(button);
+    rightToolbar.parentElement.insertBefore(container, rightToolbar);
+    console.log('%cRoValra Explorer: button added (bundle)', 'color:#FF4500');
+}
+
 function addGameButton(contextMenu) {
     const placeId = getPlaceIdFromUrl();
-    if (!placeId || contextMenu.dataset.rovalraExplorerChecked) return;
-    contextMenu.dataset.rovalraExplorerChecked = '1';
+    const pageKey = `game:${placeId || ''}`;
+    if (!placeId) return;
+
+    if (contextMenu.dataset.rovalraExplorerPageKey !== pageKey) {
+        contextMenu
+            .querySelector('.rovalra-explorer-game-btn')
+            ?.remove();
+        contextMenu.dataset.rovalraExplorerPageKey = pageKey;
+    } else if (contextMenu.querySelector('.rovalra-explorer-game-btn')) {
+        return;
+    }
 
     canAccessAsset(parseInt(placeId, 10)).then((ok) => {
-        if (!ok || document.getElementById('rovalra-explorer-btn')) return;
+        if (
+            !ok ||
+            contextMenu.dataset.rovalraExplorerPageKey !== pageKey ||
+            contextMenu.querySelector('.rovalra-explorer-game-btn')
+        )
+            return;
 
         const assets = getAssets();
 
@@ -4366,14 +4410,20 @@ function addGameButton(contextMenu) {
 export async function init() {
     const path = window.location.pathname;
     const onCatalog = /\/catalog\//.test(path);
+    const onBundle = /\/bundles\//.test(path);
     const onGame = /\/games\//.test(path);
 
-    if (!onCatalog && !onGame) return;
+    if (!onCatalog && !onBundle && !onGame) return;
     if (!(await settings.ExplorerEnabled)) return;
 
     if (onCatalog) {
         observeElement('.item-details-info-header .right', (el) =>
             addCatalogButton(el),
+        );
+    }
+    if (onBundle) {
+        observeElement('.item-details-info-header .right', (el) =>
+            addBundleButton(el),
         );
     }
     if (onGame) {

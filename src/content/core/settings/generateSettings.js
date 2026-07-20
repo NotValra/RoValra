@@ -13,6 +13,7 @@ import DOMPurify from 'dompurify';
 import { addTooltip } from '../ui/tooltip.js';
 import { createButton } from '../ui/buttons.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
+import { ensureTouAgreement } from '../ui/tou/touAgreement.js';
 import {
     getBatchThumbnails,
     createThumbnailElement,
@@ -22,9 +23,24 @@ import { createUserCard } from '../ui/profile/userCard.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { getBorders } from '../configs/borders.js';
 import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
+import {
+    getProfilePronounsLength,
+    replacePronounSpecialCharacters,
+    truncateProfilePronouns,
+} from '../profile/pronouns.js';
 
 const DEFAULT_CONTRIBUTOR_ID = 447170745;
 const contributorCache = new Map();
+
+function applyCharacterReplacements(value, replacements) {
+    if (typeof value !== 'string' || !replacements) return value;
+
+    return Object.entries(replacements).reduce(
+        (result, [search, replacement]) =>
+            search ? result.split(search).join(String(replacement)) : result,
+        value,
+    );
+}
 
 async function attachContributors(container, config, isChild = false) {
     if (
@@ -458,8 +474,131 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         input.dataset.settingName = settingName;
 
+        if (
+            setting.characterReplacements ||
+            setting.replaceSpecialCharactersWithPipe
+        ) {
+            const normalizeInputValue = (value) => {
+                let normalizedValue = applyCharacterReplacements(
+                    value,
+                    setting.characterReplacements,
+                );
+                if (setting.replaceSpecialCharactersWithPipe) {
+                    normalizedValue =
+                        replacePronounSpecialCharacters(normalizedValue);
+                }
+                if (
+                    setting.useGraphemeLength &&
+                    Number.isInteger(setting.maxLength) &&
+                    setting.maxLength > 0
+                ) {
+                    normalizedValue = truncateProfilePronouns(
+                        normalizedValue,
+                        setting.maxLength,
+                    );
+                }
+                return normalizedValue;
+            };
+
+            input.addEventListener('input', () => {
+                const originalValue = input.value;
+                const cursorPosition = input.selectionStart;
+                const normalizedValue = normalizeInputValue(originalValue);
+
+                if (normalizedValue === originalValue) return;
+
+                input.value = normalizedValue;
+                if (cursorPosition !== null) {
+                    const normalizedBeforeCursor = normalizeInputValue(
+                        originalValue.slice(0, cursorPosition),
+                    );
+                    input.setSelectionRange(
+                        normalizedBeforeCursor.length,
+                        normalizedBeforeCursor.length,
+                    );
+                }
+            });
+        }
+
+        if (setting.agreementKey) {
+            input.addEventListener('focus', () => {
+                if (input.dataset.rovalraAgreementRefocusBypass === 'true') {
+                    delete input.dataset.rovalraAgreementRefocusBypass;
+                    return;
+                }
+
+                if (input.dataset.rovalraAgreementPending === 'true') {
+                    return;
+                }
+
+                input.dataset.rovalraAgreementPending = 'true';
+                const inputWasReadOnly = input.readOnly;
+                let inputLockedByAgreement = false;
+
+                const lockInput = () => {
+                    inputLockedByAgreement = true;
+                    input.readOnly = true;
+                    input.blur();
+                };
+
+                const unlockInput = () => {
+                    if (!inputLockedByAgreement) return;
+                    input.readOnly = inputWasReadOnly;
+                    inputLockedByAgreement = false;
+                };
+
+                ensureTouAgreement(
+                    () => {
+                        unlockInput();
+                        delete input.dataset.rovalraAgreementPending;
+                        input.dataset.rovalraAgreementConfirmedForEdit = 'true';
+                        input.dataset.rovalraAgreementRefocusBypass = 'true';
+                        input.focus();
+                        queueMicrotask(() => {
+                            delete input.dataset.rovalraAgreementRefocusBypass;
+                        });
+                    },
+                    {
+                        agreementKey: setting.agreementKey,
+                        onPrompt: lockInput,
+                        onCancel: () => {
+                            unlockInput();
+                            delete input.dataset.rovalraAgreementPending;
+                            delete input.dataset
+                                .rovalraAgreementConfirmedForEdit;
+                            input.blur();
+                        },
+                    },
+                );
+            });
+        }
+
+        if (Number.isInteger(setting.maxLength) && setting.maxLength > 0) {
+            if (!setting.useGraphemeLength) {
+                input.maxLength = setting.maxLength;
+            }
+
+            if (setting.showCharacterCount) {
+                const counter = document.createElement('span');
+                counter.className = 'rovalra-setting-input-counter';
+                counter.setAttribute('aria-live', 'polite');
+
+                const updateCounter = () => {
+                    const currentLength = setting.useGraphemeLength
+                        ? getProfilePronounsLength(input.value)
+                        : input.value.length;
+                    counter.textContent = `${currentLength}/${setting.maxLength}`;
+                };
+
+                container.classList.add('rovalra-setting-input-with-counter');
+                input.addEventListener('input', updateCounter);
+                container.appendChild(counter);
+                updateCounter();
+            }
+        }
+
         container.style.marginLeft = 'auto';
-        container.style.width = '200px';
+        container.style.width = setting.showCharacterCount ? '180px' : '200px';
 
         return container;
     } else if (setting.type === 'gradient') {
@@ -500,10 +639,15 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             return inp;
         };
 
+        const supportsThirdColor =
+            setting.colorCount >= 3 || Boolean(setting.default.color3);
         const color1 = createSwatch('c1');
         const color2 = createSwatch('c2');
+        const color3 = supportsThirdColor ? createSwatch('c3') : null;
         color1.value = setting.default.color1;
         color2.value = setting.default.color2;
+        if (color3)
+            color3.value = setting.default.color3 || setting.default.color2;
 
         const fadeContainer = document.createElement('div');
         fadeContainer.style.cssText =
@@ -563,6 +707,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         angleCircle.appendChild(angleLine);
         preview.appendChild(angleCircle);
         controls.append(color1, color2);
+        if (color3) controls.append(color3);
         contentBody.append(controls, fadeContainer, preview);
 
         let currentAngle = setting.default.angle;
@@ -589,9 +734,12 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                 angle: currentAngle,
                 fade: parseInt(fadeSlider.value, 10),
             };
+            if (color3) val.color3 = color3.value;
             const s1 = (100 - val.fade) / 2;
             const s2 = 100 - s1;
-            preview.style.background = `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
+            preview.style.background = color3
+                ? `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} 50%, ${val.color3} ${s2}%)`
+                : `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
             angleLine.style.transform = `rotate(${currentAngle}deg)`;
             if (save) handleSaveSettings(settingName, val);
             wrapper.dispatchEvent(
@@ -637,14 +785,21 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         toggleInput.addEventListener('change', () => update());
         color1.addEventListener('input', () => update());
         color2.addEventListener('input', () => update());
+        if (color3) color3.addEventListener('input', () => update());
         fadeSlider.addEventListener('input', () => update());
 
         wrapper.rovalraGradientApi = {
             setValue: (val) => {
                 if (!val) return;
                 toggleInput.checked = val.enabled !== false;
-                color1.value = val.color1;
-                color2.value = val.color2;
+                color1.value = val.color1 || setting.default.color1;
+                color2.value = val.color2 || setting.default.color2;
+                if (color3) {
+                    color3.value =
+                        val.color3 ||
+                        setting.default.color3 ||
+                        setting.default.color2;
+                }
                 fadeSlider.value = val.fade ?? 100;
                 currentAngle = val.angle;
                 update(false);
@@ -719,6 +874,32 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             });
         }
         return button;
+    } else if (setting.type === 'buttonGroup') {
+        const container = document.createElement('div');
+        container.id = settingName;
+        container.dataset.settingName = settingName;
+        container.style.cssText =
+            'display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto;';
+
+        for (const buttonConfig of setting.buttons || []) {
+            const button = createButton(
+                buttonConfig.text || 'Click Me',
+                buttonConfig.type || 'secondary',
+                { id: buttonConfig.id },
+            );
+            button.type = 'button';
+
+            if (buttonConfig.event) {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    document.dispatchEvent(new CustomEvent(buttonConfig.event));
+                });
+            }
+
+            container.appendChild(button);
+        }
+
+        return container;
     } else if (setting.type === 'list') {
         const listContainer = document.createElement('div');
         listContainer.id = settingName;
@@ -876,8 +1057,8 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
             // No need in sanitizing, it's trusted data
-            descElement.innerHTML = parseMarkdown(String(desc), themeColors),  // Verified
-            settingContainer.appendChild(descElement);
+            ((descElement.innerHTML = parseMarkdown(String(desc), themeColors)), // Verified
+                settingContainer.appendChild(descElement));
         });
     }
 
@@ -1014,8 +1195,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childDescriptions.forEach((desc) => {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
-                    childDescElement.innerHTML = parseMarkdown(String(desc), themeColors),  // Verified
-                    childContainer.appendChild(childDescElement);
+                    ((childDescElement.innerHTML = parseMarkdown(
+                        String(desc),
+                        themeColors,
+                    )), // Verified
+                        childContainer.appendChild(childDescElement));
                 });
             }
 

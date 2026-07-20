@@ -2,6 +2,36 @@
 import DOMPurify from 'dompurify';
 
 let activeTooltipCleanup = null;
+let activeTooltipOwner = null;
+const tooltipShells = new WeakMap();
+const TOOLTIP_Z_INDEX = '2147483647';
+
+function getTooltipShell(container) {
+    let shell = tooltipShells.get(container);
+    if (shell?.tooltipElement?.isConnected) return shell;
+
+    const tooltipElement = document.createElement('div');
+    tooltipElement.style.position = 'absolute';
+    tooltipElement.style.setProperty('z-index', TOOLTIP_Z_INDEX, 'important');
+    tooltipElement.style.pointerEvents = 'none';
+    tooltipElement.style.display = 'none';
+    tooltipElement.setAttribute('role', 'tooltip');
+    tooltipElement.setAttribute('data-rovalra-observer-ignore', 'true');
+
+    const arrow = document.createElement('div');
+    arrow.className = 'tooltip-arrow';
+
+    const inner = document.createElement('div');
+    inner.className = 'tooltip-inner';
+
+    tooltipElement.appendChild(arrow);
+    tooltipElement.appendChild(inner);
+    container.appendChild(tooltipElement);
+
+    shell = { tooltipElement, arrow, inner };
+    tooltipShells.set(container, shell);
+    return shell;
+}
 
 export function addTooltip(parent, text, options = {}) {
     const {
@@ -9,14 +39,20 @@ export function addTooltip(parent, text, options = {}) {
         container = document.body,
         showArrow = true,
         shouldShow = () => true,
+        tooltipClassName = '',
     } = options;
     let tooltipElement = null;
+    let arrow = null;
     let isUpdateScheduled = false;
     let scrollListenerRef = null;
+    let animationFrame = null;
+    const owner = Symbol('rovalra-tooltip-owner');
 
     const getPosition = () =>
         typeof position === 'function' ? position(parent) : position;
     const getText = () => (typeof text === 'function' ? text(parent) : text);
+    const getTooltipClassName = (currentPosition) =>
+        `tooltip fade ${currentPosition} in${tooltipClassName ? ` ${tooltipClassName}` : ''}`;
 
     const showTooltip = () => {
         if (!shouldShow(parent)) return;
@@ -26,26 +62,13 @@ export function addTooltip(parent, text, options = {}) {
         }
 
         const initialPosition = getPosition();
-        tooltipElement = document.createElement('div');
-        tooltipElement.style.position = 'absolute';
-        tooltipElement.style.pointerEvents = 'none';
-        tooltipElement.className = `tooltip fade ${initialPosition} in`;
-        tooltipElement.setAttribute('role', 'tooltip');
-
-        let arrow = null;
-        if (showArrow) {
-            arrow = document.createElement('div');
-            arrow.className = 'tooltip-arrow';
-        }
-
-        const inner = document.createElement('div');
-        inner.className = 'tooltip-inner';
-
-        inner.innerHTML = DOMPurify.sanitize(getText());
-
-        if (arrow) tooltipElement.appendChild(arrow);
-        tooltipElement.appendChild(inner);
-        container.appendChild(tooltipElement);
+        const shell = getTooltipShell(container);
+        tooltipElement = shell.tooltipElement;
+        arrow = shell.arrow;
+        tooltipElement.className = getTooltipClassName(initialPosition);
+        shell.inner.innerHTML = DOMPurify.sanitize(getText());
+        arrow.style.display = showArrow ? '' : 'none';
+        activeTooltipOwner = owner;
 
         const updatePosition = () => {
             if (!tooltipElement || !parent.isConnected) {
@@ -54,7 +77,7 @@ export function addTooltip(parent, text, options = {}) {
             }
 
             const currentPosition = getPosition();
-            tooltipElement.className = `tooltip fade ${currentPosition} in`;
+            tooltipElement.className = getTooltipClassName(currentPosition);
 
             const parentRect = parent.getBoundingClientRect();
             const tooltipWidth = tooltipElement.offsetWidth;
@@ -109,12 +132,12 @@ export function addTooltip(parent, text, options = {}) {
             tooltipElement.style.top = `${finalTopAbs}px`;
             tooltipElement.style.left = `${finalLeftAbs}px`;
 
-            if (!arrow) {
+            if (!showArrow) {
                 isUpdateScheduled = false;
-                return;
-            }
-
-            if (currentPosition === 'top' || currentPosition === 'bottom') {
+            } else if (
+                currentPosition === 'top' ||
+                currentPosition === 'bottom'
+            ) {
                 const parentCenterX =
                     parentRect.left + window.scrollX + parentRect.width / 2;
                 const arrowLeft = parentCenterX - finalLeftAbs;
@@ -139,32 +162,45 @@ export function addTooltip(parent, text, options = {}) {
             }
 
             isUpdateScheduled = false;
+            tooltipElement.style.opacity = '1';
+            tooltipElement.style.visibility = 'visible';
+            animationFrame = null;
         };
 
         const onScrollOrResize = () => {
             if (!isUpdateScheduled) {
                 isUpdateScheduled = true;
-                requestAnimationFrame(updatePosition);
+                animationFrame = requestAnimationFrame(updatePosition);
             }
         };
 
-        updatePosition();
         scrollListenerRef = onScrollOrResize;
 
         window.addEventListener('scroll', onScrollOrResize, { passive: true });
         window.addEventListener('resize', onScrollOrResize, { passive: true });
 
         tooltipElement.style.display = 'block';
-        tooltipElement.style.opacity = '1';
-        tooltipElement.style.visibility = 'visible';
+        tooltipElement.style.opacity = '0';
+        tooltipElement.style.visibility = 'hidden';
+
+        isUpdateScheduled = true;
+        animationFrame = requestAnimationFrame(updatePosition);
 
         activeTooltipCleanup = hideTooltip;
     };
 
     const hideTooltip = () => {
+        if (activeTooltipOwner !== owner) return;
+
+        if (animationFrame !== null) {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+            isUpdateScheduled = false;
+        }
         if (tooltipElement) {
-            tooltipElement.remove();
-            tooltipElement = null;
+            tooltipElement.style.display = 'none';
+            tooltipElement.style.opacity = '0';
+            tooltipElement.style.visibility = 'hidden';
         }
         if (scrollListenerRef) {
             window.removeEventListener('scroll', scrollListenerRef);
@@ -173,6 +209,7 @@ export function addTooltip(parent, text, options = {}) {
         }
         if (activeTooltipCleanup === hideTooltip) {
             activeTooltipCleanup = null;
+            activeTooltipOwner = null;
         }
     };
 

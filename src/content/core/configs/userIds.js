@@ -18,7 +18,9 @@ export const CONTRIBUTOR_USER_IDS = [
     '3602693727', //nxvixz
     '422540285', //RRedshift
     '4866259395', //cam
-    '650766686' // auggeeo
+    '650766686', // auggeeoF
+    '146089324', // WoozyNate
+    '2974594300', // AGENT700PRODS (im not spending 1k robux to change it, ok?)
 ];
 
 export const TESTER_USER_IDS = [
@@ -27,7 +29,12 @@ export const TESTER_USER_IDS = [
 
 export const TRANSLATOR_USER_IDS = [];
 
-export const ARTIST_USER_IDS = ['1337447242', '48255812', '1040942162'];
+export const ARTIST_USER_IDS = [
+    '1337447242',
+    '48255812',
+    '1040942162',
+    '4866259395',
+];
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
 export const CAM_BADGE_USER_ID = '4866259395';

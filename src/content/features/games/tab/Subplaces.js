@@ -96,7 +96,7 @@ export async function init() {
 
                     const response = await callRobloxApi({
                         subdomain: 'gamejoin',
-                        endpoint: '/v1/join-game',
+                        endpoint: '/v2/join-game',
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

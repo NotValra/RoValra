@@ -71,7 +71,7 @@ async function fetchAllConversations() {
     return allConversations;
 }
 
-async function fetchFriendsPage(userId, cursor = null) {
+export async function fetchFriendsPage(userId, cursor = null) {
     try {
         let endpoint = `/v1/users/${userId}/friends/find?limit=50`;
         if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
@@ -85,7 +85,23 @@ async function fetchFriendsPage(userId, cursor = null) {
     }
 }
 
-async function fetchAllTrustedFriends(userId) {
+export async function fetchFriendsCustom(userId, params = new URLSearchParams(), cursor = null) {
+    try {
+
+        let endpoint = `/v1/users/${userId}/friends/find`;
+        if (cursor) params.append('cursor', value);
+        if (params.size > 0) endpoint += `?${params.toString()}`;
+        return await callRobloxApiJson({
+            subdomain: 'friends',
+            endpoint: endpoint,
+            useBackground: true,
+        });
+    } catch (error) {
+        return null;
+    }
+}
+
+export async function fetchAllTrustedFriends(userId) {
     const trustedIds = new Set();
     let cursor = null;
     try {
@@ -107,7 +123,7 @@ async function fetchAllTrustedFriends(userId) {
     return trustedIds;
 }
 
-async function fetchFriendsOnlineStatus(userId) {
+export async function fetchFriendsOnlineStatus(userId) {
     try {
         const response = await callRobloxApiJson({
             subdomain: 'friends',
@@ -199,16 +215,16 @@ export async function updateFriendsList(userId) {
                             ? false
                             : existingStatus?.canChat === true ||
                                 canChat === true
-                              ? true
-                              : null,
+                                ? true
+                                : null,
                     hasAgeChecked:
                         existingStatus?.hasAgeChecked === false ||
-                        hasAgeChecked === false
+                            hasAgeChecked === false
                             ? false
                             : existingStatus?.hasAgeChecked === true ||
                                 hasAgeChecked === true
-                              ? true
-                              : null,
+                                ? true
+                                : null,
                 });
             });
         }
@@ -289,7 +305,7 @@ export async function updateFriendsList(userId) {
                         userInsights.forEach((item) => {
                             if (
                                 item.insightCase ===
-                                    INSIGHT_CASES.MUTUAL_FRIENDS &&
+                                INSIGHT_CASES.MUTUAL_FRIENDS &&
                                 item.mutualFriendInsight
                             ) {
                                 mutualFriends = Object.keys(
@@ -298,7 +314,7 @@ export async function updateFriendsList(userId) {
                             }
                             if (
                                 item.insightCase ===
-                                    INSIGHT_CASES.FRIENDSHIP_AGE &&
+                                INSIGHT_CASES.FRIENDSHIP_AGE &&
                                 item.friendshipAgeInsight
                             ) {
                                 friendsSince =
@@ -307,7 +323,7 @@ export async function updateFriendsList(userId) {
                             }
                             if (
                                 item.insightCase ===
-                                    INSIGHT_CASES.ACCOUNT_CREATION_DATE &&
+                                INSIGHT_CASES.ACCOUNT_CREATION_DATE &&
                                 item.accountCreationDateInsight
                             ) {
                                 accountCreated =
@@ -316,7 +332,7 @@ export async function updateFriendsList(userId) {
                             }
                             if (
                                 item.insightCase ===
-                                    INSIGHT_CASES.FRIEND_REQUEST_ORIGIN &&
+                                INSIGHT_CASES.FRIEND_REQUEST_ORIGIN &&
                                 item.friendRequestOriginInsight
                             ) {
                                 friendRequestOrigin =
@@ -333,7 +349,7 @@ export async function updateFriendsList(userId) {
                         playedTogetherInsights.forEach((item) => {
                             if (
                                 item.insightCase ===
-                                    INSIGHT_CASES.PLAYED_TOGETHER &&
+                                INSIGHT_CASES.PLAYED_TOGETHER &&
                                 item.playedTogetherInsight
                             ) {
                                 const newUniverseId =
@@ -347,7 +363,7 @@ export async function updateFriendsList(userId) {
                                     mostFrequentUniverseId === null ||
                                     (newUniverseId !== null &&
                                         newUniverseId !==
-                                            mostFrequentUniverseId)
+                                        mostFrequentUniverseId)
                                 ) {
                                     mostFrequentUniverseId = newUniverseId;
                                     havePlayedTogether = newHavePlayedTogether;

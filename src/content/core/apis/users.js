@@ -156,6 +156,7 @@ export async function getUserProfileData(userIds) {
                 fields: [
                     'isVerified',
                     'isDeleted',
+                    'hasRobloxSubscription',
                     'names.combinedName',
                     'names.displayName',
                     'names.username',
@@ -245,6 +246,7 @@ export async function getUserVerifiedBadgeStatus(userId) {
     return userData?.hasVerifiedBadge || false;
 }
 
+// This is like my child :3
 export const PROFILE_TYPES = {
     USER: 'User',
     COMMUNITY: 'Community',
@@ -256,6 +258,7 @@ export const PROFILE_COMPONENTS = {
     SOCIAL_LINKS: 'SocialLinks',
     ABOUT: 'About',
     CURRENTLY_WEARING: 'CurrentlyWearing',
+    USER_MOMENTS: 'UserMoments',
     ACTIONS: 'Actions',
     PROFILE_BACKGROUND: 'ProfileBackground',
     VIEW_FULL_PROFILE: 'ViewFullProfile',

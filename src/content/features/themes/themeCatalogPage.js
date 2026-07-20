@@ -17,7 +17,7 @@ import {
     setTheme,
 } from '../sitewide/themeSwitcher.js';
 
-const THEMES_PATH = '/themes';
+export const THEME_PATH = '/theme';
 
 let initialized = false;
 let pageRenderedFor = null;
@@ -27,18 +27,11 @@ function normalizePath(pathname = window.location.pathname) {
 }
 
 function isThemesPath() {
-    return normalizePath() === THEMES_PATH;
-}
-
-function getLocalizedThemesPath() {
-    const localeMatch = window.location.pathname.match(
-        /^\/([a-z]{2}(?:-[a-z]{2})?)\//i,
-    );
-    return localeMatch ? `/${localeMatch[1]}${THEMES_PATH}` : THEMES_PATH;
+    return normalizePath() === THEME_PATH;
 }
 
 function openThemesPage() {
-    window.location.assign(getLocalizedThemesPath());
+    window.location.assign(THEME_PATH);
 }
 
 function hexWithAlphaToRgba(hex, alpha = 100) {

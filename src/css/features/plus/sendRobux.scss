@@ -1,0 +1,216 @@
+$prefix: rovalra-sendrobux;
+
+.rovalra-overlay-content {
+    & .#{$prefix}-container {
+        &[data-rovalra-sendrobux-loading='false']
+            > .#{$prefix}-spinner-container {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        &[data-rovalra-sendrobux-loading='true'] > .#{$prefix}-content {
+            display: none;
+            visibility: hidden;
+        }
+    }
+
+    & .#{$prefix}-content {
+        &.step1 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 16px;
+
+            & > .#{$prefix}-robux-container {
+                position: absolute;
+                top: 21px;
+                right: 64px;
+                z-index: 10;
+                font-weight: 600;
+
+                & > span {
+                    padding-right: 2px;
+                }
+            }
+
+            & > .#{$prefix}-profile-container {
+                & .#{$prefix}-profile .rovalra-display-name-gradient,
+                & .#{$prefix}-profile .user-card-name span {
+                    text-decoration: none !important;
+                    overflow: visible !important;
+                }
+            }
+
+            & > .#{$prefix}-robuxamount-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                padding-top: 10px;
+                padding-bottom: 10px;
+
+                & input {
+                    font-size: 60px;
+                    font-weight: 600;
+                    border: 0;
+                    field-sizing: content;
+                    outline: none;
+                    box-shadow: none;
+
+                    /* wtf why do browsers isolate placeholder :heavysob: */
+                    &::placeholder {
+                        font-weight: 600;
+                    }
+                }
+            }
+
+            & > .#{$prefix}-quick-btns {
+                font-weight: 600;
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+                & > .#{$prefix}-quick-btn {
+                    border-radius: 8px;
+                    padding: 10px;
+                    background-color: #2d2e36;
+                    border-width: 2px;
+                    border-style: solid;
+                    border-color: #2d2e36;
+
+                    &:hover {
+                        background-color: #2a2b32;
+                        background-color: #2a2b32;
+                    }
+
+                    &.selected {
+                        background-color: #18191d;
+                        border-color: #bbbbbb;
+                    }
+                }
+            }
+
+            & > .#{$prefix}-mutednotice {
+                position: absolute;
+                bottom: 32px;
+                left: 24px;
+                color: #a0a0a0;
+
+                &.error {
+                    color: #f45b52;
+                }
+            }
+        }
+
+        &.step2 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 16px;
+
+            & > .#{$prefix}-robux-container {
+                position: absolute;
+                top: 21px;
+                right: 64px;
+                z-index: 10;
+                font-weight: 600;
+
+                & > span {
+                    padding-right: 2px;
+                }
+            }
+
+            & > .#{$prefix}-profile-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                border-radius: 12px;
+                padding: 10px;
+                padding-top: 24px;
+                background-color: #1f2028;
+
+                & .#{$prefix}-profile-info {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 16px;
+                    padding: 12px 0px;
+
+                    & > span {
+                        font-size: 14px;
+                        color: #c0c0c0;
+                        & > svg {
+                            width: 14px;
+                            height: 14px;
+                            transform: translate(-5px, 2px);
+                        }
+                    }
+                }
+
+                & .#{$prefix}-profile .rovalra-display-name-gradient,
+                & .#{$prefix}-profile .user-card-name,
+                & .#{$prefix}-profile .user-card-name span,
+                & .#{$prefix}-profile .user-card-subname {
+                    text-decoration: none !important;
+                    overflow: visible !important;
+                }
+            }
+
+            & > .#{$prefix}-robuxamount-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                font-size: 60px;
+                font-weight: 600;
+            }
+
+            & > .#{$prefix}-mutednotice {
+                position: absolute;
+                bottom: 32px;
+                left: 24px;
+                color: #a0a0a0;
+                font-size: 12px;
+
+                &.error {
+                    color: #f45b52;
+                }
+            }
+        }
+    }
+
+    &:has(.#{$prefix}-container[data-rovalra-sendrobux-loading='true']) {
+        ##{$prefix}-step1-nextbtn,
+        ##{$prefix}-step2-sendbtn,
+        ##{$prefix}-step2-editbtn,
+        ##{$prefix}-step3-askbtn,
+        ##{$prefix}-stepreceive-askbtn {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    }
+}
+
+.fui-base-sheet-overlay.foundation-web-portal-zindex.fixed
+    div.friends-listbox-cap[data-#{$prefix}-friendlistselect='true']
+    > .flex.flex-row.items-center.gap-small.padding-small.width-full.cursor-pointer.shrink-0.bg-none {
+    display: none;
+
+    &.#{$prefix}-friendlistitem {
+        display: flex;
+        border-radius: 12px; /* it was in the style for the item but why not just use css */
+    }
+}
+
+#user-search-listbox
+    > .flex.flex-row.items-center.gap-small.padding-small.width-full.cursor-pointer.shrink-0.bg-transparent {
+    display: none;
+
+    &[data-#{$prefix}-hooked] {
+        display: flex;
+    }
+}

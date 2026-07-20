@@ -20,6 +20,11 @@ export const CUSTOM_THEME_FIELDS = [
         default: '#45494d',
     },
     {
+        key: 'shimmer',
+        label: 'Loading Shimmer',
+        default: '#393c40',
+    },
+    {
         key: 'mainText',
         label: 'Main Text Color',
         default: '#f7f7f8',
@@ -169,7 +174,6 @@ export const DEFAULT_CUSTOM_THEME = CUSTOM_THEME_FIELDS.reduce(
     },
     {},
 );
-
 const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 const ALPHA_SUFFIX = 'Alpha';
 

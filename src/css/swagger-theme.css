@@ -1,0 +1,325 @@
+.rovalra-api-docs-shell .swagger-ui,
+.rovalra-api-docs-shell .swagger-ui * {
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui,
+.rovalra-api-docs-shell .swagger-ui .scheme-container,
+.rovalra-api-docs-shell .swagger-ui .opblock,
+.rovalra-api-docs-shell .swagger-ui .opblock .opblock-section-header,
+.rovalra-api-docs-shell .swagger-ui .responses-inner,
+.rovalra-api-docs-shell .swagger-ui .model-box,
+.rovalra-api-docs-shell .swagger-ui .model,
+.rovalra-api-docs-shell .swagger-ui section.models,
+.rovalra-api-docs-shell .swagger-ui textarea,
+.rovalra-api-docs-shell .swagger-ui input,
+.rovalra-api-docs-shell .swagger-ui select {
+    background: var(--rovalra-container-background-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .info .title,
+.rovalra-api-docs-shell .swagger-ui .info h1,
+.rovalra-api-docs-shell .swagger-ui .info h2,
+.rovalra-api-docs-shell .swagger-ui .info h3,
+.rovalra-api-docs-shell .swagger-ui .info h4,
+.rovalra-api-docs-shell .swagger-ui .info h5,
+.rovalra-api-docs-shell .swagger-ui .info .base-url,
+.rovalra-api-docs-shell .swagger-ui .info p,
+.rovalra-api-docs-shell .swagger-ui .info li,
+.rovalra-api-docs-shell .swagger-ui .opblock-tag,
+.rovalra-api-docs-shell .swagger-ui .opblock-summary-path,
+.rovalra-api-docs-shell .swagger-ui .opblock-summary-description,
+.rovalra-api-docs-shell .swagger-ui .opblock-description-wrapper p,
+.rovalra-api-docs-shell .swagger-ui .opblock-external-docs-wrapper p,
+.rovalra-api-docs-shell .swagger-ui .opblock-title_normal p,
+.rovalra-api-docs-shell .swagger-ui .markdown p,
+.rovalra-api-docs-shell .swagger-ui .markdown li,
+.rovalra-api-docs-shell .swagger-ui .renderedMarkdown p,
+.rovalra-api-docs-shell .swagger-ui .renderedMarkdown li,
+.rovalra-api-docs-shell .swagger-ui .parameter__name,
+.rovalra-api-docs-shell .swagger-ui .parameter__type,
+.rovalra-api-docs-shell .swagger-ui .parameter__deprecated,
+.rovalra-api-docs-shell .swagger-ui .parameter__in,
+.rovalra-api-docs-shell .swagger-ui table thead tr td,
+.rovalra-api-docs-shell .swagger-ui table thead tr th,
+.rovalra-api-docs-shell .swagger-ui table tbody tr td,
+.rovalra-api-docs-shell .swagger-ui .response-col_status,
+.rovalra-api-docs-shell .swagger-ui .response-col_description,
+.rovalra-api-docs-shell .swagger-ui .response-col_links,
+.rovalra-api-docs-shell .swagger-ui .responses-header td,
+.rovalra-api-docs-shell .swagger-ui .responses-inner h4,
+.rovalra-api-docs-shell .swagger-ui .responses-inner h5,
+.rovalra-api-docs-shell .swagger-ui .opblock-section-header h4,
+.rovalra-api-docs-shell .swagger-ui .servers-title,
+.rovalra-api-docs-shell .swagger-ui .schemes-title,
+.rovalra-api-docs-shell .swagger-ui .schemes label,
+.rovalra-api-docs-shell .swagger-ui label,
+.rovalra-api-docs-shell .swagger-ui .model-title,
+.rovalra-api-docs-shell .swagger-ui .model .property,
+.rovalra-api-docs-shell .swagger-ui .model .prop,
+.rovalra-api-docs-shell .swagger-ui .model .prop-name,
+.rovalra-api-docs-shell .swagger-ui .model .prop-type,
+.rovalra-api-docs-shell .swagger-ui .model-toggle,
+.rovalra-api-docs-shell .swagger-ui .tab li,
+.rovalra-api-docs-shell .swagger-ui .btn,
+.rovalra-api-docs-shell .swagger-ui .btn-group label,
+.rovalra-api-docs-shell .swagger-ui textarea,
+.rovalra-api-docs-shell .swagger-ui input,
+.rovalra-api-docs-shell .swagger-ui select {
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .info small,
+.rovalra-api-docs-shell .swagger-ui .opblock-summary-method + span,
+.rovalra-api-docs-shell .swagger-ui .parameter__extension,
+.rovalra-api-docs-shell .swagger-ui .model .prop-format,
+.rovalra-api-docs-shell .swagger-ui .model .prop-enum,
+.rovalra-api-docs-shell .swagger-ui .model .property.primitive,
+.rovalra-api-docs-shell .swagger-ui .response-col_description__inner div,
+.rovalra-api-docs-shell .swagger-ui .response-col_description__inner p {
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui svg,
+.rovalra-api-docs-shell .swagger-ui svg path,
+.rovalra-api-docs-shell .swagger-ui .arrow {
+    fill: var(--rovalra-main-text-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui a,
+.rovalra-api-docs-shell .swagger-ui .link {
+    color: var(--rovalra-playbutton-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .opblock .opblock-summary-path__deprecated {
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .copy-to-clipboard {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .info .title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rovalra-api-docs-shell .swagger-ui .info .title small {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    margin: 0;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: #7d8492;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.rovalra-api-docs-shell .swagger-ui .info .title small.version-stamp {
+    background: #89bf04;
+    color: #fff;
+}
+
+.rovalra-api-docs-shell .swagger-ui .info .title small + small {
+    margin-left: 4px;
+}
+
+.rovalra-api-docs-shell .swagger-ui .info .title small pre {
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.rovalra-api-docs-shell .swagger-ui .info,
+.rovalra-api-docs-shell .swagger-ui .scheme-container {
+    margin: 0 0 20px;
+}
+
+.rovalra-api-docs-shell .swagger-ui .wrapper {
+    max-width: none;
+    padding: 0;
+}
+
+.rovalra-api-docs-shell .swagger-ui .models {
+    border-color: var(--rovalra-border-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .opblock-tag {
+    border-bottom-color: var(--rovalra-border-color);
+}
+
+.rovalra-api-docs-shell .swagger-ui .scheme-container .schemes,
+.rovalra-api-docs-shell .swagger-ui .scheme-container .schemes-server-container,
+.rovalra-api-docs-shell .swagger-ui .response-control-media-type,
+.rovalra-api-docs-shell .swagger-ui .response-control-media-type__accept {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rovalra-api-docs-shell .swagger-ui .servers-title,
+.rovalra-api-docs-shell
+    .swagger-ui
+    .scheme-container
+    .schemes
+    > label:first-child {
+    display: none;
+}
+
+.rovalra-api-docs-shell .rovalra-swagger-dropdown {
+    min-width: 220px;
+}
+
+.rovalra-api-docs-shell .rovalra-swagger-dropdown .rovalra-dropdown-trigger {
+    background: transparent;
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-api-docs-body {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.rovalra-api-docs-sidebar {
+    position: sticky;
+    top: 76px;
+    max-height: calc(100vh - 96px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--rovalra-border-color);
+    border-radius: 8px;
+    background: var(--rovalra-container-background-color);
+}
+
+.rovalra-api-docs-search {
+    flex: 0 0 auto;
+}
+
+.rovalra-api-docs-list {
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 2px;
+}
+
+.rovalra-api-docs-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rovalra-api-docs-group-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 36px;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--rovalra-main-text-color);
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.rovalra-api-docs-group-header:hover {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-api-docs-group-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-api-docs-group-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--rovalra-button-background-color);
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rovalra-api-docs-group-arrow {
+    width: 14px;
+    color: var(--rovalra-secondary-text-color);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rovalra-api-docs-group-children {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 10px;
+}
+
+.rovalra-api-docs-sidebar .rovalra-api-docs-nav-item {
+    width: 100%;
+    min-height: 38px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.rovalra-api-docs-sidebar .rovalra-api-docs-nav-item:hover {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-api-docs-sidebar
+    .rovalra-api-docs-nav-item[data-selected='true'].highlight-enabled {
+    background-color: var(--rovalra-button-background-color);
+    font-weight: 600;
+}
+
+.rovalra-api-docs-sidebar .rovalra-api-docs-nav-item .content-emphasis {
+    color: var(--rovalra-main-text-color);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.rovalra-api-docs-empty {
+    padding: 12px 4px;
+    color: var(--rovalra-secondary-text-color);
+    text-align: center;
+}
+
+.rovalra-api-docs-swagger {
+    min-width: 0;
+}
+
+@media (max-width: 800px) {
+    .rovalra-api-docs-body {
+        grid-template-columns: 1fr;
+    }
+
+    .rovalra-api-docs-sidebar {
+        position: static;
+        max-height: 320px;
+    }
+}

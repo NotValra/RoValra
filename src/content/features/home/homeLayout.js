@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
 import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
+import { handleSaveSettings } from '../../core/settings/handlesettings.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 
@@ -14,6 +15,8 @@ const HOLD_THRESHOLD = 200;
 const MOVE_THRESHOLD = 5;
 const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
 const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
+const CONTINUE_TOPIC_ID = 100000003;
+const ACCURATE_CONTINUE_STORAGE_KEY = 'AccurateContinueEnabled';
 const DEFAULT_LOCALE = {
     untitled: 'Untitled',
     empty: 'Open or refresh Home once so RoValra can learn the current categories.',
@@ -25,6 +28,11 @@ const DEFAULT_LOCALE = {
     settingsTitle: 'Category Settings',
     visibility: 'Visibility',
     visibilityDescription: 'Choose whether this category appears on Home.',
+    accurateContinue: 'Accurate Continue',
+    accurateContinueDescription:
+        'Sort Continue by when you last played each game.',
+    enable: 'Enable',
+    disable: 'Disable',
     show: 'Show',
     hide: 'Hide',
 };
@@ -83,6 +91,11 @@ function publishHomeLayoutState(
 
 async function loadLocale() {
     try {
+        const translateOrDefault = async (key, fallback) => {
+            const value = await t(key);
+            return value === key ? fallback : value;
+        };
+
         locale = {
             untitled: await t('homeLayout.untitled'),
             empty: await t('homeLayout.empty'),
@@ -93,8 +106,22 @@ async function loadLocale() {
             edit: await t('homeLayout.edit'),
             settingsTitle: await t('homeLayout.settingsTitle'),
             visibility: await t('homeLayout.visibility'),
-            visibilityDescription: await t(
-                'homeLayout.visibilityDescription',
+            visibilityDescription: await t('homeLayout.visibilityDescription'),
+            accurateContinue: await translateOrDefault(
+                'homeLayout.accurateContinue',
+                DEFAULT_LOCALE.accurateContinue,
+            ),
+            accurateContinueDescription: await translateOrDefault(
+                'homeLayout.accurateContinueDescription',
+                DEFAULT_LOCALE.accurateContinueDescription,
+            ),
+            enable: await translateOrDefault(
+                'homeLayout.enable',
+                DEFAULT_LOCALE.enable,
+            ),
+            disable: await translateOrDefault(
+                'homeLayout.disable',
+                DEFAULT_LOCALE.disable,
             ),
             show: await t('homeLayout.show'),
             hide: await t('homeLayout.hide'),
@@ -203,6 +230,18 @@ function isFriendCarouselCategory(category) {
     );
 }
 
+function isContinueCategory(category) {
+    return category?.topicId === CONTINUE_TOPIC_ID;
+}
+
+function getStoredValue(key, defaultValue) {
+    return new Promise((resolve) => {
+        chrome.storage.local.get({ [key]: defaultValue }, (data) => {
+            resolve(data[key]);
+        });
+    });
+}
+
 function compactCategoriesByKey(categoryList) {
     if (!Array.isArray(categoryList)) {
         return { categories: [], changed: false };
@@ -231,42 +270,39 @@ function compactCategoriesByKey(categoryList) {
     return { categories: compactedCategories, changed };
 }
 
-function mergeCategories(newCategories) {
+function pruneLayoutStateToCategories(nextCategories) {
+    const activeKeys = new Set(nextCategories.map((category) => category.key));
+    const nextOrder = savedOrder.filter((key) => activeKeys.has(String(key)));
+    const nextHiddenKeys = hiddenCategoryKeys.filter((key) =>
+        activeKeys.has(String(key)),
+    );
+    const orderChanged = nextOrder.length !== savedOrder.length;
+    const hiddenChanged = nextHiddenKeys.length !== hiddenCategoryKeys.length;
+
+    if (!orderChanged && !hiddenChanged) return false;
+
+    publishHomeLayoutState(nextOrder, nextHiddenKeys);
+
+    const updates = {};
+    if (orderChanged) updates[ORDER_STORAGE_KEY] = nextOrder;
+    if (hiddenChanged) updates[HIDDEN_STORAGE_KEY] = nextHiddenKeys;
+    chrome.storage.local.set(updates);
+    return true;
+}
+
+function replaceCategories(newCategories) {
     if (!Array.isArray(newCategories)) return false;
 
-    let changed = false;
-    for (const category of newCategories) {
-        const nextCategory = createNormalizedCategory(category);
-        if (!nextCategory) continue;
-
-        const existingCategory = categories.find(
-            (item) => item.key === nextCategory.key,
-        );
-        if (existingCategory) {
-            if (
-                existingCategory.topic !== nextCategory.topic ||
-                existingCategory.topicId !== nextCategory.topicId ||
-                existingCategory.treatmentType !== nextCategory.treatmentType
-            ) {
-                Object.assign(existingCategory, nextCategory);
-                changed = true;
-            }
-
-            continue;
-        }
-
-        categories.push(nextCategory);
-        changed = true;
-    }
-
-    const compacted = compactCategoriesByKey(categories);
-    if (compacted.changed) {
-        categories = compacted.categories;
-        changed = true;
-    }
+    const compacted = compactCategoriesByKey(newCategories);
+    const previousCategories = JSON.stringify(categories);
+    categories = compacted.categories;
 
     mergeMissingKeysIntoSavedOrder(newCategories);
-    changed = syncCategoryOrder(newCategories) || changed;
+    syncCategoryOrder(newCategories);
+    pruneLayoutStateToCategories(categories);
+
+    const changed =
+        compacted.changed || previousCategories !== JSON.stringify(categories);
 
     if (changed) {
         chrome.storage.local.set({ [CATEGORIES_STORAGE_KEY]: categories });
@@ -382,9 +418,13 @@ function createCategorySettingRow({ title, description, control }) {
     return row;
 }
 
-function openCategorySettingsOverlay(category, itemElement) {
+async function openCategorySettingsOverlay(category) {
     const categoryKey = String(category.key);
     let isHidden = isCategoryHidden(categoryKey);
+    let accurateContinueEnabled = await getStoredValue(
+        ACCURATE_CONTINUE_STORAGE_KEY,
+        false,
+    );
     let overlayHandle = null;
 
     const container = document.createElement('div');
@@ -402,11 +442,25 @@ function openCategorySettingsOverlay(category, itemElement) {
     });
     toggleButton.classList.add('rovalra-home-layout-setting-control');
 
+    const accurateContinueToggleButton = createButton('', 'secondary', {
+        onClick: () => {
+            accurateContinueEnabled = !accurateContinueEnabled;
+            updateState();
+        },
+    });
+    accurateContinueToggleButton.classList.add(
+        'rovalra-home-layout-setting-control',
+    );
+
     const updateState = () => {
         toggleButton.textContent = isHidden ? locale.show : locale.hide;
-        toggleButton.setAttribute(
+        toggleButton.setAttribute('aria-pressed', String(!isHidden));
+        accurateContinueToggleButton.textContent = accurateContinueEnabled
+            ? locale.disable
+            : locale.enable;
+        accurateContinueToggleButton.setAttribute(
             'aria-pressed',
-            String(!isHidden),
+            String(accurateContinueEnabled),
         );
         container.classList.toggle('is-hidden-category', isHidden);
     };
@@ -420,6 +474,15 @@ function openCategorySettingsOverlay(category, itemElement) {
             control: toggleButton,
         }),
     );
+    if (isContinueCategory(category)) {
+        settingsList.appendChild(
+            createCategorySettingRow({
+                title: locale.accurateContinue,
+                description: locale.accurateContinueDescription,
+                control: accurateContinueToggleButton,
+            }),
+        );
+    }
 
     updateState();
     container.append(title, settingsList);
@@ -433,12 +496,21 @@ function openCategorySettingsOverlay(category, itemElement) {
                 nextHiddenKeys.delete(categoryKey);
             }
 
-            saveHiddenCategoryKeys([...nextHiddenKeys], () => {
-                itemElement?.classList.toggle(
-                    'rovalra-home-layout-item-hidden',
-                    isHidden,
+            const saveVisibility = () =>
+                new Promise((resolve) =>
+                    saveHiddenCategoryKeys([...nextHiddenKeys], resolve),
                 );
+
+            const saveAccurateContinue = isContinueCategory(category)
+                ? handleSaveSettings(
+                      ACCURATE_CONTINUE_STORAGE_KEY,
+                      accurateContinueEnabled === true,
+                  )
+                : Promise.resolve();
+
+            Promise.all([saveVisibility(), saveAccurateContinue]).then(() => {
                 overlayHandle?.close();
+                window.location.reload();
             });
         },
     });
@@ -480,7 +552,7 @@ function createHomeLayoutItem(category) {
             createIconButton({
                 assetName: 'edit',
                 label: locale.edit,
-                onClick: () => openCategorySettingsOverlay(category, item),
+                onClick: () => openCategorySettingsOverlay(category),
             }),
         );
     }
@@ -937,7 +1009,7 @@ export async function init() {
         hydrateFromStorage();
 
         document.addEventListener('rovalra-home-layout-categories', (event) => {
-            mergeCategories(event.detail?.categories);
+            replaceCategories(event.detail?.categories);
         });
 
         chrome.storage.onChanged.addListener((changes, namespace) => {

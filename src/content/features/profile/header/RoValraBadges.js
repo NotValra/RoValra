@@ -6,7 +6,61 @@ import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
+import { settings } from '../../../core/settings/getSettings.js';
 const badgeCache = new Map();
+const groupRuntimeBadgeCache = new Map();
+const VIDEO_STAR_GROUP_ID = 4199740;
+const VIDEO_STAR_BADGE_NAME = 'video_star';
+const COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID = 12051064;
+const COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME = 'community_feedback_program';
+const CREATOR_EVENTS_GROUP_ID = 9420522;
+const CREATOR_EVENTS_BADGE_NAME = 'creator_events';
+let groupRolesListenerInitialized = false;
+
+function isVideoStarGroupMember(item) {
+    return item?.group?.id === VIDEO_STAR_GROUP_ID;
+}
+
+function isCommunityFeedbackProgramGroupMember(item) {
+    return item?.group?.id === COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID;
+}
+
+function isCreatorEventsGroupMember(item) {
+    return item?.group?.id === CREATOR_EVENTS_GROUP_ID;
+}
+
+function getRuntimeGroupBadges(userId) {
+    return groupRuntimeBadgeCache.get(String(userId)) || [];
+}
+
+function mergeRuntimeBadges(userId, badges, options = {}) {
+    const runtimeBadges =
+        options.robloxGroupFeaturesEnabled === false
+            ? []
+            : getRuntimeGroupBadges(userId);
+    if (!runtimeBadges.length) return badges;
+
+    const disabledRuntimeBadges = options.disabledRuntimeBadges || new Set();
+    const mergedBadges = [...badges];
+    runtimeBadges.forEach((badgeName) => {
+        if (disabledRuntimeBadges.has(badgeName)) return;
+        if (!mergedBadges.includes(badgeName)) mergedBadges.push(badgeName);
+    });
+    return mergedBadges;
+}
+
+function rerenderCurrentProfileBadges() {
+    const currentUserId = String(getUserIdFromUrl() || '');
+    if (!currentUserId) return;
+
+    document
+        .querySelectorAll('[data-rovalra-observed="true"]')
+        .forEach((container) => {
+            if (container.dataset.rovalraUserId !== currentUserId) return;
+            container.dataset.rovalraUserId = '';
+            addHeaderBadges(container);
+        });
+}
 
 function applyBadgeIconStyle(icon, badge) {
     icon.style.filter = '';
@@ -280,7 +334,10 @@ async function addHeaderBadges(container) {
 
     if (container.dataset.rovalraUserId === currentUserId) return;
 
-    if (container.dataset.rovalraBusy === 'true') return;
+    if (container.dataset.rovalraBusy === 'true') {
+        container.dataset.rovalraPendingRender = 'true';
+        return;
+    }
     container.dataset.rovalraBusy = 'true';
 
     try {
@@ -307,6 +364,17 @@ async function addHeaderBadges(container) {
             if (!isOwnProfile) badgeCache.set(currentUserId, data);
         }
 
+        const robloxGroupFeaturesEnabled =
+            (await settings.robloxGroupFeaturesEnabled) !== false;
+        const disabledRuntimeBadges = new Set();
+        if ((await settings.videoStarBadgeEnabled) === false) {
+            disabledRuntimeBadges.add(VIDEO_STAR_BADGE_NAME);
+        }
+        const mergedApiBadges = mergeRuntimeBadges(currentUserId, data.apiBadges, {
+            robloxGroupFeaturesEnabled,
+            disabledRuntimeBadges,
+        });
+
         container
             .querySelectorAll('.rovalra-header-badge, .rovalra-text-badge')
             .forEach((b) => b.remove());
@@ -319,7 +387,7 @@ async function addHeaderBadges(container) {
             }
         }
 
-        data.apiBadges.forEach((name) => {
+        mergedApiBadges.forEach((name) => {
             if (BADGE_CONFIG[name]) {
                 badgesToRender.push({
                     isIcon: true,
@@ -353,6 +421,11 @@ async function addHeaderBadges(container) {
         container.dataset.rovalraUserId = currentUserId;
     } finally {
         container.dataset.rovalraBusy = 'false';
+        if (container.dataset.rovalraPendingRender === 'true') {
+            container.dataset.rovalraPendingRender = 'false';
+            container.dataset.rovalraUserId = '';
+            addHeaderBadges(container);
+        }
     }
 }
 
@@ -400,6 +473,53 @@ async function addProfileBadgeButtons(buttonContainer) {
 }
 
 export function init() {
+    settings.robloxGroupFeaturesEnabled.then((enabled) => {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:settingsState', {
+                detail: { robloxGroupFeaturesEnabled: enabled !== false },
+            }),
+        );
+    });
+
+    if (!groupRolesListenerInitialized) {
+        groupRolesListenerInitialized = true;
+        document.addEventListener('rovalra-group-roles-response', (event) => {
+            const userId = String(event.detail?.userId || '');
+            if (!userId) return;
+
+            const groups = event.detail?.data?.data;
+            const runtimeBadges = [];
+            if (Array.isArray(groups)) {
+                if (groups.some(isVideoStarGroupMember)) {
+                    runtimeBadges.push(VIDEO_STAR_BADGE_NAME);
+                }
+                if (groups.some(isCommunityFeedbackProgramGroupMember)) {
+                    runtimeBadges.push(COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME);
+                }
+                if (groups.some(isCreatorEventsGroupMember)) {
+                    runtimeBadges.push(CREATOR_EVENTS_BADGE_NAME);
+                }
+            }
+            groupRuntimeBadgeCache.set(userId, runtimeBadges);
+
+            if (userId !== String(getUserIdFromUrl() || '')) return;
+
+            rerenderCurrentProfileBadges();
+        });
+
+        document.addEventListener('rovalra:settingSaved', (event) => {
+            if (
+                ![
+                    'robloxGroupFeaturesEnabled',
+                    'videoStarBadgeEnabled',
+                ].includes(event.detail?.name)
+            ) {
+                return;
+            }
+            rerenderCurrentProfileBadges();
+        });
+    }
+
     document.addEventListener('rovalra:assetsUpdated', () => {
         document
             .querySelectorAll('[data-rovalra-badge-config]')

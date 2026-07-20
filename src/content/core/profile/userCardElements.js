@@ -5,42 +5,55 @@ export const USER_CARD_DEFINITIONS = [
     {
         selector: '.friends-carousel-tile',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector:
             '.rovalra-user-card-avatar, .avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector:
             '.rovalra-user-card-thumbnail, .avatar-card-image',
+        displayNameSelector:
+            '.friends-carousel-display-name, .user-card-name span, .avatar-name',
         statusAvatarSelector:
             '.rovalra-user-card-avatar, .avatar-card-fullbody, .avatar-card-image-container',
     },
     {
         selector: 'li.list-item.avatar-card',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector: '.avatar-name, .user-card-name span',
     },
     {
         selector: '.avatar-card-container',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector: '.avatar-name, .user-card-name span',
     },
     {
         selector: '.rovalra-donator-card',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector:
+            '.avatar-name, .user-card-name span, a[href*="/users/"][href*="/profile"]:not(.avatar-card-link)',
     },
     {
         selector: '.user-item-clickable',
         linkSelector: ':scope',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector:
+            '.avatar-name, .user-card-name span, .text-name, .name',
     },
     {
         selector: 'a.user-avatar-container.avatar.avatar-headshot',
         linkSelector: ':scope',
         avatarSelector: '.avatar-card-image, .thumbnail-2d-container',
         gradientAvatarSelector: '.avatar-card-image, .thumbnail-2d-container',
+        displayNameSelector: '.avatar-name, .user-card-name span',
     },
 ];
 
@@ -51,6 +64,14 @@ export const USER_CARD_SELECTORS = USER_CARD_DEFINITIONS.map(
 const subscriptions = new Set();
 const observedElements = new Set();
 let active = false;
+
+const DISPLAY_NAME_FALLBACK_SELECTOR = [
+    '.friends-carousel-display-name',
+    '.user-card-name span',
+    '.avatar-name',
+    '.text-name',
+    '.name',
+].join(', ');
 
 function getDefinition(element) {
     return USER_CARD_DEFINITIONS.find(({ selector }) =>
@@ -79,12 +100,49 @@ function getFallbackLink(element) {
     );
 }
 
+function getLinkedDisplayName(element, link) {
+    if (!link?.href) return null;
+
+    const linkUrl = new URL(link.href, window.location.origin);
+    const linkPath = `${linkUrl.pathname}${linkUrl.search}${linkUrl.hash}`;
+    const containers = [
+        element.closest(
+            '#roseal-home-header, .home-header, .home-header-container, .friends-carousel-tile',
+        ),
+        element.parentElement,
+    ].filter(Boolean);
+
+    for (const container of containers) {
+        const linkedNames = container.querySelectorAll(
+            [
+                `a[href="${CSS.escape(linkPath)}"]`,
+                `a[href="${CSS.escape(linkUrl.pathname)}"]`,
+                `a[href="${CSS.escape(linkUrl.href)}"]`,
+            ].join(', '),
+        );
+
+        for (const linkedName of linkedNames) {
+            if (linkedName === link || linkedName.contains(element)) continue;
+            if (linkedName.querySelector('img, .thumbnail-2d-container')) {
+                continue;
+            }
+            if (!linkedName.textContent?.trim()) continue;
+            return linkedName;
+        }
+    }
+
+    return null;
+}
+
 export function getUserCardContext(element) {
     const definition = getDefinition(element);
     const link =
         getElement(element, definition?.linkSelector) ||
         getFallbackLink(element);
-    const userId = link?.href ? getUserIdFromUrl(link.href) : null;
+    const userCardEl = getElement(element, definition?.userCardSelector)
+    const userId = userCardEl && userCardEl.dataset.rovalraCardUserId
+        ? userCardEl.dataset.rovalraCardUserId
+        : (link?.href ? getUserIdFromUrl(link.href) : null);
     const avatar =
         getElement(element, definition?.avatarSelector) ||
         element.querySelector(
@@ -97,6 +155,10 @@ export function getUserCardContext(element) {
         element.querySelector(
             '.avatar-card-fullbody, .avatar-card-image-container',
         );
+    const displayName =
+        getElement(element, definition?.displayNameSelector) ||
+        element.querySelector(DISPLAY_NAME_FALLBACK_SELECTOR) ||
+        getLinkedDisplayName(element, link);
 
     return {
         element,
@@ -106,16 +168,29 @@ export function getUserCardContext(element) {
         avatar,
         gradientAvatar,
         statusAvatar,
+        displayName,
     };
 }
 
-function handleElement(element) {
-    if (observedElements.has(element)) return;
-    if (element.dataset.rovalraUserCardObserved) return;
-    element.dataset.rovalraUserCardObserved = 'true';
+function getContextKey(context) {
+    return [
+        context.userId || '',
+        context.link?.href || '',
+        context.avatar
+            ? context.avatar.className || context.avatar.tagName
+            : '',
+        context.gradientAvatar
+            ? context.gradientAvatar.className || context.gradientAvatar.tagName
+            : '',
+        context.displayName
+            ? context.displayName.textContent || context.displayName.className
+            : '',
+    ].join('|');
+}
 
-    observedElements.add(element);
-    const context = getUserCardContext(element);
+function notifySubscribers(element, context) {
+    const currentContext = context || getUserCardContext(element);
+    if (!currentContext.userId) return;
 
     for (const sub of subscriptions) {
         try {
@@ -126,11 +201,49 @@ function handleElement(element) {
             ) {
                 continue;
             }
-            sub.callback(element, context);
+            sub.callback(element, currentContext);
         } catch (e) {
             console.warn('RoValra: User card element callback error', e);
         }
     }
+}
+
+function refreshElement(element) {
+    const context = getUserCardContext(element);
+    const contextKey = getContextKey(context);
+
+    if (
+        !context.userId ||
+        element.dataset.rovalraUserCardContextKey === contextKey
+    ) {
+        return;
+    }
+
+    element.dataset.rovalraUserCardContextKey = contextKey;
+    notifySubscribers(element, context);
+}
+
+function setupRefreshObserver(element) {
+    if (element.dataset.rovalraUserCardRefreshObserver) return;
+    element.dataset.rovalraUserCardRefreshObserver = 'true';
+
+    const observer = new MutationObserver(() => refreshElement(element));
+    observer.observe(element, {
+        attributes: true,
+        attributeFilter: ['href', 'src', 'class', 'style'],
+        childList: true,
+        subtree: true,
+    });
+}
+
+function handleElement(element) {
+    if (!observedElements.has(element)) {
+        observedElements.add(element);
+    }
+
+    element.dataset.rovalraUserCardObserved = 'true';
+    setupRefreshObserver(element);
+    refreshElement(element);
 }
 
 function setupObservers() {

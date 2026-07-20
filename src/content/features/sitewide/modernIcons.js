@@ -4,6 +4,7 @@ import { injectStylesheet } from '../../core/ui/cssInjector.js';
 
 const assets = getAssets();
 const ICON_TEMPLATES = new Map();
+let modernIconsInitialized = false;
 
 function prepareTemplates() {
     const parse = (svgData) => {
@@ -49,6 +50,9 @@ function replaceIcon(element) {
 }
 
 export function initializeModernIcons() {
+    if (modernIconsInitialized) return;
+    modernIconsInitialized = true;
+
     chrome.storage.local.get('modernIconsEnabled', (result) => {
         const isEnabled = result.modernIconsEnabled !== false;
 

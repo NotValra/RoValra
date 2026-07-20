@@ -8,6 +8,7 @@ import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { loadSettings } from '../../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import {
+    getUserCardContext,
     onUserCardElement,
     observeUserCardElements,
 } from '../../../core/profile/userCardElements.js';
@@ -22,6 +23,17 @@ function applyGradientToElement(element, gradient, isSmallScale = false) {
     element.style.background = gradient;
     element.style.backgroundSize = isSmallScale ? '250% 250%' : 'cover';
     element.style.backgroundPosition = 'center';
+    element.dataset.rovalraAppliedGradient = gradient;
+}
+
+function clearGradientFromElement(element) {
+    if (!element) return;
+    if (!element.dataset.rovalraAppliedGradient) return;
+
+    element.style.background = '';
+    element.style.backgroundSize = '';
+    element.style.backgroundPosition = '';
+    delete element.dataset.rovalraAppliedGradient;
 }
 
 function applyToAvatarContainer(container, gradient, isSmallScale = false) {
@@ -73,9 +85,16 @@ async function getGradientSettingsCached(userId) {
     return gradientSettingsPromises.get(cacheKey);
 }
 
-async function applyGradientForUserId(userId, element, isSmallScale = false) {
+export async function applyGradientForUserId(
+    userId,
+    element,
+    isSmallScale = false,
+    shouldApply = null,
+) {
     try {
         const userSettings = await getGradientSettingsCached(userId);
+        if (shouldApply && !shouldApply()) return;
+
         const gradient = userSettings?.gradient
             ? parseGradientString(userSettings.gradient)
             : null;
@@ -89,13 +108,17 @@ async function applyGradientForUserId(userId, element, isSmallScale = false) {
 }
 
 function applyGradientToAvatarTile(tile, card) {
-    if (tile.dataset.rovalraGradientQueued) return;
-
     const userId = card?.userId;
     const avatarContainer = card?.gradientAvatar;
     if (!userId || !avatarContainer) return;
+    if (tile.dataset.rovalraGradientQueued === String(userId)) return;
 
-    tile.dataset.rovalraGradientQueued = 'true';
+    avatarTileIntersections.get(tile)?.unobserve();
+    avatarTileIntersections.delete(tile);
+
+    tile.dataset.rovalraGradientQueued = String(userId);
+    delete tile.dataset.rovalraGradientApplied;
+    clearGradientFromElement(avatarContainer);
 
     const applyWhenVisible = (entry) => {
         if (!entry.isIntersecting) return;
@@ -103,10 +126,16 @@ function applyGradientToAvatarTile(tile, card) {
         avatarTileIntersections.get(tile)?.unobserve();
         avatarTileIntersections.delete(tile);
 
-        if (tile.dataset.rovalraGradientApplied) return;
-        tile.dataset.rovalraGradientApplied = 'true';
+        if (tile.dataset.rovalraGradientApplied === String(userId)) return;
+        tile.dataset.rovalraGradientApplied = String(userId);
 
-        applyGradientForUserId(userId, avatarContainer, true);
+        const currentUserId = getUserCardContext(tile).userId;
+        if (String(currentUserId) !== String(userId)) return;
+
+        applyGradientForUserId(userId, avatarContainer, true, () => {
+            const currentUserId = getUserCardContext(tile).userId;
+            return String(currentUserId) === String(userId);
+        });
     };
 
     const intersection = observeIntersection(tile, applyWhenVisible, {

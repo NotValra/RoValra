@@ -1,8 +1,7 @@
 style-test-element.light-theme,
-:root:has(.light-theme),
+body:where(.light-theme),
 :root.light-theme,
-:root[color-scheme='light'],
-:root:has(meta[name='theme-color'][content='#F9F9F9']) {
+:root[color-scheme='light'] {
     --rovalra-main-text-color: #202227;
     --rovalra-secondary-text-color: #494d5a;
     --rovalra-tertiary-text-color: rgb(106, 111, 129);
