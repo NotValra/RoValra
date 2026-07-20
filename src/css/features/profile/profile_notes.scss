@@ -1,0 +1,145 @@
+.rovalra-profile-note-host {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.rovalra-profile-note-card {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + var(--rovalra-profile-note-offset, 14px));
+    right: 0;
+    box-sizing: border-box;
+    width: 350px;
+    max-width: calc(100vw - 32px);
+    min-height: 76px;
+    padding: 10px 8px 12px;
+    overflow: visible;
+    text-align: left;
+    background: transparent;
+    border: 0;
+}
+
+.rovalra-profile-note-heading {
+    color: var(--rovalra-main-text-color);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+.rovalra-profile-note-editor-host {
+    margin-top: 5px;
+}
+
+.rovalra-profile-note-display,
+.rovalra-profile-note-input {
+    display: block;
+    box-sizing: border-box;
+    width: calc(100% + 16px);
+    min-height: 36px;
+    margin-left: -8px;
+    padding: 7px 8px;
+    color: var(--rovalra-secondary-text-color);
+    font: inherit;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition:
+        border-color 140ms ease,
+        background-color 140ms ease,
+        transform 120ms ease,
+        opacity 140ms ease;
+    animation: rovalra-profile-note-field-in 160ms ease-out;
+
+    &:hover,
+    &:focus {
+        border-color: var(--rovalra-border-color);
+        background-color: color-mix(
+            in srgb,
+            var(--rovalra-button-background-color) 35%,
+            transparent
+        );
+    }
+
+    &:active {
+        transform: scale(0.99);
+    }
+}
+
+.rovalra-profile-note-display {
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    cursor: text;
+
+    &:focus-visible {
+        border-color: var(--rovalra-border-color);
+        outline: 0;
+    }
+}
+
+.rovalra-profile-note-placeholder {
+    font-style: italic;
+}
+
+.rovalra-profile-note-input {
+    max-height: 120px;
+    resize: vertical;
+    outline: 0;
+
+    &::placeholder {
+        color: var(--rovalra-secondary-text-color);
+        font-style: italic;
+        opacity: 0.8;
+    }
+}
+
+.rovalra-profile-note-editing .rovalra-profile-note-input {
+    transform-origin: center;
+}
+
+@keyframes rovalra-profile-note-field-in {
+    from {
+        opacity: 0;
+        transform: translateY(3px) scale(0.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rovalra-profile-note-display,
+    .rovalra-profile-note-input {
+        transition: none;
+        animation: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .rovalra-profile-note-host {
+        flex-wrap: wrap;
+    }
+
+    .rovalra-profile-note-card {
+        position: relative;
+        top: auto;
+        right: auto;
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: none;
+        margin-top: 12px;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .rovalra-profile-note-display,
+    .rovalra-profile-note-input {
+        width: 100%;
+        margin-left: 0;
+    }
+}
