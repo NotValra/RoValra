@@ -20,6 +20,8 @@ publish, use, or include these images in any other project, product, service,
 website, extension, fork, or derivative work unless Valra gives prior written
 permission.
 
+---
+
 # GNU GENERAL PUBLIC LICENSE
 # Version 3, 29 June 2007
 

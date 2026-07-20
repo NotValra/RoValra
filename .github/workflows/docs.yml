@@ -1,3 +1,4 @@
+# Credits to @steinann for making the workflow i stole and modified
 name: Deploy TypeDoc to GitHub Pages
 
 on:
