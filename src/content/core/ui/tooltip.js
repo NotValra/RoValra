@@ -12,11 +12,7 @@ function getTooltipShell(container) {
 
     const tooltipElement = document.createElement('div');
     tooltipElement.style.position = 'absolute';
-    tooltipElement.style.setProperty(
-        'z-index',
-        TOOLTIP_Z_INDEX,
-        'important',
-    );
+    tooltipElement.style.setProperty('z-index', TOOLTIP_Z_INDEX, 'important');
     tooltipElement.style.pointerEvents = 'none';
     tooltipElement.style.display = 'none';
     tooltipElement.setAttribute('role', 'tooltip');
@@ -43,6 +39,7 @@ export function addTooltip(parent, text, options = {}) {
         container = document.body,
         showArrow = true,
         shouldShow = () => true,
+        tooltipClassName = '',
     } = options;
     let tooltipElement = null;
     let arrow = null;
@@ -54,6 +51,8 @@ export function addTooltip(parent, text, options = {}) {
     const getPosition = () =>
         typeof position === 'function' ? position(parent) : position;
     const getText = () => (typeof text === 'function' ? text(parent) : text);
+    const getTooltipClassName = (currentPosition) =>
+        `tooltip fade ${currentPosition} in${tooltipClassName ? ` ${tooltipClassName}` : ''}`;
 
     const showTooltip = () => {
         if (!shouldShow(parent)) return;
@@ -66,7 +65,7 @@ export function addTooltip(parent, text, options = {}) {
         const shell = getTooltipShell(container);
         tooltipElement = shell.tooltipElement;
         arrow = shell.arrow;
-        tooltipElement.className = `tooltip fade ${initialPosition} in`;
+        tooltipElement.className = getTooltipClassName(initialPosition);
         shell.inner.innerHTML = DOMPurify.sanitize(getText());
         arrow.style.display = showArrow ? '' : 'none';
         activeTooltipOwner = owner;
@@ -78,7 +77,7 @@ export function addTooltip(parent, text, options = {}) {
             }
 
             const currentPosition = getPosition();
-            tooltipElement.className = `tooltip fade ${currentPosition} in`;
+            tooltipElement.className = getTooltipClassName(currentPosition);
 
             const parentRect = parent.getBoundingClientRect();
             const tooltipWidth = tooltipElement.offsetWidth;

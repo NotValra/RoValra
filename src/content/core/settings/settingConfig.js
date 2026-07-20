@@ -580,6 +580,56 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['9502859424'],
             },
+            profilePronouns: {
+                label: 'Profile Pronouns',
+                description: [
+                    'Displays your pronouns beside your username on your profile for other RoValra users.',
+                    'Maximum 15 characters.',
+                    'Emojis and spaces are allowed. Special characters such as /, comma, or ; are changed to |.',
+                ],
+                type: 'input',
+                placeholder: 'Enter Pronouns',
+                maxLength: 15,
+                showCharacterCount: true,
+                useGraphemeLength: true,
+                trim: true,
+                replaceSpecialCharactersWithPipe: true,
+                agreementKey: 'rovalra_pronouns_guidelines_agreed',
+                default: null,
+                contributors: ['10646979010'],
+            },
+            profileNotesEnabled: {
+                label: 'Profile Notes',
+                description: [
+                    'Adds a private note field to Roblox profiles.',
+                    'Notes are stored only locally and are never shared to RoValra or Roblox.',
+                    'Maximum 256 characters.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_profile_notes',
+                contributors: ['10646979010'],
+                childSettings: {
+                    profileNotesBackup: {
+                        label: 'Notes Backup',
+                        description: [
+                            'Export all profile notes or import them from a .json file.',
+                            'Imported notes are merged with notes already stored in this browser.',
+                        ],
+                        type: 'buttonGroup',
+                        buttons: [
+                            {
+                                id: 'export-rovalra-profile-notes',
+                                text: 'Export Notes',
+                            },
+                            {
+                                id: 'import-rovalra-profile-notes',
+                                text: 'Import Notes',
+                            },
+                        ],
+                    },
+                },
+            },
             profileViewsEnabled: {
                 label: 'Profile Views',
                 description: [
@@ -1646,10 +1696,24 @@ export const SETTINGS_CONFIG = {
                         label: 'Custom Badge Text',
                         description: [
                             'The text you would like to display in the badge.',
+                            'Maximum 30 characters.',
                             'This will be overridden by the Hide The Badge setting',
                         ],
                         type: 'input',
+                        maxLength: 30,
+                        showCharacterCount: true,
                         default: null,
+                        contributors: ['10646979010'],
+                    },
+                    ageKidsTextPushNavbarEnabled: {
+                        label: 'Show Full Badge Text',
+                        description: [
+                            'Expands the badge to show all of your custom text.',
+                            'Moves the navigation links to the right when more room is needed.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['10646979010'],
                     },
                     ageKidsTextHiddenEnabled: {
                         label: 'Hide The Badge',
@@ -2383,6 +2447,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            forceGuidelinesPopup: {
+                label: 'Force Guidelines Popup',
+                description: [
+                    'Shows the RoValra Guidelines every time you try to use a feature that requires them, even after you previously agreed.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['10646979010'],
             },
             alwaysShowAccountStandingTab: {
                 label: ['Always show Account Standing tab'],

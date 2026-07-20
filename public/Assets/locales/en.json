@@ -1005,6 +1005,21 @@
         "noBordersInTab": "No borders found in this tab.",
         "failedToLoad": "Failed to load your borders. Please try again later."
     },
+    "profileNotes": {
+        "ariaLabel": "Private profile note",
+        "heading": "Note (only visible to you)",
+        "headingTooltip": "This note is stored only in this browser and is never sent to Roblox or RoValra.",
+        "addNote": "Click to add a note",
+        "editAriaLabel": "Edit private profile note",
+        "addAriaLabel": "Add private profile note",
+        "displayTooltip": "Click to edit. Notes are saved only in this browser.",
+        "inputPlaceholder": "Add a private note",
+        "inputTooltip": "Saved when you click outside. Press Escape to cancel or Ctrl+Enter to save."
+    },
+    "profilePronouns": {
+        "label": "Pronouns",
+        "ariaLabel": "Pronouns: {{pronouns}}"
+    },
     "profile": {
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",

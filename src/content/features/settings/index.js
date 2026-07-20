@@ -8,7 +8,9 @@ import { observeElement, observeIntersection } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
 import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
 import {
+    exportProfileNotes,
     exportSettings,
+    importProfileNotes,
     importSettings,
     createExportImportButtons,
 } from '../../core/settings/portSettings.js';
@@ -3228,6 +3230,10 @@ document.addEventListener('click', (event) => {
 
     if (target.id === 'export-rovalra-settings') return exportSettings();
     if (target.id === 'import-rovalra-settings') return importSettings();
+    if (target.id === 'export-rovalra-profile-notes')
+        return exportProfileNotes();
+    if (target.id === 'import-rovalra-profile-notes')
+        return importProfileNotes();
     if (target.matches('.tab-button, .setting-section-button')) return;
 
     if (target.matches('input[type="checkbox"]')) {

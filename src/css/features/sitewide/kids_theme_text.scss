@@ -1,3 +1,40 @@
 #age-badge-container {
-    width: max-content;
+    width: fit-content !important;
+    min-width: 0;
+    max-width: 72px !important;
+    flex: 0 1 auto !important;
+    overflow: hidden;
+
+    .rbx-age-badge {
+        display: block !important;
+        width: calc(100% - 6px);
+        min-width: 0;
+        max-width: calc(100% - 6px);
+        box-sizing: border-box;
+        overflow: hidden;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+html.rovalra-age-badge-push-navbar {
+    #age-badge-container {
+        width: max-content !important;
+        max-width: none !important;
+        flex-shrink: 0 !important;
+        overflow: visible;
+
+        .rbx-age-badge {
+            width: max-content !important;
+            max-width: none !important;
+            overflow: visible;
+            text-overflow: clip;
+        }
+    }
+
+    #header > .container-fluid > ul.nav.rbx-navbar.hidden-xs.hidden-sm {
+        box-sizing: border-box;
+        padding-left: var(--rovalra-age-badge-navbar-shift, 0px) !important;
+    }
 }

@@ -44,7 +44,6 @@ import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
-import { init as initWideGameTileStats } from './features/sitewide/wideGameTileStats.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
@@ -130,6 +129,8 @@ import { init as initProfileRender } from './features/profile/header/ProfileRend
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
+import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
+import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingLink } from './features/profile/header/currentlyPlayingLink.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
@@ -164,7 +165,7 @@ import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
 import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
 // buy page
-import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRobux.js'
+import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRobux.js';
 
 let pageLoaded = false;
 let lastPath = window.location.pathname.toLowerCase();
@@ -223,7 +224,6 @@ const featureRoutes = [
             initSidebarLayout,
             initRemoveDownloadButton,
             initFriendGameLink,
-            initWideGameTileStats,
             initThemeSwitcher,
             initCustomThemeEditor,
             initThemeCatalogPage,
@@ -352,6 +352,8 @@ const featureRoutes = [
             initFriendsSince,
             initUnfriend,
             initLastPlayed,
+            initProfilePronouns,
+            initProfileNotes,
             initProfileViews,
             initCurrentlyPlayingLink,
             initCurrentlyPlayingSubplace,
@@ -570,7 +572,7 @@ async function initializePage() {
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => { });
+        await t('__i18n_ready__').catch(() => {});
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
         scheduleSettingsMaintenance();
@@ -581,8 +583,8 @@ async function initializePage() {
             `%cRoValra Initialized`,
             'font-size: 1.5em; color: #FF4500;',
             `\n(Observer: ${observerStatus})` +
-            `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
-            `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
+                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+                `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
         );
     };
 
@@ -626,13 +628,13 @@ function setupUrlChangeListeners() {
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
 
-    history.pushState = function(...args) {
+    history.pushState = function (...args) {
         originalPushState.apply(this, args);
         normalizeGamePageHash();
         handleUrlChange();
     };
 
-    history.replaceState = function(...args) {
+    history.replaceState = function (...args) {
         originalReplaceState.apply(this, args);
         normalizeGamePageHash();
         handleUrlChange();

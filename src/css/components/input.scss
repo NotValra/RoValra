@@ -99,3 +99,23 @@
     .rovalra-catalog-input-legend {
     max-width: calc(100% * 0.7 + 0px);
 }
+
+.rovalra-setting-input-with-counter {
+    .rovalra-catalog-input-field {
+        padding-right: 48px;
+    }
+
+    .rovalra-setting-input-counter {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        z-index: 1;
+        transform: translateY(-50%);
+        color: var(--rovalra-secondary-text-color);
+        font-size: 12px;
+        letter-spacing: -0.25px;
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+    }
+}

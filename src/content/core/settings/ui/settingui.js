@@ -75,7 +75,10 @@ function shouldShowStaticTab(item, accountStandingTabVisible) {
 
 function ensureDeveloperSettings() {
     if (!SETTINGS_CONFIG.Developer) {
-        SETTINGS_CONFIG.Developer = { title: 'Developer', settings: {} };
+        SETTINGS_CONFIG.Developer = {
+            title: 'RoValra Developer',
+            settings: {},
+        };
     }
 }
 
@@ -611,7 +614,7 @@ function addDeveloperTabUI({ menuList, loadTabContent, renderMobileDropdown }) {
     if (menuList && loadTabContent) {
         const devItem = createSidebarItem(
             'Developer',
-            'Developer',
+            SETTINGS_CONFIG.Developer.title,
             loadTabContent,
         );
 
