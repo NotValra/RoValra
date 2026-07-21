@@ -140,3 +140,19 @@ $roblox-left-nav-breakpoint: 768px;
     height: 24px;
     fill: currentColor;
 }
+
+.left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true'] {
+    ~ #container-main,
+    ~ main.container-main,
+    body & {
+        #group-container > div > div > div.groups-list-sidebar.ng-scope {
+            left: $collapsed-sidebar-width !important;
+        }
+    }
+}
+
+body:has(.left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true']) {
+    #group-container > div > div > div.groups-list-sidebar.ng-scope {
+        left: $collapsed-sidebar-width !important;
+    }
+}
