@@ -430,6 +430,7 @@ export async function callRobloxApi(options) {
             useApiKey = false,
             noCache = false,
             responseType = 'text',
+            retryOnTransientStatus = true,
         } = options;
 
         const normalizedHeaders = new Headers(headers);
@@ -736,6 +737,14 @@ export async function callRobloxApi(options) {
 
                     if (lastResponse.ok && !bodyIsInvalid) {
                         return lastResponse;
+                    }
+
+                    if (
+                        !retryOnTransientStatus &&
+                        (lastResponse.status === 429 ||
+                            lastResponse.status >= 500)
+                    ) {
+                        break;
                     }
 
                     if (endpoint && endpoint.includes('/v1/auth')) break;
