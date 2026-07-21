@@ -39,6 +39,9 @@
     --color-common-shimmer: var(--rovalra-custom-user-shimmer) !important;
     --color-content-default: var(--rovalra-custom-user-mainText) !important;
     --color-content-emphasis: var(--rovalra-custom-user-mainText) !important;
+    --color-system-contrast: var(
+        --rovalra-custom-user-inverseContentEmphasis
+    ) !important;
     --color-content-muted: var(--rovalra-custom-user-secondaryText) !important;
     --color-content-secondary: var(
         --rovalra-custom-user-secondaryText

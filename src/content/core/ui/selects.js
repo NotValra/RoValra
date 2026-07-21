@@ -11,6 +11,26 @@ const injectScrollbarStyles = () => {
             background-color: rgba(255, 255, 255, 0.1) !important;
             border-left: 3px solid var(--rovalra-play-button-color); 
         }
+        .rovalra-dropdown-item:hover > [role="presentation"] {
+            background-color: var(--color-surface-300) !important;
+        }
+        .rovalra-dropdown-item > [role="presentation"] {
+            z-index: 0;
+            pointer-events: none;
+        }
+        .rovalra-dropdown-item > :not([role="presentation"]) {
+            position: relative;
+            z-index: 1;
+        }
+        .rovalra-dropdown-item:hover,
+        .rovalra-dropdown-item:hover *:not([role="presentation"]),
+        .rovalra-dropdown-item:hover .content-emphasis,
+        .rovalra-dropdown-item:hover .foundation-web-menu-item-title {
+            color: var(--color-content-emphasis) !important;
+        }
+        .rovalra-dropdown-item:hover .content-secondary {
+            color: var(--color-content-secondary) !important;
+        }
         .rovalra-text-clamp-2 {
             display: -webkit-box !important;
             -webkit-line-clamp: 2;

@@ -322,8 +322,19 @@ function scheduleFieldApply(key) {
 async function activateCustomTheme() {
     await handleSaveSettings('ThemeSwitcherEnabled', true);
     await handleSaveSettings('ThemeSwitcher', 'custom-user');
-    await setTheme('custom-user');
+    await setTheme('custom-user', currentTheme);
     applyCustomTheme(currentTheme);
+}
+
+function resetField(key) {
+    const field = CUSTOM_THEME_FIELDS.find((entry) => entry.key === key);
+    if (!field) return;
+
+    currentTheme[key] = field.default;
+    currentTheme[getCustomThemeAlphaKey(key)] = field.alphaDefault ?? 100;
+    syncSingleInput(key);
+    scheduleFieldApply(key);
+    scheduleSave();
 }
 
 function syncSingleInput(
@@ -517,6 +528,12 @@ function createColorRow(field) {
         syncSingleInput(field.key);
     });
 
+    const resetButton = createButton('Reset', 'secondary', {
+        onClick: () => resetField(field.key),
+    });
+    resetButton.classList.add('rovalra-custom-theme-selector-reset');
+    resetButton.setAttribute('aria-label', `Reset ${field.label}`);
+
     const { container: rgbInputContainer, input: rgbInput } = createStyledInput(
         {
             id: `rovalra-custom-theme-${field.key}-rgb`,
@@ -594,7 +611,7 @@ function createColorRow(field) {
     editorRgbInputs.set(field.key, rgbInput);
     editorAlphaInputs.set(field.key, alphaInput);
     editorAlphaNumberInputs.set(field.key, alphaNumberInput);
-    controls.append(colorInput, rgbInputContainer, alphaControls);
+    controls.append(colorInput, rgbInputContainer, resetButton, alphaControls);
     row.append(label, controls);
     return row;
 }

@@ -30,6 +30,11 @@ export const CUSTOM_THEME_FIELDS = [
         default: '#f7f7f8',
     },
     {
+        key: 'inverseContentEmphasis',
+        label: 'Inverse Content Emphasis',
+        default: '#f7f7f8',
+    },
+    {
         key: 'secondaryText',
         label: 'Secondary Text Color',
         default: '#d5d7dd',
@@ -55,13 +60,15 @@ export const CUSTOM_THEME_FIELDS = [
         key: 'buttonBackground',
         label: 'Button Background',
         rovalra: true,
-        default: '#2d3033',
+        default: '#d0d9fb',
+        alphaDefault: 12,
     },
     {
         key: 'borderColor',
         label: 'Border Color',
         rovalra: true,
-        default: '#4a4d55',
+        default: '#ffffff',
+        alphaDefault: 20,
     },
     {
         key: 'grayText',
@@ -103,13 +110,14 @@ export const CUSTOM_THEME_FIELDS = [
         key: 'themeSliderOn',
         label: 'Slider On',
         rovalra: true,
-        default: '#dddddd',
+        default: '#444444',
     },
     {
         key: 'themeSliderOff',
         label: 'Slider Off',
         rovalra: true,
-        default: '#24262c',
+        default: '#000000',
+        alphaDefault: 10,
     },
     {
         key: 'themeSliderButton',
@@ -122,6 +130,7 @@ export const CUSTOM_THEME_FIELDS = [
         label: 'Settings Button Text',
         rovalra: true,
         default: '#ffffff',
+        alphaDefault: 90,
     },
     {
         key: 'themeButtonBackground',
@@ -145,7 +154,8 @@ export const CUSTOM_THEME_FIELDS = [
         key: 'themeButtonBorder',
         label: 'Settings Button Border',
         rovalra: true,
-        default: '#45494d',
+        default: '#ffffff',
+        alphaDefault: 10,
     },
     {
         key: 'discordLink',
@@ -198,7 +208,9 @@ export function sanitizeCustomTheme(value) {
             typeof color === 'string' && HEX_COLOR_PATTERN.test(color)
                 ? color
                 : field.default;
-        sanitized[alphaKey] = sanitizeAlpha(source[alphaKey]);
+        sanitized[alphaKey] = sanitizeAlpha(
+            source[alphaKey] ?? field.alphaDefault ?? 100,
+        );
     }
 
     return sanitized;

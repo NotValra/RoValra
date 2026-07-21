@@ -45,7 +45,10 @@ import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js'
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
-import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
+import {
+    init as initThemeSwitcher,
+    refreshThemeSwitcher,
+} from './features/sitewide/themeSwitcher.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 
 // Avatar
@@ -617,6 +620,13 @@ async function handleUrlChange() {
             'color: #FF4500;',
         );
         lastPath = currentPath;
+
+        refreshThemeSwitcher().catch((error) =>
+            console.error(
+                'RoValra: Failed to reapply theme after navigation.',
+                error,
+            ),
+        );
 
         runFeaturesForPage();
 

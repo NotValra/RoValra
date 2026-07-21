@@ -184,7 +184,7 @@ async function applyCatalogTheme(theme, button, card) {
         const customTheme = catalogThemeToCustomTheme(theme);
         await handleSaveSettings('customUserTheme', customTheme);
         await handleSaveSettings('ThemeSwitcher', 'custom-user');
-        await setTheme('custom-user');
+        await setTheme('custom-user', customTheme);
         applyCustomTheme(customTheme);
     }
 

@@ -137,9 +137,15 @@
 
 .rovalra-custom-theme-selector-controls {
     display: grid;
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 42px minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
+}
+
+.rovalra-custom-theme-selector-reset {
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: 11px;
 }
 
 .rovalra-custom-theme-selector-controls input[type='color'] {

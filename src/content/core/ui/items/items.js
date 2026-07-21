@@ -393,9 +393,9 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
             card.style.maxWidth = '150px';
         }
         card.innerHTML = `
-            <div class="rovalra-item-thumb-container shimmer" style="width: 100%; height: 150px; border-radius: 8px; margin-bottom: 4px;"></div>
-            <div class="rovalra-item-name shimmer" style="height: 14px; width: 90%; margin-bottom: 4px; border-radius: 4px;"></div>
-            <div class="rovalra-item-rap shimmer" style="height: 14px; width: 60%; border-radius: 4px;"></div>
+            <div class="rovalra-item-thumb-container shimmer" style="width: 100%; height: 150px; border-radius: 8px; margin-bottom: 4px; background-color: var(--color-common-shimmer);"></div>
+            <div class="rovalra-item-name shimmer" style="height: 14px; width: 90%; margin-bottom: 4px; border-radius: 4px; background-color: var(--color-common-shimmer);"></div>
+            <div class="rovalra-item-rap shimmer" style="height: 14px; width: 60%; border-radius: 4px; background-color: var(--color-common-shimmer);"></div>
         `;
 
         batchQueue.push({

@@ -13,15 +13,12 @@
     transform: none;
 
     // Theme variables
-    --rovalra-overlay-bg: #ffffff;
-    --rovalra-overlay-text: #191b1d;
-    --rovalra-overlay-border: #d9dadb;
+    --rovalra-overlay-bg: var(--color-surface-100, #ffffff);
+    --rovalra-overlay-text: var(--color-content-emphasis, #191b1d);
+    --rovalra-overlay-border: var(--color-surface-100, #d9dadb);
     --rovalra-overlay-shadow: rgba(0, 0, 0, 0.15);
 
     body.dark-theme & {
-        --rovalra-overlay-bg: rgb(25, 26, 31);
-        --rovalra-overlay-text: #ffffff;
-        --rovalra-overlay-border: rgba(255, 255, 255, 0.1);
         --rovalra-overlay-shadow: rgba(0, 0, 0, 0.5);
     }
 }
@@ -80,4 +77,9 @@
     top: 8px;
     right: 8px;
     z-index: 10;
+
+    .foundation-web-close-affordance {
+        background-color: var(--color-system-contrast);
+        color: var(--color-content-emphasis);
+    }
 }
