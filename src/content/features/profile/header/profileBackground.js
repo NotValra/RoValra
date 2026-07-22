@@ -20,9 +20,25 @@ const gradientSettingsPromises = new Map();
 const avatarTileIntersections = new Map();
 
 function applyGradientToElement(element, gradient, isSmallScale = false) {
-    element.style.background = gradient;
-    element.style.backgroundSize = isSmallScale ? '250% 250%' : 'cover';
-    element.style.backgroundPosition = 'center';
+    const fallbackColor = gradient.match(
+        /^linear-gradient\([^,]+,\s*(#[\da-fA-F]{3,8}|rgba?\([^)]*\)|[a-zA-Z]+)\s+[^,]+,/,
+    )?.[1];
+
+    element.style.setProperty('background', gradient, 'important');
+    element.style.setProperty('background-image', gradient, 'important');
+    if (fallbackColor) {
+        element.style.setProperty(
+            'background-color',
+            fallbackColor,
+            'important',
+        );
+    }
+    element.style.setProperty(
+        'background-size',
+        isSmallScale ? '250% 250%' : 'cover',
+        'important',
+    );
+    element.style.setProperty('background-position', 'center', 'important');
     element.dataset.rovalraAppliedGradient = gradient;
 }
 
@@ -30,9 +46,11 @@ function clearGradientFromElement(element) {
     if (!element) return;
     if (!element.dataset.rovalraAppliedGradient) return;
 
-    element.style.background = '';
-    element.style.backgroundSize = '';
-    element.style.backgroundPosition = '';
+    element.style.removeProperty('background');
+    element.style.removeProperty('background-image');
+    element.style.removeProperty('background-color');
+    element.style.removeProperty('background-size');
+    element.style.removeProperty('background-position');
     delete element.dataset.rovalraAppliedGradient;
 }
 
