@@ -174,7 +174,7 @@ function teardownProfileGradientObserver() {
 
 function observeProfileGradient(gradient) {
     profileGradientObserver = observeElement(
-        '.profile-header, .profile-avatar-left.profile-avatar-gradient, .user-profile-header-details-avatar-container .avatar-card-image, .avatar-toggle-button',
+        '.profile-header, .profile-avatar-left.profile-avatar-gradient, .profile-avatar-left.profile-avatar-background-empty-state, .user-profile-header-details-avatar-container .avatar-card-image, .avatar-toggle-button',
         (element) => {
             if (element.classList.contains('profile-header')) {
                 const profileContainer = element.querySelector(
