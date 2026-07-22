@@ -1656,21 +1656,32 @@ export const SETTINGS_CONFIG = {
             customRobloxBannerEnabled: {
                 label: 'Custom Roblox Banner',
                 description: [
-                    'Replaces the Roblox banner in the top-left navigation bar with a local image stored only in this browser.',
-                    'Images are stored only locally and are never shared to RoValra or Roblox.',
-                    'Recommended image: square PNG or WebP with transparency, 256x256 pixels. Minimum 64x64, maximum 512x512 after compression, up to 1 MB.',
+                    'Replaces the Roblox banner in the top-left navigation bar with an image loaded from a URL you provide.',
+                    'Also supports GIFs!',
+                    'Recommended image: square PNG or WebP with transparency, 256x256 pixels.',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['476449201'],
+                storageKey: [
+                    'customRobloxBannerImageUrl',
+                    'customRobloxBannerImage',
+                    'customRobloxBannerPositionX',
+                    'customRobloxBannerPositionY',
+                    'customRobloxBannerZoom',
+                ],
                 childSettings: {
-                    customRobloxBannerImage: {
-                        label: 'Banner Image',
+                    customRobloxBannerImageUrl: {
+                        label: 'Custom Roblox Banner URL',
                         description: [
-                            'Upload the image to use for the top-left Roblox banner.',
+                            'Enter a direct image URL to use as your Roblox banner.',
                         ],
-                        type: 'file',
-                        accept: 'image/*',
+                        type: 'input',
+                        inputType: 'url',
+                        placeholder: 'https://example.com/banner.png',
+                        trim: true,
+                        validateHttpUrl: true,
+                        imageUrlPreview: true,
                         default: null,
                     },
                     customRobloxBannerFitMode: {

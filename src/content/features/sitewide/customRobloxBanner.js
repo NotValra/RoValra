@@ -3,6 +3,7 @@ import { settings } from '../../core/settings/getSettings.js';
 import { handleSaveSettings } from '../../core/settings/handlesettings.js';
 
 const LOGO_IMAGE_ID = 'rovalra-custom-roblox-banner-image';
+const LOGO_WRAPPER_ID = 'rovalra-custom-roblox-banner-wrapper';
 const LOGO_READY_ATTR = 'data-rovalra-custom-roblox-banner-ready';
 const LOGO_HIDDEN_CLASS = 'rovalra-custom-roblox-banner-hidden';
 const STYLE_ID = 'rovalra-custom-roblox-banner-style';
@@ -12,16 +13,20 @@ const ORIGINAL_OVERFLOW_ATTR = 'data-rovalra-custom-roblox-banner-overflow';
 const ORIGINAL_POSITION_ATTR = 'data-rovalra-custom-roblox-banner-position';
 const ORIGINAL_DISPLAY_ATTR = 'data-rovalra-custom-roblox-banner-display';
 const TOPBAR_ROOT_SELECTOR = '#header > .container-fluid';
+const IMAGE_URL_SETTING = 'customRobloxBannerImageUrl';
+const LEGACY_IMAGE_SETTING = 'customRobloxBannerImage';
 const TOPBAR_MAX_Y = 96;
 const TOPBAR_MAX_X = 220;
+const DEFAULT_LOGO_SIZE = 28;
 
 let initialized = false;
 let currentEnabled = false;
-let currentImageData = null;
+let currentImageUrl = null;
 let currentFitMode = 'contain';
 let currentPositionX = 50;
 let currentPositionY = 50;
 let currentZoom = 100;
+const failedImageUrls = new Set();
 
 const logoSelectors = [
     `${TOPBAR_ROOT_SELECTOR} > .rbx-navbar-header`,
@@ -50,6 +55,13 @@ function injectStyles() {
 
         #${LOGO_IMAGE_ID} {
             display: block;
+            pointer-events: none;
+        }
+
+        #${LOGO_WRAPPER_ID} {
+            display: block;
+            line-height: 0;
+            overflow: hidden;
             pointer-events: none;
         }
     `;
@@ -109,7 +121,51 @@ function getLogoVisuals(host) {
     ].filter((element) => element.id !== LOGO_IMAGE_ID);
 }
 
-function getLogoSize(host, visuals) {
+function getElementSize(element) {
+    const hadHiddenClass = element.classList.contains(LOGO_HIDDEN_CLASS);
+    if (hadHiddenClass) element.classList.remove(LOGO_HIDDEN_CLASS);
+
+    const rect = element.getBoundingClientRect();
+    const computedStyle = getComputedStyle(element);
+    const width = parseFloat(computedStyle.width) || rect.width || 0;
+    const height = parseFloat(computedStyle.height) || rect.height || 0;
+
+    if (hadHiddenClass) element.classList.add(LOGO_HIDDEN_CLASS);
+
+    return { width, height };
+}
+
+function getUsableLogoSize(element) {
+    const size = getElementSize(element);
+    if (size.width <= 0 || size.height <= 0) return null;
+
+    return {
+        width: Math.max(size.width, DEFAULT_LOGO_SIZE),
+        height: Math.max(size.height, DEFAULT_LOGO_SIZE),
+    };
+}
+
+function getPreferredVisualSize(visuals) {
+    const fullLogo = visuals.find((element) =>
+        element.classList.contains('icon-logo'),
+    );
+    const compactLogo = visuals.find((element) =>
+        element.classList.contains('icon-logo-r'),
+    );
+    const otherLogos = visuals.filter(
+        (element) => element !== fullLogo && element !== compactLogo,
+    );
+    const candidates = [fullLogo, ...otherLogos, compactLogo].filter(Boolean);
+
+    for (const element of candidates) {
+        const size = getUsableLogoSize(element);
+        if (size) return size;
+    }
+
+    return null;
+}
+
+function getStoredLogoSize(host) {
     const storedWidth = Number(host.getAttribute(ORIGINAL_WIDTH_ATTR));
     const storedHeight = Number(host.getAttribute(ORIGINAL_HEIGHT_ATTR));
     if (storedWidth > 0 && storedHeight > 0) {
@@ -119,36 +175,35 @@ function getLogoSize(host, visuals) {
         };
     }
 
-    const hostRect = host.getBoundingClientRect();
-    const visualRects = visuals
-        .map((element) => element.getBoundingClientRect())
-        .filter((rect) => rect.width > 0 && rect.height > 0);
+    return null;
+}
 
-    const maxVisualWidth = Math.max(
-        0,
-        ...visualRects.map((rect) => rect.width),
-    );
-    const maxVisualHeight = Math.max(
-        0,
-        ...visualRects.map((rect) => rect.height),
-    );
+function getHostSize(host) {
+    const hostRect = host.getBoundingClientRect();
+    if (hostRect.width > 0 && hostRect.height > 0) {
+        return {
+            width: Math.max(hostRect.width, DEFAULT_LOGO_SIZE),
+            height: Math.max(hostRect.height, DEFAULT_LOGO_SIZE),
+        };
+    }
 
     return {
-        width: Math.max(maxVisualWidth, hostRect.width, 28),
-        height: Math.max(maxVisualHeight, hostRect.height, 28),
+        width: DEFAULT_LOGO_SIZE,
+        height: DEFAULT_LOGO_SIZE,
     };
 }
 
+function getLogoSize(host, visuals) {
+    return (
+        getPreferredVisualSize(visuals) ||
+        getStoredLogoSize(host) ||
+        getHostSize(host)
+    );
+}
+
 function storeLogoSize(host, size) {
-    if (Number(host.getAttribute(ORIGINAL_WIDTH_ATTR)) <= 0) {
-        host.setAttribute(ORIGINAL_WIDTH_ATTR, String(Math.round(size.width)));
-    }
-    if (Number(host.getAttribute(ORIGINAL_HEIGHT_ATTR)) <= 0) {
-        host.setAttribute(
-            ORIGINAL_HEIGHT_ATTR,
-            String(Math.round(size.height)),
-        );
-    }
+    host.setAttribute(ORIGINAL_WIDTH_ATTR, String(Math.round(size.width)));
+    host.setAttribute(ORIGINAL_HEIGHT_ATTR, String(Math.round(size.height)));
 }
 
 function storeHostStyles(host) {
@@ -167,7 +222,6 @@ function applyHostStyles(host) {
     storeHostStyles(host);
 
     const computedStyle = getComputedStyle(host);
-    host.style.overflow = 'hidden';
     if (computedStyle.position === 'static') {
         host.style.position = 'relative';
     }
@@ -191,16 +245,33 @@ function restoreHostStyles(host) {
     }
 }
 
+function applyLogoFrame(frame, size) {
+    frame.style.width = `${Math.round(size.width)}px`;
+    frame.style.height = `${Math.round(size.height)}px`;
+    frame.style.maxWidth = `${Math.round(size.width)}px`;
+    frame.style.maxHeight = `${Math.round(size.height)}px`;
+    frame.style.overflow = 'hidden';
+    frame.style.flexShrink = '0';
+}
+
 function applyImageFit(image, size) {
     const fitMode =
         currentFitMode === 'stretch' || currentFitMode === 'cover'
             ? currentFitMode
             : 'contain';
 
-    image.style.width = `${Math.round(size.width)}px`;
-    image.style.height = `${Math.round(size.height)}px`;
-    image.style.maxWidth = '100%';
-    image.style.maxHeight = '100%';
+    image.style.setProperty(
+        'width',
+        `${Math.round(size.width)}px`,
+        'important',
+    );
+    image.style.setProperty(
+        'height',
+        `${Math.round(size.height)}px`,
+        'important',
+    );
+    image.style.setProperty('max-width', 'none', 'important');
+    image.style.setProperty('max-height', 'none', 'important');
     image.style.objectFit = fitMode === 'stretch' ? 'fill' : fitMode;
     image.style.objectPosition = `${currentPositionX}% ${currentPositionY}%`;
     image.style.transform = `scale(${currentZoom / 100})`;
@@ -222,6 +293,81 @@ function normalizeZoom(value) {
     return Math.max(25, Math.min(300, number));
 }
 
+function normalizeImageUrl(value) {
+    if (typeof value !== 'string') return null;
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue) return null;
+
+    try {
+        const url = new URL(trimmedValue);
+        return url.protocol === 'http:' || url.protocol === 'https:'
+            ? trimmedValue
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+function isLegacyImageValue(value) {
+    if (typeof value !== 'string') return false;
+
+    return (
+        value.startsWith('data:') ||
+        value.startsWith('blob:') ||
+        value.startsWith('filesystem:')
+    );
+}
+
+async function clearIncompatibleStoredValues() {
+    const stored = await chrome.storage.local.get([
+        IMAGE_URL_SETTING,
+        LEGACY_IMAGE_SETTING,
+        'rovalra_settings',
+    ]);
+    const updates = {};
+    const removals = [];
+    let settingsDataChanged = false;
+    const settingsData =
+        stored.rovalra_settings && typeof stored.rovalra_settings === 'object'
+            ? { ...stored.rovalra_settings }
+            : null;
+
+    if (
+        isLegacyImageValue(stored[LEGACY_IMAGE_SETTING]) ||
+        isLegacyImageValue(settingsData?.[LEGACY_IMAGE_SETTING])
+    ) {
+        removals.push(LEGACY_IMAGE_SETTING);
+        if (settingsData) {
+            delete settingsData[LEGACY_IMAGE_SETTING];
+            settingsDataChanged = true;
+        }
+    }
+
+    const storedUrl = stored[IMAGE_URL_SETTING];
+    const settingsUrl = settingsData?.[IMAGE_URL_SETTING];
+    const hasInvalidStoredUrl =
+        typeof storedUrl === 'string' &&
+        storedUrl.trim() &&
+        !normalizeImageUrl(storedUrl);
+    const hasInvalidSettingsUrl =
+        typeof settingsUrl === 'string' &&
+        settingsUrl.trim() &&
+        !normalizeImageUrl(settingsUrl);
+
+    if (hasInvalidStoredUrl || hasInvalidSettingsUrl) {
+        removals.push(IMAGE_URL_SETTING);
+        if (settingsData) {
+            delete settingsData[IMAGE_URL_SETTING];
+            settingsDataChanged = true;
+        }
+    }
+
+    if (settingsDataChanged) updates.rovalra_settings = settingsData;
+    if (removals.length) await chrome.storage.local.remove(removals);
+    if (Object.keys(updates).length) await chrome.storage.local.set(updates);
+}
+
 function clearLogo(host) {
     if (!host) return;
 
@@ -229,41 +375,91 @@ function clearLogo(host) {
     host.removeAttribute(ORIGINAL_WIDTH_ATTR);
     host.removeAttribute(ORIGINAL_HEIGHT_ATTR);
     restoreHostStyles(host);
+    host.querySelector(`#${LOGO_WRAPPER_ID}`)?.remove();
     host.querySelector(`#${LOGO_IMAGE_ID}`)?.remove();
     getLogoVisuals(host).forEach((element) => {
         element.classList.remove(LOGO_HIDDEN_CLASS);
     });
 }
 
+function revealLoadedLogo(host, image) {
+    if (
+        !host ||
+        !image ||
+        !image.isConnected ||
+        image.dataset.rovalraCustomRobloxBannerUrl !== currentImageUrl
+    ) {
+        return;
+    }
+    if (!image.complete || image.naturalWidth <= 0) return;
+
+    const visuals = getLogoVisuals(host);
+    const size = getLogoSize(host, visuals);
+    const frame = image.closest(`#${LOGO_WRAPPER_ID}`);
+    if (!frame) return;
+
+    storeLogoSize(host, size);
+    applyHostStyles(host);
+    applyLogoFrame(frame, size);
+    applyImageFit(image, size);
+    visuals.forEach((element) => {
+        element.classList.add(LOGO_HIDDEN_CLASS);
+    });
+    image.style.visibility = 'visible';
+    host.setAttribute(LOGO_READY_ATTR, 'true');
+}
+
 function applyLogo(host) {
     if (!host) return;
 
-    if (!currentEnabled || !currentImageData) {
+    if (
+        !currentEnabled ||
+        !currentImageUrl ||
+        failedImageUrls.has(currentImageUrl)
+    ) {
         clearLogo(host);
         return;
     }
 
     injectStyles();
 
-    const visuals = getLogoVisuals(host);
-    const size = getLogoSize(host, visuals);
-    storeLogoSize(host, size);
-    applyHostStyles(host);
-    visuals.forEach((element) => {
-        element.classList.add(LOGO_HIDDEN_CLASS);
-    });
-
     let image = host.querySelector(`#${LOGO_IMAGE_ID}`);
-    if (!image) {
+    if (
+        image?.dataset.rovalraCustomRobloxBannerUrl !== currentImageUrl ||
+        (image && !image.closest(`#${LOGO_WRAPPER_ID}`))
+    ) {
+        clearLogo(host);
+        const frame = document.createElement('span');
+        frame.id = LOGO_WRAPPER_ID;
         image = document.createElement('img');
         image.id = LOGO_IMAGE_ID;
         image.alt = 'Roblox';
-        host.appendChild(image);
+        image.dataset.rovalraCustomRobloxBannerUrl = currentImageUrl;
+        image.style.visibility = 'hidden';
+        frame.appendChild(image);
+        host.appendChild(frame);
     }
 
-    image.src = currentImageData;
-    applyImageFit(image, size);
-    host.setAttribute(LOGO_READY_ATTR, 'true');
+    image.onload = () => {
+        revealLoadedLogo(host, image);
+    };
+    image.onerror = () => {
+        if (
+            !image.isConnected ||
+            image.dataset.rovalraCustomRobloxBannerUrl !== currentImageUrl
+        )
+            return;
+
+        failedImageUrls.add(currentImageUrl);
+        clearLogo(host);
+    };
+
+    if (image.src !== currentImageUrl) {
+        image.src = currentImageUrl;
+        revealLoadedLogo(host, image);
+    } else {
+        revealLoadedLogo(host, image);
+    }
 }
 
 function syncLogoElement(element) {
@@ -288,7 +484,7 @@ function syncAllLogoElements() {
 
 async function loadCustomLogoSettings() {
     currentEnabled = (await settings.customRobloxBannerEnabled) === true;
-    currentImageData = await settings.customRobloxBannerImage;
+    currentImageUrl = normalizeImageUrl(await settings[IMAGE_URL_SETTING]);
     currentFitMode = (await settings.customRobloxBannerFitMode) || 'contain';
     currentPositionX = normalizePosition(
         await settings.customRobloxBannerPositionX,
@@ -303,7 +499,8 @@ function handleStorageChange(changes, areaName) {
     if (areaName !== 'local') return;
     if (
         !changes.customRobloxBannerEnabled &&
-        !changes.customRobloxBannerImage &&
+        !changes[IMAGE_URL_SETTING] &&
+        !changes[LEGACY_IMAGE_SETTING] &&
         !changes.customRobloxBannerFitMode &&
         !changes.customRobloxBannerPositionX &&
         !changes.customRobloxBannerPositionY &&
@@ -311,7 +508,8 @@ function handleStorageChange(changes, areaName) {
     )
         return;
 
-    loadCustomLogoSettings()
+    clearIncompatibleStoredValues()
+        .then(loadCustomLogoSettings)
         .then(syncAllLogoElements)
         .catch((error) =>
             console.error(
@@ -370,6 +568,7 @@ function initializePositionControls() {
 }
 
 async function initialize() {
+    await clearIncompatibleStoredValues();
     await loadCustomLogoSettings();
 
     logoSelectors.forEach((selector) => {
