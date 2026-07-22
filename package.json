@@ -1,45 +1,45 @@
 {
-    "name": "rovalra",
-    "version": "2.6",
-    "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
-    "private": true,
-    "scripts": {
-        "build": "npm run clean && node build.js",
-        "clean": "rimraf dist",
-        "lint": "eslint ."
-    },
-    "devDependencies": {
-        "@types/chrome": "^0.2.2",
-        "chrome-types": "^0.1.435",
-        "esbuild": "^0.28.1",
-        "eslint": "10.7.0",
-        "eslint-config-prettier": "^10.1.8",
-        "globals": "^17.7.0",
-        "prettier": "^3.9.6",
-        "prettier-eslint": "^17.1.1",
-        "rimraf": "^6.1.3",
-        "sass": "^1.101.3",
-        "yaml": "^2.9.0"
-    },
-    "dependencies": {
-        "dompurify": "^3.4.11",
-        "fflate": "^0.8.3",
-        "fzstd": "^0.1.1",
-        "i18next": "26.3.6",
-        "marked": "^18.0.5",
-        "roavatar-renderer": "^1.5.17",
-        "roblox-bat": "0.6.5",
-        "swagger-ui-dist": "^5.32.10"
-    },
-    "overrides": {
-        "brace-expansion": "^2.0.1",
-        "flatted": "^3.3.2",
-        "lodash": "^4.17.21",
-        "minimatch": "^9.0.5",
-        "picomatch": "^4.0.2"
-    },
-    "lint-staged": {
-        "*.js": "eslint --fix",
-        "*.{js,json,css,md}": "prettier --write"
-    }
+  "name": "rovalra",
+  "version": "2.6.1",
+  "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
+  "private": true,
+  "scripts": {
+    "build": "npm run clean && node build.js",
+    "clean": "rimraf dist",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.2.2",
+    "chrome-types": "^0.1.435",
+    "esbuild": "^0.28.1",
+    "eslint": "10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.6",
+    "prettier-eslint": "^17.1.1",
+    "rimraf": "^6.1.3",
+    "sass": "^1.101.3",
+    "yaml": "^2.9.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.11",
+    "fflate": "^0.8.3",
+    "fzstd": "^0.1.1",
+    "i18next": "26.3.6",
+    "marked": "^18.0.5",
+    "roavatar-renderer": "^1.5.17",
+    "roblox-bat": "0.6.5",
+    "swagger-ui-dist": "^5.32.10"
+  },
+  "overrides": {
+    "brace-expansion": "^2.0.1",
+    "flatted": "^3.3.2",
+    "lodash": "^4.17.21",
+    "minimatch": "^9.0.5",
+    "picomatch": "^4.0.2"
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix",
+    "*.{js,json,css,md}": "prettier --write"
+  }
 }
