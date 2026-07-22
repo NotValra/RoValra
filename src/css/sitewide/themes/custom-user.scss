@@ -169,6 +169,11 @@
 }
 
 .rovalra-custom-user-theme {
+    .rovalra-global-overlay .foundation-web-close-affordance {
+        background-color: var(--color-system-contrast);
+        color: var(--color-content-emphasis);
+    }
+
     .game-card-name,
     .game-name-title,
     .friends-carousel-display-name,
