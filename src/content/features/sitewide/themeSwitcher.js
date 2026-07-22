@@ -1,4 +1,5 @@
 import { settings } from '../../core/settings/getSettings';
+import { observeAttributes } from '../../core/observer.js';
 import {
     CUSTOM_THEME_FIELDS,
     DEFAULT_CUSTOM_THEME,
@@ -35,6 +36,12 @@ let storageListenerRegistered = false;
 let themeSwitcherInitialized = false;
 let themeOperation = Promise.resolve();
 let themeDataPromise = null;
+let themeEnforcementEnabled = false;
+let activeThemeKey = null;
+let activeCustomThemeValue = undefined;
+let themeRepairScheduled = false;
+let initialThemeReady = false;
+let resolveInitialThemeReady = null;
 
 /** @type {Record<string, Theme>} */
 let ThemeData = {};
@@ -84,6 +91,17 @@ async function applyTheme(themeKey, customThemeValue) {
         return;
     }
 
+    let resolvedCustomThemeValue = customThemeValue;
+    if (themeKey === 'custom-user' && resolvedCustomThemeValue === undefined) {
+        const storedTheme = await chrome.storage.local.get({
+            customUserTheme: DEFAULT_CUSTOM_THEME,
+        });
+        resolvedCustomThemeValue = storedTheme.customUserTheme;
+    }
+
+    activeThemeKey = themeKey;
+    activeCustomThemeValue = resolvedCustomThemeValue;
+
     const desiredClasses = new Set(GetClassList(theme));
     const managedClasses = new Set();
 
@@ -111,11 +129,7 @@ async function applyTheme(themeKey, customThemeValue) {
     }
 
     if (themeKey === 'custom-user') {
-        applyCustomTheme(
-            customThemeValue === undefined
-                ? await settings.customUserTheme
-                : customThemeValue,
-        );
+        applyCustomTheme(resolvedCustomThemeValue);
     }
 }
 
@@ -171,9 +185,12 @@ async function prepareRenderedTheme(changes = null) {
     }
 
     if (!themeSwitcherEnabled) {
+        themeEnforcementEnabled = false;
         await applyTheme(OriginalTheme ?? 'builtin-dark');
         return;
     }
+
+    themeEnforcementEnabled = true;
 
     switch (theme) {
         case 'default':
@@ -250,10 +267,55 @@ export function init() {
     if (themeSwitcherInitialized) return;
     themeSwitcherInitialized = true;
 
+    observeAttributes(
+        document.body,
+        () => {
+            if (
+                !themeEnforcementEnabled ||
+                !activeThemeKey ||
+                themeRepairScheduled
+            ) {
+                return;
+            }
+
+            const activeTheme = getThemeByStorageKey(activeThemeKey);
+            if (
+                !activeTheme ||
+                GetClassList(activeTheme).every((className) =>
+                    document.body.classList.contains(className),
+                )
+            ) {
+                return;
+            }
+
+            themeRepairScheduled = true;
+            queueThemeOperation(() =>
+                applyTheme(activeThemeKey, activeCustomThemeValue),
+            )
+                .catch((error) =>
+                    console.error(
+                        'RoValra: Failed to repair the selected theme.',
+                        error,
+                    ),
+                )
+                .finally(() => {
+                    themeRepairScheduled = false;
+                });
+        },
+        ['class'],
+    );
+
     window.addEventListener('themeDetected', (event) => {
         const detectedTheme = event.detail?.theme;
         if (detectedTheme === 'light') OriginalTheme = 'builtin-light';
         if (detectedTheme === 'dark') OriginalTheme = 'builtin-dark';
+
+        if (!initialThemeReady) {
+            initialThemeReady = true;
+            resolveInitialThemeReady?.();
+            resolveInitialThemeReady = null;
+            return;
+        }
 
         PrepareRenderedTheme().catch((error) =>
             console.error(
@@ -263,5 +325,14 @@ export function init() {
         );
     });
 
-    return PrepareRenderedTheme(); // Reduce glitching on page load if selected theme visually conflicts with Roblox theme
+    const waitForInitialTheme = new Promise((resolve) => {
+        resolveInitialThemeReady = resolve;
+    });
+    const timeout = new Promise((resolve) => setTimeout(resolve, 1500));
+
+    return Promise.race([waitForInitialTheme, timeout]).then(() => {
+        initialThemeReady = true;
+        resolveInitialThemeReady = null;
+        return PrepareRenderedTheme();
+    });
 }
