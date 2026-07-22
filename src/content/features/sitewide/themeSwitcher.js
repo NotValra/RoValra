@@ -33,7 +33,6 @@ let OriginalTheme = undefined;
 /** @type {boolean} */
 let storageListenerRegistered = false;
 let themeSwitcherInitialized = false;
-let themeRefreshQueue = Promise.resolve();
 
 /** @type {Record<string, Theme>} */
 let ThemeData = {};
@@ -135,7 +134,7 @@ async function PrepareRenderedTheme(changes = null) {
             }
 
             if (Object.keys(relevantChanges).length === 0) return;
-            queueThemeRefresh(relevantChanges).catch((error) =>
+            PrepareRenderedTheme(relevantChanges).catch((error) =>
                 console.error(
                     'RoValra: Failed to refresh the selected theme.',
                     error,
@@ -168,16 +167,8 @@ async function PrepareRenderedTheme(changes = null) {
     }
 }
 
-function queueThemeRefresh(changes = null) {
-    const refresh = themeRefreshQueue.then(() =>
-        PrepareRenderedTheme(changes),
-    );
-    themeRefreshQueue = refresh.catch(() => {});
-    return refresh;
-}
-
 export async function refreshThemeSwitcher() {
-    await queueThemeRefresh();
+    await PrepareRenderedTheme();
 }
 
 // Custom themes
@@ -232,5 +223,5 @@ export function init() {
     if (themeSwitcherInitialized) return;
     themeSwitcherInitialized = true;
 
-    return queueThemeRefresh(); // Reduce glitching on page load if selected theme visually conflicts with Roblox theme
+    return PrepareRenderedTheme(); // Reduce glitching on page load if selected theme visually conflicts with Roblox theme
 }
