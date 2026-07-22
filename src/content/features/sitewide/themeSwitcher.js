@@ -33,6 +33,8 @@ let OriginalTheme = undefined;
 /** @type {boolean} */
 let storageListenerRegistered = false;
 let themeSwitcherInitialized = false;
+let themeOperation = Promise.resolve();
+let themeDataPromise = null;
 
 /** @type {Record<string, Theme>} */
 let ThemeData = {};
@@ -45,10 +47,27 @@ const CUSTOM_THEME_FIELD_MAP = new Map(
 async function loadThemeData() {
     if (Object.keys(ThemeData).length > 0) return;
 
-    const response = await fetch(
+    if (themeDataPromise) return themeDataPromise;
+
+    themeDataPromise = fetch(
         chrome.runtime.getURL(`public/Assets/data/RuntimeData/ThemeData.json`),
-    ); // Verified
-    ThemeData = await response.json();
+    ) // Verified
+        .then((response) => response.json())
+        .then((data) => {
+            ThemeData = data;
+        })
+        .catch((error) => {
+            themeDataPromise = null;
+            throw error;
+        });
+
+    return themeDataPromise;
+}
+
+function queueThemeOperation(operation) {
+    const queuedOperation = themeOperation.then(operation, operation);
+    themeOperation = queuedOperation.catch(() => {});
+    return queuedOperation;
 }
 
 /**
@@ -56,7 +75,7 @@ async function loadThemeData() {
  * @param {object | undefined} customThemeValue
  * @returns {Promise<void>}
  */
-export async function setTheme(themeKey, customThemeValue) {
+async function applyTheme(themeKey, customThemeValue) {
     await loadThemeData();
 
     const theme = getThemeByStorageKey(themeKey);
@@ -100,7 +119,15 @@ export async function setTheme(themeKey, customThemeValue) {
     }
 }
 
+export function setTheme(themeKey, customThemeValue) {
+    return queueThemeOperation(() => applyTheme(themeKey, customThemeValue));
+}
+
 async function PrepareRenderedTheme(changes = null) {
+    return queueThemeOperation(() => prepareRenderedTheme(changes));
+}
+
+async function prepareRenderedTheme(changes = null) {
     const themeSwitcherEnabled = changes?.ThemeSwitcherEnabled
         ? changes.ThemeSwitcherEnabled.newValue
         : await settings.ThemeSwitcherEnabled;
@@ -144,13 +171,13 @@ async function PrepareRenderedTheme(changes = null) {
     }
 
     if (!themeSwitcherEnabled) {
-        await setTheme(OriginalTheme ?? 'builtin-dark');
+        await applyTheme(OriginalTheme ?? 'builtin-dark');
         return;
     }
 
     switch (theme) {
         case 'default':
-            await setTheme(OriginalTheme ?? 'builtin-dark');
+            await applyTheme(OriginalTheme ?? 'builtin-dark');
             break;
 
         case 'builtin-light':
@@ -159,7 +186,7 @@ async function PrepareRenderedTheme(changes = null) {
         case 'custom-sunset':
         case 'custom-highcontrast':
         case 'custom-user':
-            await setTheme(theme, changes?.customUserTheme?.newValue);
+            await applyTheme(theme, changes?.customUserTheme?.newValue);
             break;
 
         case theme:
@@ -222,6 +249,19 @@ export function applyCustomTheme(themeValue) {
 export function init() {
     if (themeSwitcherInitialized) return;
     themeSwitcherInitialized = true;
+
+    window.addEventListener('themeDetected', (event) => {
+        const detectedTheme = event.detail?.theme;
+        if (detectedTheme === 'light') OriginalTheme = 'builtin-light';
+        if (detectedTheme === 'dark') OriginalTheme = 'builtin-dark';
+
+        PrepareRenderedTheme().catch((error) =>
+            console.error(
+                'RoValra: Failed to apply the detected theme.',
+                error,
+            ),
+        );
+    });
 
     return PrepareRenderedTheme(); // Reduce glitching on page load if selected theme visually conflicts with Roblox theme
 }
