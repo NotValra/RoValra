@@ -117,7 +117,7 @@ These images, including the RoValra logo and related logo/icon artwork, are full
 
 - **Extension Logo:**
   _Gilbert_, a fish caught in
-  [Fisch](https://www.roblox.com/games/16732694052/Fisch)
+  [Fisch](http://web.archive.org/web/20260720095427/https://www.roblox.com/games/16732694052/Fisch)
 
 - **Early help with locating Servers:**
   7_lz (Discord)
