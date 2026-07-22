@@ -654,6 +654,7 @@ function openSidebarLayoutOverlay() {
         actions: [resetButton, saveButton],
         maxWidth: '620px',
         onClose: cleanupDragState,
+        showLogo: true,
     });
 }
 
