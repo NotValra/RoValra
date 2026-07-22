@@ -1,7 +1,7 @@
 import { observeElement, observeChildren } from '../../../core/observer.js';
 import { settings } from '../../../core/settings/getSettings.js';
 
-async function addUsernameColor(username) {
+async function addUsernameColor(username, el) {
     if (!username || username === '') return;
     username = username.slice(1); // remove the "@" symbol from username
 
@@ -37,10 +37,7 @@ async function addUsernameColor(username) {
     const cmv = ComputeNameValue(username);
     const value = cmv - Math.floor(cmv / colors.length) * colors.length;
 
-    const nameEl = document.querySelector(
-        '#profile-header-title-container-name',
-    );
-    if (nameEl) nameEl.style.color = colors[value];
+    if (el) el.style.color = colors[value];
 }
 
 export async function init() {
@@ -50,7 +47,7 @@ export async function init() {
         (el) => {
             const runUpdate = () => {
                 if (el.innerText.trim() !== '') {
-                    addUsernameColor(el.innerText);
+                    addUsernameColor(el.innerText, el);
                     return true;
                 }
                 return false;
