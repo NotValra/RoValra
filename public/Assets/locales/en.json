@@ -201,7 +201,8 @@
         "setInactive": "Set Inactive",
         "setActive": "Set Active",
         "noServersFound": "No {{status}} private servers found.",
-        "byCreator": "By "
+        "byCreator": "By ",
+        "allowJoining": "Allow Joining"
     },
     "firstAccount": {
         "label": "First Account",
