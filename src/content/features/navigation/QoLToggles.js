@@ -156,11 +156,20 @@ export function init() {
             position: 'center',
         });
 
-        menu.panel.style.transform = 'translateX(-50%)';
         menu.panel.style.setProperty('min-width', '320px', 'important');
 
         const updatePosition = () => {
-            if (button.offsetWidth > 0) {
+            if (button.offsetWidth <= 0) return;
+
+            const edge =
+                button.dataset.rovalraTopbarLayoutEdge ||
+                button.closest('[data-rovalra-topbar-layout-key]')?.dataset
+                    .rovalraTopbarLayoutEdge;
+            if (edge === 'left' || edge === 'right') {
+                menu.panel.style.transform = 'none';
+                menu.panel.style.marginLeft = '0';
+            } else {
+                menu.panel.style.transform = 'translateX(-50%)';
                 menu.panel.style.marginLeft = `${button.offsetWidth / 2}px`;
             }
         };

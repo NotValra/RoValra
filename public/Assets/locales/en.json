@@ -29,6 +29,30 @@
         "show": "Show",
         "hide": "Hide"
     },
+    "topbarLayout": {
+        "empty": "RoValra was unable to find any supported topbar items.",
+        "reset": "Reset",
+        "save": "Save",
+        "overlayTitle": "Topbar Layout",
+        "button": "Topbar Layout",
+        "disabled": "Required",
+        "show": "Show",
+        "hide": "Hide",
+        "labels": {
+            "logo": "Roblox Logo",
+            "charts": "Charts",
+            "marketplace": "Marketplace",
+            "create": "Create",
+            "robux": "Robux",
+            "search": "Search",
+            "profile": "Profile",
+            "qol": "Status",
+            "topbarLayout": "Topbar Layout",
+            "notifications": "Notifications",
+            "robuxBalance": "Robux Balance",
+            "settings": "Settings"
+        }
+    },
     "underratedGames": {
         "topic": "Underrated Games",
         "subtitle": "Underrated games hand picked by the RoValra community.",

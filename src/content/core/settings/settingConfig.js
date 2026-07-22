@@ -1640,6 +1640,19 @@ export const SETTINGS_CONFIG = {
                     'rovalra_sidebar_layout_hidden',
                 ],
             },
+            topbarLayoutEnabled: {
+                label: 'Topbar Layout',
+                description: [
+                    'Lets you reorder and hide buttons in the Roblox topbar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['476449201'],
+                storageKey: [
+                    'rovalra_topbar_layout_order',
+                    'rovalra_topbar_layout_hidden',
+                ],
+            },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
                 description: [
