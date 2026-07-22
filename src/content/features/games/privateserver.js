@@ -7,7 +7,7 @@ import { enhanceServer } from '../../core/games/servers/serverdetails.js';
 import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import DOMPurify from 'dompurify';
-import { addTooltip } from '../../core/ui/tooltip.js';
+import { createToggle } from '../../core/ui/general/toggle.js';
 
 const privateServerContext = {
     serverLocations: {},
@@ -290,6 +290,54 @@ async function addOwnerControls(serverItem, privateServerId) {
             generateLinkBtn.disabled = false;
         }, 1500);
     };
+
+    const toggleRow = document.createElement('div');
+    toggleRow.style.cssText =
+        'display:flex;align-items:center;justify-content:space-between;margin-top:5px;padding:0 2px;';
+
+    const toggleLabel = document.createElement('span');
+    toggleLabel.style.cssText =
+        'font-size:12px;color:var(--color-text-secondary);';
+    toggleLabel.textContent = await t('privateServer.allowJoining', {
+        defaultValue: 'Allow Joining',
+    });
+
+    const toggle = createToggle({
+        checked: initialData?.active !== false,
+        onChange: async (newState) => {
+            try {
+                const res = await callRobloxApi({
+                    subdomain: 'games',
+                    endpoint: `/v1/vip-servers/${privateServerId}`,
+                    method: 'PATCH',
+                    body: { active: newState },
+                });
+
+                if (res.ok) {
+                    vipServerDetailsCache.delete(privateServerId);
+
+                    if (newState) {
+                        generateLinkBtn.disabled = false;
+                        generateLinkBtn.style.opacity = '1';
+                    } else {
+                        generateLinkBtn.disabled = true;
+                        generateLinkBtn.style.opacity = '0.5';
+                    }
+
+                    copyLinkBtn.disabled = false;
+                    copyLinkBtn.style.opacity = '1';
+                } else {
+                    toggle.setChecked(!newState);
+                }
+            } catch (e) {
+                toggle.setChecked(!newState);
+            }
+        },
+    });
+
+    toggleRow.appendChild(toggleLabel);
+    toggleRow.appendChild(toggle);
+    container.appendChild(toggleRow);
 }
 
 export async function addModernPrivateServerControls(
@@ -442,4 +490,55 @@ export async function addModernPrivateServerControls(
     buttonsRow.appendChild(generateLinkWrapper);
     buttonsRow.appendChild(shareBtnWrapper);
     btnContainer.appendChild(buttonsRow);
+
+    const friendJoinRow = document.createElement('div');
+    friendJoinRow.className = 'flex flex-row items-center';
+    friendJoinRow.style.cssText =
+        'width: 200px; min-width: 200px; max-width: 200px; justify-content: space-between; margin-top: 4px; padding: 0 2px;';
+
+    const toggleLabel = document.createElement('span');
+    toggleLabel.style.cssText =
+        'font-size: 12px; color: var(--color-text-secondary);';
+    toggleLabel.textContent = ts('privateServer.allowJoining', {
+        defaultValue: 'Allow Joining',
+    });
+
+    const toggle = createToggle({
+        checked: details.active !== false,
+        onChange: async (newState) => {
+            try {
+                const response = await callRobloxApi({
+                    subdomain: 'games',
+                    endpoint: `/v1/vip-servers/${privateServerId}`,
+                    method: 'PATCH',
+                    body: { active: newState },
+                });
+
+                if (response.ok) {
+                    vipServerDetailsCache.delete(privateServerId);
+                    const updatedDetails =
+                        await getVipServerDetails(privateServerId);
+
+                    if (updatedDetails) {
+                        const currentShareBtn =
+                            btnContainer.querySelector('.rovalra-share-btn');
+                        if (currentShareBtn) {
+                            currentShareBtn.disabled = !updatedDetails.link;
+                            currentShareBtn.style.opacity =
+                                currentShareBtn.disabled ? '0.5' : '1';
+                        }
+                    }
+                } else {
+                    toggle.setChecked(!newState);
+                }
+            } catch (error) {
+                console.error('Error toggling allow joining:', error);
+                toggle.setChecked(!newState);
+            }
+        },
+    });
+
+    friendJoinRow.appendChild(toggleLabel);
+    friendJoinRow.appendChild(toggle);
+    btnContainer.appendChild(friendJoinRow);
 }
