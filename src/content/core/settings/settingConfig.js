@@ -1678,6 +1678,7 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: 'input',
                         inputType: 'url',
+                        inputWidth: '280px',
                         placeholder: 'https://example.com/banner.png',
                         trim: true,
                         validateHttpUrl: true,

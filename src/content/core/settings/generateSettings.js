@@ -719,7 +719,10 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         }
 
         container.style.marginLeft = 'auto';
-        container.style.width = setting.showCharacterCount ? '180px' : '200px';
+        container.style.width =
+            setting.inputWidth ||
+            (setting.showCharacterCount ? '180px' : '200px');
+        container.style.maxWidth = '100%';
 
         return container;
     } else if (setting.type === 'gradient') {
