@@ -158,6 +158,7 @@ import { init as initAccurateContinue } from './features/home/accurateContinue.j
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
+import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initThemeCatalogPage } from './features/themes/themeCatalogPage.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
@@ -414,6 +415,7 @@ const featureRoutes = [
             initHomeLayout,
             initUnderratedGamesHome,
             initAccurateContinue,
+            initHideAddFriendsButton,
         ],
     },
     {

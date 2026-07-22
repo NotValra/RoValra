@@ -1131,6 +1131,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            HideAddFriendsButton: {
+                label: 'Hide Add Friends Button',
+                description: [
+                    'Hides the Add Friends button from the Home page and allows friend cards to use the freed space.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+            },
             homeLayoutEnabled: {
                 label: 'Home Layout',
                 description: [

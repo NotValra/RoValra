@@ -21,6 +21,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '650766686', // auggeeoF
     '146089324', // WoozyNate
     '2974594300', // AGENT700PRODS (im not spending 1k robux to change it, ok?)
+    '476449201', //IYoLsa
 ];
 
 export const TESTER_USER_IDS = [
