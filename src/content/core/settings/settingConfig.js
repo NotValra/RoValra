@@ -1646,7 +1646,7 @@ export const SETTINGS_CONFIG = {
                     'Lets you reorder and hide buttons in the Roblox topbar.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['476449201'],
                 storageKey: [
                     'rovalra_topbar_layout_order',
