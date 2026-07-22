@@ -1167,24 +1167,36 @@ export const initSettings = async (settingsContent) => {
                                     toggleElement.checked = isEnabled;
                                 }
                             } else if (childSetting.type === 'file') {
+                                const fileUploadWrapper =
+                                    settingsContent.querySelector(
+                                        `[data-setting-name="${childName}"]`,
+                                    );
                                 const previewElement =
-                                    settingsContent.querySelector(
-                                        `#preview-${childName}`,
-                                    );
-                                const clearButton =
-                                    settingsContent.querySelector(
-                                        `#clear-${childName}`,
-                                    );
-                                if (previewElement && settings[childName]) {
-                                    previewElement.src = settings[childName];
-                                    previewElement.style.display = 'block';
-                                    if (clearButton)
-                                        clearButton.style.display =
-                                            'inline-block';
-                                } else if (previewElement) {
-                                    previewElement.style.display = 'none';
-                                    if (clearButton)
-                                        clearButton.style.display = 'none';
+                                    fileUploadWrapper?.rovalraFileUpload?.getPreviewElement?.();
+                                const customLogoData = settings[childName];
+
+                                if (fileUploadWrapper?.rovalraFileUpload) {
+                                    const {
+                                        setFileName,
+                                        showClear,
+                                        setPreview,
+                                    } = fileUploadWrapper.rovalraFileUpload;
+                                    if (customLogoData) {
+                                        setFileName('custom_image.png');
+                                        showClear(true);
+                                        setPreview(
+                                            customLogoData,
+                                            Math.round(
+                                                (customLogoData.length * 3) / 4,
+                                            ),
+                                        );
+                                    } else {
+                                        setFileName(null);
+                                        showClear(false);
+                                        previewElement?.classList.remove(
+                                            'visible',
+                                        );
+                                    }
                                 }
                             } else if (childSetting.type === 'button') {
                                 // No state to restore from settings
