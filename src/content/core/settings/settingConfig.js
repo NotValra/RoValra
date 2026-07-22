@@ -1654,7 +1654,7 @@ export const SETTINGS_CONFIG = {
                 ],
             },
             customRobloxBannerEnabled: {
-                label: 'Custom Roblox Banner',
+                label: 'Roblox Logo Customization',
                 description: [
                     'Replaces the Roblox banner in the top-left navigation bar with an image loaded from a URL you provide.',
                     'Also supports GIFs!',
