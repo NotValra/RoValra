@@ -1030,6 +1030,14 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            improvedAvatarCard: {
+                label: 'Improved Avatar Card',
+                description: [
+                    'Adds a gap around the profile avatar making it look a bit nicer and modern.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             usernameColor: {
                 label: 'Username Color Preview',
                 description: [

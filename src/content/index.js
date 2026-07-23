@@ -140,6 +140,7 @@ import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initAvatarDownload } from './features/profile/header/avatarDownload.js';
 import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
+import { init as initImprovedAvatarCard } from './features/profile/improvedAvatarCard.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
@@ -344,6 +345,7 @@ const featureRoutes = [
         paths: ['/users/'],
         features: [
             initDonationLink,
+            initImprovedAvatarCard,
             initRap,
             initInstantJoiner,
             initOutfits,
