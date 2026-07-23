@@ -2076,6 +2076,13 @@ export const SETTINGS_CONFIG = {
                         default: true,
                         contributors: ['4866259395', '447170745'],
                     },
+                    profileUsernameSpacingFixEnabled: {
+                        label: 'Keep profile usernames spaced from the top',
+                        description:
+                            'Prevents your username from being moved up to a place where its harder to read. From extensions adding features.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             eastereggslinksEnabled: {
