@@ -543,7 +543,12 @@ function getProfileAssetEntries(profileData) {
     );
     if (backgroundId) {
         seenIds.add(backgroundId);
-        entries.push({ id: backgroundId, typeId: null, category: 'cosmetics' });
+        entries.push({
+            id: backgroundId,
+            typeId: null,
+            itemType: 'Asset',
+            category: 'cosmetics',
+        });
     }
 
     (profileData?.components?.CurrentlyWearing?.assets || []).forEach(
@@ -555,6 +560,9 @@ function getProfileAssetEntries(profileData) {
             entries.push({
                 id,
                 typeId: null,
+                itemType: asset.itemType === 'Bundle' ? 'Bundle' : 'Asset',
+                category:
+                    asset.itemType === 'Bundle' ? 'bodyParts' : undefined,
             });
         });
 
@@ -637,6 +645,7 @@ async function loadCurrentlyWearing(content, profileData) {
             assetInfoCache.set(entry.id, {
                 id: entry.id,
                 assetType: entry.typeId ? { id: entry.typeId } : null,
+                itemType: entry.itemType,
                 rovalraCategory: entry.category,
             });
             addItemToCategoryView(null, entry.id);
@@ -696,6 +705,7 @@ export function addItemToCategoryView(itemEl, assetId) {
         const thumbnailData = getOriginalThumbnailData(itemEl, assetId);
         const card = createItemCard(assetId, {
             thumbnailData,
+            itemType: info?.itemType || 'Asset',
         });
         card.dataset.rovalraPendingId = assetId;
         targetGrid.appendChild(card);
@@ -822,6 +832,10 @@ export async function init() {
                 assetInfoCache.set(item.id, {
                     id: item.id,
                     assetType: { id: typeId, name: typeName },
+                    itemType:
+                        assetInfoCache.get(item.id)?.itemType ||
+                        item.itemType ||
+                        'Asset',
                     rovalraCategory: assetInfoCache.get(item.id)
                         ?.rovalraCategory,
                 });

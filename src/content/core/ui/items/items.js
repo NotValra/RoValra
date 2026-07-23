@@ -148,15 +148,30 @@ async function processBatch() {
                 });
             }
         });
-        const thumbnailIdsToFetch = ids.filter(
-            (id) => !prefetchedThumbMap.has(id),
+        const thumbnailRequests = currentBatch.filter(
+            (request) => !prefetchedThumbMap.has(request.id),
         );
+        const thumbnailGroups = new Map();
+        thumbnailRequests.forEach((request) => {
+            const itemType =
+                request.config?.itemType === 'Bundle'
+                    ? 'BundleThumbnail'
+                    : 'Asset';
+            if (!thumbnailGroups.has(itemType))
+                thumbnailGroups.set(itemType, []);
+            thumbnailGroups.get(itemType).push(request.id);
+        });
         const [detailsRes, looksRes, thumbMap] = await Promise.all([
             callRobloxApi({
                 subdomain: 'catalog',
                 endpoint: `/v1/catalog/items/details`,
                 method: 'POST',
-                body: { items: ids.map((id) => ({ itemType: 'Asset', id })) },
+                body: {
+                    items: currentBatch.map((request) => ({
+                        itemType: request.config?.itemType || 'Asset',
+                        id: request.id,
+                    })),
+                },
             }),
             callRobloxApi({
                 subdomain: 'apis',
@@ -164,13 +179,22 @@ async function processBatch() {
                 method: 'POST',
                 body: { assets: ids.map((id) => ({ id })) },
             }),
-            thumbnailIdsToFetch.length > 0
-                ? fetchThumbnails(
-                      thumbnailIdsToFetch.map((id) => ({ id })),
-                      'Asset',
-                      '150x150',
-                  )
-                : Promise.resolve(new Map()),
+            Promise.all(
+                Array.from(thumbnailGroups.entries()).map(
+                    ([itemType, thumbnailIds]) =>
+                        fetchThumbnails(
+                            thumbnailIds.map((id) => ({ id })),
+                            itemType,
+                            '150x150',
+                        ),
+                ),
+            ).then((maps) => {
+                const merged = new Map();
+                maps.forEach((map) =>
+                    map.forEach((thumbnail, id) => merged.set(id, thumbnail)),
+                );
+                return merged;
+            }),
         ]);
 
         prefetchedThumbMap.forEach((thumbData, id) => {
