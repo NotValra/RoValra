@@ -329,6 +329,123 @@ function injectAvatarPreview(container, inputElement, settingName) {
     }
 }
 
+function normalizePreviewImageUrl(value) {
+    if (typeof value !== 'string') return null;
+
+    const trimmedValue = value.trim();
+    if (!trimmedValue) return null;
+
+    try {
+        const url = new URL(trimmedValue);
+        return url.protocol === 'http:' || url.protocol === 'https:'
+            ? trimmedValue
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+function createImageUrlPreview(inputElement, settingName) {
+    const previewWrapper = document.createElement('div');
+    previewWrapper.className = 'rovalra-preview-section';
+    previewWrapper.dataset.rovalraPreviewSection = settingName;
+    previewWrapper.style.cssText =
+        'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-top: 15px;';
+
+    const title = document.createElement('div');
+    title.style.cssText =
+        'font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);';
+    title.textContent = 'Preview';
+
+    const divider = document.createElement('div');
+    divider.className = 'setting-label-divider';
+    divider.style.width = '100%';
+    divider.style.marginBottom = '10px';
+
+    const image = document.createElement('img');
+    image.id = `preview-${settingName}`;
+    image.alt = 'Custom Roblox Banner Preview';
+    image.style.cssText =
+        'display: none; width: 64px; height: 64px; object-fit: contain; border-radius: 8px; border: 1px solid var(--rovalra-border-color); background: var(--rovalra-main-background-color); padding: 6px;';
+    let activePreviewUrl = null;
+
+    function clearPreview() {
+        activePreviewUrl = null;
+        image.onload = null;
+        image.onerror = null;
+        image.style.display = 'none';
+        delete image.dataset.rovalraPreviewImageUrl;
+        image.removeAttribute('src');
+    }
+
+    function updatePreview(value) {
+        const imageUrl = normalizePreviewImageUrl(value);
+        if (!imageUrl) {
+            clearPreview();
+            return;
+        }
+
+        if (image.dataset.rovalraPreviewImageUrl === imageUrl) {
+            if (image.complete && image.naturalWidth > 0) {
+                image.style.display = 'block';
+            }
+            return;
+        }
+
+        activePreviewUrl = imageUrl;
+        image.dataset.rovalraPreviewImageUrl = imageUrl;
+        image.onload = () => {
+            if (activePreviewUrl !== imageUrl) return;
+            image.style.display = 'block';
+        };
+        image.onerror = () => {
+            if (activePreviewUrl !== imageUrl) return;
+            clearPreview();
+        };
+        image.style.display = 'none';
+        image.src = imageUrl;
+
+        if (
+            activePreviewUrl === imageUrl &&
+            image.complete &&
+            image.naturalWidth > 0
+        ) {
+            image.style.display = 'block';
+        }
+    }
+
+    inputElement.addEventListener('input', () => {
+        updatePreview(inputElement.value);
+    });
+
+    const settingSavedHandler = (event) => {
+        if (event.detail?.name !== settingName) return;
+        updatePreview(event.detail.value || '');
+    };
+    document.addEventListener('rovalra:settingSaved', settingSavedHandler);
+
+    const observer = observeElement(`#preview-${settingName}`, () => {}, {
+        onRemove: () => {
+            document.removeEventListener(
+                'rovalra:settingSaved',
+                settingSavedHandler,
+            );
+            observer.disconnect();
+        },
+    });
+
+    previewWrapper.append(title, divider, image);
+
+    chrome.storage.local.get([settingName, 'rovalra_settings'], (result) => {
+        updatePreview(
+            result[settingName] ?? result.rovalra_settings?.[settingName] ?? '',
+        );
+    });
+    requestAnimationFrame(() => updatePreview(inputElement.value || ''));
+
+    return previewWrapper;
+}
+
 export function findSettingConfig(settingName) {
     for (const category of Object.values(SETTINGS_CONFIG)) {
         for (const [parentSettingName, parentSettingDef] of Object.entries(
@@ -474,6 +591,10 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         input.dataset.settingName = settingName;
 
+        if (setting.inputType) {
+            input.type = setting.inputType;
+        }
+
         if (
             setting.characterReplacements ||
             setting.replaceSpecialCharactersWithPipe
@@ -598,7 +719,10 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         }
 
         container.style.marginLeft = 'auto';
-        container.style.width = setting.showCharacterCount ? '180px' : '200px';
+        container.style.width =
+            setting.inputWidth ||
+            (setting.showCharacterCount ? '180px' : '200px');
+        container.style.maxWidth = '100%';
 
         return container;
     } else if (setting.type === 'gradient') {
@@ -1045,6 +1169,12 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         injectAvatarPreview(settingContainer, inputElement, settingName);
     }
 
+    if (setting.imageUrlPreview === true) {
+        settingContainer.appendChild(
+            createImageUrlPreview(inputElement, settingName),
+        );
+    }
+
     if (setting.description) {
         const divider = document.createElement('div');
         divider.className = 'setting-label-divider';
@@ -1180,6 +1310,12 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
             if (childSetting.avatarPreview === true) {
                 injectAvatarPreview(childContainer, childInput, childName);
+            }
+
+            if (childSetting.imageUrlPreview === true) {
+                childContainer.appendChild(
+                    createImageUrlPreview(childInput, childName),
+                );
             }
 
             if (childSetting.description) {
