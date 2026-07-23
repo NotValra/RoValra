@@ -1,5 +1,4 @@
 import { observeElement } from '../../core/observer.js';
-import { callRobloxApiJson } from '../../core/api.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { getAllCategories } from '../../core/utils/itemCategories.js';
 import { createItemCard } from '../../core/ui/items/items.js';
@@ -40,6 +39,7 @@ let accessoriesGrid = null;
 let emotesGrid = null;
 let animationsGrid = null;
 let bodyPartsGrid = null;
+let cosmeticsGrid = null;
 let currentFilter = 'items';
 let activeWearingUserId = null;
 let activeWearingRequestId = 0;
@@ -226,7 +226,18 @@ function updateScrollButtonStates(container, leftBtn, rightBtn) {
     rightBtn.classList.toggle('rovalra-btn-disabled', isAtEnd);
 }
 
-function getCategoryName(assetTypeId) {
+function getCategoryName(assetTypeId, assetTypeName = '') {
+    const name = String(assetTypeName).replace(/\s+/g, '').toLowerCase();
+    if (isEmotesCategoryEnabled && name.includes('emote')) return 'emotes';
+    if (isAnimationsCategoryEnabled && name.includes('animation'))
+        return 'animations';
+    if (
+        isBodyPartsCategoryEnabled &&
+        (name.includes('body') ||
+            ['head', 'face', 'torso', 'rightarm', 'leftarm', 'rightleg', 'leftleg'].includes(name))
+    ) {
+        return 'bodyParts';
+    }
     const id = parseInt(assetTypeId);
     if (isEmotesCategoryEnabled && ASSET_TYPE_IDS.EMOTES.has(id))
         return 'emotes';
@@ -247,6 +258,7 @@ function refreshPillToggle() {
     if (isBodyPartsCategoryEnabled) categoryOrder.push('bodyParts');
     if (isAnimationsCategoryEnabled) categoryOrder.push('animations');
     if (isEmotesCategoryEnabled) categoryOrder.push('emotes');
+    categoryOrder.push('cosmetics');
 
     options.sort((a, b) => {
         const indexA = categoryOrder.indexOf(a.value);
@@ -261,6 +273,7 @@ function refreshPillToggle() {
         if (emotesGrid) emotesGrid.style.display = 'none';
         if (animationsGrid) animationsGrid.style.display = 'none';
         if (bodyPartsGrid) bodyPartsGrid.style.display = 'none';
+        if (cosmeticsGrid) cosmeticsGrid.style.display = 'none';
         return;
     }
 
@@ -320,6 +333,8 @@ function updateTabVisibility(filter) {
     if (bodyPartsGrid) {
         bodyPartsGrid.style.display = filter === 'bodyParts' ? 'flex' : 'none';
     }
+    if (cosmeticsGrid)
+        cosmeticsGrid.style.display = filter === 'cosmetics' ? 'flex' : 'none';
     const container = accessoriesGrid.parentElement;
     if (container) container.scrollLeft = 0;
 }
@@ -334,6 +349,7 @@ function setCategorizedSectionRefs(section) {
     emotesGrid = section.querySelector('.rovalra-category-grid.emotes');
     animationsGrid = section.querySelector('.rovalra-category-grid.animations');
     bodyPartsGrid = section.querySelector('.rovalra-category-grid.body-parts');
+    cosmeticsGrid = section.querySelector('.rovalra-category-grid.cosmetics');
     pillToggleWrapper = section.querySelector('.rovalra-pill-wrapper');
     totalPriceElement = section.querySelector('#rovalra-wearing-total-price');
 }
@@ -362,6 +378,11 @@ function getCategoriesFromSection(section) {
         section.querySelector('.rovalra-category-grid.emotes')?.children.length
     ) {
         categories.add('emotes');
+    }
+    if (
+        section.querySelector('.rovalra-category-grid.cosmetics')?.children.length
+    ) {
+        categories.add('cosmetics');
     }
     return categories;
 }
@@ -417,6 +438,7 @@ export function createCategorizedWearingSection() {
     emotesGrid = null;
     animationsGrid = null;
     bodyPartsGrid = null;
+    cosmeticsGrid = null;
     pillToggleWrapper = null;
     discoveredCategories.clear();
     const section = document.createElement('div');
@@ -486,6 +508,12 @@ export function createCategorizedWearingSection() {
         scrollContainer.append(bodyPartsGrid);
     }
 
+    cosmeticsGrid = document.createElement('div');
+    cosmeticsGrid.className = 'rovalra-category-grid cosmetics';
+    cosmeticsGrid.style.cssText =
+        'display: none; flex-wrap: nowrap; gap: 12px; width: max-content; min-width: 100%;';
+    scrollContainer.append(cosmeticsGrid);
+
     const { leftButton, rightButton } = createScrollButtons({
         onLeftClick: () => {
             scrollContainer.scrollLeft -= 600;
@@ -506,32 +534,29 @@ export function createCategorizedWearingSection() {
     return section;
 }
 
-function getAvatarAssetEntries(avatarData) {
+function getProfileAssetEntries(profileData) {
     const entries = [];
     const seenIds = new Set();
 
-    (avatarData?.assets || []).forEach((asset) => {
-        const id = Number(asset.id);
-        const typeId = Number(asset.assetType?.id);
-        if (!id || !typeId || seenIds.has(id)) return;
+    const backgroundId = Number(
+        profileData?.components?.ProfileBackground?.assetId,
+    );
+    if (backgroundId) {
+        seenIds.add(backgroundId);
+        entries.push({ id: backgroundId, typeId: null, category: 'cosmetics' });
+    }
 
-        seenIds.add(id);
-        entries.push({
-            id,
-            typeId,
+    (profileData?.components?.CurrentlyWearing?.assets || []).forEach(
+        (asset) => {
+            const id = Number(asset.assetId);
+            if (!id || seenIds.has(id)) return;
+
+            seenIds.add(id);
+            entries.push({
+                id,
+                typeId: null,
+            });
         });
-    });
-
-    (avatarData?.emotes || []).forEach((emote) => {
-        const id = Number(emote.assetId);
-        if (!id || seenIds.has(id)) return;
-
-        seenIds.add(id);
-        entries.push({
-            id,
-            typeId: CONSTANT_IDS.EMOTES[0],
-        });
-    });
 
     return entries;
 }
@@ -575,9 +600,9 @@ function ensureCategorizedSection(content) {
     return categorizedSection;
 }
 
-async function loadCurrentlyWearingFromApi(content) {
+async function loadCurrentlyWearing(content, profileData) {
     const userId = getUserIdFromUrl();
-    if (!userId) return;
+    if (!userId || !profileData) return;
 
     const cached = wearingSectionCache.get(String(userId));
     if (restoreCachedWearingSection(userId, content, cached)) return;
@@ -592,11 +617,6 @@ async function loadCurrentlyWearingFromApi(content) {
     ensureCategorizedSection(content);
 
     try {
-        const avatarData = await callRobloxApiJson({
-            subdomain: 'avatar',
-            endpoint: `/v2/avatar/users/${userId}/avatar`,
-        });
-
         if (
             requestId !== activeWearingRequestId ||
             activeWearingUserId !== String(userId)
@@ -604,7 +624,7 @@ async function loadCurrentlyWearingFromApi(content) {
             return;
         }
 
-        const entries = getAvatarAssetEntries(avatarData);
+        const entries = getProfileAssetEntries(profileData);
         if (entries.length === 0) {
             document
                 .getElementById('rovalra-main-categorized-wrapper')
@@ -616,7 +636,8 @@ async function loadCurrentlyWearingFromApi(content) {
         entries.forEach((entry) => {
             assetInfoCache.set(entry.id, {
                 id: entry.id,
-                assetType: { id: entry.typeId },
+                assetType: entry.typeId ? { id: entry.typeId } : null,
+                rovalraCategory: entry.category,
             });
             addItemToCategoryView(null, entry.id);
         });
@@ -641,7 +662,11 @@ export function addItemToCategoryView(itemEl, assetId) {
     if (itemEl && itemEl.dataset.rovalraCategorized === 'true') return;
     const info = assetInfoCache.get(assetId);
     if (!accessoriesGrid) return;
-    const category = info ? getCategoryName(info.assetType.id) : 'items';
+    const category =
+        info?.rovalraCategory ||
+        (info?.assetType
+            ? getCategoryName(info.assetType.id, info.assetType.name)
+            : 'items');
     let targetGrid;
     switch (category) {
         case 'emotes':
@@ -652,6 +677,9 @@ export function addItemToCategoryView(itemEl, assetId) {
             break;
         case 'bodyParts':
             targetGrid = bodyPartsGrid;
+            break;
+        case 'cosmetics':
+            targetGrid = cosmeticsGrid;
             break;
         default:
             targetGrid = accessoriesGrid;
@@ -691,6 +719,43 @@ export function addItemToCategoryView(itemEl, assetId) {
     if (itemEl) itemEl.style.display = 'none';
 }
 
+function moveAssetCardToCategory(assetId) {
+    const info = assetInfoCache.get(assetId);
+    if (!info?.assetType || info.rovalraCategory === 'cosmetics') return;
+
+    const category = getCategoryName(
+        info.assetType.id,
+        info.assetType.name,
+    );
+    const grids = [
+        accessoriesGrid,
+        emotesGrid,
+        animationsGrid,
+        bodyPartsGrid,
+        cosmeticsGrid,
+    ].filter(Boolean);
+    const targetGrid = {
+        items: accessoriesGrid,
+        emotes: emotesGrid,
+        animations: animationsGrid,
+        bodyParts: bodyPartsGrid,
+    }[category];
+    if (!targetGrid) return;
+
+    const card = grids
+        .flatMap((grid) => Array.from(grid.children))
+        .find(
+            (candidate) =>
+                candidate.dataset.rovalraPendingId == assetId ||
+                candidate.querySelector(`a[href*="/${assetId}/"]`),
+        );
+    if (!card || card.parentElement === targetGrid) return;
+
+    targetGrid.appendChild(card);
+    discoveredCategories.add(category);
+    refreshPillToggle();
+}
+
 export async function init() {
     const result = await new Promise((resolve) =>
         chrome.storage.local.get(
@@ -722,7 +787,7 @@ export async function init() {
                 hideOriginalWearingSection(originalWearing);
             }
 
-            loadCurrentlyWearingFromApi(content);
+            loadCurrentlyWearing(content);
         },
         { multiple: true },
     );
@@ -732,7 +797,7 @@ export async function init() {
         (wearing) => {
             hideOriginalWearingSection(wearing);
             const content = wearing.closest('.profile-tab-content');
-            if (content) loadCurrentlyWearingFromApi(content);
+            if (content) loadCurrentlyWearing(content);
         },
         { multiple: true },
     );
@@ -741,15 +806,26 @@ export async function init() {
         const data = e.detail?.data;
         if (!Array.isArray(data)) return;
         data.forEach((item) => {
-            let typeId = item.assetType || item.assetTypeId;
-            if (typeId && typeof typeId === 'object') {
-                typeId = typeId.id;
-            }
-            if (item.id && typeId) {
+            const rawAssetType = item.assetType || item.assetTypeId;
+            const assetTypeObject =
+                rawAssetType && typeof rawAssetType === 'object'
+                    ? rawAssetType
+                    : null;
+            const typeId = assetTypeObject?.id ||
+                (Number.isFinite(Number(rawAssetType))
+                    ? Number(rawAssetType)
+                    : null);
+            const typeName =
+                assetTypeObject?.name ||
+                (typeof rawAssetType === 'string' ? rawAssetType : '');
+            if (item.id && (typeId || typeName)) {
                 assetInfoCache.set(item.id, {
                     id: item.id,
-                    assetType: { id: typeId },
+                    assetType: { id: typeId, name: typeName },
+                    rovalraCategory: assetInfoCache.get(item.id)
+                        ?.rovalraCategory,
                 });
+                moveAssetCardToCategory(item.id);
                 if (pendingItems.has(item.id)) {
                     const elements = pendingItems.get(item.id);
                     if (elements.length === 0) {
@@ -763,6 +839,11 @@ export async function init() {
                 }
             }
         });
+    });
+
+    window.addEventListener('rovalra-profile-platform-response', (event) => {
+        const content = document.querySelector('.profile-tab-content');
+        if (content) loadCurrentlyWearing(content, event.detail);
     });
 
     const hideStyle = document.createElement('style');
@@ -807,6 +888,6 @@ export async function init() {
     window.addEventListener('popstate', () => {
         activeWearingUserId = null;
         const content = document.querySelector('.profile-tab-content');
-        if (content) loadCurrentlyWearingFromApi(content);
+        if (content) loadCurrentlyWearing(content);
     });
 }

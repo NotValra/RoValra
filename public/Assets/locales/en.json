@@ -93,6 +93,7 @@
     "categorizeWearing": {
         "currentlyWearing": "Currently Wearing",
         "items": "Items",
+        "cosmetics": "Cosmetics",
         "bodyParts": "Body Parts",
         "animations": "Animations",
         "emotes": "Emotes"

@@ -166,6 +166,15 @@
         });
     }
 
+    function dispatchProfilePlatformResponse(data) {
+        if (!data?.components) return;
+        window.dispatchEvent(
+            new CustomEvent('rovalra-profile-platform-response', {
+                detail: data,
+            }),
+        );
+    }
+
     function getGroupRolesRequestUserId(url) {
         if (typeof url !== 'string' || !url) return null;
 
@@ -608,7 +617,9 @@
         if (requestUrl.includes(PROFILE_API_URL)) {
             try {
                 const data = await response.clone().json();
-                if (applyRobloxAdminProfileResponse(data)) {
+                const changed = applyRobloxAdminProfileResponse(data);
+                dispatchProfilePlatformResponse(data);
+                if (changed) {
                     response = responseWithJson(response, data);
                 }
             } catch (error) {}
@@ -970,6 +981,10 @@
                     if (getGroupRolesRequestUserId(url))
                         dispatchGroupRolesResponse(
                             url,
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (url.includes(PROFILE_API_URL))
+                        dispatchProfilePlatformResponse(
                             JSON.parse(xhr.responseText),
                         );
                 } catch (e) {}
