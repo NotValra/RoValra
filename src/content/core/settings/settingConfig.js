@@ -1659,6 +1659,7 @@ export const SETTINGS_CONFIG = {
                     'Replaces the Roblox banner in the top-left navigation bar with an image loaded from a URL you provide.',
                     'Also supports GIFs!',
                     'Recommended image: square PNG or WebP with transparency, 256x256 pixels.',
+                    'You can use this link "https://www.roblox.com/images/roblox_logo.png" to get back the old Roblox Logo!',
                 ],
                 type: 'checkbox',
                 default: false,
