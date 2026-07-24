@@ -2622,6 +2622,12 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            profileTestTabEnabled: {
+                label: ['Profile test tab'],
+                description: ['Adds a test tab containing the text "test" to profiles.'],
+                type: 'checkbox',
+                default: false,
+            },
             EnablebannerTest: {
                 label: ['Banner test'],
                 description: ['This adds a test banner to experiences'],
