@@ -186,7 +186,8 @@ async function prepareRenderedTheme(changes = null) {
 
     if (!themeSwitcherEnabled) {
         themeEnforcementEnabled = false;
-        await applyTheme(OriginalTheme ?? 'builtin-dark');
+        activeThemeKey = null;
+        activeCustomThemeValue = undefined;
         return;
     }
 
