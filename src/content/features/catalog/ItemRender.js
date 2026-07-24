@@ -28,6 +28,7 @@ FLAGS.ENABLE_API_MESH_CACHE = true;
 FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = true;
 FLAGS.ONLINE_ASSETS = true;
+FLAGS.AUDIO_ENABLED = false;
 
 backgroundRendererRequests();
 
