@@ -5,7 +5,6 @@ import { BADGE_CONFIG } from '../../../core/configs/badges.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
 import { settings } from '../../../core/settings/getSettings.js';
 const badgeCache = new Map();
 const groupRuntimeBadgeCache = new Map();
@@ -341,12 +340,7 @@ async function addHeaderBadges(container) {
     container.dataset.rovalraBusy = 'true';
 
     try {
-        const authenticatedUserId = await getAuthenticatedUserId();
-        const isOwnProfile =
-            authenticatedUserId &&
-            String(authenticatedUserId) === String(currentUserId);
-
-        let data = isOwnProfile ? null : badgeCache.get(currentUserId);
+        let data = badgeCache.get(currentUserId);
         if (!data) {
             let apiBadges = [];
             try {
@@ -355,13 +349,12 @@ async function addHeaderBadges(container) {
                     subdomain: 'apis',
                     endpoint: `/v1/users/${currentUserId}/badges`,
                     method: 'GET',
-                    noCache: isOwnProfile,
                 });
                 if (res?.status === 'success') apiBadges = res.badges;
             } catch {}
 
             data = { apiBadges };
-            if (!isOwnProfile) badgeCache.set(currentUserId, data);
+            badgeCache.set(currentUserId, data);
         }
 
         const robloxGroupFeaturesEnabled =

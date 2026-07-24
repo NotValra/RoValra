@@ -32,6 +32,8 @@ let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let gradientNameSyncTimeout = null;
 let donatorTierPromise = null;
+let inMemoryDonatorResponse = null;
+let inMemoryDonatorUserId = null;
 const colorLiveSaveTimeouts = new Map();
 const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
 const CUSTOM_THEME_NAME_MAX_LENGTH = 20;
@@ -312,6 +314,11 @@ export const syncDonatorTier = async () => {
         return null;
     }
 
+    if (inMemoryDonatorUserId !== currentUserId) {
+        inMemoryDonatorUserId = currentUserId;
+        inMemoryDonatorResponse = null;
+    }
+
     const state = (await CacheHandler.get(
         'donator_info',
         'sync_state',
@@ -325,6 +332,8 @@ export const syncDonatorTier = async () => {
         lastTier: 0,
         userId: null,
     };
+
+    state.cachedResponse = null;
 
     if (state.userId !== currentUserId) {
         state.lastSync = 0;
@@ -348,8 +357,8 @@ export const syncDonatorTier = async () => {
         state.priorityActive && isUrlChange && state.checksLeft > 0;
     const isExpired = now - state.lastSync > 5 * 60 * 1000;
 
-    if (state.cachedResponse && !isPriorityCheck && !isExpired) {
-        return state.cachedResponse;
+    if (inMemoryDonatorResponse && !isPriorityCheck && !isExpired) {
+        return inMemoryDonatorResponse;
     }
 
     donatorTierPromise = (async () => {
@@ -362,7 +371,7 @@ export const syncDonatorTier = async () => {
             });
 
             if (!response?.badges) {
-                return state.cachedResponse || null;
+                return inMemoryDonatorResponse || null;
             }
 
             const badges = response.badges;
@@ -391,8 +400,9 @@ export const syncDonatorTier = async () => {
             state.lastTier = tier;
             state.lastSync = Date.now();
             state.lastPath = currentPath;
-            state.cachedResponse = response;
+            inMemoryDonatorResponse = response;
             state.userId = currentUserId;
+            state.cachedResponse = null;
 
             await CacheHandler.set(
                 'donator_info',
@@ -418,7 +428,7 @@ export const syncDonatorTier = async () => {
                 error: error.message || error,
                 stack: error.stack,
             });
-            return state.cachedResponse || null;
+            return inMemoryDonatorResponse || null;
         } finally {
             donatorTierPromise = null;
         }

@@ -83,10 +83,7 @@ async function initProfileViews() {
 
     let settings;
     try {
-        settings = await getUserSettings(userId, {
-            disableBatch: true,
-            noCache: true,
-        });
+        settings = await getUserSettings(userId);
     } catch (error) {
         console.warn('RoValra: Failed to fetch profile views.', error);
         return;

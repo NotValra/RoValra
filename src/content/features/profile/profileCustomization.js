@@ -386,7 +386,7 @@ async function renderOwnedBorderPicker(container, userId) {
             await Promise.all([
                 getBorders(),
                 getOwnedBorders(),
-                getUserSettings(userId, { noCache: true }).catch(() => null),
+                getUserSettings(userId).catch(() => null),
                 getAuthedUserData(userId),
             ]);
 

@@ -11,7 +11,6 @@ import {
     getUniversesDetails,
     getExperienceGuidelinesAgeRecommendation,
 } from '../../core/apis/games.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import {
     getUserSettings,
@@ -340,10 +339,7 @@ async function addShowcaseTab(tabContainer) {
     });
     contentPane.classList.add('rovalra-showcase-content');
 
-    const ownProfile = Number(await getAuthenticatedUserId()) === userId;
-    const profileSettings = await getUserSettings(userId, {
-        noCache: ownProfile,
-    });
+    const profileSettings = await getUserSettings(userId);
     const gameArea = document.createElement('section');
     gameArea.className = 'rovalra-showcase-section';
     const gameHeadingRow = document.createElement('div');

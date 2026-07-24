@@ -149,11 +149,13 @@ async function initProfilePronouns() {
             renderAllPronouns();
         }
 
-        const profileSettings = await getUserSettings(userId, {
-            disableBatch: true,
-            noCache: true,
-            forcePublicEndpoint: true,
-        });
+        const profileSettings = isOwnProfile
+            ? await getUserSettings(userId)
+            : await getUserSettings(userId, {
+                  disableBatch: true,
+                  noCache: true,
+                  forcePublicEndpoint: true,
+              });
         if (activeProfileUserId !== String(userId)) return;
 
         const apiPronouns = normalizeProfilePronouns(profileSettings?.pronouns);

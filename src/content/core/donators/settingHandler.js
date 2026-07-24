@@ -51,13 +51,15 @@ function assertValidUserId(userId) {
     }
 }
 
-async function saveToCache(cacheKey, settings) {
+async function saveToCache(cacheKey, settings, { memoryOnly = false } = {}) {
     const cacheData = {
         data: settings,
         timestamp: Date.now(),
     };
     memoryCache.set(cacheKey, cacheData);
-    await cache.set('user_settings', cacheKey, cacheData, 'local');
+    if (!memoryOnly) {
+        await cache.set('user_settings', cacheKey, cacheData, 'local');
+    }
 }
 
 async function invalidateAuthenticatedUserSettingsCache() {
@@ -88,7 +90,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
                     subdomain: 'apis',
                     endpoint: '/v1/auth/settings',
                     method: 'GET',
-                    noCache: true,
                     retryOnTransientStatus: false,
                 });
 
@@ -193,8 +194,10 @@ async function processBatchQueue() {
     if (batchInProgress || batchQueue.length === 0) return;
 
     batchInProgress = true;
-    const currentBatch = [...batchQueue];
-    batchQueue = [];
+    // Only remove the portion that is sent in this request. The remaining
+    // entries stay queued for the next batch instead of falling back to one
+    // request per user.
+    const currentBatch = batchQueue.splice(0, BATCH_MAX_SIZE);
     clearTimeout(batchTimeout);
     batchTimeout = null;
 
@@ -210,9 +213,7 @@ async function processBatchQueue() {
                 (id, index, self) =>
                     String(id) !== authenticatedUserId &&
                     self.indexOf(id) === index,
-            )
-            .slice(0, BATCH_MAX_SIZE);
-
+            );
         const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
 
         if (userIdsToFetch.length > 0) {
@@ -245,7 +246,9 @@ async function processBatchQueue() {
                             item.options,
                         );
 
-                        await saveToCache(cacheKey, settings);
+                        await saveToCache(cacheKey, settings, {
+                            memoryOnly: cacheKey === authenticatedUserId,
+                        });
                         processedKeys.add(cacheKey);
 
                         const resolvers = pendingResolvers.get(cacheKey);
@@ -266,7 +269,9 @@ async function processBatchQueue() {
                     batchItem.options,
                 );
 
-                await saveToCache(cacheKey, settings);
+                await saveToCache(cacheKey, settings, {
+                    memoryOnly: cacheKey === authenticatedUserId,
+                });
                 processedKeys.add(cacheKey);
 
                 const resolvers = pendingResolvers.get(cacheKey);
@@ -398,16 +403,18 @@ export async function getUserSettings(userId, options = {}) {
 
     const cacheKey = strUserId;
 
-    if (!options.noCache && !isOwnProfile) {
+    if (!options.noCache) {
         const memCached = memoryCache.get(cacheKey);
         if (memCached) {
-            const staleThreshold = 300000;
+            const staleThreshold = isOwnProfile ? 60000 : 300000;
             const isStale =
                 Date.now() - (memCached.timestamp || 0) > staleThreshold;
             if (isStale && !pendingResolvers.has(cacheKey)) {
                 if (options.disableBatch) {
                     fetchAndProcessSettings(userId, options).then((settings) =>
-                        saveToCache(cacheKey, settings),
+                        saveToCache(cacheKey, settings, {
+                            memoryOnly: true,
+                        }),
                     );
                 } else {
                     batchQueue.push({ userId, options });
@@ -428,16 +435,20 @@ export async function getUserSettings(userId, options = {}) {
             return memCached.data;
         }
 
-        const cached = await cache.get('user_settings', cacheKey, 'local');
+        const cached = !isOwnProfile
+            ? await cache.get('user_settings', cacheKey, 'local')
+            : null;
         if (cached) {
             memoryCache.set(cacheKey, cached);
-            const staleThreshold = 300000;
+            const staleThreshold = isOwnProfile ? 60000 : 300000;
             const isStale =
                 Date.now() - (cached.timestamp || 0) > staleThreshold;
             if (isStale && !pendingResolvers.has(cacheKey)) {
                 if (options.disableBatch) {
                     fetchAndProcessSettings(userId, options).then((settings) =>
-                        saveToCache(cacheKey, settings),
+                        saveToCache(cacheKey, settings, {
+                            memoryOnly: false,
+                        }),
                     );
                 } else {
                     batchQueue.push({ userId, options });
@@ -467,7 +478,9 @@ export async function getUserSettings(userId, options = {}) {
 
     if (options.disableBatch) {
         const settings = await fetchAndProcessSettings(userId, options);
-        await saveToCache(cacheKey, settings);
+        await saveToCache(cacheKey, settings, {
+            memoryOnly: isOwnProfile,
+        });
 
         return settings;
     }

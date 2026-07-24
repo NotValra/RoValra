@@ -9,6 +9,8 @@ import { showSystemAlert } from './ui/roblox/alert.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
+const responseCache = new Map();
+const USER_BADGES_CACHE_TTL_MS = 5 * 60 * 1000;
 let gameJoinErrorCount = 0;
 let lastGameJoinRequestTime = 0;
 const GAMEJOIN_TIMEOUT_MS = 2000;
@@ -82,6 +84,31 @@ function getRequestKey({
 function getCurrentNavigationKey() {
     if (typeof window === 'undefined') return '';
     return window.location.href;
+}
+
+function isRovalraAuthEndpoint(options) {
+    return (
+        options.isRovalraApi === true &&
+        options.subdomain === 'apis' &&
+        typeof options.endpoint === 'string' &&
+        options.endpoint.startsWith('/v1/auth/')
+    );
+}
+
+function getResponseCacheTtl(options) {
+    if (
+        !options.isRovalraApi ||
+        options.subdomain !== 'apis' ||
+        (options.method || 'GET').toUpperCase() !== 'GET'
+    ) {
+        return 0;
+    }
+
+    if (/^\/v1\/users\/[^/]+\/badges(?:\?|$)/.test(options.endpoint)) {
+        return USER_BADGES_CACHE_TTL_MS;
+    }
+
+    return 0;
 }
 
 function parseGameJoinV2Flag(data) {
@@ -407,6 +434,19 @@ export async function callRobloxApi(options) {
     const requestKey = getRequestKey(options);
 
     const shouldCache = !options.noCache && options.subdomain !== 'gamejoin';
+    const responseCacheTtl = getResponseCacheTtl(options);
+
+    if (responseCacheTtl) {
+        const cached = responseCache.get(requestKey);
+        if (cached && Date.now() - cached.timestamp < responseCacheTtl) {
+            return cached.response.clone();
+        }
+        if (cached) responseCache.delete(requestKey);
+    }
+
+    if (isRovalraAuthEndpoint(options) && options.noCache) {
+        options = { ...options, noCache: false };
+    }
 
     if (shouldCache && activeRequests.has(requestKey)) {
         const originalResponse = await activeRequests.get(requestKey);
@@ -882,6 +922,13 @@ export async function callRobloxApi(options) {
             if (useApiKey && response.status === 401) {
                 await invalidateApiKey();
             }
+        }
+
+        if (responseCacheTtl && response.ok) {
+            responseCache.set(requestKey, {
+                timestamp: Date.now(),
+                response: response.clone(),
+            });
         }
 
         return response;
