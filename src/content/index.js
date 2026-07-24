@@ -44,7 +44,6 @@ import { init as initCustomRobloxBanner } from './features/sitewide/customRoblox
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
-import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
@@ -230,7 +229,6 @@ const featureRoutes = [
             initSidebarCollapse,
             initSidebarLayout,
             initTopbarLayout,
-            initRemoveDownloadButton,
             initFriendGameLink,
             initThemeSwitcher,
             initCustomThemeEditor,
