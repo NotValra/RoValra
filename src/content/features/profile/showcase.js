@@ -26,6 +26,7 @@ import { settings } from '../../core/settings/getSettings.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { getAssets } from '../../core/assets.js';
+import { createAssetIcon } from '../../core/ui/general/toast.js';
 
 const initialized = 'rovalraShowcaseInitialized';
 
@@ -37,6 +38,22 @@ function createMoreIcon() {
         icon.appendChild(document.createElement('span'));
     }
     return icon;
+}
+
+function createShowcaseHeading(label) {
+    const heading = document.createElement('h2');
+    heading.className = 'text-heading-medium rovalra-showcase-heading';
+    const logo = createAssetIcon({
+        altText: 'RoValra Logo',
+        width: '24px',
+        height: '24px',
+    });
+    if (logo) {
+        logo.classList.add('rovalra-showcase-heading-logo');
+        heading.appendChild(logo);
+    }
+    heading.appendChild(document.createTextNode(label));
+    return heading;
 }
 
 function centerDropdown(trigger, panel) {
@@ -348,9 +365,7 @@ async function addShowcaseTab(tabContainer) {
     gameArea.className = 'rovalra-showcase-section';
     const gameHeadingRow = document.createElement('div');
     gameHeadingRow.className = 'rovalra-showcase-heading-row';
-    const gameHeading = document.createElement('h2');
-    gameHeading.className = 'text-heading-medium';
-    gameHeading.textContent = ts('showcase.favoriteGame');
+    const gameHeading = createShowcaseHeading(ts('showcase.favoriteGame'));
     gameHeadingRow.appendChild(gameHeading);
     gameArea.appendChild(gameHeadingRow);
     const cardArea = document.createElement('div');
@@ -360,9 +375,7 @@ async function addShowcaseTab(tabContainer) {
     groupArea.className = 'rovalra-showcase-section';
     const groupHeadingRow = document.createElement('div');
     groupHeadingRow.className = 'rovalra-showcase-heading-row';
-    const groupHeading = document.createElement('h2');
-    groupHeading.className = 'text-heading-medium';
-    groupHeading.textContent = ts('showcase.favoriteGroup');
+    const groupHeading = createShowcaseHeading(ts('showcase.favoriteGroup'));
     groupHeadingRow.appendChild(groupHeading);
     const groupCardArea = document.createElement('div');
     groupArea.append(groupHeadingRow, groupCardArea);

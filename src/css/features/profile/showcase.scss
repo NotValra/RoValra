@@ -30,6 +30,17 @@
     margin: 0;
 }
 
+.rovalra-showcase-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-showcase-heading-logo {
+    flex: 0 0 24px;
+    object-fit: contain;
+}
+
 .rovalra-showcase-menu-button {
     width: 28px !important;
     min-width: 28px !important;
