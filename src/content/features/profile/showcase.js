@@ -24,6 +24,7 @@ import { launchGame } from '../../core/utils/launcher.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
 import { getAssets } from '../../core/assets.js';
 
 const initialized = 'rovalraShowcaseInitialized';
@@ -330,6 +331,9 @@ async function addShowcaseTab(tabContainer) {
     const userId = Number(getUserIdFromUrl());
     if (!contentContainer || !userId) return;
     tabContainer.dataset[initialized] = 'true';
+    const authenticatedUserId = await getAuthenticatedUserId();
+    const ownProfile =
+        authenticatedUserId && String(authenticatedUserId) === String(userId);
 
     const { contentPane } = createTab({
         id: 'showcase',
