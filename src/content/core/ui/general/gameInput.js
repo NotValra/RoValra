@@ -113,14 +113,17 @@ export function createSearchInput({
             img.src = thumbUrl;
             img.className = 'game-search-result-img';
             img.style.borderRadius = '4px';
-            if (useGroupSearch) {
-                Object.assign(img.style, {
-                    width: '50px',
-                    height: '50px',
-                    maxWidth: '50px',
-                    maxHeight: '50px',
-                });
-            }
+            img.width = 50;
+            img.height = 50;
+            Object.assign(img.style, {
+                width: '50px',
+                height: '50px',
+                minWidth: '50px',
+                minHeight: '50px',
+                maxWidth: '50px',
+                maxHeight: '50px',
+                flex: '0 0 50px',
+            });
             if (game.thumbnail?.finalUpdate) {
                 game.thumbnail.finalUpdate.then((thumbnail) => {
                     if (thumbnail?.imageUrl) img.src = thumbnail.imageUrl;
