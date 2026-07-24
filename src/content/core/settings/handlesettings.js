@@ -38,6 +38,7 @@ const CUSTOM_THEME_NAME_MAX_LENGTH = 20;
 const PROFILE_PRONOUNS_SETTING_NAME = 'profilePronouns';
 const PROFILE_PRONOUNS_API_KEY = 'pronouns';
 const PROFILE_PRONOUNS_AGREEMENT_KEY = 'rovalra_pronouns_guidelines_agreed';
+const INVALID_HTTP_URL = Symbol('invalid-http-url');
 
 function applyCharacterReplacements(value, replacements) {
     if (typeof value !== 'string' || !replacements) return value;
@@ -229,6 +230,47 @@ const shouldShowFeatureStatusPrompt = async (config) => {
 const markFeatureStatusPromptAcknowledged = async () => {
     await chrome.storage.local.set({ [FEATURE_STATUS_PROMPT_ACK_KEY]: true });
 };
+
+function normalizeHttpUrlSetting(value) {
+    if (value === null || value === undefined) return null;
+
+    const trimmedValue = String(value).trim();
+    if (!trimmedValue) return null;
+
+    try {
+        const url = new URL(trimmedValue);
+        return url.protocol === 'http:' || url.protocol === 'https:'
+            ? trimmedValue
+            : INVALID_HTTP_URL;
+    } catch {
+        return INVALID_HTTP_URL;
+    }
+}
+
+async function restoreTextSettingInput(settingName) {
+    const input = document.getElementById(settingName);
+    if (!(input instanceof HTMLInputElement)) return;
+
+    const storedSettings = await chrome.storage.local.get([
+        settingName,
+        'rovalra_settings',
+    ]);
+    const storedValue =
+        storedSettings[settingName] ??
+        storedSettings.rovalra_settings?.[settingName] ??
+        '';
+
+    input.value = typeof storedValue === 'string' ? storedValue : '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+async function restoreTextSettingInputValue(settingName, value) {
+    const input = document.getElementById(settingName);
+    if (!(input instanceof HTMLInputElement)) return;
+
+    input.value = typeof value === 'string' ? value : '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+}
 
 function queueGradientNameSync(settingsOverride = {}) {
     if (gradientNameSyncTimeout) clearTimeout(gradientNameSyncTimeout);
@@ -609,6 +651,25 @@ export const handleSaveSettings = async (settingName, value) => {
                     if (value === null) {
                         sanitizedValue = null;
                     } else if (typeof value === 'string') {
+                        if (settingConfig.validateHttpUrl) {
+                            const normalizedUrl =
+                                normalizeHttpUrlSetting(value);
+                            if (normalizedUrl === INVALID_HTTP_URL) {
+                                await restoreTextSettingInput(settingName);
+                                showSystemAlert(
+                                    'Enter a valid http:// or https:// image URL.',
+                                    'warning',
+                                );
+                                return;
+                            }
+                            sanitizedValue = normalizedUrl;
+                            await restoreTextSettingInputValue(
+                                settingName,
+                                sanitizedValue,
+                            );
+                            break;
+                        }
+
                         sanitizedValue = sanitizeString(value);
 
                         if (settingConfig.trim) {
@@ -2129,7 +2190,11 @@ export function initializeSettingsEventListeners() {
                     );
                 }
             }
-        } else if (target.matches('input[type="text"], input:not([type])')) {
+        } else if (
+            target.matches(
+                'input[type="text"], input[type="url"], input:not([type])',
+            )
+        ) {
             value = target.value.trim() === '' ? null : target.value;
             savePromises.push(handleSaveSettings(settingName, value));
         } else if (target.matches('input[type="number"]')) {
