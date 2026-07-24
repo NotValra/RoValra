@@ -124,6 +124,8 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !apiSettings.GradientName &&
                 !apiSettings.gradientName &&
                 !extractProfilePronouns(apiSettings) &&
+                !Number(apiSettings.fav_game) &&
+                !Number(apiSettings.fav_group) &&
                 Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
@@ -182,6 +184,8 @@ async function fetchAndProcessSettings(userId, options = {}) {
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
             apiSettings.anonymous_leaderboard === true,
+        fav_game: Number(apiSettings.fav_game) || 0,
+        fav_group: Number(apiSettings.fav_group) || 0,
     };
 }
 

@@ -1,7 +1,8 @@
 // used to search for games in a stylized dropdown only used in the instant joiner atm
-import { searchGames } from '../../gameSearch/gameSearch.js';
+import { searchGames, searchGroups } from '../../gameSearch/gameSearch.js';
 import { formatPlayerCount } from '../../games/playerCount.js';
 import { getGameDetailsFromPlaceId } from '../../games/gameDetails.js';
+import { ts } from '../../locale/i18n.js';
 
 function debounce(func, wait) {
     let timeout;
@@ -19,6 +20,7 @@ export function createSearchInput({
     placeholder = 'Search',
     onResultSelect,
     style = {},
+    searchGroups: useGroupSearch = false,
 }) {
     let selectedGameName = null;
     let currentIcon = null;
@@ -72,7 +74,7 @@ export function createSearchInput({
         }
 
         let games = [];
-        if (isPlaceId) {
+        if (isPlaceId && !useGroupSearch) {
             const gameFromId = await getGameDetailsFromPlaceId(query);
             if (gameFromId) {
                 games.push(gameFromId);
@@ -80,7 +82,9 @@ export function createSearchInput({
         } else {
             const userDataEl = document.querySelector('meta[name="user-data"]');
             const sessionId = userDataEl ? userDataEl.dataset.userid : '0';
-            games = await searchGames(query, sessionId);
+            games = useGroupSearch
+                ? await searchGroups(query)
+                : await searchGames(query, sessionId);
         }
 
         const dropdownItems = games.map((game) => {
@@ -88,7 +92,9 @@ export function createSearchInput({
                 const errorItem = document.createElement('div');
                 errorItem.className =
                     'foundation-web-menu-item text-body-medium padding-x-medium padding-y-small text-secondary game-search-error-item';
-                errorItem.textContent = 'Unable to find experience.';
+                errorItem.textContent = useGroupSearch
+                    ? ts('showcase.noResultsGroup')
+                    : ts('showcase.noResultsGame');
                 return errorItem;
             }
 
@@ -107,6 +113,19 @@ export function createSearchInput({
             img.src = thumbUrl;
             img.className = 'game-search-result-img';
             img.style.borderRadius = '4px';
+            if (useGroupSearch) {
+                Object.assign(img.style, {
+                    width: '50px',
+                    height: '50px',
+                    maxWidth: '50px',
+                    maxHeight: '50px',
+                });
+            }
+            if (game.thumbnail?.finalUpdate) {
+                game.thumbnail.finalUpdate.then((thumbnail) => {
+                    if (thumbnail?.imageUrl) img.src = thumbnail.imageUrl;
+                });
+            }
 
             const textContainer = document.createElement('div');
             textContainer.className =
@@ -117,20 +136,27 @@ export function createSearchInput({
                 'foundation-web-menu-item-title text-no-wrap text-truncate-split content-emphasis';
             titleSpan.textContent = game.name;
 
-            const playerCountContainer = document.createElement('div');
-            playerCountContainer.className =
-                'game-card-info game-search-player-count';
+            const infoContainer = document.createElement('div');
+            infoContainer.className = 'game-card-info game-search-player-count';
 
-            const playingIcon = document.createElement('span');
-            playingIcon.className = 'info-label icon-playing-counts-gray';
+            if (useGroupSearch) {
+                infoContainer.textContent = ts('showcase.members', {
+                    count: formatPlayerCount(game.memberCount),
+                });
+            } else {
+                const playingIcon = document.createElement('span');
+                playingIcon.className = 'info-label icon-playing-counts-gray';
 
-            const playingCountLabel = document.createElement('span');
-            playingCountLabel.className = 'info-label playing-counts-label';
-            playingCountLabel.style.marginLeft = '4px';
-            playingCountLabel.textContent = formatPlayerCount(game.playerCount);
+                const playingCountLabel = document.createElement('span');
+                playingCountLabel.className = 'info-label playing-counts-label';
+                playingCountLabel.style.marginLeft = '4px';
+                playingCountLabel.textContent = formatPlayerCount(
+                    game.playerCount,
+                );
+                infoContainer.append(playingIcon, playingCountLabel);
+            }
 
-            playerCountContainer.append(playingIcon, playingCountLabel);
-            textContainer.append(titleSpan, playerCountContainer);
+            textContainer.append(titleSpan, infoContainer);
             item.append(presentationDiv, img, textContainer);
 
             item.addEventListener('click', () => {
@@ -142,6 +168,12 @@ export function createSearchInput({
                 const gameIcon = document.createElement('img');
                 gameIcon.src = thumbUrl;
                 gameIcon.className = 'game-search-selected-icon';
+                if (game.thumbnail?.finalUpdate) {
+                    game.thumbnail.finalUpdate.then((thumbnail) => {
+                        if (thumbnail?.imageUrl)
+                            gameIcon.src = thumbnail.imageUrl;
+                    });
+                }
 
                 const iconToReplace =
                     currentIcon && currentIcon.parentNode
@@ -168,12 +200,12 @@ export function createSearchInput({
     });
 
     const clearDropdown = () => {
-        dropdownContent.innerHTML = '';
+        dropdownContent.replaceChildren();
         dropdown.style.display = 'none';
     };
 
     const updateDropdown = (items) => {
-        dropdownContent.innerHTML = '';
+        dropdownContent.replaceChildren();
         items.forEach((item) => dropdownContent.appendChild(item));
         dropdown.style.display = items.length > 0 ? 'block' : 'none';
     };

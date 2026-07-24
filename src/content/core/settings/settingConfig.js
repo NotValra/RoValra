@@ -647,6 +647,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            profileShowcaseEnabled: {
+                label: 'Profile Showcase',
+                description: [
+                    'Adds a Showcase tab to profiles for featuring a favourite experience and community.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             currentlyPlayingLinkEnabled: {
                 label: 'Clickable Currently Playing Card',
                 description: [
@@ -2624,7 +2632,9 @@ export const SETTINGS_CONFIG = {
             },
             profileTestTabEnabled: {
                 label: ['Profile test tab'],
-                description: ['Adds a test tab containing the text "test" to profiles.'],
+                description: [
+                    'Adds a test tab containing the text "test" to profiles.',
+                ],
                 type: 'checkbox',
                 default: false,
             },

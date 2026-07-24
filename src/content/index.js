@@ -129,6 +129,7 @@ import { init as initBannedUsers } from './features/profile/bannedusers.js';
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initProfileTestTab } from './features/profile/testTab.js';
+import { init as initProfileShowcase } from './features/profile/showcase.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
@@ -357,6 +358,7 @@ const featureRoutes = [
             initTrustedFriends,
             initProfileRender,
             initProfileTestTab,
+            initProfileShowcase,
             initIdVerificationBadge,
             initFriendsSince,
             initUnfriend,

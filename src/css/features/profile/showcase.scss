@@ -1,0 +1,241 @@
+.rovalra-showcase-content {
+    padding: 20px 0;
+}
+
+.rovalra-showcase-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+.rovalra-showcase-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 6.5fr) minmax(0, 3.5fr);
+    gap: 12px;
+    align-items: stretch;
+}
+
+.rovalra-showcase-grid > .rovalra-showcase-section {
+    height: 100%;
+}
+
+.rovalra-showcase-heading-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-showcase-heading-row h2 {
+    margin: 0;
+}
+
+.rovalra-showcase-menu-button {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center;
+    position: relative;
+    line-height: 0;
+}
+
+.rovalra-showcase-more-icon {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.rovalra-showcase-more-icon span {
+    width: 3px;
+    height: 3px;
+    flex: 0 0 3px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.rovalra-showcase-game {
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--rovalra-container-background-color);
+    overflow: hidden;
+}
+
+.rovalra-showcase-grid .rovalra-showcase-game {
+    height: 100%;
+    min-height: 150px;
+    max-height: 150px;
+    box-sizing: border-box;
+}
+
+.rovalra-showcase-empty {
+    flex-direction: column;
+    min-height: 150px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.rovalra-showcase-empty p {
+    margin: 0;
+}
+
+.rovalra-showcase-empty .rovalra-showcase-search {
+    width: min(320px, 100%);
+}
+
+.rovalra-showcase-group-card {
+    min-height: 150px;
+}
+
+.rovalra-showcase-group-card .rovalra-showcase-game-details {
+    gap: 0;
+}
+
+.rovalra-showcase-group-icon {
+    width: 126px !important;
+    height: 126px !important;
+    flex: 0 0 126px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.rovalra-showcase-group-icon-link {
+    display: block;
+    flex: 0 0 126px;
+    align-self: stretch;
+}
+
+.rovalra-showcase-group-card .verified-badge-icon-experience-creator {
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.rovalra-showcase-owner {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.rovalra-showcase-owner .text-name {
+    max-width: 180px;
+}
+
+.rovalra-showcase-owner .verified-badge-icon-experience-creator {
+    margin-left: 0;
+}
+
+.rovalra-showcase-game-thumbnail {
+    flex: 0 0 220px;
+    height: 100% !important;
+    min-height: 124px;
+    object-fit: contain;
+    background: var(--rovalra-container-background-color);
+    border-radius: 8px;
+}
+
+.rovalra-showcase-thumbnail-link {
+    display: flex;
+    flex: 0 0 220px;
+    align-self: stretch;
+}
+
+.rovalra-showcase-game-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+}
+
+.rovalra-showcase-creator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.rovalra-showcase-creator .text-name {
+    max-width: 240px;
+}
+
+.rovalra-showcase-creator .verified-badge-icon-experience-creator {
+    width: 18px !important;
+    height: 18px !important;
+    object-fit: contain;
+}
+
+.rovalra-showcase-title-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.rovalra-showcase-title-link:hover {
+    text-decoration: underline;
+}
+
+.rovalra-showcase-game-details .play-game-button {
+    align-self: stretch;
+    width: 100%;
+    height: 40px;
+    margin-top: 0;
+}
+
+.rovalra-showcase-game-details h3 {
+    margin: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-showcase-maturity {
+    margin: -1px 0 0;
+    color: var(--rovalra-secondary-text-color) !important;
+}
+
+.rovalra-showcase-search {
+    width: 320px;
+    max-width: 100%;
+}
+
+.rovalra-showcase-options-dropdown {
+    min-width: 344px !important;
+}
+
+@media (max-width: 600px) {
+    .rovalra-showcase-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rovalra-showcase-game {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .rovalra-showcase-game-thumbnail {
+        flex-basis: auto;
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9;
+    }
+}

@@ -84,6 +84,39 @@ async function fetchBatchData(
         return results;
     }
 
+    if (type === 'GroupIcon') {
+        const groupIconSize = '150x150';
+        const requestBody = batch.map((item) => ({
+            requestId: `${item.id}:undefined:GroupIcon:${groupIconSize}:webp:regular:0::false`,
+            type: 'GroupIcon',
+            targetId: Number(item.id),
+            format: 'webp',
+            size: groupIconSize,
+        }));
+
+        try {
+            const response = await callRobloxApi({
+                subdomain: 'thumbnails',
+                endpoint: '/v1/batch',
+                method: 'POST',
+                body: requestBody,
+                signal,
+                noCache,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.data) return data.data;
+            }
+        } catch (error) {
+            console.error(
+                'RoValra Thumbnails: Failed to fetch batch for "GroupIcon".',
+                error,
+            );
+        }
+        return results;
+    }
+
     const endpointMapping = {
         AvatarHeadshot: {
             path: '/v1/users/avatar-headshot',
