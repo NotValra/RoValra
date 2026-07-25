@@ -10,12 +10,15 @@ export function showConfirmationPrompt({
     confirmType = 'primary',
     cancelType = 'secondary',
     onConfirm,
-    onCancel
+    onCancel,
+    onCloseBtn,
+    closeBtnCallsCancel = true,
 }) {
     const bodyContent = document.createElement('div');
     bodyContent.innerHTML = DOMPurify.sanitize(`<p class="text-body" style="margin: 0; font-size: 14px; line-height: 1.5;">${message}</p>`);
 
     let isConfirmed = false;
+    let isCanceled = false;
 
     const confirmBtn = createButton(confirmText, confirmType, {
         onClick: () => {
@@ -27,6 +30,7 @@ export function showConfirmationPrompt({
 
     const cancelBtn = createButton(cancelText, cancelType, {
         onClick: () => {
+            isCanceled = true;
             close();
         }
     });
@@ -38,7 +42,8 @@ export function showConfirmationPrompt({
         maxWidth: '400px',
         showLogo: true,
         onClose: () => {
-            if (!isConfirmed && onCancel) onCancel();
+            if (!isConfirmed && onCancel && (closeBtnCallsCancel || isCanceled)) onCancel();
+            if (!closeBtnCallsCancel && !isConfirmed && !isCanceled && onCloseBtn) onCloseBtn();
         }
     });
 }

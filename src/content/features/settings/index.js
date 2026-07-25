@@ -2,7 +2,6 @@ import { getAssets } from '../../core/assets.js';
 import {
     getRegionData,
     loadDatacenterMap,
-    getFullRegionName,
 } from '../../core/regions.js';
 import { observeElement, observeIntersection } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
@@ -29,7 +28,7 @@ import {
     addPopoverButton,
 } from '../../core/settings/ui/settingsbutton.js';
 import { checkRoValraPage } from '../../core/settings/ui/page.js';
-import { callRobloxApi } from '../../core/api.js';
+import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
@@ -67,18 +66,21 @@ import {
     getUserProfileData,
 } from '../../core/apis/users.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
-import { isAuthenticatedUserUnder16OrNotAgeChecked } from '../../core/utils/trackers/birthday.js';
 import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
 import {
     getActiveModeration,
     getModerationStatusLabel,
 } from '../../core/moderationStatus.js';
+import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
+import { createSpinner } from '../../core/ui/spinner.js';
+import { createButton } from '../../core/ui/buttons.js';
 
 const assets = getAssets();
 let REGIONS = {};
 
+const DONATOR_PERKS_UNIVERSE_ID = '9452973012'
 const DONATOR_PERKS_GAME_URL =
-    'https://www.roblox.com/games/store-section/9452973012';
+    'https://www.roblox.com/games/store-section/' + DONATOR_PERKS_UNIVERSE_ID;
 const DONATOR_PERKS_FALLBACK_ONSALE_URL =
     'https://www.roblox.com/catalog?taxonomy=tZsUsd2BqGViQrJ9Vs3Wah&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
 const CHANGELOGS_ENDPOINT = '/static/json/changelogs.json';
@@ -228,37 +230,126 @@ async function renderChangelogs(container) {
     }
 }
 
-async function getDonatorPerksDonationUrl(forceRefresh = false) {
-    try {
-        if (await isAuthenticatedUserUnder16OrNotAgeChecked(forceRefresh)) {
-            return DONATOR_PERKS_FALLBACK_ONSALE_URL;
-        }
-    } catch (error) {
-        console.warn(
-            'RoValra: Failed to check donator perks donation eligibility',
-            error,
-        );
-        return DONATOR_PERKS_FALLBACK_ONSALE_URL;
-    }
-
-    return DONATOR_PERKS_GAME_URL;
-}
-
 async function openDonatorPerksDonationUrl() {
-    try {
-        const popup = window.open('about:blank', '_blank');
-        if (popup) popup.opener = null;
+    var canPlayUniverse = false;
+    var canPlayUniverseReason = "Unknown";
+    var accountHasParentAttached = false;
+    var donationPerksSelectedUrl = DONATOR_PERKS_FALLBACK_ONSALE_URL;
+    const btn = document.querySelector('#rovalra-donator-perks-donation-button')
 
-        const url = await getDonatorPerksDonationUrl(true);
+    btn.dataset.rovalraDonatorPerksDonationButtonLoading = true;
 
-        if (popup) {
-            popup.location.href = url;
-        } else {
+    async function openPopup(url) {
+        try {
+            const popup = window.open('about:blank', '_blank');
+            if (popup) popup.opener = null;
+
+            if (popup) {
+                popup.location.href = url;
+            } else {
+                window.location.href = url;
+            }
+        } catch (error) {
+            console.warn('RoValra: Failed to open donation URL', error);
             window.location.href = url;
         }
+    }
+
+    async function overlayUnblockGame() {
+        const loadingOverlay = createOverlay({
+            title: 'Sending Request',
+            bodyContent: 'Please wait...',
+            showLogo: true,
+        });
+        try {
+            await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/child-requests-api/v1/send-request-to-all-parents',
+                method: 'POST',
+                body: {
+                    requestType: "ManageExperience",
+                    requestDetails: {
+                        universeId: String(DONATOR_PERKS_UNIVERSE_ID),
+                        experienceManagementAction: "Approve"
+                    }
+                },
+            });
+
+            const universeDetailsRequest = await callRobloxApi({
+                subdomain: 'apis',
+                endpoint: '/v1/games?universeIds=' + DONATOR_PERKS_UNIVERSE_ID,
+                method: 'GET',
+            });
+            const universeDetails = (await universeDetailsRequest.json())[0];
+
+            loadingOverlay.close();
+
+            const requestSentOverlay = createOverlay({
+                title: "Request Sent!",
+                bodyContent: 'Your request was sent to your parents and guardians via email.' + ( universeDetailsRequest.ok ? '<br />The experience name is: ' + DOMPurify.sanitize(universeDetails.name) : ''),
+                actions: [ createButton('OK', 'secondary', { onClick: () => { requestSentOverlay.close(); } }), ],
+                showLogo: true,
+            });
+
+        } catch {
+            loadingOverlay.close();
+            const requestFailedOverlay = createOverlay({
+                title: "Request Failed to Send",
+                bodyContent: 'Your request failed to send for an unknown reason',
+                actions: [ createButton('OK', 'secondary', { onClick: () => { requestFailedOverlay.close(); } }), ],
+                showLogo: true,
+            });
+        }
+        btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
+    }
+
+    try {
+        const canPlayUniverseRequest = (await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: '/v1/games/multiget-playability-status?universeIds=' + DONATOR_PERKS_UNIVERSE_ID,
+            method: 'GET',
+        }))[0];
+        canPlayUniverse = canPlayUniverseRequest.isPlayable;
+        canPlayUniverseReason = canPlayUniverseRequest.playabilityStatus
     } catch (error) {
-        console.warn('RoValra: Failed to open donation URL', error);
-        window.location.href = DONATOR_PERKS_FALLBACK_ONSALE_URL;
+        console.warn('RoValra: Failed to get playability status of donation universe', error);
+    }
+    try {
+        if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval') {
+            const accountParentsLinked = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/parental-controls-api/v1/parental-controls/get-linked-parents',
+                method: 'GET',
+            });
+            accountHasParentAttached = 0 < accountParentsLinked.parents.length;
+        }
+    } catch (error) {
+        console.warn('RoValra: Failed to see if there were any parents linked to account for game unblock overlay', error);
+    }
+
+    if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval' && accountHasParentAttached) {
+        showConfirmationPrompt({
+            title: "Help Support RoValra More!",
+            message: "RoValra gets more of the donation cut when using gamepasses. We see you have at least 1 parent account linked. You can request to unblock the experience so RoValra gets a better cut versus using 2D (and 3D) clothing.",
+            confirmText: 'Send Unblock Request',
+            confirmType: 'primary',
+            cancelText: 'Use Marketplace',
+            cancelType: 'secondary',
+            onConfirm: overlayUnblockGame,
+            onCancel: () => {
+                btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
+                openPopup(DONATOR_PERKS_FALLBACK_ONSALE_URL);
+            },
+            onCloseBtn: () => { btn.dataset.rovalraDonatorPerksDonationButtonLoading = false; },
+            closeBtnCallsCancel: false,
+        });
+    } else {
+        btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
+        openPopup(
+            canPlayUniverse
+                ? DONATOR_PERKS_GAME_URL
+                : DONATOR_PERKS_FALLBACK_ONSALE_URL
+        );
     }
 }
 
@@ -269,10 +360,15 @@ function renderDonatorPerksDonationButton(container = document) {
     if (!holder || holder.dataset.rovalraDonationButtonRendered === 'true')
         return;
 
+    const spinner = createSpinner({ className: 'rovalra-donator-perks-donation-btn-spinner' });
+    const text = document.createElement('span');
+    text.classList.add('rovalra-donator-perks-donation-btn-content');
+    text.textContent = 'Donate';
+
     holder.dataset.rovalraDonationButtonRendered = 'true';
     holder.replaceChildren(
         createSquareButton({
-            content: 'Donate',
+            content: [text, spinner,],
             id: 'rovalra-donator-perks-donation-button',
             onClick: openDonatorPerksDonationUrl,
             width: 'auto',
@@ -290,7 +386,7 @@ function getUserProfileHref(userId) {
 
 function debounce(func, wait) {
     let timeout;
-    return function (...args) {
+    return function(...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
@@ -463,7 +559,7 @@ function createArtistCreditSection(artistId) {
                 const data = { name, thumb: thumbnails[0] };
                 artistCache.set(String(artistId), data);
                 applyData(data);
-            } catch (e) {}
+            } catch (e) { }
         })();
     }
 
@@ -642,7 +738,7 @@ async function openBorderOverlay(
             { position: 'top' },
         );
         actionBtn.onclick = async () => {
-            updateUserSettingViaApi('border', variant.link).catch(() => {});
+            updateUserSettingViaApi('border', variant.link).catch(() => { });
             updatePreviewAndUI(
                 variant.value,
                 variant.link,
@@ -828,26 +924,26 @@ function getDonatorPerksComparisonHtml(themeColors) {
     const body =
         rows.length > 0
             ? rows
-                  .map(
-                      ({ label, minTier }) => `
+                .map(
+                    ({ label, minTier }) => `
                         <tr>
                             <th scope="row">${label}</th>
                             ${[1, 2, 3]
-                                .map((tier) =>
-                                    getDonatorPerkStatusCell(tier >= minTier),
-                                )
-                                .join('')}
+                            .map((tier) =>
+                                getDonatorPerkStatusCell(tier >= minTier),
+                            )
+                            .join('')}
                         </tr>`,
-                  )
-                  .join('')
+                )
+                .join('')
             : `<tr><th scope="row" colspan="4">${ts('settings.donatorPerks.moreComingSoon')}</th></tr>`;
 
     return `
         <div class="rovalra-donator-perks-compare" aria-label="${ts('settings.donatorPerks.perkTiers')}">
             <div class="rovalra-donator-tier-summary">
                 ${[1, 2, 3]
-                    .map(
-                        (tier) => `
+            .map(
+                (tier) => `
                             <div id="donator-tier-${tier}-header" class="rovalra-donator-tier-heading">
                                 <img ${getBadgeAssetAttribute(`donator_${tier}`)} src="${BADGE_CONFIG[`donator_${tier}`].icon}" alt="" style="${getBadgeStyle(`donator_${tier}`)}" />
                                 <div class="rovalra-donator-tier-copy">
@@ -855,8 +951,8 @@ function getDonatorPerksComparisonHtml(themeColors) {
                                     <p>${parseMarkdown(ts(`settings.donatorPerks.tier${tier}Desc`), themeColors)}</p>
                                 </div>
                             </div>`,
-                    )
-                    .join('')}
+            )
+            .join('')}
             </div>
             <div class="rovalra-donator-perks-table-wrap">
                 <table class="rovalra-donator-perks-table">
@@ -1211,30 +1307,30 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
         const podiumData = [
             donators[2]
                 ? {
-                      ...donators[2],
-                      rank: 3,
-                      color: '#cd7f32',
-                      height: '60px',
-                      size: '64px',
-                  }
+                    ...donators[2],
+                    rank: 3,
+                    color: '#cd7f32',
+                    height: '60px',
+                    size: '64px',
+                }
                 : null,
             donators[0]
                 ? {
-                      ...donators[0],
-                      rank: 1,
-                      color: '#ffd700',
-                      height: '100px',
-                      size: '80px',
-                  }
+                    ...donators[0],
+                    rank: 1,
+                    color: '#ffd700',
+                    height: '100px',
+                    size: '80px',
+                }
                 : null,
             donators[1]
                 ? {
-                      ...donators[1],
-                      rank: 2,
-                      color: '#c0c0c0',
-                      height: '80px',
-                      size: '72px',
-                  }
+                    ...donators[1],
+                    rank: 2,
+                    color: '#c0c0c0',
+                    height: '80px',
+                    size: '72px',
+                }
                 : null,
         ].filter(Boolean);
 
@@ -1982,13 +2078,13 @@ async function renderAccountStanding(container) {
             <div style="height: 12px; background: rgba(128,128,128,0.2); border-radius: 6px; position: relative; margin-bottom: 25px;">
                 <div class="standing-status-fill" style="position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #23a55a; border-radius: 6px; transition: width 0.5s ease, background-color 0.3s;"></div>
                 ${ACCOUNT_STANDING_LEVELS.map((level, index) => {
-                    const leftPos =
-                        (index / (ACCOUNT_STANDING_LEVELS.length - 1)) * 100;
-                    return `
+        const leftPos =
+            (index / (ACCOUNT_STANDING_LEVELS.length - 1)) * 100;
+        return `
                         <div class="standing-status-dot" data-index="${index}" style="position: absolute; left: ${leftPos}%; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: ${index === 0 ? level.color : '#4f545c'}; border: 4px solid var(--rovalra-container-background-color); z-index: 2; transition: background 0.3s;"></div>
                         <div class="standing-status-label" data-index="${index}" style="font-size: 12px; font-weight: 600; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
                     `;
-                }).join('')}
+    }).join('')}
             </div>
         </div>
         <div class="standing-policy-anchor"></div>
@@ -2099,11 +2195,11 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Disabled Features</div>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     ${disabledFeatures
-                        .map(
-                            (feature) =>
-                                `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 600; text-transform: capitalize;">${feature}</div>`,
-                        )
-                        .join('')}
+                    .map(
+                        (feature) =>
+                            `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 600; text-transform: capitalize;">${feature}</div>`,
+                    )
+                    .join('')}
                 </div>
             </div>`
                 : '';
@@ -2114,15 +2210,15 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Moderated Content</div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${modContent
-                        .map(
-                            (item) => `
+                    .map(
+                        (item) => `
                         <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px;">
                             <div style="font-weight: 600; color: var(--rovalra-secondary-text-color); font-size: 12px; margin-bottom: 4px;">${item.config_key}</div>
                             <div style="font-size: 13px; color: var(--rovalra-main-text-color); word-break: break-all;">${item.content_value}</div>
                         </div>
                     `,
-                        )
-                        .join('')}
+                    )
+                    .join('')}
                 </div>
             </div>`
                 : '';
@@ -2141,11 +2237,10 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 ${disabledFeaturesHtml}
                 ${modContentHtml}
                 <div style="margin-top: 10px; font-size: 11px; opacity: 0.7;" class="standing-mod-date">Moderated: </div>
-                ${
-                    isTemporary
-                        ? '<div style="margin-top: 6px; font-size: 11px; opacity: 0.85;" class="standing-expiry-date">Temporary restriction expires: </div>'
-                        : ''
-                }
+                ${isTemporary
+                ? '<div style="margin-top: 6px; font-size: 11px; opacity: 0.85;" class="standing-expiry-date">Temporary restriction expires: </div>'
+                : ''
+            }
             </div>
         `);
         const dateContainer = reasonHtml.querySelector('.standing-mod-date');
@@ -2759,8 +2854,8 @@ function createEquipButton(
     const tooltip = isSelected
         ? 'Click to unequip this border'
         : isOwned
-          ? 'Equip this border'
-          : 'Buy this border';
+            ? 'Equip this border'
+            : 'Buy this border';
 
     const pill = createPill(text, tooltip, { isButton: true });
     pill.setAttribute('data-equip-btn', variant.value);
@@ -2783,11 +2878,11 @@ function createEquipButton(
         const val = pill.getAttribute('data-equip-btn');
 
         if (currentText === 'Equipped') {
-            updateUserSettingViaApi('border', '').catch(() => {});
+            updateUserSettingViaApi('border', '').catch(() => { });
             updatePreviewAndUI('none', null, container, previewHolder);
         } else if (currentText === 'Equip') {
             const link = pill.getAttribute('data-variant-link');
-            updateUserSettingViaApi('border', link).catch(() => {});
+            updateUserSettingViaApi('border', link).catch(() => { });
             updatePreviewAndUI(val, link, container, previewHolder);
         } else if (currentText === 'Buy') {
             openBorderOverlay(
@@ -3432,7 +3527,7 @@ function initializeHeartbeatSpoofer() {
         }
     });
 
-    window.fetch = async function (...args) {
+    window.fetch = async function(...args) {
         const url = args[0] ? args[0].toString() : '';
         let isInternal = false;
 
