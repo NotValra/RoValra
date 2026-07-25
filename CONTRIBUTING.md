@@ -76,6 +76,7 @@ The badge is completely optional.
 
 ## Code Guidelines
 
+- We may deny a PR if it doesn't match the vision of the extension.
 - Keep code clean and readable.
 - Follow the existing coding style of the project.
 - Test your changes before submitting.
@@ -92,3 +93,4 @@ The badge is completely optional.
 - Make sure you use `IdExtractor.js` for getting ids from url.
 - For new features create a new script in side a sub folder of features matching the feature your making and import it via `index.js` Never add you feature into an existing script unless it is a child setting of the main feature of the file.
 - For svgs always add them in `assets.js` with a proper name so it can be reused. RoValra mostly uses Material Icons since they look the most like Robloxs, but feel free to use others if you think they match Robloxs svgs more.
+- Please keep the PRs simple, single feature focused avoid big over hauls or giant features.
