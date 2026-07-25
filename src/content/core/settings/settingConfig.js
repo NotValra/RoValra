@@ -208,13 +208,13 @@ export const SETTINGS_CONFIG = {
                 },
             },
             wideGameTileStatsEnabled: {
-                label: 'Wide Experience Tile Stats',
+                label: 'Player Counts on Wide Tiles',
                 description: [
                     'Shows the concurrent player count alongside the rating on wide experience tiles.',
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['2963377564'],
+                contributors: ['2963377564', '2333236354'],
             },
             whatamIJoiningEnabled: {
                 label: 'What Am I Joining',

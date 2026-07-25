@@ -45,6 +45,7 @@ import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
+import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
@@ -230,6 +231,7 @@ const featureRoutes = [
             initSidebarLayout,
             initTopbarLayout,
             initFriendGameLink,
+            initWideTilePlayerCounts,
             initThemeSwitcher,
             initCustomThemeEditor,
             initThemeCatalogPage,

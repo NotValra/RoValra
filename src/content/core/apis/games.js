@@ -202,6 +202,60 @@ export async function getCloudRootPlaceId(universeId) {
     return data.rootPlace.split('/').pop();
 }
 
+export async function getPlacesDetails(placeIds) {
+    if (!Array.isArray(placeIds) || placeIds.length === 0) return [];
+
+    const normalizedIds = [
+        ...new Set(
+            placeIds
+                .map((placeId) => String(placeId))
+                .filter((placeId) => /^\d+$/.test(placeId)),
+        ),
+    ];
+    if (!normalizedIds.length) return [];
+
+    const cachedDetails = [];
+    const missingIds = [];
+    const cachedEntries = await Promise.all(
+        normalizedIds.map(async (placeId) => [
+            placeId,
+            await CacheHandler.get('place_details', placeId, 'session'),
+        ]),
+    );
+
+    for (const [placeId, cached] of cachedEntries) {
+        if (cached) cachedDetails.push(cached);
+        else missingIds.push(placeId);
+    }
+
+    if (!missingIds.length) return cachedDetails;
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/multiget-place-details?placeIds=${missingIds.join(',')}`,
+            method: 'GET',
+        });
+        const fetchedDetails = Array.isArray(data) ? data : [];
+
+        await Promise.all(
+            fetchedDetails.map((placeData) =>
+                CacheHandler.set(
+                    'place_details',
+                    String(placeData.placeId),
+                    placeData,
+                    'session',
+                ),
+            ),
+        );
+
+        return [...cachedDetails, ...fetchedDetails];
+    } catch (error) {
+        console.error('RoValra: Failed to fetch place details', error);
+        return cachedDetails;
+    }
+}
+
 export async function getPlaceDetails(placeId) {
     const cacheKey = String(placeId);
 
@@ -342,6 +396,7 @@ export default {
     getCloudPlatformSupport,
     getCloudRootPlaceId,
     getPlaceDetails,
+    getPlacesDetails,
     getUniversesDetails,
     getUniversesVotes,
     getUniverseEligibilities,
