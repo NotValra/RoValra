@@ -1861,7 +1861,7 @@ export const SETTINGS_CONFIG = {
                         maxLength: 30,
                         showCharacterCount: true,
                         default: null,
-                        contributors: ['10646979010'],
+                        contributors: ['10646979010', '1564574922'],
                     },
                     ageKidsTextPushNavbarEnabled: {
                         label: 'Show Full Badge Text',
