@@ -316,12 +316,12 @@ async function openDonatorPerksDonationUrl() {
     }
     try {
         if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval') {
-            const accountParentsLinked = await callRobloxApiJson({
+            const approveExperienceRecourse = await callRobloxApiJson({
                 subdomain: 'apis',
-                endpoint: '/parental-controls-api/v1/parental-controls/get-linked-parents',
+                endpoint: '/access-management/v1/upsell-feature-access?featureName=CanApproveExperience&extraParameters=W10=',
                 method: 'GET',
             });
-            accountHasParentAttached = 0 < accountParentsLinked.parents.length;
+            accountHasParentAttached = approveExperienceRecourse.recourse.includes('ParentConsent');
         }
     } catch (error) {
         console.warn('RoValra: Failed to see if there were any parents linked to account for game unblock overlay', error);
