@@ -1,6 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 import { settings } from '../../core/settings/getSettings.js';
+import { t } from '../../core/locale/i18n.js';
 import {
     getCachedRobuxTransferData,
     initRobuxTransferTracking,
@@ -102,7 +103,7 @@ function findInsertionPoint() {
     return null;
 }
 
-function upsertTransferLimits(data = null) {
+async function upsertTransferLimits(data = null) {
     const insertionPoint = findInsertionPoint();
     if (!insertionPoint?.parent) return false;
     if (!data && hasRenderedRealData) return true;
@@ -115,19 +116,35 @@ function upsertTransferLimits(data = null) {
     container.className = containerClasses;
     const dailyLimit = data?.dailyLimit;
     const monthlyLimit = data?.monthlyLimit;
+    const [
+        dailyLimitLabel,
+        monthlyLimitLabel,
+        sentTodayLabel,
+        sentThisMonthLabel,
+        captionText,
+    ] = await Promise.all([
+        t('plus.transferLimits.dailyLimitLeft'),
+        t('plus.transferLimits.monthlyLimitLeft'),
+        t('plus.transferLimits.sentToday'),
+        t('plus.transferLimits.sentThisMonth'),
+        t('plus.transferLimits.caption', {
+            dailyLimit: formatRobux(dailyLimit),
+            monthlyLimit: formatRobux(monthlyLimit),
+        }),
+    ]);
     const caption = safeHtml`
         <span class="text-caption-medium content-muted">
-            Daily limit is ${formatRobux(dailyLimit)}. Monthly limit is ${formatRobux(monthlyLimit)}. Updates every 5 minutes.
+            ${captionText}
         </span>`;
 
     container.innerHTML = `
         <div class="gap-x-small flex">
-            ${createStatCard('Daily limit left', data?.remainingToday)}
-            ${createStatCard('Monthly limit left', data?.remainingThisMonth)}
+            ${createStatCard(dailyLimitLabel, data?.remainingToday)}
+            ${createStatCard(monthlyLimitLabel, data?.remainingThisMonth)}
         </div>
         <div class="gap-x-small flex">
-            ${createStatCard('Sent today', data?.sentToday)}
-            ${createStatCard('Sent this month', data?.sentThisMonth)}
+            ${createStatCard(sentTodayLabel, data?.sentToday)}
+            ${createStatCard(sentThisMonthLabel, data?.sentThisMonth)}
         </div>
         ${caption}`;
 
@@ -156,13 +173,13 @@ async function renderTransferLimits() {
 
             const cachedData = await getCachedRobuxTransferData();
             if (cachedData) {
-                upsertTransferLimits(cachedData);
+                await upsertTransferLimits(cachedData);
             } else {
-                upsertTransferLimits();
+                await upsertTransferLimits();
             }
 
             const data = await updateRobuxTransferData();
-            return upsertTransferLimits(data);
+            return await upsertTransferLimits(data);
         } catch (error) {
             console.warn(
                 'RoValra: Failed to render Plus Robux transfer limits.',
@@ -187,7 +204,7 @@ function attachTransferLimitListener() {
             return;
         }
 
-        upsertTransferLimits(event.detail?.transferData);
+        await upsertTransferLimits(event.detail?.transferData);
     });
 }
 

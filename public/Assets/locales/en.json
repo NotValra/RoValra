@@ -1110,6 +1110,13 @@
             "robuxSentSmall": "Robux sent to friends",
             "delayNotice": "All data shown here is delayed by 1 day"
         },
+        "transferLimits": {
+            "dailyLimitLeft": "Daily limit left",
+            "monthlyLimitLeft": "Monthly limit left",
+            "sentToday": "Sent today",
+            "sentThisMonth": "Sent this month",
+            "caption": "Daily limit is {{dailyLimit}}. Monthly limit is {{monthlyLimit}}. Updates every 5 minutes. The remaining are estimates and may be inaccurate."
+        },
         "privateServerTooltip": {
             "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
         },
