@@ -1,6 +1,12 @@
 import { settings } from '../../core/settings/getSettings';
 import { observeAttributes } from '../../core/observer.js';
 import {
+    BACKGROUND_IMAGE_ENABLED_SETTING,
+    BACKGROUND_IMAGE_SETTING,
+    DEFAULT_BACKGROUND_IMAGE,
+    sanitizeBackgroundImage,
+} from '../../core/backgroundImage.js';
+import {
     CUSTOM_THEME_FIELDS,
     DEFAULT_CUSTOM_THEME,
     getCustomThemeAlphaKey,
@@ -50,6 +56,27 @@ const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 const CUSTOM_THEME_FIELD_MAP = new Map(
     CUSTOM_THEME_FIELDS.map((field) => [field.key, field]),
 );
+const BG_LAYER_ID = 'rovalra-custom-background-layer';
+const BG_ACTIVE_CLASS = 'rovalra-custom-background-image-active';
+const BG_NAV_OVERRIDE_CLASS = 'rovalra-custom-background-nav-override';
+const BG_CSS_PROPERTIES = [
+    '--rovalra-background-image-opacity',
+    '--rovalra-background-image-size',
+    '--rovalra-background-image-position',
+    '--rovalra-background-image-repeat',
+    '--rovalra-background-image-blur',
+    '--rovalra-background-overlay-color',
+    '--rovalra-background-overlay-opacity',
+];
+const BG_OVERLAY_CLASS = 'rovalra-custom-background-overlay';
+const BG_FRAME_CLASS = 'rovalra-custom-background-frame';
+const BG_FRAME_PATH = 'public/Assets/background-wallpaper.html';
+const BG_SUPPORTED_HOSTS = new Set(['www.roblox.com', 'roblox.com']);
+const EXTENSION_ORIGIN = new URL(chrome.runtime.getURL('/')).origin;
+
+function isBackgroundImageSupportedHost() {
+    return BG_SUPPORTED_HOSTS.has(window.location.hostname);
+}
 
 async function loadThemeData() {
     if (Object.keys(ThemeData).length > 0) return;
@@ -168,6 +195,8 @@ async function prepareRenderedTheme(changes = null) {
                 'ThemeSwitcherEnabled',
                 'ThemeSwitcher',
                 'customUserTheme',
+                BACKGROUND_IMAGE_SETTING,
+                BACKGROUND_IMAGE_ENABLED_SETTING,
             ]) {
                 if (storageChanges[key]) {
                     relevantChanges[key] = storageChanges[key];
@@ -188,6 +217,7 @@ async function prepareRenderedTheme(changes = null) {
         themeEnforcementEnabled = false;
         activeThemeKey = null;
         activeCustomThemeValue = undefined;
+        await applyStoredBackgroundImage(changes);
         return;
     }
 
@@ -210,6 +240,8 @@ async function prepareRenderedTheme(changes = null) {
         case theme:
             console.error(`(RoValra) Theme Switcher: Unknown theme "${theme}"`);
     }
+
+    await applyStoredBackgroundImage(changes);
 }
 
 export async function refreshThemeSwitcher() {
@@ -217,6 +249,182 @@ export async function refreshThemeSwitcher() {
 }
 
 // Custom themes
+
+function getBgRoot() {
+    return document.body || document.documentElement;
+}
+
+function pruneBgLayers(primaryLayer) {
+    document.querySelectorAll(`#${BG_LAYER_ID}`).forEach((layer) => {
+        if (layer !== primaryLayer) layer.remove();
+    });
+}
+
+function createBgFrame() {
+    const frame = document.createElement('iframe');
+    frame.className = BG_FRAME_CLASS;
+    frame.src = chrome.runtime.getURL(BG_FRAME_PATH);
+    frame.setAttribute('aria-hidden', 'true');
+    frame.tabIndex = -1;
+    return frame;
+}
+
+function getBgParts() {
+    const root = getBgRoot();
+    let layer = document.getElementById(BG_LAYER_ID);
+
+    if (layer && layer.parentElement !== root) {
+        layer.remove();
+        layer = null;
+    }
+
+    if (!layer) {
+        layer = document.createElement('div');
+        layer.id = BG_LAYER_ID;
+        layer.setAttribute('aria-hidden', 'true');
+        layer.tabIndex = -1;
+        root.appendChild(layer);
+    }
+
+    let frame = layer.querySelector(`.${BG_FRAME_CLASS}`);
+    let overlay = layer.querySelector(`.${BG_OVERLAY_CLASS}`);
+
+    if (!frame) {
+        frame = createBgFrame();
+        layer.prepend(frame);
+    }
+
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = BG_OVERLAY_CLASS;
+        layer.appendChild(overlay);
+    }
+
+    pruneBgLayers(layer);
+    return { root, frame, overlay };
+}
+
+function clearBackgroundImage() {
+    const root = getBgRoot();
+    const classTargets = new Set([root, document.documentElement]);
+    if (document.body) classTargets.add(document.body);
+
+    for (const target of classTargets) {
+        target.classList.remove(BG_ACTIVE_CLASS, BG_NAV_OVERRIDE_CLASS);
+    }
+
+    for (const property of BG_CSS_PROPERTIES) {
+        for (const target of classTargets) {
+            target.style.removeProperty(property);
+        }
+    }
+
+    document.querySelectorAll(`#${BG_LAYER_ID}`).forEach((layer) => {
+        layer.remove();
+    });
+}
+
+function getBgState(bg) {
+    return {
+        source: bg.source,
+        size: bg.size === 'custom' ? `${bg.customSize}%` : bg.size,
+        position: bg.position,
+        repeat: bg.repeat,
+        attachment: 'fixed',
+        opacity: String(bg.opacity),
+        filter: `blur(${bg.blur}px)`,
+        overlayColor: bg.overlayColor,
+        overlayOpacity: String(bg.overlayOpacity),
+    };
+}
+
+function postBgState(frame, state) {
+    if (!frame.contentWindow) return;
+
+    frame.contentWindow.postMessage(
+        {
+            type: 'rovalra:set-background',
+            source: state.source,
+            size: state.size,
+            position: state.position,
+            repeat: state.repeat,
+            attachment: state.attachment,
+            opacity: state.opacity,
+            filter: state.filter,
+        },
+        EXTENSION_ORIGIN,
+    );
+}
+
+function setStyle(style, property, value) {
+    if (style[property] !== value) style[property] = value;
+}
+
+function setVar(element, property, value) {
+    if (element.style.getPropertyValue(property) !== value) {
+        element.style.setProperty(property, value);
+    }
+}
+
+function applyBackground(value) {
+    const bg = sanitizeBackgroundImage(value);
+
+    if (!bg.source) {
+        clearBackgroundImage();
+        return;
+    }
+
+    const { root, frame, overlay } = getBgParts();
+    const state = getBgState(bg);
+
+    root.classList.add(BG_ACTIVE_CLASS);
+    document.body?.classList.add(BG_ACTIVE_CLASS);
+    root.classList.toggle(BG_NAV_OVERRIDE_CLASS, bg.overrideTopbarSidebar);
+    document.body?.classList.toggle(
+        BG_NAV_OVERRIDE_CLASS,
+        bg.overrideTopbarSidebar,
+    );
+    Object.entries({
+        '--rovalra-background-image-opacity': state.opacity,
+        '--rovalra-background-image-size': state.size,
+        '--rovalra-background-image-position': state.position,
+        '--rovalra-background-image-repeat': state.repeat,
+        '--rovalra-background-image-blur': `${bg.blur}px`,
+        '--rovalra-background-overlay-color': state.overlayColor,
+        '--rovalra-background-overlay-opacity': state.overlayOpacity,
+    }).forEach(([property, value]) => setVar(root, property, value));
+
+    setStyle(frame.style, 'opacity', state.opacity);
+    setStyle(frame.style, 'filter', state.filter);
+    postBgState(frame, state);
+    frame.onload = () => postBgState(frame, state);
+
+    setStyle(overlay.style, 'backgroundColor', state.overlayColor);
+    setStyle(overlay.style, 'opacity', state.overlayOpacity);
+}
+
+export function applyBackgroundImage(config, enabled) {
+    if (enabled !== true || !isBackgroundImageSupportedHost()) {
+        clearBackgroundImage();
+        return;
+    }
+
+    applyBackground(config);
+}
+
+async function applyStoredBackgroundImage(changes = null) {
+    const enabled = changes?.[BACKGROUND_IMAGE_ENABLED_SETTING]
+        ? changes[BACKGROUND_IMAGE_ENABLED_SETTING].newValue === true
+        : (await settings[BACKGROUND_IMAGE_ENABLED_SETTING]) === true;
+    const config = changes?.[BACKGROUND_IMAGE_SETTING]
+        ? changes[BACKGROUND_IMAGE_SETTING].newValue
+        : await settings[BACKGROUND_IMAGE_SETTING];
+
+    applyBackgroundImage(
+        sanitizeBackgroundImage(config || DEFAULT_BACKGROUND_IMAGE),
+        enabled,
+    );
+}
 
 function getThemeFieldCssValue(theme, field) {
     const source = theme && typeof theme === 'object' ? theme : {};

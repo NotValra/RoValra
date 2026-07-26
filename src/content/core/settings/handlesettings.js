@@ -25,6 +25,7 @@ import {
     getRemoteSettingLocks,
     refreshRemoteSettingLocks,
 } from './remoteSettingLocks.js';
+import { sanitizeBackgroundImage } from '../backgroundImage.js';
 import { sanitizeCustomTheme } from '../themeCustom.js';
 import './settingsCompat';
 
@@ -34,6 +35,7 @@ let gradientNameSyncTimeout = null;
 let donatorTierPromise = null;
 let inMemoryDonatorResponse = null;
 let inMemoryDonatorUserId = null;
+let settingsKeySyncQueue = Promise.resolve();
 const colorLiveSaveTimeouts = new Map();
 const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
 const CUSTOM_THEME_NAME_MAX_LENGTH = 20;
@@ -487,11 +489,12 @@ export const loadSettings = async () => {
                         }
                     }
 
-                    const normalisedSettings = settings;
-                    for (const [key, value] of Object.entries(forcedSettings)) {
-                        normalisedSettings[key] = value;
+                    for (const [key, value] of Object.entries(
+                        forcedSettings,
+                    )) {
+                        settings[key] = value;
                     }
-                    resolve(normalisedSettings);
+                    resolve(settings);
                 }
             },
         );
@@ -828,6 +831,10 @@ export const handleSaveSettings = async (settingName, value) => {
                 case 'themeSlots':
                     sanitizedValue = sanitizeCustomThemeSlots(value);
                     break;
+
+                case 'backgroundImage':
+                    sanitizedValue = sanitizeBackgroundImage(value);
+                    break;
             }
         }
 
@@ -964,11 +971,34 @@ export const handleSaveSettings = async (settingName, value) => {
 };
 
 const syncToSettingsKey = (settingName, value) => {
-    chrome.storage.local.get('rovalra_settings', (result) => {
-        const settingsData = result.rovalra_settings || {};
-        settingsData[settingName] = value;
-        chrome.storage.local.set({ rovalra_settings: settingsData });
-    });
+    settingsKeySyncQueue = settingsKeySyncQueue
+        .catch(() => {})
+        .then(
+            () =>
+                new Promise((resolve, reject) => {
+                    chrome.storage.local.get('rovalra_settings', (result) => {
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                            return;
+                        }
+
+                        const settingsData = result.rovalra_settings || {};
+                        settingsData[settingName] = value;
+                        chrome.storage.local.set(
+                            { rovalra_settings: settingsData },
+                            () => {
+                                if (chrome.runtime.lastError) {
+                                    reject(chrome.runtime.lastError);
+                                } else {
+                                    resolve();
+                                }
+                            },
+                        );
+                    });
+                }),
+        );
+
+    return settingsKeySyncQueue;
 };
 
 export const buildSettingsKey = async () => {

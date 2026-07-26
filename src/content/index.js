@@ -629,6 +629,7 @@ async function handleUrlChange() {
         lastPath = currentPath;
 
         runFeaturesForPage();
+        window.dispatchEvent(new CustomEvent('rovalra:urlChanged'));
 
         detectTheme().then((theme) => dispatchThemeEvent(theme));
     }

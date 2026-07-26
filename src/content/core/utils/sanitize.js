@@ -1,3 +1,5 @@
+import { sanitizeBackgroundImage } from '../backgroundImage.js';
+
 // Technically not in use but still nice to have
 export function sanitizeString(str) {
     if (typeof str !== 'string') return str;
@@ -190,6 +192,10 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                         console.warn(`Sanitizing: Invalid image data for '${key}' - clearing`);
                         sanitizedValue = null;
                     }
+                    break;
+
+                case 'backgroundImage':
+                    sanitizedValue = sanitizeBackgroundImage(value);
                     break;
                     
                 default:

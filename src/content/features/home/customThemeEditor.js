@@ -2,6 +2,7 @@ import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
+import { ts } from '../../core/locale/i18n.js';
 import {
     handleSaveSettings,
     loadSettings,
@@ -9,12 +10,21 @@ import {
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { CUSTOM_THEME_SLOT_COUNT } from '../../core/themeCatalog.js';
 import {
+    BACKGROUND_IMAGE_ENABLED_SETTING,
+    BACKGROUND_IMAGE_POSITION_OPTIONS,
+    BACKGROUND_IMAGE_SETTING,
+    BACKGROUND_IMAGE_SIZE_OPTIONS,
+    DEFAULT_BACKGROUND_IMAGE,
+    sanitizeBackgroundImage,
+} from '../../core/backgroundImage.js';
+import {
     CUSTOM_THEME_FIELDS,
     DEFAULT_CUSTOM_THEME,
     getCustomThemeAlphaKey,
     sanitizeCustomTheme,
 } from '../../core/themeCustom.js';
 import {
+    applyBackgroundImage,
     applyCustomTheme,
     applyCustomThemeField,
     setTheme,
@@ -22,6 +32,8 @@ import {
 import { THEME_PATH } from '../themes/themeCatalogPage.js';
 
 const ACTIVE_SESSION_KEY = 'rovalra_custom_theme_editor_active';
+const BG_EDITOR_SESSION_KEY =
+    'rovalra_custom_theme_background_editor_active';
 const PENDING_THEME_OPEN_KEY = 'rovalra_custom_theme_editor_pending_theme';
 const SELECTED_SLOT_SESSION_KEY = 'rovalra_custom_theme_editor_slot';
 const SAVE_DELAY_MS = 120;
@@ -31,16 +43,39 @@ const EDITOR_MODES = [
     { key: 'roblox', label: 'Roblox' },
     { key: 'rovalra', label: 'RoValra' },
 ];
-
+const BG_SIZE_ITEMS = [
+    { label: 'Cover', value: 'cover' },
+    { label: 'Contain', value: 'contain' },
+    { label: 'Auto', value: 'auto' },
+    { label: 'Custom', value: 'custom' },
+];
+const BG_POSITION_ITEMS = [
+    { label: 'Center', value: 'center' },
+    { label: 'Top', value: 'top' },
+    { label: 'Bottom', value: 'bottom' },
+    { label: 'Left', value: 'left' },
+    { label: 'Right', value: 'right' },
+    { label: 'Top Left', value: 'top left' },
+    { label: 'Top Right', value: 'top right' },
+    { label: 'Bottom Left', value: 'bottom left' },
+    { label: 'Bottom Right', value: 'bottom right' },
+];
+const BG_TOGGLE_SETTING = BACKGROUND_IMAGE_ENABLED_SETTING;
 let initialized = false;
 let saveTimeout = null;
+let bgSaveTimeout = null;
 let textInputTimeouts = new Map();
 let currentTheme = { ...DEFAULT_CUSTOM_THEME };
+let backgroundImageConfig = { ...DEFAULT_BACKGROUND_IMAGE };
+let backgroundEnabled = false;
 let overlayHandle = null;
 let editorInputs = new Map();
 let editorRgbInputs = new Map();
 let editorAlphaInputs = new Map();
 let editorAlphaNumberInputs = new Map();
+let bgControls = null;
+let bgUrlTimeout = null;
+let bgOverlayHandle = null;
 let pendingThemeFieldKeys = new Set();
 let applyFrame = null;
 let customThemeSlots = [];
@@ -159,6 +194,10 @@ function areThemesEqual(left, right) {
     }
 
     return true;
+}
+
+function text(key, defaultValue, options = {}) {
+    return ts(`customThemeEditor.${key}`, { defaultValue, ...options });
 }
 
 function getModeFields(mode = editorMode) {
@@ -293,6 +332,14 @@ function flushTextInputTimeouts() {
     }
 }
 
+function flushBgUrlInput() {
+    if (!bgUrlTimeout) return;
+
+    clearTimeout(bgUrlTimeout);
+    bgUrlTimeout = null;
+    if (bgControls?.urlInput) applyBgUrlInput(bgControls.urlInput);
+}
+
 async function flushSave() {
     flushTextInputTimeouts();
 
@@ -302,6 +349,37 @@ async function flushSave() {
     }
 
     await persistCurrentSlot();
+}
+
+async function persistBackgroundConfig() {
+    await handleSaveSettings(
+        BACKGROUND_IMAGE_SETTING,
+        sanitizeBackgroundImage(backgroundImageConfig),
+    );
+}
+
+function scheduleBackgroundSave() {
+    if (bgSaveTimeout) clearTimeout(bgSaveTimeout);
+    bgSaveTimeout = setTimeout(() => {
+        bgSaveTimeout = null;
+        persistBackgroundConfig().catch((error) => {
+            console.error(
+                'RoValra: Failed to save background image settings.',
+                error,
+            );
+        });
+    }, SAVE_DELAY_MS);
+}
+
+async function flushBackgroundSave() {
+    flushBgUrlInput();
+
+    if (bgSaveTimeout) {
+        clearTimeout(bgSaveTimeout);
+        bgSaveTimeout = null;
+    }
+
+    await persistBackgroundConfig();
 }
 
 function scheduleFieldApply(key) {
@@ -448,6 +526,381 @@ function syncInputs(themeValue) {
     currentTheme = sanitizeCustomTheme(themeValue);
     for (const field of getModeFields()) syncSingleInput(field.key);
     applyCustomTheme(currentTheme);
+}
+
+function getBg() {
+    return sanitizeBackgroundImage(backgroundImageConfig);
+}
+
+function applyBackgroundPreview() {
+    applyBackgroundImage(getBg(), backgroundEnabled);
+}
+
+function setBg(next, { immediate = false } = {}) {
+    backgroundImageConfig = sanitizeBackgroundImage({
+        ...getBg(),
+        ...next,
+    });
+    syncBgControls();
+    applyBackgroundPreview();
+    if (next.source && backgroundEnabled !== true) {
+        backgroundEnabled = true;
+        saveBgToggle(true);
+    }
+    if (immediate) {
+        persistBackgroundConfig().catch((error) => {
+            console.error(
+                'RoValra: Failed to save background image settings.',
+                error,
+            );
+        });
+        return;
+    }
+    scheduleBackgroundSave();
+}
+
+function saveBgToggle(enabled) {
+    handleSaveSettings(BG_TOGGLE_SETTING, enabled)
+        .catch((error) => {
+            console.error('RoValra: Failed to save background toggle.', error);
+        });
+}
+
+async function applyBgToggle(enabled) {
+    try {
+        backgroundEnabled = enabled === true;
+        if (!bgOverlayHandle) {
+            const settings = await loadSettings();
+            backgroundImageConfig = sanitizeBackgroundImage(
+                settings[BACKGROUND_IMAGE_SETTING],
+            );
+        }
+        applyBackgroundPreview();
+    } catch (error) {
+        console.error('RoValra: Failed to toggle background image.', error);
+    }
+}
+
+function normalizeBgUrl(value) {
+    try {
+        const url = new URL(String(value || '').trim());
+        return url.protocol === 'https:' ? url.href : null;
+    } catch {
+        return String(value || '').trim() ? null : '';
+    }
+}
+
+function applyBgUrlInput(urlInput, updates = {}) {
+    const bgUrl = normalizeBgUrl(urlInput.value);
+    if (bgUrl === null) {
+        setBgError(
+            text(
+                'background.errors.invalidUrl',
+                'Enter a valid https image URL.',
+            ),
+        );
+        urlInput.classList.add('rovalra-custom-theme-selector-input-invalid');
+        return;
+    }
+
+    setBgError('');
+    urlInput.classList.remove('rovalra-custom-theme-selector-input-invalid');
+    if (bgUrl) {
+        backgroundEnabled = true;
+        saveBgToggle(true);
+    }
+    setBg(
+        {
+            ...updates,
+            source: bgUrl,
+        },
+        { immediate: true },
+    );
+}
+
+function scheduleBgUrlInput(urlInput) {
+    if (bgUrlTimeout) clearTimeout(bgUrlTimeout);
+    bgUrlTimeout = setTimeout(() => {
+        bgUrlTimeout = null;
+        applyBgUrlInput(urlInput);
+    }, TEXT_INPUT_DELAY_MS);
+}
+
+function setBgError(message = '') {
+    if (!bgControls?.error) return;
+    bgControls.error.textContent = message;
+    bgControls.error.hidden = !message;
+}
+
+function createBgToggle({ checked = false, ariaLabel, onChange }) {
+    const label = document.createElement('label');
+    label.className = 'toggle-switch rovalra-custom-theme-background-toggle';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = checked;
+    input.setAttribute('aria-label', ariaLabel);
+    input.addEventListener('change', () => onChange(input.checked));
+
+    const slider = document.createElement('span');
+    slider.className = 'slider';
+
+    label.append(input, slider);
+
+    return { element: label, input };
+}
+
+function createBgRow(labelText, control) {
+    const row = document.createElement('div');
+    row.className = 'rovalra-custom-theme-background-row';
+
+    const label = document.createElement('label');
+    label.className = 'rovalra-custom-theme-selector-label';
+    label.textContent = labelText;
+
+    row.append(label, control);
+    return row;
+}
+
+function createBgRange({ label, min, max, step = 1, value, unit = '', onInput }) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rovalra-custom-theme-background-range';
+
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = String(min);
+    input.max = String(max);
+    input.step = String(step);
+    input.value = String(value);
+    input.setAttribute('aria-label', label);
+
+    const valueEl = document.createElement('span');
+    valueEl.className = 'rovalra-custom-theme-background-range-value';
+
+    const update = (next) => {
+        valueEl.textContent = `${next}${unit}`;
+        input.setAttribute('aria-valuetext', valueEl.textContent);
+    };
+
+    input.addEventListener('input', () => {
+        update(input.value);
+        onInput(Number(input.value));
+    });
+
+    update(value);
+    wrapper.append(input, valueEl);
+
+    const row = createBgRow(label, wrapper);
+    row.rovalraRangeInput = input;
+    row.rovalraRangeValue = valueEl;
+    return row;
+}
+
+function syncBgRange(row, value, unit) {
+    row.rovalraRangeInput.value = value;
+    row.rovalraRangeValue.textContent = `${value}${unit}`;
+    row.rovalraRangeInput.setAttribute(
+        'aria-valuetext',
+        row.rovalraRangeValue.textContent,
+    );
+}
+
+function syncBgControls() {
+    if (!bgControls) return;
+
+    const bg = getBg();
+    const opacity = Math.round(bg.opacity * 100);
+    const overlay = Math.round(bg.overlayOpacity * 100);
+
+    bgControls.urlInput.value = bg.source;
+    syncBgRange(bgControls.opacityRow, opacity, '%');
+    syncBgRange(bgControls.blurRow, bg.blur, 'px');
+    syncBgRange(bgControls.customSizeRow, bg.customSize, '%');
+    bgControls.customSizeRow.hidden = bg.size !== 'custom';
+    bgControls.overlayColor.value = bg.overlayColor;
+    syncBgRange(bgControls.overlayOpacityRow, overlay, '%');
+    bgControls.overrideTopbarSidebar.checked = bg.overrideTopbarSidebar;
+    bgControls.sizeDropdown.setValue(bg.size);
+    bgControls.positionDropdown.setValue(bg.position);
+}
+
+function createBgDropdown(items, value, validValues, onChange) {
+    const dropdown = createDropdown({
+        items,
+        initialValue: value,
+        onValueChange: (next) => {
+            if (!validValues.includes(next)) return;
+            onChange(next);
+        },
+    });
+    dropdown.element.classList.add('rovalra-custom-theme-background-dropdown');
+    dropdown.panel.classList.add(
+        'rovalra-custom-theme-background-dropdown-panel',
+    );
+    return dropdown;
+}
+
+function createBgSection() {
+    const bg = getBg();
+    const section = document.createElement('section');
+    section.className =
+        'rovalra-custom-theme-background-section rovalra-custom-theme-background-section-compact';
+    const { container: urlContainer, input: urlInput } = createStyledInput({
+        id: 'rovalra-custom-theme-background-url',
+        label: '',
+        placeholder: 'https://example.com/image.png',
+        value: bg.source,
+    });
+    urlContainer.classList.add('rovalra-custom-theme-background-url-wrapper');
+    urlInput.type = 'url';
+    urlInput.addEventListener('input', () => scheduleBgUrlInput(urlInput));
+    urlInput.addEventListener('change', () => applyBgUrlInput(urlInput));
+
+    const sourceControls = document.createElement('div');
+    sourceControls.className = 'rovalra-custom-theme-background-source';
+    sourceControls.append(urlContainer);
+
+    const sourceRow = createBgRow(
+        text('background.source', 'Image Source'),
+        sourceControls,
+    );
+
+    const error = document.createElement('div');
+    error.className = 'rovalra-custom-theme-background-error';
+    error.hidden = true;
+    error.setAttribute('role', 'alert');
+
+    const opacityRow = createBgRange({
+        label: text('background.opacity', 'Image Opacity'),
+        min: 0,
+        max: 100,
+        value: Math.round(bg.opacity * 100),
+        unit: '%',
+        onInput: (value) => setBg({ opacity: value / 100 }),
+    });
+
+    const sizeDropdown = createBgDropdown(
+        BG_SIZE_ITEMS.map((item) => ({
+            ...item,
+            label: text(`background.size.${item.value}`, item.label),
+        })),
+        bg.size,
+        BACKGROUND_IMAGE_SIZE_OPTIONS,
+        (size) => setBg({ size }, { immediate: true }),
+    );
+    const sizeRow = createBgRow(
+        text('background.size.label', 'Background Size'),
+        sizeDropdown.element,
+    );
+
+    const customSizeRow = createBgRange({
+        label: text('background.customSize', 'Custom Scale'),
+        min: 25,
+        max: 300,
+        value: bg.customSize,
+        unit: '%',
+        onInput: (customSize) => setBg({ customSize }),
+    });
+    customSizeRow.hidden = bg.size !== 'custom';
+
+    const positionDropdown = createBgDropdown(
+        BG_POSITION_ITEMS.map((item) => ({
+            ...item,
+            label: text(
+                `background.position.${item.value.replaceAll(' ', '')}`,
+                item.label,
+            ),
+        })),
+        bg.position,
+        BACKGROUND_IMAGE_POSITION_OPTIONS,
+        (position) => setBg({ position }, { immediate: true }),
+    );
+
+    const blurRow = createBgRange({
+        label: text('background.blur', 'Blur'),
+        min: 0,
+        max: 20,
+        value: bg.blur,
+        unit: 'px',
+        onInput: (blur) => setBg({ blur }),
+    });
+
+    const overlayColor = document.createElement('input');
+    overlayColor.type = 'color';
+    overlayColor.value = bg.overlayColor;
+    overlayColor.setAttribute(
+        'aria-label',
+        text('background.overlay.color', 'Overlay Color'),
+    );
+    overlayColor.addEventListener('input', () =>
+        setBg({ overlayColor: overlayColor.value }),
+    );
+    const overlayColorRow = createBgRow(
+        text('background.overlay.color', 'Overlay Color'),
+        overlayColor,
+    );
+
+    const overlayOpacityRow = createBgRange({
+        label: text('background.overlay.opacity', 'Overlay Opacity'),
+        min: 0,
+        max: 100,
+        value: Math.round(bg.overlayOpacity * 100),
+        unit: '%',
+        onInput: (value) => setBg({ overlayOpacity: value / 100 }),
+    });
+
+    const { element: overrideTopbarSidebarToggle, input: overrideTopbarSidebarInput } = createBgToggle({
+        checked: bg.overrideTopbarSidebar,
+        ariaLabel: text(
+            'background.overrideTopbarSidebar',
+            'Transparent Mode',
+        ),
+        onChange: (overrideTopbarSidebar) =>
+            setBg({ overrideTopbarSidebar }, { immediate: true }),
+    });
+
+    const overrideTopbarSidebarRow = createBgRow(
+        text(
+            'background.overrideTopbarSidebar',
+            'Transparent Mode',
+        ),
+        overrideTopbarSidebarToggle,
+    );
+    overrideTopbarSidebarRow.classList.add(
+        'rovalra-custom-theme-background-toggle-row',
+    );
+
+    section.append(
+        sourceRow,
+        error,
+        opacityRow,
+        blurRow,
+        overlayOpacityRow,
+        overlayColorRow,
+        overrideTopbarSidebarRow,
+        sizeRow,
+        customSizeRow,
+        createBgRow(
+            text('background.position.label', 'Background Position'),
+            positionDropdown.element,
+        ),
+    );
+
+    bgControls = {
+        urlInput,
+        error,
+        opacityRow,
+        sizeDropdown,
+        customSizeRow,
+        positionDropdown,
+        blurRow,
+        overlayColor,
+        overlayOpacityRow,
+        overrideTopbarSidebar: overrideTopbarSidebarInput,
+    };
+    syncBgControls();
+
+    return section;
 }
 
 function syncSlotDropdownLabels() {
@@ -752,6 +1205,78 @@ function createEditorBody() {
     return body;
 }
 
+async function openBgEditor() {
+    if (bgOverlayHandle) return;
+
+    sessionStorage.setItem(BG_EDITOR_SESSION_KEY, 'true');
+
+    const settings = await loadSettings();
+    backgroundImageConfig = sanitizeBackgroundImage(
+        settings[BACKGROUND_IMAGE_SETTING],
+    );
+    backgroundEnabled = settings[BG_TOGGLE_SETTING] === true;
+    applyBackgroundPreview();
+
+    const closeButton = createButton('Close', 'primary', {
+        onClick: () => {
+            flushBackgroundSave()
+                .catch((error) => {
+                    console.error(
+                        'RoValra: Failed to save custom background.',
+                        error,
+                    );
+                })
+                .finally(() => bgOverlayHandle?.close());
+        },
+    });
+
+    const resetButton = createButton('Reset', 'secondary', {
+        onClick: () => {
+            setBgError('');
+            backgroundImageConfig = { ...DEFAULT_BACKGROUND_IMAGE };
+            backgroundEnabled = false;
+            saveBgToggle(false);
+            syncBgControls();
+            applyBackgroundPreview();
+            persistBackgroundConfig().catch((error) => {
+                console.error(
+                    'RoValra: Failed to reset background image settings.',
+                    error,
+                );
+            });
+        },
+    });
+
+    const body = document.createElement('div');
+    body.className =
+        'rovalra-custom-theme-selector-body rovalra-custom-theme-background-body';
+    body.append(createBgSection());
+
+    bgOverlayHandle = createOverlay({
+        title: text('background.title', 'Customize Image Settings'),
+        bodyContent: body,
+        actions: [resetButton, closeButton],
+        maxWidth: '420px',
+        maxHeight: 'calc(100vh - 96px)',
+        preventBackdropClose: true,
+        onClose: () => {
+            if (bgUrlTimeout) clearTimeout(bgUrlTimeout);
+            bgUrlTimeout = null;
+            if (bgSaveTimeout) clearTimeout(bgSaveTimeout);
+            bgSaveTimeout = null;
+            destroyBgControls();
+            sessionStorage.removeItem(BG_EDITOR_SESSION_KEY);
+            bgOverlayHandle = null;
+        },
+    });
+    bgOverlayHandle.overlay.classList.add(
+        'rovalra-custom-theme-selector-overlay',
+        'rovalra-custom-theme-background-overlay',
+    );
+    document.body.style.overflow = '';
+    syncBgControls();
+}
+
 function closeEditor() {
     if (!overlayHandle) return;
     const { close } = overlayHandle;
@@ -874,6 +1399,25 @@ function maybeRestoreOpenEditor() {
     });
 }
 
+function destroyBgControls() {
+    bgControls?.sizeDropdown.destroy();
+    bgControls?.positionDropdown.destroy();
+    bgControls = null;
+}
+
+function maybeRestoreBgEditor() {
+    if (sessionStorage.getItem(BG_EDITOR_SESSION_KEY) !== 'true') return;
+
+    if (bgOverlayHandle && !document.body.contains(bgOverlayHandle.overlay)) bgOverlayHandle = null;
+
+    openBgEditor().catch((error) => {
+        console.error(
+            'RoValra: Failed to restore custom background settings.',
+            error,
+        );
+    });
+}
+
 export function init() {
     if (!initialized) {
         initialized = true;
@@ -883,6 +1427,20 @@ export function init() {
                 routeTheme: true,
                 slotIndex: event.detail?.slotIndex ?? 0,
             });
+        });
+
+        document.addEventListener('rovalra:openCustomThemeBackground', () => {
+            openBgEditor().catch((error) => {
+                console.error(
+                    'RoValra: Failed to open custom background settings.',
+                    error,
+                );
+            });
+        });
+
+        document.addEventListener('rovalra:settingSaved', (event) => {
+            if (event.detail?.name !== BG_TOGGLE_SETTING) return;
+            applyBgToggle(event.detail.value === true);
         });
 
         chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -899,13 +1457,19 @@ export function init() {
         });
 
         window.addEventListener('popstate', maybeRestoreOpenEditor);
+        window.addEventListener('popstate', maybeRestoreBgEditor);
+        window.addEventListener('rovalra:urlChanged', maybeRestoreBgEditor);
     }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', maybeRestoreOpenEditor, {
             once: true,
         });
+        document.addEventListener('DOMContentLoaded', maybeRestoreBgEditor, {
+            once: true,
+        });
     } else {
         maybeRestoreOpenEditor();
+        maybeRestoreBgEditor();
     }
 }
