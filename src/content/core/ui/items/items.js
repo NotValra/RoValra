@@ -5,6 +5,8 @@ import {
 import { addTooltip } from '../tooltip.js';
 import { createSerialIcon } from './serials.js';
 import { callRobloxApi } from '../../api.js';
+import { getAssets } from '../../assets.js';
+import { t } from '../../locale/i18n.js';
 
 let batchQueue = [];
 let batchTimeout = null;
@@ -303,6 +305,8 @@ async function processBatch() {
                     const item = {
                         assetId: request.id,
                         name: catalogItemData.name,
+                        isHiddenFromMarketplace:
+                            catalogItemData.isHiddenFromMarketplace === true,
                         recentAveragePrice: rawPrice || 0,
                         itemRestrictions: restrictions,
                         itemType: catalogItemData.itemType,
@@ -381,6 +385,7 @@ async function processBatch() {
                     }
 
                     if (item) {
+                        item.isHiddenFromMarketplace = true;
                         const realCard = createItemCard(
                             item,
                             thumbMap,
@@ -510,6 +515,52 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         item.name,
         'rovalra-item-thumb',
     );
+
+    if (item.isHiddenFromMarketplace === true) {
+        const hiddenIconElement = document.createElement('div');
+        hiddenIconElement.className = 'rovalra-hidden-marketplace-icon';
+        hiddenIconElement.setAttribute('aria-hidden', 'true');
+        const hiddenIconSvg = getAssets().visibilityOff;
+        if (hiddenIconSvg?.startsWith('data:image/svg+xml,')) {
+            hiddenIconElement.innerHTML = decodeURIComponent(
+                hiddenIconSvg.split(',')[1],
+            );
+            const svg = hiddenIconElement.querySelector('svg');
+            if (svg) {
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                svg.style.fill = 'currentColor';
+            }
+        }
+        Object.assign(hiddenIconElement.style, {
+            position: 'absolute',
+            right: '7px',
+            bottom: '7px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '25px',
+            height: '25px',
+            padding: '4px',
+            boxSizing: 'border-box',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(127, 127, 127, 0.55)',
+            backdropFilter: 'blur(3px)',
+            webkitBackdropFilter: 'blur(3px)',
+            color: 'var(--rovalra-main-text-color)',
+            zIndex: '2',
+        });
+        t('items.hiddenFromMarketplace')
+            .catch(() => 'This item is hidden from the marketplace')
+            .then((tooltipText) => {
+                if (hiddenIconElement.isConnected) {
+                    addTooltip(hiddenIconElement, tooltipText, {
+                        position: 'top',
+                    });
+                }
+            });
+        thumbContainer.appendChild(hiddenIconElement);
+    }
 
     if (showOnHold && item.isOnHold) {
         const onHoldIconElement = document.createElement('div');

@@ -135,6 +135,8 @@ async function renderTestPage(contentDiv) {
     const baseballcap = createItemCard(607702162);
     container.appendChild(baseballcap);
 
+    container.appendChild(createItemCard(1180425352)); // Dominus Noctis
+
     const limiteduid = 16477149823;
     const limiteduitemCard = createItemCard(limiteduid);
     container.appendChild(limiteduitemCard);

@@ -1,4 +1,7 @@
 {
+    "items": {
+        "hiddenFromMarketplace": "This item is hidden from the marketplace"
+    },
     "homeLayout": {
         "untitled": "Untitled",
         "empty": "RoValra was unable to find the layout, refresh and try again.",
