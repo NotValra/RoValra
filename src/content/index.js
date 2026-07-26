@@ -67,6 +67,7 @@ import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
+import { init as initFriendOwnership } from './features/catalog/friendOwnership.js';
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -264,6 +265,7 @@ const featureRoutes = [
             initItemTrading,
             initLastEquipped,
             initItemRender,
+            initFriendOwnership,
             initCatalogExplorer,
         ],
     },

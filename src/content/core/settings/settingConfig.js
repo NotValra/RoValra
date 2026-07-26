@@ -101,6 +101,12 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            friendOwnershipEnabled: {
+                label: 'Friends Who Own the Item',
+                description: 'Shows which of your friends own the item.',
+                type: 'checkbox',
+                default: true,
+            },
             priceFloorEnabled: {
                 label: 'Show Price Floor',
                 description:

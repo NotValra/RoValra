@@ -465,6 +465,12 @@
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
         "delete": "Delete"
     },
+    "friendOwnership": {
+        "pillLabel": "{{count}} Friends own",
+        "pillTooltip": "See which friends own this item",
+        "overlayTitle": "{{count}} Friends own this item",
+        "unknownUser": "User {{id}}"
+    },
     "regionPlayButton": {
         "ariaLabel": "Select or Join Preferred Server Region",
         "tooltip": "Join Preferred Region",

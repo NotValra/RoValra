@@ -78,3 +78,51 @@
     right: 8px;
     z-index: 10;
 }
+
+.rovalra-friend-ownership-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rovalra-friend-ownership-row {
+    min-height: 70px;
+    padding: 4px 0;
+}
+
+.rovalra-friend-ownership-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 70px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.rovalra-friend-ownership-thumbnail {
+    width: 70px !important;
+    height: 70px !important;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    object-fit: cover;
+}
+
+.rovalra-friend-ownership-names {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.rovalra-friend-ownership-names span:first-child {
+    display: inline-flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.rovalra-friend-ownership-names span:last-child {
+    color: var(--rovalra-secondary-text-color, #6e6e6e);
+    font-size: 13px;
+}
