@@ -1,4 +1,5 @@
 import { settings } from '../../core/settings/getSettings.js';
+import { callRobloxApi } from '../../core/api.js';
 import {
     get as getCache,
     set as setCache,
@@ -12,9 +13,13 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 
 let injectedThemeClass = null;
 let initialized = false;
+let accountThemeRequest = null;
 
 function getThemeClass(accountTheme) {
-    if (typeof accountTheme !== 'string' || !/^[A-Za-z0-9]+$/.test(accountTheme)) {
+    if (
+        typeof accountTheme !== 'string' ||
+        !/^[A-Za-z0-9]+$/.test(accountTheme)
+    ) {
         return null;
     }
 
@@ -48,9 +53,42 @@ function applyAccountTheme(accountTheme) {
 
 async function loadCachedAccountTheme() {
     const cached = await getCache(CACHE_SECTION, CACHE_KEY);
-    if (!cached || cached.expiresAt <= Date.now()) return;
+    if (
+        !cached ||
+        cached.expiresAt <= Date.now() ||
+        typeof cached.settings?.accountTheme !== 'string'
+    ) {
+        return false;
+    }
 
     applyAccountTheme(cached.settings?.accountTheme);
+    return true;
+}
+
+async function requestAccountTheme() {
+    if (accountThemeRequest) return accountThemeRequest;
+
+    accountThemeRequest = callRobloxApi({
+        subdomain: 'apis',
+        endpoint: '/user-settings-api/v1/user-settings',
+        method: 'GET',
+        noCache: true,
+    })
+        .then(async (response) => {
+            if (!response.ok) return;
+
+            await handleUserSettingsResponse(await response.json());
+        })
+        .finally(() => {
+            accountThemeRequest = null;
+        });
+
+    return accountThemeRequest;
+}
+
+async function loadAccountTheme() {
+    if (await loadCachedAccountTheme()) return;
+    await requestAccountTheme();
 }
 
 async function handleUserSettingsResponse(settingsData) {
@@ -85,7 +123,12 @@ function setEnabled(value) {
     } catch (e) {}
 
     if (isEnabled) {
-        loadCachedAccountTheme();
+        loadAccountTheme().catch((error) =>
+            console.warn(
+                'RoValra: Failed to load Roblox user settings.',
+                error,
+            ),
+        );
     } else {
         removeInjectedThemeClass();
     }
@@ -111,7 +154,10 @@ export function init() {
         if (!freeRobloxPlusThemesEnabled) return;
 
         handleUserSettingsResponse(event.detail).catch((error) =>
-            console.warn('RoValra: Failed to cache Roblox user settings.', error),
+            console.warn(
+                'RoValra: Failed to cache Roblox user settings.',
+                error,
+            ),
         );
     });
     document.addEventListener('rovalra:settingSaved', (event) => {
