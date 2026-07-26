@@ -46,7 +46,14 @@ async function scrapeAndCacheId() {
     return scrapingPromise;
 }
 
-export async function getAuthenticatedUserId() {
+export async function getAuthenticatedUserId(refresh = false) {
+    if (refresh) {
+        await waitForDom();
+        const refreshedId = await scrapeAndCacheId();
+
+        if (refreshedId !== null) return refreshedId;
+    }
+
     if (inMemoryAuthenticatedUserId !== null) {
         if (document.readyState !== 'loading' && !isScrapingInProgress) {
             scrapeAndCacheId();

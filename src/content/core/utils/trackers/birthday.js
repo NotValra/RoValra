@@ -5,6 +5,7 @@ const STORAGE_KEY = 'rovalra_birthday_tracker';
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 
 let activeTrackerPromise = null;
+let activeTrackerUserId = null;
 
 async function readAllTrackedUsers() {
     try {
@@ -127,7 +128,7 @@ function buildTrackedData(userId, birthday, ageGroup, verifiedAge) {
 }
 
 export async function updateBirthdayTracker(forceRefresh = false) {
-    const userId = await getAuthenticatedUserId();
+    const userId = await getAuthenticatedUserId(true);
     if (!userId) return null;
 
     const allTrackedUsers = await readAllTrackedUsers();
@@ -141,9 +142,13 @@ export async function updateBirthdayTracker(forceRefresh = false) {
         return cachedData;
     }
 
-    if (activeTrackerPromise) return activeTrackerPromise;
+    const normalizedUserId = String(userId);
+    if (activeTrackerPromise && activeTrackerUserId === normalizedUserId) {
+        return activeTrackerPromise;
+    }
 
-    activeTrackerPromise = (async () => {
+    activeTrackerUserId = normalizedUserId;
+    const trackerPromise = (async () => {
         try {
             const [birthday, ageGroup, verifiedAge] = await Promise.all([
                 fetchBirthday().catch((error) => {
@@ -170,22 +175,26 @@ export async function updateBirthdayTracker(forceRefresh = false) {
             ]);
 
             const trackedData = buildTrackedData(
-                userId,
+                normalizedUserId,
                 birthday,
                 ageGroup,
                 verifiedAge,
             );
             const latestTrackedUsers = await readAllTrackedUsers();
-            latestTrackedUsers[userId] = trackedData;
+            latestTrackedUsers[normalizedUserId] = trackedData;
             await writeAllTrackedUsers(latestTrackedUsers);
 
             return trackedData;
         } finally {
-            activeTrackerPromise = null;
+            if (activeTrackerPromise === trackerPromise) {
+                activeTrackerPromise = null;
+                activeTrackerUserId = null;
+            }
         }
     })();
 
-    return activeTrackerPromise;
+    activeTrackerPromise = trackerPromise;
+    return trackerPromise;
 }
 
 export async function getBirthdayTrackerData(forceRefresh = false) {
