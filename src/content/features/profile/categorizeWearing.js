@@ -234,7 +234,15 @@ function getCategoryName(assetTypeId, assetTypeName = '') {
     if (
         isBodyPartsCategoryEnabled &&
         (name.includes('body') ||
-            ['head', 'face', 'torso', 'rightarm', 'leftarm', 'rightleg', 'leftleg'].includes(name))
+            [
+                'head',
+                'face',
+                'torso',
+                'rightarm',
+                'leftarm',
+                'rightleg',
+                'leftleg',
+            ].includes(name))
     ) {
         return 'bodyParts';
     }
@@ -246,6 +254,32 @@ function getCategoryName(assetTypeId, assetTypeName = '') {
     if (isBodyPartsCategoryEnabled && ASSET_TYPE_IDS.BODY_PARTS.has(id))
         return 'bodyParts';
     return 'items';
+}
+
+function getBundleCategory(bundle) {
+    if (
+        !bundle ||
+        (bundle.itemType !== 'Bundle' && bundle.bundleType == null)
+    ) {
+        return undefined;
+    }
+
+    if (Number(bundle.bundleType) === 2) return 'animations';
+
+    const bundleAssetTypeIds = (bundle.assetsInBundle || [])
+        .map((asset) => Number(asset.assetType))
+        .filter(Number.isFinite);
+    if (bundleAssetTypeIds.some((id) => ASSET_TYPE_IDS.EMOTES.has(id))) {
+        return 'emotes';
+    }
+    if (bundleAssetTypeIds.some((id) => ASSET_TYPE_IDS.ANIMATIONS.has(id))) {
+        return 'animations';
+    }
+    if (bundleAssetTypeIds.some((id) => ASSET_TYPE_IDS.BODY_PARTS.has(id))) {
+        return 'bodyParts';
+    }
+
+    return undefined;
 }
 
 function refreshPillToggle() {
@@ -380,7 +414,8 @@ function getCategoriesFromSection(section) {
         categories.add('emotes');
     }
     if (
-        section.querySelector('.rovalra-category-grid.cosmetics')?.children.length
+        section.querySelector('.rovalra-category-grid.cosmetics')?.children
+            .length
     ) {
         categories.add('cosmetics');
     }
@@ -561,10 +596,10 @@ function getProfileAssetEntries(profileData) {
                 id,
                 typeId: null,
                 itemType: asset.itemType === 'Bundle' ? 'Bundle' : 'Asset',
-                category:
-                    asset.itemType === 'Bundle' ? 'bodyParts' : undefined,
+                category: asset.itemType === 'Bundle' ? 'bodyParts' : undefined,
             });
-        });
+        },
+    );
 
     return entries;
 }
@@ -731,12 +766,14 @@ export function addItemToCategoryView(itemEl, assetId) {
 
 function moveAssetCardToCategory(assetId) {
     const info = assetInfoCache.get(assetId);
-    if (!info?.assetType || info.rovalraCategory === 'cosmetics') return;
+    if (!info || info.rovalraCategory === 'cosmetics') return;
 
-    const category = getCategoryName(
-        info.assetType.id,
-        info.assetType.name,
-    );
+    const category =
+        info.rovalraCategory ||
+        (info.assetType
+            ? getCategoryName(info.assetType.id, info.assetType.name)
+            : undefined);
+    if (!category) return;
     const grids = [
         accessoriesGrid,
         emotesGrid,
@@ -816,28 +853,34 @@ export async function init() {
         const data = e.detail?.data;
         if (!Array.isArray(data)) return;
         data.forEach((item) => {
+            const existingInfo = assetInfoCache.get(item.id);
             const rawAssetType = item.assetType || item.assetTypeId;
             const assetTypeObject =
                 rawAssetType && typeof rawAssetType === 'object'
                     ? rawAssetType
                     : null;
-            const typeId = assetTypeObject?.id ||
+            const typeId =
+                assetTypeObject?.id ||
                 (Number.isFinite(Number(rawAssetType))
                     ? Number(rawAssetType)
                     : null);
             const typeName =
                 assetTypeObject?.name ||
                 (typeof rawAssetType === 'string' ? rawAssetType : '');
-            if (item.id && (typeId || typeName)) {
+            const bundleCategory = getBundleCategory(item);
+            const isBundle =
+                item.itemType === 'Bundle' || item.bundleType != null;
+            if (item.id && (typeId || typeName || isBundle)) {
                 assetInfoCache.set(item.id, {
                     id: item.id,
-                    assetType: { id: typeId, name: typeName },
+                    assetType:
+                        typeId || typeName
+                            ? { id: typeId, name: typeName }
+                            : existingInfo?.assetType || null,
                     itemType:
-                        assetInfoCache.get(item.id)?.itemType ||
-                        item.itemType ||
-                        'Asset',
-                    rovalraCategory: assetInfoCache.get(item.id)
-                        ?.rovalraCategory,
+                        existingInfo?.itemType || item.itemType || 'Asset',
+                    rovalraCategory:
+                        bundleCategory || existingInfo?.rovalraCategory,
                 });
                 moveAssetCardToCategory(item.id);
                 if (pendingItems.has(item.id)) {
