@@ -597,7 +597,7 @@ async function addSendRobuxButton(menu) {
 }
 
 export function initProfileButton() {
-    chrome.storage.local.get({ sendRobuxEnabled: false, keepRobuxAppButtonEnabled: false, }, (settings) => {
+    chrome.storage.local.get({ sendRobuxEnabled: true, keepRobuxAppButtonEnabled: false, }, (settings) => {
         if (!settings.sendRobuxEnabled) return;
         keepOpenInAppProfileItem = settings.keepRobuxAppButtonEnabled;
 
@@ -608,7 +608,7 @@ export function initProfileButton() {
 }
 
 export function initNotificationCenter() {
-    chrome.storage.local.get({ sendRobuxEnabled: false }, (settings) => {
+    chrome.storage.local.get({ sendRobuxEnabled: true }, (settings) => {
         if (!settings.sendRobuxEnabled) return;
 
         observeElement('.sendr-notification-container.ng-scope', (element) => {
@@ -641,12 +641,15 @@ export function initNotificationCenter() {
 
 export function initBuyRobuxPage() {
     chrome.storage.local.get({
-        sendRobuxEnabled: false,
+        sendRobuxEnabled: true,
         profileBackgroundGradientEnabled: true,
         displayNameGradientEnabled: true,
         avatarBorderEnabled: true
     }, (settings) => {
         if (!settings.sendRobuxEnabled) return;
+
+        const buyRobuxPageData = JSON.parse(document.querySelector('#robux-redesign-page').dataset.buyRobuxPage);
+        const robuxTransfers = buyRobuxPageData.sections.find((element) => element.sectionType == 'PAYMENTS_PRODUCT_SECTION_TYPE_TRANSFERS');
 
         startObserving();
 
@@ -675,13 +678,6 @@ export function initBuyRobuxPage() {
 
             var allUserProfiles = await getUserProfileData(userSortIdsArray);
             var thumbnails = await getBatchThumbnails(userSortIdsArray, 'AvatarHeadshot');
-
-            console.group('Testing Send Robux Friends Selection');
-            console.log('All Ids', userSortIds);
-            console.log('All Profile Data', allUserProfiles);
-            console.log('All Thumbs', thumbnails)
-            console.groupEnd();
-
 
             for (const idIndexString in userSortIdsArray) {
                 const idIndex = Number(idIndexString);
@@ -798,5 +794,35 @@ export function initBuyRobuxPage() {
                 element.appendChild(profileDiv);
             }
         }, { multiple: true });
+
+        observeElement('.fui-base-sheet-overlay.foundation-web-portal-zindex.fixed.flex > .fui-base-sheet-content .flex.flex-col.overflow-y-auto > .flex.flex-row.items-center.justify-between', async (element) => {
+            if (element.dataset.rovalraSendrobuxHooked) return;
+
+            const childIndex = Array.from(element.parentNode.children).indexOf(element);
+            const transferData = robuxTransfers.transfers.pendingTransfers[childIndex];
+
+            const profileUserSettings = await getUserSettings(transferData.sender.id);
+
+            console.log(childIndex, transferData, element)
+
+            var newEl = element.cloneNode(true);
+
+            newEl.dataset.rovalraSendrobuxHooked = true
+            newEl.querySelector('button').addEventListener('click', (ev) => {
+                ev.preventDefault();
+                document.querySelector('.fui-sheet-close-affordance-container > button').click();
+                sendParentPermissionRecieve(transferData.transferRequestId, window.event?.shiftKey || false);
+            });
+
+            if (settings.displayNameGradientEnabled)
+                applyDisplayNameGradientToElement(newEl.querySelector('div.flex.flex-row.items-center.gap-small > div.flex.flex-col > span.text-label-medium.content-emphasis'), profileUserSettings, { hoverHost: newEl });
+            if (settings.avatarBorderEnabled)
+                applyBorderToContainer(newEl.querySelector('div.height-800.width-800.radius-circle.clip.flex.items-center.justify-center.shrink-0.bg-surface-200:has(img.height-full.width-full.object-cover)'), profileUserSettings.border, true);
+            if (settings.profileBackgroundGradientEnabled)
+                applyGradientForUserId(transferData.sender.id, newEl.querySelector('div.height-800.width-800.radius-circle.clip.flex.items-center.justify-center.shrink-0.bg-surface-200:has(img.height-full.width-full.object-cover)'), true);
+
+            element.parentNode.replaceChild(newEl, element);
+
+        }, { multiple: true, });
     });
 }
