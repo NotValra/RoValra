@@ -635,6 +635,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Shows profile view counts on profiles.',
                     'Disabling this hides profile views locally and hides your profile views from other RoValra users.',
+                    'Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -651,6 +652,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Profile Showcase',
                 description: [
                     'Adds a Showcase tab to profiles for featuring a favourite experience and community.',
+                    'Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on.',
                 ],
                 type: 'checkbox',
                 default: true,
