@@ -1984,6 +1984,14 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            FreeRobloxPlusThemesEnabled: {
+                label: 'Free Roblox Plus Themes',
+                description: [
+                    'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             ThemeSwitcherEnabled: {
                 label: 'Theme Switcher',
                 description: [

@@ -21,6 +21,12 @@
     const GROUP_ROLES_API_PATH = /^\/v1\/users\/(\d+)\/groups\/roles$/;
     const PROFILE_API_URL =
         'https://apis.roblox.com/profile-platform-api/v1/profiles/get';
+    const ACCOUNT_SETTINGS_UI_API_URL =
+        'https://apis.roblox.com/guac-v2/v1/bundles/account-settings-ui';
+    const USER_SETTINGS_API_URL =
+        'https://apis.roblox.com/user-settings-api/v1/user-settings';
+    const FREE_ROBLOX_PLUS_THEMES_SETTING =
+        'FreeRobloxPlusThemesEnabled';
     const ROBLOX_ADMIN_GROUP_ID = 1200769;
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
@@ -41,6 +47,12 @@
     let homeLayoutReadyPromise = null;
     let resolveHomeLayoutReady = null;
     let robloxGroupFeaturesEnabled = true;
+    let freeRobloxPlusThemesEnabled = false;
+
+    try {
+        freeRobloxPlusThemesEnabled =
+            sessionStorage.getItem('rovalra_freeRobloxPlusThemes') === 'true';
+    } catch (e) {}
 
     document.addEventListener('rovalra:settingSaved', (event) => {
         if (event.detail?.name === 'robloxGroupFeaturesEnabled') {
@@ -52,6 +64,17 @@
             robloxGroupFeaturesEnabled =
                 event.detail.robloxGroupFeaturesEnabled;
         }
+    });
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        if (event.detail?.name !== FREE_ROBLOX_PLUS_THEMES_SETTING) return;
+
+        freeRobloxPlusThemesEnabled = event.detail.value === true;
+        try {
+            sessionStorage.setItem(
+                'rovalra_freeRobloxPlusThemes',
+                String(freeRobloxPlusThemesEnabled),
+            );
+        } catch (e) {}
     });
 
     try {
@@ -164,6 +187,53 @@
             statusText: response.statusText,
             headers: newHeaders,
         });
+    }
+
+    function isAccountSettingsUiRequest(url) {
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            const endpointUrl = new URL(ACCOUNT_SETTINGS_UI_API_URL);
+            return (
+                parsedUrl.origin === endpointUrl.origin &&
+                parsedUrl.pathname === endpointUrl.pathname
+            );
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function isUserSettingsRequest(url) {
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            const endpointUrl = new URL(USER_SETTINGS_API_URL);
+            return (
+                parsedUrl.origin === endpointUrl.origin &&
+                parsedUrl.pathname === endpointUrl.pathname
+            );
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function dispatchUserSettingsResponse(data) {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) return;
+
+        document.dispatchEvent(
+            new CustomEvent('rovalra:user-settings-response', {
+                detail: data,
+            }),
+        );
+    }
+
+    function applyAccountSettingsUiOverrides(data) {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+            return false;
+        }
+
+        if (data.appThemesAccess === 'Enabled') return false;
+
+        data.appThemesAccess = 'Enabled';
+        return true;
     }
 
     function dispatchProfilePlatformResponse(data) {
@@ -539,6 +609,18 @@
         let response = await originalFetch(...args);
 
         if (
+            freeRobloxPlusThemesEnabled &&
+            isAccountSettingsUiRequest(requestUrl)
+        ) {
+            try {
+                const data = await response.clone().json();
+                if (applyAccountSettingsUiOverrides(data)) {
+                    response = responseWithJson(response, data);
+                }
+            } catch (e) {}
+        }
+
+        if (
             streamerModeEnabled &&
             settingsPageInfoEnabled &&
             typeof requestUrl === 'string'
@@ -626,6 +708,13 @@
         }
 
         if (typeof requestUrl === 'string') {
+            if (isUserSettingsRequest(requestUrl)) {
+                response
+                    .clone()
+                    .json()
+                    .then(dispatchUserSettingsResponse)
+                    .catch(() => {});
+            }
             if (requestUrl.includes(CATALOG_API_URL)) {
                 response
                     .clone()
@@ -797,6 +886,12 @@
         if (typeof url === 'string' && url.includes(PROFILE_API_URL)) {
             this._rovalra_profile_api = true;
         }
+        if (
+            typeof url === 'string' &&
+            isAccountSettingsUiRequest(url)
+        ) {
+            this._rovalra_account_settings_ui = true;
+        }
 
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
@@ -812,7 +907,8 @@
             xhr._rovalra_spoof_age_group ||
             xhr._rovalra_spoof_sessions ||
             xhr._rovalra_home_layout ||
-            xhr._rovalra_profile_api
+            xhr._rovalra_profile_api ||
+            xhr._rovalra_account_settings_ui
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
@@ -836,6 +932,11 @@
                             hideHomeSorts(data);
                             applyAccurateContinue(data);
                             reorderHomeSorts(data);
+                        }
+                        if (xhr._rovalra_account_settings_ui) {
+                            if (freeRobloxPlusThemesEnabled) {
+                                applyAccountSettingsUiOverrides(data);
+                            }
                         }
                         if (xhr._rovalra_profile_api) {
                             applyRobloxAdminProfileResponse(data);
@@ -985,6 +1086,10 @@
                         );
                     if (url.includes(PROFILE_API_URL))
                         dispatchProfilePlatformResponse(
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (isUserSettingsRequest(url))
+                        dispatchUserSettingsResponse(
                             JSON.parse(xhr.responseText),
                         );
                 } catch (e) {}

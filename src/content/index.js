@@ -47,6 +47,7 @@ import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
+import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 
 // Avatar
@@ -231,6 +232,7 @@ const featureRoutes = [
             initTopbarLayout,
             initFriendGameLink,
             initThemeSwitcher,
+            initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initThemeCatalogPage,
             initReceiveRobuxNotificationCenter,
