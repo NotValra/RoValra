@@ -5,6 +5,8 @@ export const USER_CURRENCY_CHANGED_EVENT = 'rovalra:user-currency-changed';
 
 const currencyCache = new Map();
 const activeCurrencyRequests = new Map();
+let authenticatedUserCurrency = null;
+let authenticatedUserCurrencyUserId = null;
 let currencyTrackingInitialized = false;
 
 function emitCurrencyChange(userId, currencyData) {
@@ -19,6 +21,7 @@ function emitCurrencyChange(userId, currencyData) {
 }
 
 export async function setCachedUserCurrency(userId, currencyData) {
+    const isAuthenticatedUser = !userId;
     const targetId = userId || (await getAuthenticatedUserId());
     if (!targetId || !currencyData) return null;
 
@@ -30,16 +33,28 @@ export async function setCachedUserCurrency(userId, currencyData) {
         lastChecked: Number(currencyData.lastChecked) || Date.now(),
     };
 
-    currencyCache.set(String(targetId), data);
+    const key = String(targetId);
+    currencyCache.set(key, data);
+
+    if (isAuthenticatedUser) {
+        authenticatedUserCurrencyUserId = key;
+        authenticatedUserCurrency = data;
+    }
+
     emitCurrencyChange(targetId, data);
     return data;
 }
 
 export async function updateUserCurrency(userId) {
+    const isAuthenticatedUser = !userId;
     const targetId = userId || (await getAuthenticatedUserId());
     if (!targetId) return null;
 
     const key = String(targetId);
+
+    if (key === authenticatedUserCurrencyUserId && authenticatedUserCurrency) {
+        return authenticatedUserCurrency;
+    }
 
     if (currencyCache.has(key)) {
         return currencyCache.get(key);
@@ -68,6 +83,10 @@ export async function updateUserCurrency(userId) {
             };
 
             await setCachedUserCurrency(targetId, currencyData);
+            if (isAuthenticatedUser) {
+                authenticatedUserCurrencyUserId = key;
+                authenticatedUserCurrency = currencyData;
+            }
             return currencyData;
         } catch (error) {
             console.error('RoValra: Failed to update user currency', error);
@@ -87,11 +106,21 @@ export async function getUserCurrency(userId) {
 
     const key = String(targetId);
 
+    if (key === authenticatedUserCurrencyUserId && authenticatedUserCurrency) {
+        return authenticatedUserCurrency;
+    }
+
     if (currencyCache.has(key)) {
         return currencyCache.get(key);
     }
 
-    return (await updateUserCurrency(targetId)) || null;
+    const currencyData = (await updateUserCurrency(targetId)) || null;
+    if (!userId && currencyData) {
+        authenticatedUserCurrencyUserId = key;
+        authenticatedUserCurrency = currencyData;
+    }
+
+    return currencyData;
 }
 
 export async function getCachedUserCurrency(userId) {
