@@ -1579,7 +1579,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Free Roblox Plus Themes',
                 description: [
                     'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
-                    'This also enables the Roblox Plus theme selector early which you can find https://www.roblox.com/my/account#!/browser-preferences',
+                    'This also enables the Roblox Plus theme selector early which you can find here https://www.roblox.com/my/account#!/browser-preferences',
                 ],
                 type: 'checkbox',
                 default: false,
