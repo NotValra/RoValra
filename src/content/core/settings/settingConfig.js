@@ -830,7 +830,7 @@ export const SETTINGS_CONFIG = {
                 description:
                     'Shows the experience you played the most with a friend on their profile.',
                 type: 'checkbox',
-                default: true,
+                default: false,
             },
             bulkUnfriendEnabled: {
                 label: 'Bulk Unfriend',
