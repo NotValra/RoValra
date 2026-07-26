@@ -50,6 +50,16 @@ function isItemOffSale(data) {
     );
 }
 
+function isFAEItem(item) {
+    return (
+        item?.isFAE === true ||
+        (Array.isArray(item?.itemStatus) &&
+            item.itemStatus.some((status) =>
+                ['IsFAE', 'IsFae'].includes(status),
+            ))
+    );
+}
+
 async function fetchEconomyItemDetails(
     assetId,
     looksItemData = null,
@@ -98,6 +108,7 @@ async function fetchEconomyItemDetails(
             name: data.Name || catalogItemData?.name || 'Unknown Item',
             recentAveragePrice: rawPrice || 0,
             itemRestrictions: restrictions,
+            isFAE: isFAEItem(catalogItemData),
             itemType: catalogItemData?.itemType || 'Asset',
             isOnHold: false,
             bundleId: null,
@@ -309,6 +320,7 @@ async function processBatch() {
                             catalogItemData.isHiddenFromMarketplace === true,
                         recentAveragePrice: rawPrice || 0,
                         itemRestrictions: restrictions,
+                        isFAE: isFAEItem(catalogItemData),
                         itemType: catalogItemData.itemType,
                         isOnHold: false,
                         bundleId: null,
@@ -582,6 +594,29 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     }
 
     thumbContainer.appendChild(thumbnailElement);
+
+    if (isFAEItem(item)) {
+        const faeIconElement = document.createElement('div');
+        faeIconElement.className = 'rovalra-fae-icon';
+        faeIconElement.setAttribute('aria-label', 'FAE item');
+        faeIconElement.innerHTML =
+            '<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-lock-closed size-[var(--icon-size-medium)]"></span>';
+        Object.assign(faeIconElement.style, {
+            position: 'absolute',
+            top: '8px',
+            left: '8px',
+            zIndex: '3',
+            width: '32px',
+            height: '32px',
+            borderRadius: '9999px',
+            backgroundColor: 'var(--color-content-emphasis)',
+            color: 'var(--color-surface-100)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        });
+        thumbContainer.appendChild(faeIconElement);
+    }
 
     let showLimitedIcon = false;
     let isUnique = false;
