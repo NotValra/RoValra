@@ -5,7 +5,7 @@ body:where(.light-theme),
     --rovalra-main-text-color: #202227;
     --rovalra-secondary-text-color: #494d5a;
     --rovalra-tertiary-text-color: rgb(106, 111, 129);
-    --rovalra-container-background-color: #f7f7f8;
+    --rovalra-container-background-color: var(--color-surface-300);
     --rovalra-playbutton-color: #335fff;
     --rovalra-main-background-color: #fff;
     --rovalra-button-background-color: rgba(27, 37, 75, 0.12);
