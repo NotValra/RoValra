@@ -389,11 +389,22 @@ export function createThumbnailElement(
         return el;
     };
 
+    const createImage = (imageUrl) => {
+        const image = document.createElement('img');
+        image.className = baseClass;
+        image.src = imageUrl;
+        image.onerror = () => {
+            if (image.parentNode) {
+                image.replaceWith(createCenteredIcon('icon-broken'));
+            }
+        };
+        return applyStyles(image);
+    };
+
     if (state === 'Completed') {
-        thumbnailElement = document.createElement('img');
-        thumbnailElement.className = baseClass;
-        thumbnailElement.src = thumbnailData.imageUrl;
-        return applyStyles(thumbnailElement);
+        return thumbnailData.imageUrl
+            ? createImage(thumbnailData.imageUrl)
+            : createCenteredIcon('icon-broken');
     }
 
     if (state === 'Blocked') {
@@ -426,11 +437,7 @@ export function createThumbnailElement(
                     }
 
                     if (updatedData.state === 'Completed') {
-                        const img = document.createElement('img');
-                        img.className = baseClass;
-                        img.src = updatedData.imageUrl;
-                        img.alt = altText;
-                        Object.assign(img.style, style);
+                        const img = createImage(updatedData.imageUrl);
 
                         if (container.parentNode) {
                             container.parentNode.replaceChild(img, container);
