@@ -359,6 +359,10 @@ async function processBatch() {
                                     item = {
                                         assetId: request.id,
                                         name: assetInfo.name,
+                                        assetType: {
+                                            id: assetInfo.typeId,
+                                            name: assetInfo.type,
+                                        },
                                         recentAveragePrice: 0,
                                         itemRestrictions: [],
                                         itemType: 'Asset',
@@ -383,6 +387,20 @@ async function processBatch() {
                             request.config,
                         );
                         request.placeholder.replaceWith(realCard);
+                        if (item.assetType) {
+                            window.dispatchEvent(
+                                new CustomEvent('rovalra-catalog-details', {
+                                    detail: {
+                                        data: [
+                                            {
+                                                id: item.assetId,
+                                                assetType: item.assetType,
+                                            },
+                                        ],
+                                    },
+                                }),
+                            );
+                        }
                     } else {
                         request.placeholder.innerHTML =
                             '<div style="padding: 10px;">Not Found</div>';
