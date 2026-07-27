@@ -16,7 +16,6 @@ import { ensureTouAgreement } from '../../../core/ui/tou/touAgreement.js';
 import { parseUntrustedMarkdown } from '../../../core/utils/markdown.js';
 import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
-import { TRUSTED_USER_IDS } from '../../../core/configs/userIds.js';
 import {
     getUserCardContext,
     onUserCardElement,
@@ -91,19 +90,13 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     }
 });
 
-function createStatusHelpText(isTrusted) {
+function createStatusHelpText() {
     const helpText = document.createElement('p');
     helpText.className = 'text-description';
     Object.assign(helpText.style, {
         fontSize: '12px',
         lineHeight: '1.4',
     });
-
-    if (isTrusted) {
-        helpText.textContent =
-            "As a trusted RoValra user, your status bypasses the normal status filters. Do not add swears or anything against Roblox's ToS or RoValra's ToS. Links to your own stuff are allowed but don't link anything discord, youtube, x, etc pretty much don't link any social platforms..";
-        return helpText;
-    }
 
     helpText.append(
         "You must follow Roblox's ToS and RoValra's ToS when using status bubbles. If you break these rules, your status may be reset and your status privileges may be revoked.",
@@ -122,7 +115,7 @@ function createStatusHelpText(isTrusted) {
     return helpText;
 }
 
-function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
+function openEditStatusOverlay(currentStatus, onSave) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -143,7 +136,7 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
 
     container.appendChild(inputContainer);
 
-    container.appendChild(createStatusHelpText(isTrusted));
+    container.appendChild(createStatusHelpText());
 
     const errorDisplay = document.createElement('p');
     errorDisplay.className = 'text-error';
@@ -205,8 +198,6 @@ async function addStatusBubble(avatarContainer) {
 
         const userId = getUserIdFromUrl();
         if (!userId) return;
-        const isTrusted = TRUSTED_USER_IDS.has(String(userId));
-
         const authenticatedUserId = await getAuthenticatedUserId();
         const isOwnProfile =
             authenticatedUserId &&
@@ -300,7 +291,6 @@ async function addStatusBubble(avatarContainer) {
                                 return false;
                             }
                         },
-                        isTrusted,
                     );
                 });
             });
