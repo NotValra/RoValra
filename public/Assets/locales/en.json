@@ -244,6 +244,42 @@
         "light": "Light",
         "dark": "Dark"
     },
+    "customThemeEditor": {
+        "background": {
+            "title": "Customize Image Settings",
+            "source": "Image Source",
+            "opacity": "Image Opacity",
+            "customSize": "Custom Scale",
+            "blur": "Blur",
+            "overrideTopbarSidebar": "Transparent Mode",
+            "size": {
+                "label": "Background Size",
+                "cover": "Cover",
+                "contain": "Contain",
+                "auto": "Auto",
+                "custom": "Custom"
+            },
+            "position": {
+                "label": "Background Position",
+                "center": "Center",
+                "top": "Top",
+                "bottom": "Bottom",
+                "left": "Left",
+                "right": "Right",
+                "topleft": "Top Left",
+                "topright": "Top Right",
+                "bottomleft": "Bottom Left",
+                "bottomright": "Bottom Right"
+            },
+            "overlay": {
+                "color": "Overlay Color",
+                "opacity": "Overlay Opacity"
+            },
+            "errors": {
+                "invalidUrl": "Enter a valid https image URL."
+            }
+        }
+    },
     "previousPrice": {
         "offSale": "Off Sale",
         "text": "Previous Price:",

@@ -213,3 +213,461 @@
         border-color: var(--rovalra-custom-user-playButton) !important;
     }
 }
+
+#rovalra-custom-background-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+
+    .rovalra-custom-background-frame,
+    .rovalra-custom-background-overlay {
+        position: absolute;
+        pointer-events: none;
+    }
+
+    .rovalra-custom-background-frame {
+        border: 0;
+        width: 100%;
+        height: 100%;
+        inset: 0;
+        opacity: var(--rovalra-background-image-opacity, 1);
+        filter: blur(var(--rovalra-background-image-blur, 0));
+    }
+
+    .rovalra-custom-background-overlay {
+        inset: 0;
+        background: var(--rovalra-background-overlay-color, #000000);
+        opacity: var(--rovalra-background-overlay-opacity, 0);
+    }
+}
+
+body:not(.rovalra-custom-background-image-active)
+    #rovalra-custom-background-layer {
+    display: none;
+}
+
+html.rovalra-custom-background-image-active,
+body.rovalra-custom-background-image-active {
+    background-color: transparent !important;
+    overflow-x: clip;
+}
+
+body.rovalra-custom-background-image-active {
+    main.container-main,
+    #container-main,
+    #content.content,
+    .content#content {
+        position: relative;
+        z-index: 1;
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+
+    &.rovalra-custom-background-nav-override {
+    .alert.alert-loading,
+    .alert.alert-warning,
+    .alert.alert-success {
+        display: none !important;
+    }
+
+    .catalog-header,
+    .search-bars,
+    .topic-container {
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important;
+    }
+
+    main.container-main,
+    #container-main,
+    #content.content,
+    .content#content {
+        position: relative;
+        z-index: 1;
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+
+    .groups-list-sidebar,
+    .group-banner,
+    .group-banner-flat,
+    .group-section-content,
+    .catalog-header,
+    .search-bars,
+    .topic-container,
+    &:has(#item-container) .container-list:has(.item-card-container),
+    #inventory-container #vertical-menu,
+    #avatar-react-container #horizontal-tabs,
+    #avatar-react-container #horizontal-tabs .rbx-tab-heading,
+    #avatar-react-container .avatar-back,
+    #item-list-container-recommendations #populated-item-list,
+    #inventory-container .container-list.recommendations-container,
+    #inventory-container .section-content-off,
+    #item-container .section-content:not(.top-section),
+    #friends-web-app .avatar-card-container,
+    #friends-web-app .avatar-card-btns,
+    #friends-web-app .nav.nav-tabs,
+    #friends-web-app .rbx-tab-heading,
+    #friends-web-app .section-content-off,
+    #friends-web-app .rovalra-bulk-unfriend-btn,
+    #game-detail-page #horizontal-tabs,
+    #game-detail-page #horizontal-tabs .rbx-tab-heading,
+    #game-detail-page .section-content-off,
+    #game-detail-page .rovalra-region-stats-bar,
+    #game-detail-page .rovalra-stat-item,
+    #game-detail-page .rovalra-server-card,
+    #game-detail-page .rovalra-server-avatar span,
+    #game-detail-page .card-item-public-server,
+    #game-detail-page .experience-events-tile .info-container,
+    #game-detail-page .game-badges-list .stack-row.badge-row,
+    #game-detail-page .game-badges-list .badge-image-container,
+    #group-search-web-app group-landing > .section-content,
+    group-forums .section-disclaimer.section-content-off,
+    configure-group-page #groups-configure-vertical-menu,
+    configure-group-allies #horizontal-tabs,
+    configure-group-allies #horizontal-tabs .rbx-tab-heading,
+    configure-group-settings .section-content.remove-panel > .section-content,
+    revenue-summary table.section-content,
+    transactions #group-transactions-container .foundation-web-feedback-banner,
+    transactions #group-transactions-container table.transactions,
+    transactions #group-transactions-container table.transactions td,
+    transactions #group-transactions-container .section-content-off,
+    configure-group-content-moderation .section-content.slowmode-section,
+    configure-group-content-moderation .section-disclaimer.section-content-off,
+    configure-group-allies .group-affiliates .section-content-off,
+    audit-log table.audit-log,
+    audit-log table.audit-log td,
+    .rovalra-showcase-game,
+    #games-switcher,
+    #games-switcher .slide-item-container-left,
+    #games-switcher .slide-item-container-right,
+    #rovalra-home-layout-button,
+    .item-card-thumb-container,
+    .item-card-thumb-container .thumbnail-2d-container,
+    .profile-slide-container #groups-switcher,
+    .profile-slide-container #groups-switcher .slide-item-image,
+    .profile-slide-container #groups-switcher .thumbnail-2d-container,
+    .profile-slide-container #groups-switcher .slide-item-container-right,
+    .profile-platform-container
+        .currently-wearing-avatar-with-background
+        > .profile-avatar-left,
+    .profile-platform-container
+        .currently-wearing-avatar-with-background
+        :is(.avatar-toggle-button, .action-buttons)
+        .foundation-web-button,
+    .profile-platform-container
+        .user-profile-header-details-avatar-container
+        .thumbnail-2d-container.avatar-card-image,
+    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+        .avatar-card-fullbody
+        > .thumbnail-2d-container.avatar-card-image,
+    .profile-platform-container #user-profile-header-bg .avatar-card-image,
+    .profile-platform-container
+        .currently-wearing-avatar-with-background
+        + .profile-header-overlay
+        #user-profile-header-bg
+        .avatar-card-image,
+    .profile-platform-container
+        .user-profile-header-details-avatar-container
+        .rovalra-improved-avatar-card,
+    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+        .rovalra-improved-avatar-card,
+    .base-tile-thumbnail,
+    #buy-robux-popover,
+    #buy-robux-popover .dropdown-menu,
+    #notification-stream-popover,
+    #notification-stream-popover .notification-content-view,
+    #notification-stream-popover .notification-stream-header,
+    #notification-stream-popover .notification-stream-banner,
+    #notification-stream-popover .notification-stream-body,
+    #notification-stream-popover .notification-stream-list,
+    #notification-stream-popover .sendr-notification-background,
+    .rovalra-dropdown-content-panel,
+    #settings-popover,
+    #settings-popover-menu,
+    #avatar-shop-keyword-input,
+    #robux-redesign-page .bg-surface-100.medium\:radius-circle,
+    #robux-redesign-page .radius-large.stroke-standard.stroke-default.bg-surface-100,
+    #user-account .menu-vertical,
+    #user-account .section-content.content-maturity,
+    #user-account .screentime-chart-container,
+    #user-account .section-content.parental-consent-toggle-container,
+    #user-account .inline-setting-component.section-content,
+    #user-account .radio-buttons-group.section-content,
+    #user-account .section-content.app-authorization-table-body,
+    #transactions-web-app table.summary,
+    #transactions-web-app table.transactions,
+    #transactions-web-app table.transactions td,
+    #trades-web-app .message-banner.money-page-banner,
+    #trades-web-app .container-empty,
+    #configure-private-server-web-app .stroke-standard.stroke-default.bg-surface-100,
+    #SponsoredPage,
+    #SponsoredPage .header,
+    #SponsoredPage #section2,
+    #SponsoredPage .section,
+    #settings-container #setting-section-content .setting,
+    #settings-container #setting-section-content .rovalra-donator-card,
+    #settings-container #setting-section-content .rovalra-donator-tier-heading,
+    #settings-container #setting-section-content .rovalra-donator-perks-table-wrap,
+    #settings-container #setting-section-content .rovalra-changelog-card,
+    #settings-container #setting-section-content .rovalra-account-standing-card,
+    #settings-container #setting-section-content .rovalra-donator-perks-table,
+    #settings-container #setting-section-content .rovalra-donator-perks-table th,
+    #settings-container #setting-section-content .rovalra-donator-perks-table td,
+    #settings-container #rovalra-store-border-container .rovalra-pill-toggle,
+    #settings-container
+        #rovalra-store-border-container
+        .rovalra-pill-toggle
+        div[role='presentation'],
+    #settings-container #rovalra-store-border-container [data-border-card],
+    #settings-container
+        #rovalra-store-border-container
+        > div[style*='background: var(--rovalra-container-background-color'],
+    #settings-container
+        #setting-section-content
+        .rovalra-donator-tier-copy
+        > span[style*='background-color: var(--rovalra-container-background-color'],
+    #settings-container
+        #setting-section-content
+        div[style*='background-color: var(--rovalra-container-background-color'],
+    #private-message-web-app .private-message-row,
+    #private-message-web-app .bg-surface-100.stroke-standard {
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+
+    .groups-list-sidebar,
+    .group-banner,
+    .group-section-content,
+    .catalog-header,
+    .search-bars,
+    .topic-container,
+    &:has(#item-container) .container-list:has(.item-card-container),
+    #item-list-container-recommendations #populated-item-list,
+    #inventory-container .container-list.recommendations-container,
+    #inventory-container .section-content-off,
+    #item-container .section-content:not(.top-section),
+    #friends-web-app .avatar-card-container,
+    #friends-web-app .avatar-card-btns,
+    #friends-web-app .nav.nav-tabs,
+    #friends-web-app .section-content-off,
+    #friends-web-app .rovalra-bulk-unfriend-btn,
+    #game-detail-page #horizontal-tabs,
+    #game-detail-page #horizontal-tabs .rbx-tab-heading,
+    #game-detail-page #horizontal-tabs .rbx-tab,
+    #game-detail-page .section-content-off,
+    #game-detail-page .rovalra-region-stats-bar,
+    #game-detail-page .rovalra-stat-item,
+    #game-detail-page .rovalra-server-card,
+    #game-detail-page .card-item-public-server,
+    #game-detail-page .experience-events-tile .info-container,
+    #game-detail-page .game-badges-list .stack-row.badge-row,
+    #game-detail-page .game-badges-list .badge-image-container,
+    #group-search-web-app group-landing > .section-content,
+    group-forums .section-disclaimer.section-content-off,
+    configure-group-settings .section-content.remove-panel > .section-content,
+    revenue-summary table.section-content,
+    transactions #group-transactions-container .foundation-web-feedback-banner,
+    transactions #group-transactions-container table.transactions,
+    transactions #group-transactions-container table.transactions td,
+    transactions #group-transactions-container .section-content-off,
+    configure-group-content-moderation .section-content.slowmode-section,
+    configure-group-content-moderation .section-disclaimer.section-content-off,
+    configure-group-allies .group-affiliates .section-content-off,
+    audit-log table.audit-log,
+    audit-log table.audit-log td,
+    .rovalra-showcase-game,
+    #games-switcher,
+    #games-switcher .slide-item-container-left,
+    #games-switcher .slide-item-container-right,
+    #rovalra-home-layout-button,
+    .item-card-thumb-container,
+    .item-card-thumb-container .thumbnail-2d-container,
+    .profile-slide-container #groups-switcher,
+    .profile-slide-container #groups-switcher .slide-item-image,
+    .profile-slide-container #groups-switcher .thumbnail-2d-container,
+    .profile-slide-container #groups-switcher .slide-item-container-right,
+    .profile-platform-container
+        .currently-wearing-avatar-with-background
+        > .profile-avatar-left,
+    .profile-platform-container
+        .currently-wearing-avatar-with-background
+        :is(.avatar-toggle-button, .action-buttons)
+        .foundation-web-button,
+    .profile-platform-container
+        .user-profile-header-details-avatar-container
+        .thumbnail-2d-container.avatar-card-image,
+    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+        .avatar-card-fullbody
+        > .thumbnail-2d-container.avatar-card-image,
+    .profile-platform-container
+        .user-profile-header-details-avatar-container
+        .rovalra-improved-avatar-card,
+    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+        .rovalra-improved-avatar-card,
+    .base-tile-thumbnail,
+    #buy-robux-popover,
+    #buy-robux-popover .dropdown-menu,
+    #notification-stream-popover,
+    #notification-stream-popover .notification-content-view,
+    #notification-stream-popover .notification-stream-header,
+    #notification-stream-popover .notification-stream-banner,
+    #notification-stream-popover .notification-stream-body,
+    #notification-stream-popover .notification-stream-list,
+    #notification-stream-popover .sendr-notification-background,
+    .rovalra-dropdown-content-panel,
+    #settings-popover,
+    #settings-popover-menu,
+    #avatar-shop-keyword-input,
+    #robux-redesign-page .bg-surface-100.medium\:radius-circle,
+    #robux-redesign-page .radius-large.stroke-standard.stroke-default.bg-surface-100,
+    #user-account .menu-vertical,
+    #user-account .menu-option-content.active,
+    #user-account .section-content.content-maturity,
+    #user-account .screentime-chart-container,
+    #user-account .section-content.parental-consent-toggle-container,
+    #user-account .inline-setting-component.section-content,
+    #user-account .radio-buttons-group.section-content,
+    #user-account .section-content.app-authorization-table-body,
+    #user-account .app-authorization-row,
+    #transactions-web-app table.summary,
+    #transactions-web-app table.transactions,
+    #transactions-web-app table.transactions td,
+    #trades-web-app .message-banner.money-page-banner,
+    #trades-web-app .container-empty,
+    #configure-private-server-web-app .stroke-standard.stroke-default.bg-surface-100,
+    #SponsoredPage,
+    #SponsoredPage .header,
+    #SponsoredPage #section2,
+    #SponsoredPage .section,
+    #settings-container #setting-section-content .setting,
+    #settings-container #setting-section-content .rovalra-donator-card,
+    #settings-container #setting-section-content .rovalra-donator-tier-heading,
+    #settings-container #setting-section-content .rovalra-donator-perks-table-wrap,
+    #settings-container #setting-section-content .rovalra-changelog-card,
+    #settings-container #setting-section-content .rovalra-account-standing-card,
+    #settings-container #setting-section-content .rovalra-donator-perks-table,
+    #settings-container #setting-section-content .rovalra-donator-perks-table th,
+    #settings-container #setting-section-content .rovalra-donator-perks-table td,
+    #settings-container #rovalra-store-border-container .rovalra-pill-toggle,
+    #settings-container #rovalra-store-border-container [data-border-card],
+    #settings-container
+        #rovalra-store-border-container
+        > div[style*='background: var(--rovalra-container-background-color'],
+    #settings-container
+        #setting-section-content
+        .rovalra-donator-tier-copy
+        > span[style*='background-color: var(--rovalra-container-background-color'],
+    #settings-container
+        #setting-section-content
+        div[style*='background-color: var(--rovalra-container-background-color'],
+    #private-message-web-app .overflow-hidden.radius-medium.stroke-standard,
+    #private-message-web-app .private-message-row,
+    #private-message-web-app .bg-surface-100.stroke-standard {
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .rovalra-custom-theme-background-dropdown-panel {
+        background-color: var(--rovalra-custom-user-surface100) !important;
+        border-color: var(--rovalra-custom-user-borderColor) !important;
+        box-shadow: 0 4px 12px rgb(0 0 0 / 35%) !important;
+    }
+
+    #header,
+    #header > .container-fluid,
+    #header .rbx-navbar-header,
+    #header ul.nav.rbx-navbar,
+    #header [data-testid='navigation-search-input'].navbar-search,
+    #header .navbar-search,
+    #header form[name='search-form'],
+    #header [data-testid='navigation-search-input-field'],
+    #header .navbar-search .input-field,
+    #header .navbar-search .form-control,
+    #navbar-search-input,
+    #right-navigation-header,
+    #right-navigation-header > .navbar-right.rbx-navbar-right,
+    #left-navigation-container,
+    .left-nav,
+    #left-navigation-container .left-nav,
+    .left-nav > div,
+    .left-nav [class*='bg-surface'],
+    #left-navigation-container .left-nav nav,
+    #chat-container,
+    #chat-main,
+    [data-testid='chat-container'],
+    #chat-container .chat-main,
+    #chat-container .chat-header,
+    #chat-container .chat-window,
+    #chat-container .chat-dialog,
+    .chat-container,
+    .chat-main,
+    .chat-header,
+    .chat-window,
+    .chat-dialog {
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+
+    #header,
+    #header > .container-fluid,
+    #header [data-testid='navigation-search-input'].navbar-search,
+    #header .navbar-search,
+    #header form[name='search-form'],
+    #header [data-testid='navigation-search-input-field'],
+    #navbar-search-input,
+    #left-navigation-container,
+    .left-nav,
+    #left-navigation-container .left-nav,
+    .left-nav > div,
+    .left-nav [class*='border'],
+    .left-nav [class*='shadow'],
+    #chat-container,
+    #chat-main,
+    [data-testid='chat-container'],
+    #chat-container .chat-main,
+    .chat-container,
+    .chat-main,
+    .chat-dialog {
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .left-nav::before,
+    .left-nav::after,
+    .left-nav *::before,
+    .left-nav *::after {
+        background-color: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .left-nav,
+    .left-nav [class*='scroll-y'] {
+        scrollbar-color: transparent transparent !important;
+    }
+
+    .left-nav::-webkit-scrollbar,
+    .left-nav *::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important;
+        background: transparent !important;
+    }
+
+    .left-nav::-webkit-scrollbar-thumb,
+    .left-nav::-webkit-scrollbar-track,
+    .left-nav *::-webkit-scrollbar-thumb,
+    .left-nav *::-webkit-scrollbar-track {
+        background: transparent !important;
+        border-color: transparent !important;
+    }
+
+    #header .stroke-default.self-stretch,
+    .left-nav .stroke-default.self-stretch {
+        display: none !important;
+    }
+}
+}

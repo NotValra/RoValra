@@ -3,6 +3,7 @@ import {
     TRANSACTION_FIAT_CURRENCY_OPTIONS,
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
+import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 import { DEFAULT_CUSTOM_THEME } from '../themeCustom.js';
 
 const isAprilFools = () => {
@@ -2045,6 +2046,30 @@ export const SETTINGS_CONFIG = {
                         type: 'themeSlots',
                         default: [],
                         hidden: true,
+                    },
+                },
+            },
+            CustomThemeBackgroundEnabled: {
+                label: 'Customizable Background Image',
+                description:
+                    'Allows you to add a custom background image to the Roblox website.',
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    customBackgroundImage: {
+                        label: 'Background Image Configuration',
+                        type: 'backgroundImage',
+                        default: DEFAULT_BACKGROUND_IMAGE,
+                        hidden: true,
+                    },
+                    openCustomThemeBackground: {
+                        label: 'Customize Image Settings',
+                        description:
+                            "Adjust the image's opacity, blur, position, size, and more.",
+                        type: 'button',
+                        buttonText: 'Edit',
+                        event: 'rovalra:openCustomThemeBackground',
                     },
                 },
             },

@@ -35,6 +35,7 @@
     "background": {
         "service_worker": "background.js"
     },
+
     "optional_permissions": ["webNavigation", "contextMenus", "webRequest"],
     "declarative_net_request": {
         "rule_resources": [
