@@ -1,6 +1,70 @@
 /* This will be used cross the extension in a future update, too lazy to make everything use it now. */
 
-@use './sitewide/themes.scss';
+style-test-element.light-theme,
+body:where(.light-theme),
+:root.light-theme,
+:root[color-scheme='light'] {
+    --rovalra-main-text-color: #202227;
+    --rovalra-secondary-text-color: #494d5a;
+    --rovalra-tertiary-text-color: rgb(106, 111, 129);
+    --rovalra-container-background-color: var(--color-surface-300);
+    --rovalra-playbutton-color: #335fff;
+    --rovalra-main-background-color: var(--color-surface-0);
+    --rovalra-button-background-color: rgba(27, 37, 75, 0.12);
+    --rovalra-border-color: rgba(0, 0, 0, 0.2);
+    --rovalra-gray-text-color: rgb(106, 111, 129);
+    --rovalra-profile-header-bg: rgb(247, 247, 248);
+    --rovalra-profile-main-gradient: linear-gradient(91deg, rgba(18, 18, 21, 0.05) 5.83%, rgba(255, 255, 255, 0.1) 47.76%, rgba(18, 18, 21, 0.05) 93.93%), var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 255, 255, 0.85) 70%, #fff 90%, #fff 100%);
+    --rovalra-icon-blocked-color: #ffffff;
+    --rovalra-theme-content: rgb(247, 247, 248);
+    --rovalra-theme-text: rgb(73, 77, 90);
+    --rovalra-theme-header: rgb(32, 34, 39);
+    --rovalra-theme-sliderOn: #444;
+    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderButton: #24292e;
+    --rovalra-theme-buttonText: rgb(57, 59, 61);
+    --rovalra-theme-buttonBg: rgb(242, 244, 245);
+    --rovalra-theme-buttonHover: rgb(224, 226, 227);
+    --rovalra-theme-buttonActive: rgb(210, 212, 213);
+    --rovalra-theme-buttonBorder: 0 solid rgba(0, 0, 0, 0.1);
+    --rovalra-theme-discordLink: #3479b7;
+    --rovalra-theme-githubLink: #1e722a;
+    --rovalra-theme-robloxLink: #c13ad9;
+}
+
+style-test-element.dark-theme,
+body:where(.dark-theme),
+:root.dark-theme,
+:root[color-scheme='dark'] {
+    --rovalra-main-text-color: #f7f7f8;
+    --rovalra-secondary-text-color: #d5d7dd;
+    --rovalra-tertiary-text-color: rgb(188, 190, 200);
+    --rovalra-container-background-color: var(--color-surface-300);
+    --rovalra-playbutton-color: #335fff;
+    --rovalra-main-background-color: var(--color-surface-0);
+    --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
+    --rovalra-border-color: rgba(255, 255, 255, 0.2);
+    --rovalra-gray-text-color: rgb(188, 190, 200);
+    --rovalra-profile-header-bg: #191a1f;
+    --rovalra-profile-main-gradient: linear-gradient(91deg, rgba(18, 18, 21, 0.2) 5.83%, rgba(255, 255, 255, 0.2) 47.76%, rgba(18, 18, 21, 0.2) 93.93%), var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(rgba(18, 18, 21, 0) 0%, rgba(18, 18, 21, 0.5) 45%, rgba(18, 18, 21, 0.85) 70%, #121215 90%, #121215 100%);
+    --rovalra-icon-blocked-color: #646668;
+    --rovalra-theme-content: rgb(39, 41, 48);
+    --rovalra-theme-text: rgb(213, 215, 221);
+    --rovalra-theme-header: white;
+    --rovalra-theme-sliderOn: #ddd;
+    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderButton: white;
+    --rovalra-theme-buttonText: rgba(255, 255, 255, 0.9);
+    --rovalra-theme-buttonBg: rgb(45, 48, 51);
+    --rovalra-theme-buttonHover: rgb(57, 60, 64);
+    --rovalra-theme-buttonActive: rgb(69, 73, 77);
+    --rovalra-theme-buttonBorder: 0px solid rgba(255, 255, 255, 0.1);
+    --rovalra-theme-discordLink: #7289da;
+    --rovalra-theme-githubLink: #2dba4e;
+    --rovalra-theme-robloxLink: #c13ad9;
+}
 
 .rovalra-markdown span a {
     color: inherit;

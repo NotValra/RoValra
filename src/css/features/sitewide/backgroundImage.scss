@@ -1,0 +1,50 @@
+#rovalra-custom-background-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+}
+
+#rovalra-custom-background-layer .rovalra-custom-background-frame,
+#rovalra-custom-background-layer .rovalra-custom-background-overlay {
+    position: absolute;
+    pointer-events: none;
+}
+
+#rovalra-custom-background-layer .rovalra-custom-background-frame {
+    border: 0;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    opacity: var(--rovalra-background-image-opacity, 1);
+    filter: blur(var(--rovalra-background-image-blur, 0));
+}
+
+#rovalra-custom-background-layer .rovalra-custom-background-overlay {
+    inset: 0;
+    background: var(--rovalra-background-overlay-color, #000000);
+    opacity: var(--rovalra-background-overlay-opacity, 0);
+}
+
+body:not(.rovalra-custom-background-image-active)
+    #rovalra-custom-background-layer {
+    display: none;
+}
+
+html.rovalra-custom-background-image-active,
+body.rovalra-custom-background-image-active {
+    background-color: transparent !important;
+    overflow-x: clip;
+}
+
+body.rovalra-custom-background-image-active main.container-main,
+body.rovalra-custom-background-image-active #container-main,
+body.rovalra-custom-background-image-active #content.content,
+body.rovalra-custom-background-image-active .content#content {
+    position: relative;
+    z-index: 1;
+    background-color: transparent !important;
+    background-image: none !important;
+}

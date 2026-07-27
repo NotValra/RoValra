@@ -1,5 +1,4 @@
 import { initializeObserver, startObserving } from './core/observer.js';
-import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
 import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
 import { t } from './core/locale/i18n.js';
@@ -47,7 +46,7 @@ import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
-import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
+import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 
@@ -166,7 +165,6 @@ import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
-import { init as initThemeCatalogPage } from './features/themes/themeCatalogPage.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
@@ -234,10 +232,9 @@ const featureRoutes = [
             initTopbarLayout,
             initFriendGameLink,
             initWideTilePlayerCounts,
-            initThemeSwitcher,
+            initBackgroundImage,
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
-            initThemeCatalogPage,
             initReceiveRobuxNotificationCenter,
         ],
     },
@@ -589,7 +586,6 @@ async function initializePage() {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
-        detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 
@@ -637,7 +633,6 @@ async function handleUrlChange() {
         runFeaturesForPage();
         window.dispatchEvent(new CustomEvent('rovalra:urlChanged'));
 
-        detectTheme().then((theme) => dispatchThemeEvent(theme));
     }
 }
 

@@ -17,7 +17,10 @@ let currentSource = '';
 function isRobloxOrigin(origin) {
     try {
         const { hostname, protocol } = new URL(origin);
-        return protocol === 'https:' && hostname.endsWith('.roblox.com');
+        return (
+            protocol === 'https:' &&
+            (hostname === 'roblox.com' || hostname.endsWith('.roblox.com'))
+        );
     } catch {
         return false;
     }

@@ -4,12 +4,6 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
-import { DEFAULT_CUSTOM_THEME } from '../themeCustom.js';
-
-const isAprilFools = () => {
-    const d = new Date();
-    return d.getMonth() === 3 && d.getDate() <= 7;
-};
 
 // Settings config (not developer settings)
 
@@ -1813,12 +1807,11 @@ export const SETTINGS_CONFIG = {
                 label: 'Age Theme',
                 description: [
                     'Lets you choose which Roblox age theme is used across the site.',
-                    'Overrides **Theme Switcher** setting.',
+                    'Overrides other age-theme settings.',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '650766686'],
-                exclusiveWith: ['ThemeSwitcherEnabled'],
                 childSettings: {
                     ageThemeSelection: {
                         label: 'Theme',
@@ -2004,51 +1997,6 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
-            ThemeSwitcherEnabled: {
-                label: 'Theme Switcher',
-                description: [
-                    'Allows RoValra to apply themes selected from the theme gallery.',
-                    'Overrides the **Age Theme** setting.',
-                ],
-                type: 'checkbox',
-                default: false,
-                contributors: ['1564574922', '447170745'],
-                beta: 'Can be slightly buggy',
-                keepChildSettingsEnabled: true,
-                exclusiveWith: ['ageKidsThemeEnabled'],
-                childSettings: {
-                    openThemeCatalog: {
-                        label: 'Theme Gallery',
-                        description:
-                            'Browse RoValra themes and preview them before applying one.',
-                        type: 'button',
-                        buttonText: 'Browse Themes',
-                        event: 'rovalra:openThemesPage',
-                    },
-                    openCustomThemeEditor: {
-                        label: 'Custom Theme Builder',
-                        description: [
-                            'Opens the editor on roblox.com/theme so you can customize the theme against the actual UI.',
-                            'Your custom theme appears in the Yours tab on the theme gallery.',
-                        ],
-                        type: 'button',
-                        buttonText: 'Open Editor',
-                        event: 'rovalra:openCustomThemeEditor',
-                    },
-                    customUserTheme: {
-                        label: 'Custom Theme Colors',
-                        type: 'themeEditor',
-                        default: DEFAULT_CUSTOM_THEME,
-                        hidden: true,
-                    },
-                    customUserThemeSlots: {
-                        label: 'Custom Theme Slots',
-                        type: 'themeSlots',
-                        default: [],
-                        hidden: true,
-                    },
-                },
-            },
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
                 description:
@@ -2072,45 +2020,6 @@ export const SETTINGS_CONFIG = {
                         event: 'rovalra:openCustomThemeBackground',
                     },
                 },
-            },
-            ThemeSwitcher: {
-                label: 'Selected Theme',
-                type: 'select',
-                options: [
-                    { label: 'Default', value: 'default' },
-                    {
-                        label: isAprilFools() ? '"Ow my eyes"' : 'Light',
-                        value: 'builtin-light',
-                    },
-                    {
-                        label: isAprilFools() ? 'Cave' : 'Dark',
-                        value: 'builtin-dark',
-                    },
-                    {
-                        label: isAprilFools()
-                            ? '(RoValra) Headache mode'
-                            : '(RoValra) Nighty',
-                        value: 'custom-nighty',
-                    },
-                    {
-                        label: isAprilFools()
-                            ? '(RoValra) Lemon'
-                            : '(RoValra) Sunset',
-                        value: 'custom-sunset',
-                    },
-                    {
-                        label: isAprilFools()
-                            ? "(RoValra) I'm almost colorblind"
-                            : '(RoValra) High Contrast',
-                        value: 'custom-highcontrast',
-                    },
-                    {
-                        label: 'Custom',
-                        value: 'custom-user',
-                    },
-                ],
-                default: 'default',
-                hidden: true,
             },
 
             ExplorerEnabled: {
@@ -2181,7 +2090,6 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['2615068449'],
             },
-
             copyIdEnabled: {
                 label: 'Allows you to quickly copy an id of a thing you are right clicking.',
                 description:

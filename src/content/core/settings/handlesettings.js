@@ -26,7 +26,6 @@ import {
     refreshRemoteSettingLocks,
 } from './remoteSettingLocks.js';
 import { sanitizeBackgroundImage } from '../backgroundImage.js';
-import { sanitizeCustomTheme } from '../themeCustom.js';
 import './settingsCompat';
 
 let currentUserTier = 0;
@@ -38,7 +37,6 @@ let inMemoryDonatorUserId = null;
 let settingsKeySyncQueue = Promise.resolve();
 const colorLiveSaveTimeouts = new Map();
 const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
-const CUSTOM_THEME_NAME_MAX_LENGTH = 20;
 const PROFILE_PRONOUNS_SETTING_NAME = 'profilePronouns';
 const PROFILE_PRONOUNS_API_KEY = 'pronouns';
 const PROFILE_PRONOUNS_AGREEMENT_KEY = 'rovalra_pronouns_guidelines_agreed';
@@ -182,40 +180,6 @@ const getFeatureStatusPromptPills = () =>
         '<span class="rovalra-pill beta">Beta</span>',
         '<span class="rovalra-pill deprecated">Deprecated</span>',
     ].join('');
-
-function sanitizeCustomThemeSlots(value) {
-    if (!Array.isArray(value)) return [];
-
-    const slotsByIndex = new Map();
-
-    value.slice(0, 5).forEach((slot, fallbackIndex) => {
-        const source = slot && typeof slot === 'object' ? slot : {};
-        if (!slot || typeof slot !== 'object') return;
-
-        const rawSlotIndex = Number(source.slot ?? source.index);
-        const slotIndex = Number.isFinite(rawSlotIndex)
-            ? Math.max(0, Math.min(4, Math.round(rawSlotIndex)))
-            : fallbackIndex;
-        const name =
-            typeof source.name === 'string' && source.name.trim()
-                ? sanitizeString(source.name).slice(
-                      0,
-                      CUSTOM_THEME_NAME_MAX_LENGTH,
-                  )
-                : `Custom Theme ${slotIndex + 1}`;
-        const themeSource = source.theme || source.colors || source;
-
-        slotsByIndex.set(slotIndex, {
-            slot: slotIndex,
-            name,
-            theme: sanitizeCustomTheme(themeSource),
-        });
-    });
-
-    return [...slotsByIndex.values()].sort(
-        (left, right) => left.slot - right.slot,
-    );
-}
 
 const shouldShowFeatureStatusPrompt = async (config) => {
     if (!isStatusLabeledOffByDefaultSetting(config)) return false;
@@ -824,14 +788,6 @@ export const handleSaveSettings = async (settingName, value) => {
                     }
                     break;
 
-                case 'themeEditor':
-                    sanitizedValue = sanitizeCustomTheme(value);
-                    break;
-
-                case 'themeSlots':
-                    sanitizedValue = sanitizeCustomThemeSlots(value);
-                    break;
-
                 case 'backgroundImage':
                     sanitizedValue = sanitizeBackgroundImage(value);
                     break;
@@ -1117,12 +1073,6 @@ export const initSettings = async (settingsContent) => {
                                 settings[settingName] || setting.default,
                             );
                         }
-                    } else if (setting.type === 'themeEditor') {
-                        if (element.rovalraThemeEditorApi) {
-                            element.rovalraThemeEditorApi.setValue(
-                                settings[settingName] || setting.default,
-                            );
-                        }
                     } else if (
                         setting.type === 'input' ||
                         setting.type === 'color'
@@ -1218,13 +1168,6 @@ export const initSettings = async (settingsContent) => {
                             } else if (childSetting.type === 'gradient') {
                                 if (childElement.rovalraGradientApi) {
                                     childElement.rovalraGradientApi.setValue(
-                                        settings[childName] ||
-                                            childSetting.default,
-                                    );
-                                }
-                            } else if (childSetting.type === 'themeEditor') {
-                                if (childElement.rovalraThemeEditorApi) {
-                                    childElement.rovalraThemeEditorApi.setValue(
                                         settings[childName] ||
                                             childSetting.default,
                                     );
