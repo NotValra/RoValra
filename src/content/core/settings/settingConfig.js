@@ -2270,6 +2270,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                contributors: ['196966673', '447170745'],
                 experimental:
                     "This may cause some issues since it tricks Roblox into thinking your private info is something it isn't.",
                 childSettings: {
@@ -2287,6 +2288,14 @@ export const SETTINGS_CONFIG = {
                         description: [
                             "Simply hides your Robux by changing it to 'Hidden'",
                             'This does not hide your Robux on purchase prompts.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    showRobuxOnHover: {
+                        label: 'Show Robux on Hover',
+                        description: [
+                            'Temporarily shows your Robux while you hover over it.',
                         ],
                         type: 'checkbox',
                         default: false,

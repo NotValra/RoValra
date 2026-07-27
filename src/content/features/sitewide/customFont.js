@@ -1,3 +1,5 @@
+const CUSTOM_FONT_UPDATED_EVENT = 'rovalra:custom-font-updated';
+
 export function init() {
     chrome.storage.local.get(['Customfont', 'Customfontlink'], (result) => {
         if (!result.Customfont) return;
@@ -57,11 +59,12 @@ function resolveGoogleFont(input) {
 }
 
 function applyCustomFont(input) {
-    removeCustomFont();
+    removeCustomFont(false);
 
     const resolved = resolveGoogleFont(input);
     if (!resolved) {
         console.warn('[RoValra] customFont: Could not parse font input:', input);
+        document.dispatchEvent(new CustomEvent(CUSTOM_FONT_UPDATED_EVENT));
         return;
     }
 
@@ -78,9 +81,13 @@ function applyCustomFont(input) {
     `;
 
     document.head.appendChild(style);
+    document.dispatchEvent(new CustomEvent(CUSTOM_FONT_UPDATED_EVENT));
 }
 
-function removeCustomFont() {
+function removeCustomFont(notify = true) {
     const existing = document.getElementById('rovalra-custom-font');
     if (existing) existing.remove();
+    if (notify) {
+        document.dispatchEvent(new CustomEvent(CUSTOM_FONT_UPDATED_EVENT));
+    }
 }

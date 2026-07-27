@@ -1,0 +1,38 @@
+#nav-robux-amount[data-rovalra-hide-robux='true'],
+#nav-robux-balance[data-rovalra-hide-robux='true'] {
+    position: relative;
+    display: inline-block;
+    width: var(--rovalra-hidden-robux-width, auto);
+    -webkit-text-fill-color: transparent;
+
+    .rovalra-usd-estimate {
+        visibility: hidden;
+    }
+
+    &::after {
+        content: attr(data-rovalra-hidden-robux-label);
+        position: absolute;
+        top: 50%;
+        left: 0;
+        display: inline-flex;
+        align-items: center;
+        color: currentcolor;
+        -webkit-text-fill-color: currentcolor;
+        pointer-events: none;
+        transform: translateY(-50%);
+        white-space: nowrap;
+    }
+
+    &[data-rovalra-reveal-robux-on-hover='true']:hover {
+        width: var(--rovalra-visible-robux-width, auto);
+        -webkit-text-fill-color: currentcolor;
+
+        .rovalra-usd-estimate {
+            visibility: visible;
+        }
+
+        &::after {
+            display: none;
+        }
+    }
+}

@@ -38,6 +38,8 @@ const IGNORE_USD_SELECTOR =
 const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
 const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
+const NAVBAR_FIAT_ESTIMATE_UPDATED_EVENT =
+    'rovalra:navbar-fiat-estimate-updated';
 
 let robuxPricingPromise = null;
 let robuxIconInitialized = false;
@@ -49,12 +51,25 @@ function scheduleUsdRefresh(delay = 0) {
 }
 
 function removeAllEstimates() {
+    let navbarEstimateChanged = false;
+
     document
         .querySelectorAll('.rovalra-usd-estimate')
-        .forEach((el) => el.remove());
+        .forEach((el) => {
+            if (el.closest('#navbar-robux')) {
+                navbarEstimateChanged = true;
+            }
+            el.remove();
+        });
     document.querySelectorAll('[data-rovalra-usd-amount]').forEach((el) => {
         delete el.dataset.rovalraUsdAmount;
     });
+
+    if (navbarEstimateChanged) {
+        document.dispatchEvent(
+            new CustomEvent(NAVBAR_FIAT_ESTIMATE_UPDATED_EVENT),
+        );
+    }
 }
 
 function isTransactionsPage() {
@@ -465,6 +480,12 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
         const nextText = ` (${text})`;
         if (estimateEl.textContent !== nextText) {
             estimateEl.textContent = nextText;
+        }
+
+        if (anchor.closest('#navbar-robux')) {
+            document.dispatchEvent(
+                new CustomEvent(NAVBAR_FIAT_ESTIMATE_UPDATED_EVENT),
+            );
         }
 
         return estimateEl;
@@ -908,6 +929,16 @@ export function init() {
                 document
                     .querySelectorAll('.rovalra-usd-estimate')
                     .forEach((el) => applyEstimateStyle(el, style));
+
+                if (
+                    document.querySelector(
+                        '#navbar-robux .rovalra-usd-estimate',
+                    )
+                ) {
+                    document.dispatchEvent(
+                        new CustomEvent(NAVBAR_FIAT_ESTIMATE_UPDATED_EVENT),
+                    );
+                }
             });
             return;
         }
