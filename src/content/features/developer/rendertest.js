@@ -1,5 +1,5 @@
 import { observeElement } from '../../core/observer.js';
-import { callRobloxApiJson } from '../../core/api.js';
+import { getUserAvatar } from '../../core/apis/avatar.js';
 import { 
     RegisterWrappers, 
     RBXRenderer, 
@@ -66,11 +66,7 @@ async function renderAvatarPage(contentDiv) {
         viewport.appendChild(RBXRenderer.getRendererDom());
 
         const userId = "447170745";
-        const avatarData = await callRobloxApiJson({
-            subdomain: 'avatar',
-            endpoint: `/v2/avatar/users/${userId}/avatar`,
-            method: 'GET'
-        });
+        const avatarData = await getUserAvatar(userId);
 
         const outfit = new Outfit();
         outfit.fromJson(avatarData);

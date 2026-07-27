@@ -9,6 +9,7 @@ import {
     removeStylesheet,
 } from '../../../core/ui/cssInjector.js';
 import { callRobloxApiJson } from '../../../core/api.js';
+import { getUserAvatar } from '../../../core/apis/avatar.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -1780,10 +1781,7 @@ async function preloadAvatar(userId = getUserIdFromUrl()) {
                     'tooltipText',
                     'tooltipLink',
                 ]),
-                callRobloxApiJson({
-                    subdomain: 'avatar',
-                    endpoint: `/v2/avatar/users/${requestedUserId}/avatar`,
-                }),
+                getUserAvatar(requestedUserId),
             ]);
 
             if (activeProfileRenderUserId !== requestedUserId) return null;

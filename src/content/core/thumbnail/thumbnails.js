@@ -1,6 +1,7 @@
 // Everything thumbnail related should go through this.
 
 import { callRobloxApi } from '../api.js';
+import { getUserAvatar } from '../apis/avatar.js';
 
 const BATCH_SIZE = 50;
 const MAX_RETRIES = 5;
@@ -542,12 +543,7 @@ export async function fetchUserThumbnailWithApiKey(userId) {
 export function renderAvatarThumbnail(userId) {
     const fetchRender = async () => {
         try {
-            const avatarRes = await callRobloxApi({
-                subdomain: 'avatar',
-                endpoint: `/v2/avatar/users/${userId}/avatar`,
-            });
-            if (!avatarRes.ok) return null;
-            const avatarData = await avatarRes.json();
+            const avatarData = await getUserAvatar(userId);
 
             const payload = {
                 thumbnailConfig: {

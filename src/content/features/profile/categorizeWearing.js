@@ -6,6 +6,7 @@ import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
+import { getUserAvatar } from '../../core/apis/avatar.js';
 let totalPrice = 0;
 const processedBundleIds = new Set();
 let totalPriceElement = null;
@@ -604,6 +605,67 @@ function getProfileAssetEntries(profileData) {
     return entries;
 }
 
+function getAvatarV2AssetEntries(avatarData) {
+    return (avatarData?.assets || [])
+        .map((asset) => {
+            const id = Number(asset.id || asset.assetId);
+            if (!id) return null;
+
+            const assetType = asset.assetType;
+            const typeId =
+                assetType && typeof assetType === 'object'
+                    ? Number(assetType.id)
+                    : Number(assetType);
+            const typeName =
+                assetType && typeof assetType === 'object'
+                    ? assetType.name || ''
+                    : '';
+
+            return {
+                id,
+                typeId: Number.isFinite(typeId) ? typeId : null,
+                typeName,
+                itemType: 'Asset',
+            };
+        })
+        .filter(Boolean);
+}
+
+async function loadAvatarV2Wearing(userId, requestId) {
+    try {
+        const avatarData = await getUserAvatar(userId);
+        if (requestId !== activeWearingRequestId) return;
+
+        getAvatarV2AssetEntries(avatarData).forEach((entry) => {
+            const existingInfo = assetInfoCache.get(entry.id);
+            const assetType =
+                entry.typeId || entry.typeName
+                    ? { id: entry.typeId, name: entry.typeName }
+                    : existingInfo?.assetType || null;
+            const category =
+                entry.typeId || entry.typeName
+                    ? getCategoryName(entry.typeId, entry.typeName)
+                    : existingInfo?.rovalraCategory;
+
+            assetInfoCache.set(entry.id, {
+                id: entry.id,
+                assetType,
+                itemType: existingInfo?.itemType || entry.itemType,
+                rovalraCategory: existingInfo?.rovalraCategory || category,
+            });
+
+            const card = document.querySelector(
+                `[data-rovalra-pending-id="${entry.id}"]`,
+            );
+            if (card) {
+                moveAssetCardToCategory(entry.id);
+            } else {
+                addItemToCategoryView(null, entry.id);
+            }
+        });
+    } catch (e) {}
+}
+
 function hideOriginalWearingSection(wearing) {
     if (!wearing) return;
     wearing.style.cssText =
@@ -685,6 +747,8 @@ async function loadCurrentlyWearing(content, profileData) {
             });
             addItemToCategoryView(null, entry.id);
         });
+
+        await loadAvatarV2Wearing(userId, requestId);
 
         const cacheEntry = wearingSectionCache.get(String(userId));
         if (cacheEntry) {
