@@ -85,9 +85,26 @@ export async function fetchFriendsPage(userId, cursor = null) {
     }
 }
 
-export async function fetchFriendsCustom(userId, params = new URLSearchParams(), cursor = null) {
+async function fetchFriendsCount(userId) {
     try {
+        const response = await callRobloxApiJson({
+            subdomain: 'friends',
+            endpoint: `/v1/users/${userId}/friends/count`,
+            useBackground: true,
+        });
+        return typeof response?.count === 'number' ? response.count : null;
+    } catch (error) {
+        console.error('RoValra: Failed to fetch friends count', error);
+        return null;
+    }
+}
 
+export async function fetchFriendsCustom(
+    userId,
+    params = new URLSearchParams(),
+    cursor = null,
+) {
+    try {
         let endpoint = `/v1/users/${userId}/friends/find`;
         if (cursor) params.append('cursor', value);
         if (params.size > 0) endpoint += `?${params.toString()}`;
@@ -163,8 +180,9 @@ export async function updateFriendsList(userId) {
     );
 
     try {
-        const [conversations, onlineData, allTrustedFriendsSet] =
+        const [friendsCount, conversations, onlineData, allTrustedFriendsSet] =
             await Promise.all([
+                fetchFriendsCount(userId),
                 fetchAllConversations(),
                 fetchFriendsOnlineStatus(userId),
                 fetchAllTrustedFriends(userId),
@@ -215,16 +233,16 @@ export async function updateFriendsList(userId) {
                             ? false
                             : existingStatus?.canChat === true ||
                                 canChat === true
-                                ? true
-                                : null,
+                              ? true
+                              : null,
                     hasAgeChecked:
                         existingStatus?.hasAgeChecked === false ||
-                            hasAgeChecked === false
+                        hasAgeChecked === false
                             ? false
                             : existingStatus?.hasAgeChecked === true ||
                                 hasAgeChecked === true
-                                ? true
-                                : null,
+                              ? true
+                              : null,
                 });
             });
         }
@@ -305,7 +323,7 @@ export async function updateFriendsList(userId) {
                         userInsights.forEach((item) => {
                             if (
                                 item.insightCase ===
-                                INSIGHT_CASES.MUTUAL_FRIENDS &&
+                                    INSIGHT_CASES.MUTUAL_FRIENDS &&
                                 item.mutualFriendInsight
                             ) {
                                 mutualFriends = Object.keys(
@@ -314,7 +332,7 @@ export async function updateFriendsList(userId) {
                             }
                             if (
                                 item.insightCase ===
-                                INSIGHT_CASES.FRIENDSHIP_AGE &&
+                                    INSIGHT_CASES.FRIENDSHIP_AGE &&
                                 item.friendshipAgeInsight
                             ) {
                                 friendsSince =
@@ -323,7 +341,7 @@ export async function updateFriendsList(userId) {
                             }
                             if (
                                 item.insightCase ===
-                                INSIGHT_CASES.ACCOUNT_CREATION_DATE &&
+                                    INSIGHT_CASES.ACCOUNT_CREATION_DATE &&
                                 item.accountCreationDateInsight
                             ) {
                                 accountCreated =
@@ -332,7 +350,7 @@ export async function updateFriendsList(userId) {
                             }
                             if (
                                 item.insightCase ===
-                                INSIGHT_CASES.FRIEND_REQUEST_ORIGIN &&
+                                    INSIGHT_CASES.FRIEND_REQUEST_ORIGIN &&
                                 item.friendRequestOriginInsight
                             ) {
                                 friendRequestOrigin =
@@ -349,7 +367,7 @@ export async function updateFriendsList(userId) {
                         playedTogetherInsights.forEach((item) => {
                             if (
                                 item.insightCase ===
-                                INSIGHT_CASES.PLAYED_TOGETHER &&
+                                    INSIGHT_CASES.PLAYED_TOGETHER &&
                                 item.playedTogetherInsight
                             ) {
                                 const newUniverseId =
@@ -363,7 +381,7 @@ export async function updateFriendsList(userId) {
                                     mostFrequentUniverseId === null ||
                                     (newUniverseId !== null &&
                                         newUniverseId !==
-                                        mostFrequentUniverseId)
+                                            mostFrequentUniverseId)
                                 ) {
                                     mostFrequentUniverseId = newUniverseId;
                                     havePlayedTogether = newHavePlayedTogether;
@@ -420,6 +438,7 @@ export async function updateFriendsList(userId) {
         allUsersFriendsData[userId] = {
             dataVersion: FRIENDS_DATA_VERSION,
             friendsList: fullFriendsList,
+            friendsCount: friendsCount ?? fullFriendsList.length,
             lastChecked: Date.now(),
             lastOnlineChecked: Date.now(),
         };
@@ -435,6 +454,36 @@ export async function updateFriendsList(userId) {
         console.error('RoValra: Failed to update friends list', error);
         return [];
     }
+}
+
+async function refreshFriendsCountIfNeeded(userId, currentUserData) {
+    const friendsCount = await fetchFriendsCount(userId);
+
+    if (
+        friendsCount === null ||
+        friendsCount !== currentUserData.friendsList.length
+    ) {
+        return true;
+    }
+
+    const storageResult = await new Promise((resolve) =>
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+    );
+    const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
+    allUsersFriendsData[userId] = {
+        ...allUsersFriendsData[userId],
+        friendsCount,
+        lastChecked: Date.now(),
+    };
+
+    await new Promise((resolve) =>
+        chrome.storage.local.set(
+            { [FRIENDS_DATA_KEY]: allUsersFriendsData },
+            resolve,
+        ),
+    );
+
+    return false;
 }
 
 async function updateOnlineStatusOnly(userId, currentFriendsList) {
@@ -508,8 +557,16 @@ export async function getFriendsList() {
         ONLINE_STATUS_CACHE_DURATION;
 
     if (needsFullRefresh) {
-        return await updateFriendsList(userId);
-    } else if (needsOnlineRefresh) {
+        const friendsChanged = await refreshFriendsCountIfNeeded(
+            userId,
+            currentUserData,
+        );
+        if (friendsChanged) {
+            return await updateFriendsList(userId);
+        }
+    }
+
+    if (needsOnlineRefresh) {
         return await updateOnlineStatusOnly(
             userId,
             currentUserData.friendsList,
