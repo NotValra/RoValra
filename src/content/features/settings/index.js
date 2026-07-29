@@ -83,6 +83,13 @@ const DONATOR_PERKS_GAME_URL =
     'https://www.roblox.com/games/store-section/' + DONATOR_PERKS_UNIVERSE_ID;
 const DONATOR_PERKS_FALLBACK_ONSALE_URL =
     'https://www.roblox.com/catalog?taxonomy=tZsUsd2BqGViQrJ9Vs3Wah&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
+let requestedDonatorGameUnblock = false;
+let requestedDonatorGameUnblockChecked = false;
+let donatorGameUnblockConsentId = 0;
+let parentAttchedToAccount = false;
+let parentAttchedToAccountChecked = false;
+
+
 const CHANGELOGS_ENDPOINT = '/static/json/changelogs.json';
 
 const RESTRICTION_LEVELS = [
@@ -231,10 +238,8 @@ async function renderChangelogs(container) {
 }
 
 async function openDonatorPerksDonationUrl() {
-    var canPlayUniverse = false;
-    var canPlayUniverseReason = "Unknown";
-    var accountHasParentAttached = false;
-    var donationPerksSelectedUrl = DONATOR_PERKS_FALLBACK_ONSALE_URL;
+    let canPlayUniverse = false;
+    let canPlayUniverseReason = "Unknown";
     const btn = document.querySelector('#rovalra-donator-perks-donation-button')
 
     btn.dataset.rovalraDonatorPerksDonationButtonLoading = true;
@@ -276,7 +281,7 @@ async function openDonatorPerksDonationUrl() {
             });
 
             const universeDetailsRequest = await callRobloxApi({
-                subdomain: 'apis',
+                subdomain: 'games',
                 endpoint: '/v1/games?universeIds=' + DONATOR_PERKS_UNIVERSE_ID,
                 method: 'GET',
             });
@@ -291,12 +296,52 @@ async function openDonatorPerksDonationUrl() {
                 showLogo: true,
             });
 
+            requestedDonatorGameUnblockChecked = false;
         } catch {
             loadingOverlay.close();
             const requestFailedOverlay = createOverlay({
                 title: "Request Failed to Send",
-                bodyContent: 'Your request failed to send for an unknown reason',
+                bodyContent: 'Your request failed to send for an unknown reason. Maybe you have been ratelimited. Check console for more details.',
                 actions: [ createButton('OK', 'secondary', { onClick: () => { requestFailedOverlay.close(); } }), ],
+                showLogo: true,
+            });
+        }
+        btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
+    }
+
+    async function overlayCancelRequest(consentId = donatorGameUnblockConsentId) {
+        btn.dataset.rovalraDonatorPerksDonationButtonLoading = true;
+        const loadingOverlay = createOverlay({
+            title: 'Canceling Request',
+            bodyContent: 'Please wait...',
+            showLogo: true,
+        });
+        try {
+            await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/child-requests-api/v1/cancel-consent-request',
+                method: 'POST',
+                body: {
+                    consentId
+                },
+            });
+
+            loadingOverlay.close();
+
+            const cancelRequestSentOverlay = createOverlay({
+                title: "Canceled Request",
+                bodyContent: 'Your request to your parents and guardians were canceled',
+                actions: [ createButton('OK', 'secondary', { onClick: () => { cancelRequestSentOverlay.close(); } }), ],
+                showLogo: true,
+            });
+
+            requestedDonatorGameUnblockChecked = false;
+        } catch {
+            loadingOverlay.close();
+            const cancelRequestFailedOverlay = createOverlay({
+                title: "Request Cancellation Failed",
+                bodyContent: 'Cancellation for your unblock request failed. Maybe you have been ratelimited. Check console for more details.',
+                actions: [ createButton('OK', 'secondary', { onClick: () => { cancelRequestFailedOverlay.close(); } }), ],
                 showLogo: true,
             });
         }
@@ -314,20 +359,52 @@ async function openDonatorPerksDonationUrl() {
     } catch (error) {
         console.warn('RoValra: Failed to get playability status of donation universe', error);
     }
+
     try {
-        if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval') {
+        if (!parentAttchedToAccountChecked && !parentAttchedToAccount && !canPlayUniverse && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval') {
             const approveExperienceRecourse = await callRobloxApiJson({
                 subdomain: 'apis',
                 endpoint: '/access-management/v1/upsell-feature-access?featureName=CanApproveExperience&extraParameters=W10=',
                 method: 'GET',
             });
-            accountHasParentAttached = approveExperienceRecourse.recourse.includes('ParentConsent');
+            parentAttchedToAccountChecked = true;
+            parentAttchedToAccount = approveExperienceRecourse.recourse.includes('ParentConsent');
         }
     } catch (error) {
         console.warn('RoValra: Failed to see if there were any parents linked to account for game unblock overlay', error);
     }
 
-    if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval' && accountHasParentAttached) {
+    try {
+        if (parentAttchedToAccount && !requestedDonatorGameUnblockChecked) {
+            const consentsPending = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/parental-controls-api/v1/parental-controls/consents?consentStatus=Pending&childUserId=' + await getAuthenticatedUserId(),
+                method: 'GET'
+            });
+
+            requestedDonatorGameUnblock = consentsPending.consents.some(
+                (consent) =>
+                    consent.consentType === 'ManageExperience'
+                    && consent.consentData.experienceManagementAction === 'Approve'
+                    && consent.consentData.universeId === String(DONATOR_PERKS_UNIVERSE_ID)
+            );
+
+            requestedDonatorGameUnblockChecked = true;
+
+            if (requestedDonatorGameUnblock) {
+                donatorGameUnblockConsentId = consentsPending.consents.find(
+                    (consent) =>
+                        consent.consentType === 'ManageExperience'
+                        && consent.consentData.experienceManagementAction === 'Approve'
+                        && consent.consentData.universeId === String(DONATOR_PERKS_UNIVERSE_ID)
+                ).id;
+            } else donatorGameUnblockConsentId = 0;
+        }
+    } catch (error) {
+        console.warn('RoValra: Failed to get parent requests of a user', error);
+    }
+
+    if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval' && parentAttchedToAccount) {
         showConfirmationPrompt({
             title: "Help Support RoValra More!",
             message: "RoValra gets more of the donation cut when using gamepasses. We see you have at least 1 parent account linked. You can request to unblock the experience so RoValra gets a better cut versus using 2D (and 3D) clothing.",
@@ -335,7 +412,28 @@ async function openDonatorPerksDonationUrl() {
             confirmType: 'primary',
             cancelText: 'Use Marketplace',
             cancelType: 'secondary',
-            onConfirm: overlayUnblockGame,
+            onConfirm: (!requestedDonatorGameUnblock ? overlayUnblockGame : () => {
+                btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
+                const alreadyRequestedOverlay = createOverlay({
+                    title: 'Already Requested',
+                    bodyContent: 'You already requested the experience silly!',
+                    actions: [
+                        createButton('Cancel', 'alert', {
+                            onClick: () => {
+                                alreadyRequestedOverlay.close();
+                                overlayCancelRequest();
+                            }
+                        }),
+                        createButton('Okay', 'primary', {
+                            onClick: () => {
+                                alreadyRequestedOverlay.close();
+                            }
+                        }),
+
+                    ],
+                    showLogo: true,
+                });
+            }),
             onCancel: () => {
                 btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
                 openPopup(DONATOR_PERKS_FALLBACK_ONSALE_URL);
