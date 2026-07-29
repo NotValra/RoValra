@@ -1,6 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { createTab } from '../../core/ui/profile/tab.js';
 import { createDropdownContent } from '../../core/ui/selects.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { createSearchInput } from '../../core/ui/general/gameInput.js';
 import {
     fetchThumbnails,
@@ -146,6 +147,148 @@ async function getGame(universeId, fallback = {}) {
                   maturity?.contentMaturity ||
                   ts('showcase.maturityUnavailable'),
     };
+}
+
+async function getDecal(decalId) {
+    const id = Number(decalId);
+    if (!id) return null;
+
+    try {
+        const asset = await callRobloxApiJson({
+            fullUrl: `https://apis.roblox.com/toolbox-service/v2/assets/${id}`,
+            method: 'GET',
+        });
+        const textureId = Number(asset?.asset?.textureId);
+        if (!textureId) return null;
+
+        const thumbnails = await fetchThumbnails(
+            [{ id: textureId }],
+            'Asset',
+            '768x432',
+        );
+        const thumbnail = thumbnails.get(textureId);
+        if (!thumbnail || thumbnail.state === 'Error') return null;
+
+        return {
+            decalId: id,
+            textureId,
+            name: asset.asset.name || `Decal ${id}`,
+            thumbnail,
+        };
+    } catch (error) {
+        console.warn('RoValra: Failed to fetch showcase decal.', error);
+        return null;
+    }
+}
+
+function renderDecalCard(container, decal, canEdit) {
+    container.replaceChildren();
+    const card = document.createElement('article');
+    card.className = `rovalra-showcase-game rovalra-showcase-decal-card${decal ? '' : ' rovalra-showcase-empty'}`;
+
+    if (decal) {
+        const imageFrame = document.createElement('div');
+        imageFrame.className = 'rovalra-showcase-decal-image-frame';
+        const image = createThumbnailElement(
+            decal.thumbnail,
+            `${decal.name} thumbnail`,
+            'rovalra-showcase-decal-thumbnail',
+            { width: '100%', height: '100%', objectFit: 'contain' },
+        );
+        imageFrame.appendChild(image);
+        card.appendChild(imageFrame);
+        const details = document.createElement('div');
+        details.className = 'rovalra-showcase-game-details';
+        const title = document.createElement('h3');
+        title.className = 'text-heading-medium';
+        title.textContent = decal.name;
+        const titleRow = document.createElement('div');
+        titleRow.className = 'rovalra-showcase-decal-title-row';
+        titleRow.append(title, createDecalActionMenu(decal));
+        details.appendChild(titleRow);
+        card.appendChild(details);
+    } else {
+        const empty = document.createElement('p');
+        empty.className = 'text-body';
+        empty.textContent = canEdit
+            ? ts('showcase.chooseDecal')
+            : ts('showcase.noFeaturedDecal');
+        card.appendChild(empty);
+    }
+
+    container.appendChild(card);
+}
+
+function createDecalInput(onSubmit) {
+    const { container, input } = createStyledInput({
+        id: 'rovalra-showcase-decal-id',
+        label: ts('showcase.decalId'),
+    });
+    container.classList.add('rovalra-showcase-decal-input');
+    input.inputMode = 'numeric';
+    input.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        onSubmit(input.value);
+    });
+    return container;
+}
+
+function createDecalActionMenu(decal) {
+    const menuButton = document.createElement('button');
+    menuButton.type = 'button';
+    menuButton.className = 'rovalra-showcase-menu-button btn-control-md';
+    menuButton.setAttribute('aria-label', ts('showcase.decalImageOptions'));
+    menuButton.setAttribute('aria-haspopup', 'listbox');
+    menuButton.appendChild(createMoreIcon());
+
+    const dropdown = createDropdownContent(
+        menuButton,
+        [
+            { value: 'open', label: ts('showcase.openImagePage') },
+            { value: 'report', label: ts('showcase.report') },
+        ],
+        null,
+        async (value) => {
+            if (value === 'open') {
+                window.open(
+                    `https://create.roblox.com/store/asset/${decal.textureId}`,
+                    '_blank',
+                    'noopener,noreferrer',
+                );
+                return;
+            }
+
+            if (value === 'report') {
+                const submitterId = await getAuthenticatedUserId();
+                if (!submitterId) return;
+                const custom = encodeURIComponent(
+                    JSON.stringify({ assetTypeId: '1' }),
+                );
+                window.open(
+                    `https://www.roblox.com/report-abuse/?abuseVector=asset&custom=${custom}&submitterId=${submitterId}&targetId=${decal.textureId}`,
+                    '_blank',
+                    'noopener,noreferrer',
+                );
+            }
+        },
+        () => {},
+    );
+    const dropdownPanel = dropdown.element;
+    dropdownPanel.classList.add('rovalra-showcase-options-dropdown');
+    menuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        dropdown.toggleVisibility();
+        if (dropdownPanel.getAttribute('data-state') === 'open') {
+            requestAnimationFrame(() =>
+                centerDropdown(menuButton, dropdownPanel),
+            );
+        }
+    });
+    dropdownPanel.addEventListener('click', (event) => event.stopPropagation());
+    document.addEventListener('click', () => dropdown.toggleVisibility(false));
+
+    return menuButton;
 }
 
 function renderGameCard(container, game, canEdit) {
@@ -335,6 +478,32 @@ function renderGroupCard(container, group, canEdit) {
     container.appendChild(card);
 }
 
+function renderShowcaseLoading(container, type = 'card') {
+    container.replaceChildren();
+    const card = document.createElement('article');
+    card.className = `rovalra-showcase-game rovalra-showcase-loading-card${type === 'decal' ? ' rovalra-showcase-decal-card' : ''}`;
+
+    if (type === 'decal') {
+        const image = document.createElement('div');
+        image.className = 'rovalra-showcase-loading-image shimmer';
+        card.appendChild(image);
+    } else {
+        const image = document.createElement('div');
+        image.className = `rovalra-showcase-loading-thumbnail shimmer${type === 'group' ? ' rovalra-showcase-loading-group' : ''}`;
+        const details = document.createElement('div');
+        details.className = 'rovalra-showcase-loading-details';
+        for (const width of ['75%', '45%', '60%']) {
+            const line = document.createElement('div');
+            line.className = 'rovalra-showcase-loading-line shimmer';
+            line.style.width = width;
+            details.appendChild(line);
+        }
+        card.append(image, details);
+    }
+
+    container.appendChild(card);
+}
+
 async function addShowcaseTab(tabContainer) {
     if (tabContainer.dataset[initialized] === 'true') return;
     const profileContainer = tabContainer.parentElement;
@@ -360,7 +529,6 @@ async function addShowcaseTab(tabContainer) {
     });
     contentPane.classList.add('rovalra-showcase-content');
 
-    const profileSettings = await getUserSettings(userId);
     const gameArea = document.createElement('section');
     gameArea.className = 'rovalra-showcase-section';
     const gameHeadingRow = document.createElement('div');
@@ -380,17 +548,108 @@ async function addShowcaseTab(tabContainer) {
     const groupCardArea = document.createElement('div');
     groupArea.append(groupHeadingRow, groupCardArea);
 
+    const decalArea = document.createElement('section');
+    decalArea.className =
+        'rovalra-showcase-section rovalra-showcase-decal-section';
+    const decalHeadingRow = document.createElement('div');
+    decalHeadingRow.className = 'rovalra-showcase-heading-row';
+    decalHeadingRow.appendChild(
+        createShowcaseHeading(ts('showcase.favoriteDecal')),
+    );
+    const decalCardArea = document.createElement('div');
+    decalArea.append(decalHeadingRow, decalCardArea);
+
     const showcaseGrid = document.createElement('div');
     showcaseGrid.className = 'rovalra-showcase-grid';
-    showcaseGrid.append(gameArea, groupArea);
+    showcaseGrid.append(gameArea, groupArea, decalArea);
     contentPane.appendChild(showcaseGrid);
+
+    renderShowcaseLoading(cardArea, 'game');
+    renderShowcaseLoading(groupCardArea, 'group');
+    renderShowcaseLoading(decalCardArea, 'decal');
+
+    const profileSettings = await getUserSettings(userId);
 
     const currentGame = await getGame(profileSettings.fav_game);
     let hasFeaturedGame = Boolean(currentGame);
     renderGameCard(cardArea, currentGame, ownProfile);
     const currentGroup = await getGroup(profileSettings.fav_group);
     renderGroupCard(groupCardArea, currentGroup, ownProfile);
+    const currentDecal = await getDecal(profileSettings.fav_decal);
+    renderDecalCard(decalCardArea, currentDecal, ownProfile);
+    if (!ownProfile && !currentDecal) {
+        decalArea.remove();
+    }
     if (!ownProfile) return;
+
+    let hasFeaturedDecal = Boolean(currentDecal);
+    const decalInput = createDecalInput(async (value) => {
+        const decal = await getDecal(value);
+        if (!decal) return;
+        if (
+            (await updateUserSettingViaApi('fav_decal', decal.decalId)) !==
+            false
+        ) {
+            hasFeaturedDecal = true;
+            renderDecalCard(decalCardArea, decal, true);
+            decalDropdownInner?.prepend(decalInput);
+            if (!decalMenuButton.isConnected) {
+                decalHeadingRow.appendChild(decalMenuButton);
+            }
+        }
+    });
+
+    const decalMenuButton = document.createElement('button');
+    decalMenuButton.type = 'button';
+    decalMenuButton.className = 'rovalra-showcase-menu-button btn-control-md';
+    decalMenuButton.setAttribute('aria-label', ts('showcase.decalOptions'));
+    decalMenuButton.setAttribute('aria-haspopup', 'listbox');
+    decalMenuButton.appendChild(createMoreIcon());
+    const decalDropdown = createDropdownContent(
+        decalMenuButton,
+        [{ value: 'clear', label: ts('showcase.clearDecal') }],
+        null,
+        async (value) => {
+            if (value !== 'clear') return;
+            if ((await updateUserSettingViaApi('fav_decal', 0)) !== false) {
+                hasFeaturedDecal = false;
+                renderDecalCard(decalCardArea, null, true);
+                decalMenuButton.remove();
+                decalCardArea
+                    .querySelector('.rovalra-showcase-empty')
+                    ?.appendChild(decalInput);
+            }
+        },
+        () => {},
+    );
+    const decalDropdownPanel = decalDropdown.element;
+    const decalDropdownInner = decalDropdownPanel.querySelector(
+        '.flex-dropdown-menu',
+    );
+    decalDropdownPanel.classList.add('rovalra-showcase-options-dropdown');
+    decalMenuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        decalDropdown.toggleVisibility();
+        if (decalDropdownPanel.getAttribute('data-state') === 'open') {
+            requestAnimationFrame(() =>
+                centerDropdown(decalMenuButton, decalDropdownPanel),
+            );
+        }
+    });
+    decalDropdownPanel.addEventListener('click', (event) =>
+        event.stopPropagation(),
+    );
+    document.addEventListener('click', () =>
+        decalDropdown.toggleVisibility(false),
+    );
+    if (hasFeaturedDecal) {
+        decalHeadingRow.appendChild(decalMenuButton);
+        decalDropdownInner?.prepend(decalInput);
+    } else {
+        decalCardArea
+            .querySelector('.rovalra-showcase-empty')
+            ?.appendChild(decalInput);
+    }
 
     let searchDropdown = null;
     const search = createSearchInput({

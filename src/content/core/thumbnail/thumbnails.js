@@ -175,7 +175,8 @@ async function fetchBatchData(
     const ids = batch.map((item) => item.id).join(',');
 
     try {
-        let endpointUrl = `${mapping.path}?${mapping.idParam}=${ids}&size=${size}&format=Png&returnPolicy=PlaceHolder`;
+        const format = type === 'Asset' ? 'webp' : 'Png';
+        let endpointUrl = `${mapping.path}?${mapping.idParam}=${ids}&size=${size}&format=${format}&returnPolicy=PlaceHolder`;
         if (isCircular) endpointUrl += `&isCircular=true`;
 
         const response = await callRobloxApi({
