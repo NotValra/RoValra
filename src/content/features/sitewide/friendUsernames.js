@@ -1,0 +1,133 @@
+import { getUserIdFromUrl } from '../../core/idExtractor.js';
+import { observeElement } from '../../core/observer.js';
+import { settings } from '../../core/settings/getSettings.js';
+import { getUserFullData, getUserName } from '../../core/apis/users.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
+import { ts } from '../../core/locale/i18n.js';
+import {
+    getUserCardContext,
+    observeUserCardElements,
+    onUserCardElement,
+} from '../../core/profile/userCardElements.js';
+
+const USERNAME_WRAPPER_CLASS = 'rovalra-friend-username-wrapper';
+const USERNAME_LABEL_CLASS = 'rovalra-friend-username-label';
+const SERVER_FRIEND_AVATAR_SELECTOR =
+    '.rbx-friends-game-server-item .player-thumbnails-container .avatar-card-link[href*="/users/"]';
+
+let cardUnsubscribe = null;
+let serverAvatarObserverStarted = false;
+
+function isOnFriendsListPage() {
+    return (
+        window.location.hash.includes('#!/friends') ||
+        window.location.pathname.includes('/friends')
+    );
+}
+
+function ensureUsernameWrapper(displayNameEl) {
+    const parent = displayNameEl.parentElement;
+    if (parent?.classList.contains(USERNAME_WRAPPER_CLASS)) {
+        return parent;
+    }
+
+    const wrapper = document.createElement('span');
+    wrapper.className = USERNAME_WRAPPER_CLASS;
+    displayNameEl.replaceWith(wrapper);
+    wrapper.appendChild(displayNameEl);
+    return wrapper;
+}
+
+async function applyCardUsernameLabel(tile, context) {
+    const { userId, displayName } = context;
+    if (!userId || !displayName) return;
+
+    // The dedicated friends list already shows enough friend info on its own.
+    if (isOnFriendsListPage()) return;
+
+    // RoValra's own generated user cards already render a username sub-label.
+    if (tile.querySelector('.user-card-subname')) return;
+
+    const applyKey = `${userId}|${displayName.textContent || ''}`;
+    if (tile.dataset.rovalraFriendUsernameApplied === applyKey) return;
+
+    try {
+        const username = await getUserName(userId);
+        if (!username) return;
+
+        const currentUserId = getUserCardContext(tile).userId;
+        if (String(currentUserId) !== String(userId)) return;
+
+        tile.dataset.rovalraFriendUsernameApplied = applyKey;
+
+        const wrapper = ensureUsernameWrapper(displayName);
+
+        let label = wrapper.querySelector(`:scope > .${USERNAME_LABEL_CLASS}`);
+        if (!label) {
+            label = document.createElement('span');
+            label.className = USERNAME_LABEL_CLASS;
+            wrapper.appendChild(label);
+        }
+        label.textContent = `@${username}`;
+        label.setAttribute(
+            'aria-label',
+            ts('friendUsernames.ariaLabel', { username }),
+        );
+    } catch (error) {
+        console.warn(
+            'RoValra: Failed to render friend username label',
+            userId,
+            error,
+        );
+    }
+}
+
+function setupCardUsernames() {
+    if (cardUnsubscribe) return;
+    observeUserCardElements();
+    cardUnsubscribe = onUserCardElement(applyCardUsernameLabel);
+}
+
+function setupServerFriendTooltips() {
+    if (serverAvatarObserverStarted) return;
+    serverAvatarObserverStarted = true;
+
+    observeElement(
+        SERVER_FRIEND_AVATAR_SELECTOR,
+        (link) => {
+            if (link.dataset.rovalraFriendUsernameTooltip) return;
+            const userId = getUserIdFromUrl(link.href);
+            if (!userId) return;
+
+            link.dataset.rovalraFriendUsernameTooltip = 'true';
+            link.removeAttribute('title');
+
+            addTooltip(link, () => link.dataset.rovalraFriendUsernameText || '', {
+                position: 'top',
+            });
+
+            getUserFullData(userId).then((userData) => {
+                if (!userData?.name || !link.isConnected) return;
+
+                const text =
+                    userData.displayName && userData.displayName !== userData.name
+                        ? ts('friendUsernames.serverTooltip', {
+                              displayName: userData.displayName,
+                              username: userData.name,
+                          })
+                        : `@${userData.name}`;
+
+                link.dataset.rovalraFriendUsernameText = text;
+                link.setAttribute('aria-label', text);
+            });
+        },
+        { multiple: true },
+    );
+}
+
+export async function init() {
+    if (!(await settings.friendUsernamesEnabled)) return;
+
+    setupCardUsernames();
+    setupServerFriendTooltips();
+}
