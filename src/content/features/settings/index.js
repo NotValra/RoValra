@@ -967,6 +967,31 @@ function getDonatorPerkStatusCell(hasPerk) {
     return `<td class="rovalra-donator-perk-status-cell" aria-label="${label}" data-rovalra-donator-perk-included="${hasPerk ? 'true' : 'false'}"></td>`;
 }
 
+function createDonatorPerkStatusIcon(isIncluded) {
+    const icon = document.createElement('span');
+    icon.className =
+        'rovalra-donator-perk-status-icon ' +
+        (isIncluded
+            ? 'rovalra-donator-perk-status-icon-included'
+            : 'rovalra-donator-perk-status-icon-not-included');
+    icon.setAttribute('aria-hidden', 'true');
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('focusable', 'false');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute(
+        'd',
+        isIncluded
+            ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z'
+            : 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m5 11H7v-2h10z',
+    );
+    svg.appendChild(path);
+    icon.appendChild(svg);
+
+    return icon;
+}
+
 function renderDonatorPerkStatusPills(container) {
     container
         .querySelectorAll('[data-rovalra-donator-perk-included]')
@@ -974,12 +999,7 @@ function renderDonatorPerkStatusPills(container) {
             const isIncluded =
                 cell.dataset.rovalraDonatorPerkIncluded === 'true';
             const label = isIncluded ? 'Included' : 'Not included';
-            const symbol = document.createElement('span');
-            symbol.className =
-                'grow-0 shrink-0 basis-auto icon size-[var(--icon-size-small)] ' +
-                (isIncluded
-                    ? 'icon-filled-circle-check'
-                    : 'rovalra-icon-filled-circle-minus');
+            const symbol = createDonatorPerkStatusIcon(isIncluded);
 
             addTooltip(symbol, label, { position: 'top' });
 
