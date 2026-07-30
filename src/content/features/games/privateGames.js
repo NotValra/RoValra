@@ -21,7 +21,7 @@ import { parseMarkdown } from '../../core/utils/markdown.js';
 import { checkAndInjectEvents } from '../../features/games/about/events.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { getLastClickedUrl } from '../../core/utils/trackers/urlTracker.js';
-import { isAuthenticatedUser13PlusAndAgeChecked } from '../../core/utils/trackers/birthday.js';
+import { isAuthenticatedUserUnder16OrNotAgeChecked } from '../../core/utils/trackers/birthday.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
@@ -240,8 +240,7 @@ async function loadServerSection(section, type, placeId) {
         return;
     }
     loadedCursors.add(cursor);
-    if (!cursor)
-        status.textContent = ts('privateGames.servers.loading');
+    if (!cursor) status.textContent = ts('privateGames.servers.loading');
 
     try {
         const query = new URLSearchParams();
@@ -285,8 +284,9 @@ async function loadServerSection(section, type, placeId) {
         if (shouldShowLoadMore) {
             const loadMore =
                 existingLoadMore ||
-                createServerActionButton(ts('privateGames.servers.loadMore'), () =>
-                    loadServerSection(section, type, placeId),
+                createServerActionButton(
+                    ts('privateGames.servers.loadMore'),
+                    () => loadServerSection(section, type, placeId),
                 );
             loadMore.classList.add('rovalra-server-load-more');
             if (!existingLoadMore) section.appendChild(loadMore);
@@ -641,7 +641,10 @@ async function checkRedirectToStandardPage(gameData, placeId, settings) {
     // /games/:placeId, whose unavailable shell redirects straight back to
     // /private-games/:placeId. Wait for playability and only leave this page
     // when Roblox says the standard page is actually playable.
-    if (!gameData._playabilityStatus || !gameData._playabilityStatus.isPlayable) {
+    if (
+        !gameData._playabilityStatus ||
+        !gameData._playabilityStatus.isPlayable
+    ) {
         return;
     }
 
@@ -1962,9 +1965,9 @@ async function updateSocialLinksUI(cloudData, retryCount = 0) {
 
     const section = document.getElementById('rovalra-social-links-section');
     const canViewSocialLinks =
-        await isAuthenticatedUser13PlusAndAgeChecked();
+        await isAuthenticatedUserUnder16OrNotAgeChecked();
 
-    if (socialLinks.length === 0 || !canViewSocialLinks) {
+    if (socialLinks.length === 0 || canViewSocialLinks) {
         if (section) section.hidden = true;
         return;
     }
