@@ -230,7 +230,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Always Get Server Info',
                         description: [
                             'This will always get the server info, even if no server data is available.',
-                            'It has a very small change to get inaccurate information.',
+                            'It has a very small chance to get inaccurate information.',
                         ],
                         type: 'checkbox',
                         default: true,
