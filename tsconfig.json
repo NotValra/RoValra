@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["ES2020", "DOM"],
+    "types": [],
+    "noEmit": true,
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "paths": {
+      "~/": ["./src"],
+      "~/*": ["./src/*"]
+    }
+  },
+  "references": [
+    { "path": "./tsconfig.node.json" }
+  ],
+  "include": [
+    "src/"
+  ]
+}
