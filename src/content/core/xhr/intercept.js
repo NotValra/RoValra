@@ -12,7 +12,7 @@
         'https://apis.roblox.com/matchmaking-api/v1/client-status';
     const GAME_LAUNCH_SUCCESS_URL =
         'https://metrics.roblox.com/v1/games/report-event';
-    const GAME_SERVERS_API_URL = 'https://games.roblox.com/v1/games/';
+    const GAME_SERVERS_API_URL = 'https://games.roblox.com/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
     const TRADE_DETAILS_API_URL = 'https://trades.roblox.com/v2/trades/';
@@ -25,8 +25,7 @@
         'https://apis.roblox.com/guac-v2/v1/bundles/account-settings-ui';
     const USER_SETTINGS_API_URL =
         'https://apis.roblox.com/user-settings-api/v1/user-settings';
-    const FREE_ROBLOX_PLUS_THEMES_SETTING =
-        'FreeRobloxPlusThemesEnabled';
+    const FREE_ROBLOX_PLUS_THEMES_SETTING = 'FreeRobloxPlusThemesEnabled';
     const ROBLOX_ADMIN_GROUP_ID = 1200769;
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
@@ -767,7 +766,7 @@
             }
             if (
                 requestUrl.includes(GAME_SERVERS_API_URL) &&
-                requestUrl.includes('/servers/')
+                /\/v\d+\/games\/\d+\/servers\//.test(requestUrl)
             ) {
                 response
                     .clone()
@@ -886,10 +885,7 @@
         if (typeof url === 'string' && url.includes(PROFILE_API_URL)) {
             this._rovalra_profile_api = true;
         }
-        if (
-            typeof url === 'string' &&
-            isAccountSettingsUiRequest(url)
-        ) {
+        if (typeof url === 'string' && isAccountSettingsUiRequest(url)) {
             this._rovalra_account_settings_ui = true;
         }
 
@@ -1047,7 +1043,7 @@
                         );
                     if (
                         url.includes(GAME_SERVERS_API_URL) &&
-                        url.includes('/servers/')
+                        /\/v\d+\/games\/\d+\/servers\//.test(url)
                     )
                         triggerEvent('rovalra-game-servers-response', {
                             url,
