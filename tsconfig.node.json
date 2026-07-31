@@ -3,11 +3,11 @@
   "compilerOptions": {
     "target": "es2022",
     "module": "commonjs",
-    "types": [],
+    "types": ["node"],
     "moduleDetection": "auto",
     "composite": true
   },
   "include": [
-    "/*.js"
+    "./*.js"
   ]
 }
