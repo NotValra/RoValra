@@ -666,14 +666,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            currentlyPlayingLinkEnabled: {
-                label: 'Clickable Currently Playing Card',
-                description: [
-                    'Makes the currently playing experience card on profiles link directly to the experience the user is playing.',
-                ],
-                type: 'checkbox',
-                default: true,
-            },
+
             chatEligibilityTooltipEnabled: {
                 label: 'Chat Eligibility Tooltip',
                 description: [
