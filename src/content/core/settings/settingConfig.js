@@ -168,6 +168,14 @@ export const SETTINGS_CONFIG = {
                         showFlags: true,
                         default: 'AUTO',
                     },
+                    preferredRegionUseRobloxLatency: {
+                        label: 'Prioritize biggest servers when using Automatic Mode',
+                        description: [
+                            'This makes preferred region join the servers closest to you with the most players',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             QuickPlayEnable: {
