@@ -74,6 +74,31 @@ export const CONTRIBUTOR_USER_IDS = [
 
 The badge is completely optional.
 
+## Using Icons
+
+We have imported the Roblox Builder Icons within the project. To use them simply do the following with ligatures
+
+```html
+<i class="rovalra-icon">tilt</i>
+```
+
+If you want to use filled icons simply use `rovalra-icon-filled`.
+Additionally there is also `rovalra-icon-regular` for redundency.
+
+You can also use Unicode private use areas as well
+
+```html
+<i class="rovalra-icon"></i> <!-- This is the tilt icon (U+2300) -->
+```
+
+You can use sizes as classes: `size-xx-large`, `size-x-large`, `size-large`, `size-medium`, `size-small`, `size-x-small`. Default is `size-small`
+
+There are also quick decoration styles: `bold`, `italic`, `decor-none`, `decor-underline`, `decor-overline`, `decor-strike`, `decor-style-solid`, `decor-style-wavy`, `decor-style-dashed`, `decor-style-double`, `decor-style-dotted`, `decor-skip-ink-auto`, `decor-skip-ink-all`, `decor-skip-ink-none`
+
+If you need information about what Builder Icons exist, you can visit the [Builder Icons Viewer](https://kaan650.github.io/builder-icons/) by [@kann650](https://github.com/kann650)
+
+
+
 ## Code Guidelines
 
 - We may deny a PR if it doesn't match the vision of the extension.

@@ -1002,14 +1002,14 @@ function createUserResultHtml(
 
     if (user.hasVerifiedBadge) {
         if (displayNameDiv) {
-            const badge = document.createElement('img');
-            badge.src = assets.verifiedBadge;
+            const badge = document.createElement('span');
+            badge.innerHTML = `
+                <i class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-medium content-system-emphasis">verified-backplate</i>
+                <i class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-medium absolute" style="color: white;">verified-check</i>`
             badge.alt = ts('quickSearch.verifiedBadge');
             badge.title = ts('quickSearch.verified');
             Object.assign(badge.style, {
-                width: '16px',
-                height: '16px',
-                display: 'inline-block',
+                display: 'inline-flex',
                 verticalAlign: 'middle',
                 marginLeft: '5px',
                 flexShrink: '0',

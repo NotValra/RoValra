@@ -71,6 +71,7 @@ async function renderTestPage(contentDiv) {
                             'names.combinedName',
                             'isVerified',
                             'names.username',
+                            'hasRobloxSubscription',
                         ],
                     },
                 }),
@@ -94,11 +95,15 @@ async function renderTestPage(contentDiv) {
                     ? 'Hidden User'
                     : profile.names.combinedName;
                 const username = isHidden ? '' : `@${profile.names.username}`;
+                const isVerified = isHidden ? '' : profile.isVerified
+                const isSubscribed = isHidden ? '' : profile.hasRobloxSubscription
 
                 const tile = createFriendTile(item, thumbData, {
                     displayName,
                     username,
                     isHidden,
+                    isVerified,
+                    isSubscribed,
                 });
                 friendList.appendChild(tile);
             });
@@ -162,6 +167,22 @@ async function renderTestPage(contentDiv) {
         onChange: (value) => console.log('Pill Toggle changed to:', value),
     });
     container.appendChild(pillToggle);
+
+    // Builder Icons Test
+    const br = document.createElement('br');
+    const builderIconsHeader = document.createElement('h2');
+    builderIconsHeader.textContent = 'Builder Icons';
+    builderIconsHeader.style.fontWeight = '800';
+    builderIconsHeader.style.fontSize = '2.5em';
+    builderIconsHeader.style.margin = '0';
+    const builderIcon = document.createElement('i');
+    builderIcon.classList.add('rovalra-icon');
+    builderIcon.textContent = 'github';
+    const builderIconFilled = document.createElement('i');
+    builderIconFilled.classList.add('rovalra-icon-filled');
+    builderIconFilled.textContent = 'github';
+    container.append(br, builderIconsHeader, br, builderIcon, builderIconFilled);
+
     removeHomeElement();
 }
 

@@ -1,0 +1,160 @@
+$ghRawDomain: 'raw.githubusercontent.com';
+$gitRepo: 'MaximumADHD/Roblox-Client-Tracker';
+$gitRef: 'heads/roblox';
+$mainSource: 'https://#{$ghRawDomain}/#{$gitRepo}/#{$gitRef}/LuaPackages/Packages/_Index/BuilderIcons/BuilderIcons/Font';
+
+
+@font-face {
+  font-family: 'BuilderIcons-Regular';
+  src:
+    local("BuilderIcons-Regular"),
+    url('#{$mainSource}/BuilderIcons-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BuilderIcons-Filled';
+  src:
+    local("BuilderIcons-Filled"),
+    url('#{$mainSource}/BuilderIcons-Filled.ttf') format('truetype');
+  font-display: swap;
+}
+
+i.rovalra-icon, i.rovalra-icon-filled, i.rovalra-icon-regular {
+    font-style: normal;
+    font-size: 1em;
+    height: 1em;
+    width: 1em;
+    user-select: none;
+
+    /* decoration */
+    & {
+        &.italic {
+            font-style: italic
+        }
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        /* Text Decoration Lines */
+        & {
+            &.decor-underline {
+                text-decoration-line: underline;
+            }
+
+            &.decor-overline {
+                text-decoration-line: overline;
+            }
+
+            &.decor-strike {
+                text-decoration-line: line-through;
+            }
+
+            &.decor-overline.decor-underline {
+                text-decoration-line: overline underline;
+            }
+
+            &.decor-overline.decor-strike {
+                text-decoration-line: overline line-through;
+            }
+
+            &.decor-strike.decor-underline {
+                text-decoration-line: line-through underline;
+            }
+
+            &.decor-overline.decor-underline.decor-strike {
+                text-decoration-line: overline underline line-through;
+            }
+
+            &.decor-none {
+                text-decoration: none;
+            }
+        }
+
+        /* Text Decoration Line Styles */
+        & {
+            &.decor-style-solid {
+                text-decoration-style: solid;
+            }
+
+            &.decor-style-double {
+                text-decoration-style: double;
+            }
+
+            &.decor-style-dotted {
+                text-decoration-style: dotted;
+            }
+
+            &.decor-style-dashed {
+                text-decoration-style: dashed;
+            }
+
+            &.decor-style-wavy {
+                text-decoration-style: wavy;
+            }
+        }
+
+        /* Text Decoration Skip Ink */
+        & {
+            &.decor-skip-ink, &.decor-skipink, &.decor-skip-ink-auto, &.decor-skipink-auto {
+                text-decoration-skip-ink: auto;
+            }
+
+            &.decor-skip-ink-all, &.decor-skipink-all {
+                text-decoration-skip-ink: all;
+            }
+
+            &.decor-skip-ink-none, &.decor-skipink-none {
+                text-decoration-skip-ink: none;
+            }
+        }
+    }
+
+    /* sizes */
+    & {
+        &.size-xx-large, &.size-xxlarge {
+            font-size: var(--icon-size-xxlarge, 32px);
+            height: var(--icon-size-xxlarge, 32px);
+            width: var(--icon-size-xxlarge, 32px);
+        }
+
+        &.size-x-large, &.size-xlarge {
+            font-size: var(--icon-size-xlarge, 28px);
+            height: var(--icon-size-xlarge, 28px);
+            width: var(--icon-size-xlarge, 28px);
+        }
+
+        &.size-large {
+            font-size: var(--icon-size-large, 24px);
+            height: var(--icon-size-large, 24px);
+            width: var(--icon-size-large, 24px);
+        }
+
+        &.size-medium {
+            font-size: var(--icon-size-medium, 20px);
+            height: var(--icon-size-medium, 20px);
+            width: var(--icon-size-medium, 20px);
+        }
+
+        &.size-small {
+            font-size: var(--icon-size-small, 16px);
+            height: var(--icon-size-small, 16px);
+            width: var(--icon-size-small, 16px);
+        }
+
+        &.size-x-small, &.size-xsmall {
+            font-size: var(--icon-size-xsmall, 12px);
+            height: var(--icon-size-xsmall, 12px);
+            width: var(--icon-size-xsmall, 12px);
+        }
+    }
+}
+
+i.rovalra-icon, i.rovalra-icon-regular {
+    font-family: 'BuilderIcons-Regular' !important;
+}
+
+i.rovalra-icon-filled {
+    font-family: 'BuilderIcons-Filled' !important;
+}

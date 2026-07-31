@@ -112,12 +112,14 @@ async function showStep1Popup(userId, robuxAmount = 0, easterEgg = false) {
     // Setup User Profile
     const userThumbnailData = await fetchUserThumbnailWithApiKey(userId);
     const userFullData = await getUserFullData(userId);
+    const userProfileData = (await getUserProfileData([userId])).profileDetails[0];
     const userCard = createUserCard({
         displayName: userFullData.displayName || userFullData.name,
         username: userFullData.name,
         thumbData: userThumbnailData,
         hidePresence: true,
         isVerified: userFullData.hasVerifiedBadge || false,
+        isSubscribed: userProfileData.hasRobloxSubscription,
         userId,
         showUsername: false,
     });
@@ -284,12 +286,14 @@ async function showStep2Popup(userId, robuxAmount, easterEgg = false, error = nu
     // Setup User Profile and info about relationship to user
     const userThumbnailData = await fetchUserThumbnailWithApiKey(userId);
     const userFullData = await getUserFullData(userId);
+    const userProfileData = (await getUserProfileData([userId])).profileDetails[0];
     const userCard = createUserCard({
         displayName: userFullData.displayName,
         username: `@${userFullData.name}`,
         thumbData: userThumbnailData,
         hidePresence: true,
         isVerified: userFullData.hasVerifiedBadge || false,
+        isSubscribed: userProfileData.hasRobloxSubscription,
         userId,
         showUsername: true,
     });
@@ -313,11 +317,11 @@ async function showStep2Popup(userId, robuxAmount, easterEgg = false, error = nu
             : months != 0 ? 'month'
                 : 'day'
 
-        infoContainer.innerHTML += `<span>${SVG_CALANDAR}${await t('plus.sendRobux.popup.step2.userInfoFriendTime', { time: -time, range: timeUnit })}</span>`
+        infoContainer.innerHTML += `<span><i class="rovalra-icon-filled">calendar</i>${await t('plus.sendRobux.popup.step2.userInfoFriendTime', { time: -time, range: timeUnit })}</span>`
     }
     infoContainer.innerHTML +=
-        `<span>${SVG_TWOFRIENDS}${await t('plus.sendRobux.popup.step2.userInfoMutualFriends', { count: initTransferRequest.userRelationshipDetail.mutualFriendsCount })}</span>`
-        + `<span>${SVG_INFO_FILLED}${await t('plus.sendRobux.popup.step2.userInfoJoin', { year: initTransferRequest.userRelationshipDetail.userAccountSinceYear })}</span>`
+        `<span><i class="rovalra-icon-filled">two-people</i>${await t('plus.sendRobux.popup.step2.userInfoMutualFriends', { count: initTransferRequest.userRelationshipDetail.mutualFriendsCount })}</span>`
+        + `<span><i class="rovalra-icon-filled">circle-i</i>${await t('plus.sendRobux.popup.step2.userInfoJoin', { year: initTransferRequest.userRelationshipDetail.userAccountSinceYear })}</span>`
 
     profileContainer.append(userCard, infoContainer);
 
@@ -763,10 +767,10 @@ export function initBuyRobuxPage() {
                         <span class="text-body-medium content-emphasis">${profile.names.combinedName}</span>
                         <span class="items-center gap-xxsmall inline-flex shrink-0 [--icon-size-small:1em]">
                             ${/* Verified Badge */ profile.isVerified ? `<span class="relative flex items-center justify-center">
-                                <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-verified-backplate size-[var(--icon-size-medium)] content-system-emphasis"></span>
-                                <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-verified-check size-[var(--icon-size-medium)] absolute" style="color: white;"></span>
+                                <i role="presentation" class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-medium content-system-emphasis">verified-backplate</i>
+                                <i role="presentation" class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-medium absolute" style="color: white;">verified-check</i>
                             </span>` : ''}
-                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-roblox-plus size-[var(--icon-size-small)] content-system-contrast" aria-label="Roblox Plus subscriber"></span>` : ''}
+                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<i role="presentation" class="grow-0 shrink-0 basis-auto rovalra-icon size-small content-system-contrast" aria-label="Roblox Plus subscriber">roblox-plus</i>` : ''}
                         </span>
                     </div>
                 `);
