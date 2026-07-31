@@ -285,19 +285,20 @@ async function openDonatorPerksDonationUrl() {
                 endpoint: '/v1/games?universeIds=' + DONATOR_PERKS_UNIVERSE_ID,
                 method: 'GET',
             });
-            const universeDetails = (await universeDetailsRequest.json())[0];
+            const universeDetails = (await universeDetailsRequest.json()).data[0];
 
             loadingOverlay.close();
 
             const requestSentOverlay = createOverlay({
                 title: "Request Sent!",
-                bodyContent: 'Your request was sent to your parents and guardians via email.' + ( universeDetailsRequest.ok ? '<br />The experience name is: ' + DOMPurify.sanitize(universeDetails.name) : ''),
+                bodyContent: 'Your request was sent to your parents and guardians via email.' + ( universeDetailsRequest.ok ? '<br />The experience name is: <b>' + DOMPurify.sanitize(universeDetails.name) + '</b>' : ''),
                 actions: [ createButton('OK', 'secondary', { onClick: () => { requestSentOverlay.close(); } }), ],
                 showLogo: true,
             });
 
             requestedDonatorGameUnblockChecked = false;
-        } catch {
+        } catch (error) {
+            console.warn('[RoValra Unblock Request] Error:', error);
             loadingOverlay.close();
             const requestFailedOverlay = createOverlay({
                 title: "Request Failed to Send",
