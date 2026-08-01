@@ -1,3 +1,4 @@
+import { Asset } from 'roavatar-renderer';
 import {
     getPlaceIdFromUrl,
     getAssetIdFromUrl,
@@ -25,8 +26,8 @@ export function init() {
                 Bundle: await t('copyId.copyId', {
                     type: await t('copyId.types.bundle'),
                 }),
-                Catalog: await t('copyId.copyId', {
-                    type: await t('copyId.types.catalog'),
+                Asset: await t('copyId.copyId', {
+                    type: await t('copyId.types.asset'),
                 }),
                 GamePass: await t('copyId.copyId', {
                     type: await t('copyId.types.gamePass'),
@@ -73,9 +74,9 @@ export function init() {
                     });
                 } else if (catalogMatch) {
                     ids.push({
-                        type: 'Catalog',
+                        type: 'Asset',
                         id: catalogMatch[1],
-                        title: typeTranslations['Catalog'],
+                        title: typeTranslations['Asset'],
                     });
                 } else if (gamePassMatch) {
                     ids.push({
@@ -125,9 +126,9 @@ export function init() {
                     const assetId = getAssetIdFromUrl(url);
                     if (assetId)
                         ids.push({
-                            type: 'Catalog',
+                            type: 'Asset',
                             id: assetId,
-                            title: typeTranslations['Catalog'],
+                            title: typeTranslations['Asset'],
                         });
                 }
 
