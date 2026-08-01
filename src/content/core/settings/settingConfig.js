@@ -2103,6 +2103,7 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                         requiredPermissions: ['contextMenus'],
+                        contributors: ['447170745', '1564574922']
                     },
                     viewIdEnabled: {
                         label: 'View Bundled IDs',
