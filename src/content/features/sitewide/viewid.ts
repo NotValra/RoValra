@@ -1,9 +1,5 @@
-import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
-import {
-    getPlaceIdFromUrl,
-    getAssetIdFromUrl,
-    getUserIdFromUrl,
-} from '../../core/idExtractor.js';
+import { callRobloxApiJson } from '../../core/api.js';
+import { getAssetIdFromUrl } from '../../core/idExtractor.js';
 import { t } from '../../core/locale/i18n.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
