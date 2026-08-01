@@ -10,6 +10,7 @@ import {
     attachSubplaceCardToPresenceTarget,
     clearSubplaceCardFromPresenceTarget,
 } from './subplaceCard.js';
+import { CUSTOM_ADDED_TAGS } from '../../utils/purifyCfg.js';
 
 async function isSubplaceHoverCardEnabled() {
     return (
@@ -173,7 +174,7 @@ export function createUserCard({
         </span>`
         : '';
     const plusBadge = isSubscribed
-        ? '<i class="grow-0 shrink-0 basis-auto rovalra-icon size-xsmall content-system-contrast" aria-label="Roblox Plus subscriber">roblox-plus</i>'
+        ? '<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="Roblox Plus subscriber">roblox-plus</icon>'
         : '';
 
     const tileContainer = document.createElement('div');
@@ -210,7 +211,7 @@ export function createUserCard({
     `;
     tileContainer.innerHTML = DOMPurify.sanitize(
         `<div class="user-card-inner">${innerHtml}</div>`,
-    );
+    CUSTOM_ADDED_TAGS );
     const thumbEl = createThumbnailElement(thumbData, displayName, '', {
         width: '90px',
         height: '90px',

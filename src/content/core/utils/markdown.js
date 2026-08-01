@@ -1,5 +1,6 @@
 import { marked } from 'marked'; // Better markdown!!!
 import DOMPurify from 'dompurify';
+import { CUSTOM_ADDED_TAGS } from './purifyCfg';
 
 export function parseMarkdown(text, themeColors = {}) {
     if (!text) return '';
@@ -105,5 +106,6 @@ export function parseUntrustedMarkdown(text, options = {}) {
     return DOMPurify.sanitize(text, {
         ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'code', 'br'],
         ALLOWED_ATTR: ['class', 'href', 'rel', 'target'],
+        ...CUSTOM_ADDED_TAGS
     }).trim();
 }

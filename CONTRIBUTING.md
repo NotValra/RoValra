@@ -85,6 +85,13 @@ We have imported the Roblox Builder Icons within the project. To use them simply
 If you want to use filled icons simply use `rovalra-icon-filled`.
 Additionally there is also `rovalra-icon-regular` for redundency.
 
+Alternatively, you can also do:
+
+```html
+<icon fill>tilt</icon>
+<icon size-xsmall>roblox-plus</icon>
+```
+
 You can also use Unicode private use areas as well
 
 ```html
