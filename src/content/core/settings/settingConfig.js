@@ -2097,6 +2097,14 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 requiredPermissions: ['contextMenus'],
             },
+            viewIdEnabled: {
+                label: 'View Bundled IDs',
+                description: "Allows you to view all bundles items and their IDs of any catalog item.",
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+                contributors: ['1564574922']
+            },
             copyUniverseIdEnabled: {
                 label: 'Allows you to quickly copy a universe id',
                 description:

@@ -93,7 +93,7 @@ function formatMarkdown(assetId: number, productId: number, taxonomy: Array<{tax
     const container = document.createElement("div");
     container.innerHTML = resultHtml;
 
-    async function onEvent(event: Event, elem?: HTMLElement) {
+    async function onEvent(event: Event, elem?: HTMLElement | null) {
         const noteElement = elem?.querySelector("p.rovalra-viewid-copy small");
         if (!noteElement || noteElement === null) {
             console.warn(`Note element not found.`);

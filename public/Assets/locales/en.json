@@ -1046,7 +1046,7 @@
         }
     },
     "viewid": {
-        "viewId": "View ID",
+        "viewId": "View IDs",
         "popup": {
             "title": "Item IDs",
             "button": {

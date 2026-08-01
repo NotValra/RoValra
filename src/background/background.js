@@ -2366,9 +2366,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 } else if (request.feature === 'viewid') {
                     request.ids.forEach((id) => {
                         chrome.storage.local.get(
-                            ['copyIdEnabled', 'copyUniverseIdEnabled'],
+                            ['viewIdEnabled'],
                             (settings) => {
-                                if (settings.copyIdEnabled) {
+                                if (settings.viewIdEnabled) {
                                     chrome.contextMenus.create({
                                         id: `rovalra-viewid-${id}`,
                                         title: request.data.title,
