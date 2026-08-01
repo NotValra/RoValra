@@ -3,13 +3,8 @@ import { getAssetIdFromUrl } from '../../core/idExtractor.js';
 import { t } from '../../core/locale/i18n.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
+import { awaitSafe, sleep } from '../../core/utils/async.js';
 import { parseMarkdown } from '../../core/utils/markdown.js';
-
-function sleep(milliseconds: number): Promise<void> {
-    return new Promise((resolve) => {
-        window.setTimeout(resolve, milliseconds);
-    });
-}
 
 type RequestType = {
     action: 'view-ids',
@@ -124,21 +119,21 @@ function formatMarkdown(assetId: number, productId: number, taxonomy: Array<{tax
     }
 
     container.querySelector(`div#${CONFIG.PrimaryTableID}`)?.addEventListener("click", async (event) => {
-        await navigator.clipboard.writeText(getPrimary());
+        await awaitSafe(navigator.clipboard.writeText, getPrimary());
         await onEvent(event, container.querySelector(`div#${CONFIG.PrimaryTableID}`));
     });
 
     container.querySelector(`div#${CONFIG.TaxonomyTableID}`)?.addEventListener("click", async (event) => {
         const text = getTaxonomy();
         if (text)
-            await navigator.clipboard.writeText(text);
+            await awaitSafe(navigator.clipboard.writeText, text);
         await onEvent(event, container.querySelector(`div#${CONFIG.TaxonomyTableID}`));
     });
 
     container.querySelector(`div#${CONFIG.BundledItemsID}`)?.addEventListener("click", async (event) => {
         const text = getBundled();
         if (text)
-            await navigator.clipboard.writeText(text);
+            await awaitSafe(navigator.clipboard.writeText, text);
         await onEvent(event, container.querySelector(`div#${CONFIG.BundledItemsID}`));
     });
 
@@ -153,14 +148,14 @@ export function init() {
             request = request as RequestType;
             const id = Number(request.data.targetId);
 
-            const bundledata = (await callRobloxApiJson({
+            const bundledata = (await awaitSafe(callRobloxApiJson, {
                 subdomain: 'catalog',
                 endpoint: `/v1/bundles/details?bundleIds=${id}`
             }))?.[0];
 
             const itemType: number = (!!bundledata) ? 2 : 1;
 
-            const itemdata = (await callRobloxApiJson({
+            const itemdata = (await awaitSafe(callRobloxApiJson, {
                 subdomain: 'catalog',
                 endpoint: '/v1/catalog/items/details',
                 method: 'POST',
