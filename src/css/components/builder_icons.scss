@@ -20,7 +20,7 @@ $mainSource: 'https://#{$ghRawDomain}/#{$gitRepo}/#{$gitRef}/LuaPackages/Package
   font-display: swap;
 }
 
-i.rovalra-icon, i.rovalra-icon-filled, i.rovalra-icon-regular {
+i.rovalra-icon, i.rovalra-icon-filled, i.rovalra-icon-regular, icon {
     font-style: normal;
     font-size: 1em;
     height: 1em;
@@ -29,83 +29,84 @@ i.rovalra-icon, i.rovalra-icon-filled, i.rovalra-icon-regular {
 
     /* decoration */
     & {
-        &.italic {
+        &.italic, &[italic] {
             font-style: italic
         }
 
-        &.bold {
+        &.bold, &[bold] {
             font-weight: bold;
         }
 
         /* Text Decoration Lines */
         & {
-            &.decor-underline {
+            &.decor-underline, &[decor-underline] {
                 text-decoration-line: underline;
             }
 
-            &.decor-overline {
+            &.decor-overline, &[decor-overline] {
                 text-decoration-line: overline;
             }
 
-            &.decor-strike {
+            &.decor-strike, &[decor-strike] {
                 text-decoration-line: line-through;
             }
 
-            &.decor-overline.decor-underline {
+            &.decor-overline.decor-underline, &[decor-overline][decor-underline] {
                 text-decoration-line: overline underline;
             }
 
-            &.decor-overline.decor-strike {
+            &.decor-overline.decor-strike, &[decor-overline][decor-strike] {
                 text-decoration-line: overline line-through;
             }
 
-            &.decor-strike.decor-underline {
+            &.decor-strike.decor-underline, &[decor-strike][decor-underline] {
                 text-decoration-line: line-through underline;
             }
 
-            &.decor-overline.decor-underline.decor-strike {
+            &.decor-overline.decor-underline.decor-strike, &[decor-overline][decor-underline][decor-strike] {
                 text-decoration-line: overline underline line-through;
             }
 
-            &.decor-none {
+            &.decor-none, &[decor-none] {
                 text-decoration: none;
             }
         }
 
         /* Text Decoration Line Styles */
         & {
-            &.decor-style-solid {
+            &.decor-style-solid, &[decor-style-solid] {
                 text-decoration-style: solid;
             }
 
-            &.decor-style-double {
+            &.decor-style-double, &[decor-style-double] {
                 text-decoration-style: double;
             }
 
-            &.decor-style-dotted {
+            &.decor-style-dotted, &[decor-style-dotted] {
                 text-decoration-style: dotted;
             }
 
-            &.decor-style-dashed {
+            &.decor-style-dashed, &[decor-style-dashed] {
                 text-decoration-style: dashed;
             }
 
-            &.decor-style-wavy {
+            &.decor-style-wavy, &[decor-style-wavy] {
                 text-decoration-style: wavy;
             }
         }
 
         /* Text Decoration Skip Ink */
         & {
-            &.decor-skip-ink, &.decor-skipink, &.decor-skip-ink-auto, &.decor-skipink-auto {
+            &.decor-skip-ink, &.decor-skipink, &.decor-skip-ink-auto, &.decor-skipink-auto,
+            &[decor-skip-ink], &[decor-skipink], &[decor-skip-ink-auto], &[decor-skipink-auto] {
                 text-decoration-skip-ink: auto;
             }
 
-            &.decor-skip-ink-all, &.decor-skipink-all {
+            &.decor-skip-ink-all, &.decor-skipink-all, &[decor-skip-ink-all], &[decor-skipink-all] {
                 text-decoration-skip-ink: all;
             }
 
-            &.decor-skip-ink-none, &.decor-skipink-none {
+            &.decor-skip-ink-none, &.decor-skipink-none, &[decor-skip-ink-none], &[decor-skipink-none] {
                 text-decoration-skip-ink: none;
             }
         }
@@ -113,37 +114,37 @@ i.rovalra-icon, i.rovalra-icon-filled, i.rovalra-icon-regular {
 
     /* sizes */
     & {
-        &.size-xx-large, &.size-xxlarge {
+        &.size-xx-large, &.size-xxlarge, &[size-xx-large], &[size-xxlarge] {
             font-size: var(--icon-size-xxlarge, 32px);
             height: var(--icon-size-xxlarge, 32px);
             width: var(--icon-size-xxlarge, 32px);
         }
 
-        &.size-x-large, &.size-xlarge {
+        &.size-x-large, &.size-xlarge, &[size-x-large], &[size-xlarge] {
             font-size: var(--icon-size-xlarge, 28px);
             height: var(--icon-size-xlarge, 28px);
             width: var(--icon-size-xlarge, 28px);
         }
 
-        &.size-large {
+        &.size-large, &[size-large] {
             font-size: var(--icon-size-large, 24px);
             height: var(--icon-size-large, 24px);
             width: var(--icon-size-large, 24px);
         }
 
-        &.size-medium {
+        &.size-medium, &[size-medium] {
             font-size: var(--icon-size-medium, 20px);
             height: var(--icon-size-medium, 20px);
             width: var(--icon-size-medium, 20px);
         }
 
-        &.size-small {
+        &.size-small, &[size-small] {
             font-size: var(--icon-size-small, 16px);
             height: var(--icon-size-small, 16px);
             width: var(--icon-size-small, 16px);
         }
 
-        &.size-x-small, &.size-xsmall {
+        &.size-x-small, &.size-xsmall, &[size-x-small], &[size-xsmall] {
             font-size: var(--icon-size-xsmall, 12px);
             height: var(--icon-size-xsmall, 12px);
             width: var(--icon-size-xsmall, 12px);
@@ -151,10 +152,15 @@ i.rovalra-icon, i.rovalra-icon-filled, i.rovalra-icon-regular {
     }
 }
 
-i.rovalra-icon, i.rovalra-icon-regular {
+i.rovalra-icon, i.rovalra-icon-regular, icon {
     font-family: 'BuilderIcons-Regular' !important;
 }
 
-i.rovalra-icon-filled {
+i.rovalra-icon-filled, icon.rovalra-icon-filled, icon[filled], icon[fill] {
     font-family: 'BuilderIcons-Filled' !important;
+}
+
+icon {
+    display: inline-block;
+    line-height: 1;
 }
