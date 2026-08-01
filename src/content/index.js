@@ -596,12 +596,44 @@ async function initializePage() {
         );
     };
 
+    // URLs for Builder Icons
+    const iconsGhRawDomain = 'raw.githubusercontent.com';
+    const iconsGitRepo = 'MaximumADHD/Roblox-Client-Tracker';
+    const iconsGitRef = 'heads/roblox';
+    const iconsMainSource = `https://${iconsGhRawDomain}/${iconsGitRepo}/${iconsGitRef}/LuaPackages/Packages/_Index/BuilderIcons/BuilderIcons/Font`;
+
+    // preload
+    const builderIconsReg = document.createElement('link');
+    builderIconsReg.rel = 'preload';
+    builderIconsReg.href = `${iconsMainSource}/BuilderIcons-Regular.ttf`;
+    builderIconsReg.as = 'font';
+    builderIconsReg.type = 'font/ttf';
+    builderIconsReg.crossOrigin = 'anonymous';
+    const builderIconsFill = document.createElement('link');
+    builderIconsFill.rel = 'preload';
+    builderIconsFill.href = `${iconsMainSource}/BuilderIcons-Filled.ttf`;
+    builderIconsFill.as = 'font';
+    builderIconsFill.type = 'font/ttf';
+    builderIconsFill.crossOrigin = 'anonymous';
+
+    if (document.head) {
+        document.head.append(builderIconsReg, builderIconsFill);
+    } else {
+        const docObserverForHead = new MutationObserver((_, obs) => {
+            if (document.head) {
+                obs.disconnect();
+                document.head.append(builderIconsReg, builderIconsFill);
+            }
+        }); //Verified
+        docObserverForHead.observe(document.documentElement, { childList: true });
+    }
+
     if (document.body) {
         startFeatures().catch((error) =>
             console.error('RoValra: Feature initialization failed', error),
         );
     } else {
-        const docObserver = new MutationObserver((_, obs) => {
+        const docObserverForBody = new MutationObserver((_, obs) => {
             if (document.body) {
                 obs.disconnect();
                 startFeatures().catch((error) =>
@@ -612,7 +644,7 @@ async function initializePage() {
                 );
             }
         }); //Verified
-        docObserver.observe(document.documentElement, { childList: true });
+        docObserverForBody.observe(document.documentElement, { childList: true });
     }
 }
 

@@ -169,8 +169,8 @@ export function createUserCard({
     const assets = getAssets();
     const verifiedBadge = isVerified
         ? `<span class="relative flex items-center justify-center">
-            <i class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-xsmall content-system-emphasis">verified-backplate</i>
-            <i class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-xsmall absolute" style="color: white;">verified-check</i>
+            <icon filled size="x-small" class="grow-0 shrink-0 basis-auto content-system-emphasis">verified-backplate</icon>
+            <icon filled size="x-small" class="grow-0 shrink-0 basis-auto absolute" style="color: white;">verified-check</icon>
         </span>`
         : '';
     const plusBadge = isSubscribed

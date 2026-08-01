@@ -22,6 +22,7 @@ import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { applyDisplayNameGradientToElement } from '../profile/header/displayNameGradient.js';
 import { applyBorderToContainer } from '../profile/avatarBorder.js';
 import { applyGradientForUserId } from '../profile/header/profileBackground.js';
+import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 
 let keepOpenInAppProfileItem = false;
 const cssClassNamePrefix = "rovalra-sendrobux";
@@ -317,11 +318,11 @@ async function showStep2Popup(userId, robuxAmount, easterEgg = false, error = nu
             : months != 0 ? 'month'
                 : 'day'
 
-        infoContainer.innerHTML += `<span><i class="rovalra-icon-filled">calendar</i>${await t('plus.sendRobux.popup.step2.userInfoFriendTime', { time: -time, range: timeUnit })}</span>`
+        infoContainer.innerHTML += `<span><icon filled>calendar</icon>${await t('plus.sendRobux.popup.step2.userInfoFriendTime', { time: -time, range: timeUnit })}</span>`
     }
     infoContainer.innerHTML +=
-        `<span><i class="rovalra-icon-filled">two-people</i>${await t('plus.sendRobux.popup.step2.userInfoMutualFriends', { count: initTransferRequest.userRelationshipDetail.mutualFriendsCount })}</span>`
-        + `<span><i class="rovalra-icon-filled">circle-i</i>${await t('plus.sendRobux.popup.step2.userInfoJoin', { year: initTransferRequest.userRelationshipDetail.userAccountSinceYear })}</span>`
+        `<span><icon filled>two-people</icon>${await t('plus.sendRobux.popup.step2.userInfoMutualFriends', { count: initTransferRequest.userRelationshipDetail.mutualFriendsCount })}</span>`
+        + `<span><icon filled>circle-i</icon>${await t('plus.sendRobux.popup.step2.userInfoJoin', { year: initTransferRequest.userRelationshipDetail.userAccountSinceYear })}</span>`
 
     profileContainer.append(userCard, infoContainer);
 
@@ -767,13 +768,13 @@ export function initBuyRobuxPage() {
                         <span class="text-body-medium content-emphasis">${profile.names.combinedName}</span>
                         <span class="items-center gap-xxsmall inline-flex shrink-0 [--icon-size-small:1em]">
                             ${/* Verified Badge */ profile.isVerified ? `<span class="relative flex items-center justify-center">
-                                <i role="presentation" class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-medium content-system-emphasis">verified-backplate</i>
-                                <i role="presentation" class="grow-0 shrink-0 basis-auto rovalra-icon-filled size-medium absolute" style="color: white;">verified-check</i>
+                                <icon filled size="medium" role="presentation" class="grow-0 shrink-0 basis-auto content-system-emphasis">verified-backplate</icon>
+                                <icon filled size="medium" role="presentation" class="grow-0 shrink-0 basis-auto absolute" style="color: white;">verified-check</icon>
                             </span>` : ''}
-                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<i role="presentation" class="grow-0 shrink-0 basis-auto rovalra-icon size-small content-system-contrast" aria-label="Roblox Plus subscriber">roblox-plus</i>` : ''}
+                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<icon size="small" role="presentation" class="grow-0 shrink-0 basis-auto content-system-contrast" aria-label="Roblox Plus subscriber">roblox-plus</icon>` : ''}
                         </span>
                     </div>
-                `);
+                `, { ...CUSTOM_ADDED_TAGS });
 
                 if (settings.displayNameGradientEnabled)
                     applyDisplayNameGradientToElement(profileDiv.querySelector('.text-body-medium.content-emphasis'), profileUserSettings, { hoverHost: profileDiv });

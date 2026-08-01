@@ -76,34 +76,60 @@ The badge is completely optional.
 
 ## Using Icons
 
-We have imported the Roblox Builder Icons within the project. To use them simply do the following with ligatures
+### Using Icons with the Icon Component
 
-```html
-<i class="rovalra-icon">tilt</i>
+You can use the `Icon` Function to create a new icon
+it's located in [src/content/core/ui/buildericon.ts](src/content/core/ui/buildericon.ts)
+
+Example:
+
+```javascript
+import { Icon } from 'yournearestpathto/buildericon.ts'
+
+async function woah() {
+    let robloxTilt = Icon({
+        icon: 'tilt',
+        filled: false,
+        size: 'medium',
+        classes: 'woah-very-cool-class'
+    });
+    document.appendChild(robloxTilt);
+}
+
+woah();
 ```
 
-If you want to use filled icons simply use `rovalra-icon-filled`.
-Additionally there is also `rovalra-icon-regular` for redundency.
+When using DOMPurify, make sure to import `CUSTOM_ADDED_TAGS` and use the config in [src/content/core/utils/purifyCfg.js](src/content/core/utils/purifyCfg.js)
+If you want to see an example on how you use it look in [src/content/core/utils/markdown.js](./src/content/core/utils/markdown.js)
 
-Alternatively, you can also do:
+
+### Using Icons with HTML
 
 ```html
-<icon fill>tilt</icon>
-<icon size-xsmall>roblox-plus</icon>
+<icon>tilt</icon> <!-- Normal/Regular Icon -->
+<icon filled>tilt</icon> <!-- Filled Icon -->
 ```
 
 You can also use Unicode private use areas as well
 
 ```html
-<i class="rovalra-icon"></i> <!-- This is the tilt icon (U+2300) -->
+<icon></icon> <!-- This is the tilt icon (U+2300) -->
 ```
 
-You can use sizes as classes: `size-xx-large`, `size-x-large`, `size-large`, `size-medium`, `size-small`, `size-x-small`. Default is `size-small`
+To use sizes, simply use the size attribute like so
 
-There are also quick decoration styles: `bold`, `italic`, `decor-none`, `decor-underline`, `decor-overline`, `decor-strike`, `decor-style-solid`, `decor-style-wavy`, `decor-style-dashed`, `decor-style-double`, `decor-style-dotted`, `decor-skip-ink-auto`, `decor-skip-ink-all`, `decor-skip-ink-none`
+```html
+<icon size="small">tilt</icon>
+<icon size="20px">tilt</icon>
+```
+
+You can use preset sizes like `x-small`, `small`, `medium`, `large`, `x-large`, and `xx-large`
+And you can use specific sizing too!
 
 If you need information about what Builder Icons exist, you can visit the [Builder Icons Viewer](https://kaan650.github.io/builder-icons/) by [@kann650](https://github.com/kann650)
 
+When using DOMPurify, make sure to import `CUSTOM_ADDED_TAGS` and use the config in [src/content/core/utils/purifyCfg.js](src/content/core/utils/purifyCfg.js)
+If you want to see an example on how you use it look in [src/content/core/utils/markdown.js](./src/content/core/utils/markdown.js)
 
 
 ## Code Guidelines

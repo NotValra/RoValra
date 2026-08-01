@@ -74,6 +74,7 @@ import {
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { Icon } from '../../core/ui/buildericon.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -999,7 +1000,14 @@ function renderDonatorPerkStatusPills(container) {
             const isIncluded =
                 cell.dataset.rovalraDonatorPerkIncluded === 'true';
             const label = isIncluded ? 'Included' : 'Not included';
-            const symbol = createDonatorPerkStatusIcon(isIncluded);
+            const symbol = Icon({
+                icon: isIncluded ? 'circle-check' : 'circle-minus',
+                filled: true,
+                size: 'medium',
+                classes: isIncluded
+                    ? 'rovalra-donator-perk-status-icon-included'
+                    : 'rovalra-donator-perk-status-icon-not-included',
+            });
 
             addTooltip(symbol, label, { position: 'top' });
 

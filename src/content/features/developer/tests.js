@@ -8,6 +8,7 @@ import { createPill } from '../../core/ui/general/pill.js';
 import { createFriendTile } from '../../core/ui/profile/userCard.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import { Icon } from '../../core/ui/buildericon.js';
 function removeHomeElement() {
     const homeElementToRemove = document.querySelector(
         'li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home',
@@ -175,13 +176,14 @@ async function renderTestPage(contentDiv) {
     builderIconsHeader.style.fontWeight = '800';
     builderIconsHeader.style.fontSize = '2.5em';
     builderIconsHeader.style.margin = '0';
-    const builderIcon = document.createElement('i');
-    builderIcon.classList.add('rovalra-icon');
-    builderIcon.textContent = 'github';
-    const builderIconFilled = document.createElement('i');
-    builderIconFilled.classList.add('rovalra-icon-filled');
-    builderIconFilled.textContent = 'github';
-    container.append(br, builderIconsHeader, br, builderIcon, builderIconFilled);
+    const builderIcon = Icon({
+        icon: 'github'
+    });
+    const builderIconFilled = Icon({
+        icon: 'github',
+        filled: true,
+    });
+    container.append(document.createElement('br'), builderIconsHeader, document.createElement('br'), builderIcon, builderIconFilled);
 
     removeHomeElement();
 }
