@@ -2089,21 +2089,30 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['2615068449'],
             },
-            copyIdEnabled: {
-                label: 'Allows you to quickly copy an id of a thing you are right clicking.',
-                description:
-                    "This adds a copy id button directly into the right click context menu so you don't have  to open the link and copy the id from the link.",
+            itemIdEnabled: {
+                label: 'Item IDs',
+                description: "Lets you easily get the ID of any item (such as an asset or animation bundle) via right-clicking.",
                 type: 'checkbox',
                 default: false,
-                requiredPermissions: ['contextMenus'],
-            },
-            viewIdEnabled: {
-                label: 'View Bundled IDs',
-                description: "Allows you to view all bundles items and their IDs of any catalog item.",
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
-                contributors: ['1564574922']
+                contributors: ['1564574922'],
+                childSettings: {
+                    copyIdEnabled: {
+                        label: 'Allows you to quickly copy an id of a thing you are right clicking.',
+                        description:
+                            "This adds a copy id button directly into the right click context menu so you don't have  to open the link and copy the id from the link.",
+                        type: 'checkbox',
+                        default: false,
+                        requiredPermissions: ['contextMenus'],
+                    },
+                    viewIdEnabled: {
+                        label: 'View Bundled IDs',
+                        description: "Allows you to view all bundles items and their IDs of any catalog item.",
+                        type: 'checkbox',
+                        default: false,
+                        requiredPermissions: ['contextMenus'],
+                        contributors: ['1564574922']
+                    },
+                }
             },
             copyUniverseIdEnabled: {
                 label: 'Allows you to quickly copy a universe id',
