@@ -142,6 +142,7 @@ export function init() {
 
             chrome.runtime.sendMessage({
                 action: 'updateContextMenu',
+                feature: 'copyid',
                 ids: ids,
             });
         },

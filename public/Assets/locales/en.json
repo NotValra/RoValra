@@ -1045,6 +1045,16 @@
             "user": "User"
         }
     },
+    "viewid": {
+        "viewId": "View ID",
+        "popup": {
+            "title": "Item IDs",
+            "button": {
+                "copy": "Copy Data",
+                "copyMd": "Copy Markdown Data"
+            }
+        }
+    },
     "friendsListOverlay": {
         "title": "Friends playing {{gameName}}",
         "join": "Join"
