@@ -1034,7 +1034,7 @@
         "copyUniverseId": "Copy Universe ID",
         "types": {
             "bundle": "Bundle",
-            "asset": "Asset",
+            "catalog": "Catalog",
             "gamePass": "GamePass",
             "badge": "Badge",
             "community": "Community",

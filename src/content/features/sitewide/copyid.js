@@ -25,8 +25,8 @@ export function init() {
                 Bundle: await t('copyId.copyId', {
                     type: await t('copyId.types.bundle'),
                 }),
-                Asset: await t('copyId.copyId', {
-                    type: await t('copyId.types.asset'),
+                Catalog: await t('copyId.copyId', {
+                    type: await t('copyId.types.catalog'),
                 }),
                 GamePass: await t('copyId.copyId', {
                     type: await t('copyId.types.gamePass'),
@@ -73,9 +73,9 @@ export function init() {
                     });
                 } else if (catalogMatch) {
                     ids.push({
-                        type: 'Asset',
+                        type: 'Catalog',
                         id: catalogMatch[1],
-                        title: typeTranslations['Asset'],
+                        title: typeTranslations['Catalog'],
                     });
                 } else if (gamePassMatch) {
                     ids.push({
@@ -125,9 +125,9 @@ export function init() {
                     const assetId = getAssetIdFromUrl(url);
                     if (assetId)
                         ids.push({
-                            type: 'Asset',
+                            type: 'Catalog',
                             id: assetId,
-                            title: typeTranslations['Asset'],
+                            title: typeTranslations['Catalog'],
                         });
                 }
 
