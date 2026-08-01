@@ -16,54 +16,54 @@ type RequestType = {
 const CONFIG = Object.freeze({
     PrimaryTableID: "rovalra-viewid-" + crypto.randomUUID(),
     TaxonomyTableID: "rovalra-viewid-" + crypto.randomUUID(),
-    BundledItemsID: "rovalra-viewid-" + crypto.randomUUID()
+    BundledItemsID: "rovalra-viewid-" + crypto.randomUUID(),
+
+    NoteText: "Click to copy.",
+    NoteTextClicked: "Copied!"
 } as const);
 
 const popupMarkdown = `
 <h2 align="center">Primary</h2>
 
-<div id="{{PrimaryTableID}}" class="rovalra-viewid-table">
+<div id="${CONFIG.PrimaryTableID}" class="rovalra-viewid-table">
 
 | Property | Value |
 | -------- | ----- |
 | Asset ID | {{assetid}} |
 | Product ID | {{productid}} |
-<p class="rovalra-viewid-copy"><small>Click to copy</small></p>
+<p class="rovalra-viewid-copy"><small>${CONFIG.NoteText}</small></p>
 
 </div>
 
 <h2 align="center">Taxonomy</h2>
 
-<div id="{{TaxonomyTableID}}" class="rovalra-viewid-table">
+<div id="${CONFIG.TaxonomyTableID}" class="rovalra-viewid-table">
 
 | # | Name | ID |
 | - | ---- | -- |
 {{taxonomy}}
-<p class="rovalra-viewid-copy"><small>Click to copy</small></p>
+<p class="rovalra-viewid-copy"><small>${CONFIG.NoteText}</small></p>
 
 </div>
 
 <h2 align="center">Bundled Items</h2>
 
-<div id="{{BundledItemsID}}" class="rovalra-viewid-table">
+<div id="${CONFIG.BundledItemsID}" class="rovalra-viewid-table">
 
 | # | Name | Type | ID |
 | - | ---- | ---- | -- |
 {{bundled}}
-<p class="rovalra-viewid-copy"><small>Click to copy</small></p>
+<p class="rovalra-viewid-copy"><small>${CONFIG.NoteText}</small></p>
 
 </div>
 `;
 
-function formatMarkdown(assetId: number, productId: number, taxonomy: Array<{taxonomyName: string, taxonomyId: string}>,
+function formatUIMarkdown(assetId: number, productId: number, taxonomy: Array<{taxonomyName: string, taxonomyId: string}>,
     bundledItems: Array<{name: string, type: string, id: number}>): [HTMLElement, string, string] {
 
     let resultMarkdown = popupMarkdown;
     resultMarkdown = resultMarkdown.replaceAll("{{assetid}}", String(assetId));
     resultMarkdown = resultMarkdown.replaceAll("{{productid}}", String(productId));
-    resultMarkdown = resultMarkdown.replaceAll("{{PrimaryTableID}}", CONFIG.PrimaryTableID);
-    resultMarkdown = resultMarkdown.replaceAll("{{TaxonomyTableID}}", CONFIG.TaxonomyTableID);
-    resultMarkdown = resultMarkdown.replaceAll("{{BundledItemsID}}", CONFIG.BundledItemsID);
 
     let taxonomyMarkdown = "";
     for (let i = 0; i < taxonomy.length; i++) {
@@ -94,10 +94,9 @@ function formatMarkdown(assetId: number, productId: number, taxonomy: Array<{tax
             console.warn(`Note element not found.`);
             return;
         }
-        const textBefore = noteElement?.textContent;
-        noteElement.textContent = "Copied!";
+        noteElement.textContent = CONFIG.NoteTextClicked;
         await sleep(1000);
-        noteElement.textContent = textBefore;
+        noteElement.textContent = CONFIG.NoteText;
     }
 
     const getPrimary = () => `Asset ID: rbxassetid://${assetId}\nProduct ID: rbxassetid://${productId}\n`;
@@ -142,123 +141,126 @@ function formatMarkdown(assetId: number, productId: number, taxonomy: Array<{tax
     return [container, resultMarkdown, fullCopy];
 }
  
+async function HandleMessage(request: RequestType) {
+    request = request as RequestType;
+    const id = Number(request.data.targetId);
+
+    const bundledata = (await awaitSafe(callRobloxApiJson, {
+        subdomain: 'catalog',
+        endpoint: `/v1/bundles/details?bundleIds=${id}`
+    }))?.[0];
+
+    const itemType: number = (!!bundledata) ? 2 : 1;
+
+    const itemdata = (await awaitSafe(callRobloxApiJson, {
+        subdomain: 'catalog',
+        endpoint: '/v1/catalog/items/details',
+        method: 'POST',
+        body: {
+          "items": [
+            {
+              "itemType": itemType,
+              "id": id
+            }
+          ]
+        }
+    }))?.["data"]?.[0];
+
+    if (itemdata === undefined)
+        console.error(`RoValra: Failed to retrieve item data for ${itemType === 1 ? "Asset" : "Bundle"} ${id}.`)
+    const result = formatUIMarkdown(itemdata.id, itemdata.productId, itemdata.taxonomy, itemdata.bundledItems);
+    const bodyContentContainer = result[0];
+    const bodyContentMarkdown = result[1];
+    const fullCopyableData = result[2];
+
+    const copyHtmlBtn = createButton(await t('viewid.popup.button.copyMd'), 'secondary', {
+        onClick: async () => {
+            await navigator.clipboard.writeText(bodyContentMarkdown);
+        },
+        id: "rovalra-viewid-button-sec"
+    })
+
+    const copyDataBtn = createButton(await t('viewid.popup.button.copy'), 'primary', {
+        onClick: async () => {
+            await navigator.clipboard.writeText(fullCopyableData);
+        },
+        id: "rovalra-viewid-button-main"
+    })
+
+    const overlay = createOverlay(
+        {
+            title: await t(`viewid.popup.title`),
+            bodyContent: bodyContentContainer,
+            showLogo: true,
+            actions: [copyDataBtn, copyHtmlBtn],
+            onClose: () => { },
+        }
+    );
+}
+
+async function OnMouseDown(event: MouseEvent) {
+    if (event.button !== 2) return;
+
+    const link = event.target?.closest('a');
+    const ids = [];
+    const translation = await t("viewid.viewId");
+
+    if (link) {
+        const url = link.href;
+
+        const bundleMatch = url.match(/\/bundles\/(\d+)/);
+        const catalogMatch = url.match(/\/catalog\/(\d+)/);
+        const gamePassMatch = url.match(/\/game-pass\/(\d+)/);
+        const badgeMatch = url.match(/\/badges\/(\d+)/);
+        const groupMatch = url.match(/\/(?:groups|communities)\/(\d+)/);
+        const eventMatch = url.match(/\/events\/(\d+)/);
+        const devProductMatch = url.match(
+            /\/developer-product\/\d+\/product\/(\d+)/,
+        );
+
+        let targetId;
+
+        if (bundleMatch) {
+            ids.push(bundleMatch[1]);
+        } else if (catalogMatch) {
+            ids.push(catalogMatch[1]);
+        } else if (gamePassMatch) {
+            ids.push(gamePassMatch[1]);
+        } else if (badgeMatch) {
+            ids.push(badgeMatch[1]);
+        } else if (groupMatch) {
+            ids.push(groupMatch[1]);
+        } else if (eventMatch) {
+            ids.push(eventMatch[1]);
+        } else if (devProductMatch) {
+            ids.push(devProductMatch[1]);
+        } else {
+            const assetId = getAssetIdFromUrl(url);
+            if (assetId)
+                ids.push(assetId);
+        }
+    }
+
+    chrome.runtime.sendMessage({
+        action: 'updateContextMenu',
+        feature: 'viewid',
+        ids: ids,
+        data: {
+            title: translation
+        }
+    });
+}
+
 export function init() {
     chrome.runtime.onMessage.addListener(async (request: any | RequestType) => {
         if (request.action === 'view-ids') {
-            request = request as RequestType;
-            const id = Number(request.data.targetId);
-
-            const bundledata = (await awaitSafe(callRobloxApiJson, {
-                subdomain: 'catalog',
-                endpoint: `/v1/bundles/details?bundleIds=${id}`
-            }))?.[0];
-
-            const itemType: number = (!!bundledata) ? 2 : 1;
-
-            const itemdata = (await awaitSafe(callRobloxApiJson, {
-                subdomain: 'catalog',
-                endpoint: '/v1/catalog/items/details',
-                method: 'POST',
-                body: {
-                  "items": [
-                    {
-                      "itemType": itemType,
-                      "id": id
-                    }
-                  ]
-                }
-            }))?.["data"]?.[0];
-
-            if (itemdata === undefined)
-                console.error(`RoValra: Failed to retrieve item data for ${itemType === 1 ? "Asset" : "Bundle"} ${id}.`);
-
-            console.log(itemdata);
-
-            const result = formatMarkdown(itemdata.id, itemdata.productId, itemdata.taxonomy, itemdata.bundledItems);
-            const bodyContentContainer = result[0];
-            const bodyContentMarkdown = result[1];
-            const fullCopyableData = result[2];
-
-            const copyHtmlBtn = createButton(await t('viewid.popup.button.copyMd'), 'secondary', {
-                onClick: async () => {
-                    await navigator.clipboard.writeText(bodyContentMarkdown);
-                },
-                id: "rovalra-viewid-button-sec"
-            })
-
-            const copyDataBtn = createButton(await t('viewid.popup.button.copy'), 'primary', {
-                onClick: async () => {
-                    await navigator.clipboard.writeText(fullCopyableData);
-                },
-                id: "rovalra-viewid-button-main"
-            })
-
-            const overlay = createOverlay(
-                {
-                    title: await t(`viewid.popup.title`),
-                    bodyContent: bodyContentContainer,
-                    showLogo: true,
-                    actions: [copyDataBtn, copyHtmlBtn],
-                    onClose: () => { },
-                }
-            );
+            await HandleMessage(request);
         }
     });
 
     document.addEventListener(
         'mousedown',
-        async (e) => {
-            if (e.button !== 2) return;
-
-            const link = e.target?.closest('a');
-            const ids = [];
-            const translation = await t("viewid.viewId");
-
-            if (link) {
-                const url = link.href;
-
-                const bundleMatch = url.match(/\/bundles\/(\d+)/);
-                const catalogMatch = url.match(/\/catalog\/(\d+)/);
-                const gamePassMatch = url.match(/\/game-pass\/(\d+)/);
-                const badgeMatch = url.match(/\/badges\/(\d+)/);
-                const groupMatch = url.match(/\/(?:groups|communities)\/(\d+)/);
-                const eventMatch = url.match(/\/events\/(\d+)/);
-                const devProductMatch = url.match(
-                    /\/developer-product\/\d+\/product\/(\d+)/,
-                );
-
-                let targetId;
-
-                if (bundleMatch) {
-                    ids.push(bundleMatch[1]);
-                } else if (catalogMatch) {
-                    ids.push(catalogMatch[1]);
-                } else if (gamePassMatch) {
-                    ids.push(gamePassMatch[1]);
-                } else if (badgeMatch) {
-                    ids.push(badgeMatch[1]);
-                } else if (groupMatch) {
-                    ids.push(groupMatch[1]);
-                } else if (eventMatch) {
-                    ids.push(eventMatch[1]);
-                } else if (devProductMatch) {
-                    ids.push(devProductMatch[1]);
-                } else {
-                    const assetId = getAssetIdFromUrl(url);
-                    if (assetId)
-                        ids.push(assetId);
-                }
-            }
-
-            chrome.runtime.sendMessage({
-                action: 'updateContextMenu',
-                feature: 'viewid',
-                ids: ids,
-                data: {
-                    title: translation
-                }
-            });
-        },
+        OnMouseDown,
         { capture: true },
     );
 }
