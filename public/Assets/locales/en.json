@@ -408,7 +408,35 @@
             "contributionCount_other": "Contributed to {{count}} features",
             "backendContributorsNote": "These people helped with non feature related things.",
             "loadingContributors": "Loading...",
-            "failedToLoadContributors": "Failed to load contributors."
+            "failedToLoadContributors": "Failed to load contributors.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Added translator badge and WoozyNate badge",
+                    "nateGilbertFix": "Fix nates badge to be gilbert again"
+                },
+                "caching": {
+                    "hashmap": "Added hashmap to the cache handler"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Fixed the sidebar for a Roblox update"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "Fixed RBXM parser desync and CFRAME format"
+                },
+                "markdown": {
+                    "untrustedMd": "Added limited markdown parser for untrusted users"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Added unified settings API"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Improved credits in the contributor list",
+                    "nonSettingCredits": "Add credits for features and improvements that don't have their own settings"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Added new indicators for donator tiers"
+                }
+            }
         },
         "donatorPerks": {
             "title": "Donator Perks!",

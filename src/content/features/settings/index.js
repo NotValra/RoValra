@@ -74,6 +74,7 @@ import {
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -1110,6 +1111,14 @@ function getContributorContributionCounts() {
     Object.values(SETTINGS_CONFIG).forEach((category) => {
         Object.values(category.settings || {}).forEach(countSetting);
     });
+
+    Object.values(OTHER_CONTRIBUTIONS).forEach((category) => {
+        const contributors = category.contributors;
+        for (const contributor of contributors) {
+            const id = contributor.userId;
+            if (counts.has(id)) counts.set(id, counts.get(id) + 1);
+        }
+    })
 
     return counts;
 }
