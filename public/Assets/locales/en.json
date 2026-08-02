@@ -1051,7 +1051,7 @@
     },
     "friendUsernames": {
         "ariaLabel": "Username: @{{username}}",
-        "serverTooltip": "{{displayName}} (@{{username}})"
+        "nameWithUsername": "{{displayName}} (@{{username}})"
     },
     "placeVisits": {
         "label": "{{count}} Place Visits",

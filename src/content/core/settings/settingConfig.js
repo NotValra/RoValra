@@ -1164,7 +1164,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Show Usernames On Friend Cards',
                 description: [
                     "Shows a friend's @username below their display name on the Home page.",
-                    "Also shows the username in a tooltip when hovering a friend's avatar in 'Servers My Friends Are In'.",
+                    "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
                 ],
                 type: 'checkbox',
                 default: false,

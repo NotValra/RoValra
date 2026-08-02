@@ -12,11 +12,15 @@ import {
 
 const USERNAME_WRAPPER_CLASS = 'rovalra-friend-username-wrapper';
 const USERNAME_LABEL_CLASS = 'rovalra-friend-username-label';
+const USERNAME_INLINE_CLASS = 'rovalra-friend-username-inline';
 const SERVER_FRIEND_AVATAR_SELECTOR =
     '.rbx-friends-game-server-item .player-thumbnails-container .avatar-card-link[href*="/users/"]';
+const SERVER_FRIEND_NAME_SELECTOR =
+    '.rbx-friends-game-server-item a.text-name[href*="/users/"]';
 
 let cardUnsubscribe = null;
 let serverAvatarObserverStarted = false;
+let serverNameObserverStarted = false;
 
 function isOnFriendsListPage() {
     return (
@@ -88,6 +92,65 @@ function setupCardUsernames() {
     cardUnsubscribe = onUserCardElement(applyCardUsernameLabel);
 }
 
+function formatNameWithUsername(userData) {
+    return userData.displayName && userData.displayName !== userData.name
+        ? ts('friendUsernames.nameWithUsername', {
+              displayName: userData.displayName,
+              username: userData.name,
+          })
+        : `@${userData.name}`;
+}
+
+// The friend names Roblox renders next to a server only show the display name,
+// so the username gets appended behind it as "DisplayName (@username)".
+function applyServerFriendName(link, userId) {
+    const applyKey = `${userId}|${link.textContent.trim()}`;
+    if (link.dataset.rovalraFriendUsernameName === applyKey) return;
+    link.dataset.rovalraFriendUsernameName = applyKey;
+
+    getUserFullData(userId)
+        .then((userData) => {
+            if (!userData?.name || !link.isConnected) return;
+            if (getUserIdFromUrl(link.href) !== userId) return;
+
+            const existing = link.querySelector(`.${USERNAME_INLINE_CLASS}`);
+            if (userData.displayName && userData.displayName !== userData.name) {
+                const usernameEl = existing || document.createElement('span');
+                usernameEl.className = USERNAME_INLINE_CLASS;
+                usernameEl.textContent = ` (@${userData.name})`;
+                if (!existing) link.appendChild(usernameEl);
+            } else {
+                existing?.remove();
+            }
+
+            link.dataset.rovalraFriendUsernameName = `${userId}|${link.textContent.trim()}`;
+            link.setAttribute('aria-label', formatNameWithUsername(userData));
+        })
+        .catch((error) => {
+            delete link.dataset.rovalraFriendUsernameName;
+            console.warn(
+                'RoValra: Failed to render server friend username',
+                userId,
+                error,
+            );
+        });
+}
+
+function setupServerFriendNames() {
+    if (serverNameObserverStarted) return;
+    serverNameObserverStarted = true;
+
+    observeElement(
+        SERVER_FRIEND_NAME_SELECTOR,
+        (link) => {
+            const userId = getUserIdFromUrl(link.href);
+            if (!userId) return;
+            applyServerFriendName(link, userId);
+        },
+        { multiple: true },
+    );
+}
+
 function setupServerFriendTooltips() {
     if (serverAvatarObserverStarted) return;
     serverAvatarObserverStarted = true;
@@ -109,13 +172,7 @@ function setupServerFriendTooltips() {
             getUserFullData(userId).then((userData) => {
                 if (!userData?.name || !link.isConnected) return;
 
-                const text =
-                    userData.displayName && userData.displayName !== userData.name
-                        ? ts('friendUsernames.serverTooltip', {
-                              displayName: userData.displayName,
-                              username: userData.name,
-                          })
-                        : `@${userData.name}`;
+                const text = formatNameWithUsername(userData);
 
                 link.dataset.rovalraFriendUsernameText = text;
                 link.setAttribute('aria-label', text);
@@ -130,4 +187,5 @@ export async function init() {
 
     setupCardUsernames();
     setupServerFriendTooltips();
+    setupServerFriendNames();
 }
