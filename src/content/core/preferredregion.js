@@ -188,7 +188,9 @@ export async function performJoinAction(
             let rovalraResult = null;
 
             if (useRobloxLatencyForAutomatic) {
-                updateLoadingOverlayText('Finding the lowest-latency server...');
+                updateLoadingOverlayText(
+                    'Finding the lowest-latency server...',
+                );
                 const latencyCandidate =
                     await ClosestServer.findServerViaRobloxLatencyApi(
                         placeId,
@@ -202,7 +204,7 @@ export async function performJoinAction(
                 }
             }
 
-            if (runManualScan) {
+            if (runManualScan && !useRobloxLatencyForAutomatic) {
                 updateLoadingOverlayText(`Searching in ${shortTargetName}...`);
                 rovalraResult = await ClosestServer.findServerViaRovalraApi(
                     placeId,
