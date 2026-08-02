@@ -73,19 +73,19 @@ $prefix: rovalra-sendrobux;
                 & > .#{$prefix}-quick-btn {
                     border-radius: 8px;
                     padding: 10px;
-                    background-color: #2d2e36;
+                    background-color: var(--color-surface-200, #2d2e36);
                     border-width: 2px;
                     border-style: solid;
-                    border-color: #2d2e36;
+                    border-color: var(--color-surface-200, #2d2e36);
 
                     &:hover {
-                        background-color: #2a2b32;
-                        background-color: #2a2b32;
+                        background-color: var(--color-surface-300, #2a2b32);
+                        border-color: var(--color-surface-300, #2a2b32);
                     }
 
                     &.selected {
-                        background-color: #18191d;
-                        border-color: #bbbbbb;
+                        background-color: var(--color-surface-0, #18191d);
+                        border-color: var(--color-system-contrast, #bbbbbb);
                     }
                 }
             }
@@ -94,10 +94,10 @@ $prefix: rovalra-sendrobux;
                 position: absolute;
                 bottom: 32px;
                 left: 24px;
-                color: #a0a0a0;
+                color: var(--color-content-muted, #a0a0a0);
 
                 &.error {
-                    color: #f45b52;
+                    color: var(--color-system-alert, #f45b52);
                 }
             }
         }
@@ -130,7 +130,7 @@ $prefix: rovalra-sendrobux;
                 border-radius: 12px;
                 padding: 10px;
                 padding-top: 24px;
-                background-color: #1f2028;
+                background-color: var(--color-surface-200, #1f2028);
 
                 & .#{$prefix}-profile-info {
                     display: flex;
@@ -140,7 +140,7 @@ $prefix: rovalra-sendrobux;
 
                     & > span {
                         font-size: 14px;
-                        color: #c0c0c0;
+                        color: var(--color-content-muted, #c0c0c0);
                         & > svg {
                             width: 14px;
                             height: 14px;
@@ -173,11 +173,11 @@ $prefix: rovalra-sendrobux;
                 position: absolute;
                 bottom: 32px;
                 left: 24px;
-                color: #a0a0a0;
                 font-size: 12px;
+                color: var(--color-content-muted, #a0a0a0);
 
                 &.error {
-                    color: #f45b52;
+                    color: var(--color-system-alert, #f45b52);
                 }
             }
         }

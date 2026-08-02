@@ -168,6 +168,14 @@ export const SETTINGS_CONFIG = {
                         showFlags: true,
                         default: 'AUTO',
                     },
+                    preferredRegionUseRobloxLatency: {
+                        label: 'Prioritize biggest servers when using Automatic Mode',
+                        description: [
+                            'This makes preferred region join the servers closest to you with the most players',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             QuickPlayEnable: {
@@ -230,7 +238,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Always Get Server Info',
                         description: [
                             'This will always get the server info, even if no server data is available.',
-                            'It has a very small change to get inaccurate information.',
+                            'It has a very small chance to get inaccurate information.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -658,14 +666,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            currentlyPlayingLinkEnabled: {
-                label: 'Clickable Currently Playing Card',
-                description: [
-                    'Makes the currently playing experience card on profiles link directly to the experience the user is playing.',
-                ],
-                type: 'checkbox',
-                default: true,
-            },
+
             chatEligibilityTooltipEnabled: {
                 label: 'Chat Eligibility Tooltip',
                 description: [
@@ -1592,11 +1593,9 @@ export const SETTINGS_CONFIG = {
                 label: 'Free Roblox Plus Themes',
                 description: [
                     'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
-                    'This also enables the Roblox Plus theme selector early which you can find here https://www.roblox.com/my/account#!/browser-preferences',
                 ],
                 type: 'checkbox',
                 default: false,
-                experimental: 'Can be buggy and may break.',
                 contributors: ['447170745', '4866259395'],
             },
             currencyTransferEnabled: {
@@ -2236,15 +2235,7 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            friendGameLinkEnabled: {
-                label: 'Clickable Friend Currently Playing Card',
-                description: [
-                    'Makes the currently playing experience card in friend hover cards link directly to the experience the user is playing.',
-                ],
-                contributors: ['2963377564'],
-                type: 'checkbox',
-                default: true,
-            },
+
             settingChangeNote: {
                 label: 'Setting changes alerts',
                 description: [

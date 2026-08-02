@@ -14,6 +14,7 @@ const FRIENDS_DATA_KEY = 'rovalra_friends_data';
 const FRIENDS_DATA_VERSION = 5;
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
+const TRUSTED_FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export function getFriendRequestOriginText(originId) {
     const fromText = ts('friendsSince.originFrom');
@@ -441,6 +442,7 @@ export async function updateFriendsList(userId) {
             friendsCount: friendsCount ?? fullFriendsList.length,
             lastChecked: Date.now(),
             lastOnlineChecked: Date.now(),
+            lastTrustedChecked: Date.now(),
         };
         await new Promise((resolve) =>
             chrome.storage.local.set(
@@ -533,6 +535,38 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
     }
 }
 
+async function updateTrustedFriendsOnly(userId, currentFriendsList) {
+    try {
+        const trustedIds = await fetchAllTrustedFriends(userId);
+        const updatedList = currentFriendsList.map((friend) => ({
+            ...friend,
+            isTrusted: trustedIds.has(friend.id),
+        }));
+
+        const storageResult = await new Promise((resolve) =>
+            chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+        );
+        const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
+        allUsersFriendsData[userId] = {
+            ...allUsersFriendsData[userId],
+            friendsList: updatedList,
+            lastTrustedChecked: Date.now(),
+        };
+
+        await new Promise((resolve) =>
+            chrome.storage.local.set(
+                { [FRIENDS_DATA_KEY]: allUsersFriendsData },
+                resolve,
+            ),
+        );
+
+        return updatedList;
+    } catch (error) {
+        console.error('RoValra: Failed to update trusted friends', error);
+        return currentFriendsList;
+    }
+}
+
 export async function getFriendsList() {
     const userId = await getAuthenticatedUserId();
     if (!userId) return [];
@@ -555,6 +589,9 @@ export async function getFriendsList() {
     const needsOnlineRefresh =
         now - (currentUserData.lastOnlineChecked || 0) >
         ONLINE_STATUS_CACHE_DURATION;
+    const needsTrustedRefresh =
+        now - (currentUserData.lastTrustedChecked || 0) >
+        TRUSTED_FRIENDS_CACHE_DURATION;
 
     if (needsFullRefresh) {
         const friendsChanged = await refreshFriendsCountIfNeeded(
@@ -567,7 +604,14 @@ export async function getFriendsList() {
     }
 
     if (needsOnlineRefresh) {
-        return await updateOnlineStatusOnly(
+        currentUserData.friendsList = await updateOnlineStatusOnly(
+            userId,
+            currentUserData.friendsList,
+        );
+    }
+
+    if (needsTrustedRefresh) {
+        return await updateTrustedFriendsOnly(
             userId,
             currentUserData.friendsList,
         );
@@ -614,7 +658,18 @@ export function initFriendsListTracking() {
                     ONLINE_STATUS_CACHE_DURATION;
 
                 if (needsOnlineRefresh) {
-                    await updateOnlineStatusOnly(
+                    currentUserData.friendsList = await updateOnlineStatusOnly(
+                        userId,
+                        currentUserData.friendsList,
+                    );
+                }
+
+                const needsTrustedRefresh =
+                    now - (currentUserData.lastTrustedChecked || 0) >
+                    TRUSTED_FRIENDS_CACHE_DURATION;
+
+                if (needsTrustedRefresh) {
+                    await updateTrustedFriendsOnly(
                         userId,
                         currentUserData.friendsList,
                     );

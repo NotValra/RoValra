@@ -16,6 +16,127 @@
     align-items: stretch;
 }
 
+.rovalra-showcase-grid > .rovalra-showcase-decal-section {
+    grid-column: 1 / -1;
+}
+
+.rovalra-showcase-decal-card {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px;
+    min-height: 0;
+    max-height: none !important;
+}
+
+.rovalra-showcase-grid .rovalra-showcase-decal-card {
+    width: fit-content;
+    max-width: 100%;
+    height: auto;
+}
+
+.rovalra-showcase-loading-card {
+    min-height: 150px;
+}
+
+.rovalra-showcase-loading-thumbnail {
+    width: 220px;
+    min-width: 220px;
+    height: 126px;
+    border-radius: 8px;
+}
+
+.rovalra-showcase-loading-group {
+    width: 126px;
+    min-width: 126px;
+    height: 126px;
+    border-radius: 10px;
+}
+
+.rovalra-showcase-loading-details {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+}
+
+.rovalra-showcase-loading-line {
+    height: 14px;
+    max-width: 240px;
+    border-radius: 4px;
+}
+
+.rovalra-showcase-loading-card.rovalra-showcase-decal-card {
+    width: 100%;
+    height: 200px;
+    align-items: stretch;
+}
+
+.rovalra-showcase-loading-image {
+    width: min(100%, 720px);
+    height: 100%;
+    border-radius: 8px;
+}
+
+@keyframes rovalra-showcase-shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+    100% {
+        background-position: 400px 0;
+    }
+}
+
+.rovalra-showcase-content .shimmer {
+    background: linear-gradient(
+        90deg,
+        var(--color-common-shimmer) 25%,
+        rgba(255, 255, 255, 0.12) 50%,
+        var(--color-common-shimmer) 75%
+    );
+    background-size: 800px 100%;
+    animation: rovalra-showcase-shimmer 1.4s infinite linear;
+}
+
+.rovalra-showcase-decal-image-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    height: auto;
+    padding: 10px;
+    margin-inline: 0;
+    overflow: hidden;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+}
+
+.rovalra-showcase-decal-thumbnail {
+    display: block;
+    width: auto !important;
+    height: auto !important;
+    max-width: min(720px, 100%) !important;
+    max-height: min(65vh, 405px) !important;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 8px;
+    background: var(--rovalra-container-background-color);
+}
+
+.rovalra-showcase-decal-input {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.rovalra-showcase-decal-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .rovalra-showcase-grid > .rovalra-showcase-section {
     height: 100%;
 }
@@ -236,6 +357,14 @@
 @media (max-width: 600px) {
     .rovalra-showcase-grid {
         grid-template-columns: 1fr;
+    }
+
+    .rovalra-showcase-grid > .rovalra-showcase-decal-section {
+        grid-column: auto;
+    }
+
+    .rovalra-showcase-decal-image-frame {
+        width: 100%;
     }
 
     .rovalra-showcase-game {

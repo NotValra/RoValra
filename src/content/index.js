@@ -43,7 +43,6 @@ import { init as initCustomRobloxBanner } from './features/sitewide/customRoblox
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
-import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
@@ -137,7 +136,6 @@ import { init as initLastPlayed } from './features/profile/header/lastplayed.js'
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
 import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
-import { init as initCurrentlyPlayingLink } from './features/profile/header/currentlyPlayingLink.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
@@ -231,7 +229,6 @@ const featureRoutes = [
             initSidebarCollapse,
             initSidebarLayout,
             initTopbarLayout,
-            initFriendGameLink,
             initFriendUsernames,
             initWideTilePlayerCounts,
             initBackgroundImage,
@@ -369,7 +366,6 @@ const featureRoutes = [
             initProfilePronouns,
             initProfileNotes,
             initProfileViews,
-            initCurrentlyPlayingLink,
             initCurrentlyPlayingSubplace,
             initGroupRole,
             initCurrencyTransfer,
@@ -634,7 +630,6 @@ async function handleUrlChange() {
 
         runFeaturesForPage();
         window.dispatchEvent(new CustomEvent('rovalra:urlChanged'));
-
     }
 }
 

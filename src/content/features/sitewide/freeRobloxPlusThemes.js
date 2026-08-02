@@ -1,3 +1,6 @@
+import { observeElement } from '../../core/observer.js';
+import { getAssets } from '../../core/assets.js';
+import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { callRobloxApi } from '../../core/api.js';
 import {
@@ -10,10 +13,57 @@ const SESSION_SETTING_KEY = 'rovalra_freeRobloxPlusThemes';
 const CACHE_SECTION = 'freeRobloxPlusThemes';
 const CACHE_KEY = 'userSettings';
 const CACHE_TTL_MS = 5 * 60 * 1000;
+const THEME_SECTION_SELECTOR = '.app-theme-section';
+const NOTICE_ID = 'rovalra-free-roblox-plus-themes-notice';
 
 let injectedThemeClass = null;
 let initialized = false;
 let accountThemeRequest = null;
+let themeSectionObserver = null;
+
+async function addThemeNotice(themeSection) {
+    if (!(themeSection instanceof Element)) return;
+
+    const existingNotice = themeSection.querySelector(`#${NOTICE_ID}`);
+    if (existingNotice) return;
+
+    const notice = document.createElement('p');
+    notice.id = NOTICE_ID;
+    notice.className =
+        'flex items-center gap-small text-body-medium content-muted margin-none';
+
+    const logo = document.createElement('img');
+    logo.dataset.rovalraAsset = 'rovalraIcon';
+    logo.src = getAssets().rovalraIcon;
+    logo.alt = 'RoValra';
+    logo.width = 24;
+    logo.height = 24;
+    logo.className = 'shrink-0 radius-small';
+
+    const text = document.createElement('span');
+    notice.append(logo, text);
+
+    const themeControls = themeSection.querySelector('[role="group"]');
+    (themeControls || themeSection).before(notice);
+
+    text.textContent = await t('freeRobloxPlusThemes.notice');
+}
+
+function observeThemeSection(themeSection) {
+    if (themeSectionObserver) themeSectionObserver.disconnect();
+
+    const ensureNotice = () => {
+        addThemeNotice(themeSection).catch((error) =>
+            console.warn('RoValra: Failed to add the theme notice.', error),
+        );
+    };
+
+    ensureNotice();
+
+    const observer = new MutationObserver(ensureNotice);
+    observer.observe(themeSection, { childList: true, subtree: true });
+    themeSectionObserver = observer;
+}
 
 function getThemeClass(accountTheme) {
     if (
@@ -145,6 +195,13 @@ function publishInitialSettingState(enabled) {
 export function init() {
     if (initialized) return;
     initialized = true;
+
+    observeElement(THEME_SECTION_SELECTOR, observeThemeSection, {
+        onRemove: () => {
+            themeSectionObserver?.disconnect();
+            themeSectionObserver = null;
+        },
+    });
 
     settings[SETTING_NAME].then((enabled) => {
         setEnabled(enabled);

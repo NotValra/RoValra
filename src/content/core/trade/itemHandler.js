@@ -61,7 +61,6 @@ export async function fetchRolimonsItems(ids) {
             const response = await callRobloxApi({
                 isRovalraApi: true,
                 endpoint: '/v1/rolimons/limiteds',
-                noCache: true,
             });
             if (!response.ok) return;
 

@@ -1,5 +1,27 @@
 // Everything thumbnail related should go through this.
 
+// Thumbnail sizes - Gemini LOL so if any are wrong that would be why
+/*
+30x30
+42x42
+50x50
+60x62
+75x75
+110x110
+140x140
+150x150
+160x100
+160x600
+250x250
+300x250
+352x352
+420x420
+480x270
+512x512
+728x90
+768x432
+*/
+
 import { callRobloxApi } from '../api.js';
 import { getUserAvatar } from '../apis/avatar.js';
 
@@ -153,7 +175,8 @@ async function fetchBatchData(
     const ids = batch.map((item) => item.id).join(',');
 
     try {
-        let endpointUrl = `${mapping.path}?${mapping.idParam}=${ids}&size=${size}&format=Png&returnPolicy=PlaceHolder`;
+        const format = type === 'Asset' ? 'webp' : 'Png';
+        let endpointUrl = `${mapping.path}?${mapping.idParam}=${ids}&size=${size}&format=${format}&returnPolicy=PlaceHolder`;
         if (isCircular) endpointUrl += `&isCircular=true`;
 
         const response = await callRobloxApi({

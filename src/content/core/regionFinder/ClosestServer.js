@@ -175,6 +175,66 @@ export async function fetchServerRegion(server, placeId) {
     return null;
 }
 
+export async function findServerViaRobloxLatencyApi(
+    placeId,
+    joinedServerIds,
+    userRequestedStopCheck,
+) {
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'games',
+            endpoint: `/v2/games/${placeId}/servers/Public?cursor=&sortOrder=Desc&excludeFullGames=true&orderBy=BestLatency`,
+        });
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        const candidates = (data.data || []).filter((server) => {
+            const serverId = server.id || server.server_id;
+            return (
+                serverId &&
+                !joinedServerIds.has(serverId) &&
+                Number(server.playing) < Number(server.maxPlayers)
+            );
+        });
+        if (!candidates.length || userRequestedStopCheck?.()) return null;
+
+        for (const candidate of candidates.slice(0, 10)) {
+            if (userRequestedStopCheck?.()) return null;
+
+            const serverId = candidate.id || candidate.server_id;
+            try {
+                const joinResponse = await callRobloxApi({
+                    subdomain: 'gamejoin',
+                    endpoint: '/v2/join-game-instance',
+                    method: 'POST',
+                    body: {
+                        placeId: parseInt(placeId, 10),
+                        gameId: serverId,
+                        gameJoinAttemptId: crypto.randomUUID(),
+                    },
+                });
+
+                if (joinResponse.ok) {
+                    const joinInfo = await joinResponse.json();
+                    if (joinInfo.joinScript) {
+                        return {
+                            ...candidate,
+                            id: serverId,
+                            maxPlayers:
+                                candidate.maxPlayers || candidate.max_players,
+                        };
+                    }
+                }
+            } catch (error) {}
+        }
+
+        return null;
+    } catch (error) {
+        console.warn('Roblox BestLatency server search failed:', error);
+        return null;
+    }
+}
+
 export async function findServerViaRovalraApi(
     placeId,
     universeId,

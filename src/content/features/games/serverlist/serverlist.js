@@ -191,6 +191,7 @@ const SHARED_STYLES = `
 export const _state = {
     serverIpMap: null,
     serverLocations: {},
+    serverStatuses: {},
     serverUptimes: {},
     serverPerformanceCache: {},
     vipStatusCache: {},
@@ -730,6 +731,7 @@ export function processUptimeBatch() {
             batch,
             _state.serverLocations,
             _state.serverUptimes,
+            _state.serverStatuses,
         ).catch(() => {});
     } catch (e) {}
 }
@@ -887,6 +889,7 @@ function initializeEnhancementObserver() {
             try {
                 enhanceServer(el, {
                     serverLocations: _state.serverLocations,
+                    serverStatuses: _state.serverStatuses,
                     serverUptimes: _state.serverUptimes,
                     serverPerformanceCache: _state.serverPerformanceCache,
                     vipStatusCache: _state.vipStatusCache,
@@ -905,7 +908,6 @@ try {
         try {
             const detail = event && event.detail;
             if (!detail) return;
-            const placeId = getPlaceIdFromUrl();
             const data = detail.data || detail;
             const serversArray = Array.isArray(data.data)
                 ? data.data
@@ -950,29 +952,60 @@ try {
                         `[data-rovalra-serverid="${serverId}"]`,
                     );
                     if (serverElement) {
+                        serverElement._rovalraApiData = serverData;
+                        serverElement.setAttribute('data-rovalra-api', '1');
+
+                        const playing = serverData.playing;
+                        const maxPlayers =
+                            serverData.maxPlayers ?? serverData.max_players;
                         if (
-                            serverElement.querySelector(
-                                '.rovalra-unknown-count-icon',
-                            )
+                            typeof playing === 'number' &&
+                            typeof maxPlayers === 'number'
                         ) {
-                            const newCard = await createServerCardFromApi(
-                                serverData,
-                                placeId,
-                            );
-                            if (newCard) {
-                                serverElement.replaceWith(newCard);
+                            const status =
+                                serverElement.querySelector('.rbx-game-status');
+                            if (status) {
+                                status.textContent = await t(
+                                    'serverList.peopleMax',
+                                    { playing, maxPlayers },
+                                );
                             }
-                        } else {
-                            if (typeof fps === 'number') {
-                                try {
-                                    displayPerformance(
-                                        serverElement,
-                                        fps,
-                                        _state.serverLocations,
-                                    );
-                                } catch (e) {}
+
+                            const gauge =
+                                serverElement.querySelector('.gauge-inner-bar');
+                            if (gauge) {
+                                gauge.style.width = `${Math.min(
+                                    100,
+                                    (playing / maxPlayers) * 100,
+                                )}%`;
                             }
+
+                            serverElement
+                                .querySelector('.rovalra-unknown-count-icon')
+                                ?.remove();
                         }
+
+                        if (typeof fps === 'number') {
+                            try {
+                                displayPerformance(
+                                    serverElement,
+                                    fps,
+                                    _state.serverLocations,
+                                );
+                            } catch (e) {}
+                        }
+
+                        const placeVersion =
+                            serverData.placeVersion ?? serverData.place_version;
+                        if (placeVersion != null) {
+                            displayPlaceVersion(
+                                serverElement,
+                                placeVersion,
+                                _state.serverLocations,
+                            );
+                        }
+
+                        enhanceServer(serverElement, _state).catch(() => {});
                     }
                 }
             })();

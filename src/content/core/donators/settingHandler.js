@@ -127,6 +127,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !extractProfilePronouns(apiSettings) &&
                 !Number(apiSettings.fav_game) &&
                 !Number(apiSettings.fav_group) &&
+                !Number(apiSettings.fav_decal) &&
                 Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
@@ -187,6 +188,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
             apiSettings.anonymous_leaderboard === true,
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
+        fav_decal: Number(apiSettings.fav_decal) || 0,
     };
 }
 
@@ -337,6 +339,7 @@ async function processApiSettings(userId, apiSettings, options) {
             !extractProfilePronouns(apiSettings) &&
             !Number(apiSettings.fav_game) &&
             !Number(apiSettings.fav_group) &&
+            !Number(apiSettings.fav_decal) &&
             Object.keys(apiSettings).length <= 4
         ) {
             apiProvidedMeaningfulSettings = false;
@@ -393,6 +396,7 @@ async function processApiSettings(userId, apiSettings, options) {
             apiSettings.anonymous_leaderboard === true,
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
+        fav_decal: Number(apiSettings.fav_decal) || 0,
     };
 }
 

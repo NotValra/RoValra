@@ -1,4 +1,7 @@
 {
+    "freeRobloxPlusThemes": {
+        "notice": "Select and use any theme without Roblox Plus."
+    },
     "items": {
         "hiddenFromMarketplace": "This item is hidden from the marketplace"
     },
@@ -1063,16 +1066,24 @@
         "tab": "Showcase",
         "favoriteGame": "Favourite experience",
         "favoriteGroup": "Favourite community",
+        "favoriteDecal": "Art Showcase",
         "chooseGame": "Choose an experience to feature on your profile.",
         "noFeaturedGame": "No featured experience yet. :C",
         "chooseGroup": "Choose a community to feature on your profile.",
         "noFeaturedGroup": "No featured community yet. :,(",
+        "chooseDecal": "Enter a decal ID to feature an image on your profile.",
+        "noFeaturedDecal": "No featured image yet. :C",
         "searchGame": "Search for an experience to feature",
         "searchGroup": "Search for a community to feature",
         "clearGame": "Clear favourite experience",
         "clearGroup": "Clear favourite community",
         "gameOptions": "Favourite experience options",
         "groupOptions": "Favourite community options",
+        "decalId": "Decal ID",
+        "decalImageOptions": "Image options",
+        "openImagePage": "Open image page",
+        "report": "Report",
+        "clearDecal": "Clear Image",
         "by": "By",
         "maturity": "Maturity",
         "maturityUnavailable": "Maturity unavailable",
