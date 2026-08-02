@@ -230,14 +230,18 @@ body.rovalra-settings-page {
 
     .rovalra-contributors-item {
         padding-left: 4px;
-    }
-
-    .rovalra-contributor-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
         width: 100%;
+    }
+
+    .rovalra-contributor-row {
+        //display: flex;
+        //align-items: center;
+        //justify-content: space-between;
+        gap: 12px;
+        //width: 100%;
         padding: 8px 12px;
         border-radius: 8px;
         background-color: var(
@@ -263,9 +267,15 @@ body.rovalra-settings-page {
     }
 
     .rovalra-contributor-count {
+        display: inline;
         flex-shrink: 0;
         color: var(--rovalra-secondary-text-color);
         font-size: 13px;
+        transition: color 0.4s ease;
+    }
+    
+    .rovalra-contributor-count:hover {
+        color: rgb(194, 223, 250);
     }
 
     .rovalra-contributor-loading-row {

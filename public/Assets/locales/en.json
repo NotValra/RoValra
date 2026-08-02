@@ -436,6 +436,14 @@
                 "donatorTierPage": {
                     "newIndicators": "Added new indicators for donator tiers"
                 }
+            },
+            "ui": {
+                "popup": {
+                    "title": "{{user}}'s Contributions",
+                    "contributor": "Contributor",
+                    "featureName": "Feature",
+                    "featureKey": "(Dev) Feature Key"
+                }
             }
         },
         "donatorPerks": {
