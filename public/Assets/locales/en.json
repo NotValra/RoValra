@@ -394,6 +394,8 @@
         },
         "credits": {
             "contributorsTitle": "Contributors",
+            "featureCount_one": "{{count}} feature",
+            "featureCount_other": "{{count}} features",
             "contributorTooltips": {
                 "146089324": "WoozyNate made fisch, which is where the old RoValra logo is from. You should check out fisch!",
                 "1337447242": "Made the new logo and all store page images.",
