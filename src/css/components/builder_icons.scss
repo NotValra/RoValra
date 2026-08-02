@@ -1,4 +1,5 @@
 @use "sass:map";
+//@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap');
 
 $gh-raw-domain: 'raw.githubusercontent.com';
 $git-repo: 'MaximumADHD/Roblox-Client-Tracker';
@@ -88,12 +89,39 @@ icon {
     line-height: 1;
     font-style: normal;
     user-select: none;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Support for IE. */
+    font-feature-settings: 'liga';
 
     font-family: 'BuilderIcons-Regular' !important;
 
     &[filled], &[fill] {
         font-family: 'BuilderIcons-Filled' !important;
     }
+
+    &[material] {
+        font-family: 'Material Icons Outlined' !important;
+
+        &[filled], &[fill] {
+            font-family: 'Material Icons' !important;
+        }
+    }
+
+
 
     @each $preset in $preset-sizes {
         $variable: map.get($preset, 'roblox-variable');

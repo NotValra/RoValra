@@ -1870,8 +1870,6 @@ export const SETTINGS_CONFIG = {
                             'This will be overridden by the Hide The Badge setting',
                         ],
                         type: 'input',
-                        maxLength: 30,
-                        showCharacterCount: true,
                         default: null,
                         contributors: ['10646979010', '1564574922'],
                     },

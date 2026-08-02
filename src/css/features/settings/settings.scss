@@ -679,27 +679,17 @@ body.rovalra-settings-page {
         text-decoration: underline;
     }
 
-    a.rovalra-discord-link {
-        color: #3479b7 !important;
-    }
-    a.rovalra-roblox-link {
-        color: #c13ad9 !important;
-    }
     a.rovalra-tiktok-link {
-        color: #b91e4dff !important;
-    }
-    a.rovalra-github-link {
-        color: #1e722a !important;
+        & > icon { /* the tiktok icon is very small so i made it large then put it back and aligned it with the other text */
+            transform: translate(-4px, 1px);
+            margin-right: -8px;
+        }
     }
     a.rovalra-review-link {
         color: #1976d2 !important;
     }
     a.rovalra-extension-link {
         color: #0066cc !important;
-    }
-    :root.dark-theme & a.rovalra-discord-link,
-    :root[data-theme='dark'] & a.rovalra-discord-link {
-        color: #7289da !important;
     }
 
     @media (max-width: 1000px) {

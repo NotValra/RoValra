@@ -615,14 +615,20 @@ async function initializePage() {
     builderIconsFill.as = 'font';
     builderIconsFill.type = 'font/ttf';
     builderIconsFill.crossOrigin = 'anonymous';
+    const googleIcons = document.createElement('link')
+    //https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap
+    googleIcons.rel = 'preload';
+    googleIcons.href = `https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap`;
+    googleIcons.rel = 'stylesheet';
+    googleIcons.crossOrigin = 'anonymous';
 
     if (document.head) {
-        document.head.append(builderIconsReg, builderIconsFill);
+        document.head.append(googleIcons, builderIconsReg, builderIconsFill);
     } else {
         const docObserverForHead = new MutationObserver((_, obs) => {
             if (document.head) {
                 obs.disconnect();
-                document.head.append(builderIconsReg, builderIconsFill);
+                document.head.append(googleIcons, builderIconsReg, builderIconsFill);
             }
         }); //Verified
         docObserverForHead.observe(document.documentElement, { childList: true });

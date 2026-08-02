@@ -28,6 +28,7 @@ interface Icon {
     icon: string,
     filled: boolean,
     size: Sizes,
+    material: boolean,
 }
 
 type IconInfo =  {
@@ -37,7 +38,8 @@ type IconInfo =  {
 type IconOptions = {
     filled?: boolean,
     size?: Sizes,
-    classes?: string | string[]
+    classes?: string | string[],
+    material?: boolean,
 } & Icon;
 
 function convertAlias(alias: Sizes | PresetSizeAlias): Sizes {
@@ -68,11 +70,14 @@ export function Icon({
     filled,
     size,
     classes,
+    material,
 }: IconOptions): HTMLElement {
     const iconElement = document.createElement('icon');
 
     if (filled)
         iconElement.toggleAttribute('filled');
+    if (material)
+        iconElement.toggleAttribute('material');
 
     if (typeof (classes) == 'string')
         iconElement.className = classes;
@@ -86,12 +91,49 @@ export function Icon({
     return iconElement;
 }
 
-export function GetIconInfo(icon: HTMLElement, shouldAlwaysReturnCSSLength = false): Readonly<IconInfo> {
+export function IconText({
+    icon,
+    filled,
+    size,
+    classes,
+    material
+}: IconOptions): string {
+    let iconElement = Icon({ icon, filled, size, classes, material });
 
+    return iconElement.outerHTML;
+}
+
+export function GetIconInfo(icon: HTMLElement, shouldAlwaysReturnCSSLength = false): Readonly<IconInfo> {
     return {
         icon: icon.textContent,
-        filled: icon.hasAttribute('filled'),
+        filled: icon.hasAttribute('filled') || icon.hasAttribute('fill'),
+        material: icon.hasAttribute('material'),
         size: shouldAlwaysReturnCSSLength ? `${icon.scrollHeight}px` : convertAlias((icon.getAttribute('size') || '1em') as PresetSizeAlias | Sizes),
         isIcon: icon.nodeName.toLowerCase() == 'icon',
     }
+}
+
+export function ChangeIcon(iconEl: HTMLElement, { icon, filled, size, material }: Partial<Icon> ): HTMLElement | null {
+    if (!iconEl || iconEl.nodeName.toLowerCase() != 'icon') return null;
+
+    if (icon) iconEl.textContent = DOMPurify.sanitize(icon);
+    if (filled && !iconEl.hasAttribute('filled')) {
+        iconEl.toggleAttribute('filled');
+        if (iconEl.hasAttribute('fill'))
+            iconEl.toggleAttribute('fill');
+    } else if (filled == false) {
+        if (iconEl.hasAttribute('fill'))
+            iconEl.toggleAttribute('fill');
+        if (iconEl.hasAttribute('filled'))
+            iconEl.toggleAttribute('filled');
+    }
+    if (material && !iconEl.hasAttribute('material')) {
+        iconEl.toggleAttribute('material');
+    } else if (material == false && iconEl.hasAttribute('material')) {
+        iconEl.toggleAttribute('material');
+    }
+
+    if (size) iconEl.setAttribute('size', size);
+
+    return iconEl;
 }

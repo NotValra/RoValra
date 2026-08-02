@@ -91,7 +91,8 @@ async function woah() {
         icon: 'tilt',
         filled: false,
         size: 'medium',
-        classes: 'woah-very-cool-class'
+        classes: 'woah-very-cool-class',
+        material: false,
     });
     document.appendChild(robloxTilt);
 }
@@ -125,6 +126,7 @@ To use sizes, simply use the size attribute like so
 
 You can use preset sizes like `x-small`, `small`, `medium`, `large`, `x-large`, and `xx-large`
 And you can use specific sizing too!
+You can also use material icons by adding the attribute material.
 
 If you need information about what Builder Icons exist, you can visit the [Builder Icons Viewer](https://kaan650.github.io/builder-icons/) by [@kann650](https://github.com/kann650)
 
