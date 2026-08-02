@@ -619,9 +619,8 @@ export function initNotificationCenter() {
         observeElement('.sendr-notification-container.ng-scope', (element) => {
             const notificationData = JSON.parse(element.getAttribute('notification-data'));
 
-            if (notificationData.content.notificationType != 'RobuxTransferReceived')
+            if (notificationData.content.notificationType != 'RobuxTransferReceived' || !notificationData.content.states.default.visualItems.button[1].actions[0].path.startsWith('roblox://navigation/currency_transfer'))
                 return;
-
 
             const childrenObserver = observeChildren(element, (child) => {
                 try {
