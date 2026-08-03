@@ -176,6 +176,15 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    preferredRegionLocalSearchEnabled: {
+                        label: 'Force Local Server Search',
+                        description: [
+                            'Searches Roblox servers locally instead of using RoValra to find servers by region.',
+                            '**This is NOT recommended for normal users, as it will be way slower**',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             QuickPlayEnable: {
