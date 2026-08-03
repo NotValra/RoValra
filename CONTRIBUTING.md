@@ -40,7 +40,7 @@ YourFeatureName: {
     // Any feature that is, experimental, a beta or deprecated should not be on by default.
     // childSettings: { ... } // If this setting has sub-settings
     // locked: 'Reason for locked', This is used to forcefully disable a feature, e.i if it broke.
-    //  isPermanent: true, tells the script if its locked permanently
+    // isPermanent: true, tells the script if its locked permanently
 }
 ```
 
@@ -129,6 +129,7 @@ And you can use specific sizing too!
 You can also use material icons by adding the attribute material.
 
 If you need information about what Builder Icons exist, you can visit the [Builder Icons Viewer](https://kaan650.github.io/builder-icons/) by [@kann650](https://github.com/kann650)
+If you need information about Material Icons, visit [Material Icons Library](https://fonts.google.com/icons?preview.script=Latn&icon.size=24&icon.color=%23e3e3e3&icon.set=Material%20Icons)
 
 When using DOMPurify, make sure to import `CUSTOM_ADDED_TAGS` and use the config in [src/content/core/utils/purifyCfg.js](src/content/core/utils/purifyCfg.js)
 If you want to see an example on how you use it look in [src/content/core/utils/markdown.js](./src/content/core/utils/markdown.js)
