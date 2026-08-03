@@ -153,10 +153,7 @@ async function addBadge() {
 }
 
 async function editBadge(text) {
-    const cleanText = DOMPurify.sanitize(String(text ?? ''), { ...CUSTOM_ADDED_TAGS }).slice(
-        0,
-        AGE_BADGE_TEXT_MAX_LENGTH,
-    );
+    const cleanText = DOMPurify.sanitize(String(text ?? ''), { ...CUSTOM_ADDED_TAGS })
     const elementsWithBadgeClass =
         document.getElementsByClassName(badgeClassToSelect);
     const badgeElement =

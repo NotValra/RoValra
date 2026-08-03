@@ -79,14 +79,14 @@ export function Icon({
     if (material)
         iconElement.toggleAttribute('material');
 
-    if (typeof (classes) == 'string')
+    if (typeof classes == 'string')
         iconElement.className = classes;
-    else if (typeof (classes) == 'object')
+    else if (typeof classes == 'object' && Array.isArray(classes))
         iconElement.classList.add(...classes);
 
     iconElement.setAttribute('size', size ?? '1em');
 
-    iconElement.innerHTML = DOMPurify.sanitize(icon);
+    iconElement.textContent = icon;
 
     return iconElement;
 }
