@@ -310,7 +310,7 @@ export async function addNavbarButton() {
                         item.activeStatus === 'PROGRAM_ACTIVE_STATUS_ALLOWLIST'
                     ) {
                         addPlatIcon(
-                            'list',
+                            'format_list_bulleted',
                             await t('betaPrograms.allowlist'),
                             false,
                             true
