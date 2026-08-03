@@ -15,6 +15,7 @@ import {
     REGIONS,
     getFullRegionName,
     getStateCodeFromRegion,
+    loadDatacenterMap,
 } from './regions.js';
 
 export { getStateCodeFromRegion };
@@ -127,9 +128,14 @@ export async function performJoinAction(
 
         const settings = await chrome.storage.local.get({
             preferredRegionUseRobloxLatency: true,
+            preferredRegionLocalSearchEnabled: false,
         });
+        const forceLocalSearch =
+            settings.preferredRegionLocalSearchEnabled === true;
         const useRobloxLatencyForAutomatic =
-            !preferredRegionCode && settings.preferredRegionUseRobloxLatency;
+            !forceLocalSearch &&
+            !preferredRegionCode &&
+            settings.preferredRegionUseRobloxLatency;
 
         await ClosestServer.dataPromise;
 
@@ -182,7 +188,9 @@ export async function performJoinAction(
         }
 
         let runManualScan = true;
-        let manualScanReason = `Region API unavailable. Scanning for ${shortTargetName}...`;
+        let manualScanReason = forceLocalSearch
+            ? `Scanning locally for ${shortTargetName}...`
+            : `Region API unavailable. Scanning for ${shortTargetName}...`;
 
         if (!userRequestedStop) {
             let rovalraResult = null;
@@ -204,7 +212,11 @@ export async function performJoinAction(
                 }
             }
 
-            if (runManualScan && !useRobloxLatencyForAutomatic) {
+            if (
+                runManualScan &&
+                !useRobloxLatencyForAutomatic &&
+                !forceLocalSearch
+            ) {
                 updateLoadingOverlayText(`Searching in ${shortTargetName}...`);
                 rovalraResult = await ClosestServer.findServerViaRovalraApi(
                     placeId,
@@ -238,6 +250,7 @@ export async function performJoinAction(
         }
 
         if (runManualScan && !joined && !userRequestedStop) {
+            await loadDatacenterMap();
             let effectiveMaxPages = MAX_SERVER_PAGES;
             if (
                 preferredRegionCode &&
@@ -412,7 +425,11 @@ export async function performJoinAction(
                 }
             }
 
-            if (preferredRegionCode && !userRequestedStop) {
+            if (
+                preferredRegionCode &&
+                !forceLocalSearch &&
+                !userRequestedStop
+            ) {
                 updateLoadingOverlayText(
                     `Searching for closest region to ${shortTargetName}...`,
                 );
