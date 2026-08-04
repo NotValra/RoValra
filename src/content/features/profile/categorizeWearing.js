@@ -423,6 +423,27 @@ function getCategoriesFromSection(section) {
     return categories;
 }
 
+function syncDiscoveredCategories() {
+    discoveredCategories.clear();
+
+    const grids = [
+        ['items', accessoriesGrid],
+        ['bodyParts', bodyPartsGrid],
+        ['animations', animationsGrid],
+        ['emotes', emotesGrid],
+        ['cosmetics', cosmeticsGrid],
+    ];
+
+    grids.forEach(([category, grid]) => {
+        if (grid?.children.length) discoveredCategories.add(category);
+    });
+
+    const cacheEntry = getWearingCacheEntry();
+    if (cacheEntry) {
+        cacheEntry.categories = new Set(discoveredCategories);
+    }
+}
+
 function restoreCachedWearingSection(userId, content, cached) {
     if (!cached?.section || !content) return false;
 
@@ -435,10 +456,7 @@ function restoreCachedWearingSection(userId, content, cached) {
 
     setCategorizedSectionRefs(cached.section);
     discoveredCategories.clear();
-    const categories =
-        cached.categories?.size > 0
-            ? cached.categories
-            : getCategoriesFromSection(cached.section);
+    const categories = getCategoriesFromSection(cached.section);
     categories.forEach((category) => discoveredCategories.add(category));
 
     currentFilter =
@@ -460,7 +478,7 @@ function restoreCachedWearingSection(userId, content, cached) {
         }
     }
 
-    updateTabVisibility(currentFilter);
+    refreshPillToggle();
     recalculateTotalPrice();
     activeWearingUserId = String(userId);
     return true;
@@ -808,15 +826,8 @@ export function addItemToCategoryView(itemEl, assetId) {
         });
         card.dataset.rovalraPendingId = assetId;
         targetGrid.appendChild(card);
-        if (!discoveredCategories.has(category)) {
-            discoveredCategories.add(category);
-            const cacheEntry = getWearingCacheEntry();
-            if (cacheEntry) {
-                cacheEntry.categories.add(category);
-                cacheEntry.currentFilter = currentFilter;
-            }
-            refreshPillToggle();
-        }
+        syncDiscoveredCategories();
+        refreshPillToggle();
         const container = targetGrid.parentElement;
         updateScrollButtonStates(
             container,
@@ -863,7 +874,7 @@ function moveAssetCardToCategory(assetId) {
     if (!card || card.parentElement === targetGrid) return;
 
     targetGrid.appendChild(card);
-    discoveredCategories.add(category);
+    syncDiscoveredCategories();
     refreshPillToggle();
 }
 

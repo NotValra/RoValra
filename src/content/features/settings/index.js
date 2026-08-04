@@ -29,7 +29,7 @@ import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
-import { ts } from '../../core/locale/i18n.js';
+import { t, ts } from '../../core/locale/i18n.js';
 import {
     CONTRIBUTOR_USER_IDS,
     CREATOR_USER_ID,
@@ -76,6 +76,7 @@ import { createSpinner } from '../../core/ui/spinner.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
+import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
 
 const assets = getAssets();
 const CREDITS_USER_IDS = [
@@ -1187,7 +1188,76 @@ function getContributorStats() {
         });
     });
 
+    Object.values(OTHER_CONTRIBUTIONS).forEach((category) => {
+        const contributors = category.contributors;
+        for (const contributor of contributors) {
+            const id = contributor.userId;
+            if (counts.has(id)) counts.set(id, counts.get(id) + 1);
+            featureCount += 1;
+        }
+    })
+
     return { counts, featureCount };
+}
+
+/**
+ * @returns {Record<string, Array<{key: string, feature: string, contributionDescription?: string, prLink?: string}>>}
+ */
+function getContributions() {
+    /**
+     * @type {Record<string, Array<{key: string, feature: string, contributionDescription?: string, prLink?: string}>>}
+     */
+    const contributions = {};
+    for (const contributor of CONTRIBUTOR_USER_IDS) {
+        contributions[String(contributor)] = [];
+    }
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const [settingName, settingData] of Object.entries(category.settings)) {
+            if (settingData.contributors !== undefined) {
+                for (const contributor of settingData.contributors) {
+                    if (contributions[String(contributor)] === undefined)
+                        contributions[String(contributor)] = [];
+                    contributions[String(contributor)].push({
+                        feature: settingData.label,
+                        key: settingName
+                    });
+                }
+            } else {
+                if (contributions[String(CREATOR_USER_ID)] === undefined)
+                    contributions[String(CREATOR_USER_ID)] = [];
+                contributions[String(CREATOR_USER_ID)].push({
+                    feature: settingData.label,
+                    key: settingName
+                })
+            }
+            if (settingData.childSettings) {
+                for (const [subSettingName, subSettingData] of Object.entries(settingData.childSettings)) {
+                    if (subSettingData.contributors !== undefined) {
+                        for (const contributor of subSettingData.contributors) {
+                            if (contributions[String(contributor)] === undefined)
+                                contributions[String(contributor)] = [];
+                            contributions[String(contributor)].push({
+                                feature: subSettingData.label,
+                                key: subSettingName
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (const [contKey, contData] of Object.entries(OTHER_CONTRIBUTIONS)) {
+        for (const contribution of contData.contributors) {
+            contributions[String(contribution.userId)].push({
+                feature: contData.label,
+                key: contKey,
+                contributionDescription: contribution.contributionDescription,
+                prLink: contribution.relevantPR
+            });
+        }
+    }
+
+    return contributions;
 }
 
 const {
@@ -1315,11 +1385,44 @@ function renderContributors(container, users, thumbMap) {
             count: contributionCount,
         });
 
-        link.append(
-            createContributorProfile(user, thumbMap.get(String(id))),
-            count,
-        );
+        count.addEventListener("click", async (ev) => {
+            const contributions = getContributions()[String(id)];
+            
+            let markdown = `
+| ${await t("settings.credits.ui.popup.contributor")} | ${await t("settings.credits.ui.popup.featureName")} | ${await t("settings.credits.ui.popup.featureKey")} |
+|              -                                 |                   -                            |                       -                       |
+`;
+
+            for (const contribution of contributions) {
+                markdown += `| [${user.displayName}](${link.href}) | `;
+                const featureNameText = contribution.contributionDescription ? `${contribution.feature} (${await t(contribution.contributionDescription)})` : contribution.feature;
+                markdown += `${contribution.prLink ? `[${featureNameText}](${contribution.prLink})` : featureNameText} | `;
+                markdown += `${contribution.prLink ? `[${contribution.key}](${contribution.prLink})` : contribution.key} |\n`;
+            }
+
+            const html = parseMarkdown(markdown);
+
+            const bodyContent = document.createElement('div');
+            bodyContent.innerHTML = html;
+
+            const okayBtn = createButton("Okay", 'primary', {
+                onClick: async () => {
+                    overlay.close();
+                }
+            });
+
+            const overlay = createOverlay({
+                title: await t('settings.credits.ui.popup.title', {user: user.displayName}),
+                bodyContent: bodyContent,
+                actions: [okayBtn],
+                showLogo: true,
+                maxWidth: '50%'
+            });
+        })
+
+        link.appendChild(createContributorProfile(user, thumbMap.get(String(id))));
         item.appendChild(link);
+        item.appendChild(count,);
         listContainer.appendChild(item);
     });
 
