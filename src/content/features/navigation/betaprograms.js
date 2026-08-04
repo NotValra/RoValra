@@ -370,7 +370,7 @@ export async function addNavbarButton() {
 
                     // Xbox
                     if (p.includes('PROGRAM_PLATFORM_XBOX_APP'))
-                        addPlatIcon('xbox', 'Xbox');
+                        addPlatIcon('xbox', 'XBOX');
 
                     // Quest / VR
                     if (p.includes('PROGRAM_PLATFORM_QUEST_ANDROID_APP'))
