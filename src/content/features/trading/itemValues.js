@@ -610,6 +610,8 @@ async function updateTradeSummary() {
         analysis = await getTradeAnalysis(tradeId, { myUserId }).catch(
             () => null,
         );
+    } else if (giveOffer.closest('.trade-request-window-offers')) {
+        analysis = getTradeRequestWindowAnalysis(giveOffer, receiveOffer);
     }
 
     if (!analysis) return;
@@ -636,6 +638,64 @@ async function updateTradeSummary() {
     }
 
     renderSummary(giveOffer, receiveOffer, giveStats, receiveStats);
+}
+
+function getTradeRequestWindowAnalysis(giveOffer, receiveOffer) {
+    const createStats = (offer) => {
+        const items = Array.from(
+            offer.querySelectorAll('.trade-request-item[data-rovalra-asset-id]'),
+        );
+        const stats = items.reduce(
+            (totals, card) => {
+                const assetId = card.dataset.rovalraAssetId;
+                const instanceId = card.dataset.collectibleiteminstanceid;
+                const cachedItem = instanceId
+                    ? getCachedItemValue(instanceId)
+                    : null;
+                const rolimonsItem = getCachedRolimonsItem(assetId);
+
+                totals.rap += Number(
+                    cachedItem?.rap ?? rolimonsItem?.rap ?? 0,
+                );
+                totals.value += Number(
+                    rolimonsItem?.default_price ??
+                        rolimonsItem?.rap ??
+                        cachedItem?.rap ??
+                        0,
+                );
+                totals.totalDemand += getDemandValue(
+                    rolimonsItem?.demand,
+                );
+                totals.itemCount += 1;
+                return totals;
+            },
+            { rap: 0, value: 0, totalDemand: 0, itemCount: 0 },
+        );
+
+        return {
+            ...stats,
+            robux: 0,
+            offeredRobux: 0,
+            receivedRobux: 0,
+        };
+    };
+
+    return {
+        myOffer: { stats: createStats(giveOffer) },
+        partnerOffer: { stats: createStats(receiveOffer) },
+    };
+}
+
+function getDemandValue(demand) {
+    const demandValues = {
+        None: 0,
+        Terrible: 1,
+        Low: 2,
+        Normal: 3,
+        High: 4,
+        Amazing: 5,
+    };
+    return demandValues[demand] ?? -1;
 }
 
 function getActiveTradeId(offerEl) {
