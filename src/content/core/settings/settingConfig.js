@@ -2541,6 +2541,7 @@ export const SETTINGS_CONFIG = {
                     'This feature allows you to download assets like meshes, images, audios, etc from the create page.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '126448532'],
             },
         },
     },
