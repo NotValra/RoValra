@@ -2072,6 +2072,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            disableChannelTracking: {
+                label: 'Disable Channel Tracking',
+                description: [
+                    'Stops RoValra from sending your channel to the RoValra backends. We use this to improve RoValra and data is Public. We have safety messures in place to prevent private channels from ever being stored.',
+                    'After this feature has been disabled any data stored related to channels from you will be removed.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             loginBannerEnabled: {
                 label: 'Login Banner',
                 description: [
@@ -2081,13 +2090,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            DownloadCreateEnabled: {
-                label: 'Adds a download button to create.roblox.com',
-                description:
-                    'This feature allows you to download assets like meshes, images, audios, etc from the create page.',
-                type: 'checkbox',
-                default: true,
-            },
+
             legacyThemeSwitcherEnabled: {
                 label: 'Legacy Theme Switcher',
                 description: [
@@ -2097,31 +2100,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['2615068449'],
-            },
-            viewIdEnabled: {
-                label: 'View Bundled IDs',
-                description: "Allows you to view all bundles items and their IDs of any catalog item.",
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
-                contributors: ['1564574922']
-            },
-            copyIdEnabled: {
-                label: 'Allows you to quickly copy an id of a thing you are right clicking.',
-                description:
-                    "This adds a copy id button directly into the right click context menu so you don't have  to open the link and copy the id from the link.",
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
-                contributors: ['447170745', '1564574922']
-            },
-            copyUniverseIdEnabled: {
-                label: 'Allows you to quickly copy a universe id',
-                description:
-                    'This adds a copy universe id button directly into the right click context menu.',
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
             },
 
             modernIconsEnabled: {
@@ -2197,9 +2175,10 @@ export const SETTINGS_CONFIG = {
                     "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
                     '**This feature is not recommended to be used anymore, it seems like Roblox has fixed the memory leak.**',
                 ],
-                experimental: 'May cause some issues.',
                 type: 'checkbox',
                 default: false,
+                locked: 'This issue has long since been fixed by Roblox, so the feature isnt needed anymore.',
+                isPermanent: true,
                 requiredPermissions: ['webNavigation'],
             },
             firstAccountEnabled: {
@@ -2256,14 +2235,6 @@ export const SETTINGS_CONFIG = {
             FunStuffEnabled: {
                 label: 'Fun Stuff tab',
                 description: ['Shows the Fun Stuff tab in RoValra settings.'],
-                type: 'checkbox',
-                default: false,
-            },
-            disableChannelTracking: {
-                label: 'Disable Channel Tracking',
-                description: [
-                    'Stops RoValra from sending your channel to the RoValra backends. We use this to improve RoValra and data is Public. We have safety messures in place to prevent private channels from ever being stored.',
-                ],
                 type: 'checkbox',
                 default: false,
             },
@@ -2537,6 +2508,39 @@ export const SETTINGS_CONFIG = {
                         default: false,
                     },
                 },
+            },
+            viewIdEnabled: {
+                label: 'View Bundled IDs',
+                description:
+                    'Allows you to view all bundles items and their IDs of any catalog item.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+                contributors: ['1564574922'],
+            },
+            copyIdEnabled: {
+                label: 'Allows you to quickly copy an id of a thing you are right clicking.',
+                description:
+                    "This adds a copy id button directly into the right click context menu so you don't have  to open the link and copy the id from the link.",
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+                contributors: ['447170745', '1564574922'],
+            },
+            copyUniverseIdEnabled: {
+                label: 'Allows you to quickly copy a universe id',
+                description:
+                    'This adds a copy universe id button directly into the right click context menu.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+            },
+            DownloadCreateEnabled: {
+                label: 'Adds a download button to create.roblox.com',
+                description:
+                    'This feature allows you to download assets like meshes, images, audios, etc from the create page.',
+                type: 'checkbox',
+                default: true,
             },
         },
     },
