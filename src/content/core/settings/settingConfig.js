@@ -2281,6 +2281,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 experimental:
                     "This may cause some issues since it tricks Roblox into thinking your private info is something it isn't.",
+                contributors: ['447170745', '48255812'],
                 childSettings: {
                     settingsPageInfo: {
                         label: 'Hide Private Information on the settings page',
