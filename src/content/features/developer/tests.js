@@ -200,7 +200,12 @@ async function renderTestPage(contentDiv) {
         rovalra: true,
         size: 'xx-large',
     });
-    container.append(document.createElement('br'), builderIconsHeader, document.createElement('br'), builderIcon, builderIconFilled, materialIcon, materialIconFilled, rovalraIcon);
+    const rovalraContributorIcon = Icon({
+        icon: 'icon',
+        rovalra: true,
+        size: 'xx-large',
+    });
+    container.append(document.createElement('br'), builderIconsHeader, document.createElement('br'), builderIcon, builderIconFilled, materialIcon, materialIconFilled, rovalraIcon, rovalraContributorIcon);
 
     removeHomeElement();
 }
