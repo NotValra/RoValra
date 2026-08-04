@@ -6,6 +6,12 @@
     min-width: 0;
 }
 
+// The wrapped row keeps the display name and its badges on one line.
+.rovalra-friend-username-wrapper > :not(.rovalra-friend-username-label) {
+    max-width: 100%;
+    min-width: 0;
+}
+
 .rovalra-friend-username-inline {
     color: var(--rovalra-secondary-text-color);
 }

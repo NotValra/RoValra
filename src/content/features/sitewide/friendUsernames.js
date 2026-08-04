@@ -29,16 +29,39 @@ function isOnFriendsListPage() {
     );
 }
 
-function ensureUsernameWrapper(displayNameEl) {
+// Roblox and other extensions render badges (verified, premium, ...) next to the
+// display name instead of inside it, so the row holding both gets wrapped as a
+// whole. Wrapping only the display name would drop those badges onto the
+// username line.
+function getNameRow(displayNameEl, context) {
     const parent = displayNameEl.parentElement;
+    if (!parent || parent.classList.contains(USERNAME_WRAPPER_CLASS)) {
+        return displayNameEl;
+    }
+
+    // Anything still holding the card link or the avatar is the card itself,
+    // not a name row.
+    if (context.link && parent.contains(context.link)) return displayNameEl;
+    if (context.avatar && parent.contains(context.avatar)) return displayNameEl;
+
+    // Badges carry no text, so a name row reads exactly like the display name.
+    if (parent.textContent.trim() !== displayNameEl.textContent.trim()) {
+        return displayNameEl;
+    }
+
+    return parent;
+}
+
+function ensureUsernameWrapper(nameRow) {
+    const parent = nameRow.parentElement;
     if (parent?.classList.contains(USERNAME_WRAPPER_CLASS)) {
         return parent;
     }
 
     const wrapper = document.createElement('span');
     wrapper.className = USERNAME_WRAPPER_CLASS;
-    displayNameEl.replaceWith(wrapper);
-    wrapper.appendChild(displayNameEl);
+    nameRow.replaceWith(wrapper);
+    wrapper.appendChild(nameRow);
     return wrapper;
 }
 
@@ -64,7 +87,7 @@ async function applyCardUsernameLabel(tile, context) {
 
         tile.dataset.rovalraFriendUsernameApplied = applyKey;
 
-        const wrapper = ensureUsernameWrapper(displayName);
+        const wrapper = ensureUsernameWrapper(getNameRow(displayName, context));
 
         let label = wrapper.querySelector(`:scope > .${USERNAME_LABEL_CLASS}`);
         if (!label) {
@@ -114,7 +137,10 @@ function applyServerFriendName(link, userId) {
             if (getUserIdFromUrl(link.href) !== userId) return;
 
             const existing = link.querySelector(`.${USERNAME_INLINE_CLASS}`);
-            if (userData.displayName && userData.displayName !== userData.name) {
+            if (
+                userData.displayName &&
+                userData.displayName !== userData.name
+            ) {
                 const usernameEl = existing || document.createElement('span');
                 usernameEl.className = USERNAME_INLINE_CLASS;
                 usernameEl.textContent = ` (@${userData.name})`;
