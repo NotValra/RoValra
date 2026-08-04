@@ -615,20 +615,31 @@ async function initializePage() {
     builderIconsFill.as = 'font';
     builderIconsFill.type = 'font/ttf';
     builderIconsFill.crossOrigin = 'anonymous';
+    const rovalraIconsTTF = document.createElement('link');
+    rovalraIconsTTF.rel = 'preload';
+    rovalraIconsTTF.href = `https://www.rovalra.com/static/fonts/RoValraIcons.ttf`;
+    rovalraIconsTTF.as = 'font';
+    rovalraIconsTTF.type = 'font/ttf';
+    rovalraIconsTTF.crossOrigin = 'anonymous';
+    const rovalraIconsWOFF = document.createElement('link');
+    rovalraIconsWOFF.rel = 'preload';
+    rovalraIconsWOFF.href = `https://www.rovalra.com/static/fonts/RoValraIcons.woff2`;
+    rovalraIconsWOFF.as = 'font';
+    rovalraIconsWOFF.type = 'font/woff2';
+    rovalraIconsWOFF.crossOrigin = 'anonymous';
     const googleIcons = document.createElement('link')
-    //https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap
     googleIcons.rel = 'preload';
     googleIcons.href = `https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap`;
     googleIcons.rel = 'stylesheet';
     googleIcons.crossOrigin = 'anonymous';
 
     if (document.head) {
-        document.head.append(googleIcons, builderIconsReg, builderIconsFill);
+        document.head.append(googleIcons, builderIconsReg, builderIconsFill, rovalraIconsWOFF, rovalraIconsTTF);
     } else {
         const docObserverForHead = new MutationObserver((_, obs) => {
             if (document.head) {
                 obs.disconnect();
-                document.head.append(googleIcons, builderIconsReg, builderIconsFill);
+                document.head.append(googleIcons, builderIconsReg, builderIconsFill, rovalraIconsWOFF, rovalraIconsTTF);
             }
         }); //Verified
         docObserverForHead.observe(document.documentElement, { childList: true });
