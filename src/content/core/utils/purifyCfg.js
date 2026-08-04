@@ -4,5 +4,7 @@ export const CUSTOM_ADDED_TAGS = Object.freeze({
         'filled',
         'fill',
         'size',
+        'material',
+        'rovalra',
     ],
 });

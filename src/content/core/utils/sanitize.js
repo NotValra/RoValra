@@ -20,7 +20,7 @@ export function sanitizeString(str) {
     str = str.replace(/vbscript:/gi, ''); // no vbscript
 
     //str = str.replace(/<[^>]*>/g, ''); // [OLD] removed all elements
-    str = str.replace(/<(?!\/?icon(?:\s+(?:fill|filled|size=(?:"[^\\"]*"|'[^\\']*')))*\s*\/?>)[^>]*>/g, ''); // newer version of above but allows icon elements
+    str = str.replace(/<(?!\/?icon(?:\s+(?:material|rovalra|fill|filled|size=(?:"[^\\"]*"|'[^\\']*')))*\s*\/?>)[^>]*>/g, ''); // newer version of above but allows icon elements
 
     return str;
 }
