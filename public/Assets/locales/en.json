@@ -1280,5 +1280,14 @@
                 }
             }
         }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Some settings were removed/replaced"
+            },
+            "deleted": "The following settings have been recently deleted, locked or deprecated:",
+            "replaced": "The following settings have been recently replaced or changed:"
+        }
     }
 }
