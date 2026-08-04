@@ -29,6 +29,7 @@ interface Icon {
     filled: boolean,
     size: Sizes,
     material: boolean,
+    rovalra: boolean
 }
 
 type IconInfo =  {
@@ -40,6 +41,7 @@ type IconOptions = {
     size?: Sizes,
     classes?: string | string[],
     material?: boolean,
+    rovalra?: boolean,
 } & Icon;
 
 function convertAlias(alias: Sizes | PresetSizeAlias): Sizes {
@@ -71,6 +73,7 @@ export function Icon({
     size,
     classes,
     material,
+    rovalra,
 }: IconOptions): HTMLElement {
     const iconElement = document.createElement('icon');
 
@@ -78,6 +81,8 @@ export function Icon({
         iconElement.toggleAttribute('filled');
     if (material)
         iconElement.toggleAttribute('material');
+    if (rovalra)
+        iconElement.toggleAttribute('rovalra');
 
     if (typeof classes == 'string')
         iconElement.className = classes;
@@ -96,9 +101,10 @@ export function IconText({
     filled,
     size,
     classes,
-    material
+    material,
+    rovalra
 }: IconOptions): string {
-    let iconElement = Icon({ icon, filled, size, classes, material });
+    let iconElement = Icon({ icon, filled, size, classes, material, rovalra });
 
     return iconElement.outerHTML;
 }
@@ -108,12 +114,13 @@ export function GetIconInfo(icon: HTMLElement, shouldAlwaysReturnCSSLength = fal
         icon: icon.textContent,
         filled: icon.hasAttribute('filled') || icon.hasAttribute('fill'),
         material: icon.hasAttribute('material'),
+        rovalra: icon.hasAttribute('rovalra'),
         size: shouldAlwaysReturnCSSLength ? `${icon.scrollHeight}px` : convertAlias((icon.getAttribute('size') || '1em') as PresetSizeAlias | Sizes),
         isIcon: icon.nodeName.toLowerCase() == 'icon',
     }
 }
 
-export function ChangeIcon(iconEl: HTMLElement, { icon, filled, size, material }: Partial<Icon> ): HTMLElement | null {
+export function ChangeIcon(iconEl: HTMLElement, { icon, filled, size, material, rovalra }: Partial<Icon> ): HTMLElement | null {
     if (!iconEl || iconEl.nodeName.toLowerCase() != 'icon') return null;
 
     if (icon) iconEl.textContent = DOMPurify.sanitize(icon);
@@ -131,6 +138,11 @@ export function ChangeIcon(iconEl: HTMLElement, { icon, filled, size, material }
         iconEl.toggleAttribute('material');
     } else if (material == false && iconEl.hasAttribute('material')) {
         iconEl.toggleAttribute('material');
+    }
+    if (rovalra && !iconEl.hasAttribute('rovalra')) {
+        iconEl.toggleAttribute('rovalra');
+    } else if (rovalra == false && iconEl.hasAttribute('rovalra')) {
+        iconEl.toggleAttribute('rovalra');
     }
 
     if (size) iconEl.setAttribute('size', size);

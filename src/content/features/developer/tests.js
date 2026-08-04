@@ -169,21 +169,38 @@ async function renderTestPage(contentDiv) {
     });
     container.appendChild(pillToggle);
 
-    // Builder Icons Test
-    const br = document.createElement('br');
+    // Icons Test
     const builderIconsHeader = document.createElement('h2');
-    builderIconsHeader.textContent = 'Builder Icons';
+    builderIconsHeader.textContent = 'Icons';
     builderIconsHeader.style.fontWeight = '800';
     builderIconsHeader.style.fontSize = '2.5em';
     builderIconsHeader.style.margin = '0';
     const builderIcon = Icon({
-        icon: 'github'
+        icon: 'xr-headset',
+        size: 'xx-large',
     });
     const builderIconFilled = Icon({
-        icon: 'github',
+        icon: 'xr-headset',
         filled: true,
+        size: 'xx-large',
     });
-    container.append(document.createElement('br'), builderIconsHeader, document.createElement('br'), builderIcon, builderIconFilled);
+    const materialIcon = Icon({
+        icon: 'label',
+        material: true,
+        size: 'xx-large',
+    });
+    const materialIconFilled = Icon({
+        icon: 'label',
+        filled: true,
+        material: true,
+        size: 'xx-large',
+    });
+    const rovalraIcon = Icon({
+        icon: 'rovalra',
+        rovalra: true,
+        size: 'xx-large',
+    });
+    container.append(document.createElement('br'), builderIconsHeader, document.createElement('br'), builderIcon, builderIconFilled, materialIcon, materialIconFilled, rovalraIcon);
 
     removeHomeElement();
 }
