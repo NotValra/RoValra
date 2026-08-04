@@ -339,6 +339,16 @@ const contextMenuClickListener = async (info, tab) => {
                 text: String(universeId),
             });
         }
+    } else if (info.menuItemId.startsWith('rovalra-viewid-')) {
+        const id = info.menuItemId.replace('rovalra-viewid-', '');
+        if (id && tab?.id) {
+            chrome.tabs.sendMessage(tab.id, {
+                action: 'view-ids',
+                data: {
+                    targetId: id
+                }
+            })
+        }
     } else if (info.menuItemId.startsWith('rovalra-copy-') && tab?.id) {
         const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
         chrome.tabs.sendMessage(tab.id, {
@@ -2315,43 +2325,62 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'updateContextMenu':
             if (chrome.contextMenus) {
-                chrome.storage.local.get(
-                    ['copyIdEnabled', 'copyUniverseIdEnabled'],
-                    (settings) => {
-                        chrome.contextMenus.removeAll(() => {
-                            if (
-                                !chrome.runtime.lastError &&
-                                request.ids?.length > 0
-                            ) {
-                                request.ids.forEach((item) => {
-                                    if (item.type === 'Universe') {
-                                        if (settings.copyUniverseIdEnabled) {
-                                            chrome.contextMenus.create({
-                                                id: `rovalra-copy-universe-${item.id}`,
-                                                title: item.title,
-                                                contexts: ['link'],
-                                                documentUrlPatterns: [
-                                                    '*://*.roblox.com/*',
-                                                ],
-                                            });
+                if (request.feature === 'copyid') {
+                    chrome.storage.local.get(
+                        ['copyIdEnabled', 'copyUniverseIdEnabled'],
+                        (settings) => {
+                            chrome.contextMenus.removeAll(() => {
+                                if (
+                                    !chrome.runtime.lastError &&
+                                    request.ids?.length > 0
+                                ) {
+                                    request.ids.forEach((item) => {
+                                        if (item.type === 'Universe') {
+                                            if (settings.copyUniverseIdEnabled) {
+                                                chrome.contextMenus.create({
+                                                    id: `rovalra-copy-universe-${item.id}`,
+                                                    title: item.title,
+                                                    contexts: ['link'],
+                                                    documentUrlPatterns: [
+                                                        '*://*.roblox.com/*',
+                                                    ],
+                                                });
+                                            }
+                                        } else {
+                                            if (settings.copyIdEnabled) {
+                                                chrome.contextMenus.create({
+                                                    id: `rovalra-copy-${item.id}`,
+                                                    title: item.title,
+                                                    contexts: ['link'],
+                                                    documentUrlPatterns: [
+                                                        '*://*.roblox.com/*',
+                                                    ],
+                                                });
+                                            }
                                         }
-                                    } else {
-                                        if (settings.copyIdEnabled) {
-                                            chrome.contextMenus.create({
-                                                id: `rovalra-copy-${item.id}`,
-                                                title: item.title,
-                                                contexts: ['link'],
-                                                documentUrlPatterns: [
-                                                    '*://*.roblox.com/*',
-                                                ],
-                                            });
-                                        }
-                                    }
-                                });
-                            }
+                                    });
+                                }
+                            });
+                        },
+                    );
+                } else if (request.feature === 'viewid') {
+                    request.ids.forEach((id) => {
+                        chrome.storage.local.get(
+                            ['viewIdEnabled'],
+                            (settings) => {
+                                if (settings.viewIdEnabled) {
+                                    chrome.contextMenus.create({
+                                        id: `rovalra-viewid-${id}`,
+                                        title: request.data.title,
+                                        contexts: ['link'],
+                                        documentUrlPatterns: [
+                                            '*://*.roblox.com/*',
+                                        ],
+                                    });
+                                }
                         });
-                    },
-                );
+                    })
+                }
             }
             return false;
     }
