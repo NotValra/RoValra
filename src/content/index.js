@@ -598,34 +598,29 @@ async function initializePage() {
         );
     };
 
-    // URLs for Builder Icons
-    const iconsGhRawDomain = 'raw.githubusercontent.com';
-    const iconsGitRepo = 'MaximumADHD/Roblox-Client-Tracker';
-    const iconsGitRef = 'heads/roblox';
-    const iconsMainSource = `https://${iconsGhRawDomain}/${iconsGitRepo}/${iconsGitRef}/LuaPackages/Packages/_Index/BuilderIcons/BuilderIcons/Font`;
 
-    // preload
+    // preload stuff
     const builderIconsReg = document.createElement('link');
     builderIconsReg.rel = 'preload';
-    builderIconsReg.href = `${iconsMainSource}/BuilderIcons-Regular.ttf`;
+    builderIconsReg.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2';
     builderIconsReg.as = 'font';
-    builderIconsReg.type = 'font/ttf';
+    builderIconsReg.type = 'font/woff2';
     builderIconsReg.crossOrigin = 'anonymous';
     const builderIconsFill = document.createElement('link');
     builderIconsFill.rel = 'preload';
-    builderIconsFill.href = `${iconsMainSource}/BuilderIcons-Filled.ttf`;
+    builderIconsFill.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2';
     builderIconsFill.as = 'font';
-    builderIconsFill.type = 'font/ttf';
+    builderIconsFill.type = 'font/woff2';
     builderIconsFill.crossOrigin = 'anonymous';
     const rovalraIconsWOFF = document.createElement('link');
     rovalraIconsWOFF.rel = 'preload';
-    rovalraIconsWOFF.href = `https://www.rovalra.com/static/fonts/RoValraIcons.woff2`;
+    rovalraIconsWOFF.href = 'https://www.rovalra.com/static/fonts/RoValraIcons.woff2';
     rovalraIconsWOFF.as = 'font';
     rovalraIconsWOFF.type = 'font/woff2';
     rovalraIconsWOFF.crossOrigin = 'anonymous';
     const googleIcons = document.createElement('link')
     googleIcons.rel = 'preload';
-    googleIcons.href = `https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap`;
+    googleIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap';
     googleIcons.rel = 'stylesheet';
     googleIcons.crossOrigin = 'anonymous';
 

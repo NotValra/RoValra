@@ -73,6 +73,7 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
         contributors: [
             new Contribution(650766686, "iconElement.addIcons", "https://github.com/NotValra/RoValra/pull/168"),  // @auggeeo
             new Contribution(650766686, "iconElement.makeRoValraIcons", "https://github.com/NotValra/RoValra-Website/pull/4"),  // @auggeeo
+            new Contribution(650766686, "iconElement.addBuilderIconsWOFF", "https://github.com/NotValra/RoValra-Website/pull/5"),  // @auggeeo
             new Contribution(1564574922, "iconElement.addElement", "https://github.com/NotValra/RoValra/pull/168"),  // @BossBoss2021
         ],
     },

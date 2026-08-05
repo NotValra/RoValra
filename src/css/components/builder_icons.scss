@@ -1,10 +1,4 @@
 @use "sass:map";
-//@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap');
-
-$gh-raw-domain: 'raw.githubusercontent.com';
-$git-repo: 'MaximumADHD/Roblox-Client-Tracker';
-$git-ref: 'heads/roblox';
-$main-source: 'https://#{$gh-raw-domain}/#{$git-repo}/#{$git-ref}/LuaPackages/Packages/_Index/BuilderIcons/BuilderIcons/Font';
 
 $preset-sizes: (
     (
@@ -65,7 +59,8 @@ $preset-sizes: (
   font-family: 'Builder Icons Outlined';
   src:
     local("BuilderIcons-Regular"),
-    url('#{$main-source}/BuilderIcons-Regular.ttf') format('truetype');
+    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Regular.woff2') format('woff2'),
+    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Regular.ttf') format('truetype');
   font-display: swap;
 }
 
@@ -73,7 +68,8 @@ $preset-sizes: (
   font-family: 'Builder Icons Filled';
   src:
     local("BuilderIcons-Filled"),
-    url('#{$main-source}/BuilderIcons-Filled.ttf') format('truetype');
+    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Filled.woff2') format('woff2'),
+    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Filled.ttf') format('truetype');
   font-display: swap;
 }
 
