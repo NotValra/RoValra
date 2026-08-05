@@ -36,7 +36,7 @@ const REGION_DONATION_SOURCE_WEIGHTS = {
 };
 const REGION_DONATION_MIN_DAYS_INSTALLED = 7;
 const REGION_DONATION_COOLDOWN_DAYS = 14;
-const REGION_DONATION_SCORE_THRESHOLD = 500;
+const REGION_DONATION_SCORE_THRESHOLD = 100;
 
 function hasDonatedFromBadgesResponse(response) {
     const badges = response?.badges || {};
@@ -62,8 +62,7 @@ async function currentUserHasDonated() {
     try {
         const response = await syncDonatorTier();
         return (
-            getCurrentUserTier() >= 1 ||
-            hasDonatedFromBadgesResponse(response)
+            getCurrentUserTier() >= 1 || hasDonatedFromBadgesResponse(response)
         );
     } catch (error) {
         console.warn(
@@ -273,7 +272,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                     [INSTALL_TIME_KEY]: installedAt,
                 });
 
-                if (await currentUserHasDonated()) return;
+                if (!forceShow && (await currentUserHasDonated())) return;
 
                 if (!forceShow) {
                     if (
