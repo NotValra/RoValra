@@ -62,7 +62,7 @@ $preset-sizes: (
 );
 
 @font-face {
-  font-family: 'BuilderIcons-Regular';
+  font-family: 'Builder Icons Outlined';
   src:
     local("BuilderIcons-Regular"),
     url('#{$main-source}/BuilderIcons-Regular.ttf') format('truetype');
@@ -70,7 +70,7 @@ $preset-sizes: (
 }
 
 @font-face {
-  font-family: 'BuilderIcons-Filled';
+  font-family: 'Builder Icons Filled';
   src:
     local("BuilderIcons-Filled"),
     url('#{$main-source}/BuilderIcons-Filled.ttf') format('truetype');
@@ -81,8 +81,8 @@ $preset-sizes: (
   font-family: 'RoValra Icons';
   src:
     local("RoValra Icons"),
-    url('https://rovalra-testing.coopeeo.xyz/static/fonts/RoValraIcons.woff2') format('woff2'),
-    url('https://rovalra-testing.coopeeo.xyz/static/fonts/RoValraIcons.ttf') format('truetype');
+    url('https://www.rovalra.com/static/fonts/RoValraIcons.woff2') format('woff2'),
+    url('https://www.rovalra.com/static/fonts/RoValraIcons.ttf') format('truetype');
   font-display: swap;
 }
 
@@ -116,10 +116,10 @@ icon {
     font-feature-settings: "ccmp" 1, "liga" 1, "calt" 1;
     font-variant-ligatures: discretionary-ligatures contextual;
 
-    font-family: 'BuilderIcons-Regular' !important;
+    font-family: 'Builder Icons Outlined' !important;
 
     &[filled], &[fill] {
-        font-family: 'BuilderIcons-Filled' !important;
+        font-family: 'Builder Icons Filled' !important;
     }
 
     &[material] {
