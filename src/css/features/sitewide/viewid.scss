@@ -1,15 +1,20 @@
-div.rovalra-viewid-table {
+table.rovalra-viewid-table {
     cursor: pointer;
     transition: color 0.4s ease;
 }
 
-div.rovalra-viewid-table:hover {
+table.rovalra-viewid-table:hover {
     color: rgb(194, 223, 250);
     transition: color 0.2s ease;
 }
 
-div.rovalra-viewid-table:active {
+table.rovalra-viewid-table:active {
     color: rgb(134, 187, 255);
+}
+
+span.rovalra-viewid-single-copy {
+    cursor: copy;
+    text-decoration: underline dotted;
 }
 
 p .bright {

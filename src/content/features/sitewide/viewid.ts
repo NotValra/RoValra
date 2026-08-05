@@ -23,9 +23,7 @@ const CONFIG = Object.freeze({
 } as const);
 
 const popupMarkdown = `
-<h2 align="center">Primary</h2>
-
-<div id="${CONFIG.PrimaryTableID}" class="rovalra-viewid-table">
+## Primary
 
 | Property | Value |
 | -------- | ----- |
@@ -33,42 +31,44 @@ const popupMarkdown = `
 | Product ID | {{productid}} |
 <p class="rovalra-viewid-copy"><small>${CONFIG.NoteText}</small></p>
 
-</div>
-
-<h2 align="center">Taxonomy</h2>
-
-<div id="${CONFIG.TaxonomyTableID}" class="rovalra-viewid-table">
+## Taxonomy
 
 | # | Name | ID |
 | - | ---- | -- |
 {{taxonomy}}
 <p class="rovalra-viewid-copy"><small>${CONFIG.NoteText}</small></p>
 
-</div>
+{{bundledsection}}
+`;
 
-<h2 align="center">Bundled Items</h2>
-
-<div id="${CONFIG.BundledItemsID}" class="rovalra-viewid-table">
+const bundledSectionMarkdown = `
+## Bundled Items
 
 | # | Name | Type | ID |
 | - | ---- | ---- | -- |
 {{bundled}}
 <p class="rovalra-viewid-copy"><small>${CONFIG.NoteText}</small></p>
-
-</div>
 `;
 
 function formatUIMarkdown(assetId: number, productId: number, taxonomy: Array<{taxonomyName: string, taxonomyId: string}>,
     bundledItems: Array<{name: string, type: string, id: number}>): [HTMLElement, string, string] {
 
+    taxonomy = Array.isArray(taxonomy) ? taxonomy : [];
+    bundledItems = Array.isArray(bundledItems)
+        ? bundledItems.filter((item) => item?.id != null)
+        : [];
+
     let resultMarkdown = popupMarkdown;
-    resultMarkdown = resultMarkdown.replaceAll("{{assetid}}", String(assetId));
-    resultMarkdown = resultMarkdown.replaceAll("{{productid}}", String(productId));
+    const copyableId = (id: string | number) =>
+        `<span class="rovalra-viewid-single-copy" data-copy-value="${String(id)}">${String(id)}</span>`;
+
+    resultMarkdown = resultMarkdown.replaceAll("{{assetid}}", copyableId(assetId));
+    resultMarkdown = resultMarkdown.replaceAll("{{productid}}", copyableId(productId));
 
     let taxonomyMarkdown = "";
     for (let i = 0; i < taxonomy.length; i++) {
         const item = taxonomy[i];
-        taxonomyMarkdown += `| ${i} | ${item.taxonomyName} | ${item.taxonomyId} |\n`;
+        taxonomyMarkdown += `| ${i} | ${item.taxonomyName} | ${copyableId(item.taxonomyId)} |\n`;
     }
     if (taxonomy.length === 0)
         taxonomyMarkdown = `| | | |\n`;
@@ -77,19 +77,38 @@ function formatUIMarkdown(assetId: number, productId: number, taxonomy: Array<{t
     let bundledMarkdown = "";
     for (let i = 0; i < bundledItems.length; i++) {
         const item = bundledItems[i];
-        bundledMarkdown += `| ${i} | ${item.name} | ${item.type} | ${item.id} |\n`;
+        bundledMarkdown += `| ${i} | ${item.name} | ${item.type} | ${copyableId(item.id)} |\n`;
     }
     if (bundledItems.length === 0)
         bundledMarkdown = `| | | | |\n`;
     resultMarkdown = resultMarkdown.replaceAll("{{bundled}}", bundledMarkdown);
+    resultMarkdown = resultMarkdown.replace(
+        "{{bundledsection}}",
+        bundledItems.length > 0
+            ? bundledSectionMarkdown.replace("{{bundled}}", bundledMarkdown)
+            : "",
+    );
 
     let resultHtml = parseMarkdown(resultMarkdown);
 
     const container = document.createElement("div");
     container.innerHTML = resultHtml;
 
-    async function onEvent(event: Event, elem?: HTMLElement | null) {
-        const noteElement = elem?.querySelector("p.rovalra-viewid-copy small");
+    const tables = Array.from(container.querySelectorAll("table"));
+    const primaryTable = tables[0];
+    const taxonomyTable = tables[1];
+    const bundledTable = tables[2];
+    [primaryTable, taxonomyTable, bundledTable].forEach((table, index) => {
+        if (!table) return;
+        table.id = [CONFIG.PrimaryTableID, CONFIG.TaxonomyTableID, CONFIG.BundledItemsID][index];
+        table.classList.add("rovalra-viewid-table");
+    });
+
+    const getTableNote = (table?: HTMLTableElement) =>
+        table?.nextElementSibling?.querySelector("small") ?? null;
+
+    async function onEvent(table?: HTMLTableElement) {
+        const noteElement = getTableNote(table);
         if (!noteElement || noteElement === null) {
             console.warn(`Note element not found.`);
             return;
@@ -98,6 +117,17 @@ function formatUIMarkdown(assetId: number, productId: number, taxonomy: Array<{t
         await sleep(1000);
         noteElement.textContent = CONFIG.NoteText;
     }
+
+    container.querySelectorAll<HTMLElement>(".rovalra-viewid-single-copy").forEach((element) => {
+        element.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            const value = element.dataset.copyValue;
+            if (!value) return;
+
+            await awaitSafe(navigator.clipboard.writeText.bind(navigator.clipboard), value);
+            await onEvent(element.closest<HTMLTableElement>("table") ?? undefined);
+        });
+    });
 
     const getPrimary = () => `Asset ID: rbxassetid://${assetId}\nProduct ID: rbxassetid://${productId}\n`;
     const getTaxonomy = () => {
@@ -117,23 +147,23 @@ function formatUIMarkdown(assetId: number, productId: number, taxonomy: Array<{t
         return text;
     }
 
-    container.querySelector(`div#${CONFIG.PrimaryTableID}`)?.addEventListener("click", async (event) => {
-        await awaitSafe(navigator.clipboard.writeText, getPrimary());
-        await onEvent(event, container.querySelector(`div#${CONFIG.PrimaryTableID}`));
+    primaryTable?.addEventListener("click", async () => {
+        await awaitSafe(navigator.clipboard.writeText.bind(navigator.clipboard), getPrimary());
+        await onEvent(primaryTable);
     });
 
-    container.querySelector(`div#${CONFIG.TaxonomyTableID}`)?.addEventListener("click", async (event) => {
+    taxonomyTable?.addEventListener("click", async () => {
         const text = getTaxonomy();
         if (text)
-            await awaitSafe(navigator.clipboard.writeText, text);
-        await onEvent(event, container.querySelector(`div#${CONFIG.TaxonomyTableID}`));
+            await awaitSafe(navigator.clipboard.writeText.bind(navigator.clipboard), text);
+        await onEvent(taxonomyTable);
     });
 
-    container.querySelector(`div#${CONFIG.BundledItemsID}`)?.addEventListener("click", async (event) => {
+    bundledTable?.addEventListener("click", async () => {
         const text = getBundled();
         if (text)
-            await awaitSafe(navigator.clipboard.writeText, text);
-        await onEvent(event, container.querySelector(`div#${CONFIG.BundledItemsID}`));
+            await awaitSafe(navigator.clipboard.writeText.bind(navigator.clipboard), text);
+        await onEvent(bundledTable);
     });
 
     const fullCopy = getPrimary() + "\nTaxonomy:\n" + getTaxonomy() + "\nBundled Items:\n" + getBundled();
