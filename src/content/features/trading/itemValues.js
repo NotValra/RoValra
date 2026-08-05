@@ -261,6 +261,22 @@ function getRolimonsUrl(card, assetId, options = {}) {
     return `https://www.rolimons.com/item/${assetId}`;
 }
 
+function addUserTradeItemCardsBottomPadding(card) {
+    if (
+        !featureSettings.tradeShowItemValues ||
+        !/^\/(?:[^/]+\/)?users\/\d+\/trade(?:\/|$)/.test(
+            window.location.pathname,
+        ) ||
+        !card.classList.contains('item-card-container')
+    )
+        return;
+
+    const itemCardsList = card.closest(
+        'ul.item-cards.item-cards-stackable',
+    );
+    itemCardsList?.style.setProperty('padding-bottom', '20px', 'important');
+}
+
 // turns english into numbers so we can add locale support
 function getTrendValue(trendStr) {
     const map = {
@@ -386,6 +402,10 @@ export function updateItemCard(card, assetId, options = {}) {
                 valDiv.appendChild(rolimonsLink);
             }
             priceDiv.parentNode.insertBefore(valDiv, priceDiv.nextSibling);
+        }
+
+        if (card.querySelector('.rovalra-value-label')) {
+            addUserTradeItemCardsBottomPadding(card);
         }
     }
 
