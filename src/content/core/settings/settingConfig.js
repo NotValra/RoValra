@@ -2308,9 +2308,9 @@ export const SETTINGS_CONFIG = {
 
                 description: [
                     'You can use the `<icon>` element to put icons in places',
-                    'To use an `<icon>` element simply do the following `<icon>tilt</icon>`',
+                    'To use an `<icon>` element simply do the following `<icon>tilt</icon>` <icon>tilt</icon>',
                     'If you want the icon to be filled simply do the following `<icon filled>thumb-up</icon>` <icon filled>thumb-up</icon>',
-                    'To use RoValra icons you simple do the following `<icon rovalra>contributor</icon>` <icon rovalra>contributor</icon>',
+                    'To use RoValra icons you simple do the following `<icon rovalra>contributor</icon>` <icon rovalra>icon</icon>',
                     'To use Google Material Icons you simple do the following `<icon material>bookmark</icon>` <icon material>bookmark</icon>',
                     'You can also use the `size` property to change the size to a specific css length or even use presets like `x-small`, `small`, `medium`, `large`, `x-large`, and `xx-large`',
                     'You can use the `<icon>` element in the Custom Age Theme Badge Text setting'
