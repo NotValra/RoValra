@@ -437,6 +437,11 @@
                 },
                 "donatorTierPage": {
                     "newIndicators": "Added new indicators for donator tiers"
+                },
+                "iconElement": {
+                    "addIcons": "Added the `<icon>` element that allows using Builder Icons, Material Icons, and RoValra Icons.",
+                    "addElement": "Added the base `<icon>` element that allows using Builder Icons. Prev, going to use the built-in `<i>` element with classes.",
+                    "makeRoValraIcons": "Added a font for RoValra Icons + a new building method for the website."
                 }
             },
             "ui": {
