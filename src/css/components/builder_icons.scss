@@ -59,8 +59,8 @@ $preset-sizes: (
   font-family: 'Builder Icons Outlined';
   src:
     local("BuilderIcons-Regular"),
-    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Regular.woff2') format('woff2'),
-    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Regular.ttf') format('truetype');
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2') format('woff2'),
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Regular.ttf') format('truetype');
   font-display: swap;
 }
 
@@ -68,8 +68,8 @@ $preset-sizes: (
   font-family: 'Builder Icons Filled';
   src:
     local("BuilderIcons-Filled"),
-    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Filled.woff2') format('woff2'),
-    url('https://rovalra-testing.coopeeo.xyz/static/fonts/BuilderIcons-Filled.ttf') format('truetype');
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2') format('woff2'),
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Filled.ttf') format('truetype');
   font-display: swap;
 }
 
