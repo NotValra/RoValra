@@ -147,6 +147,40 @@ export function init() {
 
                     const originalOrder = [...items];
 
+                    // view options
+                    let currentView = 'default';
+                    const viewOptions = [
+                        { text: 'Row', value: 'default' },
+                        { text: 'Grid', value: 'grid' },
+                    ];
+
+                    const viewToggle = createPillToggle({
+                        options: viewOptions,
+                        initialValue: 'default',
+                        onChange: async (value) => {
+                            const activeCarousel = getCarousel();
+                            const rowButtons = activeCarousel?.parentElement?.querySelector('.scroll-arrow.next',);
+                            if (!activeCarousel) return;
+
+                            currentView = value;
+
+                            if (currentView === 'default') {
+                                activeCarousel.style.display = 'flex';
+                                activeCarousel.style.flexWrap = 'nowrap';
+                                activeCarousel.style.gridTemplateColumns = '';
+
+                                if (rowButtons) rowButtons.style.display = '';
+                            } else {
+                                activeCarousel.style.display = 'grid';
+                                activeCarousel.style.gridTemplateColumns = 'repeat(6, 1fr)'; // 6 items per row, Roblox's default
+                                activeCarousel.style.flexWrap = '';
+
+                                if (rowButtons) rowButtons.style.display = 'none';
+                            }
+                        },
+                    });
+                    
+                    // filters
                     const sortOptions = [
                         {
                             text: ts('groupFilters.sort.default'),
@@ -171,6 +205,7 @@ export function init() {
                         initialValue: 'default',
                         onChange: async (value) => {
                             const activeCarousel = getCarousel();
+                            const rowButtons = document.querySelector('.scroll-arrow.next');
                             if (!activeCarousel) return;
 
                             const currentItems = Array.from(
@@ -256,8 +291,19 @@ export function init() {
                                 }
                             });
 
-                            activeCarousel.style.display = 'flex';
-                            activeCarousel.style.flexWrap = 'nowrap';
+                            if (currentView === 'default') {
+                                activeCarousel.style.display = 'flex';
+                                activeCarousel.style.flexWrap = 'nowrap';
+                                activeCarousel.style.gridTemplateColumns = '';
+
+                                if (rowButtons) rowButtons.style.display = 'block';
+                            } else {
+                                activeCarousel.style.display = 'grid';
+                                activeCarousel.style.gridTemplateColumns = 'repeat(6, 1fr)'; // 6 items per row, Roblox's default
+                                activeCarousel.style.flexWrap = '';
+
+                                if (rowButtons) rowButtons.style.display = 'none';
+                            }
 
                             currentItems.forEach((item) =>
                                 activeCarousel.appendChild(item),
@@ -265,7 +311,16 @@ export function init() {
                         },
                     });
 
-                    headerWrapper.appendChild(toggle);
+                    const filterToggles = document.createElement('div');
+                    filterToggles.style.display = 'flex';
+                    filterToggles.style.alignItems = 'center';
+                    filterToggles.style.flexDirection = 'row';
+                    filterToggles.style.gap = '12px';
+
+                    headerWrapper.appendChild(filterToggles);
+
+                    filterToggles.appendChild(viewToggle);
+                    filterToggles.appendChild(toggle);
                 };
 
                 setup();
