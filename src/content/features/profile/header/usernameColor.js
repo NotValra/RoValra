@@ -1,8 +1,17 @@
 import { observeElement, observeChildren } from '../../../core/observer.js';
 import { settings } from '../../../core/settings/getSettings.js';
 
+const LOG_PREFIX = '[usernameColor]';
+
 async function addUsernameColor(username, el) {
-    if (!username || username === '') return;
+    if (!username || username === '') {
+        console.log(
+            LOG_PREFIX,
+            'addUsernameColor called with empty username, skipping',
+            el,
+        );
+        return;
+    }
     username = username.slice(1); // remove the "@" symbol from username
 
     const colors = [
@@ -37,15 +46,60 @@ async function addUsernameColor(username, el) {
     const cmv = ComputeNameValue(username);
     const value = cmv - Math.floor(cmv / colors.length) * colors.length;
 
+    console.log(LOG_PREFIX, `coloring "${username}" ->`, colors[value], el);
+
     if (el) el.style.color = colors[value];
 }
 
 export async function init() {
-    if (!(await settings.usernameColor)) return;
+    if (!(await settings.usernameColor)) {
+        console.log(LOG_PREFIX, 'setting disabled, aborting init');
+        return;
+    }
+
+    console.log(LOG_PREFIX, 'init running');
+
+    // run on script start
+    const targetEls = document.querySelectorAll(
+        '.stylistic-alts-username, .deleted-user-container .user-name',
+    );
+
+    console.log(
+        LOG_PREFIX,
+        `initial querySelectorAll found ${targetEls.length} element(s)`,
+        targetEls,
+    );
+
+    for (const targetEl of targetEls) {
+        console.log(
+            LOG_PREFIX,
+            'checking element innerText:',
+            JSON.stringify(targetEl.innerText),
+            targetEl,
+        );
+        if (targetEl.innerText.trim() !== '') {
+            addUsernameColor(targetEl.innerText, targetEl);
+        } else {
+            console.log(
+                LOG_PREFIX,
+                'element had empty innerText at init time, relying on observer',
+                targetEl,
+            );
+        }
+    }
+
+    // observe element for changes
     observeElement(
-        '.stylistic-alts-username',
+        '.stylistic-alts-username, .deleted-user-container .user-name',
         (el) => {
+            console.log(LOG_PREFIX, 'observeElement callback fired for', el);
+
             const runUpdate = () => {
+                console.log(
+                    LOG_PREFIX,
+                    'runUpdate checking innerText:',
+                    JSON.stringify(el.innerText),
+                );
                 if (el.innerText.trim() !== '') {
                     addUsernameColor(el.innerText, el);
                     return true;
@@ -54,11 +108,30 @@ export async function init() {
             };
 
             if (!runUpdate()) {
+                console.log(
+                    LOG_PREFIX,
+                    'innerText empty on first check, setting up observeChildren',
+                    el,
+                );
                 const { disconnect } = observeChildren(el, () => {
-                    if (runUpdate()) disconnect();
+                    console.log(
+                        LOG_PREFIX,
+                        'observeChildren mutation fired for',
+                        el,
+                    );
+                    if (runUpdate()) {
+                        console.log(
+                            LOG_PREFIX,
+                            'runUpdate succeeded, disconnecting observeChildren',
+                            el,
+                        );
+                        disconnect();
+                    }
                 });
             }
         },
         { multiple: true },
     );
+
+    console.log(LOG_PREFIX, 'init finished, observeElement registered');
 }
