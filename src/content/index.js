@@ -382,6 +382,10 @@ const featureRoutes = [
         paths: ['/users/', '/banned-users/'],
         features: [initCategorizeWearing, initRovalraBadges, initUsernameColor],
     },
+    {
+        paths: ['/deleted-users/'],
+        features: [initUsernameColor]
+    },
 
     // Transactions page
     {
