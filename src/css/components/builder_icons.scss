@@ -1,0 +1,154 @@
+@use "sass:map";
+
+$preset-sizes: (
+    (
+        'roblox-variable': '--icon-size-xsmall',
+        'fallback': 12px,
+        'aliases': (
+            'xsmall',
+            'x-small',
+            'xs',
+        ),
+    ),
+    (
+        'roblox-variable': '--icon-size-small',
+        'fallback': 16px,
+        'aliases': (
+            'small',
+            's',
+        ),
+    ),
+    (
+        'roblox-variable': '--icon-size-medium',
+        'fallback': 20px,
+        'aliases': (
+            'medium',
+            'med',
+            'm',
+        ),
+    ),
+    (
+        'roblox-variable': '--icon-size-large',
+        'fallback': 24px,
+        'aliases': (
+            'large',
+            'l',
+        ),
+    ),
+    (
+        'roblox-variable': '--icon-size-xlarge',
+        'fallback': 28px,
+        'aliases': (
+            'xl',
+            'x-large',
+            'xlarge',
+        ),
+    ),
+    (
+        'roblox-variable': '--icon-size-xxlarge',
+        'fallback': 32px,
+        'aliases': (
+            'xxl',
+            'xxlarge',
+            'xx-large',
+        ),
+    ),
+);
+
+@font-face {
+  font-family: 'Builder Icons Outlined';
+  src:
+    local("BuilderIcons-Regular"),
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2') format('woff2'),
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Builder Icons Filled';
+  src:
+    local("BuilderIcons-Filled"),
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2') format('woff2'),
+    url('https://www.rovalra.com/static/fonts/BuilderIcons-Filled.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RoValra Icons';
+  src:
+    local("RoValra Icons"),
+    url('https://www.rovalra.com/static/fonts/RoValraIcons.woff2') format('woff2'),
+    url('https://www.rovalra.com/static/fonts/RoValraIcons.ttf') format('truetype');
+  font-display: swap;
+}
+
+icon {
+
+    --icon-size: 1em;
+
+    font-size: var(--icon-size);
+    height: var(--icon-size);
+    width: var(--icon-size);
+
+    display: inline-block;
+    line-height: 1;
+    font-style: normal;
+    user-select: none;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+
+    font-feature-settings: "ccmp" 1, "liga" 1, "calt" 1;
+    font-variant-ligatures: discretionary-ligatures contextual;
+
+    font-family: 'Builder Icons Outlined' !important;
+
+    &[filled], &[fill] {
+        font-family: 'Builder Icons Filled' !important;
+    }
+
+    &[material] {
+        font-family: 'Material Icons Outlined' !important;
+
+        &[filled], &[fill] {
+            font-family: 'Material Icons' !important;
+        }
+    }
+
+    &[rovalra] {
+        font-family: 'RoValra Icons' !important;
+
+        &[filled], &[fill] {
+            font-family: 'RoValra Icons' !important;
+        }
+    }
+
+
+
+    @each $preset in $preset-sizes {
+        $variable: map.get($preset, 'roblox-variable');
+        $fallback: map.get($preset, 'fallback');
+        @each $alias in map.get($preset, 'aliases') {
+            &[size='#{$alias}'] {
+                --icon-size: var(#{$variable}, #{$fallback});
+            }
+        }
+    }
+}
+
+@supports (width: attr(size type(<length>))) {
+  icon {
+    --icon-size: attr(size type(<length>), 1em);
+  }
+}

@@ -43,7 +43,7 @@ async function addUsernameColor(username, el) {
 export async function init() {
     if (!(await settings.usernameColor)) return;
     observeElement(
-        '.stylistic-alts-username',
+        '.stylistic-alts-username, .deleted-user-container .user-name',
         (el) => {
             const runUpdate = () => {
                 if (el.innerText.trim() !== '') {

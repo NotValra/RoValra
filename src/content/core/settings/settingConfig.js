@@ -779,8 +779,9 @@ export const SETTINGS_CONFIG = {
             groupFiltersEnabled: {
                 label: 'Community Filters',
                 description: [
-                    'Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest.',
+                    'Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest, also allows you to view groups in a row format or grid format.',
                 ],
+                contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
             },
@@ -1169,6 +1170,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['476449201'],
+            },
+            friendUsernamesEnabled: {
+                label: 'Show Usernames On Friend Cards',
+                description: [
+                    "Shows a friend's @username below their display name on the Home page.",
+                    "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
+                    'Other extensions may overwrite this feature.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['760897332'],
             },
             homeLayoutEnabled: {
                 label: 'Home Layout',
@@ -1880,8 +1892,6 @@ export const SETTINGS_CONFIG = {
                             'This will be overridden by the Hide The Badge setting',
                         ],
                         type: 'input',
-                        maxLength: 30,
-                        showCharacterCount: true,
                         default: null,
                         contributors: ['10646979010', '1564574922'],
                     },
@@ -2306,6 +2316,20 @@ export const SETTINGS_CONFIG = {
     FunStuff: {
         title: 'Fun Stuff',
         settings: {
+            iconElementUsageDescription: {
+                label: 'icon Element Usage',
+
+                description: [
+                    'You can use the `<icon>` element to put icons in places',
+                    'To use an `<icon>` element simply do the following `<icon>tilt</icon>` <icon>tilt</icon>',
+                    'If you want the icon to be filled simply do the following `<icon filled>thumb-up</icon>` <icon filled>thumb-up</icon>',
+                    'To use RoValra icons you simple do the following `<icon rovalra>contributor</icon>` <icon rovalra>icon</icon>',
+                    'To use Google Material Icons you simple do the following `<icon material>bookmark</icon>` <icon material>bookmark</icon>',
+                    'You can also use the `size` property to change the size to a specific css length or even use presets like `x-small`, `small`, `medium`, `large`, `x-large`, and `xx-large`',
+                    'You can use the `<icon>` element in the Custom Age Theme Badge Text setting'
+                ],
+                contributors: ['650766686', '1564574922'],
+            },
             bandurationsEnabled: {
                 label: 'All possible ban durations',
 
@@ -2697,7 +2721,7 @@ export const SETTINGS_CONFIG = {
             forceRegionDonationPopup: {
                 label: ['Force Region Donation Popup'],
                 description: [
-                    "When enabled, shows the region selector donation popup every time it's triggered for non-donators, ignoring cadence requirements. For testing purposes.",
+                    "When enabled, shows the region selector donation popup every time it's triggered, ignoring donor and cadence requirements. For testing purposes.",
                 ],
                 type: 'checkbox',
                 default: false,

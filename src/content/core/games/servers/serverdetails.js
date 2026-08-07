@@ -557,6 +557,16 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     updateInfoElement(container, 'Region', icon, text, visible);
 }
 
+function displayRegionForServerId(serverId, regionName, serverLocations) {
+    if (!serverId) return;
+
+    document
+        .querySelectorAll(`[data-rovalra-serverid="${serverId}"]`)
+        .forEach((server) =>
+            displayRegion(server, regionName, serverLocations),
+        );
+}
+
 export function displayIpAndDcId(server) {
     let extraDiv = server.querySelector('.rovalra-server-extra-details');
 
@@ -871,7 +881,12 @@ export async function fetchAndDisplayRegion(
                 );
                 if (fullName) {
                     serverLocations[serverId] = fullName;
-                    displayRegion(server, fullName, serverLocations);
+
+                    displayRegionForServerId(
+                        serverId,
+                        fullName,
+                        serverLocations,
+                    );
                 }
             }
         }

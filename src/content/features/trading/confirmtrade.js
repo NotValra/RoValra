@@ -15,10 +15,17 @@ import {
     getLatestTradeDetailsId,
     getTradeAnalysis,
 } from '../../core/trade/tradeDetailsHandler.js';
+import {
+    getCachedItemValue,
+    getCachedRolimonsItem,
+} from '../../core/trade/itemHandler.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 
 let observerRequest = null;
 let prefetchRequests = [];
+let pendingRequestOffers = null;
+let pendingTradeAction = null;
+let offerActionListenerAttached = false;
 
 function getThumbnailType(itemType) {
     return itemType === 'Bundle' ? 'BundleThumbnail' : 'Asset';
@@ -82,6 +89,150 @@ function applyThumbnail(thumbContainer, thumbnailData, itemName) {
     thumbContainer.appendChild(thumb);
 }
 
+function getTradeRequestOffersFromButton(button) {
+    const directOffers = button.closest('.trade-request-window-offers');
+    if (directOffers) return directOffers;
+
+    const siblingOffers = button.previousElementSibling?.matches(
+        '.trade-request-window-offers',
+    )
+        ? button.previousElementSibling
+        : null;
+    if (siblingOffers) return siblingOffers;
+
+    return button
+        .closest('.trade-request-window')
+        ?.querySelector('.trade-request-window-offers');
+}
+
+function getTradeDetailContext(button) {
+    let element = button.parentElement;
+    while (element && element !== document.body) {
+        const offers = element.querySelectorAll('.trade-list-detail-offer');
+        if (offers.length >= 2) {
+            return { container: element, offers };
+        }
+        element = element.parentElement;
+    }
+    return { container: null, offers: null };
+}
+
+function handleTradeRequestAction(event) {
+    const button = event.target.closest?.('button');
+    if (!button) return;
+
+    if (button.closest('.trade-buttons')) {
+        const detailContext = getTradeDetailContext(button);
+        const tradeRow = button.closest('.trade-row');
+        const selectedTradeRow = document.querySelector(
+            '.trade-row.selected[data-trade-id]',
+        );
+        const tradeId =
+            selectedTradeRow?.dataset.tradeId ||
+            button.closest('[data-trade-id]')?.dataset.tradeId ||
+            detailContext.container?.dataset.tradeId ||
+            tradeRow?.dataset.tradeId ||
+            null;
+
+        pendingTradeAction = {
+            detailContainer: detailContext.container,
+            offers: detailContext.offers,
+            tradeId,
+        };
+        const action = pendingTradeAction;
+        setTimeout(() => {
+            if (pendingTradeAction === action) pendingTradeAction = null;
+        }, 5000);
+        return;
+    }
+
+    const offers = getTradeRequestOffersFromButton(button);
+    if (!offers) return;
+
+    pendingRequestOffers = offers;
+    setTimeout(() => {
+        if (pendingRequestOffers === offers) pendingRequestOffers = null;
+    }, 5000);
+}
+
+function getTradeRequestWindowAnalysis(giveOffer, receiveOffer) {
+    const createOffer = (offer) => {
+        const items = Array.from(
+            offer.querySelectorAll(
+                '.trade-request-item[data-rovalra-asset-id]',
+            ),
+        ).map((card) => {
+            const assetId = card.dataset.rovalraAssetId;
+            const instanceId = card.dataset.collectibleiteminstanceid;
+            const cachedItem = instanceId
+                ? getCachedItemValue(instanceId)
+                : null;
+            const rolimonsItem = getCachedRolimonsItem(assetId);
+
+            return {
+                assetId,
+                itemType: 'Asset',
+                thumbnailKey: `Asset:${assetId}`,
+                name:
+                    card.querySelector('.item-name')?.textContent?.trim() ||
+                    rolimonsItem?.name ||
+                    'Unknown Item',
+                rap: Number(cachedItem?.rap ?? rolimonsItem?.rap ?? 0),
+                value: Number(
+                    rolimonsItem?.default_price ??
+                        rolimonsItem?.rap ??
+                        cachedItem?.rap ??
+                        0,
+                ),
+                serial: cachedItem?.serial ?? null,
+                stock: cachedItem?.stock ?? null,
+                isProjected: Boolean(rolimonsItem?.is_projected),
+                isRare: Boolean(rolimonsItem?.is_rare),
+            };
+        });
+
+        const robuxInput = offer.querySelector(
+            'input[name="robux"], input[placeholder*="Robux"]',
+        );
+        const offeredRobux =
+            Number((robuxInput?.value || '').replace(/[^\d]/g, '')) || 0;
+        const rap = items.reduce((sum, item) => sum + item.rap, 0);
+        const value = items.reduce((sum, item) => sum + item.value, 0);
+
+        return {
+            items,
+            stats: {
+                rap,
+                value,
+                offeredRobux,
+                receivedRobux: Math.floor(offeredRobux * 0.7),
+            },
+        };
+    };
+
+    const myOffer = createOffer(giveOffer);
+    const partnerOffer = createOffer(receiveOffer);
+    const myRap = myOffer.stats.rap + myOffer.stats.offeredRobux;
+    const myValue = myOffer.stats.value + myOffer.stats.offeredRobux;
+    const partnerRap =
+        partnerOffer.stats.rap + partnerOffer.stats.receivedRobux;
+    const partnerValue =
+        partnerOffer.stats.value + partnerOffer.stats.receivedRobux;
+
+    return {
+        myOffer,
+        partnerOffer,
+        comparison: {
+            myRap,
+            myValue,
+            partnerRap,
+            partnerValue,
+            rapDiff: partnerRap - myRap,
+            valueDiff: partnerValue - myValue,
+        },
+    };
+}
+
 async function hydrateTradePreviewThumbnails(container, previewData) {
     const allItems = [
         ...previewData.giving.items,
@@ -130,11 +281,28 @@ export function init() {
 
         startPrefetching();
 
+        if (!offerActionListenerAttached) {
+            document.addEventListener('click', handleTradeRequestAction, true);
+            offerActionListenerAttached = true;
+        }
+
         console.log('[RoValra] Initializing confirmtrade feature.');
         observerRequest = observeElement(
-            '.modal-window .modal-body',
+            '.modal-window .modal-body, [role="dialog"].foundation-web-dialog-content',
             (modalBody) => {
                 console.log('[RoValra] Modal body observed.', modalBody);
+                const isRadixDialog = modalBody.matches(
+                    '[role="dialog"].foundation-web-dialog-content',
+                );
+
+                if (
+                    isRadixDialog &&
+                    !pendingRequestOffers &&
+                    !pendingTradeAction
+                ) {
+                    return;
+                }
+
                 if (modalBody.querySelector('.rovalra-trade-preview')) {
                     console.log(
                         '[RoValra] Trade preview already exists. Skipping.',
@@ -142,10 +310,25 @@ export function init() {
                     return;
                 }
 
-                let tradeOffers = document.querySelectorAll(
+                let tradeOffers = pendingRequestOffers?.querySelectorAll(
                     '.trade-request-window-offer',
                 );
+                if (!tradeOffers?.length) {
+                    tradeOffers = document.querySelectorAll(
+                        '.trade-request-window-offer',
+                    );
+                }
                 let isDetailView = false;
+
+                if (pendingTradeAction) {
+                    const scopedOffers = pendingTradeAction.offers;
+                    if (!scopedOffers?.length) {
+                        pendingTradeAction = null;
+                        return;
+                    }
+                    tradeOffers = scopedOffers;
+                    isDetailView = true;
+                }
 
                 if (tradeOffers.length < 2) {
                     tradeOffers = document.querySelectorAll(
@@ -164,8 +347,23 @@ export function init() {
                     return;
                 }
 
-                injectTradePreview(modalBody, tradeOffers, isDetailView);
+                injectTradePreview(
+                    modalBody,
+                    tradeOffers,
+                    isDetailView,
+                    isRadixDialog,
+                    document.querySelector('.trade-row.selected[data-trade-id]')
+                        ?.dataset.tradeId ||
+                        pendingTradeAction?.tradeId ||
+                        document.querySelector(
+                            '.trade-row.active[data-trade-id]',
+                        )?.dataset.tradeId ||
+                        null,
+                );
+                pendingRequestOffers = null;
+                pendingTradeAction = null;
             },
+            { multiple: true },
         );
     });
 }
@@ -195,19 +393,25 @@ async function injectTradePreview(
     modalBody,
     tradeOffers,
     isDetailView = false,
+    isRadixDialog = false,
+    requestedTradeId = null,
 ) {
     console.log('[RoValra] Inside injectTradePreview.');
     const assets = getAssets();
     const activeTradeId =
+        requestedTradeId ||
         document.querySelector('.trade-row.active[data-trade-id]')?.dataset
-            .tradeId || getLatestTradeDetailsId();
+            .tradeId ||
+        getLatestTradeDetailsId();
     const myUserId = await getAuthenticatedUserId();
     const analysis =
         isDetailView && activeTradeId
             ? await getTradeAnalysis(activeTradeId, { myUserId }).catch(
                   () => null,
               )
-            : null;
+            : isRadixDialog && tradeOffers.length >= 2
+              ? getTradeRequestWindowAnalysis(tradeOffers[0], tradeOffers[1])
+              : null;
 
     if (!analysis) return;
 
@@ -247,21 +451,39 @@ async function injectTradePreview(
         modalDialog.style.width = '800px';
         modalDialog.style.maxWidth = '90vw';
     }
+    if (isRadixDialog) {
+        modalBody.style.width = '800px';
+        modalBody.style.maxWidth = '90vw';
+    }
 
     const container = document.createElement('div');
     container.className = 'rovalra-trade-preview';
     container.style.marginTop = '15px';
     container.style.borderTop = '1px solid #dee2e6';
     container.style.paddingTop = '15px';
+    container.style.paddingBottom = '10px';
+    container.style.paddingRight = '20px';
+    container.style.paddingLeft = '20px';
+    container.style.boxSizing = 'border-box';
+    container.style.maxWidth = '100%';
+    container.style.overflowX = 'hidden';
 
     const flex = document.createElement('div');
     flex.style.display = 'flex';
     flex.style.gap = '15px';
+    flex.style.width = '100%';
+    flex.style.minWidth = '0';
+    if (isRadixDialog) {
+        flex.style.display = 'grid';
+        flex.style.gridTemplateColumns =
+            'minmax(0, 1fr) minmax(100px, auto) minmax(0, 1fr)';
+    }
     container.appendChild(flex);
 
     const createSide = (title, data, color, isGiving) => {
         const div = document.createElement('div');
         div.style.flex = '1';
+        div.style.minWidth = '0';
         div.style.textAlign = 'center';
         div.style.display = 'flex';
         div.style.flexDirection = 'column';
@@ -278,6 +500,8 @@ async function injectTradePreview(
         itemsDiv.style.flexWrap = 'wrap';
         itemsDiv.style.justifyContent = 'center';
         itemsDiv.style.gap = '8px';
+        itemsDiv.style.width = '100%';
+        itemsDiv.style.minWidth = '0';
 
         data.items.forEach((item) => {
             const wrap = document.createElement('div');
@@ -406,6 +630,9 @@ async function injectTradePreview(
     middleDiv.style.justifyContent = 'center';
     middleDiv.style.flexShrink = '0';
     middleDiv.style.minWidth = '100px';
+    if (isRadixDialog) {
+        middleDiv.style.minWidth = '100px';
+    }
 
     const sepTop = document.createElement('div');
     sepTop.style.width = '1px';
@@ -442,7 +669,17 @@ async function injectTradePreview(
         createSide('You Get', previewData.receiving, '#00b06f', false),
     );
 
-    modalBody.appendChild(container);
+    const dialogFooter = isRadixDialog
+        ? Array.from(modalBody.children).find(
+              (child) => child.querySelectorAll('button').length > 1,
+          )
+        : null;
+
+    if (dialogFooter && dialogFooter.parentElement === modalBody) {
+        modalBody.insertBefore(container, dialogFooter);
+    } else {
+        modalBody.appendChild(container);
+    }
     hydrateTradePreviewThumbnails(container, previewData).catch((error) => {
         console.warn(
             '[RoValra] Failed to load trade preview thumbnails',

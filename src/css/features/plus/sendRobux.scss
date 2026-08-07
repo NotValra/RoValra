@@ -141,10 +141,10 @@ $prefix: rovalra-sendrobux;
                     & > span {
                         font-size: 14px;
                         color: var(--color-content-muted, #c0c0c0);
-                        & > svg {
+                        & > i {
                             width: 14px;
                             height: 14px;
-                            transform: translate(-5px, 2px);
+                            padding-right: 5px;
                         }
                     }
                 }
