@@ -98,13 +98,7 @@ async function fetchAssetDetails(assetIds) {
 async function mountDependencyScanner(favButton) {
     if (favButton.dataset.rovalraScanning === 'true') return;
 
-    if (
-        favButton.nextSibling?.id === 'rovalra-dep-container' ||
-        document.getElementById('rovalra-dep-container')
-    )
-        return;
-    const parent = favButton.parentNode;
-    if (!parent) return;
+    if (document.getElementById('rovalra-dep-container')) return;
 
     favButton.dataset.rovalraScanning = 'true';
 
@@ -126,9 +120,32 @@ async function mountDependencyScanner(favButton) {
 
         if (document.getElementById('rovalra-dep-container')) return;
 
+        const pageContent = document.querySelector('.page-content.menu-shown');
+        const insertionTarget = pageContent?.querySelector(
+            '#item-dependencies, #asset-resale-data-container',
+        );
+        const contentRoot = Array.from(pageContent?.children || []).find(
+            (child) => child.id !== 'rovalra-catalog-notice-banner',
+        );
+        const parent = insertionTarget?.parentNode || contentRoot;
+        const clearfix = contentRoot
+            ? Array.from(contentRoot.children).find((child) =>
+                  child.classList.contains('clearfix'),
+              )
+            : null;
+        const fallbackTarget =
+            clearfix?.parentNode === parent
+                ? clearfix.nextSibling
+                : parent?.firstChild;
+
+        if (!parent) {
+            favButton.dataset.rovalraScanning = 'false';
+            return;
+        }
+
         const uiContainer = document.createElement('div');
         uiContainer.id = 'rovalra-dep-container';
-        parent.insertBefore(uiContainer, favButton.nextSibling);
+        parent.insertBefore(uiContainer, insertionTarget || fallbackTarget);
 
         const dropdown = createDropdown({
             items: [],
