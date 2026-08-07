@@ -1,7 +1,7 @@
 /* ===================== IMPORTS ===================== */
 
 import { debugVerbose } from "../debug";
-import { isCallable } from "../utils/async";
+import { isCallable } from "../utils/js/type";
 
 
 /* ===================== TYPES ===================== */
@@ -9,7 +9,7 @@ import { isCallable } from "../utils/async";
 export type DatabaseName = string;
 
 export type RowMeta = {
-    id: string
+    id: unknown
 };
 
 
@@ -39,11 +39,12 @@ export function _loadDatabase(name: string, version?: number): Promise<IDBDataba
  * Check data about a database.
  * @param {DatabaseName} name The database name 
  */
-export async function CheckIndexedDB(name: DatabaseName): Promise<{ exists: boolean }> {
+export async function CheckIndexedDB(name: DatabaseName): Promise<{ exists: boolean, version: number | undefined }> {
     const databases = await indexedDB.databases();
 
     const data = {
-        exists: databases.some((db) => db.name === name)
+        exists: databases.some((db) => db.name === name),
+        version: databases.find((db) => db.name === name)?.version
     };
 
     debugVerbose(`Obtained data about IndexedDB database: ${name}`, data);
@@ -217,6 +218,20 @@ class ObjectStore {
     }
 
     /**
+     * Insert a row of data without preprocessing, and wait until it's fully inserted.
+     * @param data The row of data to insert.
+     */
+    async AddDataRaw(data: Record<any, unknown>): Promise<void> {
+        const [str, tr] = this.getStore('readwrite');
+        const result = str.add(data);
+
+        return new Promise((r, f) => {
+            tr.oncomplete = () => r(void 0);
+            tr.onabort = () => f(result.error ?? tr.error ?? new DOMException("Unknown error (?) in RoValra indexeddb:getdb", "AbortError"));
+        });
+    }
+
+    /**
      * Mutate/Replace a row of data
      * @param data The new version of the row of data.
      * @param meta The metadata used to select the row (returned by AddData and AddDataSync)
@@ -240,7 +255,7 @@ class ObjectStore {
      * @returns 
      */
     ReadRow(meta: RowMeta): Promise<unknown> {
-        const request = this.getStore("readonly")[0].get(meta.id);
+        const request = this.getStore("readonly")[0].get(meta.id as any);
 
         return new Promise((r, f) => {
             request.onsuccess = () => {
