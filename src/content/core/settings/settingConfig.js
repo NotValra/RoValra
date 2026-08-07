@@ -2755,8 +2755,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922'],
-                experimental:
-                    'This feature is not yet widely used within RoValra.',
             },
         },
     },
