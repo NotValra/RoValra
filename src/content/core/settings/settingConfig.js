@@ -311,6 +311,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                locked: "test"
             },
             privateGameViewerEnabled: {
                 label: 'View Private / Moderated Games',
