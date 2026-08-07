@@ -1103,6 +1103,10 @@
         "title": "Friends playing {{gameName}}",
         "join": "Join"
     },
+    "friendUsernames": {
+        "ariaLabel": "Username: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
     "placeVisits": {
         "label": "{{count}} Place Visits",
         "tooltip": "Total Community Place Visits"

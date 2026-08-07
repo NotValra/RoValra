@@ -1169,6 +1169,17 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['476449201'],
             },
+            friendUsernamesEnabled: {
+                label: 'Show Usernames On Friend Cards',
+                description: [
+                    "Shows a friend's @username below their display name on the Home page.",
+                    "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
+                    'Other extensions may overwrite this feature.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['760897332'],
+            },
             homeLayoutEnabled: {
                 label: 'Home Layout',
                 description: [
