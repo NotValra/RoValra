@@ -48,6 +48,7 @@ import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePl
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
+import { init as initFriendRelationshipNotifier } from './features/sitewide/friendRelationshipNotifier.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 
 // Avatar
@@ -233,6 +234,7 @@ const featureRoutes = [
             initWideTilePlayerCounts,
             initBackgroundImage,
             initFreeRobloxPlusThemes,
+            initFriendRelationshipNotifier,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
         ],

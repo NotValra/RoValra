@@ -1,0 +1,65 @@
+.rovalra-friend-relationship-notifications {
+    position: fixed;
+    z-index: 2147483647;
+    top: 16px;
+    right: 16px;
+    display: grid;
+    width: min(360px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    gap: 10px;
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+.rovalra-friend-relationship-notification {
+    padding: 14px;
+    color: var(--rovalra-main-text-color);
+    background: var(--rovalra-container-background-color);
+    border: 1px solid var(--rovalra-border-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+    pointer-events: auto;
+}
+
+.rovalra-friend-relationship-notification-added {
+    border-left: 4px solid #43b581;
+}
+
+.rovalra-friend-relationship-notification-removed {
+    border-left: 4px solid #f0ad4e;
+}
+
+.rovalra-friend-relationship-notification-message {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.rovalra-friend-relationship-notification-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.rovalra-friend-relationship-notification-actions button,
+.rovalra-friend-relationship-notification-actions a {
+    padding: 6px 10px;
+    color: var(--rovalra-main-text-color);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    background: var(--rovalra-button-background-color);
+    border: 0;
+    border-radius: 4px;
+}
+
+.rovalra-friend-relationship-notification-actions a {
+    background: #1976d2;
+}
+
+.rovalra-friend-relationship-notification-actions button:hover,
+.rovalra-friend-relationship-notification-actions a:hover {
+    filter: brightness(1.12);
+}

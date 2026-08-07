@@ -1,4 +1,13 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
+import {
+    FRIEND_LIST_KEY,
+    FRIEND_UPDATES_KEY,
+    FRIEND_UPDATE_INTERVAL,
+    normalizeFriendLists,
+    normalizeUpdates,
+    normalizeUserId,
+    normalizeUserIds,
+} from '../content/features/sitewide/friendRelationshipNotifier/contract.js';
 import init from './settingsCompat.ts';
 
 // --- Constants & State ---
@@ -22,6 +31,184 @@ const state = {
     badgeFullScanInterval: null,
     avatarInventoryInterval: null,
 };
+
+const friendUpdates = {
+    queue: Promise.resolve(),
+    sequence: 0,
+    lastPoll: 0,
+    polling: false,
+    userId: null,
+};
+
+function createFriendUpdate(userId, change) {
+    friendUpdates.sequence += 1;
+    return {
+        id: `${Date.now()}-${friendUpdates.sequence}`,
+        userId,
+        change,
+    };
+}
+
+function queueFriendUpdate(operation) {
+    // Keep storage writes ordered when more than one tab polls at once.
+    const task = friendUpdates.queue.then(operation, operation);
+    friendUpdates.queue = task.catch(() => {});
+    return task;
+}
+
+async function saveFriendUpdates(userId, friendIds) {
+    const storage = await chrome.storage.local.get([
+        'friendRelationshipNotifierEnabled',
+        FRIEND_LIST_KEY,
+        FRIEND_UPDATES_KEY,
+    ]);
+    if (storage.friendRelationshipNotifierEnabled !== true) {
+        return { status: 'disabled' };
+    }
+
+    const snapshots = normalizeFriendLists(storage[FRIEND_LIST_KEY]);
+    const pending = normalizeUpdates(storage[FRIEND_UPDATES_KEY]);
+    if (!Object.hasOwn(snapshots, userId)) {
+        snapshots[userId] = friendIds;
+        await chrome.storage.local.set({
+            [FRIEND_LIST_KEY]: snapshots,
+            [FRIEND_UPDATES_KEY]: pending,
+        });
+        return { status: 'baseline', pending: pending[userId] ?? [] };
+    }
+
+    const previousIds = normalizeUserIds(snapshots[userId]);
+    const previousSet = new Set(previousIds);
+    const currentSet = new Set(friendIds);
+    const added = friendIds.filter((id) => !previousSet.has(id));
+    const removed = previousIds.filter((id) => !currentSet.has(id));
+    const updates = [
+        ...added.map((id) => createFriendUpdate(id, 'added')),
+        ...removed.map((id) => createFriendUpdate(id, 'removed')),
+    ];
+
+    snapshots[userId] = friendIds;
+    if (updates.length)
+        pending[userId] = [...(pending[userId] ?? []), ...updates];
+    await chrome.storage.local.set({
+        [FRIEND_LIST_KEY]: snapshots,
+        [FRIEND_UPDATES_KEY]: pending,
+    });
+    return {
+        status: updates.length ? 'changed' : 'unchanged',
+        pending: pending[userId] ?? [],
+    };
+}
+
+async function friendUpdatesEnabled() {
+    const storage = await chrome.storage.local.get({
+        friendRelationshipNotifierEnabled: false,
+    });
+    return storage.friendRelationshipNotifierEnabled === true;
+}
+
+async function fetchFriendUpdateUserId() {
+    const response = await callRobloxApiBackground({
+        subdomain: 'users',
+        endpoint: '/v1/users/authenticated',
+        credentials: 'include',
+        noCache: true,
+    });
+    if (response.status === 401 || response.status === 403) {
+        return null;
+    }
+    if (!response.ok) {
+        throw new Error('Could not fetch the authenticated user');
+    }
+
+    return normalizeUserId((await response.json())?.id);
+}
+
+async function fetchFriendIds(userId) {
+    const response = await callRobloxApiBackground({
+        subdomain: 'friends',
+        endpoint: `/v1/users/${userId}/friends`,
+        credentials: 'include',
+        noCache: true,
+    });
+    if (!response.ok) throw new Error('Could not fetch the friend list');
+
+    const data = await response.json();
+    if (!Array.isArray(data?.data)) {
+        throw new Error('Friend relationship response was malformed');
+    }
+    return normalizeUserIds(data.data.map((friend) => friend?.id));
+}
+
+async function pollFriendUpdates() {
+    const now = Date.now();
+    if (friendUpdates.polling) return { status: 'busy' };
+    if (now - friendUpdates.lastPoll < FRIEND_UPDATE_INTERVAL) {
+        // Recheck the account before returning cached notifications.
+        const userId = await fetchFriendUpdateUserId();
+        friendUpdates.userId = userId;
+        return userId
+            ? { status: 'throttled', userId }
+            : { status: 'signedOut' };
+    }
+
+    friendUpdates.lastPoll = now;
+    friendUpdates.polling = true;
+    try {
+        if (!(await friendUpdatesEnabled())) {
+            return { status: 'disabled' };
+        }
+
+        const userId = await fetchFriendUpdateUserId();
+        if (!userId) return { status: 'signedOut' };
+        friendUpdates.userId = userId;
+        const friendIds = await fetchFriendIds(userId);
+        const result = await queueFriendUpdate(() =>
+            saveFriendUpdates(userId, friendIds),
+        );
+        return { ...result, userId };
+    } finally {
+        friendUpdates.polling = false;
+    }
+}
+
+async function dismissFriendUpdate(userId, notificationId) {
+    const storage = await chrome.storage.local.get(FRIEND_UPDATES_KEY);
+
+    const pending = normalizeUpdates(storage[FRIEND_UPDATES_KEY]);
+    const notifications = pending[userId] ?? [];
+    pending[userId] = notifications.filter(
+        (notification) => notification.id !== notificationId,
+    );
+    await chrome.storage.local.set({
+        [FRIEND_UPDATES_KEY]: pending,
+    });
+    return { status: 'ok', pending: pending[userId] };
+}
+
+function isRobloxTabSender(sender) {
+    try {
+        return new URL(sender.tab?.url || sender.url).hostname.endsWith(
+            '.roblox.com',
+        );
+    } catch {
+        return false;
+    }
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' || !changes.friendRelationshipNotifierEnabled) {
+        return;
+    }
+
+    friendUpdates.lastPoll = 0;
+    friendUpdates.userId = null;
+    if (changes.friendRelationshipNotifierEnabled.newValue !== true) {
+        queueFriendUpdate(() =>
+            chrome.storage.local.remove([FRIEND_LIST_KEY, FRIEND_UPDATES_KEY]),
+        );
+    }
+});
 
 // --- Session Storage Configuration ---
 if (chrome.storage.session && chrome.storage.session.setAccessLevel) {
@@ -345,9 +532,9 @@ const contextMenuClickListener = async (info, tab) => {
             chrome.tabs.sendMessage(tab.id, {
                 action: 'view-ids',
                 data: {
-                    targetId: id
-                }
-            })
+                    targetId: id,
+                },
+            });
         }
     } else if (info.menuItemId.startsWith('rovalra-copy-') && tab?.id) {
         const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
@@ -399,6 +586,8 @@ async function callRobloxApiBackground(options) {
         body = null,
         headers = {},
         fullUrl = null,
+        credentials,
+        noCache = false,
     } = options;
 
     let url;
@@ -418,7 +607,12 @@ async function callRobloxApiBackground(options) {
         url += `${separator}_RoValraRequest=`;
     }
 
-    const fetchOptions = { method, headers: { ...headers } };
+    const fetchOptions = {
+        method,
+        headers: { ...headers },
+        credentials,
+        cache: noCache ? 'no-store' : 'default',
+    };
 
     if (body) {
         if (typeof body === 'object') {
@@ -2072,6 +2266,38 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
+        case 'pollFriendRelationshipNotifier': {
+            if (!isRobloxTabSender(sender)) {
+                sendResponse({ status: 'stale' });
+                return false;
+            }
+
+            pollFriendUpdates()
+                .then(sendResponse)
+                .catch((error) => {
+                    console.warn(
+                        'RoValra: Friend relationship polling failed',
+                        error,
+                    );
+                    sendResponse({ status: 'failed' });
+                });
+            return true;
+        }
+
+        case 'dismissFriendRelationshipNotifierNotification': {
+            const userId = normalizeUserId(request.userId);
+            const notificationId = String(request.notificationId ?? '');
+            if (!userId || !notificationId || !isRobloxTabSender(sender)) {
+                sendResponse({ status: 'stale' });
+                return false;
+            }
+
+            queueFriendUpdate(() => dismissFriendUpdate(userId, notificationId))
+                .then(sendResponse)
+                .catch(() => sendResponse({ status: 'failed' }));
+            return true;
+        }
+
         case 'fetchJson':
             fetch(request.url)
                 .then((res) => {
@@ -2336,7 +2562,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 ) {
                                     request.ids.forEach((item) => {
                                         if (item.type === 'Universe') {
-                                            if (settings.copyUniverseIdEnabled) {
+                                            if (
+                                                settings.copyUniverseIdEnabled
+                                            ) {
                                                 chrome.contextMenus.create({
                                                     id: `rovalra-copy-universe-${item.id}`,
                                                     title: item.title,
@@ -2378,8 +2606,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         ],
                                     });
                                 }
-                        });
-                    })
+                            },
+                        );
+                    });
                 }
             }
             return false;
