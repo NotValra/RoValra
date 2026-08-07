@@ -2005,6 +2005,19 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            friendRelationshipNotifierEnabled: {
+                label: 'Friend Relationship Notifier',
+                description: [
+                    'Shows an on-site alert when your Roblox friend list changes.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: [
+                    'rovalra_friend_relationship_ids_v1',
+                    'rovalra_friend_relationship_notifications_v1',
+                ],
+                contributors: ['196966673'],
+            },
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
                 description:

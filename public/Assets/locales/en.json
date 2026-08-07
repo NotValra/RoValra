@@ -2,6 +2,13 @@
     "freeRobloxPlusThemes": {
         "notice": "Select and use any theme without Roblox Plus."
     },
+    "friendRelationshipNotifier": {
+        "userFallback": "User {{id}}",
+        "friendAdded": "You are now friends with {{user}}.",
+        "friendRemoved": "You are no longer friends with {{user}}.",
+        "dismiss": "Dismiss",
+        "viewProfile": "View Profile"
+    },
     "items": {
         "hiddenFromMarketplace": "This item is hidden from the marketplace"
     },

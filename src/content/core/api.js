@@ -490,21 +490,23 @@ export async function callRobloxApi(options) {
 
         if (useBackground) {
             return new Promise((resolve) => {
+                const backgroundOptions = {
+                    endpoint,
+                    subdomain,
+                    fullUrl: customFullUrl,
+                    method,
+                    body,
+                    headers: Object.fromEntries(normalizedHeaders.entries()),
+                    noCache,
+                    responseType,
+                };
+                if (options.credentials !== undefined) {
+                    backgroundOptions.credentials = options.credentials;
+                }
                 chrome.runtime.sendMessage(
                     {
                         action: 'fetchRobloxApi',
-                        options: {
-                            endpoint,
-                            subdomain,
-                            fullUrl: customFullUrl,
-                            method,
-                            body,
-                            headers: Object.fromEntries(
-                                normalizedHeaders.entries(),
-                            ),
-                            noCache,
-                            responseType,
-                        },
+                        options: backgroundOptions,
                     },
                     (response) => {
                         if (chrome.runtime.lastError || !response) {
