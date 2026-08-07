@@ -26,6 +26,22 @@ function setPixelStyle(element, name, value) {
     element.style[name] = `${value}px`;
 }
 
+function getHomeHeaderAvatarLink(container) {
+    return container.closest(
+        '#roseal-home-header a.user-avatar-container.avatar.avatar-headshot',
+    );
+}
+
+function getBorderHost(container) {
+    return getHomeHeaderAvatarLink(container) || container;
+}
+
+function getBorderElements(container) {
+    return getBorderHost(container).querySelectorAll(
+        ':scope > .rovalra-avatar-border',
+    );
+}
+
 function getOrCreateClip(container) {
     return container.querySelector(':scope > .rovalra-avatar-border-clip');
 }
@@ -43,14 +59,20 @@ function syncBorderMetrics(container) {
         ':scope > .rovalra-avatar-border-clip',
     );
 
-    const containerBox = getLocalLayoutBox(container);
-    const clipBox = clip ? getLayoutBox(clip) : containerBox;
+    const host = getBorderHost(container);
+    const containerBox =
+        host === container
+            ? getLocalLayoutBox(container)
+            : getLocalLayoutBox(host);
+    const clipBox = clip
+        ? getLayoutBox(clip)
+        : host === container
+          ? containerBox
+          : getLayoutBox(container);
     if (!containerBox.width || !containerBox.height) return;
     if (!clipBox.width || !clipBox.height) return;
 
-    for (const border of container.querySelectorAll(
-        ':scope > .rovalra-avatar-border',
-    )) {
+    for (const border of getBorderElements(container)) {
         syncBorderImageMetrics(containerBox, clipBox, border);
     }
 }
@@ -86,9 +108,7 @@ function getRelatedOverlayElements(container) {
 }
 
 function syncOverlayStacking(container) {
-    for (const border of container.querySelectorAll(
-        ':scope > .rovalra-avatar-border',
-    )) {
+    for (const border of getBorderElements(container)) {
         border.style.zIndex = BORDER_Z_INDEX;
     }
 
@@ -228,7 +248,15 @@ function ensureBorderContainerLayout(container) {
     }
 
     container.style.position = 'relative';
-    container.style.overflow = 'visible';
+    container.style.overflow = getHomeHeaderAvatarLink(container)
+        ? 'hidden'
+        : 'visible';
+
+    const host = getHomeHeaderAvatarLink(container);
+    if (host) {
+        host.style.position = 'relative';
+        host.style.overflow = 'visible';
+    }
 }
 
 function removeBorderFromContainer(container) {
@@ -237,9 +265,7 @@ function removeBorderFromContainer(container) {
     delete container.dataset.rovalraBorderLoading;
     delete container.dataset.rovalraIntendedBorder;
 
-    for (const border of container.querySelectorAll(
-        ':scope > .rovalra-avatar-border',
-    )) {
+    for (const border of getBorderElements(container)) {
         border.remove();
     }
 
@@ -303,9 +329,7 @@ export async function applyBorderToContainer(
         if (isConfigured) break;
     }
 
-    const existingBorders = [
-        ...container.querySelectorAll(':scope > .rovalra-avatar-border'),
-    ];
+    const existingBorders = [...getBorderElements(container)];
     if (
         existingBorders.length > 0 &&
         container.dataset.rovalraIntendedBorder !== borderUrl
@@ -359,7 +383,7 @@ export async function applyBorderToContainer(
         syncOverlayStacking(container);
 
         if (alwaysPlay || !animatedLink || animatedLink === staticLink) {
-            container.appendChild(img);
+            getBorderHost(container).appendChild(img);
             syncBorderMetrics(container);
             syncOverlayStacking(container);
         } else {
@@ -375,8 +399,8 @@ export async function applyBorderToContainer(
                 syncBorderMetrics(container);
             };
 
-            container.appendChild(img);
-            container.appendChild(animImg);
+            getBorderHost(container).appendChild(img);
+            getBorderHost(container).appendChild(animImg);
             syncBorderMetrics(container);
             syncOverlayStacking(container);
 
