@@ -1,7 +1,7 @@
 import { callRobloxApiJson } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { ts } from '../../core/locale/i18n.js';
-import { observeElement, observeResize } from '../../core/observer.js';
+import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createPill } from '../../core/ui/general/pill.js';
 import { getAssets } from '../../core/assets.js';
@@ -11,7 +11,7 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import { getCachedFriendsList } from '../../core/utils/trackers/friendslist.js';
 
-const CONTAINER_SELECTOR = '#favorites-button';
+const CONTAINER_SELECTOR = '#item-report-button-frontend';
 const assets = getAssets();
 const pillCache = new Map();
 let initialized = false;
@@ -165,22 +165,32 @@ async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
     });
 }
 
-async function addOwnershipPill(container) {
-    if (container.dataset.rovalraFriendOwnershipInjected) return;
+async function addOwnershipPill(reportButton) {
+    if (reportButton.dataset.rovalraFriendOwnershipInjected) return;
 
     const itemId = Number(getPlaceIdFromUrl());
     if (!itemId) return;
+
+    const clearfix = reportButton.closest('.clearfix');
+    const parent = reportButton.parentNode;
+    if (!clearfix || !parent || !clearfix.contains(parent)) return;
+
+    const container = document.createElement('div');
+    container.className = 'rovalra-friend-ownership-container';
+    parent.insertBefore(container, reportButton.nextSibling);
+
     const itemType = getCatalogItemType();
     const cacheKey = `${itemType}:${itemId}`;
 
-    container.dataset.rovalraFriendOwnershipInjected = 'loading';
+    reportButton.dataset.rovalraFriendOwnershipInjected = 'loading';
 
     try {
         let ownerData = pillCache.get(cacheKey);
         if (!ownerData) {
             ownerData = await fetchOwners(itemId, itemType);
             if (ownerData.totalCount === 0) {
-                container.dataset.rovalraFriendOwnershipInjected = 'empty';
+                reportButton.dataset.rovalraFriendOwnershipInjected = 'empty';
+                container.remove();
                 return;
             }
 
@@ -222,17 +232,21 @@ async function addOwnershipPill(container) {
         );
 
         Object.assign(container.style, {
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            width: '100%',
+            width: 'fit-content',
             maxWidth: '100%',
+            verticalAlign: 'middle',
+            marginLeft: 'auto',
+            marginTop: '20px',
+            marginLeft: '12px',
         });
         Object.assign(pill.style, {
             display: 'inline-flex',
             width: 'fit-content',
             minWidth: '0',
             flex: '0 0 auto',
-            marginLeft: 'auto',
+            marginLeft: '0',
             marginRight: '0',
             alignItems: 'center',
         });
@@ -246,34 +260,10 @@ async function addOwnershipPill(container) {
         }
         container.appendChild(pill);
 
-        const bindThumbnailWidth = (thumbnailContainer) => {
-            const alignPillToThumbnail = () => {
-                if (!thumbnailContainer.isConnected) return;
-
-                const thumbnailWidth =
-                    thumbnailContainer.getBoundingClientRect().width;
-                container.style.width = `${thumbnailWidth}px`;
-                container.style.maxWidth = `${thumbnailWidth}px`;
-            };
-
-            alignPillToThumbnail();
-            observeResize(thumbnailContainer, alignPillToThumbnail);
-        };
-
-        const thumbnailContainer = document.querySelector(
-            '.item-details-thumbnail-container',
-        );
-        if (thumbnailContainer) {
-            bindThumbnailWidth(thumbnailContainer);
-        } else {
-            observeElement(
-                '.item-details-thumbnail-container',
-                bindThumbnailWidth,
-            );
-        }
-        container.dataset.rovalraFriendOwnershipInjected = String(itemId);
+        reportButton.dataset.rovalraFriendOwnershipInjected = String(itemId);
     } catch (error) {
-        delete container.dataset.rovalraFriendOwnershipInjected;
+        container.remove();
+        delete reportButton.dataset.rovalraFriendOwnershipInjected;
         console.warn('RoValra: Failed to load friend ownership', error);
     }
 }
