@@ -40,7 +40,7 @@ export function _loadDatabase(name: string, version?: number): Promise<IDBDataba
  * @param {DatabaseName} name The database name 
  */
 export async function CheckIndexedDB(name: DatabaseName): Promise<{ exists: boolean, version: number | undefined }> {
-    const databases = await indexedDB.databases();
+    const databases = await _indexedDB.databases();
 
     const data = {
         exists: databases.some((db) => db.name === name),
@@ -226,7 +226,7 @@ class ObjectStore {
         const result = str.add(data);
 
         return new Promise((r, f) => {
-            tr.oncomplete = () => r(void 0);
+            tr.oncomplete = () => r(undefined);
             tr.onabort = () => f(result.error ?? tr.error ?? new DOMException("Unknown error (?) in RoValra indexeddb:getdb", "AbortError"));
         });
     }
