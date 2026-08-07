@@ -13,6 +13,8 @@ import {
 const USERNAME_WRAPPER_CLASS = 'rovalra-friend-username-wrapper';
 const USERNAME_LABEL_CLASS = 'rovalra-friend-username-label';
 const USERNAME_INLINE_CLASS = 'rovalra-friend-username-inline';
+const ROSEAL_FRIENDS_CAROUSEL_SELECTOR =
+    '.roseal-friends-carousel-container';
 const SERVER_FRIEND_AVATAR_SELECTOR =
     '.rbx-friends-game-server-item .player-thumbnails-container .avatar-card-link[href*="/users/"]';
 const SERVER_FRIEND_NAME_SELECTOR =
@@ -21,6 +23,24 @@ const SERVER_FRIEND_NAME_SELECTOR =
 let cardUnsubscribe = null;
 let serverAvatarObserverStarted = false;
 let serverNameObserverStarted = false;
+let rosealFriendsCarouselDetected = false;
+
+function isRosealFriendsCarouselPresent() {
+    return (
+        rosealFriendsCarouselDetected ||
+        document.querySelector(ROSEAL_FRIENDS_CAROUSEL_SELECTOR) !== null
+    );
+}
+
+function setupRosealFriendsCarouselDetection() {
+    observeElement(
+        ROSEAL_FRIENDS_CAROUSEL_SELECTOR,
+        () => {
+            rosealFriendsCarouselDetected = true;
+        },
+        { multiple: true },
+    );
+}
 
 function isOnFriendsListPage() {
     return (
@@ -72,6 +92,9 @@ async function applyCardUsernameLabel(tile, context) {
     // The dedicated friends list already shows enough friend info on its own.
     if (isOnFriendsListPage()) return;
 
+    // RoSeal already renders usernames in its friends carousel.
+    if (isRosealFriendsCarouselPresent()) return;
+
     // RoValra's own generated user cards already render a username sub-label.
     if (tile.querySelector('.user-card-subname')) return;
 
@@ -84,6 +107,7 @@ async function applyCardUsernameLabel(tile, context) {
 
         const currentUserId = getUserCardContext(tile).userId;
         if (String(currentUserId) !== String(userId)) return;
+        if (isRosealFriendsCarouselPresent()) return;
 
         tile.dataset.rovalraFriendUsernameApplied = applyKey;
 
@@ -111,6 +135,7 @@ async function applyCardUsernameLabel(tile, context) {
 
 function setupCardUsernames() {
     if (cardUnsubscribe) return;
+    setupRosealFriendsCarouselDetection();
     observeUserCardElements();
     cardUnsubscribe = onUserCardElement(applyCardUsernameLabel);
 }
