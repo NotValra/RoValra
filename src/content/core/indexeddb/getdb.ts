@@ -2,15 +2,25 @@
 
 import { debugVerbose } from "../debug";
 import { isCallable } from "../utils/js/type";
+import { UUID } from "../utils/js/typing";
+import { getKey, setKey } from "./utils";
 
 
 /* ===================== TYPES ===================== */
 
-export type DatabaseName = string;
+export namespace GetDB {
+    export type DatabaseName = `RoValra:${string}`;
 
-export type RowMeta = {
-    id: unknown
-};
+    export type RowIdentifier = UUID | IDBValidKey | IDBKeyRange;
+    /** @deprecated */
+    export type RowMeta = {
+        id: RowIdentifier
+    };
+
+    export type CreateObjectStoreOptions = {
+        primaryKey: string
+    }
+}
 
 
 /* ===================== INTERNAL VARIABLES ===================== */
@@ -39,7 +49,7 @@ export function _loadDatabase(name: string, version?: number): Promise<IDBDataba
  * Check data about a database.
  * @param {DatabaseName} name The database name 
  */
-export async function CheckIndexedDB(name: DatabaseName): Promise<{ exists: boolean, version: number | undefined }> {
+export async function CheckIndexedDB(name: GetDB.DatabaseName): Promise<{ exists: boolean, version: number | undefined }> {
     const databases = await _indexedDB.databases();
 
     const data = {
@@ -57,14 +67,14 @@ export async function CheckIndexedDB(name: DatabaseName): Promise<{ exists: bool
  * @param {DatabaseName} name The database name 
  * @param {number} version The database's schema version. Increase this when you change its structure 
  */
-export function CreateIndexedDB(name: DatabaseName, version: number, options: {
-    onUpgrade: (request: IDBOpenDBRequest) => void
+export function CreateIndexedDB(name: GetDB.DatabaseName, version: number, options: {
+    onUpgrade: (request: IDBOpenDBRequest, ev: IDBVersionChangeEvent) => void
 }): Promise<true> {
     const request = _indexedDB.open(name, version);
 
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (ev: IDBVersionChangeEvent) => {
         if (isCallable(options.onUpgrade)) {
-            options.onUpgrade(request);
+            options.onUpgrade(request, ev);
         }
     };
 
@@ -87,7 +97,7 @@ export function CreateIndexedDB(name: DatabaseName, version: number, options: {
  * @param name The database's name 
  * @returns The database instance
  */
-export async function LoadIndexDB(name: DatabaseName): Promise<IDBDatabase> {
+export async function LoadIndexDB(name: GetDB.DatabaseName): Promise<IDBDatabase> {
     if (!(await CheckIndexedDB(name)).exists) {
         throw new Error(`Failed to load IndexedDB database: ${name}. Please create it with CreateIndexedDB first.`);
     }
@@ -105,7 +115,7 @@ export async function LoadIndexDB(name: DatabaseName): Promise<IDBDatabase> {
  * @param fn An async function taking the database object as the first argument, and returning any data
  * @returns The data returned by the function
  */
-export async function WithIndexDB(name: DatabaseName, fn: (arg0: IDBDatabase) => Promise<any>): Promise<any> {
+export async function WithIndexDB(name: GetDB.DatabaseName, fn: (arg0: IDBDatabase) => Promise<any>): Promise<any> {
     if (!isCallable(fn))
         throw new Error(`WithIndexDB received non-function variable "fn".`);
     const db = await LoadIndexDB(name);
@@ -126,10 +136,10 @@ export async function WithIndexDB(name: DatabaseName, fn: (arg0: IDBDatabase) =>
  * @param {IDBDatabase} db The database object 
  * @param {string} name The object store name (case-insensitive) 
  */
-export function CreateObjectStore(db: IDBDatabase, name: string): IDBObjectStore {
+export function CreateObjectStore(db: IDBDatabase, name: string, options?: GetDB.CreateObjectStoreOptions): IDBObjectStore {
     debugVerbose(`IndexedDB(${db.name}): Creating object store "${name}"`);
     return db.createObjectStore(name.toLowerCase(), {
-        keyPath: "meta.id"
+        keyPath: options?.primaryKey ?? "meta.id"
     });
 }
 
@@ -150,24 +160,32 @@ export function LoadObjectStore(db: IDBDatabase, name: string): ObjectStore {
 class ObjectStore {
     private db: IDBDatabase;
     private name: string;
-    private persistence: IDBTransactionDurability;
+    private config: {
+        persistence: IDBTransactionDurability,
+        primaryKey: string
+    }
 
     constructor (db: IDBDatabase, name: string) {
         this.db = db
         this.name = name;
-        this.persistence = "default";
+        this.config = {
+            persistence: "default",
+            primaryKey: "meta.id"
+        }
     }
 
     /**
-     * Configure the ObjectStore instance
+     * Configure the ObjectStore instance.
      */
     Configure(options: {
-        persistence?: IDBTransactionDurability
+        persistence?: IDBTransactionDurability,
+        primaryKey?: string
     }) {
-        this.persistence = options.persistence ?? this.persistence;
+        this.config.persistence = options.persistence ?? this.config.persistence;
+        this.config.primaryKey = options.primaryKey ?? this.config.primaryKey;
     }
 
-    private getStore(perms: IDBTransactionMode = "readwrite", persistence: IDBTransactionDurability = this.persistence): [IDBObjectStore, IDBTransaction] {
+    private getStore(perms: IDBTransactionMode = "readwrite", persistence: IDBTransactionDurability = this.config.persistence): [IDBObjectStore, IDBTransaction] {
         const tr = this.db.transaction(
             this.name,
             perms,
@@ -181,44 +199,49 @@ class ObjectStore {
 
     /**
      * Insert a row of data, and wait until it's fully inserted.
+     * This will automatically insert a meta.id key (the default primary key) with a UUIDv4 value. If you change the primary key, you will need to provide the primary key yourself.
      * @param data The row of data to insert.
-     * @returns The metadata of the created row, usable to select the row later.
+     * @returns The value of the primary key.
      */
-    async AddData(data: Record<any, unknown>): Promise<RowMeta> {
+    async AddData(data: Record<any, unknown>): Promise<GetDB.RowIdentifier> {
         const targetMeta = {
             id: crypto.randomUUID()
         }
         const [str, tr] = this.getStore('readwrite');
-        const result = str.add({
+        const targetData = {
             ...data,
             meta: targetMeta
-        });
+        }
+        const result = str.add(targetData);
 
         return new Promise((r, f) => {
-            tr.oncomplete = () => r(targetMeta);
+            tr.oncomplete = () => r(getKey<GetDB.RowIdentifier>(targetData, this.config.primaryKey) as GetDB.RowIdentifier);
             tr.onabort = () => f(result.error ?? tr.error ?? new DOMException("Unknown error (?) in RoValra indexeddb:getdb", "AbortError"))
         });
     }
 
     /**
      * Insert a row of data, and return immediately.
+     * This will automatically insert a meta.id key (the default primary key) with a UUIDv4 value. If you change the primary key, you will need to provide the primary key yourself.
      * @param data The row of data to insert.
-     * @returns The metadata of the created row, usable to select the row later.
+     * @returns The value of the primary key.
      */
-    AddDataSync(data: Record<any, unknown>): RowMeta {
+    AddDataSync(data: Record<any, unknown>): GetDB.RowIdentifier {
         const targetMeta = {
             id: crypto.randomUUID()
         }
         const [str, tr] = this.getStore('readwrite', 'strict');
-        str.add({
+        const targetData = {
             ...data,
             meta: targetMeta
-        });
-        return targetMeta;
+        };
+        str.add(targetData);
+        return getKey<GetDB.RowIdentifier>(targetData, this.config.primaryKey) as GetDB.RowIdentifier;
     }
 
     /**
      * Insert a row of data without preprocessing, and wait until it's fully inserted.
+     * This will not insert a primary key. That is up to the caller to do.
      * @param data The row of data to insert.
      */
     async AddDataRaw(data: Record<any, unknown>): Promise<void> {
@@ -236,12 +259,11 @@ class ObjectStore {
      * @param data The new version of the row of data.
      * @param meta The metadata used to select the row (returned by AddData and AddDataSync)
      */
-    MutateRow(data: Record<any, unknown>, meta: RowMeta): Promise<void> {
+    MutateRow(data: Record<any, unknown>, identifier: GetDB.RowIdentifier): Promise<void> {
         const [str, tr] = this.getStore('readwrite');
-        const result = str.put({
-            ...data,
-            meta: meta
-        });
+        let targetData = structuredClone(data);
+        setKey(targetData, this.config.primaryKey, identifier);
+        const result = str.put(targetData);
 
         return new Promise((r, f) => {
             tr.oncomplete = () => r(undefined);
@@ -254,8 +276,8 @@ class ObjectStore {
      * @param meta The metadata used to select the row (returned by AddData and AddDataSync)
      * @returns 
      */
-    ReadRow(meta: RowMeta): Promise<unknown> {
-        const request = this.getStore("readonly")[0].get(meta.id as any);
+    ReadRow(identifier: GetDB.RowIdentifier): Promise<unknown> {
+        const request = this.getStore("readonly")[0].get(identifier);
 
         return new Promise((r, f) => {
             request.onsuccess = () => {
@@ -273,7 +295,7 @@ class ObjectStore {
      * @param count The number of rows to read. 
      * @returns An array of the rows of data returned by the query.
      */
-    ReadStore(count?: number, queryOrOptions?: IDBValidKey | IDBKeyRange | null | undefined): Promise<unknown[]> {
+    ReadStore(count?: number, queryOrOptions?: GetDB.RowIdentifier | null | undefined): Promise<unknown[]> {
         const request = this.getStore("readonly")[0].getAll(queryOrOptions, count);
 
         return new Promise((r, f) => {
@@ -290,13 +312,13 @@ class ObjectStore {
      * @param meta The metadata used to select the row (returned by AddData and AddDataSync)
      * @returns 
      */
-    DeleteRow(meta: RowMeta): Promise<void> {
+    DeleteRow(identifier: GetDB.RowIdentifier): Promise<void> {
         const [str, tr] = this.getStore('readwrite', "strict");
-        const req = str.delete(meta.id);
+        const req = str.delete(identifier);
 
         return new Promise((r, f) => {
             tr.oncomplete = () => r();
-            tr.onabort = () => f(new DOMException(`Failed to delete row (id=${meta.id}).`, "AbortError"));
+            tr.onabort = () => f(new DOMException(`Failed to delete row (id=${identifier}).`, "AbortError"));
         })
     }
 }

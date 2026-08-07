@@ -10,6 +10,10 @@ type Notes = Map<bigint, string>;
 const PROFILE_NOTES_SETTING_NAME = 'profileNotesEnabled';
 const PROFILE_NOTES_STORAGE_KEY = 'RoValra:ProfileNotes';
 const IDB_OBJECT_STORE = 'pf-notes';
+const OBJSTORE_CONFIG = {
+    persistence: "relaxed" as IDBTransactionDurability ,
+    primaryKey: "uid"
+}
 const PROFILE_ACTION_BUTTON_SELECTOR =
     '#user-profile-header-contextual-menu-button';
 const MAX_NOTE_LENGTH = 256;
@@ -33,7 +37,7 @@ function normalizeNotesMap(value: unknown): Notes {
 }
 
 async function loadNotesFromStorage(): Promise<Notes> {
-    type RawStored = Array<{note: string, meta: {id: string}}>;
+    type RawStored = Array<{note: string, uid: string}>;
     const rows: RawStored = await WithIndexDB(PROFILE_NOTES_STORAGE_KEY, async (db) => {
         const objstore = LoadObjectStore(db, IDB_OBJECT_STORE);
         return await objstore.ReadStore();
@@ -41,7 +45,7 @@ async function loadNotesFromStorage(): Promise<Notes> {
     let map = new Map();
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        map.set(BigInt(row.meta.id), String(row.note ?? ""));
+        map.set(BigInt(row.uid), String(row.note ?? ""));
     }
     return map;
 }
@@ -63,19 +67,20 @@ async function saveStoredNote(userId: bigint | string, note: string) {
 
     await WithIndexDB(PROFILE_NOTES_STORAGE_KEY, async (db) => {
         const objstore = LoadObjectStore(db, IDB_OBJECT_STORE);
+        objstore.Configure(OBJSTORE_CONFIG);
         if (normalizedNote) {
-            if (await objstore.ReadRow({ id: key })) {
-                await objstore.MutateRow({ note: normalizedNote }, { id: key });
+            if (await objstore.ReadRow(key)) {
+                await objstore.MutateRow({ note: normalizedNote }, key);
             } else {
                 await objstore.AddDataRaw(
                     {
                         note: normalizedNote,
-                        meta: { id: key }
+                        uid: key
                     }
                 );
             }
         } else {
-            await objstore.DeleteRow({ id: key });
+            await objstore.DeleteRow(key);
         }
     });
 
@@ -423,14 +428,8 @@ function startStorageListener() {
 }
 
 async function initdb() {
-    await CreateIndexedDB(PROFILE_NOTES_STORAGE_KEY, 1, {
-        onUpgrade: (request: IDBOpenDBRequest) => {
-            const db = request.result;
-
-            if (!db.objectStoreNames.contains(IDB_OBJECT_STORE)) {
-                const str = CreateObjectStore(db, IDB_OBJECT_STORE);
-            }
-        }
+    await CreateIndexedDB(PROFILE_NOTES_STORAGE_KEY, 2, {
+        onUpgrade: (request: IDBOpenDBRequest, event) => { }
     })
 }
 
