@@ -1,22 +1,25 @@
 import { observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
+import { Icon } from '../../core/ui/buildericon.js';
 
 const assets = getAssets();
 const ICON_TEMPLATES = new Map();
 let modernIconsInitialized = false;
 
 function prepareTemplates() {
-    const parse = (svgData) => {
-        if (!svgData || !svgData.startsWith('data:image/svg+xml,')) return null;
-        const container = document.createElement('span');
-        container.className = 'rovalra-modern-icon';
-        container.innerHTML = decodeURIComponent(svgData.split(',')[1]); // Verified
-        return container;
-    };
-
-    ICON_TEMPLATES.set('votes', parse(assets.thumbsUp));
-    ICON_TEMPLATES.set('playing', parse(assets.playingIcon));
+    ICON_TEMPLATES.set('votes', Icon({
+        classes: ['rovalra-modern-icon'],
+        filled: true,
+        size: '18px',
+        icon: 'thumb-up'
+    }));
+    ICON_TEMPLATES.set('playing', Icon({
+        classes: ['rovalra-modern-icon'],
+        filled: true,
+        size: '18px',
+        icon: 'person-play'
+    }));
 
     injectStylesheet('css/modernIcons.css', 'rovalra-modern-icons-styles');
 }

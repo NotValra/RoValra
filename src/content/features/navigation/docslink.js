@@ -1,6 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
+import { Icon } from '../../core/ui/buildericon.js';
 
 const COMMUNITY_PATH = '/communities';
 const DOCS_PATH = '/docs';
@@ -66,25 +67,12 @@ function matchesRoute(pathname, route) {
 }
 
 function createDocsIcon() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.classList.add('MuiSvgIcon-root', 'MuiSvgIcon-fontSizeMedium');
-    svg.setAttribute('aria-hidden', 'true');
-    svg.setAttribute('focusable', 'false');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.style.width = '20px';
-    svg.style.height = '20px';
-    svg.style.display = 'block';
-    svg.style.fill = 'currentColor';
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute(
-        'd',
-        'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8zm2 16H8v-2h8zm0-4H8v-2h8zm-3-5V3.5L18.5 9z',
-    );
-    path.setAttribute('fill', 'currentColor');
-
-    svg.appendChild(path);
-    return svg;
+    return Icon({
+        material: true,
+        size: 'medium',
+        icon: 'description',
+        filled: true,
+    });
 }
 
 function getSidebarContainer(anchor) {

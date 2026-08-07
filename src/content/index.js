@@ -598,12 +598,50 @@ async function initializePage() {
         );
     };
 
+
+    // preload stuff
+    const builderIconsReg = document.createElement('link');
+    builderIconsReg.rel = 'preload';
+    builderIconsReg.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2';
+    builderIconsReg.as = 'font';
+    builderIconsReg.type = 'font/woff2';
+    builderIconsReg.crossOrigin = 'anonymous';
+    const builderIconsFill = document.createElement('link');
+    builderIconsFill.rel = 'preload';
+    builderIconsFill.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2';
+    builderIconsFill.as = 'font';
+    builderIconsFill.type = 'font/woff2';
+    builderIconsFill.crossOrigin = 'anonymous';
+    const rovalraIconsWOFF = document.createElement('link');
+    rovalraIconsWOFF.rel = 'preload';
+    rovalraIconsWOFF.href = 'https://www.rovalra.com/static/fonts/RoValraIcons.woff2';
+    rovalraIconsWOFF.as = 'font';
+    rovalraIconsWOFF.type = 'font/woff2';
+    rovalraIconsWOFF.crossOrigin = 'anonymous';
+    const googleIcons = document.createElement('link')
+    googleIcons.rel = 'preload';
+    googleIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap';
+    googleIcons.rel = 'stylesheet';
+    googleIcons.crossOrigin = 'anonymous';
+
+    if (document.head) {
+        document.head.append(googleIcons, rovalraIconsWOFF, builderIconsReg, builderIconsFill);
+    } else {
+        const docObserverForHead = new MutationObserver((_, obs) => {
+            if (document.head) {
+                obs.disconnect();
+                document.head.append(googleIcons, rovalraIconsWOFF, builderIconsReg, builderIconsFill);
+            }
+        }); //Verified
+        docObserverForHead.observe(document.documentElement, { childList: true });
+    }
+
     if (document.body) {
         startFeatures().catch((error) =>
             console.error('RoValra: Feature initialization failed', error),
         );
     } else {
-        const docObserver = new MutationObserver((_, obs) => {
+        const docObserverForBody = new MutationObserver((_, obs) => {
             if (document.body) {
                 obs.disconnect();
                 startFeatures().catch((error) =>
@@ -614,7 +652,7 @@ async function initializePage() {
                 );
             }
         }); //Verified
-        docObserver.observe(document.documentElement, { childList: true });
+        docObserverForBody.observe(document.documentElement, { childList: true });
     }
 }
 

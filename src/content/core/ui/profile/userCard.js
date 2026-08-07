@@ -10,6 +10,7 @@ import {
     attachSubplaceCardToPresenceTarget,
     clearSubplaceCardFromPresenceTarget,
 } from './subplaceCard.js';
+import { CUSTOM_ADDED_TAGS } from '../../utils/purifyCfg.js';
 
 async function isSubplaceHoverCardEnabled() {
     return (
@@ -154,6 +155,7 @@ export function createUserCard({
     presenceInfo = 0,
     gameName,
     isVerified = false,
+    isSubscribed = false,
     isOpaque = false,
     hidePresence = false,
     presenceData = null,
@@ -165,8 +167,14 @@ export function createUserCard({
     const presenceTitle =
         presenceInfo === 2 && gameName ? gameName : presence.title;
     const assets = getAssets();
-    const verifiedSvg = isVerified
-        ? `<img src="${assets.verifiedBadgeMono}" alt="" style="width: 14px; height: 14px; flex-shrink: 0; margin-left: 2px; vertical-align: middle; color: var(--rovalra-playbutton-color);">`
+    const verifiedBadge = isVerified
+        ? `<span class="relative flex items-center justify-center">
+            <icon filled size="x-small" class="grow-0 shrink-0 basis-auto content-system-emphasis">verified-backplate</icon>
+            <icon filled size="x-small" class="grow-0 shrink-0 basis-auto absolute" style="color: white;">verified-check</icon>
+        </span>`
+        : '';
+    const plusBadge = isSubscribed
+        ? '<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="Roblox Plus subscriber">roblox-plus</icon>'
         : '';
 
     const tileContainer = document.createElement('div');
@@ -184,17 +192,17 @@ export function createUserCard({
             </div>
             ${showSublabel
             ? `
-            <div class="user-card-labels" style="display: block; margin-top: 8px; max-width: 90px; width: 90px;">
-                <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
-                    <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
+            <div class="user-card-labels" style="display: block; margin-top: 8px; width: 90px;">
+                <div class="user-card-name" style="line-height: 1.2;">
+                    <span style="white-space: nowrap; font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color);transition: text-decoration 0.2s ease; display: flex;" class="flex flex-row items-center gap-xsmall justify-center">${displayName}${verifiedBadge}${plusBadge}</span>
                 </div>
                 <div class="user-card-subname" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: ${sublabelFontSize}; color: var(--rovalra-secondary-text-color); max-width: 90px; display: block; text-align: center; transition: text-decoration 0.2s ease;">${sublabelText}</div>
             </div>
             `
             : `
-            <div class="user-card-labels-no-username" style="margin-top: 8px; max-width: 90px; width: 90px; text-align: center;">
-                <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
-                    <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
+            <div class="user-card-labels-no-username" style="margin-top: 8px; width: 90px; text-align: center;">
+                <div class="user-card-name" style="line-height: 1.2;">
+                    <span style="white-space: nowrap; font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color);transition: text-decoration 0.2s ease; display: flex;" class="flex flex-row items-center gap-xsmall justify-center">${displayName}${verifiedBadge}${plusBadge}</span>
                 </div>
             </div>
             `
@@ -203,7 +211,7 @@ export function createUserCard({
     `;
     tileContainer.innerHTML = DOMPurify.sanitize(
         `<div class="user-card-inner">${innerHtml}</div>`,
-    );
+    CUSTOM_ADDED_TAGS );
     const thumbEl = createThumbnailElement(thumbData, displayName, '', {
         width: '90px',
         height: '90px',
@@ -241,7 +249,7 @@ export function createUserCard({
 export function createFriendTile(
     item,
     thumbData,
-    { displayName, username, isHidden, isVerified = false },
+    { displayName, username, isHidden, isVerified = false, isSubscribed = false },
 ) {
     const href = isHidden
         ? ''
@@ -254,6 +262,7 @@ export function createFriendTile(
         userId: isHidden ? -1 : item.id,
         presenceInfo: 0,
         isVerified,
+        isSubscribed,
     });
 
     if (
@@ -368,7 +377,7 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
             method: 'POST',
             body: {
                 userIds: validIds,
-                fields: ['names.combinedName', 'isVerified', 'names.username'],
+                fields: ['names.combinedName', 'isVerified', 'names.username', 'hasRobloxSubscription'],
             },
         }),
         getBatchThumbnails(validIds, 'AvatarHeadshot', '150x150'),
@@ -422,7 +431,8 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
             displayName: displayName,
             username: `@${username}`,
             showUsername: true,
-            isVerified: profile.names.isVerified || false,
+            isVerified: profile.isVerified || false,
+            isSubscribed: profile.hasRobloxSubscription || false,
             thumbData: thumbMap.get(id) || { state: 'Error' },
             href: `https://www.roblox.com/users/${id}/profile`,
             userId: id,

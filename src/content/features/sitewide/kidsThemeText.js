@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 import { observeChildren, startObserving } from '../../core/observer.js';
 import { t } from '../../core/locale/i18n.js';
 
@@ -152,10 +153,7 @@ async function addBadge() {
 }
 
 async function editBadge(text) {
-    const cleanText = DOMPurify.sanitize(String(text ?? '')).slice(
-        0,
-        AGE_BADGE_TEXT_MAX_LENGTH,
-    );
+    const cleanText = DOMPurify.sanitize(String(text ?? ''), { ...CUSTOM_ADDED_TAGS })
     const elementsWithBadgeClass =
         document.getElementsByClassName(badgeClassToSelect);
     const badgeElement =
@@ -168,7 +166,7 @@ async function editBadge(text) {
     if (cleanText == '') hideBadge();
     else showBadge();
 
-    badgeElement.textContent = cleanText;
+    badgeElement.innerHTML = cleanText;
     scheduleNavbarLayoutUpdate();
 }
 
@@ -226,7 +224,7 @@ export function makeBadgeChanges() {
             ) {
                 matchBadgeToTheme(settings.ageThemeSelection);
             }
-            if (currentBadgeContainerObserver && observerCalled >= 2)
+            if (currentBadgeContainerObserver && observerCalled >= 3)
                 currentBadgeContainerObserver.disconnect();
             else if (currentBadgeContainerObserver) observerCalled++;
         },

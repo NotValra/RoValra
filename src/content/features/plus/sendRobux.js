@@ -22,13 +22,10 @@ import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { applyDisplayNameGradientToElement } from '../profile/header/displayNameGradient.js';
 import { applyBorderToContainer } from '../profile/avatarBorder.js';
 import { applyGradientForUserId } from '../profile/header/profileBackground.js';
+import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 
 let keepOpenInAppProfileItem = false;
 const cssClassNamePrefix = "rovalra-sendrobux";
-
-const SVG_CALANDAR = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M640 1536Q667 1536 685.5 1517.5Q704 1499 704 1472V1344H1344V1472Q1344 1499 1362.5 1517.5Q1381 1536 1408.0 1536.0Q1435 1536 1453.5 1517.5Q1472 1499 1472 1472V1344H1600Q1670 1344 1728.5 1309.5Q1787 1275 1821.5 1216.5Q1856 1158 1856 1088V1024H192V1088Q192 1158 226.5 1216.5Q261 1275 319.5 1309.5Q378 1344 448 1344H576V1472Q576 1499 594.5 1517.5Q613 1536 640 1536ZM192 896H1856V72Q1856 14 1831.0 -37.0Q1806 -88 1761.0 -120.5Q1716 -153 1659 -160Q1386 -192 1024.0 -192.0Q662 -192 389 -160Q332 -153 287.0 -120.5Q242 -88 217.0 -37.0Q192 14 192 72ZM640 640Q613 640 594.5 621.5Q576 603 576.0 576.0Q576 549 594.5 530.5Q613 512 640.0 512.0Q667 512 685.5 530.5Q704 549 704.0 576.0Q704 603 685.5 621.5Q667 640 640 640ZM960 576Q960 549 978.5 530.5Q997 512 1024.0 512.0Q1051 512 1069.5 530.5Q1088 549 1088.0 576.0Q1088 603 1069.5 621.5Q1051 640 1024.0 640.0Q997 640 978.5 621.5Q960 603 960 576ZM960 192Q960 165 978.5 146.5Q997 128 1024.0 128.0Q1051 128 1069.5 146.5Q1088 165 1088.0 192.0Q1088 219 1069.5 237.5Q1051 256 1024.0 256.0Q997 256 978.5 237.5Q960 219 960 192ZM1408 256Q1381 256 1362.5 237.5Q1344 219 1344.0 192.0Q1344 165 1362.5 146.5Q1381 128 1408.0 128.0Q1435 128 1453.5 146.5Q1472 165 1472.0 192.0Q1472 219 1453.5 237.5Q1435 256 1408 256ZM1344 576Q1344 549 1362.5 530.5Q1381 512 1408.0 512.0Q1435 512 1453.5 530.5Q1472 549 1472.0 576.0Q1472 603 1453.5 621.5Q1435 640 1408.0 640.0Q1381 640 1362.5 621.5Q1344 603 1344 576ZM576 192Q576 165 594.5 146.5Q613 128 640.0 128.0Q667 128 685.5 146.5Q704 165 704.0 192.0Q704 219 685.5 237.5Q667 256 640.0 256.0Q613 256 594.5 237.5Q576 219 576 192Z" transform="scale(1, -1) translate(0, -1664)" fill="currentColor"/></svg>';
-const SVG_TWOFRIENDS = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M572 1471Q538 1480 505.0 1471.0Q472 1462 448.0 1438.0Q424 1414 415 1380L332 1071Q323 1038 332.0 1005.0Q341 972 365.0 947.5Q389 923 423 914L732 832Q765 823 798.0 832.0Q831 841 855.0 865.0Q879 889 888 922L971 1231Q980 1265 971.0 1298.0Q962 1331 938.0 1355.0Q914 1379 881 1388ZM1408 832Q1495 832 1569 876Q1642 918 1684 990Q1728 1065 1728.0 1152.0Q1728 1239 1684 1313Q1642 1386 1569 1428Q1495 1472 1408.0 1472.0Q1321 1472 1246 1428Q1174 1386 1132 1313Q1088 1239 1088.0 1152.0Q1088 1065 1132 990Q1174 918 1246 876Q1321 832 1408 832ZM1228 -150Q1316 -160 1415 -160Q1586 -160 1718 -131Q1813 -111 1879 -78Q1917 -59 1933 -20Q1947 16 1938 53L1855 407Q1835 493 1780.5 560.5Q1726 628 1648.0 666.0Q1570 704 1481 704H1349Q1287 704 1229.0 684.5Q1171 665 1122 629Q1187 543 1212 436L1295 82Q1308 24 1293 -37Q1277 -104 1228 -150ZM1031 535Q978 614 894.0 659.0Q810 704 713 704H581Q493 704 415.0 666.0Q337 628 282.0 560.5Q227 493 207 407L125 53Q116 16 130 -20Q146 -59 184 -78Q250 -111 345 -131Q477 -160 647 -160Q772 -160 877 -145Q962 -132 1031 -110Q1076 -95 1111 -78Q1149 -59 1165 -20Q1179 16 1170 53L1087 407Q1071 477 1031 535Z" transform="scale(1, -1) translate(0, -1664)" fill="currentColor"/></svg>';
-const SVG_INFO_FILLED = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1024 1536Q1206 1536 1373 1466Q1534 1398 1658.0 1274.0Q1782 1150 1850 989Q1920 822 1920.0 640.0Q1920 458 1850 291Q1782 130 1658.0 6.0Q1534 -118 1373 -186Q1206 -256 1024.0 -256.0Q842 -256 675 -186Q514 -118 390.0 6.0Q266 130 198 291Q128 458 128.0 640.0Q128 822 198 989Q266 1150 390.0 1274.0Q514 1398 675 1466Q842 1536 1024 1536ZM832 768H960V320H800V192H1248V320H1088V896H832ZM960 1024H1088V1152H960Z" transform="scale(1, -1) translate(0, -1664)" fill="currentColor"/></svg>';
 
 const isAprilFools = () => {
     const d = new Date();
@@ -112,12 +109,14 @@ async function showStep1Popup(userId, robuxAmount = 0, easterEgg = false) {
     // Setup User Profile
     const userThumbnailData = await fetchUserThumbnailWithApiKey(userId);
     const userFullData = await getUserFullData(userId);
+    const userProfileData = (await getUserProfileData([userId])).profileDetails[0];
     const userCard = createUserCard({
         displayName: userFullData.displayName || userFullData.name,
         username: userFullData.name,
         thumbData: userThumbnailData,
         hidePresence: true,
         isVerified: userFullData.hasVerifiedBadge || false,
+        isSubscribed: userProfileData.hasRobloxSubscription,
         userId,
         showUsername: false,
     });
@@ -284,12 +283,14 @@ async function showStep2Popup(userId, robuxAmount, easterEgg = false, error = nu
     // Setup User Profile and info about relationship to user
     const userThumbnailData = await fetchUserThumbnailWithApiKey(userId);
     const userFullData = await getUserFullData(userId);
+    const userProfileData = (await getUserProfileData([userId])).profileDetails[0];
     const userCard = createUserCard({
         displayName: userFullData.displayName,
         username: `@${userFullData.name}`,
         thumbData: userThumbnailData,
         hidePresence: true,
         isVerified: userFullData.hasVerifiedBadge || false,
+        isSubscribed: userProfileData.hasRobloxSubscription,
         userId,
         showUsername: true,
     });
@@ -313,11 +314,11 @@ async function showStep2Popup(userId, robuxAmount, easterEgg = false, error = nu
             : months != 0 ? 'month'
                 : 'day'
 
-        infoContainer.innerHTML += `<span>${SVG_CALANDAR}${await t('plus.sendRobux.popup.step2.userInfoFriendTime', { time: -time, range: timeUnit })}</span>`
+        infoContainer.innerHTML += `<span><icon filled>calendar</icon>${await t('plus.sendRobux.popup.step2.userInfoFriendTime', { time: -time, range: timeUnit })}</span>`
     }
     infoContainer.innerHTML +=
-        `<span>${SVG_TWOFRIENDS}${await t('plus.sendRobux.popup.step2.userInfoMutualFriends', { count: initTransferRequest.userRelationshipDetail.mutualFriendsCount })}</span>`
-        + `<span>${SVG_INFO_FILLED}${await t('plus.sendRobux.popup.step2.userInfoJoin', { year: initTransferRequest.userRelationshipDetail.userAccountSinceYear })}</span>`
+        `<span><icon filled>two-people</icon>${await t('plus.sendRobux.popup.step2.userInfoMutualFriends', { count: initTransferRequest.userRelationshipDetail.mutualFriendsCount })}</span>`
+        + `<span><icon filled>circle-i</icon>${await t('plus.sendRobux.popup.step2.userInfoJoin', { year: initTransferRequest.userRelationshipDetail.userAccountSinceYear })}</span>`
 
     profileContainer.append(userCard, infoContainer);
 
@@ -762,13 +763,13 @@ export function initBuyRobuxPage() {
                         <span class="text-body-medium content-emphasis">${profile.names.combinedName}</span>
                         <span class="items-center gap-xxsmall inline-flex shrink-0 [--icon-size-small:1em]">
                             ${/* Verified Badge */ profile.isVerified ? `<span class="relative flex items-center justify-center">
-                                <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-verified-backplate size-[var(--icon-size-medium)] content-system-emphasis"></span>
-                                <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-verified-check size-[var(--icon-size-medium)] absolute" style="color: white;"></span>
+                                <icon filled size="medium" role="presentation" class="grow-0 shrink-0 basis-auto content-system-emphasis">verified-backplate</icon>
+                                <icon filled size="medium" role="presentation" class="grow-0 shrink-0 basis-auto absolute" style="color: white;">verified-check</icon>
                             </span>` : ''}
-                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-roblox-plus size-[var(--icon-size-small)] content-system-contrast" aria-label="Roblox Plus subscriber"></span>` : ''}
+                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<icon size="small" role="presentation" class="grow-0 shrink-0 basis-auto content-system-contrast" aria-label="Roblox Plus subscriber">roblox-plus</icon>` : ''}
                         </span>
                     </div>
-                `);
+                `, { ...CUSTOM_ADDED_TAGS });
 
                 if (settings.displayNameGradientEnabled)
                     applyDisplayNameGradientToElement(profileDiv.querySelector('.text-body-medium.content-emphasis'), profileUserSettings, { hoverHost: profileDiv });

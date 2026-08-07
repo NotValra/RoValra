@@ -3,32 +3,32 @@ import { sanitizeBackgroundImage } from '../backgroundImage.js';
 // Technically not in use but still nice to have
 export function sanitizeString(str) {
     if (typeof str !== 'string') return str;
-    
-    str = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    
-    str = str.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
-    str = str.replace(/on\w+\s*=\s*[^\s>]*/gi, '');
-    
-    str = str.replace(/javascript:/gi, '');
-    
-    str = str.replace(/data:text\/html[^,]*,/gi, '');
-    
-    str = str.replace(/style\s*=\s*["'][^"']*["']/gi, '');
-    
-    str = str.replace(/expression\s*\(/gi, '');
-    
-    str = str.replace(/vbscript:/gi, '');
-    
 
-    str = str.replace(/<[^>]*>/g, '');
-    
+    str = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''); // Remove scripts
+
+    str = str.replace(/on\w+\s*=\s*["'][^"']*["']/gi, ''); // remove on[events]
+    str = str.replace(/on\w+\s*=\s*[^\s>]*/gi, ''); // remove on[events]
+
+    str = str.replace(/javascript:/gi, ''); // remove js bookmarklets
+
+    str = str.replace(/data:text\/html[^,]*,/gi, ''); // remove html data uris
+
+    str = str.replace(/style\s*=\s*["'][^"']*["']/gi, ''); // remove style elements having attributes
+
+    str = str.replace(/expression\s*\(/gi, ''); // no expressions
+
+    str = str.replace(/vbscript:/gi, ''); // no vbscript
+
+    //str = str.replace(/<[^>]*>/g, ''); // [OLD] removed all elements
+    str = str.replace(/<(?!\/?icon(?:\s+(?:material|rovalra|fill|filled|size=(?:"[^\\"]*"|'[^\\']*')))*\s*\/?>)[^>]*>/g, ''); // newer version of above but allows icon elements
+
     return str;
 }
 
 
 export function htmlEncode(str) {
     if (typeof str !== 'string') return str;
-    
+
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
@@ -45,11 +45,11 @@ export function setSafeText(element, text) {
         console.warn('setSafeText: Invalid element provided');
         return element;
     }
-    
+
     const sanitized = sanitizeString(String(text));
-    
+
     element.textContent = sanitized;
-    
+
     return element;
 }
 
@@ -59,23 +59,23 @@ export function setSafeAttribute(element, attrName, attrValue) {
         console.warn('setSafeAttribute: Invalid element provided');
         return element;
     }
-    
+
     const dangerousAttrs = ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur'];
-    
+
     if (dangerousAttrs.includes(attrName.toLowerCase())) {
         console.warn(`setSafeAttribute: Blocked dangerous attribute: ${attrName}`);
         return element;
     }
-    
+
     const sanitized = sanitizeString(String(attrValue));
-    
+
     if ((attrName.toLowerCase() === 'href' || attrName.toLowerCase() === 'src')) {
         if (sanitized.toLowerCase().includes('javascript:') || sanitized.toLowerCase().includes('data:text/html')) {
             console.warn(`setSafeAttribute: Blocked dangerous ${attrName} value`);
             return element;
         }
     }
-    
+
     element.setAttribute(attrName, sanitized);
     return element;
 }
@@ -84,19 +84,19 @@ export function sanitizeObject(obj) {
     if (obj === null || obj === undefined) {
         return obj;
     }
-    
+
     if (typeof obj === 'string') {
         return sanitizeString(obj);
     }
-    
+
     if (typeof obj === 'number' || typeof obj === 'boolean') {
         return obj;
     }
-    
+
     if (Array.isArray(obj)) {
         return obj.map(item => sanitizeObject(item));
     }
-    
+
     if (typeof obj === 'object') {
         const sanitized = {};
         for (const [key, value] of Object.entries(obj)) {
@@ -105,7 +105,7 @@ export function sanitizeObject(obj) {
         }
         return sanitized;
     }
-    
+
     return obj;
 }
 
@@ -114,9 +114,9 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
     if (!settings || typeof settings !== 'object') {
         throw new Error('Invalid settings format');
     }
-    
+
     const sanitized = {};
-    
+
     if (SETTINGS_CONFIG) {
         for (const [key, value] of Object.entries(settings)) {
             let settingDef = null;
@@ -133,14 +133,14 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                 }
                 if (settingDef) break;
             }
-            
+
             if (!settingDef) {
                 console.warn(`Sanitizing: Unknown setting '${key}' - skipping`);
                 continue;
             }
-            
+
             let sanitizedValue = value;
-            
+
             switch (settingDef.type) {
                 case 'checkbox':
                     if (value !== true && value !== false && value !== null) {
@@ -148,7 +148,7 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                         sanitizedValue = settingDef.default ?? false;
                     }
                     break;
-                    
+
                 case 'number':
                     if (typeof value !== 'number' || isNaN(value)) {
                         console.warn(`Sanitizing: Invalid number value for '${key}' - setting to default`);
@@ -162,7 +162,7 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                         }
                     }
                     break;
-                    
+
                 case 'text':
                 case 'select':
                     if (value === null) {
@@ -172,9 +172,9 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                         sanitizedValue = settingDef.default ?? '';
                     } else {
                         sanitizedValue = sanitizeString(value);
-                        
+
                         if (settingDef.type === 'select' && settingDef.options && Array.isArray(settingDef.options)) {
-                            const validValues = settingDef.options.map(opt => 
+                            const validValues = settingDef.options.map(opt =>
                                 typeof opt === 'object' ? opt.value : opt
                             );
                             if (!validValues.includes(sanitizedValue)) {
@@ -184,7 +184,7 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                         }
                     }
                     break;
-                    
+
                 case 'file':
                     if (value === null) {
                         sanitizedValue = null;
@@ -197,11 +197,11 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
                 case 'backgroundImage':
                     sanitizedValue = sanitizeBackgroundImage(value);
                     break;
-                    
+
                 default:
                     sanitizedValue = sanitizeObject(value);
             }
-            
+
             sanitized[key] = sanitizedValue;
         }
     } else {
@@ -209,11 +209,11 @@ export function sanitizeSettings(settings, SETTINGS_CONFIG = null) {
             sanitized[key] = sanitizeObject(value);
         }
     }
-    
+
     delete sanitized.__proto__;
     delete sanitized.constructor;
     delete sanitized.prototype;
-    
+
     return sanitized;
 }
 
@@ -222,11 +222,11 @@ export function sanitizeApiResponse(data) {
     if (data === null || data === undefined) {
         return data;
     }
-    
+
     if (typeof data === 'object' && !Array.isArray(data)) {
         const technicalFields = ['status', 'statusText', 'ok', 'redirected', 'type', 'url'];
         const sanitized = {};
-        
+
         for (const [key, value] of Object.entries(data)) {
             if (technicalFields.includes(key)) {
                 sanitized[key] = value;
@@ -234,10 +234,10 @@ export function sanitizeApiResponse(data) {
                 sanitized[key] = sanitizeObject(value);
             }
         }
-        
+
         return sanitized;
     }
-    
+
     return sanitizeObject(data);
 }
 
@@ -248,7 +248,7 @@ export function validateSettingValue(value, constraints = {}) {
             return false;
         }
     }
-    
+
     if (typeof value === 'number') {
         if (constraints.min !== undefined && value < constraints.min) {
             return false;
@@ -260,7 +260,7 @@ export function validateSettingValue(value, constraints = {}) {
             return false;
         }
     }
-    
+
     if (typeof value === 'string') {
         if (constraints.maxLength && value.length > constraints.maxLength) {
             return false;
@@ -269,12 +269,12 @@ export function validateSettingValue(value, constraints = {}) {
             return false;
         }
     }
-    
+
     if (Array.isArray(value)) {
         if (constraints.maxItems && value.length > constraints.maxItems) {
             return false;
         }
     }
-    
+
     return true;
 }

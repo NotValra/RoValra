@@ -6,6 +6,7 @@ import { createSpinner } from '../../core/ui/spinner.js';
 import { t } from '../../core/locale/i18n.js';
 import { getAssets } from '../../core/assets.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { Icon } from '../../core/ui/buildericon.js';
 
 const PREVIOUS_BETA_PROGRAMS_STORAGE_KEY = 'rovalra_previous_beta_programs';
 
@@ -293,19 +294,13 @@ export async function addNavbarButton() {
                     iconsRow.style.flexWrap = 'wrap';
                     iconsRow.style.color = 'var(--rovalra-main-text-color)';
 
-                    const addPlatIcon = (assetKey, tooltipText) => {
-                        const el = document.createElement('div');
-                        el.style.display = 'flex';
-                        el.style.alignItems = 'center';
-                        el.style.justifyContent = 'center';
-                        el.style.width = '20px';
-                        el.style.height = '20px';
-                        const svgData = assets[assetKey];
-                        if (svgData.startsWith('data:image/svg+xml,')) {
-                            el.innerHTML = decodeURIComponent(
-                                svgData.split(',')[1],
-                            ); // verified
-                        }
+                    const addPlatIcon = (assetKey, tooltipText, filled = false, material = false) => {
+                        const el = Icon({
+                            icon: assetKey,
+                            filled,
+                            material,
+                            size: '20px',
+                        });
                         addTooltip(el, tooltipText, { position: 'bottom' });
                         iconsRow.appendChild(el);
                     };
@@ -315,8 +310,10 @@ export async function addNavbarButton() {
                         item.activeStatus === 'PROGRAM_ACTIVE_STATUS_ALLOWLIST'
                     ) {
                         addPlatIcon(
-                            'betaAllowlist',
+                            'format_list_bulleted',
                             await t('betaPrograms.allowlist'),
+                            false,
+                            true
                         );
                     }
 
@@ -330,7 +327,7 @@ export async function addNavbarButton() {
                         win.push('Studio');
                     if (win.length > 0)
                         addPlatIcon(
-                            'betaWindowsStudio',
+                            'microsoft',
                             `Windows (${win.join(' & ')})`,
                         );
 
@@ -342,7 +339,7 @@ export async function addNavbarButton() {
                         mac.push('Studio');
                     if (mac.length > 0)
                         addPlatIcon(
-                            'betaMacPlayer',
+                            'apple',
                             `macOS (${mac.join(' & ')})`,
                         );
 
@@ -356,32 +353,32 @@ export async function addNavbarButton() {
                         andr.push('Tencent');
                     if (andr.length > 0)
                         addPlatIcon(
-                            'betaAndroid',
+                            'android',
                             `Android (${andr.join(', ')})`,
                         );
 
                     // iOS
                     if (p.includes('PROGRAM_PLATFORM_IOS_APP'))
-                        addPlatIcon('betaIos', 'iOS');
+                        addPlatIcon('phone_iphone', 'iOS', false, true);
 
                     // PlayStation
                     const ps = [];
                     if (p.includes('PROGRAM_PLATFORM_PS4_APP')) ps.push('PS4');
                     if (p.includes('PROGRAM_PLATFORM_PS5_APP')) ps.push('PS5');
                     if (ps.length > 0)
-                        addPlatIcon('betaPlaystation', ps.join(' & '));
+                        addPlatIcon('playstation', ps.join(' & '));
 
                     // Xbox
                     if (p.includes('PROGRAM_PLATFORM_XBOX_APP'))
-                        addPlatIcon('betaXbox', 'Xbox');
+                        addPlatIcon('xbox', 'XBOX');
 
                     // Quest / VR
                     if (p.includes('PROGRAM_PLATFORM_QUEST_ANDROID_APP'))
-                        addPlatIcon('betaVR', 'Meta Quest');
+                        addPlatIcon('xr-headset', 'Meta Quest');
 
                     // RCC
                     if (p.includes('PROGRAM_PLATFORM_RCC'))
-                        addPlatIcon('betaRcc', 'RCC');
+                        addPlatIcon('dns', 'RCC', true, true);
 
                     if (iconsRow.children.length > 0) {
                         textContainer.appendChild(iconsRow);

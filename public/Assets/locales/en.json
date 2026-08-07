@@ -381,16 +381,16 @@
             "title": "RoValra Information!",
             "desc1": "RoValra is an extension that's trying to make basic quality-of-life features free and accessible to everyone by making everything completely open-source.",
             "desc2": "Some free features still rely on RoValra servers and cost money to run.",
-            "desc3": "Supporter donations help cover those costs, letting RoValra keep more features free for everyone while continuing to improve over time. ❤️",
+            "desc3": "Supporter donations help cover those costs, letting RoValra keep more features free for everyone while continuing to improve over time. <icon style=\"color:#c13ad9\" filled>heart</icon>",
             "desc4": "RoValra is a passion project and has always been one.",
             "suggestions": "If you have any feature suggestions please let me know in my Discord server or via GitHub",
             "bugs": "If you find any bugs let me know in my Discord server or via GitHub",
-            "review": "If you like this extension please consider <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">leaving a review</a>, it helps a lot ❤️",
+            "review": "If you like this extension please consider <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">leaving a review</a>, it helps a lot <icon style=\"color:#c13ad9\" filled>heart</icon>",
             "discord": "Discord Server",
-            "github": "Github Repo",
+            "github": "Github Repository",
             "support": "Support RoValra",
-            "tiktok": "TikTok: ValraWantBanana",
-            "x": "X: ValraSwag"
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
         },
         "credits": {
             "contributorsTitle": "Contributors",
@@ -437,6 +437,12 @@
                 },
                 "donatorTierPage": {
                     "newIndicators": "Added new indicators for donator tiers"
+                },
+                "iconElement": {
+                    "addIcons": "Added the `<icon>` element that allows using Builder Icons, Material Icons, and RoValra Icons.",
+                    "addElement": "Added the base `<icon>` element that allows using Builder Icons. Prev, going to use the built-in `<i>` element with classes.",
+                    "makeRoValraIcons": "Added a font for RoValra Icons + a new building method for the website.",
+                    "addBuilderIconsWOFF": "Added hosting for Builder Icons on the RoValra Website, as well as different font files that are less in size."
                 }
             },
             "ui": {

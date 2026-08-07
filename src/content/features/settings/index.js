@@ -74,6 +74,8 @@ import {
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
+import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
 
 const assets = getAssets();
@@ -1044,31 +1046,6 @@ function getDonatorPerkStatusCell(hasPerk) {
     return `<td class="rovalra-donator-perk-status-cell" aria-label="${label}" data-rovalra-donator-perk-included="${hasPerk ? 'true' : 'false'}"></td>`;
 }
 
-function createDonatorPerkStatusIcon(isIncluded) {
-    const icon = document.createElement('span');
-    icon.className =
-        'rovalra-donator-perk-status-icon ' +
-        (isIncluded
-            ? 'rovalra-donator-perk-status-icon-included'
-            : 'rovalra-donator-perk-status-icon-not-included');
-    icon.setAttribute('aria-hidden', 'true');
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('focusable', 'false');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute(
-        'd',
-        isIncluded
-            ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z'
-            : 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m5 11H7v-2h10z',
-    );
-    svg.appendChild(path);
-    icon.appendChild(svg);
-
-    return icon;
-}
-
 function renderDonatorPerkStatusPills(container) {
     container
         .querySelectorAll('[data-rovalra-donator-perk-included]')
@@ -1076,7 +1053,14 @@ function renderDonatorPerkStatusPills(container) {
             const isIncluded =
                 cell.dataset.rovalraDonatorPerkIncluded === 'true';
             const label = isIncluded ? 'Included' : 'Not included';
-            const symbol = createDonatorPerkStatusIcon(isIncluded);
+            const symbol = Icon({
+                icon: isIncluded ? 'circle-check' : 'circle-minus',
+                filled: true,
+                size: 'medium',
+                classes: isIncluded
+                    ? 'rovalra-donator-perk-status-icon-included'
+                    : 'rovalra-donator-perk-status-icon-not-included',
+            });
 
             addTooltip(symbol, label, { position: 'top' });
 
@@ -1403,7 +1387,7 @@ function renderContributors(container, users, thumbMap) {
 
         count.addEventListener("click", async (ev) => {
             const contributions = getContributions()[String(id)];
-            
+
             let markdown = `
 | ${await t("settings.credits.ui.popup.contributor")} | ${await t("settings.credits.ui.popup.featureName")} | ${await t("settings.credits.ui.popup.featureKey")} |
 |              -                                 |                   -                            |                       -                       |
@@ -2161,14 +2145,25 @@ export const buttonData = [
                                             <p>${ts('settings.info.review')}</p>
                                         </div>
                                         <div style="margin-top: 10px; margin-bottom: 20px;">
-                                            <a href="https://discord.gg/GHd5cSKJRk" target="_blank" class="rovalra-discord-link">${ts('settings.info.discord')}</a>
-                                            <a href="https://github.com/NotValra/RoValra" target="_blank" class="rovalra-github-link">
-                                                ${ts('settings.info.github')}
-                                                <img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
+                                            <a href="https://discord.gg/GHd5cSKJRk" target="_blank" class="rovalra-discord-link">
+                                                <icon>discord</icon> ${ts('settings.info.discord')}
                                             </a>
-                                            <a href="https://www.roblox.com/my/account?rovalra=donator+perks" class="rovalra-roblox-link">${ts('settings.info.support')}</a>
-                                            <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">${ts('settings.info.tiktok')}</a>
-                                            <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">${ts('settings.info.x')}</a>
+                                            <br />
+                                            <a href="https://github.com/NotValra/RoValra" target="_blank" class="rovalra-github-link">
+                                                <icon filled>github</icon> ${ts('settings.info.github')}
+                                            </a>
+                                            <br />
+                                            <a href="https://www.roblox.com/my/account?rovalra=donator+perks" class="rovalra-donator-link">
+                                                <icon filled>heart</icon> ${ts('settings.info.support')}
+                                            </a>
+                                            <br />
+                                            <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">
+                                                <icon size="large">tik-tok</icon> ${ts('settings.info.tiktok')}
+                                            </a>
+                                            <br />
+                                            <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">
+                                                <icon>twitter</icon> ${ts('settings.info.x')}
+                                            </a>
                                         </div>
                                         <div id="export-import-buttons-container" style="border-top: 1px solid var(--rovalra-secondary-text-color); opacity: 0.8; padding-top: 15px; display: flex; justify-content: flex-start; gap: 10px;"></div>
                                     </div>
@@ -2382,9 +2377,7 @@ async function renderAccountStanding(container) {
     discordCard.innerHTML = DOMPurify.sanitize(`
         <div style="display: flex; align-items: flex-start; gap: 20px;">
             <div class="standing-status-icon-bg" style="width: 48px; height: 48px; border-radius: 50%; background-color: #23a55a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background-color 0.3s;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                    <path class="standing-status-icon-path" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
+                <icon size="large" style="transform: translate(1px, 1px)">check-large</icon>
             </div>
             <div style="flex: 1;">
                 <h3 class="standing-status-title" style="margin: 0 0 8px 0; font-size: 18px; color: var(--rovalra-main-text-color);">Your account is in good standing.</h3>
@@ -2409,7 +2402,7 @@ async function renderAccountStanding(container) {
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">RoValra Safety Policy</div>
             Accounts found in violation of the <a href="https://www.rovalra.com/tou/" target="_blank" style="color: inherit; text-decoration: underline;">RoValra Terms of Service</a> or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.
         </div>
-    `);
+    `, { ...CUSTOM_ADDED_TAGS });
 
     if (standingCache) {
         updateAccountStandingUI(
@@ -2444,7 +2437,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
     const isTemporary = Boolean(activeModeration?.moderation_expires_at);
 
     const iconBg = discordCard.querySelector('.standing-status-icon-bg');
-    const iconPath = discordCard.querySelector('.standing-status-icon-path');
+    const iconEl = iconBg.querySelector('icon');
     const statusTitle = discordCard.querySelector('.standing-status-title');
     const statusDesc = discordCard.querySelector('.standing-status-desc');
     const fill = discordCard.querySelector('.standing-status-fill');
@@ -2458,10 +2451,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
 
     if (isGoodStanding) {
         iconBg.style.backgroundColor = '#23a55a';
-        iconPath.setAttribute(
-            'd',
-            'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z',
-        );
+        ChangeIcon(iconEl, { icon: 'check-large' });
         statusTitle.textContent = 'Your account is in good standing.';
         statusDesc.textContent =
             'You do not have any active violations or restrictions from the RoValra safety team.';
@@ -2469,10 +2459,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
 
     if (!isGoodStanding) {
         iconBg.style.backgroundColor = '#f23f43';
-        iconPath.setAttribute(
-            'd',
-            'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
-        );
+        ChangeIcon(iconEl, { icon: 'x' });
         statusTitle.textContent = isTemporary
             ? 'Your account is temporarily limited.'
             : 'We found a violation on your account.';
