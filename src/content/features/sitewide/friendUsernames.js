@@ -13,8 +13,8 @@ import {
 const USERNAME_WRAPPER_CLASS = 'rovalra-friend-username-wrapper';
 const USERNAME_LABEL_CLASS = 'rovalra-friend-username-label';
 const USERNAME_INLINE_CLASS = 'rovalra-friend-username-inline';
-const ROSEAL_FRIENDS_CAROUSEL_SELECTOR =
-    '.roseal-friends-carousel-container';
+const COMPATIBLE_FRIEND_USERNAME_SELECTOR =
+    '.roseal-friends-carousel-container, .btr-friends-carousel-username';
 const SERVER_FRIEND_AVATAR_SELECTOR =
     '.rbx-friends-game-server-item .player-thumbnails-container .avatar-card-link[href*="/users/"]';
 const SERVER_FRIEND_NAME_SELECTOR =
@@ -23,20 +23,20 @@ const SERVER_FRIEND_NAME_SELECTOR =
 let cardUnsubscribe = null;
 let serverAvatarObserverStarted = false;
 let serverNameObserverStarted = false;
-let rosealFriendsCarouselDetected = false;
+let compatibleFriendUsernameDetected = false;
 
-function isRosealFriendsCarouselPresent() {
+function isCompatibleFriendUsernamePresent() {
     return (
-        rosealFriendsCarouselDetected ||
-        document.querySelector(ROSEAL_FRIENDS_CAROUSEL_SELECTOR) !== null
+        compatibleFriendUsernameDetected ||
+        document.querySelector(COMPATIBLE_FRIEND_USERNAME_SELECTOR) !== null
     );
 }
 
-function setupRosealFriendsCarouselDetection() {
+function setupCompatibleFriendUsernameDetection() {
     observeElement(
-        ROSEAL_FRIENDS_CAROUSEL_SELECTOR,
+        COMPATIBLE_FRIEND_USERNAME_SELECTOR,
         () => {
-            rosealFriendsCarouselDetected = true;
+            compatibleFriendUsernameDetected = true;
         },
         { multiple: true },
     );
@@ -92,8 +92,8 @@ async function applyCardUsernameLabel(tile, context) {
     // The dedicated friends list already shows enough friend info on its own.
     if (isOnFriendsListPage()) return;
 
-    // RoSeal already renders usernames in its friends carousel.
-    if (isRosealFriendsCarouselPresent()) return;
+    // BTRoblox already render usernames in their friends carousel.
+    if (isCompatibleFriendUsernamePresent()) return;
 
     // RoValra's own generated user cards already render a username sub-label.
     if (tile.querySelector('.user-card-subname')) return;
@@ -107,7 +107,7 @@ async function applyCardUsernameLabel(tile, context) {
 
         const currentUserId = getUserCardContext(tile).userId;
         if (String(currentUserId) !== String(userId)) return;
-        if (isRosealFriendsCarouselPresent()) return;
+        if (isCompatibleFriendUsernamePresent()) return;
 
         tile.dataset.rovalraFriendUsernameApplied = applyKey;
 
@@ -135,7 +135,7 @@ async function applyCardUsernameLabel(tile, context) {
 
 function setupCardUsernames() {
     if (cardUnsubscribe) return;
-    setupRosealFriendsCarouselDetection();
+    setupCompatibleFriendUsernameDetection();
     observeUserCardElements();
     cardUnsubscribe = onUserCardElement(applyCardUsernameLabel);
 }
@@ -216,9 +216,13 @@ function setupServerFriendTooltips() {
             link.dataset.rovalraFriendUsernameTooltip = 'true';
             link.removeAttribute('title');
 
-            addTooltip(link, () => link.dataset.rovalraFriendUsernameText || '', {
-                position: 'top',
-            });
+            addTooltip(
+                link,
+                () => link.dataset.rovalraFriendUsernameText || '',
+                {
+                    position: 'top',
+                },
+            );
 
             getUserFullData(userId).then((userData) => {
                 if (!userData?.name || !link.isConnected) return;
