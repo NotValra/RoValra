@@ -7,6 +7,17 @@ import { ts } from '../../core/locale/i18n.js';
 
 const joinDateCache = new Map();
 const joinDatePromises = new Map();
+const VIEW_PREFERENCE_KEY = 'rovalra_group_filters_view';
+const DEFAULT_VIEW = 'default';
+
+function getStoredViewPreference() {
+    return chrome.storage.local
+        .get({ [VIEW_PREFERENCE_KEY]: DEFAULT_VIEW })
+        .then((settings) =>
+            settings[VIEW_PREFERENCE_KEY] === 'grid' ? 'grid' : DEFAULT_VIEW,
+        )
+        .catch(() => DEFAULT_VIEW);
+}
 
 export async function getJoinDate(groupId, userId) {
     if (!groupId || !userId) return new Date(0);
@@ -107,7 +118,7 @@ export function init() {
                     );
                 };
 
-                const setup = () => {
+                const setup = async () => {
                     const carousel = getCarousel();
                     if (!carousel || container.dataset.rovalraFiltersAdded)
                         return;
@@ -135,18 +146,65 @@ export function init() {
                     const header = container.querySelector('h2');
                     if (!header) return;
 
+                    const storedView = await getStoredViewPreference();
+
                     const headerWrapper = document.createElement('div');
                     headerWrapper.style.display = 'flex';
                     headerWrapper.style.alignItems = 'center';
                     headerWrapper.style.justifyContent = 'space-between';
                     headerWrapper.style.width = '100%';
                     headerWrapper.style.marginBottom = '12px';
+                    headerWrapper.style.gap = '12px';
 
                     header.parentNode.insertBefore(headerWrapper, header);
                     headerWrapper.appendChild(header);
 
                     const originalOrder = [...items];
 
+                    // view options
+                    let currentView = storedView;
+                    const viewOptions = [
+                        { text: 'Row', value: DEFAULT_VIEW },
+                        { text: 'Grid', value: 'grid' },
+                    ];
+
+                    const applyView = (value, activeCarousel = getCarousel()) => {
+                        if (!activeCarousel) return;
+
+                        currentView = value === 'grid' ? 'grid' : DEFAULT_VIEW;
+                        const rowButtons =
+                            activeCarousel.parentElement?.querySelector(
+                                '.scroll-arrow.next',
+                            );
+
+                        if (currentView === DEFAULT_VIEW) {
+                            activeCarousel.style.display = 'flex';
+                            activeCarousel.style.flexWrap = 'nowrap';
+                            activeCarousel.style.gridTemplateColumns = '';
+
+                            if (rowButtons) rowButtons.style.display = '';
+                        } else {
+                            activeCarousel.style.display = 'grid';
+                            activeCarousel.style.gridTemplateColumns =
+                                'repeat(6, 1fr)';
+                            activeCarousel.style.flexWrap = '';
+
+                            if (rowButtons) rowButtons.style.display = 'none';
+                        }
+                    };
+
+                    const viewToggle = createPillToggle({
+                        options: viewOptions,
+                        initialValue: storedView,
+                        onChange: (value) => {
+                            applyView(value);
+                            chrome.storage.local
+                                .set({ [VIEW_PREFERENCE_KEY]: value })
+                                .catch(() => {});
+                        },
+                    });
+
+                    // filters
                     const sortOptions = [
                         {
                             text: ts('groupFilters.sort.default'),
@@ -171,6 +229,7 @@ export function init() {
                         initialValue: 'default',
                         onChange: async (value) => {
                             const activeCarousel = getCarousel();
+                            const rowButtons = document.querySelector('.scroll-arrow.next');
                             if (!activeCarousel) return;
 
                             const currentItems = Array.from(
@@ -256,8 +315,19 @@ export function init() {
                                 }
                             });
 
-                            activeCarousel.style.display = 'flex';
-                            activeCarousel.style.flexWrap = 'nowrap';
+                            if (currentView === 'default') {
+                                activeCarousel.style.display = 'flex';
+                                activeCarousel.style.flexWrap = 'nowrap';
+                                activeCarousel.style.gridTemplateColumns = '';
+
+                                if (rowButtons) rowButtons.style.display = 'block';
+                            } else {
+                                activeCarousel.style.display = 'grid';
+                                activeCarousel.style.gridTemplateColumns = 'repeat(6, 1fr)'; // 6 items per row, Roblox's default
+                                activeCarousel.style.flexWrap = '';
+
+                                if (rowButtons) rowButtons.style.display = 'none';
+                            }
 
                             currentItems.forEach((item) =>
                                 activeCarousel.appendChild(item),
@@ -265,7 +335,19 @@ export function init() {
                         },
                     });
 
-                    headerWrapper.appendChild(toggle);
+                    const filterToggles = document.createElement('div');
+                    filterToggles.style.display = 'flex';
+                    filterToggles.style.alignItems = 'center';
+                    filterToggles.style.flexDirection = 'row';
+                    filterToggles.style.gap = '12px';
+
+                    headerWrapper.appendChild(viewToggle);
+                    filterToggles.style.marginLeft = 'auto';
+                    headerWrapper.appendChild(filterToggles);
+
+                    filterToggles.appendChild(toggle);
+
+                    applyView(storedView);
                 };
 
                 setup();

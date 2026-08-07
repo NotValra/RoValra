@@ -778,8 +778,9 @@ export const SETTINGS_CONFIG = {
             groupFiltersEnabled: {
                 label: 'Community Filters',
                 description: [
-                    'Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest.',
+                    'Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest, also allows you to view groups in a row format or grid format.',
                 ],
+                contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
             },
