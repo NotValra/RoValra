@@ -118,22 +118,63 @@ function unwrapLabelHost(host) {
     host.remove();
 }
 
+function getNameRow(displayNameEl, context) {
+    const parent = displayNameEl.parentElement;
+
+    if (
+        !parent ||
+        parent.classList.contains(HOST_CLASS)
+    ) {
+        return displayNameEl;
+    }
+
+    /*
+     * Roblox and other extensions can render badges such as Verified or
+     * Roblox Premium next to the display name. In that layout the badge is a
+     * sibling of the name, so wrap the complete name row rather than moving
+     * only the text and leaving the badge behind.
+     */
+    if (context.link && parent.contains(context.link)) {
+        return displayNameEl;
+    }
+
+    if (context.avatar && parent.contains(context.avatar)) {
+        return displayNameEl;
+    }
+
+    if (
+        parent.textContent.trim() !==
+        displayNameEl.textContent.trim()
+    ) {
+        return displayNameEl;
+    }
+
+    return parent;
+}
+
 function findLabelHost(context) {
     if (!(context.displayName instanceof HTMLElement)) {
         return null;
     }
 
-    /*
-     * Wrap only the name row itself. Roblox keeps the current-game/presence
-     * text as a sibling, so this prevents Friend Labels from taking ownership
-     * of and restyling the playing-status layout.
-     */
-    const nameElement =
-        context.displayName.closest(
-            '.user-card-name, .friends-carousel-display-name, .avatar-name',
-        ) || context.displayName;
+    let nameRow = getNameRow(
+        context.displayName,
+        context,
+    );
 
-    const currentParent = nameElement.parentElement;
+    /*
+     * If the newer RoValra username feature has already wrapped this row,
+     * keep that wrapper intact and place the friend label beneath it.
+     */
+    const usernameWrapper = nameRow.closest(
+        '.rovalra-friend-username-wrapper',
+    );
+
+    if (usernameWrapper) {
+        nameRow = usernameWrapper;
+    }
+
+    const currentParent = nameRow.parentElement;
 
     if (!(currentParent instanceof HTMLElement)) {
         return null;
@@ -143,11 +184,11 @@ function findLabelHost(context) {
         return currentParent;
     }
 
-    const host = document.createElement('div');
+    const host = document.createElement('span');
     host.className = HOST_CLASS;
 
-    currentParent.insertBefore(host, nameElement);
-    host.appendChild(nameElement);
+    nameRow.replaceWith(host);
+    host.appendChild(nameRow);
 
     return host;
 }
@@ -465,6 +506,92 @@ function isModernFriendTooltip(root) {
     return hasViewProfile && hasFriendAction;
 }
 
+function getCanonicalModernTooltipRoot(candidate) {
+    if (!(candidate instanceof HTMLElement)) {
+        return null;
+    }
+
+    const controls = getTooltipControls(candidate);
+    const viewProfileControl = controls.find(
+        (element) =>
+            normalizeControlText(element) === 'view profile',
+    );
+
+    if (!viewProfileControl) {
+        return null;
+    }
+
+    /*
+     * Roblox can render nested nodes that all match our broad tooltip
+     * selector. Always collapse them to the nearest matching ancestor that
+     * actually contains the complete friend action set.
+     */
+    let current = viewProfileControl.parentElement;
+
+    while (
+        current instanceof HTMLElement &&
+        current !== document.body
+    ) {
+        if (
+            current.matches(MODERN_TOOLTIP_ROOT_SELECTOR) &&
+            isModernFriendTooltip(current)
+        ) {
+            return current;
+        }
+
+        current = current.parentElement;
+    }
+
+    return isModernFriendTooltip(candidate) ? candidate : null;
+}
+
+function removeModernTooltipAction(button) {
+    if (!(button instanceof HTMLElement)) {
+        return;
+    }
+
+    const wrapper = button.closest(
+        `.${MODERN_TOOLTIP_ITEM_CLASS}`,
+    );
+
+    if (
+        wrapper instanceof HTMLElement &&
+        wrapper !== button &&
+        wrapper.querySelectorAll(
+            `.${MODERN_TOOLTIP_BUTTON_CLASS}`,
+        ).length === 1
+    ) {
+        wrapper.remove();
+        return;
+    }
+
+    button.remove();
+}
+
+function dedupeModernTooltipActions(tooltip) {
+    if (!(tooltip instanceof HTMLElement)) {
+        return null;
+    }
+
+    const buttons = [
+        ...tooltip.querySelectorAll(
+            `.${MODERN_TOOLTIP_BUTTON_CLASS}`,
+        ),
+    ].filter((button) => button instanceof HTMLElement);
+
+    if (buttons.length === 0) {
+        return null;
+    }
+
+    const keep = buttons[0];
+
+    for (const duplicate of buttons.slice(1)) {
+        removeModernTooltipAction(duplicate);
+    }
+
+    return keep;
+}
+
 function getUserIdFromProfileLink(root) {
     if (!(root instanceof HTMLElement)) {
         return null;
@@ -609,58 +736,112 @@ function rememberFriendCard(card) {
 function findModernActionMount(tooltip, viewProfileControl) {
     const controls = getTooltipControls(tooltip);
 
-    const peerControl = controls.find((control) => {
-        const text = normalizeControlText(control);
+    const chatControl =
+        controls.find(
+            (control) =>
+                normalizeControlText(control) === 'chat',
+        ) || null;
 
-        return text === 'chat' || text === 'join';
-    });
+    const styleSource = chatControl || viewProfileControl;
 
     if (
-        peerControl?.parentElement ===
+        styleSource?.parentElement ===
         viewProfileControl.parentElement
     ) {
         return {
             reference: viewProfileControl,
             wrapperSource: null,
+            controlSource: styleSource,
         };
     }
 
     const viewWrapper = viewProfileControl.parentElement;
-    const peerWrapper = peerControl?.parentElement;
+    const styleWrapper = styleSource?.parentElement;
 
     if (
         viewWrapper instanceof HTMLElement &&
-        peerWrapper instanceof HTMLElement &&
-        viewWrapper.parentElement === peerWrapper.parentElement
+        styleWrapper instanceof HTMLElement &&
+        viewWrapper.parentElement === styleWrapper.parentElement
     ) {
         return {
             reference: viewWrapper,
-            wrapperSource: viewWrapper,
+            wrapperSource: styleWrapper,
+            controlSource: styleSource,
         };
     }
 
     return {
         reference: viewProfileControl,
         wrapperSource: null,
+        controlSource: styleSource,
     };
 }
 
-async function attachModernTooltipAction(tooltip) {
-    if (!enabled || !(tooltip instanceof HTMLElement)) {
+function createModernTooltipButton(sourceControl, labelText) {
+    let button;
+
+    if (sourceControl instanceof HTMLElement) {
+        button = sourceControl.cloneNode(false);
+    } else {
+        button = document.createElement('button');
+    }
+
+    if (!(button instanceof HTMLElement)) {
+        return null;
+    }
+
+    button.removeAttribute('id');
+    button.removeAttribute('href');
+    button.removeAttribute('target');
+    button.removeAttribute('rel');
+    button.removeAttribute('aria-controls');
+    button.removeAttribute('aria-expanded');
+
+    if (button instanceof HTMLButtonElement) {
+        button.type = 'button';
+    } else {
+        button.setAttribute('role', 'button');
+        button.tabIndex = 0;
+    }
+
+    button.classList.add(
+        MENU_BUTTON_CLASS,
+        MODERN_TOOLTIP_BUTTON_CLASS,
+    );
+    button.textContent = labelText;
+
+    return button;
+}
+
+async function attachModernTooltipAction(candidate) {
+    if (!enabled || !(candidate instanceof HTMLElement)) {
         return;
     }
 
-    if (!isModernFriendTooltip(tooltip)) {
+    const tooltip = getCanonicalModernTooltipRoot(candidate);
+
+    if (!tooltip) {
+        return;
+    }
+
+    /*
+     * Clean up any duplicate left by a previous Roblox rerender before doing
+     * anything else. One canonical tooltip should own exactly one action.
+     */
+    if (dedupeModernTooltipActions(tooltip)) {
         return;
     }
 
     if (
-        tooltip.querySelector(`.${MODERN_TOOLTIP_BUTTON_CLASS}`) ||
         tooltip.dataset.rovalraFriendLabelPending === 'true'
     ) {
         return;
     }
 
+    /*
+     * Lock the canonical tooltip before awaiting translations. This prevents
+     * two observer callbacks from racing and inserting the same action twice.
+     */
     tooltip.dataset.rovalraFriendLabelPending = 'true';
 
     try {
@@ -681,13 +862,29 @@ async function attachModernTooltipAction(tooltip) {
             return;
         }
 
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = [
-            MENU_BUTTON_CLASS,
-            MODERN_TOOLTIP_BUTTON_CLASS,
-        ].join(' ');
-        button.textContent = await t('friendLabels.menuAction');
+        const mount = findModernActionMount(
+            tooltip,
+            viewProfileControl,
+        );
+
+        const labelText = await t('friendLabels.menuAction');
+
+        /*
+         * Re-check after the async translation in case another lifecycle path
+         * already created the action while Roblox was replacing DOM nodes.
+         */
+        if (dedupeModernTooltipActions(tooltip)) {
+            return;
+        }
+
+        const button = createModernTooltipButton(
+            mount.controlSource,
+            labelText,
+        );
+
+        if (!button) {
+            return;
+        }
 
         button.addEventListener('pointerdown', (event) => {
             event.stopPropagation();
@@ -712,10 +909,19 @@ async function attachModernTooltipAction(tooltip) {
             await openLabelEditor(currentCard, currentContext);
         });
 
-        const mount = findModernActionMount(
-            tooltip,
-            viewProfileControl,
-        );
+        if (!(button instanceof HTMLButtonElement)) {
+            button.addEventListener('keydown', (event) => {
+                if (
+                    event.key !== 'Enter' &&
+                    event.key !== ' '
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                button.click();
+            });
+        }
 
         if (mount.wrapperSource) {
             const wrapper = document.createElement(
@@ -734,30 +940,48 @@ async function attachModernTooltipAction(tooltip) {
                 'afterend',
                 wrapper,
             );
+        } else {
+            const wrapper = document.createElement('div');
 
-            return;
+            wrapper.className = [
+                MENU_ITEM_CLASS,
+                MODERN_TOOLTIP_ITEM_CLASS,
+            ].join(' ');
+
+            wrapper.appendChild(button);
+            mount.reference.insertAdjacentElement(
+                'afterend',
+                wrapper,
+            );
         }
 
-        const wrapper = document.createElement('div');
-
-        wrapper.className = [
-            MENU_ITEM_CLASS,
-            MODERN_TOOLTIP_ITEM_CLASS,
-        ].join(' ');
-
-        wrapper.appendChild(button);
-        mount.reference.insertAdjacentElement('afterend', wrapper);
+        /*
+         * Final safety net for React/Roblox rerenders that may replay observer
+         * callbacks during insertion.
+         */
+        dedupeModernTooltipActions(tooltip);
     } finally {
         delete tooltip.dataset.rovalraFriendLabelPending;
     }
 }
 
 function attachActionsToExistingModernTooltips() {
+    const canonicalTooltips = new Set();
+
     document
         .querySelectorAll(MODERN_TOOLTIP_ROOT_SELECTOR)
-        .forEach((tooltip) => {
-            attachModernTooltipAction(tooltip);
+        .forEach((candidate) => {
+            const tooltip =
+                getCanonicalModernTooltipRoot(candidate);
+
+            if (tooltip) {
+                canonicalTooltips.add(tooltip);
+            }
         });
+
+    canonicalTooltips.forEach((tooltip) => {
+        attachModernTooltipAction(tooltip);
+    });
 }
 
 async function attachDropdownAction(menuList) {
@@ -815,6 +1039,10 @@ async function attachDropdownAction(menuList) {
             MENU_BUTTON_CLASS,
             'friend-tile-dropdown-button',
         );
+
+        if (menuList.querySelector(`.${MENU_ITEM_CLASS}`)) {
+            return;
+        }
 
         item.appendChild(button);
         menuList.appendChild(item);

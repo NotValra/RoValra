@@ -1,44 +1,21 @@
 .rovalra-friend-label-host {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
 
-    width: 100%;
-    min-width: 0;
     max-width: 100%;
+    min-width: 0;
 
     box-sizing: border-box;
 }
 
-.rovalra-friend-label-host > .user-card-name,
-.rovalra-friend-label-host > .friends-carousel-display-name,
-.rovalra-friend-label-host > .avatar-name {
-    display: block;
-
-    width: 100%;
-    min-width: 0;
+/*
+ * Keep Roblox's existing name row intact. That row can include Verified,
+ * Premium, RoValra Plus, or other badges next to the display name.
+ */
+.rovalra-friend-label-host > :not(.rovalra-friend-label) {
     max-width: 100%;
-
-    overflow: hidden;
-
-    text-align: center;
-}
-
-.rovalra-friend-label-host .user-card-name > span,
-.rovalra-friend-label-host > .friends-carousel-display-name,
-.rovalra-friend-label-host > .avatar-name {
-    display: block;
-
-    width: 100%;
     min-width: 0;
-    max-width: 100%;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    text-align: center;
 }
 
 .rovalra-friend-label {
@@ -51,7 +28,7 @@
     max-width: calc(100% - 4px);
     min-height: 16px;
 
-    margin: 0 auto;
+    margin: 2px auto 0;
     padding: 1px 6px;
 
     box-sizing: border-box;
@@ -231,57 +208,17 @@
 
 /* Modern Roblox friend tooltip */
 
+/*
+ * The control clones Roblox's Chat control classes at runtime, so its visual
+ * styling follows the native friend tooltip automatically. These rules only
+ * keep the injected row sized correctly and avoid overriding Roblox's theme.
+ */
 .rovalra-friend-label-modern-item {
     width: 100%;
     box-sizing: border-box;
 }
 
 .rovalra-friend-label-modern-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
     width: 100%;
-    min-width: 0;
-    min-height: 40px;
-
-    margin-top: 8px;
-    padding: 0 14px;
-
     box-sizing: border-box;
-
-    appearance: none;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 8px;
-
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-
-    font: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1;
-    text-align: center;
-    text-decoration: none;
-
-    cursor: pointer;
-
-    transition:
-        background 120ms ease,
-        border-color 120ms ease,
-        transform 120ms ease;
-}
-
-.rovalra-friend-label-modern-button:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.22);
-}
-
-.rovalra-friend-label-modern-button:active {
-    transform: scale(0.985);
-}
-
-.rovalra-friend-label-modern-button:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.4);
-    outline-offset: 2px;
 }
