@@ -88,9 +88,6 @@ function showNotifications(userId, notifications, dismissLabel, profileLabel) {
         profileLink.target = '_blank';
         profileLink.rel = 'noopener noreferrer';
         profileLink.textContent = profileLabel;
-        profileLink.addEventListener('click', () =>
-            dismissNotification(userId, notification.id),
-        );
 
         actions.append(dismissButton, profileLink);
         card.append(message, actions);
