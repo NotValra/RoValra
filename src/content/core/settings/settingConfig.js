@@ -1165,6 +1165,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     "Shows a friend's @username below their display name on the Home page.",
                     "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
+                    'Other extensions may overwrite this feature.',
                 ],
                 type: 'checkbox',
                 default: false,
