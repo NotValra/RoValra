@@ -468,6 +468,26 @@ export const loadSettings = async () => {
 export const enforceSettingOverrides = async () => {
     try {
         const settings = await loadSettings();
+        const settingNames = [];
+        for (const category of Object.values(SETTINGS_CONFIG)) {
+            for (const [settingName, config] of Object.entries(
+                category.settings,
+            )) {
+                settingNames.push(settingName);
+                if (config.childSettings) {
+                    settingNames.push(...Object.keys(config.childSettings));
+                }
+            }
+        }
+        const storedSettings = await chrome.storage.local.get([
+            ...settingNames,
+            'rovalra_settings',
+        ]);
+        const bundledSettings = storedSettings.rovalra_settings || {};
+        const getStoredSetting = (name) =>
+            Object.prototype.hasOwnProperty.call(storedSettings, name)
+                ? storedSettings[name]
+                : bundledSettings[name];
         const data = await chrome.storage.local.get([
             'profile3DRenderForceDisabled',
         ]);
@@ -492,10 +512,11 @@ export const enforceSettingOverrides = async () => {
                             overrides[name] = false;
                         }
                     }
-                    if (conf.locked) {
-                        if (settings[name] === true) {
-                            overrides[name] = false;
-                        }
+                    if (
+                        (conf.locked || conf.deprecated) &&
+                        getStoredSetting(name) === true
+                    ) {
+                        overrides[name] = false;
                     }
                 };
 

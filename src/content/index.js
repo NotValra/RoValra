@@ -386,7 +386,7 @@ const featureRoutes = [
     },
     {
         paths: ['/deleted-users/'],
-        features: [initUsernameColor]
+        features: [initUsernameColor],
     },
 
     // Transactions page
@@ -592,6 +592,8 @@ async function initializePage() {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
+
+        await enforceSettingOverrides();
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 
@@ -606,42 +608,57 @@ async function initializePage() {
         );
     };
 
-
     // preload stuff
     const builderIconsReg = document.createElement('link');
     builderIconsReg.rel = 'preload';
-    builderIconsReg.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2';
+    builderIconsReg.href =
+        'https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2';
     builderIconsReg.as = 'font';
     builderIconsReg.type = 'font/woff2';
     builderIconsReg.crossOrigin = 'anonymous';
     const builderIconsFill = document.createElement('link');
     builderIconsFill.rel = 'preload';
-    builderIconsFill.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2';
+    builderIconsFill.href =
+        'https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2';
     builderIconsFill.as = 'font';
     builderIconsFill.type = 'font/woff2';
     builderIconsFill.crossOrigin = 'anonymous';
     const rovalraIconsWOFF = document.createElement('link');
     rovalraIconsWOFF.rel = 'preload';
-    rovalraIconsWOFF.href = 'https://www.rovalra.com/static/fonts/RoValraIcons.woff2';
+    rovalraIconsWOFF.href =
+        'https://www.rovalra.com/static/fonts/RoValraIcons.woff2';
     rovalraIconsWOFF.as = 'font';
     rovalraIconsWOFF.type = 'font/woff2';
     rovalraIconsWOFF.crossOrigin = 'anonymous';
-    const googleIcons = document.createElement('link')
+    const googleIcons = document.createElement('link');
     googleIcons.rel = 'preload';
-    googleIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap';
+    googleIcons.href =
+        'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap';
     googleIcons.rel = 'stylesheet';
     googleIcons.crossOrigin = 'anonymous';
 
     if (document.head) {
-        document.head.append(googleIcons, rovalraIconsWOFF, builderIconsReg, builderIconsFill);
+        document.head.append(
+            googleIcons,
+            rovalraIconsWOFF,
+            builderIconsReg,
+            builderIconsFill,
+        );
     } else {
         const docObserverForHead = new MutationObserver((_, obs) => {
             if (document.head) {
                 obs.disconnect();
-                document.head.append(googleIcons, rovalraIconsWOFF, builderIconsReg, builderIconsFill);
+                document.head.append(
+                    googleIcons,
+                    rovalraIconsWOFF,
+                    builderIconsReg,
+                    builderIconsFill,
+                );
             }
         }); //Verified
-        docObserverForHead.observe(document.documentElement, { childList: true });
+        docObserverForHead.observe(document.documentElement, {
+            childList: true,
+        });
     }
 
     if (document.body) {
@@ -660,7 +677,9 @@ async function initializePage() {
                 );
             }
         }); //Verified
-        docObserverForBody.observe(document.documentElement, { childList: true });
+        docObserverForBody.observe(document.documentElement, {
+            childList: true,
+        });
     }
 }
 
