@@ -238,9 +238,7 @@ async function getPersonalRobuxBalance() {
 
 function shouldWarmPersonalRowData() {
     return (
-        state.groupFundsEnabled &&
-        state.navbarTotalEnabled &&
-        !state.hideRobux
+        state.groupFundsEnabled && state.navbarTotalEnabled && !state.hideRobux
     );
 }
 
@@ -267,7 +265,9 @@ async function warmPersonalRowData() {
             userId: userData?.userId || personalRowData?.userId || null,
             username: userData?.username || personalRowData?.username || 'User',
             thumbnailData:
-                userData?.thumbnailData || personalRowData?.thumbnailData || null,
+                userData?.thumbnailData ||
+                personalRowData?.thumbnailData ||
+                null,
             personalBalance: Number.isFinite(personalBalance)
                 ? personalBalance
                 : personalRowData?.personalBalance,
@@ -428,9 +428,30 @@ async function syncSettingsAndRender() {
     await renderNavbarTotal();
 }
 
+const PENDING_ROW_STYLE_ID = 'rovalra-group-funds-pending-row-style';
+
+function injectPendingRowStyle() {
+    if (document.getElementById(PENDING_ROW_STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = PENDING_ROW_STYLE_ID;
+    style.textContent = `
+        .rovalra-funds-pending-row,
+        .rovalra-funds-pending-row:hover {
+            cursor: default !important;
+            background: transparent !important;
+        }
+        .rovalra-funds-pending-row * {
+            cursor: default !important;
+        }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+}
+
 export function init() {
     if (state.initialized) return;
     state.initialized = true;
+
+    injectPendingRowStyle();
 
     const renderSection = (popover) => {
         const menu = popover.querySelector('.dropdown-menu');
@@ -492,6 +513,7 @@ export function init() {
             section.appendChild(fundsLi);
 
             const pendingLi = document.createElement('li');
+            pendingLi.className = 'rovalra-funds-pending-row';
             const pendingLink = document.createElement('a');
             pendingLink.className = 'rbx-menu-item';
             pendingLink.style.paddingTop = '0';
@@ -499,7 +521,7 @@ export function init() {
             pendingLink.style.fontSize = '12px';
             pendingLink.style.color = 'gray';
             pendingLink.style.textAlign = 'right';
-            pendingLink.style.pointerEvents = 'none';
+            pendingLink.style.cursor = 'default';
             pendingLink.textContent = '';
             pendingLi.appendChild(pendingLink);
             section.appendChild(pendingLi);
@@ -523,9 +545,7 @@ export function init() {
                 rbxIcon.style.verticalAlign = 'text-bottom';
                 rbxIcon.style.marginRight = '3px';
 
-                const text = document.createTextNode(
-                    amount.toLocaleString(),
-                );
+                const text = document.createTextNode(amount.toLocaleString());
 
                 amountSpan.appendChild(rbxIcon);
                 amountSpan.appendChild(text);
@@ -539,12 +559,11 @@ export function init() {
                 const icon = document.createElement('span');
                 icon.className = 'icon-robux-16x16';
                 icon.style.verticalAlign = 'text-bottom';
+
                 icon.style.marginLeft = '3px';
                 icon.style.marginRight = '2px';
                 icon.style.filter = 'grayscale(100%) opacity(0.6)';
-                const value = document.createTextNode(
-                    amount.toLocaleString(),
-                );
+                const value = document.createTextNode(amount.toLocaleString());
 
                 pendingLink.append(label, icon, value);
             };
