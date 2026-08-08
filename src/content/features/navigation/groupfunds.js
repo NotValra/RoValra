@@ -428,9 +428,30 @@ async function syncSettingsAndRender() {
     await renderNavbarTotal();
 }
 
+const PENDING_ROW_STYLE_ID = 'rovalra-group-funds-pending-row-style';
+
+function injectPendingRowStyle() {
+    if (document.getElementById(PENDING_ROW_STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = PENDING_ROW_STYLE_ID;
+    style.textContent = `
+        .rovalra-funds-pending-row,
+        .rovalra-funds-pending-row:hover {
+            cursor: default !important;
+            background: transparent !important;
+        }
+        .rovalra-funds-pending-row * {
+            cursor: default !important;
+        }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+}
+
 export function init() {
     if (state.initialized) return;
     state.initialized = true;
+
+    injectPendingRowStyle();
 
     const renderSection = (popover) => {
         const menu = popover.querySelector('.dropdown-menu');
@@ -492,14 +513,15 @@ export function init() {
             section.appendChild(fundsLi);
 
             const pendingLi = document.createElement('li');
-            const pendingLink = document.createElement('a');
+            pendingLi.className = 'rovalra-funds-pending-row';
+            const pendingLink = document.createElement('div');
             pendingLink.className = 'rbx-menu-item';
             pendingLink.style.paddingTop = '0';
             pendingLink.style.paddingBottom = '5px';
             pendingLink.style.fontSize = '12px';
             pendingLink.style.color = 'gray';
             pendingLink.style.textAlign = 'right';
-            pendingLink.style.pointerEvents = 'none';
+            pendingLink.style.cursor = 'default';
             pendingLink.textContent = '';
             pendingLi.appendChild(pendingLink);
             section.appendChild(pendingLi);
@@ -538,7 +560,7 @@ export function init() {
                 );
                 const icon = document.createElement('span');
                 icon.className = 'icon-robux-16x16';
-                icon.style.verticalAlign = 'text-bottom';
+                icon.style.verticalAlign = 'middle';
                 icon.style.marginLeft = '3px';
                 icon.style.marginRight = '2px';
                 icon.style.filter = 'grayscale(100%) opacity(0.6)';
