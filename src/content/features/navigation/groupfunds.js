@@ -238,9 +238,7 @@ async function getPersonalRobuxBalance() {
 
 function shouldWarmPersonalRowData() {
     return (
-        state.groupFundsEnabled &&
-        state.navbarTotalEnabled &&
-        !state.hideRobux
+        state.groupFundsEnabled && state.navbarTotalEnabled && !state.hideRobux
     );
 }
 
@@ -267,7 +265,9 @@ async function warmPersonalRowData() {
             userId: userData?.userId || personalRowData?.userId || null,
             username: userData?.username || personalRowData?.username || 'User',
             thumbnailData:
-                userData?.thumbnailData || personalRowData?.thumbnailData || null,
+                userData?.thumbnailData ||
+                personalRowData?.thumbnailData ||
+                null,
             personalBalance: Number.isFinite(personalBalance)
                 ? personalBalance
                 : personalRowData?.personalBalance,
@@ -514,7 +514,7 @@ export function init() {
 
             const pendingLi = document.createElement('li');
             pendingLi.className = 'rovalra-funds-pending-row';
-            const pendingLink = document.createElement('div');
+            const pendingLink = document.createElement('a');
             pendingLink.className = 'rbx-menu-item';
             pendingLink.style.paddingTop = '0';
             pendingLink.style.paddingBottom = '5px';
@@ -545,9 +545,7 @@ export function init() {
                 rbxIcon.style.verticalAlign = 'text-bottom';
                 rbxIcon.style.marginRight = '3px';
 
-                const text = document.createTextNode(
-                    amount.toLocaleString(),
-                );
+                const text = document.createTextNode(amount.toLocaleString());
 
                 amountSpan.appendChild(rbxIcon);
                 amountSpan.appendChild(text);
@@ -560,13 +558,12 @@ export function init() {
                 );
                 const icon = document.createElement('span');
                 icon.className = 'icon-robux-16x16';
-                icon.style.verticalAlign = 'middle';
+                icon.style.verticalAlign = 'text-bottom';
+
                 icon.style.marginLeft = '3px';
                 icon.style.marginRight = '2px';
                 icon.style.filter = 'grayscale(100%) opacity(0.6)';
-                const value = document.createTextNode(
-                    amount.toLocaleString(),
-                );
+                const value = document.createTextNode(amount.toLocaleString());
 
                 pendingLink.append(label, icon, value);
             };
