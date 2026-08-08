@@ -1313,6 +1313,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            groupPendingFundsEnabled: {
+                label: 'Pending Community Funds',
+                description: [
+                    "Shows a community's pending Robux in the funds section of its info dialog, if you have permission to view its revenue.",
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['587159802'],
+            },
         },
     },
     Avatar: {
