@@ -1316,7 +1316,7 @@ export const SETTINGS_CONFIG = {
             groupPendingFundsEnabled: {
                 label: 'Pending Community Funds',
                 description: [
-                    "Shows a community's pending Robux in the funds section of its info dialog, if you have permission to view its revenue.",
+                    "Shows a community's pending Robux in the funds section of its info dialog.",
                 ],
                 type: 'checkbox',
                 default: true,
