@@ -14,6 +14,8 @@ import {
     observeUserCardElements,
 } from '../../core/profile/userCardElements.js';
 
+const BORDER_CHILD_SELECTOR =
+    '.rovalra-avatar-border, .rovalra-avatar-border-clip';
 const OVERLAY_CHILD_SELECTOR =
     '.rovalra-status-bubble-wrapper, .avatar-status, .avatar-card-label, .icon-label';
 const BORDER_SCALE = 1.24;
@@ -26,28 +28,38 @@ function setPixelStyle(element, name, value) {
     element.style[name] = `${value}px`;
 }
 
-function getHomeHeaderAvatarLink(container) {
-    return container.closest(
-        '#roseal-home-header a.user-avatar-container.avatar.avatar-headshot',
-    );
+function isInlineContainer(container) {
+    const tagName = container.tagName;
+    return tagName === 'SPAN' || tagName === 'A';
 }
 
-function getBorderHost(container) {
-    return getHomeHeaderAvatarLink(container) || container;
-}
-
-function getBorderElements(container) {
-    return getBorderHost(container).querySelectorAll(
-        ':scope > .rovalra-avatar-border',
+function isBorderManagedChild(child) {
+    return (
+        child.nodeType === Node.ELEMENT_NODE &&
+        child.matches(`${BORDER_CHILD_SELECTOR}, ${OVERLAY_CHILD_SELECTOR}`)
     );
 }
 
 function getOrCreateClip(container) {
-    return container.querySelector(':scope > .rovalra-avatar-border-clip');
+    let clip = container.querySelector(':scope > .rovalra-avatar-border-clip');
+    if (clip) return clip;
+
+    clip = document.createElement(
+        isInlineContainer(container) ? 'span' : 'div',
+    );
+    clip.className = 'rovalra-avatar-border-clip';
+    container.prepend(clip);
+
+    return clip;
 }
 
 function syncBorderClipChildren(container) {
     const clip = getOrCreateClip(container);
+
+    for (const child of [...container.childNodes]) {
+        if (child === clip || isBorderManagedChild(child)) continue;
+        clip.appendChild(child);
+    }
 
     syncBorderMetrics(container);
 
@@ -58,21 +70,16 @@ function syncBorderMetrics(container) {
     const clip = container.querySelector(
         ':scope > .rovalra-avatar-border-clip',
     );
+    if (!clip) return;
 
-    const host = getBorderHost(container);
-    const containerBox =
-        host === container
-            ? getLocalLayoutBox(container)
-            : getLocalLayoutBox(host);
-    const clipBox = clip
-        ? getLayoutBox(clip)
-        : host === container
-          ? containerBox
-          : getLayoutBox(container);
+    const containerBox = getLocalLayoutBox(container);
+    const clipBox = getLayoutBox(clip);
     if (!containerBox.width || !containerBox.height) return;
     if (!clipBox.width || !clipBox.height) return;
 
-    for (const border of getBorderElements(container)) {
+    for (const border of container.querySelectorAll(
+        ':scope > .rovalra-avatar-border',
+    )) {
         syncBorderImageMetrics(containerBox, clipBox, border);
     }
 }
@@ -108,7 +115,9 @@ function getRelatedOverlayElements(container) {
 }
 
 function syncOverlayStacking(container) {
-    for (const border of getBorderElements(container)) {
+    for (const border of container.querySelectorAll(
+        ':scope > .rovalra-avatar-border',
+    )) {
         border.style.zIndex = BORDER_Z_INDEX;
     }
 
@@ -248,15 +257,7 @@ function ensureBorderContainerLayout(container) {
     }
 
     container.style.position = 'relative';
-    container.style.overflow = getHomeHeaderAvatarLink(container)
-        ? 'hidden'
-        : 'visible';
-
-    const host = getHomeHeaderAvatarLink(container);
-    if (host) {
-        host.style.position = 'relative';
-        host.style.overflow = 'visible';
-    }
+    container.style.overflow = 'visible';
 }
 
 function removeBorderFromContainer(container) {
@@ -265,7 +266,9 @@ function removeBorderFromContainer(container) {
     delete container.dataset.rovalraBorderLoading;
     delete container.dataset.rovalraIntendedBorder;
 
-    for (const border of getBorderElements(container)) {
+    for (const border of container.querySelectorAll(
+        ':scope > .rovalra-avatar-border',
+    )) {
         border.remove();
     }
 
@@ -274,7 +277,10 @@ function removeBorderFromContainer(container) {
     );
     if (!clip) return;
 
-    clip.replaceWith(...Array.from(clip.childNodes));
+    while (clip.firstChild) {
+        container.insertBefore(clip.firstChild, clip);
+    }
+    clip.remove();
 }
 
 function ensureBorderStructure(container) {
@@ -289,7 +295,7 @@ function ensureBorderStructure(container) {
             syncOverlayStacking(container);
         });
         observeResize(container, () => syncBorderMetrics(container));
-        if (clip) observeResize(clip, () => syncBorderMetrics(container));
+        observeResize(clip, () => syncBorderMetrics(container));
     }
 
     return clip;
@@ -329,7 +335,9 @@ export async function applyBorderToContainer(
         if (isConfigured) break;
     }
 
-    const existingBorders = [...getBorderElements(container)];
+    const existingBorders = [
+        ...container.querySelectorAll(':scope > .rovalra-avatar-border'),
+    ];
     if (
         existingBorders.length > 0 &&
         container.dataset.rovalraIntendedBorder !== borderUrl
@@ -379,11 +387,21 @@ export async function applyBorderToContainer(
         }
         await getBorderContentBounds(img);
 
+        const overlays = [];
+        for (const child of container.children) {
+            if (child.matches(OVERLAY_CHILD_SELECTOR)) {
+                overlays.push(child);
+            }
+        }
         ensureBorderStructure(container);
+
+        for (const overlay of overlays) {
+            container.appendChild(overlay);
+        }
         syncOverlayStacking(container);
 
         if (alwaysPlay || !animatedLink || animatedLink === staticLink) {
-            getBorderHost(container).appendChild(img);
+            container.appendChild(img);
             syncBorderMetrics(container);
             syncOverlayStacking(container);
         } else {
@@ -399,8 +417,8 @@ export async function applyBorderToContainer(
                 syncBorderMetrics(container);
             };
 
-            getBorderHost(container).appendChild(img);
-            getBorderHost(container).appendChild(animImg);
+            container.appendChild(img);
+            container.appendChild(animImg);
             syncBorderMetrics(container);
             syncOverlayStacking(container);
 
