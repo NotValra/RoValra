@@ -2,6 +2,7 @@ import { initializeObserver, startObserving } from './core/observer.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
 import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
 import { t } from './core/locale/i18n.js';
+import { isCallable } from './core/utils/js/type.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
@@ -514,6 +515,7 @@ function runFeaturesForPage() {
     const path = window.location.pathname.toLowerCase();
     const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
     const featuresRunThisPass = new Set();
+    const promisesLeft = [];
 
     featureRoutes.forEach((route) => {
         if (
@@ -537,7 +539,9 @@ function runFeaturesForPage() {
                     if (route.once) initializedPersistentFeatures.add(init);
 
                     try {
-                        init();
+                        const r = init();
+                        if (r && typeof r === 'object' && r.then && isCallable(r.then))
+                            promisesLeft.push(r);
                     } catch (error) {
                         console.error('RoValra: Feature init failed', error);
                     }
@@ -545,6 +549,8 @@ function runFeaturesForPage() {
             }
         }
     });
+
+    return promisesLeft;
 }
 
 async function initializePage() {
@@ -590,8 +596,17 @@ async function initializePage() {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
-        runFeaturesForPage();
+        const promisesLeft = runFeaturesForPage();
         scheduleSettingsMaintenance();
+        const syncEndTime = performance.now();
+
+        const results = await Promise.allSettled(promisesLeft);
+
+        for (const result of results) {
+            if (result.status === 'rejected') {
+                console.error('RoValra: Feature init failed', result.reason);
+            }
+        }
 
         const endTime = performance.now();
 
@@ -599,7 +614,8 @@ async function initializePage() {
             `%cRoValra Initialized`,
             'font-size: 1.5em; color: #FF4500;',
             `\n(Observer: ${observerStatus})` +
-                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+                `\nSynchronous Feature Load Time: ${(syncEndTime - featureStartTime).toFixed(2)}ms` +
+                `\nTotal Feature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
                 `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
         );
     };

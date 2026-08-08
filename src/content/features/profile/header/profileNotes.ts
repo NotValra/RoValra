@@ -3,9 +3,17 @@ import { observeElement } from '../../../core/observer.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { ts } from '../../../core/locale/i18n.js';
+import { CreateIndexedDB, CreateObjectStore, LoadObjectStore, WithIndexDB } from '../../../core/indexeddb/getdb.js';
+
+type Notes = Map<bigint, string>;
 
 const PROFILE_NOTES_SETTING_NAME = 'profileNotesEnabled';
-const PROFILE_NOTES_STORAGE_KEY = 'rovalra_profile_notes';
+const PROFILE_NOTES_STORAGE_KEY = 'RoValra:ProfileNotes';
+const IDB_OBJECT_STORE = 'pf-notes';
+const OBJSTORE_CONFIG = {
+    persistence: "relaxed" as IDBTransactionDurability ,
+    primaryKey: "uid"
+}
 const PROFILE_ACTION_BUTTON_SELECTOR =
     '#user-profile-header-contextual-menu-button';
 const MAX_NOTE_LENGTH = 256;
@@ -13,7 +21,7 @@ const MAX_NOTE_ROWS = 2;
 
 let actionButtonObserver = null;
 let activeController = null;
-let activeProfileUserId = null;
+let activeProfileUserId: bigint = 0n;
 let initGeneration = 0;
 let storageListenerStarted = false;
 
@@ -22,38 +30,61 @@ function normalizeNote(value) {
     return value.replace(/\r\n?/g, '\n').trim().slice(0, MAX_NOTE_LENGTH);
 }
 
-function normalizeNotesMap(value) {
-    return value && typeof value === 'object' && !Array.isArray(value)
+function normalizeNotesMap(value: unknown): Notes {
+    return value instanceof Map
         ? value
-        : {};
+        : new Map<bigint, string>();
 }
 
-async function getStoredNotes() {
-    const stored = await chrome.storage.local.get({
-        [PROFILE_NOTES_STORAGE_KEY]: {},
+async function loadNotesFromStorage(): Promise<Notes> {
+    type RawStored = Array<{note: string, uid: string}>;
+    const rows: RawStored = await WithIndexDB(PROFILE_NOTES_STORAGE_KEY, async (db) => {
+        const objstore = LoadObjectStore(db, IDB_OBJECT_STORE);
+        return await objstore.ReadStore();
     });
-    return normalizeNotesMap(stored[PROFILE_NOTES_STORAGE_KEY]);
+    let map = new Map();
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        map.set(BigInt(row.uid), String(row.note ?? ""));
+    }
+    return map;
 }
 
-async function getStoredNote(userId) {
+async function getStoredNotes(): Promise<Notes> {
+    const stored = await loadNotesFromStorage();
+    return normalizeNotesMap(stored);
+}
+
+async function getStoredNote(userId: bigint | string) {
+    userId = BigInt(userId);
     const notes = await getStoredNotes();
-    return normalizeNote(notes[String(userId)]);
+    return normalizeNote(notes.get(userId));
 }
 
-async function saveStoredNote(userId, note) {
-    const notes = { ...(await getStoredNotes()) };
+async function saveStoredNote(userId: bigint | string, note: string) {
     const key = String(userId);
     const normalizedNote = normalizeNote(note);
 
-    if (normalizedNote) {
-        notes[key] = normalizedNote;
-    } else {
-        delete notes[key];
-    }
-
-    await chrome.storage.local.set({
-        [PROFILE_NOTES_STORAGE_KEY]: notes,
+    await WithIndexDB(PROFILE_NOTES_STORAGE_KEY, async (db) => {
+        const objstore = LoadObjectStore(db, IDB_OBJECT_STORE);
+        objstore.Configure(OBJSTORE_CONFIG);
+        if (normalizedNote) {
+            if (await objstore.ReadRow(key)) {
+                await objstore.MutateRow({ note: normalizedNote }, key);
+            } else {
+                await objstore.AddDataRaw(
+                    {
+                        note: normalizedNote,
+                        uid: key
+                    }
+                );
+            }
+        } else {
+            await objstore.DeleteRow(key);
+        }
     });
+
+    onEdit();  // let this run in the background
 
     return normalizedNote;
 }
@@ -326,7 +357,7 @@ async function mountProfileNote(actionButton, userId, generation) {
     const note = await getStoredNote(userId);
     if (
         generation !== initGeneration ||
-        activeProfileUserId !== String(userId) ||
+        activeProfileUserId !== BigInt(userId) ||
         String(getUserIdFromUrl()) !== String(userId) ||
         !host.isConnected
     ) {
@@ -352,7 +383,7 @@ async function initProfileNotes() {
     removeActiveNote();
 
     const userId = Number(getUserIdFromUrl());
-    activeProfileUserId = userId ? String(userId) : null;
+    activeProfileUserId = userId ? BigInt(userId) : 0n;
     if (!userId) return;
 
     const [settings, authenticatedUserId] = await Promise.all([
@@ -375,27 +406,35 @@ async function initProfileNotes() {
     );
 }
 
+async function onEdit() {
+    const notes = await getStoredNotes();
+    activeController?.setNote(notes.get(activeProfileUserId));
+}
+
 function startStorageListener() {
     if (storageListenerStarted) return;
     storageListenerStarted = true;
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName !== 'local') return;
+        (async () => {
+            if (areaName !== 'local') return;
 
-        if (changes[PROFILE_NOTES_SETTING_NAME]) {
-            initProfileNotes();
-            return;
-        }
-
-        if (!changes[PROFILE_NOTES_STORAGE_KEY] || !activeProfileUserId) return;
-        const notes = normalizeNotesMap(
-            changes[PROFILE_NOTES_STORAGE_KEY].newValue,
-        );
-        activeController?.setNote(notes[activeProfileUserId]);
+            if (changes[PROFILE_NOTES_SETTING_NAME]) {
+                initProfileNotes();
+                return;
+            }
+        })();
     });
 }
 
-export function init() {
+async function initdb() {
+    await CreateIndexedDB(PROFILE_NOTES_STORAGE_KEY, 2, {
+        onUpgrade: (request: IDBOpenDBRequest, event) => { }
+    })
+}
+
+export async function init() {
+    await initdb();
     startStorageListener();
     initProfileNotes();
 }

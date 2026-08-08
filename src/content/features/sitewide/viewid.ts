@@ -3,7 +3,7 @@ import { getAssetIdFromUrl } from '../../core/idExtractor.js';
 import { t } from '../../core/locale/i18n.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
-import { awaitSafe, sleep } from '../../core/utils/async.js';
+import { awaitSafe, sleep } from '../../core/utils/js/async';
 import { parseMarkdown } from '../../core/utils/markdown.js';
 
 type RequestType = {
