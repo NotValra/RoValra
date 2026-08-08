@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "exactOptionalPropertyTypes": false,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": false,
+    "noUncheckedSideEffectImports": false,
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  }
+}

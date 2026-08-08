@@ -1,5 +1,3 @@
-/// <reference types="chrome" />
-
 let verbose = false;
 
 async function init() {
