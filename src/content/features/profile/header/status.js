@@ -27,9 +27,69 @@ const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
 const homeStatusControllers = new WeakMap();
 
+const statusUrlPattern = /\b(?:https?:\/\/|www\.)[^\s<]+/gi;
+const trailingUrlPunctuationPattern = /[.,!?;:)\]}]+$/;
+
+function linkifyStatusContent(container) {
+    const walker = document.createTreeWalker(
+        container,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: (node) =>
+                node.parentElement?.closest('a, code')
+                    ? NodeFilter.FILTER_REJECT
+                    : NodeFilter.FILTER_ACCEPT,
+        },
+    );
+    const textNodes = [];
+    let node;
+
+    while ((node = walker.nextNode())) textNodes.push(node);
+
+    for (const textNode of textNodes) {
+        const text = textNode.nodeValue;
+        let lastIndex = 0;
+        let match;
+        const fragment = document.createDocumentFragment();
+
+        statusUrlPattern.lastIndex = 0;
+        while ((match = statusUrlPattern.exec(text))) {
+            let urlText = match[0];
+            const trailingPunctuation = urlText.match(
+                trailingUrlPunctuationPattern,
+            )?.[0] || '';
+            if (trailingPunctuation) {
+                urlText = urlText.slice(0, -trailingPunctuation.length);
+            }
+
+            if (!urlText) continue;
+
+            fragment.append(text.slice(lastIndex, match.index));
+            const link = document.createElement('a');
+            link.href = urlText.startsWith('www.')
+                ? `https://${urlText}`
+                : urlText;
+            link.textContent = urlText;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.textDecoration = 'underline';
+            link.addEventListener('click', (event) =>
+                event.stopPropagation(),
+            );
+            fragment.append(link, trailingPunctuation);
+            lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex === 0) continue;
+        fragment.append(text.slice(lastIndex));
+        textNode.replaceWith(fragment);
+    }
+}
+
 function renderStatusBubbleContent(bubble, statusText) {
     const html = parseUntrustedMarkdown(statusText);
     bubble.innerHTML = html; // Verified
+    linkifyStatusContent(bubble);
 }
 
 function cleanupStatusElements(container) {
