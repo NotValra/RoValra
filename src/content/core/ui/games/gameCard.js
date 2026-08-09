@@ -168,6 +168,16 @@ function getFallbackVote(universeId) {
     });
 }
 
+function getGameVote(game) {
+    const upVotes =
+        game?.upVotes ?? game?.likes ?? game?.voteData?.upVotes ?? null;
+    const downVotes =
+        game?.downVotes ?? game?.dislikes ?? game?.voteData?.downVotes ?? null;
+
+    if (!Number.isFinite(upVotes) || !Number.isFinite(downVotes)) return null;
+    return { upVotes, downVotes };
+}
+
 function flushUniverseQueue() {
     const currentMap = new Map(universeQueue);
     universeQueue.clear();
@@ -344,12 +354,12 @@ export function createGameCard(options) {
                       : gameInfo;
                 if (!finalGame) throw new Error('Game not found');
 
-                const voteInfo = needsFallback
-                    ? await getFallbackVote(targetUniverseId).catch(() => ({
-                          upVotes: 0,
-                          downVotes: 0,
-                      }))
-                    : { upVotes: 0, downVotes: 0 };
+                const voteInfo =
+                    getGameVote(gameInfo) ||
+                    (await getFallbackVote(targetUniverseId).catch(() => ({
+                        upVotes: 0,
+                        downVotes: 0,
+                    })));
 
                 const universeId = finalGame.id;
                 const fetchedStats = {
