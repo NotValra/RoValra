@@ -300,11 +300,10 @@ async function renderBannedUserProfile(user, settings) {
             </div>
 
                 <div class="relative flex flex-col items-center" style="height: 300px; width: 100%;">
-                <div class="profile-avatar-gradient" style="width: 100%; height: 300px;">
-                    <div style="background: var(--rovalra-profile-main-gradient); width: 100vw; margin-left: calc(50% - 50vw); height: 300px; margin-top: -24px; position: relative; background-color: var(--rovalra-profile-header-bg); padding: 0 12px;"></div>
-                    <div class="cover-gradient-overlay" style="position: absolute; bottom: 0; width: 100vw; margin-left: calc(50% - 50vw); left: 0; height: 64px; z-index: 10; pointer-events: none; mask-image: linear-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,.5) 40%, rgba(255,255,255,.8) 60%, #fff 100%); background: var(--rovalra-profile-overlay-gradient);"></div>
+                <div class="profile-avatar-gradient" style="width: 970px; max-width: 100%; height: 300px; border-radius: 8px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; overflow: hidden; background: var(--rovalra-profile-main-gradient); background-color: var(--rovalra-profile-header-bg);">
+                    <div style="background: var(--rovalra-profile-main-gradient); width: 100vw; margin-left: calc(50% - 50vw); height: 324px; margin-top: -24px; position: relative; background-color: var(--rovalra-profile-header-bg); padding: 0 12px;"></div>
                 </div>
-                    <div class="thumbnail-holder" style="position: absolute; top: -25px; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; justify-content: center; align-items: center; pointer-events: none; overflow: hidden; height: 300px;">
+                    <div class="thumbnail-holder" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; justify-content: center; align-items: center; pointer-events: none; overflow: hidden; height: 300px;">
                         <div class="thumbnail-3d-container" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
                             <div id="rovalra-banned-avatar-wrapper" class="avatar-thumbnail-container" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; max-width: 100%; max-height: 100%;">
                         </div>
@@ -312,12 +311,12 @@ async function renderBannedUserProfile(user, settings) {
                 </div>
             </div>
 
-            <div style="width: 100%; position: relative; margin-top: -64px; z-index: 20;">
+            <div style="width: 100%; position: relative; margin-top: 0; z-index: 20;">
                 <div id="user-profile-header-bg" style="max-width: 1140px; margin: 0 auto;">
                     <div class="user-profile-header flex flex-col gap-large" style="padding: 0 15px;">
                         <div class="user-profile-header-info flex justify-between items-center">
                             <div class="flex gap-medium items-center min-width-0">
-                                <div id="rovalra-banned-avatar-container" class="user-profile-header-details-avatar-container avatar-headshot-lg" style="width: 120px; height: 120px; min-width: 120px;">
+                                <div id="rovalra-banned-avatar-container" class="user-profile-header-details-avatar-container avatar-headshot-lg" style="width: 120px; height: 120px; min-width: 120px; transform: translateY(-24px);">
                                     <div class="avatar avatar-card-fullbody">
                                         <div id="rovalra-banned-headshot-placeholder"></div>
                                         <div class="avatar-status">

@@ -516,6 +516,9 @@ export async function init() {
                 '.avatar-card.profile-avatar .thumbnail-2d-container',
             ].join(', '),
             (element) => {
+                if (element.closest('#rovalra-banned-avatar-container'))
+                    return;
+
                 const target = element.parentElement || element;
                 applyBorderToContainer(target, borderUrl, true);
             },
