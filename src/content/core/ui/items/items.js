@@ -11,6 +11,45 @@ import { t } from '../../locale/i18n.js';
 let batchQueue = [];
 let batchTimeout = null;
 const BATCH_DELAY = 50;
+const DEVELOP_ASSET_BATCH_SIZE = 50;
+
+async function fetchDevelopAssetDetails(assetIds) {
+    const assetMap = new Map();
+
+    await Promise.all(
+        Array.from(
+            { length: Math.ceil(assetIds.length / DEVELOP_ASSET_BATCH_SIZE) },
+            (_, index) => {
+                const batch = assetIds.slice(
+                    index * DEVELOP_ASSET_BATCH_SIZE,
+                    (index + 1) * DEVELOP_ASSET_BATCH_SIZE,
+                );
+
+                return callRobloxApi({
+                    subdomain: 'develop',
+                    endpoint: `/v1/assets?assetIds=${batch.join(',')}`,
+                    method: 'GET',
+                })
+                    .then(async (developRes) => {
+                        if (!developRes.ok) return;
+
+                        const developData = await developRes.json();
+                        developData.data?.forEach((assetInfo) => {
+                            assetMap.set(assetInfo.id, assetInfo);
+                        });
+                    })
+                    .catch((e) => {
+                        console.warn(
+                            'RoValra: Develop fallback batch failed',
+                            e,
+                        );
+                    });
+            },
+        ),
+    );
+
+    return assetMap;
+}
 
 function getCollectibleLowestResalePrice(data) {
     const resalePrice =
@@ -247,6 +286,16 @@ async function processBatch() {
             });
         });
 
+        const developAssetMap = await fetchDevelopAssetDetails(
+            [
+                ...new Set(
+                    currentBatch
+                        .filter((request) => !catalogDetailsMap.has(request.id))
+                        .map((request) => request.id),
+                ),
+            ],
+        );
+
         await Promise.all(
             currentBatch.map(async (request) => {
                 const catalogItemData = catalogDetailsMap.get(request.id);
@@ -361,38 +410,22 @@ async function processBatch() {
                     );
 
                     if (!item) {
-                        try {
-                            const developRes = await callRobloxApi({
-                                subdomain: 'develop',
-                                endpoint: `/v1/assets?assetIds=${request.id}`,
-                                method: 'GET',
-                            });
-
-                            if (developRes.ok) {
-                                const devData = await developRes.json();
-                                const assetInfo = devData.data?.[0];
-                                if (assetInfo) {
-                                    item = {
-                                        assetId: request.id,
-                                        name: assetInfo.name,
-                                        assetType: {
-                                            id: assetInfo.typeId,
-                                            name: assetInfo.type,
-                                        },
-                                        recentAveragePrice: 0,
-                                        itemRestrictions: [],
-                                        itemType: 'Asset',
-                                        isOnHold: false,
-                                        bundleId: null,
-                                        priceText: 'Off Sale',
-                                    };
-                                }
-                            }
-                        } catch (e) {
-                            console.warn(
-                                `RoValra: Develop fallback failed for item ${request.id}`,
-                                e,
-                            );
+                        const assetInfo = developAssetMap.get(request.id);
+                        if (assetInfo) {
+                            item = {
+                                assetId: request.id,
+                                name: assetInfo.name,
+                                assetType: {
+                                    id: assetInfo.typeId,
+                                    name: assetInfo.type,
+                                },
+                                recentAveragePrice: 0,
+                                itemRestrictions: [],
+                                itemType: 'Asset',
+                                isOnHold: false,
+                                bundleId: null,
+                                priceText: 'Off Sale',
+                            };
                         }
                     }
 
