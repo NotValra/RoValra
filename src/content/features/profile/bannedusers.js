@@ -974,7 +974,7 @@ async function loadGroups(userId) {
                 <div class="base-tile">
                     <a class="flex flex-col" href="https://www.roblox.com/groups/${group.id}/-" style="text-decoration: none;">
                         <span class="thumbnail-2d-container radius-medium" style="width: 150px; height: 150px; display: block; background: var(--rovalra-button-background-color); border-radius: 8px; overflow: hidden;"></span>
-                        <div style="font-weight: 600; margin-top: 8px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--rovalra-main-text-color); display: flex; align-items: center;">${group.name}${verifiedBadge}</div>
+                        <div style="font-weight: 600; margin-top: 8px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--rovalra-main-text-color);"><span style="display: inline;">${group.name}${verifiedBadge}</span></div>
                         <div style="font-size: 14px; color: var(--rovalra-secondary-text-color);">${memberCountStr} ${ts('bannedUsers.members')}</div>
                         <div style="font-size: 14px; color: var(--rovalra-secondary-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.role.name}</div>
                     </a>
