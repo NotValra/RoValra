@@ -826,8 +826,8 @@ async function loadFriends(userId) {
                         <a href="https://www.roblox.com/users/${userId}/friends#!/friends" class="btn-secondary-xs btn-more see-all-link-icon">${ts('bannedUsers.seeAll')}</a>
                     </div>
                     <div class="friends-carousel-container">
-                        <div class="friends-carousel-list-container">
-                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 35px; overflow-x: auto; padding-bottom: 10px;"></div>
+                        <div class="friends-carousel-list-container rovalra-banned-friends-scroll">
+                            <div id="rovalra-banned-friends-list" class="rovalra-banned-friends-list"></div>
                         </div>
                     </div>
                 </div>
@@ -848,6 +848,7 @@ async function loadFriends(userId) {
                         'names.combinedName',
                         'isVerified',
                         'names.username',
+                        'hasRobloxSubscription',
                     ],
                 },
             }),
@@ -887,6 +888,8 @@ async function loadFriends(userId) {
                 displayName,
                 username,
                 isHidden,
+                isVerified: profile?.isVerified || false,
+                isSubscribed: profile?.hasRobloxSubscription || false,
             });
             friendsList.appendChild(tile);
         });
