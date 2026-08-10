@@ -8,7 +8,7 @@ import {
     set as setCache,
 } from '../../core/storage/cacheHandler.js';
 
-const SETTING_NAME = 'FreeRobloxPlusThemesEnabled';
+const SETTING_NAME = 'FreeRobloxPlusThemesEnabledv2';
 const SESSION_SETTING_KEY = 'rovalra_freeRobloxPlusThemes';
 const CACHE_SECTION = 'freeRobloxPlusThemes';
 const CACHE_KEY = 'userSettings';
@@ -28,7 +28,7 @@ function removeThemeNotices() {
 }
 
 async function addThemeNotice(themeSection) {
-    if (!freeRobloxPlusThemesEnabled || !(themeSection instanceof Element)) {
+    if (!FreeRobloxPlusThemesEnabledv2 || !(themeSection instanceof Element)) {
         return;
     }
 
@@ -165,16 +165,16 @@ async function handleUserSettingsResponse(settingsData) {
         expiresAt: Date.now() + CACHE_TTL_MS,
     });
 
-    if (freeRobloxPlusThemesEnabled) {
+    if (FreeRobloxPlusThemesEnabledv2) {
         applyAccountTheme(settingsData.accountTheme);
     }
 }
 
-let freeRobloxPlusThemesEnabled = false;
+let FreeRobloxPlusThemesEnabledv2 = false;
 
 function setEnabled(value) {
     const isEnabled = value === true;
-    freeRobloxPlusThemesEnabled = isEnabled;
+    FreeRobloxPlusThemesEnabledv2 = isEnabled;
 
     try {
         sessionStorage.setItem(SESSION_SETTING_KEY, String(isEnabled));
@@ -228,7 +228,7 @@ export function init() {
         publishInitialSettingState(enabled);
     });
     document.addEventListener('rovalra:user-settings-response', (event) => {
-        if (!freeRobloxPlusThemesEnabled) return;
+        if (!FreeRobloxPlusThemesEnabledv2) return;
 
         handleUserSettingsResponse(event.detail).catch((error) =>
             console.warn(
