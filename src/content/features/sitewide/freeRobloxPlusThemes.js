@@ -21,8 +21,16 @@ let initialized = false;
 let accountThemeRequest = null;
 let themeSectionObserver = null;
 
+function removeThemeNotices() {
+    document.querySelectorAll(`#${NOTICE_ID}`).forEach((notice) => {
+        notice.remove();
+    });
+}
+
 async function addThemeNotice(themeSection) {
-    if (!(themeSection instanceof Element)) return;
+    if (!freeRobloxPlusThemesEnabled || !(themeSection instanceof Element)) {
+        return;
+    }
 
     const existingNotice = themeSection.querySelector(`#${NOTICE_ID}`);
     if (existingNotice) return;
@@ -173,6 +181,17 @@ function setEnabled(value) {
     } catch (e) {}
 
     if (isEnabled) {
+        document
+            .querySelectorAll(THEME_SECTION_SELECTOR)
+            .forEach((themeSection) => {
+                addThemeNotice(themeSection).catch((error) =>
+                    console.warn(
+                        'RoValra: Failed to add the theme notice.',
+                        error,
+                    ),
+                );
+            });
+
         loadAccountTheme().catch((error) =>
             console.warn(
                 'RoValra: Failed to load Roblox user settings.',
@@ -180,6 +199,7 @@ function setEnabled(value) {
             ),
         );
     } else {
+        removeThemeNotices();
         removeInjectedThemeClass();
     }
 }
