@@ -40,6 +40,8 @@ export function getFriendRequestOriginText(originId) {
             return `${fromText} ${ts('friendsSince.originFriendLink')}`;
         case 10: // FRIEND_RECOMMENDATIONS
             return `${fromText} ${ts('friendsSince.originPeopleYouMayKnow')}`;
+        case 11: // School memberlist
+            return `${fromText} ${ts('friendsSince.originschoolmemberlist')}`;
         default:
             return `${fromText} ${ts('friendsSince.originUnknown')}`;
     }
