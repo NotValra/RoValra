@@ -237,7 +237,6 @@ async function addOwnershipPill(reportButton) {
             width: 'fit-content',
             maxWidth: '100%',
             verticalAlign: 'middle',
-            marginLeft: 'auto',
             marginTop: '20px',
             marginLeft: '12px',
         });
