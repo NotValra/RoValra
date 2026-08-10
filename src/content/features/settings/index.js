@@ -88,7 +88,7 @@ const DONATOR_PERKS_UNIVERSE_ID = '9452973012';
 const DONATOR_PERKS_GAME_URL =
     'https://www.roblox.com/games/store-section/' + DONATOR_PERKS_UNIVERSE_ID;
 const DONATOR_PERKS_FALLBACK_ONSALE_URL =
-    'https://www.roblox.com/catalog?taxonomy=tZsUsd2BqGViQrJ9Vs3Wah&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
+    'https://www.roblox.com/catalog?taxonomy=2a2rf9qyeTd8W5iegK2Prc&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
 let requestedDonatorGameUnblock = false;
 let requestedDonatorGameUnblockChecked = false;
 let donatorGameUnblockConsentId = 0;
@@ -1195,7 +1195,7 @@ function getContributorStats() {
             if (counts.has(id)) counts.set(id, counts.get(id) + 1);
             featureCount += 1;
         }
-    })
+    });
 
     return { counts, featureCount };
 }
@@ -1212,14 +1212,16 @@ function getContributions() {
         contributions[String(contributor)] = [];
     }
     for (const category of Object.values(SETTINGS_CONFIG)) {
-        for (const [settingName, settingData] of Object.entries(category.settings)) {
+        for (const [settingName, settingData] of Object.entries(
+            category.settings,
+        )) {
             if (settingData.contributors !== undefined) {
                 for (const contributor of settingData.contributors) {
                     if (contributions[String(contributor)] === undefined)
                         contributions[String(contributor)] = [];
                     contributions[String(contributor)].push({
                         feature: settingData.label,
-                        key: settingName
+                        key: settingName,
                     });
                 }
             } else {
@@ -1227,18 +1229,22 @@ function getContributions() {
                     contributions[String(CREATOR_USER_ID)] = [];
                 contributions[String(CREATOR_USER_ID)].push({
                     feature: settingData.label,
-                    key: settingName
-                })
+                    key: settingName,
+                });
             }
             if (settingData.childSettings) {
-                for (const [subSettingName, subSettingData] of Object.entries(settingData.childSettings)) {
+                for (const [subSettingName, subSettingData] of Object.entries(
+                    settingData.childSettings,
+                )) {
                     if (subSettingData.contributors !== undefined) {
                         for (const contributor of subSettingData.contributors) {
-                            if (contributions[String(contributor)] === undefined)
+                            if (
+                                contributions[String(contributor)] === undefined
+                            )
                                 contributions[String(contributor)] = [];
                             contributions[String(contributor)].push({
                                 feature: subSettingData.label,
-                                key: subSettingName
+                                key: subSettingName,
                             });
                         }
                     }
@@ -1252,7 +1258,7 @@ function getContributions() {
                 feature: contData.label,
                 key: contKey,
                 contributionDescription: contribution.contributionDescription,
-                prLink: contribution.relevantPR
+                prLink: contribution.relevantPR,
             });
         }
     }
@@ -1385,17 +1391,19 @@ function renderContributors(container, users, thumbMap) {
             count: contributionCount,
         });
 
-        count.addEventListener("click", async (ev) => {
+        count.addEventListener('click', async (ev) => {
             const contributions = getContributions()[String(id)];
 
             let markdown = `
-| ${await t("settings.credits.ui.popup.contributor")} | ${await t("settings.credits.ui.popup.featureName")} | ${await t("settings.credits.ui.popup.featureKey")} |
+| ${await t('settings.credits.ui.popup.contributor')} | ${await t('settings.credits.ui.popup.featureName')} | ${await t('settings.credits.ui.popup.featureKey')} |
 |              -                                 |                   -                            |                       -                       |
 `;
 
             for (const contribution of contributions) {
                 markdown += `| [${user.displayName}](${link.href}) | `;
-                const featureNameText = contribution.contributionDescription ? `${contribution.feature} (${await t(contribution.contributionDescription)})` : contribution.feature;
+                const featureNameText = contribution.contributionDescription
+                    ? `${contribution.feature} (${await t(contribution.contributionDescription)})`
+                    : contribution.feature;
                 markdown += `${contribution.prLink ? `[${featureNameText}](${contribution.prLink})` : featureNameText} | `;
                 markdown += `${contribution.prLink ? `[${contribution.key}](${contribution.prLink})` : contribution.key} |\n`;
             }
@@ -1405,24 +1413,28 @@ function renderContributors(container, users, thumbMap) {
             const bodyContent = document.createElement('div');
             bodyContent.innerHTML = html;
 
-            const okayBtn = createButton("Okay", 'primary', {
+            const okayBtn = createButton('Okay', 'primary', {
                 onClick: async () => {
                     overlay.close();
-                }
+                },
             });
 
             const overlay = createOverlay({
-                title: await t('settings.credits.ui.popup.title', {user: user.displayName}),
+                title: await t('settings.credits.ui.popup.title', {
+                    user: user.displayName,
+                }),
                 bodyContent: bodyContent,
                 actions: [okayBtn],
                 showLogo: true,
-                maxWidth: '50%'
+                maxWidth: '50%',
             });
-        })
+        });
 
-        link.appendChild(createContributorProfile(user, thumbMap.get(String(id))));
+        link.appendChild(
+            createContributorProfile(user, thumbMap.get(String(id))),
+        );
         item.appendChild(link);
-        item.appendChild(count,);
+        item.appendChild(count);
         listContainer.appendChild(item);
     });
 
@@ -2374,7 +2386,8 @@ async function renderAccountStanding(container) {
     container.appendChild(discordCard);
 
     // Initial instant render assuming good standing
-    discordCard.innerHTML = DOMPurify.sanitize(`
+    discordCard.innerHTML = DOMPurify.sanitize(
+        `
         <div style="display: flex; align-items: flex-start; gap: 20px;">
             <div class="standing-status-icon-bg" style="width: 48px; height: 48px; border-radius: 50%; background-color: #23a55a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background-color 0.3s;">
                 <icon size="large" style="transform: translate(1px, 1px)">check-large</icon>
@@ -2402,7 +2415,9 @@ async function renderAccountStanding(container) {
             <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">RoValra Safety Policy</div>
             Accounts found in violation of the <a href="https://www.rovalra.com/tou/" target="_blank" style="color: inherit; text-decoration: underline;">RoValra Terms of Service</a> or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.
         </div>
-    `, { ...CUSTOM_ADDED_TAGS });
+    `,
+        { ...CUSTOM_ADDED_TAGS },
+    );
 
     if (standingCache) {
         updateAccountStandingUI(
