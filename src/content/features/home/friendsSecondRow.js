@@ -1,6 +1,9 @@
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
-import { getCachedFriendsList } from '../../core/utils/trackers/friendslist.js';
+import {
+    getCachedFriendsList,
+    getFriendsList,
+} from '../../core/utils/trackers/friendslist.js';
 import {
     getBatchThumbnails,
     createThumbnailElement,
@@ -102,6 +105,8 @@ function createExtraFriendTile(friend, thumbnailData) {
 async function fillMissingFriends(listContainer) {
     if (listContainer.dataset.rovalraSecondRowFilled === 'true') return;
     listContainer.dataset.rovalraSecondRowFilled = 'true';
+    
+    getFriendsList();
 
     const renderedIds = getRenderedFriendIds(listContainer);
     const friends = await getCachedFriendsList();
