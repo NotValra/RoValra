@@ -462,6 +462,7 @@
             "goToGame": "Go to Donation Game",
             "perkTiers": "Perk Tiers",
             "perk": "Perk",
+            "currentTier": "Current Tier",
             "tier1": "Tier 1: Supporter",
             "tier1Desc": "Donate <strong>any amount</strong>",
             "tier1Reward": "Donator 1 Badge",

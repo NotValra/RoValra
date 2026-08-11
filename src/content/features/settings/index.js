@@ -3386,50 +3386,59 @@ export async function updateContent(buttonInfo, contentContainer) {
                 );
                 const thumbData = thumbs[0];
                 const userThumbUrl = thumbData?.imageUrl;
+                const tierContainer = contentContainer.querySelector(
+                    `#donator-tier-${userTier}-header`,
+                );
 
-                if (userThumbUrl) {
-                    const tierContainer = contentContainer.querySelector(
-                        `#donator-tier-${userTier}-header`,
+                if (tierContainer) {
+                    const currentTierPill = createPill(
+                        ts('settings.donatorPerks.currentTier'),
+                        null,
+                        { size: 'small' },
                     );
-                    if (tierContainer) {
-                        const tierCopy = tierContainer.querySelector(
-                            '.rovalra-donator-tier-copy',
-                        );
-                        const tierBadge = document.createElement('span');
-                        tierBadge.dataset.rovalraSkipUsdEstimate = 'true';
-                        tierBadge.style.cssText =
-                            'margin-top: 6px; display: inline-flex; align-items: center; gap: 5px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 2px 7px 2px 2px; border-radius: 16px; border: 1px solid var(--rovalra-border-color); color: var(--rovalra-main-text-color); white-space: nowrap; width: fit-content;';
+                    currentTierPill.classList.add(
+                        'rovalra-donator-current-tier-pill',
+                    );
+                    tierContainer.appendChild(currentTierPill);
+                }
 
-                        const img = document.createElement('img');
-                        img.src = userThumbUrl;
-                        img.style.cssText =
-                            'width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0;';
-                        tierBadge.appendChild(img);
+                if (userThumbUrl && tierContainer) {
+                    const tierCopy = tierContainer.querySelector(
+                        '.rovalra-donator-tier-copy',
+                    );
+                    const tierBadge = document.createElement('span');
+                    tierBadge.dataset.rovalraSkipUsdEstimate = 'true';
+                    tierBadge.style.cssText =
+                        'margin-top: 6px; display: inline-flex; align-items: center; gap: 5px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 2px 7px 2px 2px; border-radius: 16px; border: 1px solid var(--rovalra-border-color); color: var(--rovalra-main-text-color); white-space: nowrap; width: fit-content;';
 
-                        const totalDonated =
-                            getTotalDonatedFromBadgesResponse(badgesResponse);
-                        let totalDonatedLabel = null;
-                        if (totalDonated !== null) {
-                            totalDonatedLabel = totalDonated.toLocaleString();
-                            const donationTotal =
-                                document.createElement('span');
-                            const robuxIcon = document.createElement('span');
-                            robuxIcon.className = 'icon-robux-16x16';
-                            robuxIcon.style.marginRight = '2px';
-                            donationTotal.append(robuxIcon, totalDonatedLabel);
-                            donationTotal.style.cssText =
-                                'display: inline-flex; align-items: center; gap: 1px; color: var(--rovalra-main-text-color); font-size: 11px; font-weight: 700;';
-                            tierBadge.appendChild(donationTotal);
-                        }
-                        addTooltip(
-                            tierBadge,
-                            totalDonatedLabel
-                                ? `Your total donated to RoValra: ${totalDonatedLabel}`
-                                : 'Your donator tier',
-                            { position: 'top' },
-                        );
-                        (tierCopy || tierContainer).appendChild(tierBadge);
+                    const img = document.createElement('img');
+                    img.src = userThumbUrl;
+                    img.style.cssText =
+                        'width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0;';
+                    tierBadge.appendChild(img);
+
+                    const totalDonated =
+                        getTotalDonatedFromBadgesResponse(badgesResponse);
+                    let totalDonatedLabel = null;
+                    if (totalDonated !== null) {
+                        totalDonatedLabel = totalDonated.toLocaleString();
+                        const donationTotal = document.createElement('span');
+                        const robuxIcon = document.createElement('span');
+                        robuxIcon.className = 'icon-robux-16x16';
+                        robuxIcon.style.marginRight = '2px';
+                        donationTotal.append(robuxIcon, totalDonatedLabel);
+                        donationTotal.style.cssText =
+                            'display: inline-flex; align-items: center; gap: 1px; color: var(--rovalra-main-text-color); font-size: 11px; font-weight: 700;';
+                        tierBadge.appendChild(donationTotal);
                     }
+                    addTooltip(
+                        tierBadge,
+                        totalDonatedLabel
+                            ? `Your total donated to RoValra: ${totalDonatedLabel}`
+                            : 'Your donator tier',
+                        { position: 'top' },
+                    );
+                    (tierCopy || tierContainer).appendChild(tierBadge);
                 }
             }
         }

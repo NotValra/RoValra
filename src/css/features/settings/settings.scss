@@ -358,6 +358,7 @@ body.rovalra-settings-page {
     }
 
     .rovalra-donator-tier-heading {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -370,6 +371,17 @@ body.rovalra-settings-page {
         border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.2));
         border-radius: 8px;
         color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-donator-current-tier-pill {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        z-index: 1;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        color: #000;
+        white-space: nowrap;
     }
 
     .rovalra-donator-tier-heading img {
