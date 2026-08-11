@@ -1,0 +1,46 @@
+html .react-friends-carousel-container:has(.rovalra-friends-second-row) {
+    min-height: 187px;
+    height: auto;
+}
+
+html .rovalra-friends-second-row .friends-carousel-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+html .rovalra-friends-second-row .friends-carousel-list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    grid-template-rows: repeat(2, auto) repeat(100, 0);
+}
+
+html .rovalra-friends-second-row .friends-carousel-tile {
+    #friend-tile-button {
+        width: 100%;
+        padding: 0;
+    }
+
+    .avatar,
+    .add-friends-icon-container {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .friends-carousel-tile-name {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .friends-carousel-display-name {
+        max-width: 100%;
+        width: auto;
+    }
+}
+
+.rovalra-friends-extra-tile {
+    .friend-tile-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}

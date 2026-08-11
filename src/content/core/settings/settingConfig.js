@@ -1160,6 +1160,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            friendsSecondRowEnabled: {
+                label: 'Second Friends Row',
+                description: [
+                    'Shows a second row of friends in the Home page friends carousel instead of only one row.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2830488781'],
+            },
             HideAddFriendsButton: {
                 label: 'Hide Add Friends Button',
                 description: [

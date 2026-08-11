@@ -26,6 +26,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2333236354', // AandA510
     '170038374', // syra (concept artist)
     '760897332', // ceyexm
+    '2830488781' // idhglua
 ];
 
 export const TESTER_USER_IDS = [
