@@ -45,9 +45,6 @@ function getRenderedFriendIds(listContainer) {
     return ids;
 }
 
-// Extra tiles use a trimmed-down version of Roblox's own friend-tile markup
-// (no dropdown/options button) since we're not wired into Roblox's popover
-// system for synthetic tiles that Roblox never rendered itself.
 function createExtraFriendTile(friend, thumbnailData) {
     const profileUrl = `/users/${friend.id}/profile`;
 
