@@ -783,7 +783,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            trustedConnectionsEnabledv2: {
+            trustedConnectionsEnabledv3: {
                 label: 'Trusted Friends',
                 description: [
                     'This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.',
@@ -792,8 +792,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                isPermanent: true,
-                locked: 'Seemingly broke after a Roblox update. And Roblox is rolling out their own version of it.',
+                //isPermanent: true,
+                //locked: 'Seemingly broke after a Roblox update. And Roblox is rolling out their own version of it.',
             },
 
             lastOnlineEnabled: {
