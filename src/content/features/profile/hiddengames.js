@@ -308,7 +308,12 @@ const UI = {
         btn.classList.add('hidden-games-button');
         btn.style.marginLeft = '5px';
         btn.addEventListener('click', onClick);
-        header.appendChild(btn);
+        const buttonContainer = header.querySelector('.container-buttons');
+        if (buttonContainer) {
+            header.insertBefore(btn, buttonContainer);
+        } else {
+            header.appendChild(btn);
+        }
     },
 
     async createEmptyState(onClick) {
@@ -533,12 +538,13 @@ export function init() {
         };
 
         observeElement(
-            '.btr-profile-right .profile-game .container-header, .profile-tab-content .container-header, .placeholder-games .container-header',
+            '.profile-experiences.profile-game .container-header, .btr-profile-right .profile-game .container-header, .placeholder-games .container-header',
             (header) => {
                 if (header.dataset.rovalraProcessed) return;
                 header.dataset.rovalraProcessed = 'true';
                 UI.injectButton(header, handleButtonClick);
             },
+            { multiple: true },
         );
 
         const checkEmptyState = async () => {
