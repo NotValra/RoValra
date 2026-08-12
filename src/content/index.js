@@ -88,6 +88,7 @@ import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
 import { init as initDeveloperProductsSection } from './features/games/DeveloperProductsSection.js';
 import { init as initDeveloperProductAutoBuy } from './features/games/developerProductAutoBuy.js';
+import { init as initBtrDonationWarning } from './features/games/btrDonationWarning.js';
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
@@ -327,6 +328,11 @@ const featureRoutes = [
             initBadgeLayoutToggle,
             initBadgeOwnership,
         ],
+    },
+    // Donation store page
+    {
+        paths: ['/games/store-section/'],
+        features: [initBtrDonationWarning],
     },
     // Private games page and unavailable game redirects
     {
