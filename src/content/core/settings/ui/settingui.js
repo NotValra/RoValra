@@ -2,6 +2,7 @@ import { getAssets } from '../../assets.js';
 import { callRobloxApi } from '../../api.js';
 import { SETTINGS_CONFIG } from '../settingConfig.js';
 import { createDropdown } from '../../ui/dropdown.js';
+import { t } from '../../locale/i18n.js';
 
 const ACCOUNT_STANDING_TAB_IDS = new Set([
     'info',
@@ -88,15 +89,41 @@ function shouldShowSettingsSection(sectionName, options = {}) {
     return true;
 }
 
-function hasRoGoldEnabled() {
-    return /(^|\s)rogold(\s|$)/i.test(document.body?.className || '');
+const INCOMPATIBILITY_DETECTIONS = [
+    {
+        name: 'RoGold',
+        bodyClass: 'rogold',
+    },
+];
+
+function getDetectedIncompatibilities() {
+    return INCOMPATIBILITY_DETECTIONS.filter((detection) => {
+        if (detection.bodyClass) {
+            return document.body?.classList.contains(detection.bodyClass);
+        }
+
+        return Boolean(
+            detection.selector && document.querySelector(detection.selector),
+        );
+    });
 }
 
-function createRoGoldWarning() {
-    if (!hasRoGoldEnabled()) return null;
+function formatCompatibilityList(names) {
+    if (names.length <= 1) return names[0] || '';
+    if (names.length === 2) return `${names[0]} and ${names[1]}`;
+    return `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
+}
+
+async function createCompatibilityWarning() {
+    const detectedNames = getDetectedIncompatibilities().map(
+        (detection) => detection.name,
+    );
+    if (detectedNames.length === 0) return null;
+
+    const detectedExtensions = formatCompatibilityList(detectedNames);
 
     const warning = document.createElement('div');
-    warning.id = 'rovalra-rogold-notice-banner';
+    warning.id = 'rovalra-compatibility-notice-banner';
     warning.setAttribute('role', 'alert');
 
     const entry = document.createElement('div');
@@ -111,11 +138,16 @@ function createRoGoldWarning() {
 
     const title = document.createElement('div');
     title.className = 'rovalra-game-notice-title';
-    title.textContent = 'RoValra may not work properly with RoGold enabled.';
+    title.textContent = await t('settings.compatibilityWarning.title', {
+        extensions: detectedExtensions,
+    });
 
     const description = document.createElement('div');
     description.className = 'rovalra-game-notice-description';
-    description.textContent = 'We do not promise support for RoGold.';
+    description.textContent = await t(
+        'settings.compatibilityWarning.description',
+        { extensions: detectedExtensions },
+    );
 
     textContainer.append(title, description);
     entry.append(iconContainer, textContainer);
@@ -192,8 +224,7 @@ export async function buildSettingsPage({
     headerContainer.appendChild(rovalraHeader);
     rovalraHeader.appendChild(rovalraIcon);
 
-    const roGoldWarning = createRoGoldWarning();
-    if (roGoldWarning) headerContainer.style.marginBottom = '0';
+    const compatibilityWarning = await createCompatibilityWarning();
 
     let settingsContainer = document.createElement('div');
     settingsContainer.id = 'settings-container';
@@ -311,8 +342,8 @@ export async function buildSettingsPage({
         'display: block; position: relative; overflow: visible; width: 100%;';
 
     settingsContainer.insertAdjacentElement('afterbegin', rovalraHeader);
-    if (roGoldWarning)
-        rovalraHeader.insertAdjacentElement('afterend', roGoldWarning);
+    if (compatibilityWarning)
+        rovalraHeader.insertAdjacentElement('afterend', compatibilityWarning);
 
     uiContainer.innerHTML = '';
 

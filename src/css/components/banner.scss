@@ -1,6 +1,6 @@
 #rovalra-game-notice-banner,
 #rovalra-catalog-notice-banner,
-#rovalra-rogold-notice-banner {
+#rovalra-compatibility-notice-banner {
     background-color: var(--rovalra-container-background-color);
     width: 100%;
     padding: 10px 15px;
@@ -82,8 +82,10 @@
         }
     }
 
-    &#rovalra-rogold-notice-banner {
+    &#rovalra-compatibility-notice-banner {
         display: flex;
         margin-bottom: 0px;
+        width: calc(100% - 5px);
+        box-sizing: border-box;
     }
 }
