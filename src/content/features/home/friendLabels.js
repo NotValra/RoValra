@@ -10,24 +10,18 @@ const SETTING_NAME = 'friendLabelsEnabled';
 const STORAGE_KEY = 'rovalra_friend_labels';
 
 const CARD_SELECTOR = '.friends-carousel-tile';
-const EXCLUDED_CONTAINER_SELECTOR =
-    '.roseal-friends-carousel-container';
+const EXCLUDED_CONTAINER_SELECTOR = '.roseal-friends-carousel-container';
 
 /* Legacy Roblox friend dropdown */
 const DROPDOWN_LIST_SELECTOR = '.friend-tile-dropdown ul';
 
 /*
- * The modern Roblox friend tooltip is rendered in a document-level portal,
- * rather than inside the friend card. Watch interactive controls and verify
- * that they belong to the friend tooltip before modifying them.
+ * The modern Roblox friend menu is rendered in a document-level portal.
+ * Identify it from its structure rather than translated button text.
  */
-const MODERN_TOOLTIP_ROOT_SELECTOR = [
-    '[role="dialog"]',
-    '[role="menu"]',
-    '[role="tooltip"]',
-    '[class*="popover" i]',
-    '[class*="dropdown" i]',
-].join(', ');
+const MODERN_TOOLTIP_ROOT_SELECTOR = '.friend-tile-dropdown--iarc';
+const MODERN_ACTIONS_SELECTOR = '.in-game-friend-card-actions';
+const MODERN_PROFILE_LINK_SELECTOR = 'a[href*="/users/"][href*="/profile"]';
 
 const HOST_CLASS = 'rovalra-friend-label-host';
 const LABEL_CLASS = 'rovalra-friend-label';
@@ -45,9 +39,7 @@ let friendLabels = {};
 let lastInteractedFriendCard = null;
 
 function isExcludedCarouselPresent() {
-    return Boolean(
-        document.querySelector(EXCLUDED_CONTAINER_SELECTOR),
-    );
+    return Boolean(document.querySelector(EXCLUDED_CONTAINER_SELECTOR));
 }
 
 function sanitizeLabels(value) {
@@ -129,10 +121,7 @@ function unwrapLabelHost(host) {
 function getNameRow(displayNameEl, context) {
     const parent = displayNameEl.parentElement;
 
-    if (
-        !parent ||
-        parent.classList.contains(HOST_CLASS)
-    ) {
+    if (!parent || parent.classList.contains(HOST_CLASS)) {
         return displayNameEl;
     }
 
@@ -150,10 +139,7 @@ function getNameRow(displayNameEl, context) {
         return displayNameEl;
     }
 
-    if (
-        parent.textContent.trim() !==
-        displayNameEl.textContent.trim()
-    ) {
+    if (parent.textContent.trim() !== displayNameEl.textContent.trim()) {
         return displayNameEl;
     }
 
@@ -165,18 +151,13 @@ function findLabelHost(context) {
         return null;
     }
 
-    let nameRow = getNameRow(
-        context.displayName,
-        context,
-    );
+    let nameRow = getNameRow(context.displayName, context);
 
     /*
      * If the newer RoValra username feature has already wrapped this row,
      * keep that wrapper intact and place the friend label beneath it.
      */
-    const usernameWrapper = nameRow.closest(
-        '.rovalra-friend-username-wrapper',
-    );
+    const usernameWrapper = nameRow.closest('.rovalra-friend-username-wrapper');
 
     if (usernameWrapper) {
         nameRow = usernameWrapper;
@@ -252,9 +233,7 @@ function renderFriendLabel(card, suppliedContext = null) {
         existingLabel.dataset.userId = String(context.userId);
 
         if (existingLabel.parentElement !== host) {
-            const previousHost = existingLabel.closest(
-                `.${HOST_CLASS}`,
-            );
+            const previousHost = existingLabel.closest(`.${HOST_CLASS}`);
 
             host.appendChild(existingLabel);
 
@@ -331,8 +310,7 @@ async function openLabelEditor(card, context) {
     const currentLabel = getFriendLabel(userId);
 
     const displayName =
-        getDisplayNameText(context) ||
-        (await t('friendLabels.friendFallback'));
+        getDisplayNameText(context) || (await t('friendLabels.friendFallback'));
 
     const body = document.createElement('div');
     body.className = 'rovalra-friend-label-editor';
@@ -352,15 +330,11 @@ async function openLabelEditor(card, context) {
 
     if (existingLabels.length > 0) {
         const suggestionSection = document.createElement('div');
-        suggestionSection.className =
-            'rovalra-friend-label-suggestion-section';
+        suggestionSection.className = 'rovalra-friend-label-suggestion-section';
 
         const suggestionTitle = document.createElement('div');
-        suggestionTitle.className =
-            'rovalra-friend-label-suggestion-title';
-        suggestionTitle.textContent = await t(
-            'friendLabels.existingLabels',
-        );
+        suggestionTitle.className = 'rovalra-friend-label-suggestion-title';
+        suggestionTitle.textContent = await t('friendLabels.existingLabels');
 
         const suggestionList = document.createElement('div');
         suggestionList.className = 'rovalra-friend-label-suggestions';
@@ -395,9 +369,7 @@ async function openLabelEditor(card, context) {
     let closeOverlay = () => {};
 
     const saveLabel = async () => {
-        const nextLabel = input.value
-            .trim()
-            .slice(0, MAX_LABEL_LENGTH);
+        const nextLabel = input.value.trim().slice(0, MAX_LABEL_LENGTH);
 
         const nextLabels = {
             ...friendLabels,
@@ -422,13 +394,9 @@ async function openLabelEditor(card, context) {
         },
     );
 
-    const saveButton = createButton(
-        await t('friendLabels.save'),
-        'primary',
-        {
-            onClick: saveLabel,
-        },
-    );
+    const saveButton = createButton(await t('friendLabels.save'), 'primary', {
+        onClick: saveLabel,
+    });
 
     const actions = [];
 
@@ -451,9 +419,7 @@ async function openLabelEditor(card, context) {
             },
         );
 
-        removeButton.classList.add(
-            'rovalra-friend-label-remove-button',
-        );
+        removeButton.classList.add('rovalra-friend-label-remove-button');
 
         actions.push(removeButton);
     }
@@ -485,27 +451,14 @@ async function openLabelEditor(card, context) {
     });
 }
 
-function normalizeControlText(element) {
-    return (
-        element?.textContent
-            ?.replace(/\s+/g, ' ')
-            .trim()
-            .toLowerCase() || ''
-    );
-}
-
-function getTooltipControls(root) {
+function getModernActionContainer(root) {
     if (!(root instanceof HTMLElement)) {
-        return [];
+        return null;
     }
 
-    return [
-        ...root.querySelectorAll('button, a, [role="button"]'),
-    ].filter(
-        (element) =>
-            element instanceof HTMLElement &&
-            element.offsetParent !== null,
-    );
+    const actions = root.querySelector(MODERN_ACTIONS_SELECTOR);
+
+    return actions instanceof HTMLElement ? actions : null;
 }
 
 function isModernFriendTooltip(root) {
@@ -513,15 +466,12 @@ function isModernFriendTooltip(root) {
         return false;
     }
 
-    const controlTexts = new Set(
-        getTooltipControls(root).map(normalizeControlText),
+    return Boolean(
+        root.matches(MODERN_TOOLTIP_ROOT_SELECTOR) &&
+        getModernActionContainer(root)?.querySelector(
+            MODERN_PROFILE_LINK_SELECTOR,
+        ),
     );
-
-    const hasViewProfile = controlTexts.has('view profile');
-    const hasFriendAction =
-        controlTexts.has('chat') || controlTexts.has('join');
-
-    return hasViewProfile && hasFriendAction;
 }
 
 function getCanonicalModernTooltipRoot(candidate) {
@@ -529,38 +479,13 @@ function getCanonicalModernTooltipRoot(candidate) {
         return null;
     }
 
-    const controls = getTooltipControls(candidate);
-    const viewProfileControl = controls.find(
-        (element) =>
-            normalizeControlText(element) === 'view profile',
-    );
+    const root = candidate.matches(MODERN_TOOLTIP_ROOT_SELECTOR)
+        ? candidate
+        : candidate.closest(MODERN_TOOLTIP_ROOT_SELECTOR);
 
-    if (!viewProfileControl) {
-        return null;
-    }
-
-    /*
-     * Roblox can render nested nodes that all match our broad tooltip
-     * selector. Always collapse them to the nearest matching ancestor that
-     * actually contains the complete friend action set.
-     */
-    let current = viewProfileControl.parentElement;
-
-    while (
-        current instanceof HTMLElement &&
-        current !== document.body
-    ) {
-        if (
-            current.matches(MODERN_TOOLTIP_ROOT_SELECTOR) &&
-            isModernFriendTooltip(current)
-        ) {
-            return current;
-        }
-
-        current = current.parentElement;
-    }
-
-    return isModernFriendTooltip(candidate) ? candidate : null;
+    return root instanceof HTMLElement && isModernFriendTooltip(root)
+        ? root
+        : null;
 }
 
 function removeModernTooltipAction(button) {
@@ -568,16 +493,12 @@ function removeModernTooltipAction(button) {
         return;
     }
 
-    const wrapper = button.closest(
-        `.${MODERN_TOOLTIP_ITEM_CLASS}`,
-    );
+    const wrapper = button.closest(`.${MODERN_TOOLTIP_ITEM_CLASS}`);
 
     if (
         wrapper instanceof HTMLElement &&
         wrapper !== button &&
-        wrapper.querySelectorAll(
-            `.${MODERN_TOOLTIP_BUTTON_CLASS}`,
-        ).length === 1
+        wrapper.querySelectorAll(`.${MODERN_TOOLTIP_BUTTON_CLASS}`).length === 1
     ) {
         wrapper.remove();
         return;
@@ -592,9 +513,7 @@ function dedupeModernTooltipActions(tooltip) {
     }
 
     const buttons = [
-        ...tooltip.querySelectorAll(
-            `.${MODERN_TOOLTIP_BUTTON_CLASS}`,
-        ),
+        ...tooltip.querySelectorAll(`.${MODERN_TOOLTIP_BUTTON_CLASS}`),
     ].filter((button) => button instanceof HTMLElement);
 
     if (buttons.length === 0) {
@@ -646,49 +565,6 @@ function findHoveredFriendCard() {
     return null;
 }
 
-function findFriendCardByTooltipText(tooltip) {
-    if (!(tooltip instanceof HTMLElement)) {
-        return null;
-    }
-
-    const tooltipText =
-        tooltip.textContent
-            ?.replace(/\s+/g, ' ')
-            .trim()
-            .toLowerCase() || '';
-
-    if (!tooltipText) {
-        return null;
-    }
-
-    const cards = [...document.querySelectorAll(CARD_SELECTOR)];
-
-    cards.sort((firstCard, secondCard) => {
-        const firstName = getDisplayNameText(
-            getUserCardContext(firstCard),
-        );
-        const secondName = getDisplayNameText(
-            getUserCardContext(secondCard),
-        );
-
-        return secondName.length - firstName.length;
-    });
-
-    for (const card of cards) {
-        const context = getUserCardContext(card);
-        const displayName = getDisplayNameText(context)
-            .replace(/\s+/g, ' ')
-            .trim()
-            .toLowerCase();
-
-        if (displayName && tooltipText.includes(displayName)) {
-            return card;
-        }
-    }
-
-    return null;
-}
-
 function resolveModernTooltipCard(tooltip) {
     const linkedUserId = getUserIdFromProfileLink(tooltip);
     const linkedCard = findFriendCardByUserId(linkedUserId);
@@ -705,20 +581,11 @@ function resolveModernTooltipCard(tooltip) {
         return hoveredCard;
     }
 
-    const activeCard = document.activeElement?.closest?.(
-        CARD_SELECTOR,
-    );
+    const activeCard = document.activeElement?.closest?.(CARD_SELECTOR);
 
     if (activeCard instanceof HTMLElement) {
         lastInteractedFriendCard = activeCard;
         return activeCard;
-    }
-
-    const textMatchedCard = findFriendCardByTooltipText(tooltip);
-
-    if (textMatchedCard) {
-        lastInteractedFriendCard = textMatchedCard;
-        return textMatchedCard;
     }
 
     if (
@@ -751,21 +618,14 @@ function rememberFriendCard(card) {
     card.addEventListener('focusin', remember);
 }
 
-function findModernActionMount(tooltip, viewProfileControl) {
-    const controls = getTooltipControls(tooltip);
-
+function findModernActionMount(viewProfileControl) {
+    const previousControl = viewProfileControl.previousElementSibling;
     const chatControl =
-        controls.find(
-            (control) =>
-                normalizeControlText(control) === 'chat',
-        ) || null;
+        previousControl instanceof HTMLButtonElement ? previousControl : null;
 
     const styleSource = chatControl || viewProfileControl;
 
-    if (
-        styleSource?.parentElement ===
-        viewProfileControl.parentElement
-    ) {
+    if (styleSource?.parentElement === viewProfileControl.parentElement) {
         return {
             reference: viewProfileControl,
             wrapperSource: null,
@@ -822,10 +682,7 @@ function createModernTooltipButton(sourceControl, labelText) {
         button.tabIndex = 0;
     }
 
-    button.classList.add(
-        MENU_BUTTON_CLASS,
-        MODERN_TOOLTIP_BUTTON_CLASS,
-    );
+    button.classList.add(MENU_BUTTON_CLASS, MODERN_TOOLTIP_BUTTON_CLASS);
     button.textContent = labelText;
 
     return button;
@@ -854,9 +711,7 @@ async function attachModernTooltipAction(candidate) {
         return;
     }
 
-    if (
-        tooltip.dataset.rovalraFriendLabelPending === 'true'
-    ) {
+    if (tooltip.dataset.rovalraFriendLabelPending === 'true') {
         return;
     }
 
@@ -867,10 +722,9 @@ async function attachModernTooltipAction(candidate) {
     tooltip.dataset.rovalraFriendLabelPending = 'true';
 
     try {
-        const controls = getTooltipControls(tooltip);
-        const viewProfileControl = controls.find(
-            (element) =>
-                normalizeControlText(element) === 'view profile',
+        const actions = getModernActionContainer(tooltip);
+        const viewProfileControl = actions?.querySelector(
+            MODERN_PROFILE_LINK_SELECTOR,
         );
 
         if (!viewProfileControl) {
@@ -884,10 +738,7 @@ async function attachModernTooltipAction(candidate) {
             return;
         }
 
-        const mount = findModernActionMount(
-            tooltip,
-            viewProfileControl,
-        );
+        const mount = findModernActionMount(viewProfileControl);
 
         const labelText = await t('friendLabels.menuAction');
 
@@ -933,10 +784,7 @@ async function attachModernTooltipAction(candidate) {
 
         if (!(button instanceof HTMLButtonElement)) {
             button.addEventListener('keydown', (event) => {
-                if (
-                    event.key !== 'Enter' &&
-                    event.key !== ' '
-                ) {
+                if (event.key !== 'Enter' && event.key !== ' ') {
                     return;
                 }
 
@@ -951,17 +799,11 @@ async function attachModernTooltipAction(candidate) {
             );
 
             wrapper.className = mount.wrapperSource.className;
-            wrapper.classList.add(
-                MENU_ITEM_CLASS,
-                MODERN_TOOLTIP_ITEM_CLASS,
-            );
+            wrapper.classList.add(MENU_ITEM_CLASS, MODERN_TOOLTIP_ITEM_CLASS);
 
             wrapper.appendChild(button);
 
-            mount.reference.insertAdjacentElement(
-                'afterend',
-                wrapper,
-            );
+            mount.reference.insertAdjacentElement('afterend', wrapper);
         } else {
             const wrapper = document.createElement('div');
 
@@ -971,10 +813,7 @@ async function attachModernTooltipAction(candidate) {
             ].join(' ');
 
             wrapper.appendChild(button);
-            mount.reference.insertAdjacentElement(
-                'afterend',
-                wrapper,
-            );
+            mount.reference.insertAdjacentElement('afterend', wrapper);
         }
 
         /*
@@ -993,8 +832,7 @@ function attachActionsToExistingModernTooltips() {
     document
         .querySelectorAll(MODERN_TOOLTIP_ROOT_SELECTOR)
         .forEach((candidate) => {
-            const tooltip =
-                getCanonicalModernTooltipRoot(candidate);
+            const tooltip = getCanonicalModernTooltipRoot(candidate);
 
             if (tooltip) {
                 canonicalTooltips.add(tooltip);
@@ -1045,26 +883,18 @@ async function attachDropdownAction(menuList) {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    const currentCard =
-                        button.closest(CARD_SELECTOR) || card;
+                    const currentCard = button.closest(CARD_SELECTOR) || card;
 
-                    const currentContext =
-                        getUserCardContext(currentCard);
+                    const currentContext = getUserCardContext(currentCard);
 
                     if (!currentContext.userId) return;
 
-                    await openLabelEditor(
-                        currentCard,
-                        currentContext,
-                    );
+                    await openLabelEditor(currentCard, currentContext);
                 },
             },
         );
 
-        button.classList.add(
-            MENU_BUTTON_CLASS,
-            'friend-tile-dropdown-button',
-        );
+        button.classList.add(MENU_BUTTON_CLASS, 'friend-tile-dropdown-button');
 
         if (menuList.querySelector(`.${MENU_ITEM_CLASS}`)) {
             return;
@@ -1093,37 +923,23 @@ function registerObservers() {
         },
     );
 
-    observeElement(
-        DROPDOWN_LIST_SELECTOR,
-        attachDropdownAction,
-        {
-            multiple: true,
-        },
-    );
+    observeElement(DROPDOWN_LIST_SELECTOR, attachDropdownAction, {
+        multiple: true,
+    });
 
-    observeElement(
-        MODERN_TOOLTIP_ROOT_SELECTOR,
-        attachModernTooltipAction,
-        {
-            multiple: true,
-        },
-    );
+    observeElement(MODERN_TOOLTIP_ROOT_SELECTOR, attachModernTooltipAction, {
+        multiple: true,
+    });
 
-    observeElement(
-        EXCLUDED_CONTAINER_SELECTOR,
-        removeFeatureUi,
-        {
-            multiple: true,
-        },
-    );
+    observeElement(EXCLUDED_CONTAINER_SELECTOR, removeFeatureUi, {
+        multiple: true,
+    });
 }
 
 function attachActionsToExistingDropdowns() {
-    document
-        .querySelectorAll(DROPDOWN_LIST_SELECTOR)
-        .forEach((menuList) => {
-            attachDropdownAction(menuList);
-        });
+    document.querySelectorAll(DROPDOWN_LIST_SELECTOR).forEach((menuList) => {
+        attachDropdownAction(menuList);
+    });
 
     document.querySelectorAll(CARD_SELECTOR).forEach((card) => {
         rememberFriendCard(card);
@@ -1137,36 +953,32 @@ function registerStorageListener() {
 
     storageListenerRegistered = true;
 
-    chrome.storage.onChanged.addListener(
-        async (changes, namespace) => {
-            if (namespace !== 'local') return;
+    chrome.storage.onChanged.addListener(async (changes, namespace) => {
+        if (namespace !== 'local') return;
 
-            if (changes[STORAGE_KEY]) {
-                friendLabels = sanitizeLabels(
-                    changes[STORAGE_KEY].newValue,
-                );
+        if (changes[STORAGE_KEY]) {
+            friendLabels = sanitizeLabels(changes[STORAGE_KEY].newValue);
 
-                if (enabled) {
-                    refreshExistingCards();
-                }
+            if (enabled) {
+                refreshExistingCards();
             }
+        }
 
-            if (!changes[SETTING_NAME]) return;
+        if (!changes[SETTING_NAME]) return;
 
-            enabled = changes[SETTING_NAME].newValue === true;
+        enabled = changes[SETTING_NAME].newValue === true;
 
-            if (!enabled) {
-                removeFeatureUi();
-                return;
-            }
+        if (!enabled) {
+            removeFeatureUi();
+            return;
+        }
 
-            friendLabels = await loadFriendLabels();
+        friendLabels = await loadFriendLabels();
 
-            registerObservers();
-            refreshExistingCards();
-            attachActionsToExistingDropdowns();
-        },
-    );
+        registerObservers();
+        refreshExistingCards();
+        attachActionsToExistingDropdowns();
+    });
 }
 
 export async function init() {
