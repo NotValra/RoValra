@@ -59,6 +59,17 @@
             "settings": "Settings"
         }
     },
+    "friendLabels": {
+        "menuAction": "Set Friend Label",
+        "dialogTitle": "Label {{displayName}}",
+        "inputLabel": "Friend Label",
+        "inputPlaceholder": "Close Friends, School,",
+        "existingLabels": "Existing labels",
+        "friendFallback": "Friend",
+        "save": "Save",
+        "remove": "Remove",
+        "cancel": "Cancel"
+    },
     "underratedGames": {
         "topic": "Underrated Games",
         "subtitle": "Underrated games hand picked by the RoValra community.",

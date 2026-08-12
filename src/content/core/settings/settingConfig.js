@@ -1169,6 +1169,19 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['476449201'],
             },
+
+
+            friendLabelsEnabled: {
+                label: 'Friend Labels',
+                description: [
+                    'Lets you assign a label to your friends on the Home page.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: 'rovalra_friend_labels',
+                contributors: ['4632962611'],
+            },
+
             friendUsernamesEnabled: {
                 label: 'Show Usernames On Friend Cards',
                 description: [

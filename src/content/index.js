@@ -165,6 +165,7 @@ import { init as initLegacyThemeSwitcher } from './features/settings/roblox/lega
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
+import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 // create
@@ -439,6 +440,7 @@ const featureRoutes = [
             initUnderratedGamesHome,
             initAccurateContinue,
             initHideAddFriendsButton,
+            initFriendLabels,
         ],
     },
     {
