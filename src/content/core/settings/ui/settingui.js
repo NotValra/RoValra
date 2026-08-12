@@ -88,6 +88,41 @@ function shouldShowSettingsSection(sectionName, options = {}) {
     return true;
 }
 
+function hasRoGoldEnabled() {
+    return /(^|\s)rogold(\s|$)/i.test(document.body?.className || '');
+}
+
+function createRoGoldWarning() {
+    if (!hasRoGoldEnabled()) return null;
+
+    const warning = document.createElement('div');
+    warning.id = 'rovalra-rogold-notice-banner';
+    warning.setAttribute('role', 'alert');
+
+    const entry = document.createElement('div');
+    entry.className = 'rovalra-game-notice-entry';
+
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'rovalra-game-notice-icon';
+    iconContainer.innerHTML = '<icon material size="48px">warning_amber</icon>';
+
+    const textContainer = document.createElement('div');
+    textContainer.className = 'rovalra-game-notice-text-container';
+
+    const title = document.createElement('div');
+    title.className = 'rovalra-game-notice-title';
+    title.textContent = 'RoValra may not work properly with RoGold enabled.';
+
+    const description = document.createElement('div');
+    description.className = 'rovalra-game-notice-description';
+    description.textContent = 'We do not promise support for RoGold.';
+
+    textContainer.append(title, description);
+    entry.append(iconContainer, textContainer);
+    warning.appendChild(entry);
+    return warning;
+}
+
 export async function buildSettingsPage({
     handleSearch,
     debounce,
@@ -156,6 +191,9 @@ export async function buildSettingsPage({
 
     headerContainer.appendChild(rovalraHeader);
     rovalraHeader.appendChild(rovalraIcon);
+
+    const roGoldWarning = createRoGoldWarning();
+    if (roGoldWarning) headerContainer.style.marginBottom = '0';
 
     let settingsContainer = document.createElement('div');
     settingsContainer.id = 'settings-container';
@@ -273,6 +311,8 @@ export async function buildSettingsPage({
         'display: block; position: relative; overflow: visible; width: 100%;';
 
     settingsContainer.insertAdjacentElement('afterbegin', rovalraHeader);
+    if (roGoldWarning)
+        rovalraHeader.insertAdjacentElement('afterend', roGoldWarning);
 
     uiContainer.innerHTML = '';
 

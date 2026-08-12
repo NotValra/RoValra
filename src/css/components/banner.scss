@@ -1,9 +1,9 @@
 #rovalra-game-notice-banner,
-#rovalra-catalog-notice-banner {
+#rovalra-catalog-notice-banner,
+#rovalra-rogold-notice-banner {
     background-color: var(--rovalra-container-background-color);
     width: 100%;
     padding: 10px 15px;
-    margin-bottom: 12px;
     display: none;
     flex-direction: column;
 
@@ -80,5 +80,10 @@
         .rovalra-markdown {
             display: contents;
         }
+    }
+
+    &#rovalra-rogold-notice-banner {
+        display: flex;
+        margin-bottom: 0px;
     }
 }
