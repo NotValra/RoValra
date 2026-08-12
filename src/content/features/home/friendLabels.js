@@ -10,6 +10,8 @@ const SETTING_NAME = 'friendLabelsEnabled';
 const STORAGE_KEY = 'rovalra_friend_labels';
 
 const CARD_SELECTOR = '.friends-carousel-tile';
+const EXCLUDED_CONTAINER_SELECTOR =
+    '.roseal-friends-carousel-container';
 
 /* Legacy Roblox friend dropdown */
 const DROPDOWN_LIST_SELECTOR = '.friend-tile-dropdown ul';
@@ -41,6 +43,12 @@ let observersRegistered = false;
 let storageListenerRegistered = false;
 let friendLabels = {};
 let lastInteractedFriendCard = null;
+
+function isExcludedCarouselPresent() {
+    return Boolean(
+        document.querySelector(EXCLUDED_CONTAINER_SELECTOR),
+    );
+}
 
 function sanitizeLabels(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -209,6 +217,11 @@ function removeRenderedLabel(card) {
 function renderFriendLabel(card, suppliedContext = null) {
     if (!(card instanceof HTMLElement)) return;
 
+    if (isExcludedCarouselPresent()) {
+        removeRenderedLabel(card);
+        return;
+    }
+
     const context = suppliedContext || getUserCardContext(card);
     const existingLabel = card.querySelector(`.${LABEL_CLASS}`);
 
@@ -269,6 +282,11 @@ function renderFriendLabel(card, suppliedContext = null) {
 }
 
 function refreshExistingCards() {
+    if (isExcludedCarouselPresent()) {
+        removeFeatureUi();
+        return;
+    }
+
     document.querySelectorAll(CARD_SELECTOR).forEach((card) => {
         renderFriendLabel(card);
     });
@@ -814,7 +832,11 @@ function createModernTooltipButton(sourceControl, labelText) {
 }
 
 async function attachModernTooltipAction(candidate) {
-    if (!enabled || !(candidate instanceof HTMLElement)) {
+    if (
+        !enabled ||
+        isExcludedCarouselPresent() ||
+        !(candidate instanceof HTMLElement)
+    ) {
         return;
     }
 
@@ -985,7 +1007,11 @@ function attachActionsToExistingModernTooltips() {
 }
 
 async function attachDropdownAction(menuList) {
-    if (!enabled || !(menuList instanceof HTMLElement)) {
+    if (
+        !enabled ||
+        isExcludedCarouselPresent() ||
+        !(menuList instanceof HTMLElement)
+    ) {
         return;
     }
 
@@ -1078,6 +1104,14 @@ function registerObservers() {
     observeElement(
         MODERN_TOOLTIP_ROOT_SELECTOR,
         attachModernTooltipAction,
+        {
+            multiple: true,
+        },
+    );
+
+    observeElement(
+        EXCLUDED_CONTAINER_SELECTOR,
+        removeFeatureUi,
         {
             multiple: true,
         },
