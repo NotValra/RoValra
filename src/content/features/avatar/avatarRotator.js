@@ -62,6 +62,7 @@ export function init() {
         let isLoading = false;
         let avatarListContainer = null;
         let selectedAvatars = new Set();
+        const outfitDetailsCache = new Map();
         let setRotatorsBtn = null;
         let disableRotatorBtn = null;
 
@@ -226,14 +227,34 @@ export function init() {
                 setRotatorsBtn.onclick = () => {
                     const avatars = Array.from(selectedAvatars);
                     const interval = parseInt(intervalInput.value, 10) || 5;
-                    chrome.storage.local.set({
-                        rovalra_avatar_rotator_ids: avatars,
-                        rovalra_avatar_rotator_enabled: true,
-                        rovalra_avatar_rotator_interval: interval
+                    setRotatorsBtn.disabled = true;
+                    setRotatorsBtn.textContent = 'Loading outfit details...';
+
+                    Promise.all(avatars.map(async (outfitId) => {
+                        if (!outfitDetailsCache.has(outfitId)) {
+                            const details = await callRobloxApiJson({
+                                subdomain: 'avatar',
+                                endpoint: `/v4/outfits/${outfitId}/details`,
+                                method: 'GET'
+                            });
+                            outfitDetailsCache.set(outfitId, details);
+                        }
+                        return [outfitId, outfitDetailsCache.get(outfitId)];
+                    })).then((details) => {
+                        chrome.storage.local.set({
+                            rovalra_avatar_rotator_ids: avatars,
+                            rovalra_avatar_rotator_details: Object.fromEntries(details),
+                            rovalra_avatar_rotator_enabled: true,
+                            rovalra_avatar_rotator_interval: interval
+                        });
+                        setRotatorsBtn.textContent = 'Rotators Active!';
+                        if (disableRotatorBtn) disableRotatorBtn.style.display = 'inline-block';
+                        setTimeout(() => updateButtonState(), 2000);
+                    }).catch((error) => {
+                        console.error('RoValra: Failed to fetch outfit details', error);
+                        setRotatorsBtn.disabled = false;
+                        updateButtonState();
                     });
-                    setRotatorsBtn.textContent = 'Rotators Active!';
-                    if (disableRotatorBtn) disableRotatorBtn.style.display = 'inline-block';
-                    setTimeout(() => updateButtonState(), 2000);
                 };
 
                 disableRotatorBtn = document.createElement('button');
@@ -253,7 +274,8 @@ export function init() {
                 clearBtn.onclick = () => {
                     selectedAvatars.clear();
                     chrome.storage.local.set({
-                        rovalra_avatar_rotator_ids: []
+                        rovalra_avatar_rotator_ids: [],
+                        rovalra_avatar_rotator_details: {}
                     });
                     const radios = avatarListContainer.querySelectorAll('button[role="checkbox"]');
                     radios.forEach(radio => {

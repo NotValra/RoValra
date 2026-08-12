@@ -475,50 +475,81 @@ async function wearOutfit(outfitData) {
             return { ok: false };
         }
 
-        const detailsRes = await callWithRetry({
-            subdomain: 'avatar',
-            endpoint: `/v3/outfits/${outfitId}/details`,
+        const storedDetails = await new Promise((resolve) => {
+            chrome.storage.local.get('rovalra_avatar_rotator_details', (data) => {
+                resolve(data.rovalra_avatar_rotator_details?.[String(outfitId)] || null);
+            });
         });
-        if (!detailsRes?.ok) return { ok: false };
+        let details = storedDetails;
+        if (!details) {
+            const detailsRes = await callWithRetry({
+                subdomain: 'avatar',
+                endpoint: `/v4/outfits/${outfitId}/details`,
+            });
+            if (!detailsRes?.ok) return { ok: false };
+            details = await detailsRes.json();
+        }
 
-        const details = await detailsRes.json();
+        const outfitModel = details.outfitModel || details;
+        const assets = [...(outfitModel.assets || [])];
+        const backgroundAsset =
+            details.outfitConfigurations?.background?.backgroundAsset;
         const promises = [];
 
-        if (details.assets)
+        if (backgroundAsset?.id)
+            promises.push(
+                callWithRetry({
+                    subdomain: 'avatar',
+                    endpoint: '/v4/avatar',
+                    method: 'PATCH',
+                    body: {
+                        updateTypes: ['UpdateBackground'],
+                        avatarDefinition: {
+                            updateAvatarConfig: {
+                                backgroundRequestModel: {
+                                    id: backgroundAsset.id,
+                                },
+                            },
+                        },
+                    },
+                }),
+            );
+
+        if (assets.length > 0)
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
                     endpoint: '/v2/avatar/set-wearing-assets',
                     method: 'POST',
-                    body: { assets: details.assets },
+                    body: { assets },
                 }),
             );
-        if (details.playerAvatarType)
+        if (outfitModel.playerAvatarType)
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
                     endpoint: '/v1/avatar/set-player-avatar-type',
                     method: 'POST',
-                    body: { playerAvatarType: details.playerAvatarType },
+                    body: { playerAvatarType: outfitModel.playerAvatarType },
                 }),
             );
-        if (details.scale)
+        if (outfitModel.scale)
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
                     endpoint: '/v1/avatar/set-scales',
                     method: 'POST',
-                    body: details.scale,
+                    body: outfitModel.scale,
                 }),
             );
 
-        if (details.bodyColor3s) {
+        if (outfitModel.bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
                     endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: details.bodyColor3s,
+                    body: outfitModel.bodyColor3s,
                 }),
             );
         }
