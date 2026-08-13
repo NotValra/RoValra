@@ -31,6 +31,8 @@
         'https://apis.roblox.com/discovery-api/omni-recommendation';
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
     const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
+    const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
+    const THUMBNAIL_BACKGROUND_SETTING = 'disableThumbnailBackground';
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -47,6 +49,71 @@
     let resolveHomeLayoutReady = null;
     let robloxGroupFeaturesEnabled = true;
     let freeRobloxPlusThemesEnabled = false;
+    let disableThumbnailBackground = false;
+
+    function updateThumbnailBackgroundSetting(value) {
+        disableThumbnailBackground = value === true;
+    }
+
+    function isThumbnailsApiRequest(url) {
+        try {
+            return new URL(url, window.location.origin).hostname ===
+                THUMBNAILS_API_HOST;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function rewriteThumbnailRequestBody(body) {
+        if (typeof body !== 'string' || !body) return body;
+
+        try {
+            const data = JSON.parse(body);
+            if (!data || typeof data !== 'object') {
+                return body;
+            }
+
+            if (Array.isArray(data)) {
+                data.forEach((request) => {
+                    if (request && typeof request === 'object') {
+                        request.includeBackground = false;
+                    }
+                });
+            } else {
+                data.includeBackground = false;
+            }
+
+            return JSON.stringify(data);
+        } catch (e) {
+            return body;
+        }
+    }
+
+    async function rewriteThumbnailFetchArgs(args, requestUrl) {
+        if (!disableThumbnailBackground || !isThumbnailsApiRequest(requestUrl)) {
+            return args;
+        }
+
+        const [input, init] = args;
+        if (init?.body !== undefined) {
+            return [
+                input,
+                { ...init, body: rewriteThumbnailRequestBody(init.body) },
+            ];
+        }
+
+        if (!(input instanceof Request)) return args;
+
+        try {
+            const body = await input.clone().text();
+            const rewrittenBody = rewriteThumbnailRequestBody(body);
+            if (rewrittenBody === body) return args;
+
+            return [new Request(input, { body: rewrittenBody }), init];
+        } catch (e) {
+            return args;
+        }
+    }
 
     try {
         freeRobloxPlusThemesEnabled =
@@ -58,10 +125,23 @@
             robloxGroupFeaturesEnabled = event.detail.value !== false;
         }
     });
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        if (event.detail?.name === THUMBNAIL_BACKGROUND_SETTING) {
+            updateThumbnailBackgroundSetting(event.detail.value);
+        }
+    });
     document.addEventListener('rovalra:settingsState', (event) => {
         if (typeof event.detail?.robloxGroupFeaturesEnabled === 'boolean') {
             robloxGroupFeaturesEnabled =
                 event.detail.robloxGroupFeaturesEnabled;
+        }
+        if (
+            typeof event.detail?.[THUMBNAIL_BACKGROUND_SETTING] ===
+            'boolean'
+        ) {
+            updateThumbnailBackgroundSetting(
+                event.detail[THUMBNAIL_BACKGROUND_SETTING],
+            );
         }
     });
     document.addEventListener('rovalra:settingSaved', (event) => {
@@ -605,6 +685,8 @@
         const [url] = args;
         const requestUrl = getRequestUrl(url);
 
+        args = await rewriteThumbnailFetchArgs(args, requestUrl);
+
         let response = await originalFetch(...args);
 
         if (
@@ -894,6 +976,12 @@
 
     XMLHttpRequest.prototype.send = function (...args) {
         const xhr = this;
+        if (
+            disableThumbnailBackground &&
+            isThumbnailsApiRequest(xhr._rovalra_url)
+        ) {
+            args[0] = rewriteThumbnailRequestBody(args[0]);
+        }
         if (
             xhr._rovalra_spoof_settings ||
             xhr._rovalra_spoof_phone ||

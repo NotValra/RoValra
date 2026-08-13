@@ -1170,7 +1170,6 @@ export const SETTINGS_CONFIG = {
                 contributors: ['476449201'],
             },
 
-
             friendLabelsEnabled: {
                 label: 'Friend Labels',
                 description: [
@@ -2037,6 +2036,14 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            disableThumbnailBackground: {
+                label: 'Disable Thumbnail Backgrounds',
+                description: [
+                    'This prevents profile backgrounds from showing in avatar headshots and other places.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
                 description:
