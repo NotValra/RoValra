@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.2.2",
+    "@types/three": "^0.185.4",
     "chrome-types": "^0.1.435",
     "esbuild": "^0.28.1",
     "eslint": "10.7.0",
@@ -27,7 +28,7 @@
     "fzstd": "^0.1.1",
     "i18next": "26.3.6",
     "marked": "^18.0.5",
-    "roavatar-renderer": "^1.5.17",
+    "roavatar-renderer": "^1.6.0",
     "roblox-bat": "0.6.5",
     "swagger-ui-dist": "^5.32.10"
   },
