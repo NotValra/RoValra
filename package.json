@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.2.2",
+    "@types/three": "^0.185.4",
     "chrome-types": "^0.1.435",
     "esbuild": "^0.28.1",
     "eslint": "10.7.0",
