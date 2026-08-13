@@ -318,7 +318,6 @@ async function openLabelEditor(card, context) {
     const { container: inputContainer, input } = createStyledInput({
         id: `rovalra-friend-label-input-${userId}`,
         label: await t('friendLabels.inputLabel'),
-        placeholder: await t('friendLabels.inputPlaceholder'),
         value: currentLabel,
     });
 
