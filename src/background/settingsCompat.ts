@@ -1,5 +1,3 @@
-/// <reference types="chrome" />
-
 const settingDeprecations: Record<string, ((value: any, gets: (key: string) => Promise<any>, sets: (key: string, value: any) => void) => void) | undefined> = {
     "EnableGameTrailer": undefined,
     "trustedConnectionsEnabled": undefined,
