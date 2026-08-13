@@ -47,6 +47,7 @@ async function fetchBatchData(
             type: 'AvatarHeadshot',
             size: size,
             isCircular: isCircular,
+            includeBackground: true,
             requestId: `0:${item.id}:AvatarHeadshot:${size}:png:regular`,
         }));
 
@@ -140,6 +141,41 @@ async function fetchBatchData(
         return results;
     }
 
+    if (type === 'Outfit') {
+        const requestBody = batch.map((item) => ({
+            requestId: `${item.id}::Outfit:${size}:webp:regular:::true:false`,
+            type: 'Outfit',
+            targetId: Number(item.id),
+            token: '',
+            format: 'webp',
+            size: size,
+            version: '',
+            includeBackground: true,
+        }));
+
+        try {
+            const response = await callRobloxApi({
+                subdomain: 'thumbnails',
+                endpoint: '/v1/batch',
+                method: 'POST',
+                body: requestBody,
+                signal,
+                noCache,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.data) return data.data;
+            }
+        } catch (error) {
+            console.error(
+                'RoValra Thumbnails: Failed to fetch batch for "Outfit".',
+                error,
+            );
+        }
+        return results;
+    }
+
     const endpointMapping = {
         AvatarHeadshot: {
             path: '/v1/users/avatar-headshot',
@@ -178,6 +214,7 @@ async function fetchBatchData(
         const format = type === 'Asset' ? 'webp' : 'Png';
         let endpointUrl = `${mapping.path}?${mapping.idParam}=${ids}&size=${size}&format=${format}&returnPolicy=PlaceHolder`;
         if (isCircular) endpointUrl += `&isCircular=true`;
+        if (type === 'AvatarHeadshot') endpointUrl += `&includeBackground=true`;
 
         const response = await callRobloxApi({
             subdomain: 'thumbnails',
