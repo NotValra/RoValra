@@ -171,7 +171,10 @@ import { init as initHideAddFriendsButton } from './features/home/hideAddFriends
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
-import { enforceSettingOverrides } from './core/settings/handlesettings.js';
+import {
+    enforceSettingOverrides,
+    loadSettings,
+} from './core/settings/handlesettings.js';
 import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
 // buy page
 import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRobux.js';
@@ -602,6 +605,15 @@ async function initializePage() {
         await t('__i18n_ready__').catch(() => {});
 
         await enforceSettingOverrides();
+        const settings = await loadSettings();
+        document.dispatchEvent(
+            new CustomEvent('rovalra:settingsState', {
+                detail: {
+                    disableThumbnailBackground:
+                        settings.disableThumbnailBackground === true,
+                },
+            }),
+        );
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 

@@ -24,12 +24,31 @@
 
 import { callRobloxApi } from '../api.js';
 import { getUserAvatar } from '../apis/avatar.js';
+import { settings } from '../settings/getSettings.js';
 
 const BATCH_SIZE = 50;
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 1500;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function prepareThumbnailRequestBody(body) {
+    if (!(await settings.disableThumbnailBackground)) return body;
+
+    if (Array.isArray(body)) {
+        return body.map((request) =>
+            request && typeof request === 'object'
+                ? { ...request, includeBackground: false }
+                : request,
+        );
+    }
+
+    if (body && typeof body === 'object') {
+        return { ...body, includeBackground: false };
+    }
+
+    return body;
+}
 
 async function fetchBatchData(
     batch,
@@ -56,7 +75,7 @@ async function fetchBatchData(
                 subdomain: 'thumbnails',
                 endpoint: '/v1/batch',
                 method: 'POST',
-                body: requestBody,
+                body: await prepareThumbnailRequestBody(requestBody),
                 signal: signal,
                 noCache: noCache,
             });
@@ -90,7 +109,7 @@ async function fetchBatchData(
                 subdomain: 'thumbnails',
                 endpoint: '/v1/batch',
                 method: 'POST',
-                body: requestBody,
+                body: await prepareThumbnailRequestBody(requestBody),
                 signal: signal,
                 noCache: noCache,
             });
@@ -123,7 +142,7 @@ async function fetchBatchData(
                 subdomain: 'thumbnails',
                 endpoint: '/v1/batch',
                 method: 'POST',
-                body: requestBody,
+                body: await prepareThumbnailRequestBody(requestBody),
                 signal,
                 noCache,
             });
@@ -158,7 +177,7 @@ async function fetchBatchData(
                 subdomain: 'thumbnails',
                 endpoint: '/v1/batch',
                 method: 'POST',
-                body: requestBody,
+                body: await prepareThumbnailRequestBody(requestBody),
                 signal,
                 noCache,
             });
@@ -214,7 +233,11 @@ async function fetchBatchData(
         const format = type === 'Asset' ? 'webp' : 'Png';
         let endpointUrl = `${mapping.path}?${mapping.idParam}=${ids}&size=${size}&format=${format}&returnPolicy=PlaceHolder`;
         if (isCircular) endpointUrl += `&isCircular=true`;
-        if (type === 'AvatarHeadshot') endpointUrl += `&includeBackground=true`;
+        if (type === 'AvatarHeadshot') {
+            const includeBackground =
+                (await settings.disableThumbnailBackground) ? 'false' : 'true';
+            endpointUrl += `&includeBackground=${includeBackground}`;
+        }
 
         const response = await callRobloxApi({
             subdomain: 'thumbnails',
