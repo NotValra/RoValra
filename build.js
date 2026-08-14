@@ -35,6 +35,14 @@ const interceptEntryPath = path.join(
     'xhr',
     'intercept.js',
 );
+const friendsSecondRowHijackEntryPath = path.join(
+    __dirname,
+    'src',
+    'content',
+    'core',
+    'react',
+    'friendsSecondRowHijack.js',
+);
 const contentEntryPath = path.join(__dirname, 'src', 'content', 'index.js');
 
 const manifestPath = path.join(__dirname, 'manifest.json');
@@ -113,6 +121,15 @@ esbuild
         ...commonConfig,
         entryPoints: [interceptEntryPath],
         outfile: 'dist/intercept.js',
+        bundle: false,
+    })
+    .catch(() => process.exit(1));
+    
+esbuild
+    .build({
+        ...commonConfig,
+        entryPoints: [friendsSecondRowHijackEntryPath],
+        outfile: 'dist/friendsSecondRowHijack.js',
         bundle: false,
     })
     .catch(() => process.exit(1));
