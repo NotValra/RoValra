@@ -616,7 +616,19 @@ export function displayServerFullStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    container.querySelector(`.${CLASSES.Region}`)?.remove();
+    const regionElement = container.querySelector(`.${CLASSES.Region}`);
+    const hasRegion =
+        regionElement &&
+        regionElement.style.display !== 'none' &&
+        !['Unknown', 'N/A', 'Unknown Region'].includes(
+            regionElement.textContent.trim(),
+        );
+
+    if (hasRegion) {
+        container.querySelector(`.${CLASSES.Full}`)?.remove();
+        return;
+    }
+
     updateInfoElement(container, 'Full', ICONS.full, 'Server is Full', true);
 }
 
@@ -843,7 +855,7 @@ export async function fetchAndDisplayRegion(
         if (info.status === 22) {
             if (isFullServerIndicatorsEnabled) {
                 if (joinBtn) {
-                    joinBtn.textContent = 'Server Full';
+                    joinBtn.textContent = 'Join (Server Full)';
                     joinBtn.classList.replace(
                         'btn-primary-md',
                         'btn-secondary-md',
