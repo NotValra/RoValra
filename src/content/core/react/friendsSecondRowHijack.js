@@ -218,7 +218,7 @@
                         try {
                             reactHook.applyProxy(fiber);
                         } catch (e) {
-                            console.error('RoValra:', e);
+                            console.error('[RoValra]:', e);
                         }
 
                         Object.defineProperty(fiber, 'type', {
@@ -301,5 +301,5 @@
         },
     );
 
-    console.log('RoValra: Friends second row (native) hook loaded.');
+    console.log('[RoValra] Friends second row (native) hook loaded.');
 })();
