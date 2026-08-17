@@ -1164,6 +1164,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Second Friends Row',
                 description: [
                     'Shows a second row of friends in the Home page friends carousel instead of only one row.',
+                    'Some extensions may overwrite this feature.',
                 ],
                 type: 'checkbox',
                 default: false,
