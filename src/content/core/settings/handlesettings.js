@@ -453,9 +453,7 @@ export const loadSettings = async () => {
                         }
                     }
 
-                    for (const [key, value] of Object.entries(
-                        forcedSettings,
-                    )) {
+                    for (const [key, value] of Object.entries(forcedSettings)) {
                         settings[key] = value;
                     }
                     resolve(settings);
@@ -1775,6 +1773,11 @@ export function initializeSettingsEventListeners() {
     document.addEventListener('rovalra:openBorderStore', () => {
         window.location.href =
             'https://www.roblox.com/my/account?rovalra=store';
+    });
+
+    document.addEventListener('rovalra:openFrameStore', () => {
+        window.location.href =
+            'https://www.roblox.com/my/account?rovalra=store&tab=frames';
     });
 
     document.addEventListener('rovalra:generateEnvironmentJson', async () => {

@@ -1,4 +1,5 @@
 @use 'features/profile/avatar_border.scss';
+@use 'features/profile/profile_frame.scss';
 @use 'features/profile/improved_avatar_card.scss';
 @use 'features/profile/item_checker.scss';
 @use 'features/profile/private_server.scss';
@@ -47,4 +48,4 @@
 @use 'features/sitewide/less_plus.scss';
 @use 'features/sitewide/kids_theme_text.scss';
 @use 'features/plus/sendRobux.scss';
-@use 'features/sitewide/viewid.scss'
+@use 'features/sitewide/viewid.scss';
