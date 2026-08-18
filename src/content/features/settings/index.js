@@ -3337,13 +3337,6 @@ async function saveEquippedFrame(link) {
 }
 
 function updateFrameStoreUI(container, selectedValue) {
-    for (const card of container.querySelectorAll('[data-frame-card]')) {
-        card.style.borderColor =
-            card.dataset.frameCard === selectedValue
-                ? 'var(--rovalra-main-text-color)'
-                : 'transparent';
-    }
-
     for (const button of container.querySelectorAll('[data-frame-equip-btn]')) {
         const isSelected =
             button.dataset.frameEquipBtn === selectedValue &&
@@ -3758,20 +3751,12 @@ async function renderStoreFrames(container) {
                 const frameCard = document.createElement('div');
                 frameCard.dataset.frameCard = frame.value;
                 frameCard.style.cssText =
-                    'display: flex; flex-direction: column; align-items: center; padding: 12px; background: var(--rovalra-container-background-color); border-radius: 12px; border: 2px solid transparent;';
+                    'display: flex; flex-direction: column; align-items: center; padding: 12px; background: var(--rovalra-container-background-color); border-radius: 12px; border: none;';
 
                 const cardPreview = createFrameHolderPreview(
                     authedUserData?.thumbData,
                 );
                 frameCard.appendChild(cardPreview);
-
-                const kindLabel = document.createElement('div');
-                kindLabel.style.cssText =
-                    'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 8px; font-weight: 700;';
-                kindLabel.textContent = frame.animated
-                    ? ts('profileFrame.animated')
-                    : ts('profileFrame.static');
-                frameCard.appendChild(kindLabel);
 
                 const frameLabel = document.createElement('div');
                 frameLabel.style.cssText =
