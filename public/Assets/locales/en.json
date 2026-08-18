@@ -898,6 +898,14 @@
         "exitBulkMode": "Exit Bulk Mode",
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
+    "unfriendDetector": {
+    "titleSingle": "Unfriend Detected",
+    "titlePlural": "Unfriends Detected",
+    "descriptionSingle": "This friend removed you since you last played:",
+    "descriptionPlural": "These {{count}} friends removed you since you last played:",
+    "viewProfile": "View {{name}}'s profile",
+    "dismiss": "Dismiss"
+},
     "leaveGroups": {
         "confirmLeave": "Confirm Leave",
         "confirmLeaves": "Confirm Leaves",

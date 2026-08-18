@@ -42,5 +42,10 @@
   "lint-staged": {
     "*.js": "eslint --fix",
     "*.{js,json,css,md}": "prettier --write"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.1": true,
+    "@scarf/scarf@1.4.0": true,
+    "esbuild@0.28.1": true
   }
 }

@@ -850,6 +850,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            unfriendDetectorEnabled: {
+                label: 'Unfriend Detector',
+                beta: 'Currently taking a while to update.',
+                type: 'checkbox',
+                default: false,
+                contributors: ['390309731'],
+                description: [
+                    'Tracks your friends list and alerts you with a popup if someone unfriends you, showing who unfriended you.',
+                ],
+            },
             PrivateServerBulkEnabled: {
                 label: 'Private Server Bulk Removal',
                 description: [

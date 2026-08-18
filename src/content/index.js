@@ -18,6 +18,7 @@ import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { initUnfriendDetectorTracking } from './core/utils/trackers/unfriendDetector.js';
 import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initAvatarInventoryTracking } from './core/utils/trackers/avatarInventory.js';
@@ -143,6 +144,7 @@ import { init as initCurrentlyPlayingSubplace } from './features/profile/header/
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
+import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
 import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initAvatarDownload } from './features/profile/header/avatarDownload.js';
 import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
@@ -205,6 +207,8 @@ const featureRoutes = [
             initBirthdayTracker,
             initServerTracker,
             initFriendsListTracking,
+            initUnfriendDetectorTracking,
+            initUnfriendDetector,
             initTransactionsTracking,
             initBadgesTracking,
             initAvatarInventoryTracking,
