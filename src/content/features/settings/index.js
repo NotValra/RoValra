@@ -83,6 +83,7 @@ import { createButton } from '../../core/ui/buttons.js';
 import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
+import { getCatalogItemDetails } from '../../core/apis/catalog.js';
 
 const assets = getAssets();
 const CREDITS_USER_IDS = [
@@ -130,6 +131,7 @@ let ownedBordersCache = null;
 let changelogsCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
+const frameAssetDetailsCache = new Map();
 
 document.addEventListener('rovalra:moderationStatusUpdated', (event) => {
     standingCache = event.detail?.data || null;
@@ -601,22 +603,42 @@ function getLevenshteinDistance(a, b) {
 async function getOwnedBorders() {
     if (ownedBordersCache) return ownedBordersCache;
     try {
-        const response = await callRobloxApi({
-            subdomain: 'apis',
-            endpoint: '/v1/auth/borders',
-            method: 'GET',
-            isRovalraApi: true,
-        });
+        const [bordersResponse, bertsResponse] = await Promise.all([
+            callRobloxApi({
+                subdomain: 'apis',
+                endpoint: '/v1/auth/borders',
+                method: 'GET',
+                isRovalraApi: true,
+            }),
+            callRobloxApi({
+                subdomain: 'apis',
+                endpoint: '/v1/auth/berts',
+                method: 'GET',
+                isRovalraApi: true,
+            }),
+        ]);
 
-        if (response.ok) {
-            const data = await response.json();
+        const borderData = bordersResponse.ok
+            ? await bordersResponse.json()
+            : {};
+        const bertsData = bertsResponse.ok
+            ? await bertsResponse.json()
+            : {};
+
+        if (bordersResponse.ok || bertsResponse.ok) {
             ownedBordersCache = {
-                borders: new Set(data.owned_borders || []),
-                // VALRA EDIT HERE: /v1/auth/borders should also return
-                // `owned_frames` so purchased profile frames can be equipped.
-                frames: new Set(data.owned_frames || []),
+                borders: new Set(borderData.owned_borders || []),
+                frames: new Set(
+                    (bertsData.owned_berts || []).map((bert) =>
+                        typeof bert === 'object'
+                            ? String(bert.value)
+                            : String(bert),
+                    ),
+                ),
                 gamepasses: new Set(
-                    (data.owned_gamepasses || []).map((id) => String(id)),
+                    (borderData.owned_gamepasses || []).map((id) =>
+                        String(id),
+                    ),
                 ),
             };
             return ownedBordersCache;
@@ -668,11 +690,33 @@ function isBorderOwned({ value, gamepassId, ownedData, tier }) {
 }
 
 // No tier check on purpose: Donator Tier 3 unlocks avatar borders, not frames.
-function isFrameOwned({ frame, ownedData, gamepassId = frame.gamepassId }) {
-    if (frame.local) return true;
-    if (!hasBorderGamepassId(gamepassId)) return true;
-    if (ownedData.frames?.has(frame.value)) return true;
-    return ownedData.gamepasses.has(String(gamepassId));
+function isFrameOwned({ frame, ownedData }) {
+    if (frame.isFree) return true;
+    return ownedData.frames?.has(frame.value) || false;
+}
+
+async function getFrameAssetDetails(frame) {
+    if (!frame?.assetId) return null;
+
+    const assetId = String(frame.assetId);
+    if (!frameAssetDetailsCache.has(assetId)) {
+        frameAssetDetailsCache.set(
+            assetId,
+            getCatalogItemDetails(assetId, 'Asset').catch(() => null),
+        );
+    }
+
+    return frameAssetDetailsCache.get(assetId);
+}
+
+function getFrameAssetUrl(frame) {
+    if (!frame?.assetId) return null;
+    return `https://www.roblox.com/catalog/${encodeURIComponent(frame.assetId)}/${encodeURIComponent(frame.label || 'item')}`;
+}
+
+function getFrameAssetPrice(frame, details) {
+    const price = details?.price ?? details?.lowestPrice ?? frame?.price;
+    return typeof price === 'number' ? price : Number(price) || null;
 }
 
 function createArtistCreditSection(artistId) {
@@ -3251,18 +3295,14 @@ function clearFramePreview(holder) {
 }
 
 async function saveEquippedFrame(link) {
-    const value = link || 'none';
-
-    await handleSaveSettings('profileFrameChoice', value).catch(() => {});
     document.dispatchEvent(
         new CustomEvent('rovalra:syncProfileFrame', {
-            detail: { frameUrl: value },
+            detail: { frameUrl: link || 'none' },
         }),
     );
 
     try {
-        // VALRA EDIT HERE: the settings API needs to accept a `frame` key.
-        await updateUserSettingViaApi('frame', link || '', {
+        await updateUserSettingViaApi('berts', link || '', {
             throwOnError: true,
             suppressErrorLog: true,
         });
@@ -3405,13 +3445,17 @@ async function openFrameOverlay(
     nameLabel.textContent = frame.label;
     infoWrapper.appendChild(nameLabel);
 
-    if (hasBorderGamepassId(frame.gamepassId)) {
+    if (!frame.isFree) {
         const priceLabel = document.createElement('div');
         priceLabel.style.cssText =
             'font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; gap: 4px;';
 
-        getGamePassPrice(frame.gamepassId).then((price) => {
-            if (price === null || price === undefined) return;
+        getFrameAssetDetails(frame).then((details) => {
+            const price = getFrameAssetPrice(frame, details);
+            if (price === null) {
+                priceLabel.textContent = 'View item';
+                return;
+            }
 
             const priceValue = price.toLocaleString();
             if (!isOwned) {
@@ -3459,23 +3503,22 @@ async function openFrameOverlay(
             selectStoreFrame(frame, container, previewHolder);
             close();
         };
-    } else if (hasBorderGamepassId(frame.gamepassId)) {
-        actionBtn.textContent = 'Loading...';
-        getGamePassPrice(frame.gamepassId).then((price) => {
-            if (price === null || price === undefined) {
-                actionBtn.textContent = 'View Gamepass';
-                return;
-            }
-            actionBtn.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>Buy for ${price.toLocaleString()}`; //Verified
-        });
-        actionBtn.onclick = () =>
-            window.open(
-                `https://www.roblox.com/game-pass/${frame.gamepassId}`,
-                '_blank',
-            );
     } else {
-        actionBtn.textContent = 'Unavailable';
-        actionBtn.disabled = true;
+        const assetUrl = getFrameAssetUrl(frame);
+        if (!assetUrl) {
+            actionBtn.textContent = 'View item';
+            actionBtn.disabled = true;
+        } else {
+            actionBtn.textContent = 'Loading...';
+            getFrameAssetDetails(frame).then((details) => {
+                const price = getFrameAssetPrice(frame, details);
+                actionBtn.innerHTML =
+                    price === null
+                        ? 'View item'
+                        : `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>Buy for ${price.toLocaleString()}`; //Verified
+            });
+            actionBtn.onclick = () => window.open(assetUrl, '_blank');
+        }
     }
 
     const { close } = createOverlay({
@@ -3564,15 +3607,8 @@ async function renderStoreFrames(container) {
             const userSettings = await getUserSettings(userId, {
                 noCache: true,
             }).catch(() => null);
-            if (userSettings?.frame && userSettings.frame !== 'none') {
-                currentFrameLink = userSettings.frame;
-            }
-        }
-        if (!currentFrameLink) {
-            const localSettings = await loadSettings().catch(() => null);
-            const localChoice = localSettings?.profileFrameChoice;
-            if (localChoice && localChoice !== 'none') {
-                currentFrameLink = localChoice;
+            if (userSettings?.berts && userSettings.berts !== 'none') {
+                currentFrameLink = userSettings.berts;
             }
         }
 
@@ -3720,7 +3756,7 @@ async function renderStoreFrames(container) {
                 frameCard.appendChild(frameLabel);
 
                 const priceLabel = document.createElement('div');
-                if (hasBorderGamepassId(frame.gamepassId)) {
+                if (!frame.isFree) {
                     priceLabel.style.cssText =
                         'font-size: 12px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; justify-content: center; gap: 4px;';
                 } else {
@@ -3761,9 +3797,13 @@ async function renderStoreFrames(container) {
                         intersection.unobserve();
                         applyFrameToHolder(cardPreview, frame.link);
 
-                        if (!hasBorderGamepassId(frame.gamepassId)) return;
-                        getGamePassPrice(frame.gamepassId).then((price) => {
-                            if (price === null || price === undefined) return;
+                        if (frame.isFree) return;
+                        getFrameAssetDetails(frame).then((details) => {
+                            const price = getFrameAssetPrice(frame, details);
+                            if (price === null) {
+                                priceLabel.textContent = 'View item';
+                                return;
+                            }
 
                             const priceValue = price.toLocaleString();
                             if (!frameIsOwned) {

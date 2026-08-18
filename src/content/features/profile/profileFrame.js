@@ -4,9 +4,9 @@ import {
     startObserving,
 } from '../../core/observer.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
-import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
+import { findFrameByLink, getFrames } from '../../core/configs/frames.js';
 
 // Wraps both the fullbody and portrait thumbnails, so framing it frames the lot.
 const HOLDER_SELECTOR = '.thumbnail-holder.thumbnail-holder-position';
@@ -175,21 +175,11 @@ export function applyFrameToHolder(holder, frameLink) {
 export async function resolveFrameLink(userId) {
     if (!userId) return null;
 
-    const authedId = await getAuthenticatedUserId().catch(() => null);
-    const isOwnProfile = authedId && String(authedId) === String(userId);
-
-    // VALRA EDIT HERE: the settings API should return `frame` next to `border`
-    // so every RoValra user's frame shows on their profile.
     const userSettings = await getUserSettings(userId).catch(() => null);
-    if (userSettings?.frame && userSettings.frame !== 'none') {
-        return userSettings.frame;
-    }
-
-    // Local fallback so frames work before the API stores them, own profile only.
-    if (isOwnProfile) {
-        const settings = await loadSettings().catch(() => null);
-        const localChoice = settings?.profileFrameChoice;
-        if (localChoice && localChoice !== 'none') return localChoice;
+    if (userSettings?.berts && userSettings.berts !== 'none') {
+        const frames = await getFrames().catch(() => []);
+        const frame = findFrameByLink(frames, userSettings.berts);
+        if (frame) return frame.link;
     }
 
     return null;

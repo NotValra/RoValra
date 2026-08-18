@@ -120,7 +120,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
                     apiSettings.environment === 1) &&
                 !apiSettings.status &&
                 !apiSettings.border &&
-                !apiSettings.frame &&
+                !apiSettings.berts &&
                 !apiSettings.gradient &&
                 !apiSettings[GRADIENT_NAME_API_KEY] &&
                 !apiSettings.GradientName &&
@@ -153,9 +153,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
-        // VALRA EDIT HERE: `frame` is the profile frame link, stored the same
-        // way as `border` so other users' frames can be displayed.
-        finalFrame = apiSettings.frame ?? null;
+        finalFrame = apiSettings.berts ?? null;
         finalGradientName =
             apiSettings[GRADIENT_NAME_API_KEY] ??
             apiSettings.GradientName ??
@@ -179,12 +177,12 @@ async function fetchAndProcessSettings(userId, options = {}) {
     if (
         isOwnProfile &&
         apiSettings &&
-        apiSettings.frame &&
+        apiSettings.berts &&
         apiProvidedMeaningfulSettings
     ) {
         document.dispatchEvent(
             new CustomEvent('rovalra:syncProfileFrame', {
-                detail: { frameUrl: apiSettings.frame },
+                detail: { frameUrl: apiSettings.berts },
             }),
         );
     }
@@ -195,7 +193,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         gradient: finalGradient,
         GradientName: finalGradientName,
         border: finalBorder,
-        frame: finalFrame,
+        berts: finalFrame,
         pronouns: extractProfilePronouns(apiSettings),
         Views: Number(apiSettings.Views) || 0,
         hide_views:
@@ -351,7 +349,7 @@ async function processApiSettings(userId, apiSettings, options) {
             (apiSettings.environment === 0 || apiSettings.environment === 1) &&
             !apiSettings.status &&
             !apiSettings.border &&
-            !apiSettings.frame &&
+            !apiSettings.berts &&
             !apiSettings.gradient &&
             !apiSettings[GRADIENT_NAME_API_KEY] &&
             !apiSettings.GradientName &&
@@ -380,9 +378,8 @@ async function processApiSettings(userId, apiSettings, options) {
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
-        // VALRA EDIT HERE: `frame` is the profile frame link, stored the same
-        // way as `border` so other users' frames can be displayed.
-        finalFrame = apiSettings.frame ?? null;
+
+        finalFrame = apiSettings.berts ?? null;
         finalGradientName =
             apiSettings[GRADIENT_NAME_API_KEY] ??
             apiSettings.GradientName ??
@@ -406,12 +403,12 @@ async function processApiSettings(userId, apiSettings, options) {
     if (
         isOwnProfile &&
         apiSettings &&
-        apiSettings.frame &&
+        apiSettings.berts &&
         apiProvidedMeaningfulSettings
     ) {
         document.dispatchEvent(
             new CustomEvent('rovalra:syncProfileFrame', {
-                detail: { frameUrl: apiSettings.frame },
+                detail: { frameUrl: apiSettings.berts },
             }),
         );
     }
@@ -422,7 +419,7 @@ async function processApiSettings(userId, apiSettings, options) {
         gradient: finalGradient,
         GradientName: finalGradientName,
         border: finalBorder,
-        frame: finalFrame,
+        berts: finalFrame,
         pronouns: extractProfilePronouns(apiSettings),
         Views: Number(apiSettings.Views) || 0,
         hide_views:
