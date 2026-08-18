@@ -1,0 +1,54 @@
+// Frame overlay for the profile avatar banner, modelled on avatar_border.scss.
+// Position and size are set inline by profileFrame.js.
+
+.rovalra-profile-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    z-index: 3;
+}
+
+.rovalra-profile-frame-preview {
+    // The banner's ratio is not fixed; this approximates a maximised window.
+    --rovalra-frame-preview-ratio: 3.1;
+
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: var(--rovalra-frame-preview-ratio);
+    overflow: visible;
+    border-radius: 8px;
+
+    .rovalra-profile-frame-preview-scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 8px;
+        background:
+            radial-gradient(
+                ellipse at 50% 120%,
+                rgba(255, 255, 255, 0.14),
+                transparent 70%
+            ),
+            var(--rovalra-main-background-color, #1b1b1b);
+    }
+
+    // Keep scoped to the scene: a bare `img` also matches the frame overlay and
+    // its max-width would cap it.
+    .rovalra-profile-frame-preview-scene > img {
+        display: block;
+        height: 96%;
+        width: auto;
+        max-width: 60%;
+        object-fit: contain;
+    }
+}

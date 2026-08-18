@@ -54,6 +54,11 @@ import {
     updateUserSettingViaApi,
 } from '../../core/donators/settingHandler.js';
 import { getBorders, getCachedBorders } from '../../core/configs/borders.js';
+import {
+    getFrames,
+    findFrameByLink,
+    groupFramesByCategory,
+} from '../../core/configs/frames.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
 import { createPill } from '../../core/ui/general/pill.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
@@ -61,6 +66,7 @@ import {
     applyBorderToContainer,
     findInBorders,
 } from '../profile/avatarBorder.js';
+import { applyFrameToHolder } from '../profile/profileFrame.js';
 import {
     getUserDisplayName,
     getUserProfileData,
@@ -77,6 +83,7 @@ import { createButton } from '../../core/ui/buttons.js';
 import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
+import { getCatalogItemDetails } from '../../core/apis/catalog.js';
 
 const assets = getAssets();
 const CREDITS_USER_IDS = [
@@ -124,6 +131,7 @@ let ownedBordersCache = null;
 let changelogsCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
+const frameAssetDetailsCache = new Map();
 
 document.addEventListener('rovalra:moderationStatusUpdated', (event) => {
     standingCache = event.detail?.data || null;
@@ -595,19 +603,58 @@ function getLevenshteinDistance(a, b) {
 async function getOwnedBorders() {
     if (ownedBordersCache) return ownedBordersCache;
     try {
-        const response = await callRobloxApi({
-            subdomain: 'apis',
-            endpoint: '/v1/auth/borders',
-            method: 'GET',
-            isRovalraApi: true,
-        });
+        const [bordersResponse, bertsResponse] = await Promise.all([
+            callRobloxApi({
+                subdomain: 'apis',
+                endpoint: '/v1/auth/borders',
+                method: 'GET',
+                isRovalraApi: true,
+            }),
+            callRobloxApi({
+                subdomain: 'apis',
+                endpoint: '/v1/auth/berts',
+                method: 'GET',
+                isRovalraApi: true,
+            }),
+        ]);
 
-        if (response.ok) {
-            const data = await response.json();
+        const borderData = bordersResponse.ok
+            ? await bordersResponse.json()
+            : {};
+        const bertsData = bertsResponse.ok ? await bertsResponse.json() : {};
+
+        if (bordersResponse.ok || bertsResponse.ok) {
+            const configuredFrames = await getFrames();
+            const ownedFrames = new Set();
+
+            for (const bert of bertsData.owned_berts || []) {
+                const value =
+                    bert && typeof bert === 'object' ? bert.value : bert;
+                const link =
+                    bert && typeof bert === 'object' ? bert.link : bert;
+                const frame = configuredFrames.find(
+                    (candidate) =>
+                        candidate.value === String(value ?? '').trim() ||
+                        candidate.link === String(link ?? '').trim(),
+                );
+
+                if (value !== null && value !== undefined) {
+                    ownedFrames.add(String(value).trim());
+                }
+                if (link !== null && link !== undefined) {
+                    ownedFrames.add(String(link).trim());
+                }
+                if (frame) {
+                    ownedFrames.add(frame.value);
+                    ownedFrames.add(frame.link);
+                }
+            }
+
             ownedBordersCache = {
-                borders: new Set(data.owned_borders || []),
+                borders: new Set(borderData.owned_borders || []),
+                frames: ownedFrames,
                 gamepasses: new Set(
-                    (data.owned_gamepasses || []).map((id) => String(id)),
+                    (borderData.owned_gamepasses || []).map((id) => String(id)),
                 ),
             };
             return ownedBordersCache;
@@ -615,7 +662,7 @@ async function getOwnedBorders() {
     } catch (e) {
         console.warn('RoValra: Failed to fetch owned borders', e);
     }
-    return { borders: new Set(), gamepasses: new Set() };
+    return { borders: new Set(), frames: new Set(), gamepasses: new Set() };
 }
 
 async function getGamePassPrice(id) {
@@ -656,6 +703,40 @@ function isBorderOwned({ value, gamepassId, ownedData, tier }) {
     if (!hasBorderGamepassId(gamepassId)) return true;
     if (ownedData.borders.has(value)) return true;
     return ownedData.gamepasses.has(String(gamepassId));
+}
+
+// No tier check on purpose: Donator Tier 3 unlocks avatar borders, not frames.
+function isFrameOwned({ frame, ownedData }) {
+    if (frame.isFree) return true;
+    return (
+        ownedData.frames?.has(frame.value) ||
+        ownedData.frames?.has(frame.link) ||
+        false
+    );
+}
+
+async function getFrameAssetDetails(frame) {
+    if (!frame?.assetId) return null;
+
+    const assetId = String(frame.assetId);
+    if (!frameAssetDetailsCache.has(assetId)) {
+        frameAssetDetailsCache.set(
+            assetId,
+            getCatalogItemDetails(assetId, 'Asset').catch(() => null),
+        );
+    }
+
+    return frameAssetDetailsCache.get(assetId);
+}
+
+function getFrameAssetUrl(frame) {
+    if (!frame?.assetId) return null;
+    return `https://www.roblox.com/catalog/${encodeURIComponent(frame.assetId)}/${encodeURIComponent(frame.label || 'item')}`;
+}
+
+function getFrameAssetPrice(frame, details) {
+    const price = details?.price ?? details?.lowestPrice ?? frame?.price;
+    return typeof price === 'number' ? price : Number(price) || null;
 }
 
 function createArtistCreditSection(artistId) {
@@ -2254,9 +2335,17 @@ export const buttonData = [
         get content() {
             return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
-                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free.</strong> Buying Avatar Borders counts towards your Donator Tier!</p>
-                <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
+                <div id="rovalra-store-section-tabs" style="display: flex; justify-content: flex-start; margin: 0 0 20px 0; overflow-x: auto; max-width: 100%;"></div>
+                <div id="rovalra-store-borders-section" data-store-section="borders">
+                    <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
+                    <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free.</strong> Buying Avatar Borders counts towards your Donator Tier!</p>
+                    <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
+                </div>
+                <div id="rovalra-store-frames-section" data-store-section="frames" hidden>
+                    <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ts('profileFrame.storeTitle')}</h2>
+                    <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">${ts('profileFrame.storeDesc')}</p>
+                    <div id="rovalra-store-frame-container" style="color: var(--rovalra-secondary-text-color);">${ts('profileFrame.loading')}</div>
+                </div>
             </div>`;
         },
     },
@@ -3156,6 +3245,631 @@ async function renderStoreBorders(container) {
     }
 }
 
+function setupStoreSectionTabs(contentContainer) {
+    const tabHolder = contentContainer.querySelector(
+        '#rovalra-store-section-tabs',
+    );
+    if (!tabHolder || tabHolder.childElementCount > 0) return;
+
+    const sections = new Map(
+        [...contentContainer.querySelectorAll('[data-store-section]')].map(
+            (section) => [section.dataset.storeSection, section],
+        ),
+    );
+    if (sections.size < 2) return;
+
+    const showSection = (value) => {
+        for (const [name, section] of sections) {
+            section.hidden = name !== value;
+        }
+    };
+
+    const requestedTab = new URLSearchParams(window.location.search).get('tab');
+    const initialValue = sections.has(requestedTab) ? requestedTab : 'borders';
+
+    const tabs = createPillToggle({
+        options: [
+            { text: ts('profileFrame.tabBorders'), value: 'borders' },
+            { text: ts('profileFrame.tabFrames'), value: 'frames' },
+        ],
+        initialValue,
+        onChange: showSection,
+    });
+    tabs.style.flexWrap = 'wrap';
+    tabs.style.maxWidth = '100%';
+    tabHolder.appendChild(tabs);
+    showSection(initialValue);
+}
+
+// Stands in for the profile banner, which is wide with the avatar in the middle.
+// The preview has to match that shape or frames read wrong in the store.
+function createFrameHolderPreview(thumbData, { width = null } = {}) {
+    const holder = document.createElement('div');
+    holder.className = 'rovalra-profile-frame-preview';
+    if (width) holder.style.maxWidth = `${width}px`;
+
+    const scene = document.createElement('div');
+    scene.className = 'rovalra-profile-frame-preview-scene';
+
+    if (thumbData?.imageUrl) {
+        const img = document.createElement('img');
+        img.src = thumbData.imageUrl;
+        img.alt = '';
+        img.decoding = 'async';
+        scene.appendChild(img);
+    }
+
+    holder.appendChild(scene);
+
+    return holder;
+}
+
+function clearFramePreview(holder) {
+    if (!holder) return;
+
+    for (const frame of holder.querySelectorAll('.rovalra-profile-frame')) {
+        frame.remove();
+    }
+    delete holder.dataset.rovalraFrameLoading;
+    delete holder.dataset.rovalraIntendedFrame;
+}
+
+async function saveEquippedFrame(link) {
+    const value = link || 'none';
+
+    await handleSaveSettings('profileFrameChoice', value).catch(() => {});
+
+    document.dispatchEvent(
+        new CustomEvent('rovalra:syncProfileFrame', {
+            detail: { frameUrl: value },
+        }),
+    );
+
+    try {
+        await updateUserSettingViaApi('berts', link || '', {
+            throwOnError: true,
+            suppressErrorLog: true,
+        });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function updateFrameStoreUI(container, selectedValue) {
+    for (const card of container.querySelectorAll('[data-frame-card]')) {
+        card.style.borderColor =
+            card.dataset.frameCard === selectedValue
+                ? 'var(--rovalra-main-text-color)'
+                : 'transparent';
+    }
+
+    for (const button of container.querySelectorAll('[data-frame-equip-btn]')) {
+        const isSelected =
+            button.dataset.frameEquipBtn === selectedValue &&
+            selectedValue !== 'none';
+        const isOwned = button.dataset.frameOwned === 'true';
+
+        let text;
+        let tooltip;
+        if (isSelected) {
+            text = ts('profileFrame.equipped');
+            tooltip = ts('profileFrame.unequipTooltip');
+        } else if (isOwned) {
+            text = ts('profileFrame.equip');
+            tooltip = ts('profileFrame.equipTooltip');
+        } else {
+            text = ts('profileFrame.buy');
+            tooltip = ts('profileFrame.buyTooltip');
+        }
+
+        const contentSpan = button.querySelector('span');
+        if (contentSpan) {
+            contentSpan.textContent = text;
+        } else {
+            button.textContent = text;
+        }
+        if (button.getAttribute('title')) {
+            button.setAttribute('title', tooltip);
+        }
+    }
+
+    const unequipButton = container.querySelector('[data-frame-unequip-btn]');
+    if (unequipButton) {
+        const hasFrame = selectedValue !== 'none';
+        unequipButton.style.opacity = hasFrame ? '1' : '0.5';
+        unequipButton.style.cursor = hasFrame ? 'pointer' : 'not-allowed';
+    }
+}
+
+async function selectStoreFrame(frame, container, previewHolder) {
+    const link = frame ? frame.link : null;
+
+    clearFramePreview(previewHolder);
+    if (link) applyFrameToHolder(previewHolder, link);
+
+    updateFrameStoreUI(container, frame ? frame.value : 'none');
+
+    const synced = await saveEquippedFrame(link);
+    const localNotice = container.querySelector('[data-frame-local-notice]');
+    if (localNotice) localNotice.hidden = synced;
+}
+
+function createFrameEquipButton({
+    frame,
+    isOwned,
+    isSelected,
+    container,
+    previewHolder,
+    authedUserData,
+}) {
+    const btnContainer = document.createElement('div');
+    btnContainer.style.cssText =
+        'margin-top: 8px; width: 100%; display: flex; justify-content: center;';
+
+    const text = isSelected
+        ? ts('profileFrame.equipped')
+        : isOwned
+          ? ts('profileFrame.equip')
+          : ts('profileFrame.buy');
+    const tooltip = isSelected
+        ? ts('profileFrame.unequipTooltip')
+        : isOwned
+          ? ts('profileFrame.equipTooltip')
+          : ts('profileFrame.buyTooltip');
+
+    const pill = createPill(text, tooltip, { isButton: true });
+    pill.dataset.frameEquipBtn = frame.value;
+    pill.dataset.frameOwned = isOwned ? 'true' : 'false';
+    pill.style.cssText =
+        'width: 100%; justify-content: center; font-size: 12px; font-weight: 700;';
+
+    pill.onclick = (event) => {
+        event.stopPropagation();
+
+        const currentText = pill.textContent.trim();
+        if (currentText === ts('profileFrame.equipped')) {
+            selectStoreFrame(null, container, previewHolder);
+        } else if (currentText === ts('profileFrame.equip')) {
+            selectStoreFrame(frame, container, previewHolder);
+        } else {
+            openFrameOverlay(frame, authedUserData, container, previewHolder);
+        }
+    };
+
+    btnContainer.appendChild(pill);
+    return btnContainer;
+}
+
+async function openFrameOverlay(
+    frame,
+    authedUserData,
+    container,
+    previewHolder,
+) {
+    const ownedData = await getOwnedBorders();
+    const isOwned = isFrameOwned({ frame, ownedData });
+
+    const body = document.createElement('div');
+    body.style.cssText =
+        'display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px;';
+
+    const preview = createFrameHolderPreview(authedUserData?.thumbData, {
+        width: 360,
+    });
+    applyFrameToHolder(preview, frame.link);
+
+    const infoWrapper = document.createElement('div');
+    infoWrapper.style.cssText =
+        'display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;';
+
+    const nameLabel = document.createElement('div');
+    nameLabel.style.cssText =
+        'font-size: 18px; font-weight: 800; color: var(--rovalra-main-text-color); text-align: center;';
+    nameLabel.textContent = frame.label;
+    infoWrapper.appendChild(nameLabel);
+
+    if (!frame.isFree) {
+        const priceLabel = document.createElement('div');
+        priceLabel.style.cssText =
+            'font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; gap: 4px;';
+
+        getFrameAssetDetails(frame).then((details) => {
+            const price = getFrameAssetPrice(frame, details);
+            if (price === null) {
+                priceLabel.textContent = 'View item';
+                return;
+            }
+
+            const priceValue = price.toLocaleString();
+            if (!isOwned) {
+                priceLabel.innerHTML = `<span class="icon-robux-16x16"></span>${priceValue}`; //Verified
+                return;
+            }
+
+            priceLabel.innerHTML = `
+                <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
+                    <span class="icon-robux-16x16"></span>${priceValue}
+                </span>
+                <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 16px;">${ts('profileFrame.owned')}</span>
+            `; //Verified
+            const freeLabel = priceLabel.querySelector('.rovalra-free-label');
+            if (freeLabel) {
+                addTooltip(freeLabel, ts('profileFrame.ownedTooltip'), {
+                    position: 'top',
+                });
+            }
+        });
+        infoWrapper.appendChild(priceLabel);
+    } else {
+        const freeLabel = document.createElement('div');
+        freeLabel.className = 'rovalra-free-label';
+        freeLabel.textContent = ts('profileFrame.free');
+        addTooltip(freeLabel, ts('profileFrame.freeTooltip'), {
+            position: 'top',
+        });
+        infoWrapper.appendChild(freeLabel);
+    }
+
+    if (frame.artistId) {
+        infoWrapper.appendChild(createArtistCreditSection(frame.artistId));
+    }
+
+    body.append(preview, infoWrapper);
+
+    const actionBtn = document.createElement('button');
+    actionBtn.className = 'btn-cta-md btn-min-width';
+    actionBtn.style.width = '100%';
+
+    if (isOwned) {
+        actionBtn.textContent = `${ts('profileFrame.equip')} ${frame.label}`;
+        actionBtn.onclick = () => {
+            selectStoreFrame(frame, container, previewHolder);
+            close();
+        };
+    } else {
+        const assetUrl = getFrameAssetUrl(frame);
+        if (!assetUrl) {
+            actionBtn.textContent = 'View item';
+            actionBtn.disabled = true;
+        } else {
+            actionBtn.textContent = 'Loading...';
+            getFrameAssetDetails(frame).then((details) => {
+                const price = getFrameAssetPrice(frame, details);
+                actionBtn.innerHTML =
+                    price === null
+                        ? 'View item'
+                        : `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>Buy for ${price.toLocaleString()}`; //Verified
+            });
+            actionBtn.onclick = () => window.open(assetUrl, '_blank');
+        }
+    }
+
+    const { close } = createOverlay({
+        title: frame.label,
+        bodyContent: body,
+        actions: [actionBtn],
+        maxWidth: '400px',
+    });
+}
+
+function renderFrameStoreSkeleton(container) {
+    container.innerHTML = '';
+
+    const previewShimmer = document.createElement('div');
+    previewShimmer.style.cssText =
+        'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-bottom: 20px;';
+    previewShimmer.innerHTML = `
+        <div class="shimmer" style="width: 180px; height: 12px; margin-bottom: 10px; border-radius: 4px;"></div>
+        <div class="setting-label-divider" style="width: 100%; margin-bottom: 10px;"></div>
+        <div class="shimmer" style="width: 100%; max-width: 520px; aspect-ratio: 3.1; border-radius: 10px; margin: 15px 0;"></div>
+    `; //Verified
+    container.appendChild(previewShimmer);
+
+    for (let i = 0; i < 2; i++) {
+        const header = document.createElement('div');
+        header.className = 'shimmer';
+        header.style.cssText =
+            'width: 130px; height: 18px; margin: 20px 0 10px 0; border-radius: 4px;';
+        container.appendChild(header);
+
+        const grid = document.createElement('div');
+        grid.style.cssText =
+            'display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 10px;';
+
+        for (let j = 0; j < 3; j++) {
+            const card = document.createElement('div');
+            card.style.cssText =
+                'display: flex; flex-direction: column; align-items: center; padding: 12px; background: var(--rovalra-container-background-color); border-radius: 12px; gap: 12px; opacity: 0.8;';
+            card.innerHTML = `
+                <div class="shimmer" style="width: 100%; aspect-ratio: 3.1; border-radius: 10px;"></div>
+                <div class="shimmer" style="width: 60%; height: 12px; border-radius: 4px;"></div>
+                <div class="shimmer" style="width: 100px; height: 16px; border-radius: 20px;"></div>
+            `; //Verified
+            grid.appendChild(card);
+        }
+        container.appendChild(grid);
+    }
+}
+
+async function renderStoreFrames(container) {
+    renderFrameStoreSkeleton(container);
+
+    try {
+        const [frames, ownedData, userId] = await Promise.all([
+            getFrames(),
+            getOwnedBorders(),
+            getAuthenticatedUserId().catch(() => null),
+        ]);
+
+        if (!frames.length) {
+            container.innerHTML = '';
+            const empty = document.createElement('p');
+            empty.style.cssText =
+                'color: var(--rovalra-secondary-text-color); margin: 0;';
+            empty.textContent = ts('profileFrame.noFrames');
+            container.appendChild(empty);
+            return;
+        }
+
+        let authedUserData = null;
+        if (userId) {
+            const [displayName, thumbnails] = await Promise.all([
+                getUserDisplayName(userId).catch(() => 'User'),
+                getBatchThumbnails([userId], 'Avatar', '420x420'),
+            ]);
+            authedUserData = {
+                userId,
+                displayName:
+                    typeof displayName === 'string' ? displayName : 'User',
+                thumbData: thumbnails[0] || { state: 'Error' },
+            };
+        }
+
+        let currentFrameLink = null;
+        if (userId) {
+            const userSettings = await getUserSettings(userId, {
+                noCache: true,
+            }).catch(() => null);
+            if (userSettings?.berts && userSettings.berts !== 'none') {
+                currentFrameLink = userSettings.berts;
+            }
+        }
+
+        const currentFrame = findFrameByLink(frames, currentFrameLink);
+        const currentFrameValue = currentFrame ? currentFrame.value : 'none';
+
+        container.innerHTML = '';
+
+        const previewWrapper = document.createElement('div');
+        previewWrapper.style.cssText =
+            'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-bottom: 20px;';
+        previewWrapper.innerHTML = `
+            <div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">${ts('profileFrame.currentPreview')}</div>
+            <div class="setting-label-divider" style="width: 100%; margin-bottom: 15px;"></div>
+        `; //Verified
+        container.appendChild(previewWrapper);
+
+        const previewHolder = createFrameHolderPreview(
+            authedUserData?.thumbData,
+            { width: 520 },
+        );
+        previewWrapper.appendChild(previewHolder);
+        if (currentFrameLink) {
+            applyFrameToHolder(previewHolder, currentFrameLink);
+        }
+
+        const unequipButton = createSquareButton({
+            content: ts('profileFrame.unequip'),
+            onClick: () => selectStoreFrame(null, container, previewHolder),
+            width: '120px',
+            height: 'height-1000',
+            paddingX: 'padding-x-medium',
+            radius: 'radius-medium',
+            disableTextTruncation: true,
+        });
+        unequipButton.dataset.frameUnequipBtn = 'true';
+        unequipButton.style.marginTop = '15px';
+        unequipButton.style.opacity = currentFrameLink ? '1' : '0.5';
+        unequipButton.style.cursor = currentFrameLink
+            ? 'pointer'
+            : 'not-allowed';
+        previewWrapper.appendChild(unequipButton);
+
+        const localNotice = document.createElement('div');
+        localNotice.dataset.frameLocalNotice = 'true';
+        localNotice.style.cssText =
+            'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 10px; opacity: 0.8;';
+        localNotice.textContent = `${ts('profileFrame.localOnly')}: ${ts('profileFrame.localOnlyTooltip')}`;
+        localNotice.hidden = true;
+        previewWrapper.appendChild(localNotice);
+
+        const categories = groupFramesByCategory(frames);
+        const storeSections = [];
+
+        const emptyTabMessage = document.createElement('p');
+        emptyTabMessage.style.cssText =
+            'color: var(--rovalra-secondary-text-color); margin: 16px 0 0 0;';
+        emptyTabMessage.textContent = ts('profileFrame.noFramesInTab');
+        emptyTabMessage.hidden = true;
+
+        const setFrameTab = (tab) => {
+            let visibleCount = 0;
+            for (const section of storeSections) {
+                const isVisible =
+                    tab === 'all' ||
+                    (tab === 'new' && section.isNew) ||
+                    tab === section.categoryValue;
+
+                section.header.style.display = isVisible ? '' : 'none';
+                section.grid.style.display = isVisible ? 'grid' : 'none';
+                if (isVisible) visibleCount += 1;
+            }
+            emptyTabMessage.hidden = visibleCount > 0;
+        };
+
+        const tabOptions = [{ text: ts('profileFrame.all'), value: 'all' }];
+        if (categories.some((category) => category.new)) {
+            tabOptions.push({ text: ts('profileFrame.new'), value: 'new' });
+        }
+        tabOptions.push(
+            ...categories.map((category) => ({
+                text: category.label,
+                value: category.value,
+            })),
+        );
+
+        const tabControls = document.createElement('div');
+        tabControls.style.cssText =
+            'display: flex; justify-content: flex-start; margin: 0 0 16px 0; overflow-x: auto; max-width: 100%;';
+        const frameTabs = createPillToggle({
+            options: tabOptions,
+            initialValue: 'all',
+            onChange: setFrameTab,
+        });
+        frameTabs.style.flexWrap = 'wrap';
+        frameTabs.style.maxWidth = '100%';
+        tabControls.appendChild(frameTabs);
+        container.append(tabControls, emptyTabMessage);
+
+        for (const category of categories) {
+            const categoryHeader = document.createElement('h3');
+            categoryHeader.style.cssText =
+                'color: var(--rovalra-main-text-color); font-size: 16px; margin: 20px 0 10px 0; padding-bottom: 8px; border-bottom: 1px solid var(--rovalra-border-color);';
+            categoryHeader.textContent = category.label;
+            container.appendChild(categoryHeader);
+
+            const framesGrid = document.createElement('div');
+            framesGrid.style.cssText =
+                'display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 10px; align-items: flex-start;';
+            container.appendChild(framesGrid);
+
+            storeSections.push({
+                categoryValue: category.value,
+                isNew: category.new,
+                header: categoryHeader,
+                grid: framesGrid,
+            });
+
+            for (const frame of category.frames) {
+                const frameIsOwned = isFrameOwned({ frame, ownedData });
+                const isSelected = currentFrameValue === frame.value;
+
+                const frameCard = document.createElement('div');
+                frameCard.dataset.frameCard = frame.value;
+                frameCard.style.cssText =
+                    'display: flex; flex-direction: column; align-items: center; padding: 12px; background: var(--rovalra-container-background-color); border-radius: 12px; border: 2px solid transparent;';
+
+                const cardPreview = createFrameHolderPreview(
+                    authedUserData?.thumbData,
+                );
+                frameCard.appendChild(cardPreview);
+
+                const kindLabel = document.createElement('div');
+                kindLabel.style.cssText =
+                    'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 8px; font-weight: 700;';
+                kindLabel.textContent = frame.animated
+                    ? ts('profileFrame.animated')
+                    : ts('profileFrame.static');
+                frameCard.appendChild(kindLabel);
+
+                const frameLabel = document.createElement('div');
+                frameLabel.style.cssText =
+                    'color: var(--rovalra-main-text-color); font-weight: 600; font-size: 13px; text-align: center; margin: 4px 0;';
+                frameLabel.textContent = frame.label;
+                frameCard.appendChild(frameLabel);
+
+                const priceLabel = document.createElement('div');
+                if (!frame.isFree) {
+                    priceLabel.style.cssText =
+                        'font-size: 12px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; justify-content: center; gap: 4px;';
+                } else {
+                    priceLabel.className = 'rovalra-free-label';
+                    priceLabel.textContent = ts('profileFrame.free');
+                    priceLabel.style.cssText =
+                        'width: 100%; text-align: center;';
+                    addTooltip(priceLabel, ts('profileFrame.freeTooltip'), {
+                        position: 'top',
+                    });
+                }
+                frameCard.appendChild(priceLabel);
+
+                if (frame.artistId) {
+                    frameCard.appendChild(
+                        createArtistCreditSection(frame.artistId),
+                    );
+                }
+
+                frameCard.appendChild(
+                    createFrameEquipButton({
+                        frame,
+                        isOwned: frameIsOwned,
+                        isSelected,
+                        container,
+                        previewHolder,
+                        authedUserData,
+                    }),
+                );
+
+                framesGrid.appendChild(frameCard);
+
+                const intersection = observeIntersection(
+                    frameCard,
+                    (entry) => {
+                        if (!entry.isIntersecting) return;
+
+                        intersection.unobserve();
+                        applyFrameToHolder(cardPreview, frame.link);
+
+                        if (frame.isFree) return;
+                        getFrameAssetDetails(frame).then((details) => {
+                            const price = getFrameAssetPrice(frame, details);
+                            if (price === null) {
+                                priceLabel.textContent = 'View item';
+                                return;
+                            }
+
+                            const priceValue = price.toLocaleString();
+                            if (!frameIsOwned) {
+                                priceLabel.innerHTML = `<span class="icon-robux-16x16"></span>${priceValue}`; //Verified
+                                return;
+                            }
+
+                            priceLabel.innerHTML = `
+                                <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
+                                    <span class="icon-robux-16x16"></span>${priceValue}
+                                </span>
+                                <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">${ts('profileFrame.owned')}</span>
+                            `; //Verified
+                            const freeLabel = priceLabel.querySelector(
+                                '.rovalra-free-label',
+                            );
+                            if (freeLabel) {
+                                addTooltip(
+                                    freeLabel,
+                                    ts('profileFrame.ownedTooltip'),
+                                    { position: 'top' },
+                                );
+                            }
+                        });
+                    },
+                    { threshold: 0.01 },
+                );
+            }
+        }
+
+        setFrameTab('all');
+        updateFrameStoreUI(container, currentFrameValue);
+    } catch (error) {
+        console.error('RoValra: Failed to render store frames', error);
+        container.innerHTML = '';
+        const failed = document.createElement('p');
+        failed.style.cssText = 'color: var(--rovalra-secondary-text-color);';
+        failed.textContent = ts('profileFrame.failedToLoad');
+        container.appendChild(failed);
+    }
+}
+
 function createEquipButton(
     variant,
     animVariant,
@@ -3453,6 +4167,15 @@ export async function updateContent(buttonInfo, contentContainer) {
         if (borderContainer) {
             renderStoreBorders(borderContainer);
         }
+
+        const frameContainer = contentContainer.querySelector(
+            '#rovalra-store-frame-container',
+        );
+        if (frameContainer) {
+            renderStoreFrames(frameContainer);
+        }
+
+        setupStoreSectionTabs(contentContainer);
     }
 
     if (buttonId === 'changelogs') {
