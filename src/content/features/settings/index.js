@@ -3315,9 +3315,13 @@ function clearFramePreview(holder) {
 }
 
 async function saveEquippedFrame(link) {
+    const value = link || 'none';
+
+    await handleSaveSettings('profileFrameChoice', value).catch(() => {});
+
     document.dispatchEvent(
         new CustomEvent('rovalra:syncProfileFrame', {
-            detail: { frameUrl: link || 'none' },
+            detail: { frameUrl: value },
         }),
     );
 

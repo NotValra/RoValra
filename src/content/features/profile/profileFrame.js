@@ -5,8 +5,8 @@ import {
 } from '../../core/observer.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
+import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
-import { findFrameByLink, getFrames } from '../../core/configs/frames.js';
 
 // Wraps both the fullbody and portrait thumbnails, so framing it frames the lot.
 const HOLDER_SELECTOR = '.thumbnail-holder.thumbnail-holder-position';
@@ -151,6 +151,19 @@ export function applyFrameToHolder(holder, frameLink) {
     frame.className = FRAME_CLASS;
     frame.alt = '';
     frame.decoding = 'async';
+    frame.style.display = 'none';
+    frame.onload = () => {
+        if (frameStates.get(holder)?.frame === frame) {
+            frame.style.display = 'block';
+        }
+    };
+    frame.onerror = () => {
+        if (frameStates.get(holder)?.frame === frame) {
+            removeFrame(holder);
+        } else {
+            frame.remove();
+        }
+    };
     frame.src = frameLink;
 
     const mount = findFrameMount(holder);
@@ -177,12 +190,16 @@ export async function resolveFrameLink(userId) {
 
     const userSettings = await getUserSettings(userId).catch(() => null);
     if (userSettings?.berts && userSettings.berts !== 'none') {
-        const frames = await getFrames().catch(() => []);
-        const frame = findFrameByLink(frames, userSettings.berts);
-        if (frame) return frame.link;
+        return userSettings.berts;
     }
 
-    return null;
+    const authedId = await getAuthenticatedUserId().catch(() => null);
+    const isOwnProfile = authedId && String(authedId) === String(userId);
+    if (!isOwnProfile) return null;
+
+    const settings = await loadSettings().catch(() => null);
+    const localChoice = settings?.profileFrameChoice;
+    return localChoice && localChoice !== 'none' ? localChoice : null;
 }
 
 function watchHolders(frameLink) {
