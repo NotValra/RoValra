@@ -3265,12 +3265,12 @@ function setupStoreSectionTabs(contentContainer) {
     };
 
     const requestedTab = new URLSearchParams(window.location.search).get('tab');
-    const initialValue = sections.has(requestedTab) ? requestedTab : 'borders';
+    const initialValue = sections.has(requestedTab) ? requestedTab : 'frames';
 
     const tabs = createPillToggle({
         options: [
-            { text: ts('profileFrame.tabBorders'), value: 'borders' },
             { text: ts('profileFrame.tabFrames'), value: 'frames' },
+            { text: ts('profileFrame.tabBorders'), value: 'borders' },
         ],
         initialValue,
         onChange: showSection,
