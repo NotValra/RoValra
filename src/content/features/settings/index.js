@@ -621,24 +621,40 @@ async function getOwnedBorders() {
         const borderData = bordersResponse.ok
             ? await bordersResponse.json()
             : {};
-        const bertsData = bertsResponse.ok
-            ? await bertsResponse.json()
-            : {};
+        const bertsData = bertsResponse.ok ? await bertsResponse.json() : {};
 
         if (bordersResponse.ok || bertsResponse.ok) {
+            const configuredFrames = await getFrames();
+            const ownedFrames = new Set();
+
+            for (const bert of bertsData.owned_berts || []) {
+                const value =
+                    bert && typeof bert === 'object' ? bert.value : bert;
+                const link =
+                    bert && typeof bert === 'object' ? bert.link : bert;
+                const frame = configuredFrames.find(
+                    (candidate) =>
+                        candidate.value === String(value ?? '').trim() ||
+                        candidate.link === String(link ?? '').trim(),
+                );
+
+                if (value !== null && value !== undefined) {
+                    ownedFrames.add(String(value).trim());
+                }
+                if (link !== null && link !== undefined) {
+                    ownedFrames.add(String(link).trim());
+                }
+                if (frame) {
+                    ownedFrames.add(frame.value);
+                    ownedFrames.add(frame.link);
+                }
+            }
+
             ownedBordersCache = {
                 borders: new Set(borderData.owned_borders || []),
-                frames: new Set(
-                    (bertsData.owned_berts || []).map((bert) =>
-                        typeof bert === 'object'
-                            ? String(bert.value)
-                            : String(bert),
-                    ),
-                ),
+                frames: ownedFrames,
                 gamepasses: new Set(
-                    (borderData.owned_gamepasses || []).map((id) =>
-                        String(id),
-                    ),
+                    (borderData.owned_gamepasses || []).map((id) => String(id)),
                 ),
             };
             return ownedBordersCache;
@@ -692,7 +708,11 @@ function isBorderOwned({ value, gamepassId, ownedData, tier }) {
 // No tier check on purpose: Donator Tier 3 unlocks avatar borders, not frames.
 function isFrameOwned({ frame, ownedData }) {
     if (frame.isFree) return true;
-    return ownedData.frames?.has(frame.value) || false;
+    return (
+        ownedData.frames?.has(frame.value) ||
+        ownedData.frames?.has(frame.link) ||
+        false
+    );
 }
 
 async function getFrameAssetDetails(frame) {

@@ -31,9 +31,15 @@ function normalizeFrame(frame) {
 }
 
 function normalizeFrames(data) {
-    if (!Array.isArray(data)) return [];
+    const entries = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.berts)
+          ? data.berts
+          : Array.isArray(data?.frames)
+            ? data.frames
+            : [];
 
-    return data.map(normalizeFrame).filter(Boolean);
+    return entries.map(normalizeFrame).filter(Boolean);
 }
 
 export async function getFrames() {
@@ -75,7 +81,14 @@ export function findFrameByValue(frames, value) {
 export function findFrameByLink(frames, link) {
     if (!link) return null;
 
-    return frames.find((frame) => frame.link === link) || null;
+    const normalizedLink = String(link).trim();
+    return (
+        frames.find(
+            (frame) =>
+                frame.link === normalizedLink ||
+                frame.value === normalizedLink,
+        ) || null
+    );
 }
 
 export function groupFramesByCategory(frames) {
