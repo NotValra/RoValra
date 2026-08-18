@@ -50,6 +50,11 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { safeHtml } from '../../../core/packages/dompurify.js';
 import { backgroundRendererRequests } from '../../../core/utils/renderer.js';
+import {
+    applyFrameToHolder,
+    getEnabledFrameLink,
+    setFrameRenderMode,
+} from '../profileFrame.js';
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = false;
@@ -98,6 +103,8 @@ let renderContainerObserver = null;
 let autoSwitchObserver = null;
 let animationLoopStarted = false;
 let autoSwitchedProfileUserId = null;
+let profileRenderFrameSettingListener = null;
+const profileFrameOverflowStyles = new Map();
 const resizeObserversByContainer = new WeakMap();
 const blackKeyedEffectMaterials = new WeakSet();
 
@@ -2188,7 +2195,13 @@ async function attachPreloadedAvatar(container) {
         width: '100%',
         height: '100%',
         position: 'relative',
+        overflow: 'visible',
     });
+
+    const profileHolder = container.closest('.thumbnail-holder-position');
+    setFrameRenderMode(profileHolder, true);
+    allowProfileFrameBleed(container);
+    syncProfileRenderFrame(container);
 
     const twoDContainer = document.querySelector(
         '.thumbnail-holder-position .thumbnail-2d-container',
@@ -2239,9 +2252,59 @@ async function attachPreloadedAvatar(container) {
     }
 }
 
+function allowProfileFrameBleed(container) {
+    let element = container;
+    for (let depth = 0; depth < 8 && element; depth += 1) {
+        const computedStyle = window.getComputedStyle(element);
+        if (computedStyle.overflow !== 'visible') {
+            if (!profileFrameOverflowStyles.has(element)) {
+                profileFrameOverflowStyles.set(element, element.style.overflow);
+            }
+            element.style.overflow = 'visible';
+        }
+
+        if (element.classList.contains('profile-avatar-left')) break;
+        element = element.parentElement;
+    }
+}
+
+function restoreProfileFrameBleed() {
+    for (const [element, overflow] of profileFrameOverflowStyles) {
+        if (overflow) element.style.overflow = overflow;
+        else element.style.removeProperty('overflow');
+    }
+    profileFrameOverflowStyles.clear();
+}
+
+async function syncProfileRenderFrame(container) {
+    const frameLink = await getEnabledFrameLink(
+        activeProfileRenderUserId || getUserIdFromUrl(),
+    );
+    if (!container.isConnected) return;
+
+    container.style.overflow = 'visible';
+    applyFrameToHolder(container, frameLink, { mountDirectly: true });
+}
+
+function syncProfileRenderFrames() {
+    document
+        .querySelectorAll('.thumbnail-holder-position .thumbnail-3d-container')
+        .forEach((container) => syncProfileRenderFrame(container));
+}
+
 function setupProfileRenderObservers() {
     if (profileRenderObserversSetup) return;
     profileRenderObserversSetup = true;
+
+    profileRenderFrameSettingListener = (event) => {
+        if (event.detail?.name === 'profileFrameEnabled') {
+            syncProfileRenderFrames();
+        }
+    };
+    document.addEventListener(
+        'rovalra:settingSaved',
+        profileRenderFrameSettingListener,
+    );
 
     injectStylesheet('css/thumbnailholder.css', 'rovalra-thumbnail-holder-css');
 
@@ -2317,6 +2380,20 @@ function teardownProfileRenderObservers() {
     removeRoblox3dObserver?.disconnect();
     renderContainerObserver?.disconnect();
     autoSwitchObserver?.disconnect();
+    if (profileRenderFrameSettingListener) {
+        document.removeEventListener(
+            'rovalra:settingSaved',
+            profileRenderFrameSettingListener,
+        );
+        profileRenderFrameSettingListener = null;
+    }
+    document
+        .querySelectorAll('.thumbnail-holder-position .thumbnail-3d-container')
+        .forEach((container) => applyFrameToHolder(container, null));
+    document
+        .querySelectorAll('.thumbnail-holder-position')
+        .forEach((holder) => setFrameRenderMode(holder, false));
+    restoreProfileFrameBleed();
     removeRoblox3dObserver = null;
     renderContainerObserver = null;
     autoSwitchObserver = null;

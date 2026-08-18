@@ -37,7 +37,11 @@ let holderObserver = null;
 const frameStates = new WeakMap();
 
 function isFramedHolder(holder) {
-    return holder instanceof HTMLElement && !holder.closest(FRAME_SELECTOR);
+    return (
+        holder instanceof HTMLElement &&
+        holder.dataset.rovalraFrameRenderMode !== 'true' &&
+        !holder.closest(FRAME_SELECTOR)
+    );
 }
 
 function clipsContent(computedStyle) {
@@ -137,8 +141,13 @@ function removeFrame(holder) {
     }
 }
 
-export function applyFrameToHolder(holder, frameLink) {
-    if (!holder || !frameLink) return;
+export function applyFrameToHolder(holder, frameLink, options = {}) {
+    if (!holder) return;
+
+    if (!frameLink) {
+        removeFrame(holder);
+        return;
+    }
 
     if (frameStates.has(holder)) {
         if (holder.dataset.rovalraIntendedFrame === frameLink) return;
@@ -166,7 +175,7 @@ export function applyFrameToHolder(holder, frameLink) {
     };
     frame.src = frameLink;
 
-    const mount = findFrameMount(holder);
+    const mount = options.mountDirectly ? holder : findFrameMount(holder);
     ensurePositioned(mount);
     mount.appendChild(frame);
 
@@ -183,6 +192,26 @@ export function applyFrameToHolder(holder, frameLink) {
             observeResize(mount, () => syncFrameGeometry(holder)),
         );
     }
+}
+
+export function setFrameRenderMode(holder, enabled) {
+    if (!holder) return;
+
+    if (enabled) {
+        holder.dataset.rovalraFrameRenderMode = 'true';
+        removeFrame(holder);
+        return;
+    }
+
+    delete holder.dataset.rovalraFrameRenderMode;
+    if (activeFrameLink) applyFrameToHolder(holder, activeFrameLink);
+}
+
+export async function getEnabledFrameLink(userId) {
+    const settings = await loadSettings().catch(() => null);
+    if (!settings?.profileFrameEnabled) return null;
+
+    return resolveFrameLink(userId);
 }
 
 export async function resolveFrameLink(userId) {
@@ -223,6 +252,10 @@ function watchHolders(frameLink) {
     holderObserver = observeElement(
         HOLDER_SELECTOR,
         (holder) => {
+            if (holder.dataset.rovalraFrameRenderMode === 'true') {
+                removeFrame(holder);
+                return;
+            }
             if (!activeFrameLink || !isFramedHolder(holder)) return;
             applyFrameToHolder(holder, activeFrameLink);
         },
@@ -240,13 +273,7 @@ export async function init() {
         const applyCurrentFrame = async () => {
             // Re-read the setting every time rather than trusting the value from
             // init, so turning the feature off takes effect without a reload.
-            const settings = await loadSettings().catch(() => null);
-            if (!settings?.profileFrameEnabled) {
-                watchHolders(null);
-                return;
-            }
-
-            watchHolders(await resolveFrameLink(profileUserId));
+            watchHolders(await getEnabledFrameLink(profileUserId));
         };
 
         document.addEventListener('rovalra:settingSaved', (event) => {
