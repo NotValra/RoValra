@@ -380,6 +380,20 @@
         "multiplePurchases": "{{count}} purchases",
         "stillCalculating": "Total Spent is still calculating."
     },
+    "spentPerGame": {
+        "title": "Total Spent per Game",
+        "disclaimer": "This can be inaccurate due to Roblox limitations",
+        "mostSpent": "Most spent",
+        "mostPurchases": "Most purchases",
+        "noPurchases": "No game purchases found.",
+        "singlePurchase": "1 purchase",
+        "multiplePurchases": "{{count}} purchases",
+        "loadMore": "Load more ({{remaining}} remaining)",
+        "searchPlaceholder": "Search games",
+        "loading": "Loading game spending…",
+        "scanInProgress": "Transaction scan in progress. This may take a while.",
+        "loadError": "Unable to load game spending."
+    },
     "settings": {
         "tabs": {
             "info": "Info",
@@ -1175,8 +1189,10 @@
     },
     "profileCustomization": {
         "pill": "Customization",
-        "pillTooltip": "Switch your avatar borders.",
+        "pillTooltip": "Switch your avatar borders and frames.",
         "title": "Profile Customization",
+        "tabBorders": "Avatar Borders",
+        "tabFrames": "Frames",
         "currentPreview": "Current Selection Preview",
         "unequip": "Unequip",
         "unequipTooltip": "Click to unequip this border",
@@ -1194,6 +1210,9 @@
         "free": "Free",
         "noBorders": "No borders found.",
         "noBordersInTab": "No borders found in this tab.",
+        "noFrames": "No frames found.",
+        "noFramesInTab": "No frames found in this tab.",
+        "none": "None",
         "failedToLoad": "Failed to load your borders. Please try again later."
     },
     "profileFrame": {
@@ -1240,6 +1259,7 @@
         "ariaLabel": "Pronouns: {{pronouns}}"
     },
     "profile": {
+        "socialLinks": "Social links",
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
         "openClient": "Open Client"

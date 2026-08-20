@@ -657,6 +657,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            socialLinksEnabled: {
+                label: 'Profile Social Links',
+                description: [
+                    'Shows social links below the profile description.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             profileCustomizationEnabled: {
                 label: 'Profile Customization',
                 description: [
@@ -1498,6 +1506,14 @@ export const SETTINGS_CONFIG = {
                 label: 'Total Spent',
                 description: [
                     'This calculates the total amount of Robux and money you have spent on your account based on your transaction history.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            spentPerGameEnabled: {
+                label: 'Spent Per Experience',
+                description: [
+                    'Shows how much Robux you have spent on each experience on the transactions page.',
                 ],
                 type: 'checkbox',
                 default: true,

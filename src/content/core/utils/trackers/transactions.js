@@ -115,6 +115,36 @@ export async function getGameSpending(id) {
     return { name: gameName, totalSpent, totalTransactions, isScanning };
 }
 
+/**
+ * Get total spending for every game in the cached transaction scan.
+ * @returns {Promise<{games: Array, isScanning: boolean}>}
+ */
+export async function getAllGameSpending() {
+    const data = await getTransactionData();
+    if (!data) return { games: [], isScanning: false };
+
+    const games = new Map();
+
+    for (const creator of Object.values(data.creators || {})) {
+        for (const [id, gameData] of Object.entries(creator.games || {})) {
+            const existing = games.get(id) || {
+                id,
+                name: gameData.name || 'Unknown game',
+                totalSpent: 0,
+                totalTransactions: 0,
+            };
+
+            existing.name = gameData.name || existing.name;
+            existing.totalSpent += Number(gameData.totalSpent) || 0;
+            existing.totalTransactions +=
+                Number(gameData.totalTransactions) || 0;
+            games.set(id, existing);
+        }
+    }
+
+    return { games: [...games.values()], isScanning: data.isScanning };
+}
+
 export async function getTotalSpent() {
     const data = await getTransactionData();
     return data?.totals?.totalSpent || 0;
