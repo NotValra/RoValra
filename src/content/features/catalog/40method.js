@@ -2118,11 +2118,7 @@ const execute40MethodPurchase = async (
     ) {
         const subcategoryId = assetToSubcategoryMap[String(assetType)];
         if (classicClothingSubcategories.includes(subcategoryId)) {
-            if (robuxPrice < 10) {
-                savingsPercentage = 0;
-            } else {
-                savingsPercentage = 0.1;
-            }
+            savingsPercentage = 0.4;
         }
     }
     const robuxSaved = Math.floor(robuxPrice * savingsPercentage);
@@ -2671,11 +2667,7 @@ const addSaveButton = (modal) => {
                                     subcategoryId,
                                 )
                             ) {
-                                if (item.price < 10) {
-                                    itemSavingsPercent = 0;
-                                } else {
-                                    itemSavingsPercent = 0.1;
-                                }
+                                itemSavingsPercent = 0.4;
                             }
                         }
                     } catch (e) {}
@@ -2685,23 +2677,6 @@ const addSaveButton = (modal) => {
             }
         } else {
             let savingsPercentage = isGamePass ? 0.1 : 0.4;
-
-            if (
-                assetType &&
-                !isGamePass &&
-                !isBundle &&
-                assetToSubcategoryMap &&
-                classicClothingSubcategories
-            ) {
-                const subcategoryId = assetToSubcategoryMap[String(assetType)];
-                if (classicClothingSubcategories.includes(subcategoryId)) {
-                    if (robuxPrice < 10) {
-                        savingsPercentage = 0;
-                    } else {
-                        savingsPercentage = 0.1;
-                    }
-                }
-            }
 
             savings = Math.floor(robuxPrice * savingsPercentage);
         }
