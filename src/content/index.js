@@ -96,6 +96,7 @@ import { init as initEvents } from './features/games/about/events.js';
 import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
+import { init as initSpentPerGame } from './features/transactions/spentPerGame.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
@@ -158,6 +159,7 @@ import { init as initUsernameColor } from './features/profile/header/usernameCol
 import { init as initDisplayNameGradient } from './features/profile/header/displayNameGradient.js';
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
+import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 
 // Settings
@@ -394,6 +396,7 @@ const featureRoutes = [
             initAvatarDownload,
             initChatEligibilityTooltip,
             initProfileCustomization,
+            initSocialLinks,
             initSendRobuxProfileButton,
         ],
     },
@@ -409,7 +412,12 @@ const featureRoutes = [
     // Transactions page
     {
         paths: ['/transactions'],
-        features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned],
+        features: [
+            initTotalSpent,
+            initSpentPerGame,
+            initPendingRobuxTrans,
+            initTotalEarned,
+        ],
     },
     {
         paths: ['/upgrades/paymentmethods'],
