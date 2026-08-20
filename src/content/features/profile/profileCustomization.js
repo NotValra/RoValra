@@ -220,11 +220,11 @@ async function renderFramePicker(container, userId) {
             let visible = 0;
             for (const section of sections) {
                 const show = value === 'all' || value === section.value;
-                section.header.hidden = !show;
-                section.grid.hidden = !show;
+                section.header.style.display = show ? '' : 'none';
+                section.grid.style.display = show ? 'grid' : 'none';
                 if (show) visible += 1;
             }
-            emptyMessage.hidden = visible > 0;
+            emptyMessage.style.display = visible > 0 ? 'none' : '';
         };
         const tabs = createPillToggle({
             options: [
