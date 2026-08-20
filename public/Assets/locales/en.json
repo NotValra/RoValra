@@ -380,6 +380,20 @@
         "multiplePurchases": "{{count}} purchases",
         "stillCalculating": "Total Spent is still calculating."
     },
+    "spentPerGame": {
+        "title": "Total Spent per Game",
+        "disclaimer": "This can be inaccurate due to Roblox limitations",
+        "mostSpent": "Most spent",
+        "mostPurchases": "Most purchases",
+        "noPurchases": "No game purchases found.",
+        "singlePurchase": "1 purchase",
+        "multiplePurchases": "{{count}} purchases",
+        "loadMore": "Load more ({{remaining}} remaining)",
+        "searchPlaceholder": "Search games",
+        "loading": "Loading game spending…",
+        "scanInProgress": "Transaction scan still in progress.",
+        "loadError": "Unable to load game spending."
+    },
     "settings": {
         "tabs": {
             "info": "Info",
