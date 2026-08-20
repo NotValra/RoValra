@@ -67,12 +67,24 @@ export function getItemDetails(itemId, itemType) {
     if (itemType === 'GamePass') {
         const requestPromise = callRobloxApiJson({
             subdomain: 'apis',
-            endpoint: `/game-passes/v1/game-passes/${itemId}/details`,
+            endpoint: `/game-passes/v1/game-passes/${itemId}/product-info`,
             method: 'GET',
-        }).catch((error) => {
-            itemDetailsCache.delete(key);
-            throw error;
-        });
+        })
+            .then((productInfo) => ({
+                ...productInfo,
+                id: productInfo?.TargetId ?? itemId,
+                gamePassId: productInfo?.TargetId ?? itemId,
+                name: productInfo?.Name,
+                description: productInfo?.Description,
+                price: productInfo?.PriceInRobux,
+                isForSale: productInfo?.IsForSale,
+                productId: productInfo?.ProductId,
+                iconImageAssetId: productInfo?.IconImageAssetId,
+            }))
+            .catch((error) => {
+                itemDetailsCache.delete(key);
+                throw error;
+            });
         itemDetailsCache.set(key, requestPromise);
         return requestPromise;
     }
