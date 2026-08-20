@@ -37,7 +37,7 @@ import {
     RBX,
     Outfit,
     OutfitModel,
-    OutfitRenderer,
+    BackgroundRenderer,
     Authentication,
     API,
     FLAGS,
@@ -45,6 +45,16 @@ import {
     AnimationTrack,
     animNamesR15,
     animNamesR6,
+    getExtentsForParts,
+    CFrame,
+    add as addVec3,
+    zoomExtents,
+    magnitude as magnitudeVec3,
+    minus as minusVec3,
+    mapNum,
+    lerpCFrame,
+    getHeadExtents,
+    traverseRigCFrame,
 } from 'roavatar-renderer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
@@ -108,6 +118,12 @@ const profileFrameOverflowStyles = new Map();
 const resizeObserversByContainer = new WeakMap();
 const blackKeyedEffectMaterials = new WeakSet();
 
+//used for transitioning between focusing on body and head
+let headFocusDistance = 4; //distance it stops transitioning to head
+let bodyFocusDistance = 6; //distance it starts transitioning to head
+let bodyCenterCFrame = new CFrame(0,4,0);
+let bodyHeadCFrame = new CFrame(0,4,0);
+
 function updateProfileBackground(profileData) {
     const backgroundId =
         Number(profileData?.components?.ProfileBackground?.assetId) || null;
@@ -115,7 +131,7 @@ function updateProfileBackground(profileData) {
 
     globalAvatarBackgroundId = backgroundId;
     if (profileBackgroundRenderer) {
-        profileBackgroundRenderer.backgroundRenderer.setBackground(
+        profileBackgroundRenderer.setBackground(
             profileEnvironmentEnabled ? null : backgroundId,
         );
     }
@@ -245,13 +261,79 @@ window.addEventListener('mouseup', (e) => {
 const isMoving = () => movementKeys.some((key) => keysDown[key]);
 const isFreecamActive = () => isLeftMouseDown && isMoving();
 
+function calculateControlsTargetCFrame() {
+    const controls = RBXRenderer.getRendererControls();
+    const distance = controls.getDistance();
+
+    //normalize distance within range
+    const time = Math.max(Math.min(mapNum(distance, headFocusDistance, bodyFocusDistance, 0, 1), 1), 0);
+
+    const resultCF = lerpCFrame(bodyHeadCFrame, bodyCenterCFrame, time);
+    return resultCF;
+}
+
+function updateControlsTargetCFrame() {
+    const controls = RBXRenderer.getRendererControls();
+
+    //calculate new target and difference
+    const newTarget = calculateControlsTargetCFrame().Position;
+    const oldTarget = controls.target.toArray();
+    const diffTarget = minusVec3(newTarget, oldTarget);
+
+    //apply target difference to camera position (to avoid camera rotating)
+    const cameraCF = RBXRenderer.getCameraCFrame();
+    cameraCF.Position = addVec3(cameraCF.Position, diffTarget);
+    RBXRenderer.setCameraCFrame(cameraCF);
+
+    //finally update target
+    controls.target.set(...newTarget);
+}
+
 function resetCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
     if (!controls || !camera) return;
 
-    controls.target.set(0, 4, 0);
-    camera.position.set(0, 4, -6);
+    if (currentRig) {
+        //get rig extents, size and center
+        const [lowerExtents, higherExtents] = getExtentsForParts(currentRig.GetDescendants(), false);
+        const size = higherExtents.minus(lowerExtents);
+        const centerCF = currentRig.Child("HumanoidRootPart").Prop("CFrame");
+
+        //place camera in front of body slightly up
+        let cameraCF = centerCF.clone();
+        cameraCF.Position = addVec3(cameraCF.Position, [0,0.25,-1]);
+        cameraCF = CFrame.lookAt(cameraCF.Position, centerCF.Position);
+
+        //adjust distance so full character fits
+        zoomExtents(cameraCF, centerCF, size, camera.fov, 1.1, "calculate");
+
+        //adjust distances for transition between head and body focus
+        const currentDistance = magnitudeVec3(minusVec3(cameraCF.Position, centerCF.Position));
+        const headExtents = getHeadExtents(currentRig);
+        if (headExtents) {
+            const [headLowerExtents, headHigherExtents] = headExtents;
+            const headSize = headHigherExtents.minus(headLowerExtents);
+            const headSizeDistance = headSize.magnitude();
+
+            headFocusDistance = Math.min(headSizeDistance, currentDistance - 1);
+            bodyFocusDistance = currentDistance;
+        } else {
+            bodyFocusDistance = currentDistance * 2/3;
+            headFocusDistance = bodyFocusDistance * 1/3;
+        }
+
+        bodyCenterCFrame = centerCF;
+        bodyHeadCFrame = traverseRigCFrame(currentRig.Child("Head"), false, true); //head cframe at rest pose
+
+        //update values in three js
+        controls.target.set(...centerCF.Position);
+        camera.position.set(...cameraCF.Position);
+    } else {
+        //default camera position if rig isnt available
+        controls.target.set(0, 4, 0);
+        camera.position.set(0, 4, -6);
+    }
     intendedDistance = 10;
     lastAppliedDistance = 10;
     controls.update();
@@ -309,6 +391,7 @@ function customAnimate() {
 
     if (controls && camera) {
         updateCameraSystem();
+        updateControlsTargetCFrame();
         controls.update();
     }
 
@@ -394,16 +477,15 @@ async function loadRig(rigType) {
     }
 
     if (!profileBackgroundRenderer) {
-        profileBackgroundRenderer = new OutfitRenderer(
+        profileBackgroundRenderer = new BackgroundRenderer(
             profileRenderAuthentication,
-            outfitModel,
+            outfitModel.background?.id,
             RBXRenderer.firstScene,
         );
-        profileBackgroundRenderer.doAddInstance = false;
-        profileBackgroundRenderer.backgroundRenderer.affectSceneAppearance = false;
+        profileBackgroundRenderer.affectSceneAppearance = false;
         profileBackgroundRenderer.startAnimating();
     } else {
-        profileBackgroundRenderer.setOutfitModel(outfitModel);
+        profileBackgroundRenderer.setBackground(outfitModel.background?.id);
     }
 
     const rigUrl = chrome.runtime.getURL(`assets/Rig${rigType}.rbxm`);
@@ -2169,7 +2251,7 @@ async function preloadAvatar(userId = getUserIdFromUrl()) {
                 );
             });
 
-            profileBackgroundRenderer?.backgroundRenderer.setBackground(
+            profileBackgroundRenderer?.setBackground(
                 profileEnvironmentEnabled ? null : globalAvatarBackgroundId,
             );
 

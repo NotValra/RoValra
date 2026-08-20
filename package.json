@@ -28,7 +28,7 @@
     "fzstd": "^0.1.1",
     "i18next": "26.3.6",
     "marked": "^18.0.5",
-    "roavatar-renderer": "^1.6.0",
+    "roavatar-renderer": "^1.6.1",
     "roblox-bat": "0.6.5",
     "swagger-ui-dist": "^5.32.10"
   },
