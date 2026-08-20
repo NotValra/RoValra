@@ -391,7 +391,7 @@
         "loadMore": "Load more ({{remaining}} remaining)",
         "searchPlaceholder": "Search games",
         "loading": "Loading game spending…",
-        "scanInProgress": "Transaction scan still in progress.",
+        "scanInProgress": "Transaction scan in progress. This may take a while.",
         "loadError": "Unable to load game spending."
     },
     "settings": {

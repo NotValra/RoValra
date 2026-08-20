@@ -8,7 +8,10 @@ import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { createProfileHeaderButton } from '../../core/ui/profile/header/button.js';
 import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
 import { getUniversesDetails } from '../../core/apis/games.js';
-import { getAllGameSpending } from '../../core/utils/trackers/transactions.js';
+import {
+    getAllGameSpending,
+    getTransactionData,
+} from '../../core/utils/trackers/transactions.js';
 import { createShimmerBlock } from '../../core/ui/shimmer.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
@@ -16,6 +19,7 @@ import { getAssets } from '../../core/assets.js';
 
 const ROW_SELECTOR = '#transactions-web-app .summary table.summary tr';
 const ROW_MARKER = 'data-rovalra-spent-per-game';
+const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 const INITIAL_GAME_COUNT = 5;
 const GAME_PAGE_SIZE = 5;
 
@@ -149,12 +153,18 @@ async function renderGames(
     visibleCount,
     onLoadMore,
     totalGameCount,
+    isScanning,
 ) {
     games = Array.isArray(games) ? games : [];
     totalGameCount = Number.isFinite(totalGameCount)
         ? totalGameCount
         : games.length;
     if (!games.length) {
+        if (isScanning) {
+            container.replaceChildren();
+            container.textContent = ts('spentPerGame.scanInProgress');
+            return;
+        }
         container.replaceChildren();
         container.textContent = ts('spentPerGame.noPurchases');
         return;
@@ -316,6 +326,7 @@ function addSpentPerGameSection(table) {
     let searchQuery = '';
     let visibleCount = INITIAL_GAME_COUNT;
     let loading = false;
+    let isScanning = false;
 
     const getSearchCandidates = () => {
         const games = Array.isArray(allGames) ? allGames : [];
@@ -356,6 +367,7 @@ function addSpentPerGameSection(table) {
                 await renderCurrentGames();
             },
             searchCandidates.length,
+            isScanning,
         );
     };
 
@@ -372,6 +384,7 @@ function addSpentPerGameSection(table) {
         try {
             const result = await loadGameSpending();
             allGames = Array.isArray(result?.games) ? result.games : [];
+            isScanning = !!result?.isScanning;
             await loadVisibleGames();
             const dropdown = createDropdown({
                 items: SORTS.map((sort) => ({
@@ -388,8 +401,7 @@ function addSpentPerGameSection(table) {
             });
             sortContainer.appendChild(dropdown.element);
             await renderCurrentGames();
-            if (result?.isScanning) {
-                scanStatus.textContent = ts('spentPerGame.scanInProgress');
+            if (isScanning) {
             } else {
                 scanStatus.replaceChildren();
             }
@@ -401,6 +413,16 @@ function addSpentPerGameSection(table) {
             loading = false;
         }
     };
+
+    chrome.storage.onChanged.addListener(async (changes, areaName) => {
+        if (areaName !== 'local' || !changes[TRANSACTIONS_DATA_KEY]) return;
+
+        const latestData = await getTransactionData();
+        if (isScanning && !latestData?.isScanning) {
+            loadedGames = null;
+            await load();
+        }
+    });
 
     search.input.addEventListener('input', () => {
         searchQuery = search.input.value.trim().toLocaleLowerCase();
