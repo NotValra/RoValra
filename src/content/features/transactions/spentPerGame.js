@@ -14,7 +14,7 @@ import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { getAssets } from '../../core/assets.js';
 
-const ROW_SELECTOR = 'table.table.summary tr';
+const ROW_SELECTOR = '#transactions-web-app .summary table.summary tr';
 const ROW_MARKER = 'data-rovalra-spent-per-game';
 const INITIAL_GAME_COUNT = 5;
 const GAME_PAGE_SIZE = 5;
@@ -413,11 +413,8 @@ function addSpentPerGameSection(table) {
 
 function processSummary(row) {
     if (!window.location.pathname.startsWith('/transactions')) return;
-    const table = row.closest('table.table.summary');
+    const table = row.closest('#transactions-web-app .summary table.summary');
     if (!table) return;
-
-    const label = row.querySelector('.summary-transaction-label');
-    if (!label?.textContent?.trim().startsWith('Commissions')) return;
     addSpentPerGameSection(table);
 }
 
