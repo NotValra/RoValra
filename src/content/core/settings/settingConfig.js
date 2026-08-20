@@ -852,7 +852,7 @@ export const SETTINGS_CONFIG = {
             },
             unfriendDetectorEnabled: {
                 label: 'Unfriend Detector',
-                beta: 'Currently taking a while to update.',
+                experimental: 'May cause issues',
                 type: 'checkbox',
                 default: false,
                 contributors: ['390309731'],
