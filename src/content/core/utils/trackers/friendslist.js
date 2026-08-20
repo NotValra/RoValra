@@ -3,6 +3,8 @@
 import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 import { ts } from '../../locale/i18n.js';
+import { settings } from '../../settings/getSettings.js';
+import { reportDetectedUnfriends } from './unfriendDetector.js';
 import {
     getMultiProfileInsights,
     getUserProfileData,
@@ -15,6 +17,8 @@ const FRIENDS_DATA_VERSION = 5;
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
 const TRUSTED_FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const UNFRIEND_SNAPSHOT_KEY = 'rovalra_unfriend_detector_snapshot';
+const UNFRIEND_PENDING_KEY = 'rovalra_pending_unfriends';
 
 export function getFriendRequestOriginText(originId) {
     const fromText = ts('friendsSince.originFrom');
@@ -460,36 +464,6 @@ export async function updateFriendsList(userId) {
     }
 }
 
-async function refreshFriendsCountIfNeeded(userId, currentUserData) {
-    const friendsCount = await fetchFriendsCount(userId);
-
-    if (
-        friendsCount === null ||
-        friendsCount !== currentUserData.friendsList.length
-    ) {
-        return true;
-    }
-
-    const storageResult = await new Promise((resolve) =>
-        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
-    );
-    const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
-    allUsersFriendsData[userId] = {
-        ...allUsersFriendsData[userId],
-        friendsCount,
-        lastChecked: Date.now(),
-    };
-
-    await new Promise((resolve) =>
-        chrome.storage.local.set(
-            { [FRIENDS_DATA_KEY]: allUsersFriendsData },
-            resolve,
-        ),
-    );
-
-    return false;
-}
-
 async function updateOnlineStatusOnly(userId, currentFriendsList) {
     try {
         const onlineData = await fetchFriendsOnlineStatus(userId);
@@ -569,6 +543,56 @@ async function updateTrustedFriendsOnly(userId, currentFriendsList) {
     }
 }
 
+async function detectUnfriendEvents(userId, currentFriendRecords) {
+    if (!(await settings.unfriendDetectorEnabled)) return;
+    if (!currentFriendRecords?.length) return;
+
+    const result = await new Promise((resolve) =>
+        chrome.storage.local.get([UNFRIEND_SNAPSHOT_KEY], resolve),
+    );
+    const allSnapshots = result[UNFRIEND_SNAPSHOT_KEY] || {};
+    const previousSnapshot = allSnapshots[userId] || null;
+    const currentIds = new Set(currentFriendRecords.map((friend) => friend.id));
+
+    if (previousSnapshot) {
+        const removedFriends = Object.values(previousSnapshot).filter(
+            (friend) => !currentIds.has(friend.id),
+        );
+        await reportDetectedUnfriends(userId, removedFriends);
+    }
+
+    const pendingResult = await new Promise((resolve) =>
+        chrome.storage.local.get([UNFRIEND_PENDING_KEY], resolve),
+    );
+    const allPending = pendingResult[UNFRIEND_PENDING_KEY] || {};
+    const pending = allPending[userId] || [];
+    const stillUnfriended = pending.filter(
+        (friend) => !currentIds.has(friend.id),
+    );
+    if (stillUnfriended.length !== pending.length) {
+        allPending[userId] = stillUnfriended;
+        await new Promise((resolve) =>
+            chrome.storage.local.set(
+                { [UNFRIEND_PENDING_KEY]: allPending },
+                resolve,
+            ),
+        );
+    }
+
+    const snapshot = {};
+    currentFriendRecords.forEach((friend) => {
+        snapshot[friend.id] = friend;
+    });
+    allSnapshots[userId] = snapshot;
+
+    await new Promise((resolve) =>
+        chrome.storage.local.set(
+            { [UNFRIEND_SNAPSHOT_KEY]: allSnapshots },
+            resolve,
+        ),
+    );
+}
+
 export async function getFriendsList() {
     const userId = await getAuthenticatedUserId();
     if (!userId) return [];
@@ -581,7 +605,9 @@ export async function getFriendsList() {
     const currentUserData = allUsersFriendsData[userId];
 
     if (!currentUserData?.friendsList) {
-        return await updateFriendsList(userId);
+        const friendsList = await updateFriendsList(userId);
+        await detectUnfriendEvents(userId, friendsList);
+        return friendsList;
     }
 
     const now = Date.now();
@@ -596,13 +622,9 @@ export async function getFriendsList() {
         TRUSTED_FRIENDS_CACHE_DURATION;
 
     if (needsFullRefresh) {
-        const friendsChanged = await refreshFriendsCountIfNeeded(
-            userId,
-            currentUserData,
-        );
-        if (friendsChanged) {
-            return await updateFriendsList(userId);
-        }
+        const friendsList = await updateFriendsList(userId);
+        await detectUnfriendEvents(userId, friendsList);
+        return friendsList;
     }
 
     if (needsOnlineRefresh) {
@@ -613,12 +635,15 @@ export async function getFriendsList() {
     }
 
     if (needsTrustedRefresh) {
-        return await updateTrustedFriendsOnly(
+        const friendsList = await updateTrustedFriendsOnly(
             userId,
             currentUserData.friendsList,
         );
+        await detectUnfriendEvents(userId, friendsList);
+        return friendsList;
     }
 
+    await detectUnfriendEvents(userId, currentUserData.friendsList);
     return currentUserData.friendsList;
 }
 
@@ -637,9 +662,23 @@ export async function getCachedFriendsList() {
 }
 
 let onlineStatusInterval = null;
+let initialFriendsRefreshPromise = null;
 
 export function initFriendsListTracking() {
-    getFriendsList();
+    if (!initialFriendsRefreshPromise) {
+        initialFriendsRefreshPromise = (async () => {
+            const userId = await getAuthenticatedUserId();
+            if (!userId) return;
+
+            const friendsList = await updateFriendsList(userId);
+            await detectUnfriendEvents(userId, friendsList);
+        })().catch((error) => {
+            console.error(
+                'RoValra: Failed to refresh friends list on startup',
+                error,
+            );
+        });
+    }
 
     if (!onlineStatusInterval) {
         onlineStatusInterval = setInterval(async () => {
