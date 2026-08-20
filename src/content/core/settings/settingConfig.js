@@ -881,6 +881,16 @@ export const SETTINGS_CONFIG = {
                 label: 'ID Verification Badge',
                 description: [
                     'Shows if a user has verified their ID on their profile.',
+                    'This is added to the "more" tab of the profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            ageVerificationBadgeEnabled: {
+                label: 'Age Checked Badge',
+                description: [
+                    'Shows whether a user has completed Roblox age check on their profile.',
+                    'This is added to the "more" tab of the profile.',
                 ],
                 type: 'checkbox',
                 default: true,

@@ -879,7 +879,10 @@
     },
     "rovalraBadges": {
         "userVerified": "User is ID verified.",
-        "userNotVerified": "User is not ID verified."
+        "userNotVerified": "User is not ID verified.",
+        "userAgeVerified": "User is age checked.",
+        "userNotAgeVerified": "User is not age checked.",
+        "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
     },
     "friendsSince": {
         "friended": "Friended",
@@ -929,13 +932,13 @@
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
     "unfriendDetector": {
-    "titleSingle": "Unfriend Detected",
-    "titlePlural": "Unfriends Detected",
-    "descriptionSingle": "This friend removed you since you last played:",
-    "descriptionPlural": "These {{count}} friends removed you since you last played:",
-    "viewProfile": "View {{name}}'s profile",
-    "dismiss": "Dismiss"
-},
+        "titleSingle": "Unfriend Detected",
+        "titlePlural": "Unfriends Detected",
+        "descriptionSingle": "This friend removed you since you last played:",
+        "descriptionPlural": "These {{count}} friends removed you since you last played:",
+        "viewProfile": "View {{name}}'s profile",
+        "dismiss": "Dismiss"
+    },
     "leaveGroups": {
         "confirmLeave": "Confirm Leave",
         "confirmLeaves": "Confirm Leaves",
