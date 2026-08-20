@@ -1,6 +1,6 @@
 {
   "name": "rovalra",
-  "version": "2.6.5",
+  "version": "2.6.6",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "private": true,
   "scripts": {
@@ -42,10 +42,5 @@
   "lint-staged": {
     "*.js": "eslint --fix",
     "*.{js,json,css,md}": "prettier --write"
-  },
-  "allowScripts": {
-    "@parcel/watcher@2.5.1": true,
-    "@scarf/scarf@1.4.0": true,
-    "esbuild@0.28.1": true
   }
 }

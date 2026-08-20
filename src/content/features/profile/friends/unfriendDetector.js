@@ -7,12 +7,58 @@ import {
 import { ts } from '../../../core/locale/i18n.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { settings } from '../../../core/settings/getSettings.js';
+import { setUnfriendDetectedListener } from '../../../core/utils/trackers/unfriendDetector.js';
+import { callRobloxApiJson } from '../../../core/api';
 
 const PENDING_UNFRIENDS_KEY = 'rovalra_pending_unfriends';
 
 let isShowingOverlay = false;
 let isHandlingQueue = false;
 let listenerAttached = false;
+
+async function resolveMissingNames(unfriendedUsers) {
+    const missing = unfriendedUsers.filter(
+        (u) => !u.displayName && !u.username,
+    );
+    if (!missing.length) return unfriendedUsers;
+
+    const resolved = new Map();
+
+    await Promise.all(
+        missing.map(async (user) => {
+            try {
+                const accountData = await callRobloxApiJson({
+                    subdomain: 'users',
+                    endpoint: `/v1/users/${user.id}`,
+                    useBackground: true,
+                });
+                if (accountData?.name || accountData?.displayName) {
+                    resolved.set(Number(user.id), {
+                        username: accountData.name || null,
+                        displayName: accountData.displayName || null,
+                    });
+                }
+            } catch (error) {
+                console.error(
+                    'RoValra: Failed to resolve missing unfriend detector name',
+                    error,
+                );
+            }
+        }),
+    );
+
+    if (!resolved.size) return unfriendedUsers;
+
+    return unfriendedUsers.map((u) => {
+        const found = resolved.get(Number(u.id));
+        if (!found) return u;
+        return {
+            ...u,
+            username: u.username || found.username,
+            displayName: u.displayName || found.displayName,
+        };
+    });
+}
 
 async function handlePendingQueue() {
     if (isHandlingQueue) return;
@@ -56,6 +102,8 @@ async function consumePendingUnfriends(userId) {
 async function showUnfriendDetectedOverlay(unfriendedUsers) {
     if (isShowingOverlay || !unfriendedUsers.length) return;
     isShowingOverlay = true;
+
+    unfriendedUsers = await resolveMissingNames(unfriendedUsers);
 
     const bodyContent = document.createElement('div');
     bodyContent.style.padding = '16px 0';
@@ -183,6 +231,9 @@ async function showUnfriendDetectedOverlay(unfriendedUsers) {
 
 export async function init() {
     if (!(await settings.unfriendDetectorEnabled)) return;
+    setUnfriendDetectedListener((removedFriends) => {
+        showUnfriendDetectedOverlay(removedFriends);
+    });
 
     await handlePendingQueue();
 

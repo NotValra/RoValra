@@ -7,6 +7,12 @@ const SNAPSHOT_KEY = 'rovalra_unfriend_detector_snapshot';
 const PENDING_UNFRIENDS_KEY = 'rovalra_pending_unfriends';
 const MAX_PENDING_UNFRIENDS_PER_USER = 200;
 
+let onUnfriendsDetected = null;
+
+export function setUnfriendDetectedListener(listener) {
+    onUnfriendsDetected = listener;
+}
+
 async function fetchFriendsPageFresh(userId, cursor = null) {
     try {
         let endpoint = `/v1/users/${userId}/friends/find?limit=50`;
@@ -164,6 +170,17 @@ async function diffAgainstSnapshot(userId, currentFriendRecords) {
 
     if (removedFriends.length > 0) {
         await queueUnfriendedUsers(userId, removedFriends);
+
+        if (typeof onUnfriendsDetected === 'function') {
+            try {
+                onUnfriendsDetected(removedFriends);
+            } catch (error) {
+                console.error(
+                    'RoValra: Unfriend Detector listener threw an error',
+                    error,
+                );
+            }
+        }
     }
 
     await reconcilePendingWithCurrentFriends(userId, currentFriendRecords);
