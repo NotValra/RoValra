@@ -1518,6 +1518,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            spentPerCreatorEnabled: {
+                label: 'Spent Per Creator',
+                description: [
+                    'Shows how much Robux you have spent on each user and group on the transactions page.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             totalearnedEnabled: {
                 label: 'Total Earned',
                 description: [

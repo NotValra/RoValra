@@ -256,7 +256,11 @@ async function renderGames(
 }
 
 function addSpentPerGameSection(table) {
-    if (table.nextElementSibling?.hasAttribute(ROW_MARKER)) return;
+    if (
+        table.parentElement?.querySelector(
+            `section[${ROW_MARKER}]`,
+        )
+    ) return;
 
     const section = document.createElement('section');
     section.setAttribute(ROW_MARKER, 'true');

@@ -394,6 +394,22 @@
         "scanInProgress": "Transaction scan in progress. This may take a while.",
         "loadError": "Unable to load game spending."
     },
+    "spentPerCreator": {
+        "title": "Total Spent per Creator",
+        "disclaimer": "This can be inaccurate due to Roblox limitations",
+        "mostSpent": "Most spent",
+        "mostPurchases": "Most purchases",
+        "noPurchases": "No creator purchases found.",
+        "unknownCreator": "Unknown creator",
+        "includeGameCreators": "Include game creators",
+        "singlePurchase": "1 purchase",
+        "multiplePurchases": "{{count}} purchases",
+        "loadMore": "Load more ({{remaining}} remaining)",
+        "searchPlaceholder": "Search creators",
+        "loading": "Loading creator spending…",
+        "scanInProgress": "Transaction scan in progress. This may take a while.",
+        "loadError": "Unable to load creator spending."
+    },
     "settings": {
         "tabs": {
             "info": "Info",

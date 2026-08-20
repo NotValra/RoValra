@@ -97,6 +97,7 @@ import { init as initUnderReviewPill } from './features/games/underReviewPill.js
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initSpentPerGame } from './features/transactions/spentPerGame.js';
+import { init as initSpentPerCreator } from './features/transactions/spentPerCreator.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
@@ -415,6 +416,7 @@ const featureRoutes = [
         features: [
             initTotalSpent,
             initSpentPerGame,
+            initSpentPerCreator,
             initPendingRobuxTrans,
             initTotalEarned,
         ],
