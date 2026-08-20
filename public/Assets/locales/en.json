@@ -1167,10 +1167,10 @@
     },
     "profileCustomization": {
         "pill": "Customization",
-    "pillTooltip": "Switch your avatar borders and frames.",
-    "title": "Profile Customization",
-    "tabBorders": "Avatar Borders",
-    "tabFrames": "Frames",
+        "pillTooltip": "Switch your avatar borders and frames.",
+        "title": "Profile Customization",
+        "tabBorders": "Avatar Borders",
+        "tabFrames": "Frames",
         "currentPreview": "Current Selection Preview",
         "unequip": "Unequip",
         "unequipTooltip": "Click to unequip this border",
@@ -1187,10 +1187,10 @@
         "animated": "ANIMATED",
         "free": "Free",
         "noBorders": "No borders found.",
-    "noBordersInTab": "No borders found in this tab.",
-    "noFrames": "No frames found.",
-    "noFramesInTab": "No frames found in this tab.",
-    "none": "None",
+        "noBordersInTab": "No borders found in this tab.",
+        "noFrames": "No frames found.",
+        "noFramesInTab": "No frames found in this tab.",
+        "none": "None",
         "failedToLoad": "Failed to load your borders. Please try again later."
     },
     "profileFrame": {
@@ -1237,6 +1237,7 @@
         "ariaLabel": "Pronouns: {{pronouns}}"
     },
     "profile": {
+        "socialLinks": "Social links",
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
         "openClient": "Open Client"

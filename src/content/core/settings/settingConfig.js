@@ -657,6 +657,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            socialLinksEnabled: {
+                label: 'Profile Social Links',
+                description: [
+                    'Shows social links below the profile description.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             profileCustomizationEnabled: {
                 label: 'Profile Customization',
                 description: [

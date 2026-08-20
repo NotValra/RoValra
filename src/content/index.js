@@ -156,6 +156,7 @@ import { init as initUsernameColor } from './features/profile/header/usernameCol
 import { init as initDisplayNameGradient } from './features/profile/header/displayNameGradient.js';
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
+import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 
 // Settings
@@ -390,6 +391,7 @@ const featureRoutes = [
             initAvatarDownload,
             initChatEligibilityTooltip,
             initProfileCustomization,
+            initSocialLinks,
             initSendRobuxProfileButton,
         ],
     },
