@@ -253,6 +253,7 @@ function addSpentPerGameSection(table) {
     section.className = 'rovalra-spent-per-game-summary';
     section.style.marginTop = '16px';
     section.style.paddingTop = '16px';
+    section.style.paddingBottom = '16px';
     section.style.borderTop =
         '1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.12))';
 
