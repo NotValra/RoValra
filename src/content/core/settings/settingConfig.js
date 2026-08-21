@@ -1220,6 +1220,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['2830488781'],
+                locked: 'Caused issues with other extensions',
+                isPermanent: false,
             },
             HideAddFriendsButton: {
                 label: 'Hide Add Friends Button',

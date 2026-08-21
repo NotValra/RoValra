@@ -13,13 +13,6 @@
         },
         {
             "matches": ["*://*.roblox.com/*"],
-            "js": ["friendsSecondRowHijack.js"],
-            "run_at": "document_start",
-            "world": "MAIN",
-            "all_frames": false
-        },
-        {
-            "matches": ["*://*.roblox.com/*"],
             "js": ["public/Assets/data/serverid_extractor.js"],
             "run_at": "document_start",
             "world": "MAIN"
@@ -66,7 +59,6 @@
                 "Assets/data/serverid_extractor.js",
                 "data/*",
                 "intercept.js",
-                "friendsSecondRowHijack.js",
                 "assets/*",
                 "css/*"
             ],
