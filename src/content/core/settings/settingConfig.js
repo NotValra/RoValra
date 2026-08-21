@@ -615,6 +615,32 @@ export const SETTINGS_CONFIG = {
                 default: null,
                 contributors: ['10646979010'],
             },
+            displayAppThemeUserProfile: {
+                label: 'Display app theme user profiles',
+                description: [
+                    'Displays users app theme on their profile!',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    displayAppThemeOwnProfile: {
+                        label: 'Display app theme your on own profile',
+                        description: [
+                            'Displays your app theme on your profile to other users!',
+                            'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
+                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.'
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator Tier 1 is required to display your app theme on your own profile',
+                        contributors: ['650766686'],
+                        dependsOn: ['FreeRobloxPlusThemesEnabledv2'],
+                    },
+                },
+                contributors: ['650766686'],
+            },
             profileNotesEnabled: {
                 label: 'Profile Notes',
                 description: [
@@ -1708,6 +1734,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '4866259395'],
+                dependedBy: ['displayAppThemeOwnProfile'],
             },
             currencyTransferEnabled: {
                 label: 'Send Robux',

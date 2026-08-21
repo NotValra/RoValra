@@ -2091,9 +2091,9 @@ export function initializeSettingsEventListeners() {
 
         if (target.matches('input[type="checkbox"]')) {
             value = target.checked;
+            const settingConfig = findSettingConfig(settingName);
 
             if (value) {
-                const settingConfig = findSettingConfig(settingName);
 
                 if (
                     target.dataset.featureStatusPromptAccepted !== 'true' &&
@@ -2180,7 +2180,6 @@ export function initializeSettingsEventListeners() {
                                 const dependedElement = document.querySelector(
                                     `#${dependedSettingName}`,
                                 );
-                                console.log(dependedElement);
                                 if (!dependedElement?.checked) {
                                     dependedElement.checked = true;
                                 }
@@ -2194,6 +2193,7 @@ export function initializeSettingsEventListeners() {
                         },
                     );
                 }
+            } else {
                 if (settingConfig?.dependedBy) {
                     settingConfig.dependedBy.forEach(
                         (dependedSettingName) => {
@@ -2203,7 +2203,6 @@ export function initializeSettingsEventListeners() {
                                 const dependedElement = document.querySelector(
                                     `#${dependedSettingName}`,
                                 );
-                                console.log(dependedElement);
                                 if (dependedElement?.checked) {
                                     dependedElement.checked = false;
                                 }
