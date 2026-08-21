@@ -2170,6 +2170,53 @@ export function initializeSettingsEventListeners() {
                         },
                     );
                 }
+
+                if (settingConfig?.dependsOn) {
+                    settingConfig.dependsOn.forEach(
+                        (dependedSettingName) => {
+                            if (
+                                findSettingConfig(dependedSettingName) != null
+                            ) {
+                                const dependedElement = document.querySelector(
+                                    `#${dependedSettingName}`,
+                                );
+                                console.log(dependedElement);
+                                if (!dependedElement?.checked) {
+                                    dependedElement.checked = true;
+                                }
+                                savePromises.push(
+                                    handleSaveSettings(
+                                        dependedSettingName,
+                                        true,
+                                    ),
+                                );
+                            }
+                        },
+                    );
+                }
+                if (settingConfig?.dependedBy) {
+                    settingConfig.dependedBy.forEach(
+                        (dependedSettingName) => {
+                            if (
+                                findSettingConfig(dependedSettingName) != null
+                            ) {
+                                const dependedElement = document.querySelector(
+                                    `#${dependedSettingName}`,
+                                );
+                                console.log(dependedElement);
+                                if (dependedElement?.checked) {
+                                    dependedElement.checked = false;
+                                }
+                                savePromises.push(
+                                    handleSaveSettings(
+                                        dependedSettingName,
+                                        false,
+                                    ),
+                                );
+                            }
+                        },
+                    );
+                }
             }
 
             savePromises.push(handleSaveSettings(settingName, value));
