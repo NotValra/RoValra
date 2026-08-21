@@ -94,6 +94,7 @@ import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
 import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
+import { init as initPrivateServerOccupancySorting } from './features/games/privateServerOccupancySorting.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initSpentPerGame } from './features/transactions/spentPerGame.js';
@@ -327,6 +328,7 @@ const featureRoutes = [
             initPlusPrivateServerTooltip,
             initCatalogExplorer,
             initUnderReviewPill,
+            initPrivateServerOccupancySorting,
         ],
     },
     // private games and game pages

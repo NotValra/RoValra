@@ -574,6 +574,25 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            PrivateServerOccupancySorting: {
+                label: 'Private Server List Occupancy Sorting',
+                description: [
+                    'This sorts the private server list by how many players are in it, I.e. Private servers with more players are shown before others.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['345806181'],
+                childSettings: {
+                    AllowHoistingAboveOwnPrivateServers: {
+                        label: 'Allow Hoisting Above Own Private Servers',
+                        description: [
+                            'Usually you\'d expect your own private servers to always be at the top, but if not, enabling this option would allow other private servers to appear above your own.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    }
+                },
+            },
         },
     },
     Profile: {
