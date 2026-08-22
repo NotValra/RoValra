@@ -347,6 +347,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                locked: 'Roblox patched this feature.',
+                isPermanent: true,
             },
             botdataEnabled: {
                 label: 'Bot Data',
