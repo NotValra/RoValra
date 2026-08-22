@@ -40,6 +40,7 @@
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
     let accurateContinueEnabled = true;
+    let privateServerOccupancySortingEnabled = false;
     let accurateContinueGames = [];
     let homeLayoutOrder = [];
     let homeLayoutHidden = [];
@@ -169,6 +170,8 @@
         homeLayoutHidden = JSON.parse(
             sessionStorage.getItem('rovalra_homeLayoutHidden') || '[]',
         );
+        privateServerOccupancySortingEnabled =
+            sessionStorage.getItem('rovalra_privateserveroccupancysorting') === 'true';
     } catch (e) {}
 
     document.addEventListener('rovalra-streamer-mode', (e) => {
@@ -213,6 +216,10 @@
 
     document.addEventListener('rovalra-home-extra-sorts', (e) => {
         homeExtraSorts = Array.isArray(e.detail?.sorts) ? e.detail.sorts : [];
+    });
+
+    document.addEventListener('rovalra-private-server-occupancy-sorting', (e) => {
+        privateServerOccupancySortingEnabled = e.detail === true;
     });
 
     function waitForHomeLayoutState() {
@@ -680,12 +687,64 @@
         }
     }
 
+    function privateServerOccupancySortingResponseTransformer(url) {
+        let resolve, reject;
+        let promise = new Promise((_resolve, _reject) => {
+            resolve = _resolve;
+            reject = _reject;
+        });
+
+        try {
+            let nonce = new Uint8Array(16);
+            crypto.getRandomValues(nonce);
+            nonce = nonce.toHex();
+
+            let responseEventName = `rovalra-nonce-${nonce}`;
+
+            function handleResponse(e) {
+                document.removeEventListener(responseEventName, handleResponse);
+                e.detail.success ? resolve(e.detail.data) : reject(e.detail.data);
+            }
+
+            document.addEventListener(responseEventName, handleResponse);
+
+            document.dispatchEvent(
+                new CustomEvent(
+                    'rovalra-private-server-occupancy-sorting_request-transform', {
+                        detail: {
+                            url: url,
+                            nonce: nonce,
+                        },
+                    },
+                ),
+            );
+        } catch (e) {
+            reject(e);
+        }
+
+        return promise;
+    }
+
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
         const [url] = args;
         const requestUrl = getRequestUrl(url);
 
         args = await rewriteThumbnailFetchArgs(args, requestUrl);
+
+        if (
+            requestUrl.includes(GAME_SERVERS_API_URL) &&
+            /\/v\d+\/games\/\d+\/private-servers/.test(requestUrl)
+        ) {
+            try {
+                return responseWithJson(
+                    new Response(),
+                    await privateServerOccupancySortingResponseTransformer(
+                        requestUrl,
+                    ),
+                );
+            } catch (e) {}
+        }
 
         let response = await originalFetch(...args);
 
@@ -971,10 +1030,19 @@
             this._rovalra_account_settings_ui = true;
         }
 
+        if (
+            privateServerOccupancySortingEnabled &&
+            typeof url === 'string' &&
+            url.includes(GAME_SERVERS_API_URL) &&
+            /\/v\d+\/games\/\d+\/private-servers/.test(url)
+        ) {
+            this._rovalra_sort_private_servers = true;
+        }
+
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
 
-    XMLHttpRequest.prototype.send = function (...args) {
+    XMLHttpRequest.prototype.send = async function (...args) {
         const xhr = this;
         if (
             disableThumbnailBackground &&
@@ -992,7 +1060,8 @@
             xhr._rovalra_spoof_sessions ||
             xhr._rovalra_home_layout ||
             xhr._rovalra_profile_api ||
-            xhr._rovalra_account_settings_ui
+            xhr._rovalra_account_settings_ui ||
+            xhr._rovalra_sort_private_servers
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
@@ -1184,6 +1253,51 @@
             waitForHomeLayoutState().then(() => {
                 originalXhrSend.apply(xhr, args);
             });
+            return undefined;
+        }
+
+        if (xhr._rovalra_sort_private_servers) {
+            // This might not be the most perfect way, but it works.
+            try {
+                if (
+                    typeof xhr._rovalra_url === 'string'
+                ) {
+                    let response =
+                    await privateServerOccupancySortingResponseTransformer(
+                        xhr._rovalra_url,
+                    );
+
+                    let setProperty = (prop, value) => Object.defineProperty(
+                        xhr,
+                        prop,
+                        {
+                            writable: true,
+                            configurable: true,
+                            value: value,
+                        },
+                    );
+
+                    setProperty('readyState', XMLHttpRequest.DONE);
+                    setProperty('status', 200);
+                    // We don't define `response` since that's previously handled.
+                    setProperty('responseText', response);
+                }
+
+                if (xhr.onreadystatechange) {
+                    try {
+                        xhr.onreadystatechange.apply(xhr, args);
+                    } catch (e) {}
+                }
+
+                if (xhr.onload) {
+                    try {
+                        xhr.onload.call(xhr);
+                    } catch (e) {}
+                }
+            } catch (e) {
+                return originalXhrSend.apply(this, args);
+            }
+
             return undefined;
         }
 
