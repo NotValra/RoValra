@@ -322,6 +322,7 @@ export async function getUniversesVotes(universeIds) {
     }
 }
 
+// RIP didnt know this was not intentional, #ShouldHaveReportedToHackerone
 export async function getUniverseEligibilities(universeIds) {
     if (!Array.isArray(universeIds) || universeIds.length === 0) return {};
 
