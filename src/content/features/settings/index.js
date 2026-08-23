@@ -1,5 +1,6 @@
 import { getAssets } from '../../core/assets.js';
 import { getRegionData, loadDatacenterMap } from '../../core/regions.js';
+import { init as initBulkUnblock } from './bulkUnblock.js';
 import { observeElement, observeIntersection } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
 import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
@@ -4431,6 +4432,7 @@ async function initializeExtension() {
     addPopoverButton();
 
     initializeSettingsEventListeners();
+    initBulkUnblock();
 
     document.addEventListener('roblox-dom-changed', handleGlobalDomChange);
 

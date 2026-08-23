@@ -2394,7 +2394,27 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-
+            bulkUnblockEnabled: {
+                label: 'Bulk Unblock',
+                description: [
+                    'Allows you to select and unblock multiple blocked users at once.',
+                    'You will be asked to confirm before any users are unblocked.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+                childSettings: {
+                    openBulkUnblockManager: {
+                        label: 'Manage Blocked Users',
+                        description: [
+                            'View your blocked users and select multiple users to unblock.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Open Manager',
+                        event: 'rovalra:openBulkUnblock',
+                    },
+                },
+            },
             spoofAsOffline: {
                 label: 'Spoof status as Offline',
                 description: [
