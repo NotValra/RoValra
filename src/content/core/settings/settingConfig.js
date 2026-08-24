@@ -2632,6 +2632,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                locked: 'Temporarily disabled while the API Docs feature is being rebuilt.',
+                isPermanent: false,
                 contributors: ['4866259395', '447170745'],
                 childSettings: {
                     apiDocsSidebarLinkEnabled: {
