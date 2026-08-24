@@ -27,7 +27,8 @@ export const CONTRIBUTOR_USER_IDS = [
     '170038374', // syra (concept artist)
     '760897332', // ceyexm
     '2830488781', //idhglua
-    '390309731', // AxnxDev 
+    '390309731', // AxnxDev
+    '4632962611' // coderpixel
 ];
 
 export const TESTER_USER_IDS = [

@@ -161,6 +161,7 @@ import { init as initChatEligibilityTooltip } from './features/profile/header/ch
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
+import { init as initFriendStatusSort } from './features/profile/friends/statusSort.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -384,6 +385,7 @@ const featureRoutes = [
             initAgeVerificationBadge,
             initFriendsSince,
             initUnfriend,
+            initFriendStatusSort,
             initLastPlayed,
             initProfilePronouns,
             initProfileNotes,
