@@ -887,6 +887,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ["477516666", "447170745"]
             },
             ageVerificationBadgeEnabled: {
                 label: 'Age Checked Badge',
