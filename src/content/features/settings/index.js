@@ -826,6 +826,287 @@ function createArtistCreditSection(artistId) {
     return artistWrapper;
 }
 
+
+async function openAvatarBorderUrl(gamepassId) {
+    let canPlayUniverse = false;
+    let canPlayUniverseReason = 'Unknown';
+
+    async function openPopup(url) {
+        try {
+            const popup = window.open('about:blank', '_blank');
+            if (popup) popup.opener = null;
+
+            if (popup) {
+                popup.location.href = url;
+            } else {
+                window.location.href = url;
+            }
+        } catch (error) {
+            console.warn('RoValra: Failed to open gamepass URL', error);
+            window.location.href = url;
+        }
+    }
+
+    async function overlayUnblockGame() {
+        const loadingOverlay = createOverlay({
+            title: 'Sending Request',
+            bodyContent: 'Please wait...',
+            showLogo: true,
+        });
+        try {
+            await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/child-requests-api/v1/send-request-to-all-parents',
+                method: 'POST',
+                body: {
+                    requestType: 'ManageExperience',
+                    requestDetails: {
+                        universeId: String(DONATOR_PERKS_UNIVERSE_ID),
+                        experienceManagementAction: 'Approve',
+                    },
+                },
+            });
+
+            const universeDetailsRequest = await callRobloxApi({
+                subdomain: 'games',
+                endpoint: '/v1/games?universeIds=' + DONATOR_PERKS_UNIVERSE_ID,
+                method: 'GET',
+            });
+            const universeDetails = (await universeDetailsRequest.json())
+                .data[0];
+
+            loadingOverlay.close();
+
+            const requestSentOverlay = createOverlay({
+                title: 'Request Sent!',
+                bodyContent:
+                    'Your request was sent to your parents and guardians via email.' +
+                    (universeDetailsRequest.ok
+                        ? '<br />The experience name is: <b>' +
+                          DOMPurify.sanitize(universeDetails.name) +
+                          '</b>'
+                        : ''),
+                actions: [
+                    createButton('OK', 'secondary', {
+                        onClick: () => {
+                            requestSentOverlay.close();
+                        },
+                    }),
+                ],
+                showLogo: true,
+            });
+
+            requestedDonatorGameUnblockChecked = false;
+        } catch (error) {
+            console.warn('[RoValra Unblock Request] Error:', error);
+            loadingOverlay.close();
+            const requestFailedOverlay = createOverlay({
+                title: 'Request Failed to Send',
+                bodyContent:
+                    'Your request failed to send for an unknown reason. Maybe you have been ratelimited. Check console for more details.',
+                actions: [
+                    createButton('OK', 'secondary', {
+                        onClick: () => {
+                            requestFailedOverlay.close();
+                        },
+                    }),
+                ],
+                showLogo: true,
+            });
+        }
+    }
+
+    async function overlayCancelRequest(
+        consentId = donatorGameUnblockConsentId,
+    ) {
+        const loadingOverlay = createOverlay({
+            title: 'Canceling Request',
+            bodyContent: 'Please wait...',
+            showLogo: true,
+        });
+        try {
+            await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/child-requests-api/v1/cancel-consent-request',
+                method: 'POST',
+                body: {
+                    consentId,
+                },
+            });
+
+            loadingOverlay.close();
+
+            const cancelRequestSentOverlay = createOverlay({
+                title: 'Canceled Request',
+                bodyContent:
+                    'Your request to your parents and guardians were canceled',
+                actions: [
+                    createButton('OK', 'secondary', {
+                        onClick: () => {
+                            cancelRequestSentOverlay.close();
+                        },
+                    }),
+                ],
+                showLogo: true,
+            });
+
+            requestedDonatorGameUnblockChecked = false;
+        } catch {
+            loadingOverlay.close();
+            const cancelRequestFailedOverlay = createOverlay({
+                title: 'Request Cancellation Failed',
+                bodyContent:
+                    'Cancellation for your unblock request failed. Maybe you have been ratelimited. Check console for more details.',
+                actions: [
+                    createButton('OK', 'secondary', {
+                        onClick: () => {
+                            cancelRequestFailedOverlay.close();
+                        },
+                    }),
+                ],
+                showLogo: true,
+            });
+        }
+    }
+
+    try {
+        const canPlayUniverseRequest = (
+            await callRobloxApiJson({
+                subdomain: 'games',
+                endpoint:
+                    '/v1/games/multiget-playability-status?universeIds=' +
+                    DONATOR_PERKS_UNIVERSE_ID,
+                method: 'GET',
+            })
+        )[0];
+        canPlayUniverse = canPlayUniverseRequest.isPlayable;
+        canPlayUniverseReason = canPlayUniverseRequest.playabilityStatus;
+    } catch (error) {
+        console.warn(
+            'RoValra: Failed to get playability status of donation universe',
+            error,
+        );
+    }
+
+    try {
+        if (
+            !parentAttchedToAccountChecked &&
+            !parentAttchedToAccount &&
+            !canPlayUniverse &&
+            canPlayUniverseReason ==
+                'ContextualPlayabilityRequireParentApproval'
+        ) {
+            const approveExperienceRecourse = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint:
+                    '/access-management/v1/upsell-feature-access?featureName=CanApproveExperience&extraParameters=W10=',
+                method: 'GET',
+            });
+            parentAttchedToAccountChecked = true;
+            parentAttchedToAccount =
+                approveExperienceRecourse.recourse.includes('ParentConsent');
+        }
+    } catch (error) {
+        console.warn(
+            'RoValra: Failed to see if there were any parents linked to account for game unblock overlay',
+            error,
+        );
+    }
+
+    try {
+        if (parentAttchedToAccount && !requestedDonatorGameUnblockChecked) {
+            const consentsPending = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint:
+                    '/parental-controls-api/v1/parental-controls/consents?consentStatus=Pending&childUserId=' +
+                    (await getAuthenticatedUserId()),
+                method: 'GET',
+            });
+
+            requestedDonatorGameUnblock = consentsPending.consents.some(
+                (consent) =>
+                    consent.consentType === 'ManageExperience' &&
+                    consent.consentData.experienceManagementAction ===
+                        'Approve' &&
+                    consent.consentData.universeId ===
+                        String(DONATOR_PERKS_UNIVERSE_ID),
+            );
+
+            requestedDonatorGameUnblockChecked = true;
+
+            if (requestedDonatorGameUnblock) {
+                donatorGameUnblockConsentId = consentsPending.consents.find(
+                    (consent) =>
+                        consent.consentType === 'ManageExperience' &&
+                        consent.consentData.experienceManagementAction ===
+                            'Approve' &&
+                        consent.consentData.universeId ===
+                            String(DONATOR_PERKS_UNIVERSE_ID),
+                ).id;
+            } else donatorGameUnblockConsentId = 0;
+        }
+    } catch (error) {
+        console.warn('RoValra: Failed to get parent requests of a user', error);
+    }
+
+    if (
+        canPlayUniverse == false &&
+        canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval' &&
+        parentAttchedToAccount
+    ) {
+        showConfirmationPrompt({
+            title: 'Parent Action Needed',
+            message:
+                'In order to buy avatar borders, you need parent permission.',
+            confirmText: 'Send Unblock Request',
+            confirmType: 'primary',
+            cancelText: 'Cancel',
+            cancelType: 'secondary',
+            onConfirm: !requestedDonatorGameUnblock
+                ? overlayUnblockGame
+                : () => {
+                      const alreadyRequestedOverlay = createOverlay({
+                          title: 'Already Requested',
+                          bodyContent:
+                              'You already requested the experience silly!',
+                          actions: [
+                              createButton('Cancel', 'alert', {
+                                  onClick: () => {
+                                      alreadyRequestedOverlay.close();
+                                      overlayCancelRequest();
+                                  },
+                              }),
+                              createButton('Okay', 'primary', {
+                                  onClick: () => {
+                                      alreadyRequestedOverlay.close();
+                                  },
+                              }),
+                          ],
+                          showLogo: true,
+                      });
+                  },
+            onCancel: () => {},
+            closeBtnCallsCancel: true,
+        });
+    } else if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval') {
+        const needsParentOverlay = createOverlay({
+            title: 'You cannot use Avatar Borders',
+            bodyContent:
+                'Roblox requires you to get permission from a parent but you do not have any parent linked to your account. If you want to use avatar borders you will need to link a parent account and request to unblock the experience.',
+            actions: [
+                createButton('Okay', 'secondary', {
+                    onClick: () => {
+                        needsParentOverlay.close();
+                    },
+                }),
+            ],
+            showLogo: true,
+        });
+    } else {
+        openPopup(`https://www.roblox.com/game-pass/${gamepassId}`);
+    }
+}
+
 async function openBorderOverlay(
     variant,
     otherVariant,
@@ -1015,11 +1296,10 @@ async function openBorderOverlay(
                 actionBtn.textContent = 'View Gamepass';
             }
         })();
-        actionBtn.onclick = () =>
-            window.open(
-                `https://www.roblox.com/game-pass/${effectiveGamepassId}`,
-                '_blank',
-            );
+        actionBtn.onclick = () => {
+            openAvatarBorderUrl(effectiveGamepassId)
+            close();
+        }
     } else {
         actionBtn.textContent = 'Unavailable';
         actionBtn.disabled = true;
