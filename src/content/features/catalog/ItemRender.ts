@@ -14,10 +14,9 @@ import {
     RBXRendererScene,
     Vector3,
     Vec2,
+    CACHE as RENDERER_CACHE,
 } from 'roavatar-renderer';
 import { callRobloxApiJson } from '../../core/api.js';
-import { getUserAvatar } from '../../core/apis/avatar.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
@@ -26,14 +25,11 @@ import { isDarkMode } from '../../core/theme.js';
 import { ts } from '../../core/locale/i18n.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
-import { backgroundRendererRequests } from '../../core/utils/renderer.js';
+import { backgroundRendererRequests, getItemCardColor, getMainColor, setSceneColor } from '../../core/utils/renderer.js';
 
 const assets = getAssets();
 
 //RENDERER FLAGS
-FLAGS.ENABLE_API_MESH_CACHE = true;
-FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
 FLAGS.ONLINE_ASSETS = true;
 FLAGS.AUDIO_ENABLED = false;
 
@@ -457,6 +453,7 @@ async function applyItemRenderEnvironmentBackground(
         mainScene.scene.background = new THREE.Color(
             RBXRenderer.backgroundColorHex,
         );
+        setSceneColor(mainScene, getMainColor());
     } else if (!hasSkybox) {
         mainScene.scene.background = null;
     }
@@ -1103,6 +1100,17 @@ async function startRenderer() {
     if (startedRenderer) return true;
     startedRenderer = true;
 
+    //flags (these are set to true since the avatar is frequently changed)
+    FLAGS.ENABLE_API_MESH_CACHE = true;
+    FLAGS.ENABLE_API_RBX_CACHE = true;
+
+    //cache limits (i doubt this actually does much at all, maybe we save like 10mb...)
+    RENDERER_CACHE.Mesh.maxEntries = 150;
+    RENDERER_CACHE.AssetBuffer.maxEntries = 150;
+    RENDERER_CACHE.IsLayered.maxEntries = 100;
+    RENDERER_CACHE.ItemDetails.maxEntries = 50;
+    RENDERER_CACHE.ItemOwned.maxEntries = 50;
+
     const success = await RBXRenderer.fullSetup(true, true, false);
     if (!success) return false;
 
@@ -1614,6 +1622,8 @@ async function asyncInit() {
                     currentHoveredItemLink = itemLinkElement.href;
                     currentHoveredItemType = undefined;
 
+                    setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainer))
+
                     updateHoveredItemTypeFromThumbnail(
                         itemThumbnailImageContainer,
                     );
@@ -1671,6 +1681,8 @@ async function asyncInit() {
                             itemThumbContainerContainer;
                         currentHoveredItemLink = itemLinkElement.href;
                         currentHoveredItemType = undefined;
+
+                        setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainerContainer))
 
                         updateHoveredItemTypeFromThumbnail(
                             itemThumbnailImageContainer,
