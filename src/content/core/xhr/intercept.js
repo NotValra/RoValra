@@ -19,8 +19,6 @@ const LayeredAssetTypes = [
     70,
     71,
     72,
-    76,
-    77,
     41,
 ];
 
