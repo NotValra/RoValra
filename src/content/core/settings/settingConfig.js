@@ -1793,6 +1793,15 @@ export const SETTINGS_CONFIG = {
                     'rovalra_sidebar_layout_hidden',
                 ],
             },
+            voiceBanIndicatorEnabled: {
+                label: 'Voice Ban Indicator',
+                description: [
+                    'Shows your current Roblox voice suspension and remaining time in the sidebar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4632962611'],
+            },
             topbarLayoutEnabled: {
                 label: 'Topbar Layout',
                 description: [

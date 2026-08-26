@@ -1,0 +1,95 @@
+.rovalra-voice-ban-indicator {
+    list-style: none;
+    margin: 4px 0 8px;
+    padding: 0 8px;
+}
+
+.rovalra-voice-ban-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.rovalra-voice-ban-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    color: #ef4444;
+}
+
+.rovalra-voice-ban-icon-svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.rovalra-voice-ban-content {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rovalra-voice-ban-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.rovalra-voice-ban-title {
+    overflow: hidden;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-voice-ban-badge {
+    flex-shrink: 0;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.rovalra-voice-ban-timer {
+    overflow: hidden;
+    color: var(--color-content-default, #bdbebe);
+    font-size: 11.5px;
+    opacity: 0.85;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.left-nav[data-rovalra-sidebar-collapsed='true']
+    .rovalra-voice-ban-indicator {
+    padding: 0 6px;
+}
+
+.left-nav[data-rovalra-sidebar-collapsed='true']
+    .rovalra-voice-ban-card {
+    justify-content: center;
+    padding: 8px;
+}
+
+.left-nav[data-rovalra-sidebar-collapsed='true']
+    .rovalra-voice-ban-content {
+    display: none;
+}
