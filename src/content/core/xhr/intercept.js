@@ -1,3 +1,29 @@
+const AccessoryAssetTypes = [
+    8,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+];
+
+const LayeredAssetTypes = [
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    76,
+    77,
+    41,
+];
+
 (function () {
     'use strict';
 
@@ -1195,6 +1221,7 @@
     document.addEventListener('rovalra-multi-equip', (e) => {
         if (e.detail) {
             if (typeof e.detail.enabled === 'boolean') {
+                window.rovalraMultiEquipEnabled = e.detail.enabled;
                 multiAccessoryEnabled = e.detail.enabled;
             }
             if (Array.isArray(e.detail.accessories)) {
@@ -1315,6 +1342,85 @@
                     }
                 },
             });
+        }
+
+        const customEquipAsset = (...args) => {
+            const [assetToAdd, assetArr] = args
+            let accessoryCount = 0
+            let layeredCount = 0
+
+            const assetToAddIsAccessory = AccessoryAssetTypes.includes(assetToAdd.assetType.id)
+            const assetToAddIsLayered = LayeredAssetTypes.includes(assetToAdd.assetType.id)
+
+            const newAssetArr = []
+
+            for (const asset of assetArr.toReversed()) {
+                let canAdd = true
+
+                //enforce accessory limit (10)
+                if (AccessoryAssetTypes.includes(asset.assetType.id)) {
+                    accessoryCount++
+                    if (accessoryCount >= 9 && assetToAddIsAccessory) canAdd = false
+                }
+
+                //enforce layered limit (10, also includes hair)
+                if (LayeredAssetTypes.includes(asset.assetType.id)) {
+                    layeredCount++
+                    if (layeredCount >= 9 && assetToAddIsLayered) canAdd = false
+                }
+
+                //enforce limit of items you can only equip one of (although this never happens because then we dont hijack)
+                if (!assetToAddIsAccessory && !assetToAddIsLayered && assetToAdd.assetType.id === asset.assetType.id) {
+                    canAdd = false
+                }
+
+                if (canAdd) newAssetArr.push(asset)
+            }
+
+            newAssetArr.reverse()
+            newAssetArr.push(assetToAdd)
+
+            return newAssetArr
+        }
+
+        const originalDefineProperty = Object.defineProperty
+        Object.defineProperty = function(obj, prop, descriptor) {
+            //find modules
+            if (prop === "__esModule") {
+                setTimeout(() => {
+                    //if module includes addAssetToAvatar
+                    if (Object.keys(obj).includes("addAssetToAvatar")) {
+                        const originalDescriptor = Object.getOwnPropertyDescriptor(obj, "addAssetToAvatar")
+                        const originalGetter = originalDescriptor.get
+                        const originalAddAssetToAvatar = originalGetter()
+
+                        //hijack addAssetToAvatar when needed
+                        Object.defineProperty(obj, "addAssetToAvatar", {
+                            get() {
+                                return (...args) => {
+                                    const [asset] = args
+
+                                    const isAccessory = AccessoryAssetTypes.includes(asset.assetType.id)
+                                    const isLayered = LayeredAssetTypes.includes(asset.assetType.id)
+                                    const needsHijack = isAccessory || isLayered
+
+                                    if (window.rovalraMultiEquipEnabled && needsHijack) {
+                                        return customEquipAsset(...args)
+                                    } else {
+                                        return originalAddAssetToAvatar(...args)
+                                    }
+                                }
+                            },
+                            configurable: true,
+                        })
+                    }
+                }, 1)
+            }
+            if (prop === "addAssetToAvatar") {
+                descriptor.configurable = true
+            }
+
+            return originalDefineProperty.call(Object, obj, prop, descriptor)
         }
     };
 
