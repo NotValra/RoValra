@@ -1,11 +1,24 @@
-body.rovalra-avatar-layout-enabled #avatar-react-container > div {
+body.rovalra-avatar-layout-enabled
+    #avatar-react-container
+    > div:not([role='status']) {
     display: flex !important;
     align-items: flex-start !important;
     min-height: 100vh !important;
 }
 
-body.rovalra-avatar-layout-enabled #avatar-react-container > div > div:not(.left-wrapper-placeholder):not(.right-panel) {
+body.rovalra-avatar-layout-enabled .avatar-editor-header {
     display: none !important;
+}
+
+body.rovalra-avatar-layout-enabled
+    #avatar-react-container
+    .section-content.remove-panel {
+    position: sticky !important;
+    top: 56px !important;
+    align-self: flex-start !important;
+    flex-shrink: 0 !important;
+    float: none !important;
+    z-index: 1 !important;
 }
 
 body.rovalra-avatar-layout-enabled .left-wrapper-placeholder {
