@@ -36,7 +36,7 @@ FLAGS.AUDIO_ENABLED = false;
 backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
-const HOVER_CAMERA_ROTATION_SPEED = 0.75;
+const HOVER_CAMERA_ROTATION_SPEED = 180;
 const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
 const renderEnvironmentModeValues = new Set([
@@ -1223,8 +1223,11 @@ async function updateMainRenderer() {
     }
 }
 
+let lastFrameTime = Date.now() / 1000;
 //runs every frame
 function customAnimate() {
+    const deltaTime = Date.now() / 1000 - lastFrameTime;
+
     //SPA support
     if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
@@ -1331,7 +1334,7 @@ function customAnimate() {
 
     if (itemHoverCameraRotating) {
         itemHoverCameraRotation =
-            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED) % 360;
+            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED * deltaTime) % 360;
     }
 
     if (itemHoverOutfitRenderer)
@@ -1361,6 +1364,7 @@ function customAnimate() {
     //render
     RBXRenderer.animateAll(false);
 
+    lastFrameTime = Date.now() / 1000;
     window.requestAnimationFrame(customAnimate);
 }
 
