@@ -28,6 +28,7 @@ import {
 import { sanitizeBackgroundImage } from '../backgroundImage.js';
 import './settingsCompat';
 
+let currentUserTierLoaded = false;
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let gradientNameSyncTimeout = null;
@@ -264,8 +265,19 @@ function queueGradientNameSync(settingsOverride = {}) {
         );
     }, 750);
 }
+/**
+    @description Tier may not be always initalized either use getCurrentUserTier (async func) or call syncDonatorTier first.
+*/
+export const getCurrentUserTierSync = () => currentUserTier;
 
-export const getCurrentUserTier = () => currentUserTier;
+/**
+ * @description get User Tier but calls syncDonatorTier if not initalized
+ */
+export const getCurrentUserTier = async () => {
+    if (!currentUserTierLoaded)
+        await syncDonatorTier();
+    return currentUserTier;
+};
 
 export const syncDonatorTier = async () => {
     if (donatorTierPromise) return donatorTierPromise;
@@ -385,6 +397,8 @@ export const syncDonatorTier = async () => {
                 await checkSettingLocks(settingsContent, settings);
             }
 
+            currentUserTierLoaded = true;
+
             return response;
         } catch (error) {
             console.error('RoValra: Failed to sync donator tier.', {
@@ -499,17 +513,19 @@ export const enforceSettingOverrides = async () => {
             overrides.profile3DRenderEnabled = false;
         }
 
+        await syncDonatorTier() // Sync status
+
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, config] of Object.entries(
                 category.settings,
             )) {
                 const processSetting = (name, conf) => {
-                    if (conf.donatorTier) {
+                    /*if (conf.donatorTier) {
                         const isLocked = userTier < conf.donatorTier;
                         if (isLocked && settings[name] === true) {
                             overrides[name] = false;
                         }
-                    }
+                        }*/ // Broken as it would always turn checkboxes off
                     if (
                         (conf.locked || conf.deprecated) &&
                         getStoredSetting(name) === true
@@ -2180,7 +2196,7 @@ export function initializeSettingsEventListeners() {
                                 const dependedElement = document.querySelector(
                                     `#${dependedSettingName}`,
                                 );
-                                if (!dependedElement?.checked) {
+                                if (dependedElement?.checked === false) {
                                     dependedElement.checked = true;
                                 }
                                 savePromises.push(

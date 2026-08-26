@@ -638,10 +638,11 @@ export const SETTINGS_CONFIG = {
                         donatorReason:
                             'Donator Tier 1 is required to display your app theme on your own profile',
                         contributors: ['650766686'],
-                        dependsOn: ['FreeRobloxPlusThemesEnabledv2'],
+                        dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },
                 contributors: ['650766686'],
+                dependedBy: ['displayAppThemeOwnProfile'],
             },
             profileNotesEnabled: {
                 label: 'Profile Notes',
@@ -1729,14 +1730,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '546872490'],
             },
-            FreeRobloxPlusThemesEnabledv2: {
+            FreeRobloxPlusThemesEnabledv3: {
                 label: 'Free Roblox Plus Themes',
                 description: [
                     'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['447170745', '4866259395'],
+                contributors: ['447170745', '4866259395', '650766686'],
                 dependedBy: ['displayAppThemeOwnProfile'],
             },
             currencyTransferEnabled: {

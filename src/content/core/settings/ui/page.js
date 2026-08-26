@@ -10,6 +10,7 @@ import {
     applyTheme,
 } from '../../../features/settings/index.js';
 import { createBadgeSettings } from '../badgeSettings.js';
+import DOMPurify from '../../packages/dompurify.js';
 
 let isSettingsPage = false;
 

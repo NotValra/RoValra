@@ -1,7 +1,7 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { observeElement } from '../../core/observer.js';
 import {
-    getCurrentUserTier,
+    getCurrentUserTierSync,
     syncDonatorTier,
 } from '../settings/handlesettings.js';
 
@@ -57,19 +57,19 @@ function hasDonatedFromBadgesResponse(response) {
 }
 
 async function currentUserHasDonated() {
-    if (getCurrentUserTier() >= 1) return true;
+    if (getCurrentUserTierSync() >= 1) return true;
 
     try {
         const response = await syncDonatorTier();
         return (
-            getCurrentUserTier() >= 1 || hasDonatedFromBadgesResponse(response)
+            getCurrentUserTierSync() >= 1 || hasDonatedFromBadgesResponse(response)
         );
     } catch (error) {
         console.warn(
             'RoValra: Failed to check donation status before showing donation popup.',
             error,
         );
-        return getCurrentUserTier() >= 1;
+        return getCurrentUserTierSync() >= 1;
     }
 }
 

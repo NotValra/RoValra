@@ -3,18 +3,21 @@ import { getAssets } from '../../core/assets.js';
 import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { callRobloxApi } from '../../core/api.js';
+import { freePlusThemeCallback } from '../profile/appThemesOnProfiles.js';
 import {
     get as getCache,
     set as setCache,
 } from '../../core/storage/cacheHandler.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
 
-const SETTING_NAME = 'FreeRobloxPlusThemesEnabledv2';
+const SETTING_NAME = 'FreeRobloxPlusThemesEnabledv3';
 const SESSION_SETTING_KEY = 'rovalra_freeRobloxPlusThemes';
-const CACHE_SECTION = 'freeRobloxPlusThemes';
-const CACHE_KEY = 'userSettings';
-const CACHE_TTL_MS = 5 * 60 * 1000;
 const THEME_SECTION_SELECTOR = '.app-theme-section';
 const NOTICE_ID = 'rovalra-free-roblox-plus-themes-notice';
+const CACHE_SECTION = 'freeRobloxPlusThemes';
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_KEY_PREFIX = 'userSettings-'
+let CACHE_KEY = CACHE_KEY_PREFIX + '0';
 
 let injectedThemeClass = null;
 let initialized = false;
@@ -28,7 +31,7 @@ function removeThemeNotices() {
 }
 
 async function addThemeNotice(themeSection) {
-    if (!FreeRobloxPlusThemesEnabledv2 || !(themeSection instanceof Element)) {
+    if (!FreeRobloxPlusThemesEnabledv3 || !(themeSection instanceof Element)) {
         return;
     }
 
@@ -107,6 +110,7 @@ function applyAccountTheme(accountTheme) {
 
     document.body.classList.add(themeClass);
     injectedThemeClass = themeClass;
+    freePlusThemeCallback();
 }
 
 async function loadCachedAccountTheme() {
@@ -145,7 +149,7 @@ async function requestAccountTheme() {
 }
 
 async function loadAccountTheme() {
-    if (await loadCachedAccountTheme()) return;
+    await loadCachedAccountTheme();
     await requestAccountTheme();
 }
 
@@ -165,16 +169,16 @@ async function handleUserSettingsResponse(settingsData) {
         expiresAt: Date.now() + CACHE_TTL_MS,
     });
 
-    if (FreeRobloxPlusThemesEnabledv2) {
+    if (FreeRobloxPlusThemesEnabledv3) {
         applyAccountTheme(settingsData.accountTheme);
     }
 }
 
-let FreeRobloxPlusThemesEnabledv2 = false;
+let FreeRobloxPlusThemesEnabledv3 = false;
 
 function setEnabled(value) {
     const isEnabled = value === true;
-    FreeRobloxPlusThemesEnabledv2 = isEnabled;
+    FreeRobloxPlusThemesEnabledv3 = isEnabled;
 
     try {
         sessionStorage.setItem(SESSION_SETTING_KEY, String(isEnabled));
@@ -216,6 +220,10 @@ export function init() {
     if (initialized) return;
     initialized = true;
 
+    (async () =>
+        CACHE_KEY = CACHE_KEY_PREFIX + String(await getAuthenticatedUserId())
+    )();
+
     observeElement(THEME_SECTION_SELECTOR, observeThemeSection, {
         onRemove: () => {
             themeSectionObserver?.disconnect();
@@ -228,7 +236,7 @@ export function init() {
         publishInitialSettingState(enabled);
     });
     document.addEventListener('rovalra:user-settings-response', (event) => {
-        if (!FreeRobloxPlusThemesEnabledv2) return;
+        if (!FreeRobloxPlusThemesEnabledv3) return;
 
         handleUserSettingsResponse(event.detail).catch((error) =>
             console.warn(

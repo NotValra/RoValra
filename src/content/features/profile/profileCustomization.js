@@ -17,7 +17,7 @@ import {
 } from '../../core/observer.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import {
-    getCurrentUserTier,
+    getCurrentUserTierSync,
     handleSaveSettings,
 } from '../../core/settings/handlesettings.js';
 import { settings as rovalraSettings } from '../../core/settings/getSettings.js';
@@ -633,7 +633,7 @@ async function renderOwnedBorderPicker(container, userId) {
                 getAuthedUserData(userId),
             ]);
 
-        const tier = getCurrentUserTier();
+        const tier = getCurrentUserTierSync();
         const ownedCategories = buildBorderCategories(
             borderCategories,
             ownedData,

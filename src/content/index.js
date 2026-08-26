@@ -49,6 +49,7 @@ import { init as initPaymentMethodBonusItems } from './features/paymentmethods/b
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
+import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -161,6 +162,7 @@ import { init as initChatEligibilityTooltip } from './features/profile/header/ch
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
+import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -249,6 +251,7 @@ const featureRoutes = [
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
+            initSitewideAppThemesOnProfiles,
         ],
     },
     // pretty much just the 40% method
@@ -397,6 +400,7 @@ const featureRoutes = [
             initProfileCustomization,
             initSocialLinks,
             initSendRobuxProfileButton,
+            initProfileAppThemesOnProfiles,
         ],
     },
     {

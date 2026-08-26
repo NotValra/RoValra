@@ -22,7 +22,6 @@ import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
     handleSaveSettings,
-    getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
     getUserSettings,
