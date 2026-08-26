@@ -237,7 +237,7 @@ export function getItemCardColor(element: HTMLElement): Vec3 | undefined {
             return blendCSSVariableColors(blendCSSVariableColors(blendCSSVariableColors(
                 "--color-surface-0", "--color-common-shimmer"), "--color-common-shimmer"),[0,0,0,0.1]);
         case "group":
-            return blendColors(blendCSSVariableColors("--color-surface-300", "--color-surface-300") || [1,1,1], [0,0,0,0.25]);
+            return blendColors(blendCSSVariableColors("--color-surface-300", "--color-surface-300") || [1,1,1], [0,0,0,0.1]);
         default:
             return getMainColor() || [43 / 255, 44 / 255, 51 / 255];
     }

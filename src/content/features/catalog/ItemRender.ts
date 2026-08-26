@@ -36,7 +36,7 @@ FLAGS.AUDIO_ENABLED = false;
 backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
-const HOVER_CAMERA_ROTATION_SPEED = 180;
+const HOVER_CAMERA_ROTATION_SPEED = 120;
 const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
 const renderEnvironmentModeValues = new Set([
