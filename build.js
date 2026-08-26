@@ -15,12 +15,6 @@ const dracoPath = path.join(
     'dist',
     'draco_decoder.js',
 );
-const swaggerUiCssPath = path.join(
-    __dirname,
-    'node_modules',
-    'swagger-ui-dist',
-    'swagger-ui.css',
-);
 const backgroundEntryPath = path.join(
     __dirname,
     'src',
@@ -212,16 +206,6 @@ if (fs.existsSync(cssDir)) {
             })
             .catch(() => process.exit(1));
     }
-}
-
-if (fs.existsSync(swaggerUiCssPath)) {
-    if (!fs.existsSync('dist/css'))
-        fs.mkdirSync('dist/css', { recursive: true });
-    fs.copyFileSync(swaggerUiCssPath, 'dist/css/swagger-ui.css');
-    console.log('Copied Swagger UI CSS: dist/css/swagger-ui.css');
-} else {
-    console.error(`Error: swagger-ui.css not found at ${swaggerUiCssPath}`);
-    process.exit(1);
 }
 
 function processDirectory(src, dest) {

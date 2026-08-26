@@ -46,6 +46,8 @@ export function getFriendRequestOriginText(originId) {
             return `${fromText} ${ts('friendsSince.originPeopleYouMayKnow')}`;
         case 11: // School memberlist
             return `${fromText} ${ts('friendsSince.originschoolmemberlist')}`;
+        case 12: // Social tabs page (thanks return_request)
+            return `${fromText} ${ts('friendsSince.originSocialTabsPage')}`;
         default:
             return `${fromText} ${ts('friendsSince.originUnknown')}`;
     }
