@@ -1796,7 +1796,7 @@ export const SETTINGS_CONFIG = {
             voiceBanIndicatorEnabled: {
                 label: 'Voice Ban Indicator',
                 description: [
-                    'Shows your current Roblox voice suspension and remaining time in the sidebar.',
+                    'Shows a voice status icon in the top bar while your Roblox voice chat is suspended.',
                 ],
                 type: 'checkbox',
                 default: true,

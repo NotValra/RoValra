@@ -557,11 +557,8 @@
     },
     "voiceBanIndicator": {
         "title": "Voice Banned",
-        "suspended": "Suspended",
         "liftsIn": "Lifts in",
-        "noExpiry": "No expiry provided",
-        "checking": "Checking suspension...",
-        "stillActive": "Suspension still active"
+        "noExpiry": "No expiry provided"
     },
     "ageTheme": {
         "navbarTooltip": "Age Theme",

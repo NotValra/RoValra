@@ -1,44 +1,50 @@
 import { callRobloxApi } from '../../core/api.js';
-import { observeElement } from '../../core/observer.js';
+import { settings } from '../../core/settings/getSettings.js';
+import { Icon } from '../../core/ui/buildericon.js';
+import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { ts } from '../../core/locale/i18n.js';
 
-const CARD_ID = 'rovalra-voice-ban-indicator';
+const BUTTON_ID = 'rovalra-voice-ban-indicator';
 const CACHE_TIME = 60000;
+const MAX_TIMEOUT = 2147483647;
 
 let initialized = false;
 let enabled = false;
+
 let cachedData = null;
 let cachedAt = 0;
-let countdown = null;
-let expiredRechecked = false;
+let currentBanData = null;
 
-function clearCountdown() {
-    if (!countdown) return;
+let expiryTimeout = null;
 
-    clearInterval(countdown);
-    countdown = null;
-}
+function clearExpiryTimeout() {
+    if (!expiryTimeout) return;
 
-function removeCard() {
-    document.getElementById(CARD_ID)?.remove();
-    clearCountdown();
-    expiredRechecked = false;
+    clearTimeout(expiryTimeout);
+    expiryTimeout = null;
 }
 
 function getBanExpiry(value) {
     if (!value) return null;
 
     if (typeof value === 'number') {
-        return value > 1000000000000 ? value : value * 1000;
+        return value > 1000000000000
+            ? value
+            : value * 1000;
     }
 
     if (typeof value === 'string') {
         const parsed = Date.parse(value);
-        return Number.isNaN(parsed) ? null : parsed;
+
+        return Number.isNaN(parsed)
+            ? null
+            : parsed;
     }
 
     if (typeof value === 'object') {
-        const seconds = value.Seconds ?? value.seconds;
+        const seconds =
+            value.Seconds ??
+            value.seconds;
 
         if (seconds != null) {
             const parsed = Number(seconds);
@@ -53,25 +59,87 @@ function getBanExpiry(value) {
 }
 
 function formatRemaining(expiry) {
-    const diff = Math.max(0, expiry - Date.now());
+    const diff = Math.max(
+        0,
+        expiry - Date.now(),
+    );
 
-    const seconds = Math.floor((diff / 1000) % 60);
-    const minutes = Math.floor((diff / 60000) % 60);
-    const hours = Math.floor((diff / 3600000) % 24);
-    const days = Math.floor(diff / 86400000);
+    const seconds = Math.floor(
+        (diff / 1000) % 60,
+    );
+
+    const minutes = Math.floor(
+        (diff / 60000) % 60,
+    );
+
+    const hours = Math.floor(
+        (diff / 3600000) % 24,
+    );
+
+    const days = Math.floor(
+        diff / 86400000,
+    );
 
     const parts = [];
 
-    if (days) parts.push(`${days}d`);
-    if (hours || days) parts.push(`${hours}h`);
-    if (minutes || hours || days) parts.push(`${minutes}m`);
+    if (days) {
+        parts.push(`${days}d`);
+    }
+
+    if (hours || days) {
+        parts.push(`${hours}h`);
+    }
+
+    if (minutes || hours || days) {
+        parts.push(`${minutes}m`);
+    }
 
     parts.push(`${seconds}s`);
 
     return parts.join(' ');
 }
 
-async function fetchVoiceSettings(force = false) {
+function getTooltipText() {
+    if (!currentBanData?.isBanned) {
+        return '';
+    }
+
+    const expiry = getBanExpiry(
+        currentBanData.bannedUntil,
+    );
+
+    const title = ts(
+        'voiceBanIndicator.title',
+    );
+
+    if (!expiry) {
+        return `${title} — ${ts(
+            'voiceBanIndicator.noExpiry',
+        )}`;
+    }
+
+    if (expiry <= Date.now()) {
+        return title;
+    }
+
+    return `${title} — ${ts(
+        'voiceBanIndicator.liftsIn',
+    )} ${formatRemaining(expiry)}`;
+}
+
+function removeButton() {
+    document
+        .getElementById(BUTTON_ID)
+        ?.remove();
+
+    clearExpiryTimeout();
+
+    currentBanData = null;
+}
+
+async function fetchVoiceSettings(
+    force = false,
+) {
     if (
         !force &&
         cachedData &&
@@ -88,7 +156,9 @@ async function fetchVoiceSettings(force = false) {
             noCache: force,
         });
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            return null;
+        }
 
         const data = await response.json();
 
@@ -106,218 +176,175 @@ async function fetchVoiceSettings(force = false) {
     }
 }
 
-function createVoiceIcon() {
-    const svg = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'svg',
-    );
+async function ensureButton() {
+    const button = await createNavbarButton({
+        id: BUTTON_ID,
+        tooltipText: () =>
+            getTooltipText(),
+    });
 
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('aria-hidden', 'true');
-    svg.classList.add('rovalra-voice-ban-icon-svg');
-
-    const path = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'path',
-    );
-
-    path.setAttribute(
-        'd',
-        'M19 11h-2c0 .91-.25 1.76-.68 2.49l1.46 1.46A6.94 6.94 0 0 0 19 11ZM4.27 3 3 4.27l6.01 6.01V11a3 3 0 0 0 4.72 2.45l1.28 1.28A4.98 4.98 0 0 1 7 11H5a7 7 0 0 0 6 6.92V21h2v-3.08a6.96 6.96 0 0 0 3.43-1.31L19.73 20 21 18.73 4.27 3ZM12 4a1 1 0 0 1 1 1v4.18l2 2V5a3 3 0 0 0-5.12-2.12L11 4h1Z',
-    );
-
-    svg.appendChild(path);
-
-    return svg;
-}
-
-function createCard(navList) {
-    let item = document.getElementById(CARD_ID);
-
-    if (item) {
-        if (item.parentElement !== navList) {
-            navList.prepend(item);
-        }
-
-        return item;
+    if (
+        !button ||
+        !enabled ||
+        !currentBanData?.isBanned
+    ) {
+        removeButton();
+        return null;
     }
 
-    item = document.createElement('li');
-    item.id = CARD_ID;
-    item.className = 'rovalra-voice-ban-indicator';
+    const holder =
+        button.querySelector(
+            '.rbx-menu-item',
+        );
 
-    const card = document.createElement('div');
-    card.className = 'rovalra-voice-ban-card';
+    if (
+        holder &&
+        !holder.querySelector('icon')
+    ) {
+        const icon = Icon({
+            icon: 'mic_off',
+            material: true,
+            size: 'x-large',
+        });
 
-    const icon = document.createElement('span');
-    icon.className = 'rovalra-voice-ban-icon';
-    icon.appendChild(createVoiceIcon());
+        icon.setAttribute(
+            'aria-hidden',
+            'true',
+        );
 
-    const content = document.createElement('div');
-    content.className = 'rovalra-voice-ban-content';
+        holder.appendChild(icon);
+    }
 
-    const top = document.createElement('div');
-    top.className = 'rovalra-voice-ban-top';
+    button.setAttribute(
+        'aria-label',
+        getTooltipText(),
+    );
 
-    const title = document.createElement('span');
-    title.className = 'rovalra-voice-ban-title';
-    title.textContent = ts('voiceBanIndicator.title');
-
-    const badge = document.createElement('span');
-    badge.className = 'rovalra-voice-ban-badge';
-    badge.textContent = ts('voiceBanIndicator.suspended');
-
-    const timer = document.createElement('span');
-    timer.className = 'rovalra-voice-ban-timer';
-
-    top.append(title, badge);
-    content.append(top, timer);
-    card.append(icon, content);
-    item.appendChild(card);
-
-    navList.prepend(item);
-
-    return item;
+    return button;
 }
 
-async function refresh(force = false, navList = null) {
-    if (!enabled) return;
+function scheduleExpiryRefresh() {
+    clearExpiryTimeout();
 
-    const list =
-        navList ||
-        document.querySelector('.left-nav nav > ul');
-
-    if (!list) return;
-
-    const data = await fetchVoiceSettings(force);
-
-    if (!data) return;
-
-    render(data, list);
-}
-
-function render(data, navList) {
-    if (!enabled || !data?.isBanned) {
-        removeCard();
+    if (!currentBanData?.isBanned) {
         return;
     }
 
-    const item = createCard(navList);
-    const timer = item.querySelector('.rovalra-voice-ban-timer');
-
-    if (!timer) return;
-
-    clearCountdown();
-
-    const expiry = getBanExpiry(data.bannedUntil);
+    const expiry = getBanExpiry(
+        currentBanData.bannedUntil,
+    );
 
     if (!expiry) {
-        timer.textContent = ts('voiceBanIndicator.noExpiry');
-        item.title = `${ts('voiceBanIndicator.title')} - ${timer.textContent}`;
         return;
     }
 
-    if (expiry > Date.now()) {
-        expiredRechecked = false;
+    const remaining =
+        expiry - Date.now();
+
+    if (remaining <= 0) {
+        refresh(true);
+        return;
     }
 
-    const updateTimer = () => {
-        const remaining = expiry - Date.now();
+    const delay = Math.min(
+        remaining + 1000,
+        MAX_TIMEOUT,
+    );
 
-        if (remaining <= 0) {
-            clearCountdown();
+    expiryTimeout = setTimeout(
+        () => {
+            refresh(true);
+        },
+        delay,
+    );
+}
 
-            if (expiredRechecked) {
-                timer.textContent = ts(
-                    'voiceBanIndicator.stillActive',
-                );
-                return;
-            }
-
-            expiredRechecked = true;
-            timer.textContent = ts(
-                'voiceBanIndicator.checking',
-            );
-
-            cachedData = null;
-            cachedAt = 0;
-
-            setTimeout(() => {
-                refresh(true);
-            }, 1000);
-
-            return;
-        }
-
-        timer.textContent =
-            `${ts('voiceBanIndicator.liftsIn')} ${formatRemaining(expiry)}`;
-
-        timer.title = new Date(expiry).toLocaleString();
-        item.title = `${ts('voiceBanIndicator.title')} - ${timer.textContent}`;
-    };
-
-    updateTimer();
-
-    if (expiry > Date.now()) {
-        countdown = setInterval(updateTimer, 1000);
+async function refresh(force = false) {
+    if (!enabled) {
+        removeButton();
+        return;
     }
+
+    const data =
+        await fetchVoiceSettings(force);
+
+    if (!data) {
+        return;
+    }
+
+    currentBanData = data;
+
+    if (!data.isBanned) {
+        removeButton();
+        return;
+    }
+
+    await ensureButton();
+
+    scheduleExpiryRefresh();
+}
+
+async function syncSetting() {
+    enabled = Boolean(
+        await settings.voiceBanIndicatorEnabled,
+    );
+
+    if (!enabled) {
+        removeButton();
+        return;
+    }
+
+    cachedData = null;
+    cachedAt = 0;
+
+    await refresh(true);
 }
 
 export async function init() {
     if (initialized) return;
+
     initialized = true;
 
-    const settings = await chrome.storage.local.get({
-        voiceBanIndicatorEnabled: true,
-    });
-
-    enabled = settings.voiceBanIndicatorEnabled;
-
-    observeElement(
-        '.left-nav nav > ul',
-        (navList) => {
-            if (enabled) {
-                refresh(false, navList);
-            }
-        },
-        {
-            onRemove: () => {
-                clearCountdown();
-            },
-        },
+    enabled = Boolean(
+        await settings.voiceBanIndicatorEnabled,
     );
 
-    chrome.storage.onChanged.addListener(
-        (changes, area) => {
+    if (enabled) {
+        refresh();
+    }
+
+    document.addEventListener(
+        'rovalra:settingSaved',
+        (event) => {
             if (
-                area !== 'local' ||
-                !changes.voiceBanIndicatorEnabled
+                event.detail?.name !==
+                'voiceBanIndicatorEnabled'
             ) {
                 return;
             }
 
-            enabled =
-                changes.voiceBanIndicatorEnabled.newValue;
+            syncSetting().catch((error) => {
+                console.warn(
+                    'RoValra: Failed to update voice ban indicator setting',
+                    error,
+                );
+            });
+        },
+    );
 
-            if (!enabled) {
-                removeCard();
+    document.addEventListener(
+        'visibilitychange',
+        () => {
+            if (
+                document.hidden ||
+                !enabled ||
+                Date.now() - cachedAt <
+                    CACHE_TIME
+            ) {
                 return;
             }
-
-            cachedData = null;
-            cachedAt = 0;
 
             refresh(true);
         },
     );
-    
-    document.addEventListener('visibilitychange', () => {
-        if (
-            !document.hidden &&
-            enabled &&
-            Date.now() - cachedAt >= CACHE_TIME
-        ) {
-            refresh(true);
-        }
-    });
 }
