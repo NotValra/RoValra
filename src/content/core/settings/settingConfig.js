@@ -637,7 +637,6 @@ export const SETTINGS_CONFIG = {
                         donatorTier: 1,
                         donatorReason:
                             'Donator Tier 1 is required to display your app theme on your own profile',
-                        contributors: ['650766686'],
                         dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },
