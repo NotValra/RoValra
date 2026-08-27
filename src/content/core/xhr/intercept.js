@@ -1358,13 +1358,13 @@ const LayeredAssetTypes = [
                 //enforce accessory limit (10)
                 if (AccessoryAssetTypes.includes(asset.assetType.id)) {
                     accessoryCount++
-                    if (accessoryCount >= 9 && assetToAddIsAccessory) canAdd = false
+                    if (accessoryCount >= 10 && assetToAddIsAccessory) canAdd = false
                 }
 
                 //enforce layered limit (10, also includes hair)
                 if (LayeredAssetTypes.includes(asset.assetType.id)) {
                     layeredCount++
-                    if (layeredCount >= 9 && assetToAddIsLayered) canAdd = false
+                    if (layeredCount >= 10 && assetToAddIsLayered) canAdd = false
                 }
 
                 //enforce limit of items you can only equip one of (although this never happens because then we dont hijack)
