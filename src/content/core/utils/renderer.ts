@@ -24,50 +24,44 @@ export function backgroundRendererRequests() {
             url = resource.toString();
         }
 
-        //make sure the request has the prefix
-        if (url.startsWith(FLAGS.API_REQUEST_PREFIX)) {
-            const realUrl = url.substring(FLAGS.API_REQUEST_PREFIX.length);
-            const realUrlObj = new URL(realUrl);
+        const urlObj = new URL(url);
 
-            //make sure it is a request we actually want to intercept
-            if (realUrlObj.protocol === "https:" && realUrlObj.hostname.includes("assetdelivery.roblox.com")) {
-                const subdomain = realUrlObj.hostname.replace('.roblox.com', '');
-                const endpoint = realUrlObj.pathname + realUrlObj.search;
+        //make sure it is a request we actually want to intercept
+        if (urlObj.protocol === "https:" && urlObj.hostname.includes("assetdelivery.roblox.com")) {
+            const subdomain = urlObj.hostname.replace('.roblox.com', '');
+            const endpoint = urlObj.pathname + urlObj.search;
 
-                //return a promise that resolves with a Response but does so through the background
-                return new Promise<Response>((resolve, reject) => {
-                    let result: undefined | any = undefined;
-                    let isOk = true;
+            //return a promise that resolves with a Response but does so through the background
+            return new Promise<Response>((resolve, reject) => {
+                let result: undefined | any = undefined;
+                let isOk = true;
 
-                    callRobloxApiJson({
-                        subdomain,
-                        endpoint,
-                        useBackground: true,
-                        ...options,
-                    }).then((trueResult) => {
-                        result = trueResult;
-                    }).catch(() => {
-                        isOk = false;
-                    }).finally(() => {
-                        const fakeResponse = {
-                            status: isOk ? 200 : 500,
-                            ok: isOk,
-                            json: () => {
-                                return result;
-                            }
+                callRobloxApiJson({
+                    subdomain,
+                    endpoint,
+                    useBackground: true,
+                    ...options,
+                }).then((trueResult) => {
+                    result = trueResult;
+                }).catch(() => {
+                    isOk = false;
+                }).finally(() => {
+                    const fakeResponse = {
+                        status: isOk ? 200 : 500,
+                        ok: isOk,
+                        json: () => {
+                            return result;
                         }
-                        if (isOk) {
-                            resolve(fakeResponse as Response);
-                        } else {
-                            reject(fakeResponse);
-                        }
-                    })
+                    }
+                    if (isOk) {
+                        resolve(fakeResponse as Response);
+                    } else {
+                        reject(fakeResponse);
+                    }
                 })
-            } else {
-                return fetch(realUrl, options);
-            }
+            })
         } else {
-            return fetch(resource, options);
+            return fetch(url, options);
         }
     }
 }
