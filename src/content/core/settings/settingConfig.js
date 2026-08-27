@@ -167,13 +167,14 @@ export const SETTINGS_CONFIG = {
                         showFlags: true,
                         default: 'AUTO',
                     },
-                    preferredRegionUseRobloxLatency: {
+                    preferredRegionUseRobloxLatencyv1: {
                         label: 'Prioritize biggest servers when using Automatic Mode',
                         description: [
                             'This makes Preferred Region join the servers closest to you with the most players.',
+                            'May cause issues with some VPNs'
                         ],
                         type: 'checkbox',
-                        default: true,
+                        default: false,
                     },
                     preferredRegionLocalSearchEnabled: {
                         label: 'Force Local Server Search',
