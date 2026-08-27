@@ -166,6 +166,20 @@ const toggleDefaultButtons = (enabled: boolean) => {
             child.style.display = enabled ? 'none' : '';
         }
     }
+
+    //make size of left button container small so it doesnt affect button placement in the right container
+    const leftAlignContainer = document.body.querySelector(".thumbnail-ui-container > .bottom-align-container > .left-align-container") as HTMLElement;
+    if (leftAlignContainer) {
+        leftAlignContainer.style = enabled ? "width: 0;" : "";
+    }
+
+    //stop animations from playing in robloxs animation preview since its super laggy
+    if (enabled) {
+        const bigstop = document.body.querySelector(".enable-three-dee.btn-control > .icon-bigstop") as HTMLElement;
+        if (bigstop) {
+            bigstop.click();
+        }
+    }
 };
 
 const updateRigButtonText = () => {
