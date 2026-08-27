@@ -36,6 +36,7 @@ FLAGS.AUDIO_ENABLED = false;
 backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
+const HOVER_AUTO_SWITCH_ANIM_TIME = 3;
 const HOVER_CAMERA_ROTATION_SPEED = 120;
 const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
@@ -45,6 +46,8 @@ const renderEnvironmentModeValues = new Set([
     'baseplate',
     'dark-baseplate',
 ]);
+const R6_ANIMATION_NAMES = ['idle', 'walk', 'jump', 'fall', 'climb'];
+const R15_ANIMATION_NAMES = ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
 
 //outfit data
 let ogAvatarDataLoaded = false;
@@ -152,6 +155,8 @@ let currentHoveredItemType: string | undefined = undefined;
 let itemHoverCameraRotation = 0;
 let itemHoverCameraRotating = false;
 let itemHoverRotateButton: HTMLElement | undefined = undefined;
+let itemHoverShouldAutoSwitchAnim = false;
+let itemHoverAutoSwitchAnimTimePassed = 0;
 
 const toggleDefaultButtons = (enabled: boolean) => {
     if (!mainButtonContainer) return;
@@ -188,8 +193,8 @@ const updateAnimationDropdown = () => {
         selectedRigType || ogAvatarData.outfit.playerAvatarType || 'R15';
     const isR6 = currentType === 'R6';
     const items = isR6
-        ? ['idle', 'walk', 'jump', 'fall', 'climb']
-        : ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
+        ? R6_ANIMATION_NAMES
+        : R15_ANIMATION_NAMES;
 
     const trueItems = items.map((v) => {
         return { label: ts(`animations.${v}`), value: v };
@@ -1061,12 +1066,19 @@ function loadCurrentHoveredItem() {
 
     currentHoveredItemLoading = true;
 
+    const originalIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+    itemHoverShouldAutoSwitchAnim = false;
+    itemHoverAutoSwitchAnimTimePassed = 0;
+
     addItemFromLink(buildHoverOutfit, targetLink, targetType).then(() => {
         if (
             currentHoveredItemElement !== originalCurrentHoveredItemElement ||
             currentHoveredItemLink !== targetLink
         )
             return;
+        const newIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+        if (originalIdleAnimation !== newIdleAnimation) itemHoverShouldAutoSwitchAnim = true;
+
         currentHoveredItemLoading = false;
         itemHoverOutfit = buildHoverOutfit;
         if (itemHoverOutfitRenderer) {
@@ -1337,6 +1349,7 @@ function customAnimate() {
             (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED * deltaTime) % 360;
     }
 
+    //update item hover camera
     if (itemHoverOutfitRenderer)
     assetTypeToCamera(
         itemHoverScene,
@@ -1344,6 +1357,19 @@ function customAnimate() {
         currentHoveredItemType!,
         itemHoverCameraRotation,
     );
+
+    //update item hover animation (for animation packs)
+    itemHoverAutoSwitchAnimTimePassed += deltaTime;
+    if (itemHoverAutoSwitchAnimTimePassed >= HOVER_AUTO_SWITCH_ANIM_TIME && itemHoverShouldAutoSwitchAnim) {
+        itemHoverAutoSwitchAnimTimePassed = 0;
+
+        const animationNames = itemHoverOutfit.outfit.playerAvatarType === "R15" ? R15_ANIMATION_NAMES : R6_ANIMATION_NAMES;
+        const currentIndex = animationNames.indexOf(itemHoverOutfitRenderer?.animatorW?.data?.currentAnimation || "");
+        if (currentIndex > -1) {
+            const nextIndex = (currentIndex + 1) % animationNames.length;
+            itemHoverOutfitRenderer?.setMainAnimation(animationNames[nextIndex]);
+        }
+    }
 
     //loading icon
     if (
