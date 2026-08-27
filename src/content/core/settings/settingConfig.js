@@ -1419,6 +1419,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '126448532'],
             },
             stickyAvatarEnabled: {
                 label: 'Sticky Avatar Preview',
