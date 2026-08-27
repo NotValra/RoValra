@@ -75,7 +75,7 @@
         "subtitle": "Underrated games hand picked by the RoValra community.",
         "rotates": "Rotates",
         "suggestOnDiscord": "Suggest underrated games on {{discord}}",
-        "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 500 HEP requirement."
+        "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 250 HEP requirement."
     },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
