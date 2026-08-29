@@ -826,7 +826,6 @@ function createArtistCreditSection(artistId) {
     return artistWrapper;
 }
 
-
 async function openAvatarBorderUrl(gamepassId) {
     let canPlayUniverse = false;
     let canPlayUniverseReason = 'Unknown';
@@ -1088,7 +1087,10 @@ async function openAvatarBorderUrl(gamepassId) {
             onCancel: () => {},
             closeBtnCallsCancel: true,
         });
-    } else if (canPlayUniverse == false && canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval') {
+    } else if (
+        canPlayUniverse == false &&
+        canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval'
+    ) {
         const needsParentOverlay = createOverlay({
             title: 'You cannot use Avatar Borders',
             bodyContent:
@@ -1297,9 +1299,9 @@ async function openBorderOverlay(
             }
         })();
         actionBtn.onclick = () => {
-            openAvatarBorderUrl(effectiveGamepassId)
+            openAvatarBorderUrl(effectiveGamepassId);
             close();
-        }
+        };
     } else {
         actionBtn.textContent = 'Unavailable';
         actionBtn.disabled = true;
@@ -4647,42 +4649,6 @@ document.addEventListener('click', (event) => {
     if (target.id === 'import-rovalra-profile-notes')
         return importProfileNotes();
     if (target.matches('.tab-button, .setting-section-button')) return;
-
-    if (target.matches('input[type="checkbox"]')) {
-        const settingName = target.dataset.settingName;
-        if (settingName) {
-            handleSaveSettings(settingName, target.checked).then(() => {
-                const settingsContent = document.querySelector(
-                    '#setting-section-content',
-                );
-                if (settingsContent) {
-                    loadSettings().then((currentSettings) =>
-                        updateConditionalSettingsVisibility(
-                            settingsContent,
-                            currentSettings,
-                        ),
-                    );
-                }
-            });
-        }
-    } else if (target.matches('select')) {
-        const settingName = target.dataset.settingName;
-        if (settingName) {
-            handleSaveSettings(settingName, target.value).then(() => {
-                const settingsContent = document.querySelector(
-                    '#setting-section-content',
-                );
-                if (settingsContent) {
-                    loadSettings().then((currentSettings) =>
-                        updateConditionalSettingsVisibility(
-                            settingsContent,
-                            currentSettings,
-                        ),
-                    );
-                }
-            });
-        }
-    }
 });
 
 function onPopoverRemoved() {
