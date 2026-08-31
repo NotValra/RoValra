@@ -1775,7 +1775,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['650766686'],
-                exclusiveWith: ['qolTogglesEnabled']
+                exclusiveWith: ['qolTogglesEnabled'],
+                childSettings: { // Toggles to be in the menu
+                    privacyTogglesDropdownExampleToggleEnabled: {
+                        label: 'Example Toggle',
+                        description: [
+                            'wittally hwere for pwacehowlder pwurposes!'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    }
+                },
             },
             qolTogglesEnabled: {
                 label: 'Adds quality of life toggles to the navigation bar',
