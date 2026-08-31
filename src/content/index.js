@@ -49,6 +49,7 @@ import { init as initPaymentMethodBonusItems } from './features/paymentmethods/b
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
+import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js'
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -249,6 +250,7 @@ const featureRoutes = [
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
+            initQuickPrivacyTogglesNav,
         ],
     },
     // pretty much just the 40% method

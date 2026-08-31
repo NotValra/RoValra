@@ -1766,13 +1766,28 @@ export const SETTINGS_CONFIG = {
     Navigation: {
         title: 'Navigation',
         settings: {
+            privacyTogglesEnabled: {
+                label: "Privacy Toggles in Navigation",
+                description: [
+                    'This setting adds a <icon filled>lock-closed</icon> button to the top navigation bar.',
+                    'This allows you to quickly manage privacy settings.'
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+                exclusiveWith: ['qolTogglesEnabled']
+            },
             qolTogglesEnabled: {
                 label: 'Adds quality of life toggles to the navigation bar',
                 description:
                     'Allowing you to quickly change your online status, experience status, private server privacy, and inventory visibility without going into settings.',
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '8345351117'],
+                exclusiveWith: ['privacyTogglesEnabled'],
+                // locked: 'Replaced by Privacy Toggles in Navigation',
+                // deprecated: 'Replaced by Privacy Toggles in Navigation.',
+
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',

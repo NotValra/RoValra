@@ -530,6 +530,21 @@
             "description": "We do not promise support for {{extensions}}."
         }
     },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Privacy Settings"
+        },
+        "dropdowns" : {
+            "example": {
+                "name": "Example Dropdown",
+                "value1": "example value one",
+                "value2": "example value 2",
+                "value3": "disabled value 3",
+                "value4": "initially selected value 4",
+                "value5": "hidden value 5"
+            }
+        }
+    },
     "qolToggles": {
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",
