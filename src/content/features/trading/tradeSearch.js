@@ -10,6 +10,27 @@ const PAGING_COOLDOWN = 100;
 const activeSearches = new WeakMap();
 const searchButtons = new WeakMap();
 
+function getNextPageButton(panel) {
+    return panel.querySelector(
+        '.trade-inventory-pager button[aria-label="Next"]',
+    );
+}
+
+function isDisabled(button) {
+    return (
+        !button ||
+        button.disabled ||
+        button.hasAttribute('disabled') ||
+        button.classList.contains('disabled')
+    );
+}
+
+function normalizeSearchValue(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase();
+}
+
 export function init() {
     chrome.storage.local.get({ tradeSearchEnabled: true }, (settings) => {
         if (!settings.tradeSearchEnabled) return;
@@ -62,7 +83,7 @@ function injectSearchInput(dropdown) {
     continueSearchButton.className = 'btn-primary-md';
     continueSearchButton.style.display = 'none';
     continueSearchButton.style.marginLeft = '8px';
-    continueSearchButton.style.marginTop = '4px';
+    continueSearchButton.style.marginTop = '0px';
     continueSearchButton.style.verticalAlign = 'middle';
     continueSearchButton.style.float = 'right';
     continueSearchButton.style.height = '36px';
@@ -81,7 +102,7 @@ function injectSearchInput(dropdown) {
     if (inventoryLabel) {
         container.style.float = 'none';
         container.style.width = '100%';
-        container.style.marginTop = '18px';
+        container.style.marginTop = '0px';
         container.style.display = 'block';
 
         continueSearchButton.style.float = 'none';
@@ -104,7 +125,7 @@ function injectSearchInput(dropdown) {
     let currentSearchQuery = '';
 
     const handleSearch = () => {
-        const query = input.value.trim().toLowerCase();
+        const query = normalizeSearchValue(input.value);
         currentSearchQuery = query;
 
         if (!query) {
@@ -139,15 +160,9 @@ function injectSearchInput(dropdown) {
 
     if (continueSearchButton) {
         continueSearchButton.addEventListener('click', () => {
-            const nextButton =
-                panel.querySelector('.pager-next .btn-generic-right-sm') ||
-                panel.querySelector('.btn-generic-right-sm[ng-click*="next"]');
+            const nextButton = getNextPageButton(panel);
 
-            if (
-                nextButton &&
-                !nextButton.hasAttribute('disabled') &&
-                !nextButton.classList.contains('disabled')
-            ) {
+            if (!isDisabled(nextButton)) {
                 if (continueSearchButton)
                     continueSearchButton.style.display = 'none';
                 nextButton.click();
@@ -158,6 +173,12 @@ function injectSearchInput(dropdown) {
             }
         });
     }
+
+    document.addEventListener('rovalra-rolimons-data-update', () => {
+        if (currentSearchQuery && panel.isConnected) {
+            processItems(panel, currentSearchQuery, true);
+        }
+    });
 }
 
 function resetToFirstPage(dropdown) {
@@ -179,6 +200,7 @@ function resetToFirstPage(dropdown) {
 async function processItems(panel, query, allowPaging) {
     const items = Array.from(panel.querySelectorAll('.item-card'));
     const list = panel.querySelector('.item-cards');
+    const continueSearchButton = searchButtons.get(panel);
 
     if (!list || items.length === 0) return;
 
@@ -206,7 +228,7 @@ async function processItems(panel, query, allowPaging) {
         }
 
         const nameEl = item.querySelector('.item-card-name');
-        const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+        const name = normalizeSearchValue(nameEl?.textContent);
 
         if (name.includes(query)) {
             isMatch = true;
@@ -214,17 +236,15 @@ async function processItems(panel, query, allowPaging) {
 
         if (!isMatch && assetId) {
             const rolimons = getCachedRolimonsItem(assetId);
-            if (rolimons) {
-                if (
-                    rolimons.acronym &&
-                    rolimons.acronym.toLowerCase().includes(query)
-                ) {
+            if (rolimons !== undefined && rolimons !== null) {
+                const acronym = normalizeSearchValue(rolimons.acronym);
+                if (acronym.includes(query)) {
                     isMatch = true;
                 }
                 if (query === 'rare' && rolimons.is_rare) isMatch = true;
                 if (query === 'projected' && rolimons.is_projected)
                     isMatch = true;
-            } else {
+            } else if (rolimons === undefined) {
                 idsToFetch.push(assetId);
             }
         }
@@ -248,19 +268,17 @@ async function processItems(panel, query, allowPaging) {
     }
 
     if (idsToFetch.length > 0) {
-        queueRolimonsFetch(idsToFetch);
+        await queueRolimonsFetch(idsToFetch);
+        if (panel.isConnected && query) {
+            await processItems(panel, query, allowPaging);
+        }
+        return;
     }
 
-    const nextButton =
-        panel.querySelector('.pager-next .btn-generic-right-sm') ||
-        panel.querySelector('.btn-generic-right-sm[ng-click*="next"]');
+    const nextButton = getNextPageButton(panel);
 
-    const hasNextPage =
-        nextButton &&
-        !nextButton.hasAttribute('disabled') &&
-        !nextButton.classList.contains('disabled');
+    const hasNextPage = !isDisabled(nextButton);
 
-    const continueSearchButton = searchButtons.get(panel);
     if (continueSearchButton) {
         if (!foundMatchOnPage && allowPaging && hasNextPage) {
             const lastPageTime = activeSearches.get(panel) || 0;
