@@ -1777,14 +1777,38 @@ export const SETTINGS_CONFIG = {
                 contributors: ['650766686'],
                 exclusiveWith: ['qolTogglesEnabled'],
                 childSettings: { // Toggles to be in the menu
-                    privacyTogglesDropdownExampleToggleEnabled: {
-                        label: 'Example Toggle',
+                    privacyTogglesDropdownOnlineStatusEnabled: {
+                        label: 'Online Status Toggle',
                         description: [
-                            'wittally hwere for pwacehowlder pwurposes!'
+                            'Quickly manage your online status.'
                         ],
                         type: 'checkbox',
                         default: true,
-                    }
+                    },
+                    privacyTogglesDropdownJoinStatusEnabled: {
+                        label: 'Experience Status Toggle',
+                        description: [
+                            'Quickly manage who can join you in experiences.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownPrivateServerPrivacyEnabled: {
+                        label: 'Experience Status Toggle',
+                        description: [
+                            'Quickly manage who can invite you to private servers.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownInventoryPrivacyEnabled: {
+                        label: 'Inventory Toggle',
+                        description: [
+                            'Quickly manage who can view your inventory.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             qolTogglesEnabled: {
@@ -1795,8 +1819,9 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['447170745', '8345351117'],
                 exclusiveWith: ['privacyTogglesEnabled'],
-                // locked: 'Replaced by Privacy Toggles in Navigation',
-                // deprecated: 'Replaced by Privacy Toggles in Navigation.',
+                isPermanent: true,
+                locked: 'Replaced by Privacy Toggles in Navigation',
+                deprecated: 'Replaced by Privacy Toggles in Navigation.',
 
             },
             sidebarCollapseEnabled: {

@@ -74,8 +74,9 @@ type Dropdown = {
     valueChanged: (value: string) => Promise<void>,
     /**
      * Change your settings based on a different option that was changed. Return the new options btw!
+     * @param setValue This sets the value of your setting in case you need to.
      */
-    changeSettingsBasedOtherSettings?: (currentSettings: DropdownOption[], otherSettingName: string, otherSettingValue: string) => Promise<DropdownOption[]>,
+    changeSettingsBasedOtherSettings?: (currentSettings: DropdownOption[], otherSettingName: string, otherSettingValue: string, /** This sets the value of your setting in case you need to. */ setValue: (value: any) => void) => Promise<DropdownOption[]>,
 
 };
 

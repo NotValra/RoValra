@@ -534,14 +534,27 @@
         "nav": {
             "tooltip": "Privacy Settings"
         },
+        "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
         "dropdowns" : {
-            "example": {
-                "name": "Example Dropdown",
-                "value1": "example value one",
-                "value2": "example value 2",
-                "value3": "disabled value 3",
-                "value4": "initially selected value 4",
-                "value5": "hidden value 5"
+            "shared": {
+                "allUsers": "Everyone",
+                "friendsFollowingFollowers": "Friends, Following, and Followers",
+                "friendsFollowing": "Friends and Following",
+                "friends": "Friends",
+                "trustedFriends": "Trusted Friends",
+                "noOne": "No one"
+            },
+            "onlineStatus": {
+                "name": "Online Status"
+            },
+            "joinStatus": {
+                "name": "Experience Status"
+            },
+            "privateServerPrivacy": {
+                "name": "Private Server Privacy"
+            },
+            "inventoryPrivacy": {
+                "name": "Inventory Privacy"
             }
         }
     },
