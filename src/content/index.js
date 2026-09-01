@@ -153,6 +153,7 @@ import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
 import { init as initProfileFrame } from './features/profile/profileFrame.js';
 import { init as initImprovedAvatarCard } from './features/profile/improvedAvatarCard.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
+import { init as initMoreRobuxDigits } from './features/sitewide/moreRobuxDigits.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
@@ -230,6 +231,7 @@ const featureRoutes = [
             initStatus,
             initCustomFont,
             initRobuxIcons,
+            initMoreRobuxDigits,
             initProfileBackground,
             initAvatarBorder,
             initDisplayNameGradient,

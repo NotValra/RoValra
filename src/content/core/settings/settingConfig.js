@@ -28,7 +28,7 @@ export const SETTINGS_CONFIG = {
                     'This adds a button allowing you to save 40% on items on the marketplace.',
                     'Keep in mind, a group is required for this to work.',
 
-                    '**When buying something there will be a \'Save X Robux\' Button which when pressed will set up the experience required for it to work for you, if not already set up.**',
+                    "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -37,7 +37,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Place ID to use for the 10%-40% Robux back',
                         description: [
                             'It is best not to modify this, as the feature automatically sets the correct place ID when used.',
-                            '**Don\'t change this unless you know what you\'re doing.**',
+                            "**Don't change this unless you know what you're doing.**",
                         ],
                         type: 'input',
                         default: null,
@@ -75,7 +75,7 @@ export const SETTINGS_CONFIG = {
             EnableRobuxAfterPurchase: {
                 label: 'Robux After Purchase',
                 description:
-                    'This feature restores the \'Your balance after this transaction will be X\' text to the new Roblox purchase UI after it was removed.',
+                    "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
                 type: 'checkbox',
                 default: true,
             },
@@ -90,7 +90,7 @@ export const SETTINGS_CONFIG = {
             EnableItemDependencies: {
                 label: 'Item Dependencies',
                 description: [
-                    'This feature shows an item\'s dependencies, which means you can view the texture, mesh, and more.',
+                    "This feature shows an item's dependencies, which means you can view the texture, mesh, and more.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -104,7 +104,7 @@ export const SETTINGS_CONFIG = {
             priceFloorEnabled: {
                 label: 'Show Price Floor',
                 description:
-                    'This will show the price floor when viewing items, and shows if the item you\'re viewing is sold at or above the price floor.',
+                    "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
                 type: 'checkbox',
                 default: true,
             },
@@ -171,7 +171,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Prioritize biggest servers when using Automatic Mode',
                         description: [
                             'This makes Preferred Region join the servers closest to you with the most players.',
-                            'May cause issues with some VPNs'
+                            'May cause issues with some VPNs',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -180,7 +180,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Force Local Server Search',
                         description: [
                             'Searches Roblox servers locally instead of using RoValra to find servers by region.',
-                            '**This isn\'t recommended for normal users, as it\'ll be much slower.**',
+                            "**This isn't recommended for normal users, as it'll be much slower.**",
                         ],
                         type: 'checkbox',
                         default: false,
@@ -192,7 +192,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This will add a quick play button to experiences so you can quickly join the experience without opening the experience page.',
                     'If you have Preferred Region Play Button enabled it will also add a Preferred Region quick play button to quickly join your preferred region.',
-                    'This is made to look like the official Roblox client\'s Quick Play button.',
+                    "This is made to look like the official Roblox client's Quick Play button.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -237,7 +237,7 @@ export const SETTINGS_CONFIG = {
             whatamIJoiningEnabled: {
                 label: 'What Am I Joining',
                 description: [
-                    'This shows the server ID, region, if it\'s a private server, and more info about the server you\'re joining when joining an experience.',
+                    "This shows the server ID, region, if it's a private server, and more info about the server you're joining when joining an experience.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -253,7 +253,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     closeUiByClickingTheBackground: {
-                        label: 'Close the \'What am I joining\' UI by clicking the background',
+                        label: "Close the 'What am I joining' UI by clicking the background",
                         description:
                             'This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI',
                         type: 'checkbox',
@@ -271,7 +271,7 @@ export const SETTINGS_CONFIG = {
             EnableGameTrailer: {
                 label: 'Experience Trailer',
                 description: [
-                    'This adds experience trailers not on YouTube to the website, replacing Roblox\'s way of doing it.',
+                    "This adds experience trailers not on YouTube to the website, replacing Roblox's way of doing it.",
                     'As a result, it adds quality-of-life features such as full-screen playback, autoplay controls, video length, playback speed, and picture-in-picture mode.',
                 ],
                 type: 'checkbox',
@@ -323,7 +323,7 @@ export const SETTINGS_CONFIG = {
                     privateGameDetectionFallbackEnabled: {
                         label: 'Use Robust Private / Moderated Games Detection',
                         description: [
-                            'This makes sure it can identify when you\'re trying to view a private or moderated game.',
+                            "This makes sure it can identify when you're trying to view a private or moderated game.",
                             'Without this, it may fail to show private or moderated game pages when you open their links directly.',
                         ],
                         type: 'checkbox',
@@ -355,7 +355,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Bot Data',
                 description: [
                     'Shows if an experience has a lot of bots in the description of the experience.',
-                    'It doesn\'t show the amount of bots, since the sample size is too small to give an accurate number.',
+                    "It doesn't show the amount of bots, since the sample size is too small to give an accurate number.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -389,7 +389,7 @@ export const SETTINGS_CONFIG = {
             badgeOwnershipEnabled: {
                 label: 'Dim Unowned Badges',
                 description: [
-                    'Makes experience badges you don\'t own darker on badge pages. (Similar to how BTRoblox does it)',
+                    "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -455,7 +455,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Server Filters',
                 description: [
                     'This adds a filter to the server list.',
-                    '**It is highly recommended that the \'Server List Modifications\' setting is enabled for this to work correctly.**',
+                    "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -486,7 +486,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Server List Modifications',
                 description: [
                     'This adds multiple features to the server list.',
-                    'These modifications will also apply to the \'Servers My Friends Are In\' section.',
+                    "These modifications will also apply to the 'Servers My Friends Are In' section.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -503,7 +503,7 @@ export const SETTINGS_CONFIG = {
                     EnableServerUptime: {
                         label: 'Server Uptime',
                         description: [
-                            'This shows an estimate of a server\'s uptime in the server list.',
+                            "This shows an estimate of a server's uptime in the server list.",
                             'This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime.',
                         ],
                         type: 'checkbox',
@@ -512,7 +512,7 @@ export const SETTINGS_CONFIG = {
                     EnableServerRegion: {
                         label: 'Server Region',
                         description: [
-                            'This shows the server\'s region or location.',
+                            "This shows the server's region or location.",
                         ],
                         type: 'checkbox',
                         default: true,
@@ -530,7 +530,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             'This shows the entire ServerID',
                             'By default Roblox only shows a part of it.',
-                            'It\'ll hide ServerIDs of servers that you\'re playing in or friends are playing in unless hovered over.',
+                            "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over.",
                         ],
                         type: 'checkbox',
                         default: true,
@@ -539,7 +539,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Full Server Indicators',
                         description: [
                             'This adds indicators when a server is full',
-                            'Like text that tells you the server is full if we don\'t have region data.',
+                            "Like text that tells you the server is full if we don't have region data.",
                         ],
                         type: 'checkbox',
                         default: true,
@@ -555,7 +555,7 @@ export const SETTINGS_CONFIG = {
                     EnableMiscIndicators: {
                         label: 'Show misc indicators',
                         description: [
-                            'This shows indicators for servers you can\'t join, such as when someone is playing in a private server.',
+                            "This shows indicators for servers you can't join, such as when someone is playing in a private server.",
                         ],
                         type: 'checkbox',
                         default: true,
@@ -585,7 +585,7 @@ export const SETTINGS_CONFIG = {
             userGamesEnabled: {
                 label: 'Hidden User Experiences',
                 description: [
-                    'Shows a user\'s hidden experiences on their profile.',
+                    "Shows a user's hidden experiences on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -689,7 +689,7 @@ export const SETTINGS_CONFIG = {
             chatEligibilityTooltipEnabled: {
                 label: 'Chat Eligibility Tooltip',
                 description: [
-                    'Shows if you can or can\'t chat with a friend, or if they haven\'t completed an age check, when hovering over the chat button on their profile.',
+                    "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -732,7 +732,7 @@ export const SETTINGS_CONFIG = {
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
                         description: [
-                            'Choose a custom environment for your own profile\'s 3D render.',
+                            "Choose a custom environment for your own profile's 3D render.",
                             'This only applies when viewing your own profile.',
                             '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
                         ],
@@ -826,7 +826,7 @@ export const SETTINGS_CONFIG = {
             groupRoleEnabled: {
                 label: 'Show Community Roles',
                 description:
-                    'Shows a user\'s role in a community on their profile.',
+                    "Shows a user's role in a community on their profile.",
                 type: 'checkbox',
                 default: true,
                 locked: 'Roblox released their own version of this.',
@@ -888,7 +888,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['477516666', '447170745']
+                contributors: ['477516666', '447170745'],
             },
             ageVerificationBadgeEnabled: {
                 label: 'Age Checked Badge',
@@ -903,7 +903,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Status Bubble',
                 description: [
                     'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
-                    'Also allows you to view other RoValra users\' status bubbles.',
+                    "Also allows you to view other RoValra users' status bubbles.",
                     '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
                 ],
                 type: 'checkbox',
@@ -919,7 +919,7 @@ export const SETTINGS_CONFIG = {
             donationbuttonEnable: {
                 label: 'Donation Button',
                 description: [
-                    'This will add a donation button to a user\'s profile, allowing you to donate directly from their profile without needing to join a game.',
+                    "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -931,7 +931,7 @@ export const SETTINGS_CONFIG = {
             categorizeWearingEnabled: {
                 label: 'Improved Currently Wearing',
                 description: [
-                    'Separates the \'Currently Wearing\' section on profiles into categories like Items, Emotes, Body Parts and Animations.',
+                    "Separates the 'Currently Wearing' section on profiles into categories like Items, Emotes, Body Parts and Animations.",
                     'Also improves the item cards making them look a bit better and adds total outfit price.',
                     'This feature was heavily inspired by a [roseal](https://www.roseal.live/) feature.',
                 ],
@@ -947,7 +947,8 @@ export const SETTINGS_CONFIG = {
                     },
                     CategorizeEmotes: {
                         label: 'Emotes in their own category',
-                        description: 'This puts Emotes into their own category.',
+                        description:
+                            'This puts Emotes into their own category.',
                         type: 'checkbox',
                         default: true,
                     },
@@ -963,7 +964,7 @@ export const SETTINGS_CONFIG = {
             userRapEnabled: {
                 label: 'User RAP/Value',
                 description: [
-                    'This shows a user\'s total RAP/Value on their profile.',
+                    "This shows a user's total RAP/Value on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -981,7 +982,7 @@ export const SETTINGS_CONFIG = {
             useroutfitsEnabled: {
                 label: 'User Outfits',
                 description: [
-                    'This allows you to view a user\'s saved outfits on their profile.',
+                    "This allows you to view a user's saved outfits on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1007,7 +1008,7 @@ export const SETTINGS_CONFIG = {
             profileBackgroundGradientEnabled: {
                 label: 'Custom Profile Background Gradient',
                 description: [
-                    'Shows a user\'s selected gradient on their profile.',
+                    "Shows a user's selected gradient on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1041,14 +1042,14 @@ export const SETTINGS_CONFIG = {
             },
             bannedUserViewerEnabled: {
                 label: 'View Banned Users Profile',
-                description: ['Allows you to view banned users\' profiles.'],
+                description: ["Allows you to view banned users' profiles."],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     bannedUserDetectionFallbackEnabled: {
                         label: 'Use Robust Banned User Detection',
                         description: [
-                            'This makes sure it never fails to identify when you\'re trying to view a banned user.',
+                            "This makes sure it never fails to identify when you're trying to view a banned user.",
                             'Without this it would fail to show banned user profiles if you open their link directly',
                         ],
                         type: 'checkbox',
@@ -1058,10 +1059,10 @@ export const SETTINGS_CONFIG = {
                 },
             },
             avatarBorderEnabled: {
-                label: 'Shows a user\'s Avatar Border',
+                label: "Shows a user's Avatar Border",
                 description: [
                     'Shows a decorative border around avatars on friend tiles and profile pages.',
-                    '**Your selected border is saved to RoValra\'s database so other RoValra users can see it.**',
+                    "**Your selected border is saved to RoValra's database so other RoValra users can see it.**",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1084,11 +1085,11 @@ export const SETTINGS_CONFIG = {
                 },
             },
             profileFrameEnabled: {
-                label: 'Shows a user\'s Profile Frame',
+                label: "Shows a user's Profile Frame",
                 description: [
                     'Draws a frame around the avatar display on profile pages.',
                     'Frames are separate from avatar borders, they wrap the whole avatar thumbnail holder instead of the avatar tile.',
-                    '**Your selected frame is saved to RoValra\'s database so other RoValra users can see it.**',
+                    "**Your selected frame is saved to RoValra's database so other RoValra users can see it.**",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1117,7 +1118,7 @@ export const SETTINGS_CONFIG = {
             usernameColor: {
                 label: 'Username Color Preview',
                 description: [
-                    'Changes the user\'s username color on their profile to the color Roblox would give them in in-game chats. Inspired by https://github.com/RyloRiz/rblx-name-color.',
+                    "Changes the user's username color on their profile to the color Roblox would give them in in-game chats. Inspired by https://github.com/RyloRiz/rblx-name-color.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -1251,8 +1252,8 @@ export const SETTINGS_CONFIG = {
             friendUsernamesEnabled: {
                 label: 'Show Usernames On Friend Cards',
                 description: [
-                    'Shows a friend\'s @username below their display name on the Home page.',
-                    'In \'Servers My Friends Are In\' it shows friends as \'DisplayName (@Username)\', and also shows the username in a tooltip when hovering their avatar.',
+                    "Shows a friend's @username below their display name on the Home page.",
+                    "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
                     'Other extensions may overwrite this feature.',
                 ],
                 type: 'checkbox',
@@ -1338,7 +1339,7 @@ export const SETTINGS_CONFIG = {
                 experimental: 'Takes ages since Roblox has heavy rate limits.',
                 type: 'checkbox',
                 default: true,
-                locked: 'This broke in a UI update and wasn\'t very effective because of rate limits.',
+                locked: "This broke in a UI update and wasn't very effective because of rate limits.",
                 isPermanent: false,
             },
             QuickActionsEnabled: {
@@ -1348,7 +1349,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                locked: 'This broke in a UI update and wasn\'t very effective because of rate limits.',
+                locked: "This broke in a UI update and wasn't very effective because of rate limits.",
                 isPermanent: false,
             },
             draggableGroupsEnabled: {
@@ -1378,7 +1379,7 @@ export const SETTINGS_CONFIG = {
             groupPlaceVisitsEnabled: {
                 label: 'Total Community Place Visits',
                 description: [
-                    'Shows the total number of visits across all of a community\'s experiences in the insights section.',
+                    "Shows the total number of visits across all of a community's experiences in the insights section.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1394,7 +1395,7 @@ export const SETTINGS_CONFIG = {
             groupPendingFundsEnabled: {
                 label: 'Pending Community Funds',
                 description: [
-                    'Shows a community\'s pending Robux in the funds section of its info dialog.',
+                    "Shows a community's pending Robux in the funds section of its info dialog.",
                     'If funds are showing publicly.',
                 ],
                 type: 'checkbox',
@@ -1652,7 +1653,7 @@ export const SETTINGS_CONFIG = {
             confirmTradeEnabled: {
                 label: 'Trade Protection',
                 description:
-                    'This adds a small preview of the trade you\'re making in the accept / decline confirmation pop-up.',
+                    "This adds a small preview of the trade you're making in the accept / decline confirmation pop-up.",
                 type: 'checkbox',
                 default: true,
             },
@@ -1663,7 +1664,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 experimental:
-                    'This may be inaccurate and may in some cases cause issues resulting in an inaccurate proof. Please verify it\'s correct before using it.',
+                    "This may be inaccurate and may in some cases cause issues resulting in an inaccurate proof. Please verify it's correct before using it.",
             },
             tradeRiskEnabled: {
                 label: 'Show Item Risk',
@@ -1672,7 +1673,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 experimental:
-                    'May be inaccurate. It isn\'t recommended to rely on this completely.',
+                    "May be inaccurate. It isn't recommended to rely on this completely.",
             },
         },
     },
@@ -1717,7 +1718,7 @@ export const SETTINGS_CONFIG = {
             currencyTransferEnabled: {
                 label: 'Send Robux',
                 description: [
-                    'This allows Roblox Plus subscribers to start a currency transfer by pressing the (...) on anyone\'s profile.',
+                    "This allows Roblox Plus subscribers to start a currency transfer by pressing the (...) on anyone's profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1728,7 +1729,7 @@ export const SETTINGS_CONFIG = {
             sendRobuxEnabled: {
                 label: 'Send Robux',
                 description: [
-                    'This allows Roblox Plus subscribers to start a transfer by pressing the (...) on anyone\'s profile, but now directly on the website!',
+                    "This allows Roblox Plus subscribers to start a transfer by pressing the (...) on anyone's profile, but now directly on the website!",
                     'You can also use the "Send" button on the [Buy Robux](https://www.roblox.com/upgrades/robux) page.',
                     'If you have an account under 18 you may need to accept Robux transfers in the notifications tab.',
                 ],
@@ -1749,7 +1750,7 @@ export const SETTINGS_CONFIG = {
             plusStatsEnabled: {
                 label: 'Show Plus Stats',
                 description:
-                    'Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you aren\'t subscribed.',
+                    "Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you aren't subscribed.",
                 type: 'checkbox',
                 default: true,
                 contributors: ['650766686'],
@@ -1857,6 +1858,29 @@ export const SETTINGS_CONFIG = {
                     'rovalra_topbar_layout_order',
                     'rovalra_topbar_layout_hidden',
                 ],
+            },
+            moreRobuxDigitsEnabled: {
+                label: 'More Robux Digits',
+                description: [
+                    'Shows additional digits for abbreviated Robux balances such as 1M+ in the navigation bar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    moreRobuxDigits: {
+                        label: 'Digits to Show',
+                        description: [
+                            'Choose how many digits to show after the decimal point in abbreviated Robux balances.',
+                        ],
+                        type: 'select',
+                        options: [
+                            { label: '1 digit', value: '1' },
+                            { label: '2 digits', value: '2' },
+                            { label: 'All digits', value: 'all' },
+                        ],
+                        default: '1',
+                    },
+                },
             },
             customRobloxBannerEnabled: {
                 label: 'Roblox Logo Customization',
@@ -2030,7 +2054,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Custom Age Theme Badge Text',
                 description: [
                     'Change the "SELECT" or "KIDS" text in the badge by the Roblox logo.',
-                    'You can even use this if you\'re not in those age groups!',
+                    "You can even use this if you're not in those age groups!",
                     'If you want you can also choose to hide the badge.',
                 ],
                 type: 'checkbox',
@@ -2078,7 +2102,7 @@ export const SETTINGS_CONFIG = {
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',
                 description:
-                    'This allows you to toggle beta programs you\'re enrolled in easily.',
+                    "This allows you to toggle beta programs you're enrolled in easily.",
                 type: 'checkbox',
                 default: false,
                 childSettings: {
@@ -2195,7 +2219,7 @@ export const SETTINGS_CONFIG = {
                     openCustomThemeBackground: {
                         label: 'Customize Image Settings',
                         description:
-                            'Adjust the image\'s opacity, blur, position, size, and more.',
+                            "Adjust the image's opacity, blur, position, size, and more.",
                         type: 'button',
                         buttonText: 'Edit',
                         event: 'rovalra:openCustomThemeBackground',
@@ -2234,9 +2258,9 @@ export const SETTINGS_CONFIG = {
                 },
             },
             ServerdataEnabled: {
-                label: 'Send Server IDs and Place IDs to RoValra\'s API',
+                label: "Send Server IDs and Place IDs to RoValra's API",
                 description: [
-                    'This feature sends server IDs and place IDs to RoValra\'s API when you browse the site.',
+                    "This feature sends server IDs and place IDs to RoValra's API when you browse the site.",
                     'This data is used for the server uptime and the Total Servers features.',
                     'Leaving this feature on will help improve the Server Uptime and Total Servers features.',
                     '**No personal data is sent, not even user ID or username—only the server IDs and the place ID.**',
@@ -2257,8 +2281,8 @@ export const SETTINGS_CONFIG = {
             loginBannerEnabled: {
                 label: 'Login Banner',
                 description: [
-                    'Adds a banner to the login page to verify you\'re on the official Roblox website.',
-                    'This helps prevent phishing by ensuring you know when you\'re on the real site.',
+                    "Adds a banner to the login page to verify you're on the official Roblox website.",
+                    "This helps prevent phishing by ensuring you know when you're on the real site.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2268,7 +2292,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Legacy Theme Switcher',
                 description: [
                     'This adds a dropdown in the Roblox settings which replicates how the old theme switcher worked',
-                    'This means you won\'t have to switch to your preferred theme when logging in on a new browser.',
+                    "This means you won't have to switch to your preferred theme when logging in on a new browser.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2293,7 +2317,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 childSettings: {
                     giantInvisibleLink: {
-                        label: 'Fix the Continue and Favorites buttons\' clickable area',
+                        label: "Fix the Continue and Favorites buttons' clickable area",
                         description: [
                             'Fixes the Continue and Favorites buttons on the home page being wider than shown visually.',
                         ],
@@ -2318,7 +2342,7 @@ export const SETTINGS_CONFIG = {
                     profileUsernameSpacingFixEnabled: {
                         label: 'Keep profile usernames spaced from the top',
                         description:
-                            'Prevents your username from being moved up to a place where it\'s harder to read because of extensions adding features.',
+                            "Prevents your username from being moved up to a place where it's harder to read because of extensions adding features.",
                         type: 'checkbox',
                         default: true,
                     },
@@ -2327,7 +2351,7 @@ export const SETTINGS_CONFIG = {
             eastereggslinksEnabled: {
                 label: 'Easter Egg Links',
                 description: [
-                    'Adds Easter eggs to random links that otherwise wouldn\'t do anything.',
+                    "Adds Easter eggs to random links that otherwise wouldn't do anything.",
                     'Some easter eggs redirect offsite.',
                 ],
                 type: 'checkbox',
@@ -2344,20 +2368,20 @@ export const SETTINGS_CONFIG = {
                 label: 'Fix Roblox Memory Leak',
                 description: [
                     'This attempts to fix the memory leak caused by the Roblox website when reloading a page or navigating the site.',
-                    'This fix will redirect most URL changes to \'about:blank\' and then to the intended URL, which fixes the memory leak, but may cause a slight flicker when navigating and issues with the back and forward arrows.',
-                    'If you don\'t know what a memory leak is or you don\'t feel like Roblox is using too much memory, you can leave this off.',
-                    '**This feature isn\'t recommended anymore; it seems like Roblox has fixed the memory leak.**',
+                    "This fix will redirect most URL changes to 'about:blank' and then to the intended URL, which fixes the memory leak, but may cause a slight flicker when navigating and issues with the back and forward arrows.",
+                    "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
+                    "**This feature isn't recommended anymore; it seems like Roblox has fixed the memory leak.**",
                 ],
                 type: 'checkbox',
                 default: false,
-                locked: 'This issue has long since been fixed by Roblox, so the feature isn\'t needed anymore.',
+                locked: "This issue has long since been fixed by Roblox, so the feature isn't needed anymore.",
                 isPermanent: true,
                 requiredPermissions: ['webNavigation'],
             },
             firstAccountEnabled: {
                 label: 'First Account?',
                 description:
-                    'This adds a section in Roblox\'s settings showing if Roblox considers your Roblox account the first Roblox account you created.',
+                    "This adds a section in Roblox's settings showing if Roblox considers your Roblox account the first Roblox account you created.",
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_first_account_cache',
@@ -2419,18 +2443,18 @@ export const SETTINGS_CONFIG = {
             streamermode: {
                 label: 'Streamer Mode',
                 description: [
-                    'This feature hides information that you most likely don\'t want to accidentally show on something like a live stream.',
+                    "This feature hides information that you most likely don't want to accidentally show on something like a live stream.",
                 ],
                 type: 'checkbox',
                 default: false,
                 experimental:
-                    'This may cause some issues since it tricks Roblox into thinking your private info is something it isn\'t.',
+                    "This may cause some issues since it tricks Roblox into thinking your private info is something it isn't.",
                 contributors: ['447170745', '48255812'],
                 childSettings: {
                     settingsPageInfo: {
                         label: 'Hide Private Information on the settings page',
                         description: [
-                            'This visually replaces your Email, Phone Number, Sessions, and account location with \'RoValra Streamer Mode Enabled\'.',
+                            "This visually replaces your Email, Phone Number, Sessions, and account location with 'RoValra Streamer Mode Enabled'.",
                             'And completely hides your Age Group, previous usernames in settings and Birthday.',
                         ],
                         type: 'checkbox',
@@ -2439,8 +2463,8 @@ export const SETTINGS_CONFIG = {
                     hideRobux: {
                         label: 'Hide Robux',
                         description: [
-                            'Simply hides your Robux by changing it to \'Hidden\'.',
-                            'This doesn\'t hide your Robux on purchase prompts.',
+                            "Simply hides your Robux by changing it to 'Hidden'.",
+                            "This doesn't hide your Robux on purchase prompts.",
                         ],
                         type: 'checkbox',
                         default: false,
@@ -2452,7 +2476,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Spoof status as Offline',
                 description: [
                     'Makes you appear as offline to you and other people.',
-                    'This is useful if you want to appear offline while still allowing friends to join you in experiences, since Roblox\'s official offline status doesn\'t allow this.',
+                    "This is useful if you want to appear offline while still allowing friends to join you in experiences, since Roblox's official offline status doesn't allow this.",
                     'Joining an experience will overwrite this status.',
                     'This may take a few minutes to actually change your status to offline after turning on the feature.',
                 ],
@@ -2464,7 +2488,7 @@ export const SETTINGS_CONFIG = {
             spoofAsStudio: {
                 label: 'Spoof status as In Studio',
                 description: [
-                    'Makes your online status appear as \'In Studio\' to you and other users.',
+                    "Makes your online status appear as 'In Studio' to you and other users.",
                     'Joining an experience will overwrite this status.',
                     'The Spoofed Status will only show if RoValra is enabled and a Roblox page is open.',
                 ],
@@ -2496,7 +2520,7 @@ export const SETTINGS_CONFIG = {
                 label: 'All possible ban durations',
 
                 description: [
-                    '**This doesn\'t include voice chat bans.**',
+                    "**This doesn't include voice chat bans.**",
                     "**Any text saying 'Note:' is a note added by Valra to explain stuff better.**",
                     '- Banned for 1 Day',
                     '- Banned for 3 Days',
@@ -2506,8 +2530,8 @@ export const SETTINGS_CONFIG = {
                     '• Warning',
                     '• Banned for 6 Months',
                     '• Banned for 1 Year',
-                    '• Note: the things below aren\'t bans but instead tell you what will happen if you do it again. This doesn\'t always show when you get banned.',
-                    '• The things below are called \'Foreshadow bans\'.',
+                    "• Note: the things below aren't bans but instead tell you what will happen if you do it again. This doesn't always show when you get banned.",
+                    "• The things below are called 'Foreshadow bans'.",
                     '• If you violate the Community Standards again, your account may be suspended in the future. ',
                     '• If you violate the Community Standards again, your account may be suspended for at least 1 day.',
                     '• If you violate the Community Standards again, your account may be suspended for at least 3 days.',
@@ -2531,7 +2555,7 @@ export const SETTINGS_CONFIG = {
                     '**All ban reasons are 100% confirmed**',
                     '**Keep in mind these are ban reasons, which is basically categories each ban might fall into.**',
                     "**Any text saying 'Note:' is a note added by Valra to explain stuff better.**",
-                    '- None (Note: Likely used when there isn\'t a ban reason and instead only a moderator note.)',
+                    "- None (Note: Likely used when there isn't a ban reason and instead only a moderator note.)",
                     '- Profanity',
                     '- Harassment',
                     '- Spam',
@@ -2623,7 +2647,7 @@ export const SETTINGS_CONFIG = {
                     '• You created or used an account to avoid an enforcement action taken against another account determined from your account information, such as your account email, phone number, or other information (Note: This is not a ban reason; this is a moderator note)',
                     '• Trademark Violation',
                     '• Roblox does not permit using third-parties to buy, sell, or trade Robux, promotional codes that falsely appear to be from Roblox Corporation, or inappropriate use of the community payout system. (Note: This is not a ban reason; this is a moderator note)',
-                    '- Note: Fun fact—the \'using third-parties to buy, sell, or trade Robux\' moderator notes are called \'Virtual Casino\' bans in the code.',
+                    "- Note: Fun fact—the 'using third-parties to buy, sell, or trade Robux' moderator notes are called 'Virtual Casino' bans in the code.",
                 ],
 
                 default: null,
@@ -2648,14 +2672,14 @@ export const SETTINGS_CONFIG = {
                     '**Error Messages & Support Fallbacks**',
                     '- Appeals information not found',
                     '- If you would like to appeal something not shown here please visit {link}Support{linkEnd}',
-                    '- You\'ve reached the maximum number of appeals. You may no longer appeal this {assetType}.',
+                    "- You've reached the maximum number of appeals. You may no longer appeal this {assetType}.",
                 ],
                 default: null,
             },
             captcha: {
                 label: 'All the places where you can get a captcha on Roblox',
                 description: [
-                    'Roblox, I\'m still mad that you denied my captcha bypass just to fix it a few weeks later 😡😡😡😡😡',
+                    "Roblox, I'm still mad that you denied my captcha bypass just to fix it a few weeks later 😡😡😡😡😡",
                     '- sign up',
                     '- login',
                     '- change password',
@@ -2664,9 +2688,9 @@ export const SETTINGS_CONFIG = {
                     '- buying an item (speculation, might have been removed)',
                     '- posting on a group wall (likely gonna be the same for group forum posts)',
                     '- joining a group',
-                    '- \'generic challenge\'—no idea what they mean by that.',
+                    "- 'generic challenge'—no idea what they mean by that.",
                     '- following a user',
-                    '- uploading \'clothing asset\'—could also be the same for any asset, but I\'m unsure.',
+                    "- uploading 'clothing asset'—could also be the same for any asset, but I'm unsure.",
                     '- posting a comment on an asset (comments on assets have been removed)',
                 ],
                 default: null,
@@ -2708,9 +2732,9 @@ export const SETTINGS_CONFIG = {
                 contributors: ['1564574922'],
             },
             copyIdEnabled: {
-                label: 'Allows you to quickly copy an ID of a thing you\'re right-clicking.',
+                label: "Allows you to quickly copy an ID of a thing you're right-clicking.",
                 description:
-                    'This adds a Copy ID button directly to the right-click context menu, so you don\'t have to open the link and copy the ID from it.',
+                    "This adds a Copy ID button directly to the right-click context menu, so you don't have to open the link and copy the ID from it.",
                 type: 'checkbox',
                 default: false,
                 requiredPermissions: ['contextMenus'],
@@ -2740,14 +2764,14 @@ export const SETTINGS_CONFIG = {
             info: {
                 label: ['RoValra Developer Settings'],
                 description: [
-                    'These are features used mostly to develop RoValra. If you don\'t know what you\'re doing, don\'t touch them.',
+                    "These are features used mostly to develop RoValra. If you don't know what you're doing, don't touch them.",
                 ],
                 type: 'yay',
             },
             alwaysShowDeveloperSettings: {
                 label: ['Always show RoValra developer settings tab'],
                 description: [
-                    'This makes the RoValra developer settings tab always show, so you don\'t have to perform the Easter egg every time.',
+                    "This makes the RoValra developer settings tab always show, so you don't have to perform the Easter egg every time.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2755,7 +2779,7 @@ export const SETTINGS_CONFIG = {
             overwriteRemoteSettingLocks: {
                 label: ['Override remotely disabled settings'],
                 description: [
-                    'Allows RoValra features to remain enabled even when they\'re disabled by the remote settings service. This is for testing and may expose unstable features.',
+                    "Allows RoValra features to remain enabled even when they're disabled by the remote settings service. This is for testing and may expose unstable features.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2794,8 +2818,8 @@ export const SETTINGS_CONFIG = {
             impersonateRobloxStaffSetting: {
                 label: ['Impersonate User Option On Profiles'],
                 description: [
-                    'This enables the \'Impersonate User\' option on people\'s profiles, used by Roblox internally.',
-                    'Pressing the \'Impersonate User\' option does nothing other than produce an error unless you\'re authorized to use it.',
+                    "This enables the 'Impersonate User' option on people's profiles, used by Roblox internally.",
+                    "Pressing the 'Impersonate User' option does nothing other than produce an error unless you're authorized to use it.",
                 ],
                 deprecated: 'Roblox removed it with the new profile overhaul',
                 locked: 'This internal Roblox feature was removed during the profile page redesign.',
@@ -2806,8 +2830,8 @@ export const SETTINGS_CONFIG = {
             EarlyAccessProgram: {
                 label: ['Early Access Program Showcase'],
                 description: [
-                    'This tricks Roblox into thinking you\'re in an early access program, making Roblox add the early access program UI to your settings.',
-                    'This setting won\'t allow you to join any early access programs you weren\'t invited to.',
+                    "This tricks Roblox into thinking you're in an early access program, making Roblox add the early access program UI to your settings.",
+                    "This setting won't allow you to join any early access programs you weren't invited to.",
                     'This will also overwrite any early access programs you might already be in.',
                 ],
                 type: 'checkbox',
@@ -2828,7 +2852,7 @@ export const SETTINGS_CONFIG = {
                     'This shows the account age range of anyone on your friends list.',
                 type: 'checkbox',
                 default: false,
-                locked: 'This was made when Roblox decided it was a good idea to leak everyone\'s age range. It was only made to shed light on the issue, which has now been resolved.',
+                locked: "This was made when Roblox decided it was a good idea to leak everyone's age range. It was only made to shed light on the issue, which has now been resolved.",
                 isPermanent: true,
             },
             EnableVideoTest: {
@@ -2843,7 +2867,7 @@ export const SETTINGS_CONFIG = {
             onboardingShown: {
                 label: ['Show onboarding'],
                 description: [
-                    'This will show RoValra\'s onboarding screen again when this setting is disabled.',
+                    "This will show RoValra's onboarding screen again when this setting is disabled.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2877,7 +2901,7 @@ export const SETTINGS_CONFIG = {
             forceReviewPopup: {
                 label: ['Force Review Popup'],
                 description: [
-                    'When enabled, shows the review popup every time it\'s triggered, ignoring all requirements. For testing purposes.',
+                    "When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2885,7 +2909,7 @@ export const SETTINGS_CONFIG = {
             forceRegionDonationPopup: {
                 label: ['Force Region Donation Popup'],
                 description: [
-                    'When enabled, shows the region selector donation popup every time it\'s triggered, ignoring donor and cadence requirements. For testing purposes.',
+                    "When enabled, shows the region selector donation popup every time it's triggered, ignoring donor and cadence requirements. For testing purposes.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2907,7 +2931,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Force Fallback Authentication',
                 description: [
                     'Forces the use of the fallback verification system instead of OAuth.',
-                    'This auth is used in cases where OAuth doesn\'t work.',
+                    "This auth is used in cases where OAuth doesn't work.",
                 ],
                 type: 'checkbox',
                 default: false,
@@ -2932,7 +2956,7 @@ export const SETTINGS_CONFIG = {
             localStorageUsage: {
                 label: 'Show Local Storage Usage',
                 description: [
-                    'Displays the total storage used by RoValra in Chrome\'s local storage.',
+                    "Displays the total storage used by RoValra in Chrome's local storage.",
                 ],
                 type: 'button',
                 buttonText: 'Calculate Storage',
@@ -2945,7 +2969,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['1564574922'],
                 experimental:
-                    'This feature isn\'t yet widely used within RoValra.',
+                    "This feature isn't yet widely used within RoValra.",
             },
         },
     },
