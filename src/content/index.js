@@ -623,6 +623,8 @@ async function initializePage() {
                 detail: {
                     disableThumbnailBackground:
                         settings.disableThumbnailBackground === true,
+                    disableThumbnailProfileFrame:
+                        settings.disableThumbnailProfileFrame === true,
                 },
             }),
         );
