@@ -29,7 +29,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2830488781', //idhglua
     '390309731', // AxnxDev 
     '477516666', //return_request :3
-    '2605032407', // RoPrime dev
+    '2605032407', // walway
 ];
 
 export const TESTER_USER_IDS = [
