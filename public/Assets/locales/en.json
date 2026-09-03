@@ -1383,5 +1383,28 @@
                 }
             }
         }
+    },
+    "avatar": {
+        "bodyColors": {
+            "title": "Body Colors",
+            "applyToAll": "Picked colors cover every body part",
+            "parts": {
+                "head": "Head",
+                "torso": "Torso",
+                "leftArm": "Left Arm",
+                "rightArm": "Right Arm",
+                "leftLeg": "Left Leg",
+                "rightLeg": "Right Leg"
+            },
+            "savedColors": "Saved colors",
+            "noSavedColors": "No saved colors yet.",
+            "removeSavedColor": "right click to remove",
+            "robloxPalette": "Roblox palette",
+            "saveColor": "Save color",
+            "apply": "Apply",
+            "applying": "Applying...",
+            "applied": "Body colors updated.",
+            "applyFailed": "Could not update your body colors. Try again in a moment."
+        }
     }
 }

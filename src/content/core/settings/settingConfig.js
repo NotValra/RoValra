@@ -1446,6 +1446,18 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            bodyColorsEnabled: {
+                label: 'Custom Body Colors',
+                description: [
+                    "Adds a body color picker to the avatar editor, letting you use any hex color instead of only Roblox's preset palette.",
+                    'Each body part has its own row, while picking a swatch covers the whole body so you can set a skin tone in one click.',
+                    'Saved colors are kept locally so you can reuse them later. Right click a saved color to remove it.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: ['rovalra_body_color_presets'],
+                contributors: ['4489102289'],
+            },
             avatarRotatorEnabled: {
                 label: 'Avatar Rotator',
                 description: [
