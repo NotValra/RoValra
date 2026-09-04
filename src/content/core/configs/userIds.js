@@ -30,6 +30,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '390309731', // AxnxDev 
     '477516666', //return_request :3
     '4632962611' //coderpixel
+    '2605032407', // walway
 ];
 
 export const TESTER_USER_IDS = [

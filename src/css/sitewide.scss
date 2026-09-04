@@ -69,3 +69,7 @@ body:where(.dark-theme),
 .rovalra-markdown span a {
     color: inherit;
 }
+
+.rovalra-canvas > canvas {
+    border-radius: var(--radius-medium, 8px) !important;
+}
