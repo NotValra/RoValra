@@ -2161,6 +2161,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            disableThumbnailProfileFrame: {
+                label: 'Disable Roblox Thumbnail Profile Frames',
+                description: [
+                    'This prevents Roblox profile frames from showing around avatar headshots.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
                 description:
