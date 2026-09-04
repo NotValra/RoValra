@@ -56,7 +56,8 @@ export function normalizeProfilePronouns(value) {
 registerProfileEditCategory({ id: 'rovalra', label: 'RoValra Features' });
 registerProfileEditFeature('rovalra', {
     id: 'profilePronouns',
-    label: ts('profileEdit.profilePronouns'),
+
+    label: ts('profileEdit.profilePronouns') || 'Profile Pronouns',
     labelKey: 'profileEdit.profilePronouns',
     settingName: 'profilePronouns',
     getValue: async () => {
