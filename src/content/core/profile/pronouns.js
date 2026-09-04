@@ -1,3 +1,8 @@
+import {
+    registerProfileEditCategory,
+    registerProfileEditFeature,
+} from './profileEditRegistry.js';
+
 export const PROFILE_PRONOUNS_MAX_LENGTH = 15;
 
 const NON_PRONOUN_CHARACTER_SEQUENCE =
@@ -46,3 +51,61 @@ export function normalizeProfilePronouns(value) {
     );
     return normalized || null;
 }
+
+registerProfileEditCategory({ id: 'rovalra', label: 'RoValra Features' });
+registerProfileEditFeature('rovalra', {
+    id: 'profilePronouns',
+    label: 'Profile Pronouns',
+    settingName: 'profilePronouns',
+    getValue: async () => {
+        const { loadSettings } = await import('../settings/handlesettings.js');
+        const settings = await loadSettings();
+        return settings?.profilePronouns;
+    },
+    onOpen: async () => {
+        const [
+            { loadSettings },
+            { generateSingleSettingHTML },
+            { SETTINGS_CONFIG },
+        ] = await Promise.all([
+            import('../settings/handlesettings.js'),
+            import('../settings/generateSettings.js'),
+            import('../settings/settingConfig.js'),
+        ]);
+        const body = document.createElement('div');
+        body.style.cssText = 'color:var(--rovalra-main-text-color);';
+        const setting = {
+            label: 'Profile Pronouns',
+            description:
+                SETTINGS_CONFIG.Profile.settings.profilePronouns.description,
+            type: 'input',
+            placeholder: 'Enter your pronouns',
+            maxLength: PROFILE_PRONOUNS_MAX_LENGTH,
+            showCharacterCount: true,
+            useGraphemeLength: true,
+            trim: true,
+            replaceSpecialCharactersWithPipe: true,
+            agreementKey: 'rovalra_pronouns_guidelines_agreed',
+            hideContributors: true,
+        };
+        const settingElement = generateSingleSettingHTML(
+            'profilePronouns',
+            setting,
+        );
+        settingElement.classList.add('rovalra-profile-pronouns-editor');
+        body.appendChild(settingElement);
+        const settings = await loadSettings().catch(() => null);
+        const input = settingElement.querySelector('#profilePronouns');
+        if (input) {
+            input.value = settings?.profilePronouns || '';
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        return {
+            title: 'RoValra Features',
+            bodyContent: body,
+            showLogo: true,
+            maxWidth: '600px',
+            titleFontSize: '22px',
+        };
+    },
+});

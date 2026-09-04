@@ -43,6 +43,7 @@ function applyCharacterReplacements(value, replacements) {
 }
 
 async function attachContributors(container, config, isChild = false) {
+    if (config.hideContributors) return;
     if (
         isChild &&
         !Object.prototype.hasOwnProperty.call(config, 'contributors')
