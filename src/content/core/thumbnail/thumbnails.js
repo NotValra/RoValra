@@ -33,18 +33,39 @@ const RETRY_DELAY_MS = 1500;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function prepareThumbnailRequestBody(body) {
-    if (!(await settings.disableThumbnailBackground)) return body;
+    const disableThumbnailBackground =
+        await settings.disableThumbnailBackground;
+    const disableThumbnailProfileFrame =
+        await settings.disableThumbnailProfileFrame;
+
+    if (!disableThumbnailBackground && !disableThumbnailProfileFrame) {
+        return body;
+    }
 
     if (Array.isArray(body)) {
         return body.map((request) =>
             request && typeof request === 'object'
-                ? { ...request, includeBackground: false }
+                ? {
+                      ...request,
+                      ...(disableThumbnailBackground && {
+                          includeBackground: false,
+                      }),
+                      ...(disableThumbnailProfileFrame && {
+                          includeProfileFrame: false,
+                      }),
+                  }
                 : request,
         );
     }
 
     if (body && typeof body === 'object') {
-        return { ...body, includeBackground: false };
+        return {
+            ...body,
+            ...(disableThumbnailBackground && { includeBackground: false }),
+            ...(disableThumbnailProfileFrame && {
+                includeProfileFrame: false,
+            }),
+        };
     }
 
     return body;
@@ -67,6 +88,7 @@ async function fetchBatchData(
             size: size,
             isCircular: isCircular,
             includeBackground: true,
+            includeProfileFrame: true,
             requestId: `0:${item.id}:AvatarHeadshot:${size}:png:regular`,
         }));
 
@@ -236,7 +258,12 @@ async function fetchBatchData(
         if (type === 'AvatarHeadshot') {
             const includeBackground =
                 (await settings.disableThumbnailBackground) ? 'false' : 'true';
+            const includeProfileFrame =
+                (await settings.disableThumbnailProfileFrame)
+                    ? 'false'
+                    : 'true';
             endpointUrl += `&includeBackground=${includeBackground}`;
+            endpointUrl += `&includeProfileFrame=${includeProfileFrame}`;
         }
 
         const response = await callRobloxApi({

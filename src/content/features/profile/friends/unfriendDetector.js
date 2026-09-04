@@ -112,12 +112,9 @@ async function showUnfriendDetectedOverlay(unfriendedUsers) {
     bodyContent.style.padding = '16px 0';
 
     const description = document.createElement('p');
-    description.textContent =
-        unfriendedUsers.length === 1
-            ? ts('unfriendDetector.descriptionSingle')
-            : ts('unfriendDetector.descriptionPlural', {
-                  count: unfriendedUsers.length,
-              });
+    description.textContent = ts('unfriendDetector.description', {
+        count: unfriendedUsers.length,
+    });
     description.style.marginBottom = '16px';
     bodyContent.appendChild(description);
 
@@ -235,10 +232,9 @@ async function showUnfriendDetectedOverlay(unfriendedUsers) {
     );
 
     const overlay = createOverlay({
-        title:
-            unfriendedUsers.length === 1
-                ? ts('unfriendDetector.titleSingle')
-                : ts('unfriendDetector.titlePlural'),
+        title: ts('unfriendDetector.title', {
+            count: unfriendedUsers.length,
+        }),
         bodyContent,
         actions: [dismissButton],
         showLogo: true,

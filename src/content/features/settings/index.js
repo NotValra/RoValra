@@ -1756,12 +1756,12 @@ function renderContributors(container, users, thumbMap) {
             const contributions = getContributions()[String(id)];
 
             let markdown = `
-| ${await t('settings.credits.ui.popup.contributor')} | ${await t('settings.credits.ui.popup.featureName')} | ${await t('settings.credits.ui.popup.featureKey')} |
-|              -                                 |                   -                            |                       -                       |
+| ${await t('settings.credits.ui.popup.featureName')} | ${await t('settings.credits.ui.popup.featureKey')} |
+|                   -                            |                       -                       |
 `;
 
             for (const contribution of contributions) {
-                markdown += `| [${user.displayName}](${link.href}) | `;
+                markdown += `| `;
                 const featureNameText = contribution.contributionDescription
                     ? `${contribution.feature} (${await t(contribution.contributionDescription)})`
                     : contribution.feature;

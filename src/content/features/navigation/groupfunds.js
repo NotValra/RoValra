@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeAttributes, observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { ts } from '../../core/locale/i18n.js';
 import {
@@ -15,7 +15,6 @@ import { getAuthenticatedUserId } from '../../core/user.js';
 import { getUserName } from '../../core/apis/users.js';
 
 const CACHE_KEY = 'rovalra-group-funds-data';
-const CACHE_DURATION = 5 * 60 * 1000;
 const NAVBAR_SELECTORS = '#nav-robux-amount, #nav-robux-balance';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 
@@ -64,14 +63,6 @@ function getCache() {
 
 function setCache(cache) {
     chrome.storage.local.set({ [CACHE_KEY]: cache });
-}
-
-function isCacheFresh(entry) {
-    return (
-        entry &&
-        Number.isFinite(Number(entry.timestamp)) &&
-        Date.now() - entry.timestamp < CACHE_DURATION
-    );
 }
 
 async function fetchAndCacheGroupData(groupId) {
@@ -128,18 +119,6 @@ async function fetchAndCacheGroupData(groupId) {
 
     activeGroupRequests.set(groupId, request);
     return request;
-}
-
-async function ensureFreshDataForConfiguredGroups() {
-    if (!state.groupFundsEnabled || state.groupIds.length === 0) return;
-
-    const cache = await getCache();
-
-    state.groupIds.forEach((groupId) => {
-        if (!isCacheFresh(cache[groupId])) {
-            fetchAndCacheGroupData(groupId).catch(() => {});
-        }
-    });
 }
 
 function clearNavbarOverride() {
@@ -417,10 +396,6 @@ async function syncSettingsAndRender() {
     state.groupIds = sanitizeGroupIds(settings.GroupFundsIds);
     state.hideRobux = settings.streamermode && settings.hideRobux === true;
 
-    if (state.groupFundsEnabled && state.groupIds.length > 0) {
-        await ensureFreshDataForConfiguredGroups();
-    }
-
     if (shouldWarmPersonalRowData()) {
         warmPersonalRowData().catch(() => {});
     }
@@ -585,10 +560,6 @@ export function init() {
                     updateFromData(cachedData);
                 }
 
-                if (cachedData && isCacheFresh(cachedData)) {
-                    return;
-                }
-
                 const freshData = await fetchAndCacheGroupData(groupId);
 
                 if (state.renderVersion !== myVersion) return;
@@ -616,21 +587,30 @@ export function init() {
         console.error('RoValra: Failed to initialize group funds', error);
     });
 
+    const popoverOpenState = new WeakMap();
+    const isPopoverOpen = (popover) =>
+        popover instanceof HTMLElement &&
+        getComputedStyle(popover).display !== 'none';
+    const handlePopoverState = (popover) => {
+        const isOpen = isPopoverOpen(popover);
+        const wasOpen = popoverOpenState.get(popover) === true;
+        popoverOpenState.set(popover, isOpen);
+
+        if (isOpen && !wasOpen) renderSection(popover);
+    };
+
     observeElement(
         '#buy-robux-popover',
         (popover) => {
-            const menu = popover.querySelector('.dropdown-menu');
-            if (menu && menu.querySelector('.rovalra-group-funds-section')) {
-                return;
-            }
-            renderSection(popover);
+            handlePopoverState(popover);
+            observeAttributes(popover, () => handlePopoverState(popover), [
+                'class',
+                'style',
+            ]);
         },
         {
             onRemove: () => {
                 state.renderVersion++;
-                document
-                    .querySelectorAll('.rovalra-group-funds-section')
-                    .forEach((el) => el.remove());
             },
         },
     );

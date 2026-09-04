@@ -16,14 +16,14 @@ import {
 const UNDERRATED_GAMES_TOPIC_ID = 10000013058;
 const UNDERRATED_GAMES_SUB_ID = 'rovalra-underrated-games';
 const DISCORD_MARKER = '__ROVALRA_UNDERRATED_GAMES_DISCORD__';
-const DISCORD_LINK = 'https://discord.gg/YwpJFKr6Ww';
+const DISCORD_LINK = 'https://discord.gg/BjWaQ4e7AY';
 const DEFAULT_LOCALE = {
     topic: 'Underrated Games',
     subtitle: 'Underrated games hand picked by the RoValra community.',
     rotates: 'Rotates',
     suggestOnDiscord: `Suggest underrated games on ${DISCORD_MARKER}`,
     ageRestrictionWarning:
-        "Some of these games may be locked to 16+ because of Roblox's 500 HEP requirement.",
+        "Some of these games may be locked to 16+ because of Roblox's 250 HEP requirement.",
 };
 const ROTATION_MARKER = '__ROVALRA_UNDERRATED_GAMES_ROTATION__';
 
