@@ -2,6 +2,7 @@ import {
     registerProfileEditCategory,
     registerProfileEditFeature,
 } from './profileEditRegistry.js';
+import { ts } from '../locale/i18n.js';
 
 export const PROFILE_PRONOUNS_MAX_LENGTH = 15;
 
@@ -55,7 +56,8 @@ export function normalizeProfilePronouns(value) {
 registerProfileEditCategory({ id: 'rovalra', label: 'RoValra Features' });
 registerProfileEditFeature('rovalra', {
     id: 'profilePronouns',
-    label: 'Profile Pronouns',
+    label: ts('profileEdit.profilePronouns'),
+    labelKey: 'profileEdit.profilePronouns',
     settingName: 'profilePronouns',
     getValue: async () => {
         const { loadSettings } = await import('../settings/handlesettings.js');
@@ -75,11 +77,11 @@ registerProfileEditFeature('rovalra', {
         const body = document.createElement('div');
         body.style.cssText = 'color:var(--rovalra-main-text-color);';
         const setting = {
-            label: 'Profile Pronouns',
+            label: ts('profileEdit.profilePronouns'),
             description:
                 SETTINGS_CONFIG.Profile.settings.profilePronouns.description,
             type: 'input',
-            placeholder: 'Enter your pronouns',
+            placeholder: ts('profileEdit.pronounsPlaceholder'),
             maxLength: PROFILE_PRONOUNS_MAX_LENGTH,
             showCharacterCount: true,
             useGraphemeLength: true,
@@ -101,7 +103,7 @@ registerProfileEditFeature('rovalra', {
             input.dispatchEvent(new Event('input', { bubbles: true }));
         }
         return {
-            title: 'RoValra Features',
+            title: ts('profileEdit.featuresTitle'),
             bodyContent: body,
             showLogo: true,
             maxWidth: '600px',

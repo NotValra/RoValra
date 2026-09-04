@@ -1,11 +1,12 @@
 const categories = new Map();
 const listeners = new Set();
 
-export function registerProfileEditCategory({ id, label }) {
+export function registerProfileEditCategory({ id, label, labelKey }) {
     if (!id || !label)
         throw new Error('A profile edit category needs an id and label.');
     const category = categories.get(id) || { id, label, features: [] };
     category.label = label;
+    category.labelKey = labelKey;
     categories.set(id, category);
     listeners.forEach((listener) => listener());
     return category;

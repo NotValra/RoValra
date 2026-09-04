@@ -1278,6 +1278,13 @@
         "label": "Pronouns",
         "ariaLabel": "Pronouns: {{pronouns}}"
     },
+    "profileEdit": {
+        "featuresTitle": "RoValra Features",
+        "profilePronouns": "Profile Pronouns",
+        "pronounsPlaceholder": "Enter your pronouns",
+        "donatorPerks": "Donator Perks",
+        "usernameCustomizations": "Username Customizations"
+    },
     "profile": {
         "socialLinks": "Social links",
         "currencyTransfer": "Send Robux",

@@ -1,4 +1,6 @@
 import { observeElement } from '../observer.js';
+import { getAssets } from '../assets.js';
+import { ts } from '../locale/i18n.js';
 import { createOverlay } from '../ui/overlay.js';
 import {
     getProfileEditCategories,
@@ -7,6 +9,7 @@ import {
 
 const PROFILE_EDIT_PATH = '/users/profile/edit';
 const SECTION_CLASS = 'rovalra-profile-edit-features';
+const HEADER_CLASS = 'rovalra-profile-edit-features-header';
 
 function isProfileEditPage() {
     return (
@@ -41,7 +44,7 @@ function createProfileSettingRow(feature) {
     labelWrapper.className = 'flex flex-col fill clip-x justify-center';
     const label = document.createElement('div');
     label.className = 'content-emphasis text-align-x-start text-title-large';
-    label.textContent = feature.label;
+    label.textContent = feature.labelKey ? ts(feature.labelKey) : feature.label;
     labelWrapper.appendChild(label);
 
     const valueWrapper = document.createElement('div');
@@ -84,9 +87,41 @@ function renderProfileEditFeatures(container) {
             section,
         ]),
     );
-    let insertionPoint = container.querySelector(
-        'ul.foundation-web-list:last-of-type',
-    );
+    const firstSection = container.querySelector(`.${SECTION_CLASS}`);
+    let insertionPoint =
+        firstSection ||
+        container.querySelector('ul.foundation-web-list:last-of-type');
+
+    let header = container.querySelector(`.${HEADER_CLASS}`);
+    if (!header) {
+        header = document.createElement('div');
+        header.className = HEADER_CLASS;
+        Object.assign(header.style, {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '20px',
+            marginBottom: '8px',
+            color: 'var(--rovalra-main-text-color)',
+            fontSize: '18px',
+            fontWeight: '700',
+        });
+        const logo = document.createElement('img');
+        logo.src = getAssets().rovalraIcon;
+        logo.alt = '';
+        logo.width = 24;
+        logo.height = 24;
+        logo.style.objectFit = 'contain';
+        const title = document.createElement('span');
+        title.textContent = ts('profileEdit.featuresTitle');
+        header.append(logo, title);
+        if (!firstSection) {
+            insertionPoint?.insertAdjacentElement('afterend', header);
+            insertionPoint = header;
+        } else {
+            firstSection.before(header);
+        }
+    }
 
     for (const category of categories) {
         let section = existingSections.get(category.id);
@@ -94,7 +129,10 @@ function renderProfileEditFeatures(container) {
             section = document.createElement('ul');
             section.className = `foundation-web-list width-full bg-shift-100 flex flex-col radius-large clip ${SECTION_CLASS}`;
             section.dataset.rovalraProfileEditCategory = category.id;
-            section.setAttribute('aria-label', category.label);
+            section.setAttribute(
+                'aria-label',
+                category.labelKey ? ts(category.labelKey) : category.label,
+            );
             insertionPoint?.insertAdjacentElement('afterend', section);
         }
         section.replaceChildren(
