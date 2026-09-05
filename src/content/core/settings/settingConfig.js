@@ -1846,6 +1846,15 @@ export const SETTINGS_CONFIG = {
                     'rovalra_sidebar_layout_hidden',
                 ],
             },
+            voiceBanIndicatorEnabled: {
+                label: 'Voice Ban Indicator',
+                description: [
+                    'Shows a voice status icon in the top bar while your Roblox voice chat is suspended.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4632962611'],
+            },
             topbarLayoutEnabled: {
                 label: 'Topbar Layout',
                 description: [
@@ -2198,6 +2207,14 @@ export const SETTINGS_CONFIG = {
                 label: 'Disable Thumbnail Backgrounds',
                 description: [
                     'This prevents profile backgrounds from showing in avatar headshots and other places.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            disableThumbnailProfileFrame: {
+                label: 'Disable Roblox Thumbnail Profile Frames',
+                description: [
+                    'This prevents Roblox profile frames from showing around avatar headshots.',
                 ],
                 type: 'checkbox',
                 default: false,

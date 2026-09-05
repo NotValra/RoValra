@@ -583,6 +583,11 @@
         "collapseSidebar": "Collapse sidebar",
         "expandSidebar": "Expand sidebar"
     },
+    "voiceBanIndicator": {
+        "title": "Voice Banned",
+        "liftsIn": "Lifts in",
+        "noExpiry": "No expiry provided"
+    },
     "ageTheme": {
         "navbarTooltip": "Age Theme",
         "options": {
@@ -1305,6 +1310,13 @@
     "profilePronouns": {
         "label": "Pronouns",
         "ariaLabel": "Pronouns: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "RoValra Features",
+        "profilePronouns": "Profile Pronouns",
+        "pronounsPlaceholder": "Enter your pronouns",
+        "donatorPerks": "Donator Perks",
+        "usernameCustomizations": "Username Customizations"
     },
     "profile": {
         "socialLinks": "Social links",
