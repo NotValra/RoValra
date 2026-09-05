@@ -1822,7 +1822,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     privacyTogglesDropdownPrivateServerPrivacyEnabled: {
-                        label: 'Experience Status Toggle',
+                        label: 'Private Server Privacy Toggle',
                         description: [
                             'Quickly manage who can invite you to private servers.'
                         ],
@@ -1830,7 +1830,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     privacyTogglesDropdownInventoryPrivacyEnabled: {
-                        label: 'Inventory Toggle',
+                        label: 'Inventory Privacy Toggle',
                         description: [
                             'Quickly manage who can view your inventory.'
                         ],
