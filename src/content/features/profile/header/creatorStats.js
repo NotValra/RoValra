@@ -12,6 +12,7 @@ import { createPill } from '../../../core/ui/general/pill.js';
 
 const GAME_PAGE_SIZE = 50;
 const API_BATCH_SIZE = 50;
+const OWNER_RANK = 255;
 const STAT_CLASS = 'rovalra-creator-stat';
 
 let headerObserver = null;
@@ -42,6 +43,14 @@ function toStatNumber(value) {
     return Number.isFinite(number) && number >= 0
         ? number
         : 0;
+}
+
+function getValidStatNumber(value) {
+    const number = Number(value);
+
+    return Number.isFinite(number) && number >= 0
+        ? number
+        : null;
 }
 
 function normalizeProfilePath(pathname) {
@@ -221,84 +230,56 @@ async function getUserCommunityMemberships(
         : [];
 }
 
-async function getCommunityDetails(groupIds) {
-    const details = [];
+function isOwnedMembership(membership, userId) {
+    if (Number(membership?.role?.rank) === OWNER_RANK) {
+        return true;
+    }
 
-    for (
-        let index = 0;
-        index < groupIds.length;
-        index += API_BATCH_SIZE
+    return (
+        Number(
+            membership?.group?.owner?.id ??
+                membership?.group?.owner?.userId,
+        ) === userId
+    );
+}
+
+async function getCommunityMemberCount(membership) {
+    const inlineCount = getValidStatNumber(
+        membership?.group?.memberCount,
+    );
+
+    if (inlineCount !== null) {
+        return inlineCount;
+    }
+
+    const groupId = Number(
+        membership?.group?.id,
+    );
+
+    if (
+        !Number.isSafeInteger(groupId) ||
+        groupId <= 0
     ) {
-        const batch = groupIds.slice(
-            index,
-            index + API_BATCH_SIZE,
-        );
+        return null;
+    }
 
-        const data = await callRobloxApiJson({
+    try {
+        const group = await callRobloxApiJson({
             subdomain: 'groups',
-            endpoint:
-                `/v2/groups?groupIds=${batch.join(',')}`,
+            endpoint: `/v1/groups/${groupId}`,
             method: 'GET',
         });
 
-        if (Array.isArray(data?.data)) {
-            details.push(...data.data);
-        }
-    }
-
-    return details;
-}
-
-async function getMissingMemberCounts(groupIds) {
-    const counts = new Map();
-
-    const FALLBACK_BATCH_SIZE = 10;
-
-    for (
-        let index = 0;
-        index < groupIds.length;
-        index += FALLBACK_BATCH_SIZE
-    ) {
-        const batch = groupIds.slice(
-            index,
-            index + FALLBACK_BATCH_SIZE,
+        return getValidStatNumber(
+            group?.memberCount,
         );
-
-        const responses = await Promise.all(
-            batch.map(async (groupId) => {
-                try {
-                    const group =
-                        await callRobloxApiJson({
-                            subdomain: 'groups',
-                            endpoint:
-                                `/v1/groups/${groupId}`,
-                            method: 'GET',
-                        });
-
-                    return {
-                        groupId,
-                        memberCount:
-                            toStatNumber(
-                                group?.memberCount,
-                            ),
-                    };
-                } catch {
-                    return null;
-                }
-            }),
+    } catch (error) {
+        console.warn(
+            `RoValra: Failed to load member count for community ${groupId}`,
+            error,
         );
-
-        for (const response of responses) {
-            if (!response) continue;
-
-            counts.set(
-                response.groupId,
-                response.memberCount,
-            );
-        }
+        return null;
     }
-
-    return counts;
 }
 
 async function getOwnedCommunityStats(userId) {
@@ -307,108 +288,46 @@ async function getOwnedCommunityStats(userId) {
             userId,
         );
 
-    if (!memberships.length) {
-        return {
-            hasOwnedCommunities: false,
-            members: 0,
-        };
-    }
-
-    const membershipGroups = new Map();
-
-    for (const membership of memberships) {
-        const group = membership?.group;
-        const groupId = Number(group?.id);
-
-        if (
-            !Number.isSafeInteger(groupId) ||
-            groupId <= 0
-        ) {
-            continue;
-        }
-
-        membershipGroups.set(
-            groupId,
-            group,
-        );
-    }
-
-    const groupIds = Array.from(
-        membershipGroups.keys(),
+    const ownedMemberships = memberships.filter(
+        (membership) =>
+            isOwnedMembership(
+                membership,
+                userId,
+            ),
     );
 
-    if (!groupIds.length) {
+    if (!ownedMemberships.length) {
         return {
             hasOwnedCommunities: false,
             members: 0,
         };
     }
 
-    const groupDetails =
-        await getCommunityDetails(groupIds);
+    const counts = await Promise.all(
+        ownedMemberships.map((membership) =>
+            getCommunityMemberCount(
+                membership,
+            ),
+        ),
+    );
 
-    const ownedGroupIds = [];
+    const validCounts = counts.filter(
+        (count) => count !== null,
+    );
 
-    for (const group of groupDetails) {
-        const groupId = Number(group?.id);
-
-        const ownerId = Number(
-            group?.owner?.id ??
-                group?.owner?.userId,
-        );
-
-        if (
-            Number.isSafeInteger(groupId) &&
-            ownerId === userId
-        ) {
-            ownedGroupIds.push(groupId);
-        }
-    }
-
-    if (!ownedGroupIds.length) {
+    if (!validCounts.length) {
         return {
             hasOwnedCommunities: false,
             members: 0,
         };
-    }
-
-    let members = 0;
-    const missingCounts = [];
-
-    for (const groupId of ownedGroupIds) {
-        const group =
-            membershipGroups.get(groupId);
-
-        const memberCount = Number(
-            group?.memberCount,
-        );
-
-        if (
-            Number.isFinite(memberCount) &&
-            memberCount >= 0
-        ) {
-            members += memberCount;
-        } else {
-            missingCounts.push(groupId);
-        }
-    }
-
-    if (missingCounts.length) {
-        const fallbackCounts =
-            await getMissingMemberCounts(
-                missingCounts,
-            );
-
-        for (const groupId of missingCounts) {
-            members +=
-                fallbackCounts.get(groupId) ||
-                0;
-        }
     }
 
     return {
         hasOwnedCommunities: true,
-        members,
+        members: validCounts.reduce(
+            (total, count) => total + count,
+            0,
+        ),
     };
 }
 
