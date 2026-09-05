@@ -624,10 +624,12 @@ async function initializePage() {
         setTimeout(runSettingsMaintenance, 0);
     };
 
-    const startFeatures = () => {
+    const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        t('__i18n_ready__').catch(() => {});
+        await t('__i18n_ready__').catch((error) =>
+            console.error('RoValra: Locale initialization failed.', error),
+        );
         enforceSettingOverrides().catch((error) =>
             console.error(
                 'RoValra: Failed to enforce setting overrides.',
@@ -718,12 +720,19 @@ async function initializePage() {
     }
 
     if (document.body) {
-        startFeatures();
+        startFeatures().catch((error) =>
+            console.error('RoValra: Feature initialization failed', error),
+        );
     } else {
         const docObserverForBody = new MutationObserver((_, obs) => {
             if (document.body) {
                 obs.disconnect();
-                startFeatures();
+                startFeatures().catch((error) =>
+                    console.error(
+                        'RoValra: Feature initialization failed',
+                        error,
+                    ),
+                );
             }
         }); //Verified
         docObserverForBody.observe(document.documentElement, {
