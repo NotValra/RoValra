@@ -1472,6 +1472,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            bodyColorsEnabled: {
+                label: 'Custom Body Colors',
+                description: [
+                    "Adds a custom color to the body colors in the avatar editor, so you are not limited to Roblox's preset palette.",
+                    'Colors you pick are saved next to the presets so you can reuse them. Right click a saved color to remove it.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: ['rovalra_body_color_presets'],
+                contributors: ['4489102289'],
+            },
             avatarRotatorEnabled: {
                 label: 'Avatar Rotator',
                 description: [
