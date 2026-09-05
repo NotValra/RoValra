@@ -2481,7 +2481,7 @@ export const SETTINGS_CONFIG = {
                     'Shows you whenever certain settings were replaced or removed.',
                 ],
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['1564574922'],
             },
             FunStuffEnabled: {
@@ -3021,7 +3021,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Verbose Debugging',
                 description: ['Displays extended debugging information.'],
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['1564574922'],
                 experimental:
                     "This feature isn't yet widely used within RoValra.",

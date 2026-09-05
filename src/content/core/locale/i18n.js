@@ -49,7 +49,7 @@ export async function t(key, options) {
  * Synchronously gets a translation. If i18n is not yet initialized, it will
  * return the key itself as a fallback.
  * @param {string} key The translation key.
- * @param {object} [options] i18next options.
+ * @param {import("i18next").TOptions} [options] i18next options.
  * @returns {string} The translated string or the key if not available.
  */
 export function ts(key, options) {
