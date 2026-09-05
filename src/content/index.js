@@ -108,6 +108,7 @@ import { init as initTradePreview } from './features/trading/tradePreview.js';
 import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
+import { init as initBlockUser } from './features/trading/blockUser.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -448,6 +449,7 @@ const featureRoutes = [
             initTradeFilter,
             initTradeSearch,
             initTradeProof,
+            initBlockUser,
         ],
     },
 
