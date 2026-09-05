@@ -686,6 +686,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            creatorStatsEnabled: {
+                label: 'Creator Stats',
+                description: [
+                    "Shows a user's combined CCU, experience visits, and owned community member count on their profile.",
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+            },
             socialLinksEnabled: {
                 label: 'Profile Social Links',
                 description: [

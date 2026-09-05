@@ -141,6 +141,7 @@ import { init as initProfileShowcase } from './features/profile/showcase.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
+import { init as initCreatorStats } from './features/profile/header/creatorStats.js';
 import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
@@ -397,6 +398,7 @@ const featureRoutes = [
             initLastPlayed,
             initProfilePronouns,
             initProfileNotes,
+            initCreatorStats,
             initProfileViews,
             initCurrentlyPlayingSubplace,
             initGroupRole,

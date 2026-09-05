@@ -1351,6 +1351,14 @@
         },
         "tooltip": "Sort by when the user joined the community"
     },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Visits",
+        "members": "Members",
+        "ccuTooltip": "Current players across public experiences created by this user.",
+        "visitsTooltip": "Lifetime visits across public experiences created by this user.",
+        "membersTooltip": "Members across communities owned by this user."
+        },
     "plus": {
         "stats": {
             "robux": "You've saved {{robux}} when you had Plus",
