@@ -166,7 +166,7 @@ import { init as initProfileCustomization } from './features/profile/profileCust
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
-import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
+import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -624,23 +624,32 @@ async function initializePage() {
         setTimeout(runSettingsMaintenance, 0);
     };
 
-    const startFeatures = async () => {
+    const startFeatures = () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => {});
-
-        await enforceSettingOverrides();
-        const settings = await loadSettings();
-        document.dispatchEvent(
-            new CustomEvent('rovalra:settingsState', {
-                detail: {
-                    disableThumbnailBackground:
-                        settings.disableThumbnailBackground === true,
-                    disableThumbnailProfileFrame:
-                        settings.disableThumbnailProfileFrame === true,
-                },
-            }),
+        t('__i18n_ready__').catch(() => {});
+        enforceSettingOverrides().catch((error) =>
+            console.error(
+                'RoValra: Failed to enforce setting overrides.',
+                error,
+            ),
         );
+        loadSettings()
+            .then((settings) => {
+                document.dispatchEvent(
+                    new CustomEvent('rovalra:settingsState', {
+                        detail: {
+                            disableThumbnailBackground:
+                                settings.disableThumbnailBackground === true,
+                            disableThumbnailProfileFrame:
+                                settings.disableThumbnailProfileFrame === true,
+                        },
+                    }),
+                );
+            })
+            .catch((error) =>
+                console.error('RoValra: Failed to load settings.', error),
+            );
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 
@@ -709,19 +718,12 @@ async function initializePage() {
     }
 
     if (document.body) {
-        startFeatures().catch((error) =>
-            console.error('RoValra: Feature initialization failed', error),
-        );
+        startFeatures();
     } else {
         const docObserverForBody = new MutationObserver((_, obs) => {
             if (document.body) {
                 obs.disconnect();
-                startFeatures().catch((error) =>
-                    console.error(
-                        'RoValra: Feature initialization failed',
-                        error,
-                    ),
-                );
+                startFeatures();
             }
         }); //Verified
         docObserverForBody.observe(document.documentElement, {
