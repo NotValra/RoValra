@@ -17,11 +17,14 @@ const containerClasses =
 let containerObserver = null;
 let changeListenerAttached = false;
 let renderPromise = null;
+let upsertPromise = Promise.resolve();
 let initialized = false;
 let hasRenderedRealData = false;
 
 function removeTransferLimits() {
-    document.querySelector('.rovalra-plus-transfer-limits')?.remove();
+    document
+        .querySelectorAll('.rovalra-plus-transfer-limits')
+        .forEach((element) => element.remove());
 }
 
 async function isFeatureEnabled() {
@@ -103,14 +106,12 @@ function findInsertionPoint() {
     return null;
 }
 
-async function upsertTransferLimits(data = null) {
+async function upsertTransferLimitsNow(data = null) {
     const insertionPoint = findInsertionPoint();
     if (!insertionPoint?.parent) return false;
     if (!data && hasRenderedRealData) return true;
 
-    insertionPoint.parent
-        .querySelector('.rovalra-plus-transfer-limits')
-        ?.remove();
+    removeTransferLimits();
 
     const container = document.createElement('div');
     container.className = containerClasses;
@@ -159,6 +160,15 @@ async function upsertTransferLimits(data = null) {
     }
 
     return true;
+}
+
+function upsertTransferLimits(data = null) {
+    const update = upsertPromise.then(
+        () => upsertTransferLimitsNow(data),
+        () => upsertTransferLimitsNow(data),
+    );
+    upsertPromise = update.then(() => undefined, () => undefined);
+    return update;
 }
 
 async function renderTransferLimits() {

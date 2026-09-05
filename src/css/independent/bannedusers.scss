@@ -97,3 +97,40 @@
         pointer-events: auto;
     }
 }
+
+#friends-carousel-container {
+    .rovalra-banned-friends-scroll {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding: 18px 0 24px;
+        margin: -18px 0 -24px;
+    }
+
+    .rovalra-banned-friends-list {
+        display: flex;
+        align-items: flex-start;
+        gap: 35px;
+        min-width: max-content;
+        overflow: visible !important;
+        padding: 0 4px;
+    }
+
+    .rovalra-banned-friends-list > .friends-carousel-tile {
+        flex: 0 0 auto;
+        overflow: visible;
+    }
+
+    .rovalra-banned-friends-list .user-card-inner,
+    .rovalra-banned-friends-list .user-card {
+        overflow: visible !important;
+    }
+
+    .rovalra-banned-friends-list .avatar-status {
+        overflow: visible !important;
+        z-index: 2;
+    }
+
+    .rovalra-banned-friends-list .avatar-status [data-testid='presence-icon'] {
+        overflow: visible !important;
+    }
+}

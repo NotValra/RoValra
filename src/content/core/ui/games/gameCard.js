@@ -40,8 +40,12 @@ import { getCachedFriendsList } from '../../utils/trackers/friendslist.js';
 const BATCH_WAIT = 50;
 const MAX_BATCH = 50;
 
+const placeQueue = new Map();
+let placeTimer = null;
 const universeQueue = new Map();
 let universeTimer = null;
+const fallbackVoteQueue = new Map();
+let fallbackVoteTimer = null;
 
 async function fetchWithRetry(subdomain, endpoint, retries = 3) {
     try {
@@ -61,17 +65,117 @@ async function fetchWithRetry(subdomain, endpoint, retries = 3) {
     }
 }
 
-async function getUniverseIdFromPlaceId(placeId) {
-    const res = await callRobloxApi({
-        subdomain: 'games',
-        endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-        method: 'GET',
-    });
-    const data = await res.json();
-    if (Array.isArray(data) && data[0] && data[0].universeId) {
-        return data[0].universeId;
+function flushPlaceQueue() {
+    const currentMap = new Map(placeQueue);
+    placeQueue.clear();
+    placeTimer = null;
+
+    const ids = Array.from(currentMap.keys());
+    for (let i = 0; i < ids.length; i += MAX_BATCH) {
+        const chunk = ids.slice(i, i + MAX_BATCH);
+        const query = chunk
+            .map((id) => `placeIds=${encodeURIComponent(id)}`)
+            .join('&');
+
+        fetchWithRetry('games', `/v1/games/multiget-place-details?${query}`)
+            .then((data) => {
+                const detailsByPlaceId = new Map(
+                    (Array.isArray(data) ? data : []).map((detail) => [
+                        String(detail.placeId),
+                        detail,
+                    ]),
+                );
+
+                chunk.forEach((id) => {
+                    const resolvers = currentMap.get(id);
+                    const detail = detailsByPlaceId.get(id);
+                    if (detail) {
+                        resolvers.forEach((resolver) =>
+                            resolver.resolve(detail),
+                        );
+                    } else {
+                        resolvers.forEach((resolver) =>
+                            resolver.reject(new Error('Place not found')),
+                        );
+                    }
+                });
+            })
+            .catch((error) => {
+                chunk.forEach((id) => {
+                    const resolvers = currentMap.get(id);
+                    if (resolvers) {
+                        resolvers.forEach((resolver) => resolver.reject(error));
+                    }
+                });
+            });
     }
-    throw new Error('Place not found');
+}
+
+function getPlaceDetails(placeId) {
+    const id = String(placeId);
+    return new Promise((resolve, reject) => {
+        if (!placeQueue.has(id)) placeQueue.set(id, []);
+        placeQueue.get(id).push({ resolve, reject });
+        if (!placeTimer) placeTimer = setTimeout(flushPlaceQueue, BATCH_WAIT);
+    });
+}
+
+function flushFallbackVoteQueue() {
+    const currentMap = new Map(fallbackVoteQueue);
+    fallbackVoteQueue.clear();
+    fallbackVoteTimer = null;
+
+    const ids = Array.from(currentMap.keys());
+    for (let i = 0; i < ids.length; i += MAX_BATCH) {
+        const chunk = ids.slice(i, i + MAX_BATCH);
+        fetchWithRetry(
+            'games',
+            `/v1/games/votes?universeIds=${chunk.join(',')}`,
+        )
+            .then((data) => {
+                const voteMap = new Map(
+                    (data?.data || []).map((vote) => [String(vote.id), vote]),
+                );
+
+                chunk.forEach((id) => {
+                    const vote = voteMap.get(id) || {
+                        upVotes: 0,
+                        downVotes: 0,
+                    };
+                    currentMap
+                        .get(id)
+                        .forEach((resolver) => resolver.resolve(vote));
+                });
+            })
+            .catch((error) => {
+                chunk.forEach((id) => {
+                    currentMap
+                        .get(id)
+                        .forEach((resolver) => resolver.reject(error));
+                });
+            });
+    }
+}
+
+function getFallbackVote(universeId) {
+    const id = String(universeId);
+    return new Promise((resolve, reject) => {
+        if (!fallbackVoteQueue.has(id)) fallbackVoteQueue.set(id, []);
+        fallbackVoteQueue.get(id).push({ resolve, reject });
+        if (!fallbackVoteTimer) {
+            fallbackVoteTimer = setTimeout(flushFallbackVoteQueue, BATCH_WAIT);
+        }
+    });
+}
+
+function getGameVote(game) {
+    const upVotes =
+        game?.upVotes ?? game?.likes ?? game?.voteData?.upVotes ?? null;
+    const downVotes =
+        game?.downVotes ?? game?.dislikes ?? game?.voteData?.downVotes ?? null;
+
+    if (!Number.isFinite(upVotes) || !Number.isFinite(downVotes)) return null;
+    return { upVotes, downVotes };
 }
 
 function flushUniverseQueue() {
@@ -84,29 +188,20 @@ function flushUniverseQueue() {
 
     for (let i = 0; i < ids.length; i += MAX_BATCH) {
         const chunk = ids.slice(i, i + MAX_BATCH);
-        const idsStr =
-            chunk.length > 2 ? chunk.join(',') : `1,${chunk.join(',')}`;
 
-        Promise.all([
-            fetchWithRetry('games', `/v1/games?universeIds=${idsStr}`),
-            fetchWithRetry('games', `/v1/games/votes?universeIds=${idsStr}`),
-        ])
-            .then(([gamesData, votesData]) => {
-                const games = gamesData.data || [];
-                const votes = votesData.data || [];
+        const idsStr = [1, ...chunk].join(',');
+
+        fetchWithRetry('games', `/v1/games?universeIds=${idsStr}`)
+            .then((gamesData) => {
+                const games = gamesData?.data || [];
                 const gameMap = new Map(games.map((g) => [g.id, g]));
-                const voteMap = new Map(votes.map((v) => [v.id, v]));
 
                 chunk.forEach((id) => {
                     const resolvers = currentMap.get(id);
                     const game = gameMap.get(id);
-                    const vote = voteMap.get(id) || {
-                        upVotes: 0,
-                        downVotes: 0,
-                    };
 
                     if (game) {
-                        resolvers.forEach((r) => r.resolve({ game, vote }));
+                        resolvers.forEach((r) => r.resolve({ game }));
                     } else {
                         resolvers.forEach((r) =>
                             r.reject(new Error('Game not found')),
@@ -187,12 +282,19 @@ export function createGameCard(options) {
 
         (async () => {
             try {
-                let targetUniverseId = gameId || game?.id;
-                let targetPlaceId = placeId || game?.rootPlaceId;
+                let targetUniverseId = gameId || game?.id || game?.universeId;
+                let targetPlaceId =
+                    placeId ||
+                    game?.rootPlaceId ||
+                    game?.universeRootPlaceId ||
+                    game?.placeId;
+                let placeDetails = null;
 
-                if (!targetUniverseId && targetPlaceId) {
-                    targetUniverseId =
-                        await getUniverseIdFromPlaceId(targetPlaceId);
+                if (targetPlaceId) {
+                    placeDetails = await getPlaceDetails(targetPlaceId).catch(
+                        () => null,
+                    );
+                    targetUniverseId ||= placeDetails?.universeId;
                 }
 
                 if (!targetUniverseId)
@@ -202,10 +304,7 @@ export function createGameCard(options) {
                     ?.dataset?.userid;
 
                 const promises = [
-                    getGameData(targetUniverseId).catch(() => ({
-                        game: null,
-                        vote: { upVotes: 0, downVotes: 0 },
-                    })),
+                    getGameData(targetUniverseId).catch(() => null),
                     fetchThumbnails(
                         [{ id: targetUniverseId }],
                         'GameIcon',
@@ -218,12 +317,49 @@ export function createGameCard(options) {
                 }
 
                 const results = await Promise.all(promises);
-                const { game: gameInfo, vote: voteInfo } = results[0];
+                const gameInfo = results[0]?.game;
                 const thumbMap = results[1];
                 const friendsData = userId ? results[2] : null;
 
-                const finalGame = game || gameInfo;
+                const usableGame =
+                    gameInfo &&
+                    String(gameInfo.id) === String(targetUniverseId) &&
+                    gameInfo.rootPlaceId > 0 &&
+                    gameInfo.name !== '[TITLE UNAVAILABLE]';
+                const needsFallback = !usableGame;
+
+                if (needsFallback && !placeDetails && targetPlaceId) {
+                    placeDetails = await getPlaceDetails(targetPlaceId).catch(
+                        () => null,
+                    );
+                }
+
+                const finalGame = game?.id
+                    ? game
+                    : needsFallback
+                      ? {
+                            ...(gameInfo || {}),
+                            id: Number(targetUniverseId),
+                            rootPlaceId: Number(
+                                placeDetails?.universeRootPlaceId ||
+                                    targetPlaceId ||
+                                    0,
+                            ),
+                            name:
+                                placeDetails?.name ||
+                                placeDetails?.sourceName ||
+                                gameInfo?.name,
+                            playing: 0,
+                        }
+                      : gameInfo;
                 if (!finalGame) throw new Error('Game not found');
+
+                const voteInfo =
+                    getGameVote(gameInfo) ||
+                    (await getFallbackVote(targetUniverseId).catch(() => ({
+                        upVotes: 0,
+                        downVotes: 0,
+                    })));
 
                 const universeId = finalGame.id;
                 const fetchedStats = {

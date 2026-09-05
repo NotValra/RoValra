@@ -616,7 +616,19 @@ export function displayServerFullStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    container.querySelector(`.${CLASSES.Region}`)?.remove();
+    const regionElement = container.querySelector(`.${CLASSES.Region}`);
+    const hasRegion =
+        regionElement &&
+        regionElement.style.display !== 'none' &&
+        !['Unknown', 'N/A', 'Unknown Region'].includes(
+            regionElement.textContent.trim(),
+        );
+
+    if (hasRegion) {
+        container.querySelector(`.${CLASSES.Full}`)?.remove();
+        return;
+    }
+
     updateInfoElement(container, 'Full', ICONS.full, 'Server is Full', true);
 }
 
@@ -782,7 +794,10 @@ export async function fetchAndDisplayRegion(
 
         if (server.dataset.rovalraServerid !== serverId) return;
 
-        const joinBtn = server.querySelector('.game-server-join-btn');
+        const joinBtn = server.querySelector(
+            '.game-server-join-btn, .rovalra-join-btn',
+        );
+        const status = Number(info.status);
 
         if (info.joinScript) {
             const joinScript = info.joinScript;
@@ -819,7 +834,7 @@ export async function fetchAndDisplayRegion(
             }
         }
 
-        if (info.status === 12) {
+        if (status === 12) {
             if (info.message?.includes('private instance')) {
             } else if (
                 info.message?.toLowerCase().includes('purchase access')
@@ -832,7 +847,7 @@ export async function fetchAndDisplayRegion(
             }
         }
 
-        if (info.status === 5) {
+        if (status === 5) {
             if (!serverStatuses[serverId]) {
                 serverStatuses[serverId] = 'inactive';
                 displayInactivePlaceStatus(server);
@@ -840,19 +855,19 @@ export async function fetchAndDisplayRegion(
             return;
         }
 
-        if (info.status === 22) {
+        if (status === 22) {
             if (isFullServerIndicatorsEnabled) {
                 if (joinBtn) {
-                    joinBtn.textContent = 'Server Full';
+                    const joinLabel =
+                        joinBtn.querySelector('.text-no-wrap') || joinBtn;
+                    joinLabel.textContent = 'Join (Server Full)';
                     joinBtn.classList.replace(
                         'btn-primary-md',
                         'btn-secondary-md',
                     );
                 }
-                if (!serverStatuses[serverId]) {
-                    serverStatuses[serverId] = 'full';
-                    displayServerFullStatus(server);
-                }
+                serverStatuses[serverId] = 'full';
+                displayServerFullStatus(server);
             }
             return;
         }

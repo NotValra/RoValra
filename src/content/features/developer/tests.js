@@ -96,8 +96,10 @@ async function renderTestPage(contentDiv) {
                     ? 'Hidden User'
                     : profile.names.combinedName;
                 const username = isHidden ? '' : `@${profile.names.username}`;
-                const isVerified = isHidden ? '' : profile.isVerified
-                const isSubscribed = isHidden ? '' : profile.hasRobloxSubscription
+                const isVerified = isHidden ? '' : profile.isVerified;
+                const isSubscribed = isHidden
+                    ? ''
+                    : profile.hasRobloxSubscription;
 
                 const tile = createFriendTile(item, thumbData, {
                     displayName,
@@ -128,6 +130,8 @@ async function renderTestPage(contentDiv) {
     const LonggameId = 14056754882;
     const Longcard = createGameCard(LonggameId);
     container.appendChild(Longcard);
+
+    container.appendChild(createGameCard(82217838505836)); // Broken game card
     const itemId = 48894692;
     const itemCard = createItemCard(itemId);
     container.appendChild(itemCard);
@@ -205,7 +209,17 @@ async function renderTestPage(contentDiv) {
         rovalra: true,
         size: 'xx-large',
     });
-    container.append(document.createElement('br'), builderIconsHeader, document.createElement('br'), builderIcon, builderIconFilled, materialIcon, materialIconFilled, rovalraIcon, rovalraContributorIcon);
+    container.append(
+        document.createElement('br'),
+        builderIconsHeader,
+        document.createElement('br'),
+        builderIcon,
+        builderIconFilled,
+        materialIcon,
+        materialIconFilled,
+        rovalraIcon,
+        rovalraContributorIcon,
+    );
 
     removeHomeElement();
 }

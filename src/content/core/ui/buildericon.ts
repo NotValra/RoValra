@@ -24,7 +24,7 @@ type PresetSizeAlias =
 
 type Sizes = PresetSizes | CSSLength;
 
-interface Icon {
+export interface Icon {
     icon: string,
     filled: boolean,
     size: Sizes,
@@ -32,11 +32,11 @@ interface Icon {
     rovalra: boolean
 }
 
-type IconInfo =  {
+export type IconInfo =  {
     isIcon: boolean,
 } & Icon;
 
-type IconOptions = {
+export type IconOptions = {
     filled?: boolean,
     size?: Sizes,
     classes?: string | string[],

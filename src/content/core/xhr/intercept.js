@@ -1,3 +1,27 @@
+const AccessoryAssetTypes = [
+    8,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+];
+
+const LayeredAssetTypes = [
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    41,
+];
+
 (function () {
     'use strict';
 
@@ -31,6 +55,9 @@
         'https://apis.roblox.com/discovery-api/omni-recommendation';
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
     const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
+    const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
+    const THUMBNAIL_BACKGROUND_SETTING = 'disableThumbnailBackground';
+    const THUMBNAIL_PROFILE_FRAME_SETTING = 'disableThumbnailProfileFrame';
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -47,6 +74,127 @@
     let resolveHomeLayoutReady = null;
     let robloxGroupFeaturesEnabled = true;
     let freeRobloxPlusThemesEnabled = false;
+    let disableThumbnailBackground = false;
+    let disableThumbnailProfileFrame = false;
+
+    function updateThumbnailBackgroundSetting(value) {
+        disableThumbnailBackground = value === true;
+    }
+
+    function updateThumbnailProfileFrameSetting(value) {
+        disableThumbnailProfileFrame = value === true;
+    }
+
+    function isThumbnailsApiRequest(url) {
+        try {
+            return new URL(url, window.location.origin).hostname ===
+                THUMBNAILS_API_HOST;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function rewriteThumbnailRequestBody(body) {
+        if (typeof body !== 'string' || !body) return body;
+
+        try {
+            const data = JSON.parse(body);
+            if (!data || typeof data !== 'object') {
+                return body;
+            }
+
+            if (Array.isArray(data)) {
+                data.forEach((request) => {
+                    if (request && typeof request === 'object') {
+                        if (disableThumbnailBackground) {
+                            request.includeBackground = false;
+                        }
+                        if (disableThumbnailProfileFrame) {
+                            request.includeProfileFrame = false;
+                        }
+                    }
+                });
+            } else {
+                if (disableThumbnailBackground) data.includeBackground = false;
+                if (disableThumbnailProfileFrame) {
+                    data.includeProfileFrame = false;
+                }
+            }
+
+            return JSON.stringify(data);
+        } catch (e) {
+            return body;
+        }
+    }
+
+    function rewriteThumbnailRequestUrl(url) {
+        if (
+            (!disableThumbnailBackground && !disableThumbnailProfileFrame) ||
+            !isThumbnailsApiRequest(url)
+        ) {
+            return url;
+        }
+
+        try {
+            const rewrittenUrl = new URL(url, window.location.origin);
+            if (disableThumbnailBackground) {
+                rewrittenUrl.searchParams.set('includeBackground', 'false');
+            }
+            if (disableThumbnailProfileFrame) {
+                rewrittenUrl.searchParams.set('includeProfileFrame', 'false');
+            }
+            return rewrittenUrl.toString();
+        } catch (e) {
+            return url;
+        }
+    }
+
+    async function rewriteThumbnailFetchArgs(args, requestUrl) {
+        if (
+            (!disableThumbnailBackground && !disableThumbnailProfileFrame) ||
+            !isThumbnailsApiRequest(requestUrl)
+        ) {
+            return args;
+        }
+
+        const [input, init] = args;
+        const rewrittenUrl = rewriteThumbnailRequestUrl(requestUrl);
+        if (init?.body !== undefined) {
+            return [
+                rewrittenUrl,
+                { ...init, body: rewriteThumbnailRequestBody(init.body) },
+            ];
+        }
+
+        if (!(input instanceof Request)) return args;
+
+        try {
+            const body = await input.clone().text();
+            const rewrittenBody = rewriteThumbnailRequestBody(body);
+            if (rewrittenUrl === requestUrl && rewrittenBody === body) {
+                return args;
+            }
+
+            return [
+                new Request(rewrittenUrl, {
+                    method: input.method,
+                    headers: input.headers,
+                    body: rewrittenBody || undefined,
+                    credentials: input.credentials,
+                    mode: input.mode,
+                    cache: input.cache,
+                    redirect: input.redirect,
+                    referrer: input.referrer,
+                    referrerPolicy: input.referrerPolicy,
+                    integrity: input.integrity,
+                    keepalive: input.keepalive,
+                }),
+                init,
+            ];
+        } catch (e) {
+            return args;
+        }
+    }
 
     try {
         freeRobloxPlusThemesEnabled =
@@ -58,10 +206,33 @@
             robloxGroupFeaturesEnabled = event.detail.value !== false;
         }
     });
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        if (event.detail?.name === THUMBNAIL_BACKGROUND_SETTING) {
+            updateThumbnailBackgroundSetting(event.detail.value);
+        }
+        if (event.detail?.name === THUMBNAIL_PROFILE_FRAME_SETTING) {
+            updateThumbnailProfileFrameSetting(event.detail.value);
+        }
+    });
     document.addEventListener('rovalra:settingsState', (event) => {
         if (typeof event.detail?.robloxGroupFeaturesEnabled === 'boolean') {
             robloxGroupFeaturesEnabled =
                 event.detail.robloxGroupFeaturesEnabled;
+        }
+        if (
+            typeof event.detail?.[THUMBNAIL_BACKGROUND_SETTING] ===
+            'boolean'
+        ) {
+            updateThumbnailBackgroundSetting(
+                event.detail[THUMBNAIL_BACKGROUND_SETTING],
+            );
+        }
+        if (
+            typeof event.detail?.[THUMBNAIL_PROFILE_FRAME_SETTING] === 'boolean'
+        ) {
+            updateThumbnailProfileFrameSetting(
+                event.detail[THUMBNAIL_PROFILE_FRAME_SETTING],
+            );
         }
     });
     document.addEventListener('rovalra:settingSaved', (event) => {
@@ -605,6 +776,8 @@
         const [url] = args;
         const requestUrl = getRequestUrl(url);
 
+        args = await rewriteThumbnailFetchArgs(args, requestUrl);
+
         let response = await originalFetch(...args);
 
         if (
@@ -854,6 +1027,12 @@
     const originalXhrSend = XMLHttpRequest.prototype.send;
 
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        if (
+            typeof url === 'string' &&
+            (disableThumbnailBackground || disableThumbnailProfileFrame)
+        ) {
+            url = rewriteThumbnailRequestUrl(url);
+        }
         this._rovalra_url = url;
         this._rovalra_method = method;
 
@@ -894,6 +1073,12 @@
 
     XMLHttpRequest.prototype.send = function (...args) {
         const xhr = this;
+        if (
+            (disableThumbnailBackground || disableThumbnailProfileFrame) &&
+            isThumbnailsApiRequest(xhr._rovalra_url)
+        ) {
+            args[0] = rewriteThumbnailRequestBody(args[0]);
+        }
         if (
             xhr._rovalra_spoof_settings ||
             xhr._rovalra_spoof_phone ||
@@ -1107,6 +1292,7 @@
     document.addEventListener('rovalra-multi-equip', (e) => {
         if (e.detail) {
             if (typeof e.detail.enabled === 'boolean') {
+                window.rovalraMultiEquipEnabled = e.detail.enabled;
                 multiAccessoryEnabled = e.detail.enabled;
             }
             if (Array.isArray(e.detail.accessories)) {
@@ -1227,6 +1413,85 @@
                     }
                 },
             });
+        }
+
+        const customEquipAsset = (...args) => {
+            const [assetToAdd, assetArr] = args
+            let accessoryCount = 0
+            let layeredCount = 0
+
+            const assetToAddIsAccessory = AccessoryAssetTypes.includes(assetToAdd.assetType.id)
+            const assetToAddIsLayered = LayeredAssetTypes.includes(assetToAdd.assetType.id)
+
+            const newAssetArr = []
+
+            for (const asset of assetArr.toReversed()) {
+                let canAdd = true
+
+                //enforce accessory limit (10)
+                if (AccessoryAssetTypes.includes(asset.assetType.id)) {
+                    accessoryCount++
+                    if (accessoryCount >= 10 && assetToAddIsAccessory) canAdd = false
+                }
+
+                //enforce layered limit (10, also includes hair)
+                if (LayeredAssetTypes.includes(asset.assetType.id)) {
+                    layeredCount++
+                    if (layeredCount >= 10 && assetToAddIsLayered) canAdd = false
+                }
+
+                //enforce limit of items you can only equip one of (although this never happens because then we dont hijack)
+                if (!assetToAddIsAccessory && !assetToAddIsLayered && assetToAdd.assetType.id === asset.assetType.id) {
+                    canAdd = false
+                }
+
+                if (canAdd) newAssetArr.push(asset)
+            }
+
+            newAssetArr.reverse()
+            newAssetArr.push(assetToAdd)
+
+            return newAssetArr
+        }
+
+        const originalDefineProperty = Object.defineProperty
+        Object.defineProperty = function(obj, prop, descriptor) {
+            //find modules
+            if (prop === "__esModule") {
+                setTimeout(() => {
+                    //if module includes addAssetToAvatar
+                    if (Object.keys(obj).includes("addAssetToAvatar")) {
+                        const originalDescriptor = Object.getOwnPropertyDescriptor(obj, "addAssetToAvatar")
+                        const originalGetter = originalDescriptor.get
+                        const originalAddAssetToAvatar = originalGetter()
+
+                        //hijack addAssetToAvatar when needed
+                        Object.defineProperty(obj, "addAssetToAvatar", {
+                            get() {
+                                return (...args) => {
+                                    const [asset] = args
+
+                                    const isAccessory = AccessoryAssetTypes.includes(asset.assetType.id)
+                                    const isLayered = LayeredAssetTypes.includes(asset.assetType.id)
+                                    const needsHijack = isAccessory || isLayered
+
+                                    if (window.rovalraMultiEquipEnabled && needsHijack) {
+                                        return customEquipAsset(...args)
+                                    } else {
+                                        return originalAddAssetToAvatar(...args)
+                                    }
+                                }
+                            },
+                            configurable: true,
+                        })
+                    }
+                }, 1)
+            }
+            if (prop === "addAssetToAvatar") {
+                descriptor.configurable = true
+            }
+
+            return originalDefineProperty.call(Object, obj, prop, descriptor)
         }
     };
 

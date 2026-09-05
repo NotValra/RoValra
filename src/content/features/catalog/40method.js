@@ -299,6 +299,16 @@ const getCurrentUserId = () => {
     return meta ? meta.getAttribute('data-userid') : null;
 };
 
+const getCurrentUserRobux = async (userId) => {
+    try {
+        const currencyData = await getUserCurrency(userId);
+        return currencyData?.robux || 0;
+    } catch (error) {
+        console.warn('Could not fetch user balance:', error);
+        return 0;
+    }
+};
+
 const getCartItems = () => {
     const cartModal = document.querySelector('.shopping-cart-modal');
     if (!cartModal) return [];
@@ -1654,20 +1664,7 @@ const executeCartPurchase = async (
         }
     }
 
-    let userRobux = 0;
-    if (prefetchData && prefetchData.balance) {
-        try {
-            const bal = await prefetchData.balance;
-            if (bal) userRobux = bal.robux || 0;
-        } catch (e) {}
-    } else {
-        try {
-            const balanceData = await getUserCurrency(currentUserId);
-            if (balanceData) userRobux = balanceData.robux || 0;
-        } catch (error) {
-            console.warn('Could not fetch user balance:', error);
-        }
-    }
+    const userRobux = await getCurrentUserRobux(currentUserId);
 
     ensureNotCancelled();
 
@@ -2103,20 +2100,7 @@ const execute40MethodPurchase = async (
 
     ensureNotCancelled();
 
-    let userRobux = 0;
-    if (prefetchData && prefetchData.balance) {
-        try {
-            const bal = await prefetchData.balance;
-            if (bal) userRobux = bal.robux || 0;
-        } catch (e) {}
-    } else {
-        try {
-            const balanceData = await getUserCurrency(currentUserId);
-            if (balanceData) userRobux = balanceData.robux || 0;
-        } catch (error) {
-            console.warn('Could not fetch user balance:', error);
-        }
-    }
+    const userRobux = await getCurrentUserRobux(currentUserId);
 
     ensureNotCancelled();
     const robuxAfterPurchase = userRobux - robuxPrice;
@@ -2134,11 +2118,7 @@ const execute40MethodPurchase = async (
     ) {
         const subcategoryId = assetToSubcategoryMap[String(assetType)];
         if (classicClothingSubcategories.includes(subcategoryId)) {
-            if (robuxPrice < 10) {
-                savingsPercentage = 0;
-            } else {
-                savingsPercentage = 0.1;
-            }
+            savingsPercentage = 0.4;
         }
     }
     const robuxSaved = Math.floor(robuxPrice * savingsPercentage);
@@ -2455,7 +2435,6 @@ const addSaveButton = (modal) => {
         const currentUserId = getCurrentUserId();
         const prefetchData = {
             storage: null,
-            balance: null,
             gameInfo: null,
             gameThumb: null,
             ownership: null,
@@ -2471,10 +2450,6 @@ const addSaveButton = (modal) => {
                     resolve,
                 ),
             );
-
-            prefetchData.balance = getUserCurrency(currentUserId).catch(() => ({
-                robux: 0,
-            }));
 
             prefetchData.gameInfo = prefetchData.storage.then(async (res) => {
                 const savedPlaceId = res.RobuxPlaceId;
@@ -2692,11 +2667,7 @@ const addSaveButton = (modal) => {
                                     subcategoryId,
                                 )
                             ) {
-                                if (item.price < 10) {
-                                    itemSavingsPercent = 0;
-                                } else {
-                                    itemSavingsPercent = 0.1;
-                                }
+                                itemSavingsPercent = 0.4;
                             }
                         }
                     } catch (e) {}
@@ -2706,23 +2677,6 @@ const addSaveButton = (modal) => {
             }
         } else {
             let savingsPercentage = isGamePass ? 0.1 : 0.4;
-
-            if (
-                assetType &&
-                !isGamePass &&
-                !isBundle &&
-                assetToSubcategoryMap &&
-                classicClothingSubcategories
-            ) {
-                const subcategoryId = assetToSubcategoryMap[String(assetType)];
-                if (classicClothingSubcategories.includes(subcategoryId)) {
-                    if (robuxPrice < 10) {
-                        savingsPercentage = 0;
-                    } else {
-                        savingsPercentage = 0.1;
-                    }
-                }
-            }
 
             savings = Math.floor(robuxPrice * savingsPercentage);
         }

@@ -24,6 +24,8 @@ const GAME_LINK_SELECTOR = `${TILE_SELECTOR} a.game-card-link[href*="/games/"]`;
 const BASE_METADATA_SELECTOR = '.wide-game-tile-metadata .base-metadata';
 const RATING_BLOCK_SELECTOR = '[data-testid="game-tile-stats-rating"]';
 const PLAYERS_BLOCK_SELECTOR = '[data-testid="game-tile-stats-player-count"]';
+const ONLINE_FRIENDS_BLOCK_SELECTOR =
+    '[data-testid="game-tile-stats-online-friends-facepile"]';
 const SPONSORED_FOOTER_SELECTOR =
     '[data-testid="wide-game-tile-sponsored-footer"]';
 const EXCLUDED_TILE_SELECTOR = [
@@ -326,6 +328,14 @@ function hasCompleteNativeStats(tile) {
     );
 }
 
+function hasNativeOnlineFriends(tile) {
+    return Boolean(tile?.querySelector(ONLINE_FRIENDS_BLOCK_SELECTOR));
+}
+
+function removeMountedStats(tile) {
+    tile?.querySelector(`[${MOUNTED_ATTRIBUTE}]`)?.remove();
+}
+
 function queuePlaceId(placeId) {
     if (placeToUniverse.has(placeId) || inFlightPlaceIds.has(placeId)) return;
     if ((retryPlaceAfter.get(placeId) || 0) > Date.now()) return;
@@ -375,6 +385,11 @@ function scanOnce() {
         if (!isEligibleTile(tile, anchor)) continue;
 
         let item = itemsByAnchor.get(anchor);
+        if (hasNativeOnlineFriends(tile)) {
+            removeMountedStats(tile);
+            if (item) removeItem(item);
+            continue;
+        }
         if (hasCompleteNativeStats(tile)) {
             if (item) removeItem(item);
             continue;
@@ -635,7 +650,7 @@ function mountInline(item, stats) {
     const currentUniverseId =
         currentIds.universeId || placeToUniverse.get(currentIds.placeId);
     if (currentUniverseId !== universeId) return;
-    if (hasCompleteNativeStats(tile)) return;
+    if (hasCompleteNativeStats(tile) || hasNativeOnlineFriends(tile)) return;
 
     const base = getBaseMeta(tile);
     if (!base) return;

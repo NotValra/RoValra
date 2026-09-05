@@ -53,22 +53,16 @@ function findEligibilityFlag(value) {
 }
 
 async function fetchGamePass(gamePassId) {
-    const [productInfo, details] = await Promise.all([
-        callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: `/game-passes/v1/game-passes/${gamePassId}/product-info`,
-        }).catch(() => null),
-        callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: `/game-passes/v1/game-passes/${gamePassId}/details`,
-        }).catch(() => null),
-    ]);
+    const productInfo = await callRobloxApiJson({
+        subdomain: 'apis',
+        endpoint: `/game-passes/v1/game-passes/${gamePassId}/product-info`,
+    }).catch(() => null);
 
-    if (!productInfo && !details) return null;
+    if (!productInfo) return null;
 
     return {
-        name: productInfo?.Name ?? details?.name ?? 'Bonus item',
-        iconId: productInfo?.IconImageAssetId ?? details?.iconAssetId,
+        name: productInfo.Name ?? 'Bonus item',
+        iconId: productInfo.IconImageAssetId,
     };
 }
 

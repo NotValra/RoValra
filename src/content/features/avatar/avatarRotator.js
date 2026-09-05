@@ -1,8 +1,10 @@
-
 import { observeElement, observeResize } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { callRobloxApiJson } from '../../core/api.js';
-import { getBatchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
+import {
+    getBatchThumbnails,
+    createThumbnailElement,
+} from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 
@@ -12,285 +14,455 @@ export function init() {
     chrome.storage.local.get('avatarRotatorEnabled', (data) => {
         if (!data.avatarRotatorEnabled) return;
 
-        observeElement('.breadcrumb-container', (container) => {
-        if (!window.location.pathname.includes('/my/avatar')) return;
-        if (container.querySelector('.rovalra-avatar-rotator-btn')) return;
+        observeElement(
+            '.breadcrumb-container',
+            (container) => {
+                if (!window.location.pathname.includes('/my/avatar')) return;
+                if (container.querySelector('.rovalra-avatar-rotator-btn'))
+                    return;
 
-        const li = document.createElement('li');
-        li.style.float = 'right';
-        li.style.display = 'flex';
-        li.style.alignItems = 'center';
-        li.style.gap = '5px';
+                const li = document.createElement('li');
+                li.style.float = 'left';
+                li.style.marginLeft = '5px';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.gap = '5px';
 
-        const createBtnSelector = 'a.btn-float-right.btn-min-width.btn-secondary-xs';
-        let resizeHandler = null;
+                const createBtnSelector = '.btn-float-right.btn-secondary-xs';
+                let resizeHandler = null;
 
-        const updateMargin = () => {
-            const createBtn = document.querySelector(createBtnSelector);
-            if (createBtn && createBtn.textContent.includes('Create') && createBtn.offsetParent !== null) {
-                li.style.marginRight = `${(createBtn.offsetWidth || 60) + 10}px`;
-            } else {
-                li.style.marginRight = '0px';
-            }
-        };
-        
-        observeElement(createBtnSelector, (createBtn) => {
-            if (resizeHandler) resizeHandler.unobserve();
-            resizeHandler = observeResize(createBtn, updateMargin);
-            updateMargin();
-        }, { onRemove: () => {
-            if (resizeHandler) resizeHandler.unobserve();
-            resizeHandler = null;
-            updateMargin();
-        }});
-        
-        const stopBtn = document.createElement('button');
-        stopBtn.type = 'button';
-        stopBtn.className = 'btn-control-xs rovalra-avatar-rotator-stop-btn';
-        stopBtn.textContent = 'Stop Rotator';
-        stopBtn.style.display = 'none';
-        stopBtn.onclick = () => {
-            chrome.storage.local.set({ rovalra_avatar_rotator_enabled: false });
-        };
-
-        const rotatorBtn = document.createElement('button');
-        rotatorBtn.type = 'button';
-        rotatorBtn.className = 'btn-secondary-xs rovalra-avatar-rotator-btn';
-        rotatorBtn.textContent = 'Avatar Rotator';
-
-        let nextPageCursor = '';
-        let isLoading = false;
-        let avatarListContainer = null;
-        let selectedAvatars = new Set();
-        let setRotatorsBtn = null;
-        let disableRotatorBtn = null;
-
-        function updateButtonState() {
-            const count = selectedAvatars.size;
-
-            if (setRotatorsBtn) {
-                setRotatorsBtn.disabled = count < 2;
-                setRotatorsBtn.textContent = count < 2 ? 'Select at least 2 avatars' : `Set as rotators (${count})`;
-            }
-
-            const statusText = document.getElementById('rovalra-avatar-status');
-            if (statusText) {
-                statusText.textContent = `Select avatars to rotate between. (${count} selected)`;
-                statusText.style.color = '';
-            }
-        }
-
-        async function fetchAndRenderAvatars(reset = false) {
-            if (isLoading) return;
-            if (reset) {
-                nextPageCursor = '';
-                if (avatarListContainer) avatarListContainer.innerHTML = '';
-            }
-            if (nextPageCursor === null && !reset) return; 
-
-            isLoading = true;
-            const loadBtn = document.getElementById('rovalra-avatar-load-more');
-            if (loadBtn) loadBtn.textContent = 'Loading...';
-
-            try {
-                const queryParams = new URLSearchParams({
-                    sortOption: '1',
-                    pageLimit: '50',
-                    'itemCategories[0].ItemSubType': '3',
-                    'itemCategories[0].ItemType': 'Outfit'
-                });
-                if (nextPageCursor) queryParams.append('pageToken', nextPageCursor);
-
-                const response = await callRobloxApiJson({
-                    subdomain: 'avatar',
-                    endpoint: `/v1/avatar-inventory?${queryParams.toString()}`,
-                    method: 'GET'
-                });
-
-                if (response.avatarInventoryItems && response.avatarInventoryItems.length > 0) {
-                    const outfitIds = response.avatarInventoryItems.map(item => item.itemId);
-                    const thumbnails = await getBatchThumbnails(outfitIds, 'Outfit', '150x150');
-
-                    response.avatarInventoryItems.forEach((outfit, index) => {
-                        const card = document.createElement('div');
-                        card.className = 'rovalra-avatar-card';
-                        card.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 100px; margin: 5px; cursor: pointer; border-radius: 10px; padding: 5px; transition: all 0.2s; position: relative;';
-
-                        const radio = createRadioButton({
-                            id: `avatar-radio-${outfit.itemId}`,
-                            checked: selectedAvatars.has(outfit.itemId),
-                            onChange: (checked) => {
-                                if (checked) {
-                                    selectedAvatars.add(outfit.itemId);
-                                } else {
-                                    selectedAvatars.delete(outfit.itemId);
-                                }
-                                updateButtonState();
-                            }
-                        });
-                        radio.style.position = 'absolute';
-                        radio.style.top = '5px';
-                        radio.style.right = '5px';
-                        radio.style.zIndex = '10';
-
-                        card.onclick = () => {
-                            if (!radio.disabled) {
-                                radio.click();
-                            }
-                        };
-                        
-                        const thumbData = thumbnails.find(t => t.targetId === outfit.itemId);
-                        const img = createThumbnailElement(thumbData, outfit.itemName, 'rovalra-avatar-thumb', { width: '100px', height: '100px', borderRadius: '8px', objectFit: 'cover' });
-                        
-                        const name = document.createElement('span');
-                        name.textContent = outfit.itemName;
-                        name.style.cssText = 'font-size: 12px; text-align: center; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;';
-
-                        card.appendChild(radio);
-                        card.appendChild(img);
-                        card.appendChild(name);
-                        avatarListContainer.appendChild(card);
-                    });
-                    if (avatarListContainer && avatarListContainer.parentElement) {
-                        avatarListContainer.parentElement.style.height = 'auto';
+                const updateMargin = () => {
+                    if (li.style.float === 'left') {
+                        li.style.marginRight = '0px';
+                        return;
                     }
-                    updateButtonState();
-                }
 
-                nextPageCursor = response.nextPageToken || null;
-            } catch (error) {
-                console.error('RoValra: Failed to fetch avatars', error);
-            } finally {
-                isLoading = false;
-                if (loadBtn) {
-                    loadBtn.textContent = 'Load More';
-                    loadBtn.style.display = nextPageCursor ? 'block' : 'none';
-                }
-            }
-        }
-
-        rotatorBtn.addEventListener('click', () => {
-            chrome.storage.local.get(['rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_interval'], (data) => {
-                selectedAvatars.clear();
-                if (data.rovalra_avatar_rotator_ids && Array.isArray(data.rovalra_avatar_rotator_ids)) {
-                    data.rovalra_avatar_rotator_ids.forEach(id => selectedAvatars.add(id));
-                }
-
-                avatarListContainer = document.createElement('div');
-                avatarListContainer.style.cssText = 'display: flex; flex-wrap: wrap; justify-content: center; width: 100%; overflow-y: auto; flex: 1;';
-                
-                const loadMoreBtn = document.createElement('button');
-                loadMoreBtn.id = 'rovalra-avatar-load-more';
-                loadMoreBtn.className = 'btn-control-sm';
-                loadMoreBtn.textContent = 'Load More';
-                loadMoreBtn.style.cssText = 'display: none; margin: 10px auto; flex-shrink: 0;';
-                loadMoreBtn.onclick = () => fetchAndRenderAvatars();
-
-                const placeholderText = document.createElement('div');
-                placeholderText.id = 'rovalra-avatar-status';
-                placeholderText.textContent = `Select avatars to rotate between. (${selectedAvatars.size} selected)`;
-                placeholderText.style.cssText = 'padding: 0 10px 10px 10px; text-align: center; font-size: 12px; opacity: 0.8; flex-shrink: 0;';
-
-                const settingsContainer = document.createElement('div');
-                settingsContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 0 10px 0; flex-shrink: 0;';
-                
-                const { container: inputContainer, input: intervalInput } = createStyledInput({
-                    id: 'rovalra-rotator-interval',
-                    label: 'Interval (seconds)'
-                });
-
-                intervalInput.type = 'number';
-                intervalInput.min = '5';
-                intervalInput.value = data.rovalra_avatar_rotator_interval || '5';
-                inputContainer.style.width = '150px';
-                inputContainer.style.marginTop = '5px';
-                intervalInput.dispatchEvent(new Event('input'));
-                
-                intervalInput.addEventListener('change', () => {
-                    if (parseInt(intervalInput.value) < 5) intervalInput.value = 5;
-                });
-
-                settingsContainer.appendChild(inputContainer);
-
-                const wrapper = document.createElement('div');
-                wrapper.style.cssText = 'display: flex; flex-direction: column; width: 100%; height: 550px;';
-                wrapper.appendChild(settingsContainer);
-                wrapper.appendChild(placeholderText);
-                wrapper.appendChild(avatarListContainer);
-                wrapper.appendChild(loadMoreBtn);
-
-                setRotatorsBtn = document.createElement('button');
-                setRotatorsBtn.className = 'btn-primary-md';
-                setRotatorsBtn.textContent = 'Select at least 2 avatars';
-                setRotatorsBtn.disabled = true;
-                setRotatorsBtn.onclick = () => {
-                    const avatars = Array.from(selectedAvatars);
-                    const interval = parseInt(intervalInput.value, 10) || 5;
-                    chrome.storage.local.set({
-                        rovalra_avatar_rotator_ids: avatars,
-                        rovalra_avatar_rotator_enabled: true,
-                        rovalra_avatar_rotator_interval: interval
-                    });
-                    setRotatorsBtn.textContent = 'Rotators Active!';
-                    if (disableRotatorBtn) disableRotatorBtn.style.display = 'inline-block';
-                    setTimeout(() => updateButtonState(), 2000);
+                    const createBtn = Array.from(
+                        document.querySelectorAll(createBtnSelector),
+                    ).find(
+                        (button) =>
+                            !button.classList.contains(
+                                'create-extra-costume',
+                            ) &&
+                            button.textContent.includes('Create') &&
+                            button.offsetParent !== null,
+                    );
+                    li.style.marginRight = createBtn
+                        ? `${(createBtn.offsetWidth || 60) + 10}px`
+                        : '0px';
                 };
 
-                disableRotatorBtn = document.createElement('button');
-                disableRotatorBtn.className = 'btn-control-md';
-                disableRotatorBtn.textContent = 'Disable';
-                disableRotatorBtn.style.display = data.rovalra_avatar_rotator_enabled ? 'inline-block' : 'none';
-                disableRotatorBtn.onclick = () => {
+                observeElement(
+                    createBtnSelector,
+                    (createBtn) => {
+                        if (resizeHandler) resizeHandler.unobserve();
+                        resizeHandler = observeResize(createBtn, updateMargin);
+                        updateMargin();
+                    },
+                    {
+                        onRemove: () => {
+                            if (resizeHandler) resizeHandler.unobserve();
+                            resizeHandler = null;
+                            updateMargin();
+                        },
+                    },
+                );
+
+                const stopBtn = document.createElement('button');
+                stopBtn.type = 'button';
+                stopBtn.className =
+                    'btn-control-xs rovalra-avatar-rotator-stop-btn';
+                stopBtn.textContent = 'Stop Rotator';
+                stopBtn.style.display = 'none';
+                stopBtn.onclick = () => {
                     chrome.storage.local.set({
-                        rovalra_avatar_rotator_enabled: false
+                        rovalra_avatar_rotator_enabled: false,
                     });
-                    disableRotatorBtn.style.display = 'none';
                 };
 
-                const clearBtn = document.createElement('button');
-                clearBtn.className = 'btn-control-md';
-                clearBtn.textContent = 'Clear Selection';
-                clearBtn.onclick = () => {
-                    selectedAvatars.clear();
-                    chrome.storage.local.set({
-                        rovalra_avatar_rotator_ids: []
-                    });
-                    const radios = avatarListContainer.querySelectorAll('button[role="checkbox"]');
-                    radios.forEach(radio => {
-                        if (radio.setChecked) radio.setChecked(false);
-                    });
-                    updateButtonState();
-                };
+                const rotatorBtn = document.createElement('button');
+                rotatorBtn.type = 'button';
+                rotatorBtn.className =
+                    'btn-secondary-xs rovalra-avatar-rotator-btn';
+                rotatorBtn.textContent = 'Avatar Rotator';
 
-                createOverlay({
-                    title: 'Avatar Rotator',
-                    bodyContent: wrapper,
-                    showLogo: true,
-                    maxWidth: '600px',
-                    maxHeight: '600px',
-                    actions: [disableRotatorBtn, clearBtn, setRotatorsBtn]
+                let nextPageCursor = '';
+                let isLoading = false;
+                let avatarListContainer = null;
+                let selectedAvatars = new Set();
+                const outfitDetailsCache = new Map();
+                let setRotatorsBtn = null;
+                let disableRotatorBtn = null;
+
+                function updateButtonState() {
+                    const count = selectedAvatars.size;
+
+                    if (setRotatorsBtn) {
+                        setRotatorsBtn.disabled = count < 2;
+                        setRotatorsBtn.textContent =
+                            count < 2
+                                ? 'Select at least 2 avatars'
+                                : `Set as rotators (${count})`;
+                    }
+
+                    const statusText = document.getElementById(
+                        'rovalra-avatar-status',
+                    );
+                    if (statusText) {
+                        statusText.textContent = `Select avatars to rotate between. (${count} selected)`;
+                        statusText.style.color = '';
+                    }
+                }
+
+                async function fetchAndRenderAvatars(reset = false) {
+                    if (isLoading) return;
+                    if (reset) {
+                        nextPageCursor = '';
+                        if (avatarListContainer)
+                            avatarListContainer.innerHTML = '';
+                    }
+                    if (nextPageCursor === null && !reset) return;
+
+                    isLoading = true;
+                    const loadBtn = document.getElementById(
+                        'rovalra-avatar-load-more',
+                    );
+                    if (loadBtn) loadBtn.textContent = 'Loading...';
+
+                    try {
+                        const queryParams = new URLSearchParams({
+                            sortOption: '1',
+                            pageLimit: '50',
+                            'itemCategories[0].ItemSubType': '3',
+                            'itemCategories[0].ItemType': 'Outfit',
+                        });
+                        if (nextPageCursor)
+                            queryParams.append('pageToken', nextPageCursor);
+
+                        const response = await callRobloxApiJson({
+                            subdomain: 'avatar',
+                            endpoint: `/v1/avatar-inventory?${queryParams.toString()}`,
+                            method: 'GET',
+                        });
+
+                        if (
+                            response.avatarInventoryItems &&
+                            response.avatarInventoryItems.length > 0
+                        ) {
+                            const outfitIds = response.avatarInventoryItems.map(
+                                (item) => item.itemId,
+                            );
+                            const thumbnails = await getBatchThumbnails(
+                                outfitIds,
+                                'Outfit',
+                                '150x150',
+                            );
+
+                            response.avatarInventoryItems.forEach(
+                                (outfit, index) => {
+                                    const card = document.createElement('div');
+                                    card.className = 'rovalra-avatar-card';
+                                    card.style.cssText =
+                                        'display: flex; flex-direction: column; align-items: center; width: 100px; margin: 5px; cursor: pointer; border-radius: 10px; padding: 5px; transition: all 0.2s; position: relative;';
+
+                                    const radio = createRadioButton({
+                                        id: `avatar-radio-${outfit.itemId}`,
+                                        checked: selectedAvatars.has(
+                                            outfit.itemId,
+                                        ),
+                                        onChange: (checked) => {
+                                            if (checked) {
+                                                selectedAvatars.add(
+                                                    outfit.itemId,
+                                                );
+                                            } else {
+                                                selectedAvatars.delete(
+                                                    outfit.itemId,
+                                                );
+                                            }
+                                            updateButtonState();
+                                        },
+                                    });
+                                    radio.style.position = 'absolute';
+                                    radio.style.top = '5px';
+                                    radio.style.right = '5px';
+                                    radio.style.zIndex = '10';
+
+                                    card.onclick = () => {
+                                        if (!radio.disabled) {
+                                            radio.click();
+                                        }
+                                    };
+
+                                    const thumbData = thumbnails.find(
+                                        (t) => t.targetId === outfit.itemId,
+                                    );
+                                    const img = createThumbnailElement(
+                                        thumbData,
+                                        outfit.itemName,
+                                        'rovalra-avatar-thumb',
+                                        {
+                                            width: '100px',
+                                            height: '100px',
+                                            borderRadius: '8px',
+                                            objectFit: 'cover',
+                                        },
+                                    );
+
+                                    const name = document.createElement('span');
+                                    name.textContent = outfit.itemName;
+                                    name.style.cssText =
+                                        'font-size: 12px; text-align: center; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;';
+
+                                    card.appendChild(radio);
+                                    card.appendChild(img);
+                                    card.appendChild(name);
+                                    avatarListContainer.appendChild(card);
+                                },
+                            );
+                            if (
+                                avatarListContainer &&
+                                avatarListContainer.parentElement
+                            ) {
+                                avatarListContainer.parentElement.style.height =
+                                    'auto';
+                            }
+                            updateButtonState();
+                        }
+
+                        nextPageCursor = response.nextPageToken || null;
+                    } catch (error) {
+                        console.error(
+                            'RoValra: Failed to fetch avatars',
+                            error,
+                        );
+                    } finally {
+                        isLoading = false;
+                        if (loadBtn) {
+                            loadBtn.textContent = 'Load More';
+                            loadBtn.style.display = nextPageCursor
+                                ? 'block'
+                                : 'none';
+                        }
+                    }
+                }
+
+                rotatorBtn.addEventListener('click', () => {
+                    chrome.storage.local.get(
+                        [
+                            'rovalra_avatar_rotator_ids',
+                            'rovalra_avatar_rotator_enabled',
+                            'rovalra_avatar_rotator_interval',
+                        ],
+                        (data) => {
+                            selectedAvatars.clear();
+                            if (
+                                data.rovalra_avatar_rotator_ids &&
+                                Array.isArray(data.rovalra_avatar_rotator_ids)
+                            ) {
+                                data.rovalra_avatar_rotator_ids.forEach((id) =>
+                                    selectedAvatars.add(id),
+                                );
+                            }
+
+                            avatarListContainer = document.createElement('div');
+                            avatarListContainer.style.cssText =
+                                'display: flex; flex-wrap: wrap; justify-content: center; width: 100%; overflow-y: auto; flex: 1;';
+
+                            const loadMoreBtn =
+                                document.createElement('button');
+                            loadMoreBtn.id = 'rovalra-avatar-load-more';
+                            loadMoreBtn.className = 'btn-control-sm';
+                            loadMoreBtn.textContent = 'Load More';
+                            loadMoreBtn.style.cssText =
+                                'display: none; margin: 10px auto; flex-shrink: 0;';
+                            loadMoreBtn.onclick = () => fetchAndRenderAvatars();
+
+                            const placeholderText =
+                                document.createElement('div');
+                            placeholderText.id = 'rovalra-avatar-status';
+                            placeholderText.textContent = `Select avatars to rotate between. (${selectedAvatars.size} selected)`;
+                            placeholderText.style.cssText =
+                                'padding: 0 10px 10px 10px; text-align: center; font-size: 12px; opacity: 0.8; flex-shrink: 0;';
+
+                            const settingsContainer =
+                                document.createElement('div');
+                            settingsContainer.style.cssText =
+                                'display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 0 10px 0; flex-shrink: 0;';
+
+                            const {
+                                container: inputContainer,
+                                input: intervalInput,
+                            } = createStyledInput({
+                                id: 'rovalra-rotator-interval',
+                                label: 'Interval (seconds)',
+                            });
+
+                            intervalInput.type = 'number';
+                            intervalInput.min = '5';
+                            intervalInput.value =
+                                data.rovalra_avatar_rotator_interval || '5';
+                            inputContainer.style.width = '150px';
+                            inputContainer.style.marginTop = '5px';
+                            intervalInput.dispatchEvent(new Event('input'));
+
+                            intervalInput.addEventListener('change', () => {
+                                if (parseInt(intervalInput.value) < 5)
+                                    intervalInput.value = 5;
+                            });
+
+                            settingsContainer.appendChild(inputContainer);
+
+                            const wrapper = document.createElement('div');
+                            wrapper.style.cssText =
+                                'display: flex; flex-direction: column; width: 100%; height: 550px;';
+                            wrapper.appendChild(settingsContainer);
+                            wrapper.appendChild(placeholderText);
+                            wrapper.appendChild(avatarListContainer);
+                            wrapper.appendChild(loadMoreBtn);
+
+                            setRotatorsBtn = document.createElement('button');
+                            setRotatorsBtn.className = 'btn-primary-md';
+                            setRotatorsBtn.textContent =
+                                'Select at least 2 avatars';
+                            setRotatorsBtn.disabled = true;
+                            setRotatorsBtn.onclick = () => {
+                                const avatars = Array.from(selectedAvatars);
+                                const interval =
+                                    parseInt(intervalInput.value, 10) || 5;
+                                setRotatorsBtn.disabled = true;
+                                setRotatorsBtn.textContent =
+                                    'Loading outfit details...';
+
+                                Promise.all(
+                                    avatars.map(async (outfitId) => {
+                                        if (!outfitDetailsCache.has(outfitId)) {
+                                            const details =
+                                                await callRobloxApiJson({
+                                                    subdomain: 'avatar',
+                                                    endpoint: `/v4/outfits/${outfitId}/details`,
+                                                    method: 'GET',
+                                                });
+                                            outfitDetailsCache.set(
+                                                outfitId,
+                                                details,
+                                            );
+                                        }
+                                        return [
+                                            outfitId,
+                                            outfitDetailsCache.get(outfitId),
+                                        ];
+                                    }),
+                                )
+                                    .then((details) => {
+                                        chrome.storage.local.set({
+                                            rovalra_avatar_rotator_ids: avatars,
+                                            rovalra_avatar_rotator_details:
+                                                Object.fromEntries(details),
+                                            rovalra_avatar_rotator_enabled: true,
+                                            rovalra_avatar_rotator_interval:
+                                                interval,
+                                        });
+                                        setRotatorsBtn.textContent =
+                                            'Rotators Active!';
+                                        if (disableRotatorBtn)
+                                            disableRotatorBtn.style.display =
+                                                'inline-block';
+                                        setTimeout(
+                                            () => updateButtonState(),
+                                            2000,
+                                        );
+                                    })
+                                    .catch((error) => {
+                                        console.error(
+                                            'RoValra: Failed to fetch outfit details',
+                                            error,
+                                        );
+                                        setRotatorsBtn.disabled = false;
+                                        updateButtonState();
+                                    });
+                            };
+
+                            disableRotatorBtn =
+                                document.createElement('button');
+                            disableRotatorBtn.className = 'btn-control-md';
+                            disableRotatorBtn.textContent = 'Disable';
+                            disableRotatorBtn.style.display =
+                                data.rovalra_avatar_rotator_enabled
+                                    ? 'inline-block'
+                                    : 'none';
+                            disableRotatorBtn.onclick = () => {
+                                chrome.storage.local.set({
+                                    rovalra_avatar_rotator_enabled: false,
+                                });
+                                disableRotatorBtn.style.display = 'none';
+                            };
+
+                            const clearBtn = document.createElement('button');
+                            clearBtn.className = 'btn-control-md';
+                            clearBtn.textContent = 'Clear Selection';
+                            clearBtn.onclick = () => {
+                                selectedAvatars.clear();
+                                chrome.storage.local.set({
+                                    rovalra_avatar_rotator_ids: [],
+                                    rovalra_avatar_rotator_details: {},
+                                });
+                                const radios =
+                                    avatarListContainer.querySelectorAll(
+                                        'button[role="checkbox"]',
+                                    );
+                                radios.forEach((radio) => {
+                                    if (radio.setChecked)
+                                        radio.setChecked(false);
+                                });
+                                updateButtonState();
+                            };
+
+                            createOverlay({
+                                title: 'Avatar Rotator',
+                                bodyContent: wrapper,
+                                showLogo: true,
+                                maxWidth: '600px',
+                                maxHeight: '600px',
+                                actions: [
+                                    disableRotatorBtn,
+                                    clearBtn,
+                                    setRotatorsBtn,
+                                ],
+                            });
+
+                            fetchAndRenderAvatars(true);
+                        },
+                    );
                 });
 
-                fetchAndRenderAvatars(true);
-            });
-        });
+                li.appendChild(stopBtn);
+                li.appendChild(rotatorBtn);
+                container.appendChild(li);
 
-        li.appendChild(stopBtn);
-        li.appendChild(rotatorBtn);
-        container.appendChild(li);
+                function updateStopButtonVisibility() {
+                    chrome.storage.local.get(
+                        'rovalra_avatar_rotator_enabled',
+                        (data) => {
+                            stopBtn.style.display =
+                                data.rovalra_avatar_rotator_enabled
+                                    ? 'inline-block'
+                                    : 'none';
+                        },
+                    );
+                }
 
-        function updateStopButtonVisibility() {
-            chrome.storage.local.get('rovalra_avatar_rotator_enabled', (data) => {
-                stopBtn.style.display = data.rovalra_avatar_rotator_enabled ? 'inline-block' : 'none';
-            });
-        }
-
-        updateStopButtonVisibility();
-        chrome.storage.onChanged.addListener((changes, namespace) => {
-            if (namespace === 'local' && changes.rovalra_avatar_rotator_enabled) {
                 updateStopButtonVisibility();
-            }
-        });
-    }, { multiple: true });
+                chrome.storage.onChanged.addListener((changes, namespace) => {
+                    if (
+                        namespace === 'local' &&
+                        changes.rovalra_avatar_rotator_enabled
+                    ) {
+                        updateStopButtonVisibility();
+                    }
+                });
+            },
+            { multiple: true },
+        );
     });
 }

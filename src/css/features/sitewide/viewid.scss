@@ -23,6 +23,7 @@ p .bright {
 
 button#rovalra-viewid-button-main, button#rovalra-viewid-button-sec {
     transition: scale 0.3s ease;
+    cursor: pointer;
 
     &:hover {
         scale: 1.05;

@@ -364,7 +364,7 @@ export function updateItemCard(card, assetId, options = {}) {
             valDiv.style.alignItems = 'center';
 
             valDiv.innerHTML = `
-                <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 7px; margin-left: 1px">
+                <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 0px; margin-left: 1px">
                 <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
             `; // verified
 
@@ -745,9 +745,7 @@ function getActiveTradeId(offerEl) {
 
 function injectTotalValueLine(offer, totalValue) {
     const assets = getAssets();
-    const rapLine = Array.from(offer.querySelectorAll('.robux-line')).find(
-        (el) => el.querySelector('[ng-bind*="Label.TotalValue"]'),
-    );
+    const rapLine = findTotalValueLine(offer);
 
     if (!rapLine) return;
 
@@ -789,6 +787,24 @@ function injectTotalValueLine(offer, totalValue) {
         const valSpan = valueLine.querySelector('.robux-line-value');
         if (valSpan) valSpan.innerText = totalValue.toLocaleString();
     }
+}
+
+function findTotalValueLine(offer) {
+    return Array.from(offer.querySelectorAll('.robux-line')).find((line) => {
+        if (
+            line.classList.contains('rovalra-total-value-line') ||
+            line.classList.contains('rovalra-total-demand-line')
+        ) {
+            return false;
+        }
+
+        if (line.querySelector('[ng-bind*="Label.TotalValue"]')) return true;
+
+        return Boolean(
+            line.querySelector('.icon-robux-16x16') &&
+                line.querySelector('.robux-line-value.text-robux-lg'),
+        );
+    });
 }
 
 function injectTotalDemandLine(offer, totalDemand, itemCount) {

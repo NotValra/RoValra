@@ -402,7 +402,7 @@ async function showQuickOutfitsOverlay() {
         const outfitIds = outfits.map((o) => ({ id: o.id }));
         thumbnailMap = await fetchThumbnails(
             outfitIds,
-            'UserOutfit',
+            'Outfit',
             '150x150',
         );
         isFetchingThumbnails = false;

@@ -161,6 +161,22 @@ export function init() {
                             fontSize: '14px',
                             marginTop: '2px',
                         });
+
+                        joinDiv.style.setProperty(
+                            'white-space',
+                            'normal',
+                            'important',
+                        );
+                        joinDiv.style.setProperty(
+                            'text-overflow',
+                            'clip',
+                            'important',
+                        );
+                        joinDiv.style.setProperty(
+                            'overflow',
+                            'visible',
+                            'important',
+                        );
                     }
 
                     checkAndFixPlacement();

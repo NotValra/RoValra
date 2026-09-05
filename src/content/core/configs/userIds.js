@@ -26,6 +26,11 @@ export const CONTRIBUTOR_USER_IDS = [
     '2333236354', // AandA510
     '170038374', // syra (concept artist)
     '760897332', // ceyexm
+    '2830488781', //idhglua
+    '390309731', // AxnxDev 
+    '477516666', //return_request :3
+    '4632962611', //coderpixel
+    '2605032407', // walway
 ];
 
 export const TESTER_USER_IDS = [

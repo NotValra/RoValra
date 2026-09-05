@@ -81,7 +81,7 @@ export function init() {
             if (outfitIds.length === 0) return new Map();
 
             const items = outfitIds.map((id) => ({ id }));
-            return await fetchThumbnailsBatch(items, 'UserOutfit', '150x150');
+            return await fetchThumbnailsBatch(items, 'Outfit', '150x150');
         }
 
         async function createOutfitsOverlay(
@@ -616,7 +616,7 @@ export function init() {
                     try {
                         const largeThumbMap = await fetchThumbnailsBatch(
                             [{ id: outfit.id }],
-                            'UserOutfit',
+                            'Outfit',
                             '420x420',
                         );
                         const largeThumbData = largeThumbMap.get(outfit.id);

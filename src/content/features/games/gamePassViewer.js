@@ -18,31 +18,25 @@ let renderedFor = null;
 let activeObservation = null;
 
 async function fetchPass(passId) {
-    const [productInfo, details] = await Promise.all([
-        callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: `/game-passes/v1/game-passes/${passId}/product-info`,
-        }).catch(() => null),
-        callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: `/game-passes/v1/game-passes/${passId}/details`,
-        }).catch(() => null),
-    ]);
+    const productInfo = await callRobloxApiJson({
+        subdomain: 'apis',
+        endpoint: `/game-passes/v1/game-passes/${passId}/product-info`,
+    }).catch(() => null);
 
-    if (!productInfo && !details) return null;
+    if (!productInfo) return null;
 
     return {
-        name: productInfo?.Name ?? details?.name ?? '',
-        description: productInfo?.Description ?? details?.description ?? '',
-        price: productInfo?.PriceInRobux ?? details?.priceInformation?.defaultPriceInRobux ?? 0,
-        isForSale: productInfo?.IsForSale ?? details?.isForSale ?? false,
+        name: productInfo.Name ?? '',
+        description: productInfo.Description ?? '',
+        price: productInfo.PriceInRobux ?? 0,
+        isForSale: productInfo.IsForSale ?? false,
         productId: productInfo?.ProductId,
-        iconId: productInfo?.IconImageAssetId ?? details?.iconAssetId,
-        placeId: details?.placeId,
+        iconId: productInfo.IconImageAssetId,
         creator: {
-            id: productInfo?.Creator?.CreatorTargetId ?? 0,
-            name: productInfo?.Creator?.Name ?? ts('privateGames.unknown'),
-            type: productInfo?.Creator?.CreatorType === 'Group' ? 'Group' : 'User',
+            id: productInfo.Creator?.CreatorTargetId ?? 0,
+            name: productInfo.Creator?.Name ?? ts('privateGames.unknown'),
+            type:
+                productInfo.Creator?.CreatorType === 'Group' ? 'Group' : 'User',
         },
     };
 }

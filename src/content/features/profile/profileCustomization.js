@@ -1,6 +1,11 @@
 import { callRobloxApi } from '../../core/api.js';
 import { getBorders } from '../../core/configs/borders.js';
 import {
+    findFrameByLink,
+    getFrames,
+    groupFramesByCategory,
+} from '../../core/configs/frames.js';
+import {
     getUserSettings,
     updateUserSettingViaApi,
 } from '../../core/donators/settingHandler.js';
@@ -11,7 +16,10 @@ import {
     observeIntersection,
 } from '../../core/observer.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
-import { getCurrentUserTier } from '../../core/settings/handlesettings.js';
+import {
+    getCurrentUserTierSync,
+    handleSaveSettings,
+} from '../../core/settings/handlesettings.js';
 import { settings as rovalraSettings } from '../../core/settings/getSettings.js';
 import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { ts } from '../../core/locale/i18n.js';
@@ -21,6 +29,7 @@ import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
 import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
 import { applyBorderToContainer, findInBorders } from './avatarBorder.js';
+import { applyFrameToHolder } from './profileFrame.js';
 import { getUserDisplayName } from '../../core/apis/users.js';
 
 let ownedBordersCache = null;
@@ -78,6 +87,240 @@ async function getOwnedBorders() {
     }
 
     return { borders: new Set(), gamepasses: new Set() };
+}
+
+async function getOwnedFrames() {
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: '/v1/auth/berts',
+            method: 'GET',
+            isRovalraApi: true,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const owned = new Set();
+            for (const bert of data.owned_berts || []) {
+                if (bert && typeof bert === 'object') {
+                    if (bert.value != null) owned.add(String(bert.value));
+                    if (bert.link != null) owned.add(String(bert.link));
+                } else if (bert != null) {
+                    owned.add(String(bert));
+                }
+            }
+            return owned;
+        }
+    } catch (error) {
+        console.warn('RoValra: Failed to fetch owned profile frames.', error);
+    }
+    return new Set();
+}
+
+function createFramePreview(thumbData) {
+    const holder = document.createElement('div');
+    holder.className = 'rovalra-profile-frame-preview';
+    const scene = document.createElement('div');
+    scene.className = 'rovalra-profile-frame-preview-scene';
+    if (thumbData?.imageUrl) {
+        const image = document.createElement('img');
+        image.src = thumbData.imageUrl;
+        image.alt = '';
+        image.decoding = 'async';
+        scene.appendChild(image);
+    }
+    holder.appendChild(scene);
+    return holder;
+}
+
+async function saveProfileFrame(link) {
+    const value = link || 'none';
+    await handleSaveSettings('profileFrameChoice', value).catch(() => {});
+    document.dispatchEvent(
+        new CustomEvent('rovalra:syncProfileFrame', {
+            detail: { frameUrl: value },
+        }),
+    );
+    await updateUserSettingViaApi('berts', link || '').catch(() => {});
+}
+
+async function renderFramePicker(container, userId) {
+    container.innerHTML = '';
+    try {
+        const [frames, ownedFrames, userSettings, userData] = await Promise.all(
+            [
+                getFrames(),
+                getOwnedFrames(),
+                getUserSettings(userId).catch(() => null),
+                getAuthedFramePreviewData(userId),
+            ],
+        );
+
+        if (!frames.length) {
+            const empty = document.createElement('p');
+            empty.style.color = 'var(--rovalra-secondary-text-color)';
+            empty.textContent = ts('profileCustomization.noFrames');
+            container.appendChild(empty);
+            return;
+        }
+
+        const currentFrame = findFrameByLink(frames, userSettings?.berts);
+        let currentValue = currentFrame?.value || 'none';
+        const previewWrapper = document.createElement('div');
+        previewWrapper.style.cssText =
+            'display:flex; flex-direction:column; align-items:center; padding:20px; background:var(--rovalra-container-background-color); border-radius:12px; margin-bottom:20px;';
+        previewWrapper.innerHTML = `<div style="font-weight:700; font-size:12px; text-transform:uppercase; margin-bottom:10px; color:var(--rovalra-secondary-text-color);">${ts('profileFrame.currentPreview')}</div><div class="setting-label-divider" style="width:100%; margin-bottom:15px;"></div>`;
+        const preview = createFramePreview(userData.thumbData);
+        preview.style.maxWidth = '520px';
+        previewWrapper.appendChild(preview);
+        if (currentFrame) {
+            applyFrameToHolder(preview, currentFrame.link, {
+                mountDirectly: true,
+            });
+        }
+        container.appendChild(previewWrapper);
+
+        const unequipButton = createSquareButton({
+            content: ts('profileFrame.unequip'),
+            onClick: async () => {
+                currentValue = 'none';
+                applyFrameToHolder(preview, null);
+                unequipButton.style.opacity = '0.5';
+                unequipButton.style.cursor = 'not-allowed';
+                await saveProfileFrame(null);
+                container
+                    .querySelectorAll('[data-profile-frame-option]')
+                    .forEach((item) => {
+                        if (item.dataset.profileFrameOwned === 'true') {
+                            item.textContent = ts('profileCustomization.equip');
+                        }
+                    });
+            },
+            width: '120px',
+            height: 'height-1000',
+            paddingX: 'padding-x-medium',
+            radius: 'radius-medium',
+            disableTextTruncation: true,
+        });
+        unequipButton.style.cssText = `margin-top:15px; opacity:${currentFrame ? '1' : '0.5'}; cursor:${currentFrame ? 'pointer' : 'not-allowed'};`;
+        previewWrapper.appendChild(unequipButton);
+
+        const sections = [];
+        const categories = groupFramesByCategory(frames);
+        const categoryTabs = document.createElement('div');
+        categoryTabs.style.cssText =
+            'display:flex; margin:0 0 16px; overflow-x:auto; max-width:100%;';
+        const emptyMessage = document.createElement('p');
+        emptyMessage.style.color = 'var(--rovalra-secondary-text-color)';
+        emptyMessage.textContent = ts('profileCustomization.noFramesInTab');
+        emptyMessage.hidden = true;
+        container.appendChild(categoryTabs);
+
+        const applyCategory = (value) => {
+            let visible = 0;
+            for (const section of sections) {
+                const show = value === 'all' || value === section.value;
+                section.header.style.display = show ? '' : 'none';
+                section.grid.style.display = show ? 'grid' : 'none';
+                if (show) visible += 1;
+            }
+            emptyMessage.style.display = visible > 0 ? 'none' : '';
+        };
+        const tabs = createPillToggle({
+            options: [
+                { text: ts('profileCustomization.all'), value: 'all' },
+                ...categories.map((category) => ({
+                    text: category.label,
+                    value: category.value,
+                })),
+            ],
+            initialValue: 'all',
+            onChange: applyCategory,
+        });
+        tabs.style.flexWrap = 'wrap';
+        categoryTabs.appendChild(tabs);
+        container.appendChild(emptyMessage);
+
+        for (const category of categories) {
+            const header = document.createElement('h3');
+            header.style.cssText =
+                'color:var(--rovalra-main-text-color); font-size:16px; margin:20px 0 10px; padding-bottom:8px; border-bottom:1px solid var(--rovalra-border-color);';
+            header.textContent = category.label;
+            const grid = document.createElement('div');
+            grid.style.cssText =
+                'display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-bottom:10px;';
+            container.append(header, grid);
+            sections.push({ value: category.value, header, grid });
+
+            for (const frame of category.frames) {
+                const owned =
+                    frame.isFree ||
+                    ownedFrames.has(frame.value) ||
+                    ownedFrames.has(frame.link);
+                const card = document.createElement('div');
+                card.style.cssText =
+                    'display:flex; flex-direction:column; align-items:center; padding:12px; background:var(--rovalra-container-background-color); border-radius:12px;';
+                const cardPreview = createFramePreview(userData.thumbData);
+                card.appendChild(cardPreview);
+                const label = document.createElement('div');
+                label.style.cssText =
+                    'color:var(--rovalra-main-text-color); font-weight:600; font-size:13px; text-align:center; margin:8px 0 4px;';
+                label.textContent = frame.label;
+                card.appendChild(label);
+                const button = createPill(
+                    owned && currentValue === frame.value
+                        ? ts('profileCustomization.equipped')
+                        : owned
+                          ? ts('profileCustomization.equip')
+                          : ts('profileCustomization.unowned'),
+                    owned
+                        ? ts('profileCustomization.equipTooltip')
+                        : ts('profileCustomization.unownedTooltip'),
+                    { isButton: true },
+                );
+                button.style.cssText =
+                    'width:100%; justify-content:center; font-size:12px; font-weight:700;';
+                if (!owned) {
+                    button.style.opacity = '0.6';
+                    button.style.cursor = 'not-allowed';
+                } else {
+                    button.addEventListener('click', async () => {
+                        const nextFrame =
+                            currentValue === frame.value ? null : frame;
+                        applyFrameToHolder(preview, nextFrame?.link || null, {
+                            mountDirectly: true,
+                        });
+                        currentValue = nextFrame?.value || 'none';
+                        unequipButton.style.opacity =
+                            currentValue === 'none' ? '0.5' : '1';
+                        unequipButton.style.cursor =
+                            currentValue === 'none' ? 'not-allowed' : 'pointer';
+                        await saveProfileFrame(nextFrame?.link);
+                        container
+                            .querySelectorAll('[data-profile-frame-option]')
+                            .forEach((item) => {
+                                if (item.dataset.profileFrameOwned !== 'true')
+                                    return;
+                                item.textContent =
+                                    item.dataset.profileFrameOption ===
+                                    currentValue
+                                        ? ts('profileCustomization.equipped')
+                                        : ts('profileCustomization.equip');
+                            });
+                    });
+                }
+                button.dataset.profileFrameOption = frame.value;
+                button.dataset.profileFrameOwned = owned ? 'true' : 'false';
+                card.appendChild(button);
+                grid.appendChild(card);
+                applyFrameToHolder(cardPreview, frame.link);
+            }
+        }
+        applyCategory('all');
+    } catch (error) {
+        console.error('RoValra: Failed to render profile frames.', error);
+        container.textContent = ts('profileCustomization.failedToLoad');
+    }
 }
 
 function findBorderItem(categories, value) {
@@ -390,7 +633,7 @@ async function renderOwnedBorderPicker(container, userId) {
                 getAuthedUserData(userId),
             ]);
 
-        const tier = getCurrentUserTier();
+        const tier = getCurrentUserTierSync();
         const ownedCategories = buildBorderCategories(
             borderCategories,
             ownedData,
@@ -709,6 +952,36 @@ function openCustomizationOverlay(userId) {
     const body = document.createElement('div');
     body.style.cssText = 'color: var(--rovalra-main-text-color);';
 
+    const tabControls = document.createElement('div');
+    tabControls.style.cssText =
+        'display:flex; margin-bottom:16px; overflow-x:auto; max-width:100%;';
+    const content = document.createElement('div');
+    const bordersContent = document.createElement('div');
+    const framesContent = document.createElement('div');
+    content.append(bordersContent, framesContent);
+    body.append(tabControls, content);
+
+    const tabs = createPillToggle({
+        options: [
+            { text: ts('profileCustomization.tabFrames'), value: 'frames' },
+            { text: ts('profileCustomization.tabBorders'), value: 'borders' },
+        ],
+        initialValue: 'frames',
+        onChange: (tab) => {
+            bordersContent.hidden = tab !== 'borders';
+            framesContent.hidden = tab !== 'frames';
+            if (tab === 'frames' && !framesContent.dataset.loaded) {
+                framesContent.dataset.loaded = 'true';
+                renderFramePicker(framesContent, userId);
+            }
+        },
+    });
+    tabs.style.flexWrap = 'wrap';
+    tabControls.appendChild(tabs);
+    bordersContent.hidden = true;
+    framesContent.dataset.loaded = 'true';
+    renderFramePicker(framesContent, userId);
+
     const getMoreButton = createSquareButton({
         content: ts('profileCustomization.getMore'),
         onClick: () => {
@@ -735,7 +1008,14 @@ function openCustomizationOverlay(userId) {
         },
     });
 
-    renderOwnedBorderPicker(body, userId);
+    renderOwnedBorderPicker(bordersContent, userId);
+}
+
+async function getAuthedFramePreviewData(userId) {
+    const thumbnails = await getBatchThumbnails([userId], 'Avatar', '420x420');
+    return {
+        thumbData: thumbnails[0] || { state: 'Error' },
+    };
 }
 
 function keepPillAfterUsernameDetails(targetContainer, pill) {

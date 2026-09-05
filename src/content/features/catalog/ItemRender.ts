@@ -1,4 +1,4 @@
-import { observeChildren, observeElement } from '../../core/observer';
+import { observeChildren, observeElement } from '../../core/observer.js';
 import {
     RBXRenderer,
     Outfit,
@@ -8,33 +8,36 @@ import {
     API,
     AssetTypes,
     CFrame,
+    OutfitModel,
+    AvatarType,
+    Vec3,
+    RBXRendererScene,
+    Vector3,
+    Vec2,
+    CACHE as RENDERER_CACHE,
 } from 'roavatar-renderer';
-import { callRobloxApiJson } from '../../core/api';
-import { getUserAvatar } from '../../core/apis/avatar.js';
-import { getAuthenticatedUserId } from '../../core/user';
-import { getPlaceIdFromUrl } from '../../core/idExtractor';
-import { createDropdown } from '../../core/ui/dropdown';
+import { callRobloxApiJson } from '../../core/api.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
-import { getAssets } from '../../core/assets';
-import { isDarkMode } from '../../core/theme';
+import { getAssets } from '../../core/assets.js';
+import { isDarkMode } from '../../core/theme.js';
 import { ts } from '../../core/locale/i18n.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
-import { backgroundRendererRequests } from '../../core/utils/renderer.js';
+import { backgroundRendererRequests, getItemCardColor, getMainColor, setSceneColor } from '../../core/utils/renderer.js';
 
 const assets = getAssets();
 
 //RENDERER FLAGS
-FLAGS.ENABLE_API_MESH_CACHE = true;
-FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
 FLAGS.ONLINE_ASSETS = true;
 FLAGS.AUDIO_ENABLED = false;
 
 backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
-const HOVER_CAMERA_ROTATION_SPEED = 0.75;
+const HOVER_AUTO_SWITCH_ANIM_TIME = 3;
+const HOVER_CAMERA_ROTATION_SPEED = 120;
 const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
 const renderEnvironmentModeValues = new Set([
@@ -43,13 +46,15 @@ const renderEnvironmentModeValues = new Set([
     'baseplate',
     'dark-baseplate',
 ]);
+const R6_ANIMATION_NAMES = ['idle', 'walk', 'jump', 'fall', 'climb'];
+const R15_ANIMATION_NAMES = ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
 
 //outfit data
 let ogAvatarDataLoaded = false;
-let ogAvatarData = new Outfit();
+let ogAvatarData = new OutfitModel();
 
-let mainOutfit = new Outfit();
-let itemHoverOutfit = new Outfit();
+let mainOutfit = new OutfitModel();
+let itemHoverOutfit = new OutfitModel();
 
 //rendering data
 const mainScene = RBXRenderer.addScene();
@@ -60,8 +65,8 @@ itemHoverScene.noRect();
 
 let needsMainOutfitRenderer = true;
 
-let mainOutfitRenderer = null;
-let itemHoverOutfitRenderer = null;
+let mainOutfitRenderer: OutfitRenderer | undefined = undefined;
+let itemHoverOutfitRenderer: OutfitRenderer | undefined = undefined;
 
 let startedRenderer = false;
 
@@ -71,56 +76,116 @@ let hoverPreviewEnabled = true;
 let selectedAnimName = 'idle';
 let accessoriesEnabled = true;
 let selectedRenderEnvironmentMode = 'default';
-let renderEnvironmentMenu = undefined;
-let renderEnvironmentDarkToggle = undefined;
-let renderEnvironmentBaseplateToggle = undefined;
-let baseplateEnvironmentConfig = null;
-let itemRenderEnvironmentModel = null;
-let itemRenderEnvironmentModelUrl = null;
-let defaultMainSceneLightState = null;
-let defaultMainScenePlaneState = null;
 
-let currentlyLoadingAssets = false;
-let pendingAnimationUpdate = false;
+type RendererEnviromentMenu = {
+    wrapper: HTMLButtonElement,
+    button: HTMLButtonElement,
+    panel: HTMLDivElement,
+}
+
+type RadioElement = HTMLButtonElement & {
+    setChecked: (isChecked: boolean) => {}
+}
+
+let renderEnvironmentMenu: RendererEnviromentMenu | undefined = undefined;
+let renderEnvironmentDarkToggle: RadioElement | undefined = undefined;
+let renderEnvironmentBaseplateToggle: RadioElement | undefined = undefined;
+let baseplateEnvironmentConfig: any = undefined;
+let itemRenderEnvironmentModel: THREE.Group | undefined = undefined;
+let itemRenderEnvironmentModelUrl: string | undefined = undefined;
+
+type SceneLightState = {
+    light: THREE.AmbientLight | THREE.DirectionalLight,
+    intensity: number,
+    visible: boolean,
+}
+
+type ScenePlaneState = {
+    plane: boolean,
+    shadowPlane: boolean
+}
+
+type ModelConfig = {
+    url: string,
+    position: Vec3,
+    scale: Vec3,
+    castShadow?: boolean,
+    receiveShadow?: boolean
+}
+
+type AtmosphereConfig = {
+    showFloor: boolean,
+    lights: {
+        type: string,
+        color: string,
+        intensity: number,
+        position?: Vec3,
+        castShadow?: boolean,
+    }[]
+}
+
+let defaultMainSceneLightState: SceneLightState[] | undefined = undefined;
+let defaultMainScenePlaneState: ScenePlaneState | undefined = undefined;
+
+let currentlyLoadingAssets: boolean = false;
+let pendingAnimationUpdate: boolean = false;
 
 API.Events.OnLoadingAssets.Connect((newValue) => {
-    currentlyLoadingAssets = newValue;
+    currentlyLoadingAssets = newValue as boolean;
 });
 
 //dom info
-let mainSceneContainer = undefined;
-let mainButtonContainer = undefined;
+let mainSceneContainer: HTMLElement | undefined = undefined;
+let mainButtonContainer: HTMLElement | undefined = undefined;
 let mousePos = [0, 0];
-let buttonFor3d = undefined;
-let animationDropdown = undefined;
-let toggleAccessories = undefined;
-let buttonForRig = undefined;
-let selectedRigType = undefined;
+let buttonFor3d: HTMLElement | undefined = undefined;
+let animationDropdown: HTMLElement | undefined = undefined;
+let toggleAccessories: HTMLElement | undefined = undefined;
+let buttonForRig: HTMLElement | undefined = undefined;
+let selectedRigType: AvatarType | undefined = undefined;
 
 let lastUrl = window.location.href;
-let lastCurrentHoveredItemElement = undefined;
+let lastCurrentHoveredItemElement: HTMLElement | undefined = undefined;
 let currentHoveredItemFrames = 0;
-let currentHoveredItemElement = undefined;
-let currentHoveredItemLink = undefined;
-let currentHoveredItemThumbElement = undefined;
+let currentHoveredItemElement: HTMLElement | undefined = undefined;
+let currentHoveredItemLink: string | undefined = undefined;
+let currentHoveredItemThumbElement: HTMLElement | undefined = undefined;
 let currentHoveredItemLoading = false;
-let currentHoveredItemType = undefined;
+let currentHoveredItemType: string | undefined = undefined;
 let itemHoverCameraRotation = 0;
 let itemHoverCameraRotating = false;
-let itemHoverRotateButton = undefined;
+let itemHoverRotateButton: HTMLElement | undefined = undefined;
+let itemHoverShouldAutoSwitchAnim = false;
+let itemHoverAutoSwitchAnimTimePassed = 0;
 
-const toggleDefaultButtons = (enabled) => {
+const toggleDefaultButtons = (enabled: boolean) => {
     if (!mainButtonContainer) return;
     for (const child of mainButtonContainer.children) {
-        if (child.dataset.rovalraItemRendererControl) continue;
-        child.style.display = enabled ? 'none' : '';
+        if (child instanceof HTMLElement) {
+            if (child.dataset.rovalraItemRendererControl) continue;
+            child.style.display = enabled ? 'none' : '';
+        }
+    }
+
+    //make size of left button container small so it doesnt affect button placement in the right container
+    const leftAlignContainer = document.body.querySelector(".thumbnail-ui-container > .bottom-align-container > .left-align-container") as HTMLElement;
+    if (leftAlignContainer) {
+        leftAlignContainer.style = enabled ? "width: 0;" : "";
+    }
+
+    //stop animations from playing in robloxs animation preview since its super laggy
+    if (enabled) {
+        const bigstop = document.body.querySelector(".enable-three-dee.btn-control > .icon-bigstop") as HTMLElement;
+        if (bigstop) {
+            bigstop.click();
+        }
     }
 };
 
 const updateRigButtonText = () => {
     if (!buttonForRig) return;
     buttonForRig.textContent =
-        selectedRigType || ogAvatarData.playerAvatarType || 'R15';
+        selectedRigType || ogAvatarData.outfit.playerAvatarType || 'R15';
 };
 
 const updateAnimationDropdown = () => {
@@ -132,46 +197,49 @@ const updateAnimationDropdown = () => {
 
     if (
         !mainRendererEnabled ||
-        mainOutfit.containsAssetType('EmoteAnimation')
+        mainOutfit.outfit.containsAssetType('EmoteAnimation')
     ) {
         return;
     }
 
     selectedAnimName = 'idle';
     const currentType =
-        selectedRigType || ogAvatarData.playerAvatarType || 'R15';
+        selectedRigType || ogAvatarData.outfit.playerAvatarType || 'R15';
     const isR6 = currentType === 'R6';
     const items = isR6
-        ? ['idle', 'walk', 'jump', 'fall', 'climb']
-        : ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
+        ? R6_ANIMATION_NAMES
+        : R15_ANIMATION_NAMES;
 
     const trueItems = items.map((v) => {
         return { label: ts(`animations.${v}`), value: v };
     });
 
+    
     const { element: dropdownElement } = createDropdown({
+        // @ts-ignore
         items: trueItems,
         initialValue: 'idle',
-        onValueChange: (value) => {
+        onValueChange: (value: string) => {
             selectedAnimName = value;
-            mainOutfitRenderer.setMainAnimation(selectedAnimName);
+            if (mainOutfitRenderer) mainOutfitRenderer.setMainAnimation(selectedAnimName);
         },
     });
     animationDropdown = dropdownElement;
     animationDropdown.dataset.rovalraItemRendererControl = 'true';
-    animationDropdown.style.zIndex = 2;
+    animationDropdown.style.zIndex = "2";
     animationDropdown.style.width = '110px';
 
     mainButtonContainer.prepend(animationDropdown);
     toggleDefaultButtons(mainRendererEnabled);
 };
 
-const getMainSceneDefaultLights = () =>
-    [
+function getMainSceneDefaultLights() {
+    return [
         mainScene.ambientLight,
         mainScene.directionalLight,
         mainScene.directionalLight2,
-    ].filter(Boolean);
+    ].filter((v => {return !!v}));
+}
 
 function captureMainSceneDefaults() {
     if (!defaultMainSceneLightState) {
@@ -186,8 +254,8 @@ function captureMainSceneDefaults() {
 
     if (!defaultMainScenePlaneState) {
         defaultMainScenePlaneState = {
-            plane: mainScene.plane?.visible,
-            shadowPlane: mainScene.shadowPlane?.visible,
+            plane: mainScene.plane?.visible || false,
+            shadowPlane: mainScene.shadowPlane?.visible || false,
         };
     }
 }
@@ -198,16 +266,18 @@ function removeItemRenderEnvironmentLights() {
         .forEach((light) => mainScene.scene.remove(light));
 }
 
-function setMainSceneDefaultLightsEnabled(enabled) {
+function setMainSceneDefaultLightsEnabled(enabled: boolean) {
     captureMainSceneDefaults();
 
-    defaultMainSceneLightState.forEach(({ light, intensity, visible }) => {
-        light.visible = enabled ? visible : false;
-        light.intensity = enabled ? intensity : 0;
-    });
+    if (defaultMainSceneLightState) {
+        defaultMainSceneLightState.forEach(({ light, intensity, visible }) => {
+            light.visible = enabled ? visible : false;
+            light.intensity = enabled ? intensity : 0;
+        });
+    }
 }
 
-function addItemRenderEnvironmentLight(light) {
+function addItemRenderEnvironmentLight(light: THREE.Light) {
     light.userData.rovalraItemRenderEnvironmentLight = true;
     mainScene.scene.add(light);
 }
@@ -223,7 +293,7 @@ function applyDarkItemRenderLighting() {
     addItemRenderEnvironmentLight(directionalLight);
 }
 
-function applyAtmosphereItemRenderLighting(atmosphere) {
+function applyAtmosphereItemRenderLighting(atmosphere: AtmosphereConfig) {
     setMainSceneDefaultLightsEnabled(false);
     removeItemRenderEnvironmentLights();
 
@@ -252,14 +322,14 @@ function resetItemRenderEnvironmentLighting() {
     setMainSceneDefaultLightsEnabled(true);
 }
 
-function getRenderEnvironmentTogglesFromMode(mode) {
+function getRenderEnvironmentTogglesFromMode(mode: string): {[key: string]: boolean} {
     return {
         dark: mode === 'dark' || mode === 'dark-baseplate',
         baseplate: mode === 'baseplate' || mode === 'dark-baseplate',
     };
 }
 
-function getRenderEnvironmentModeFromToggles({ dark, baseplate }) {
+function getRenderEnvironmentModeFromToggles({ dark, baseplate }: {[key: string]: boolean}) {
     if (dark && baseplate) return 'dark-baseplate';
     if (dark) return 'dark';
     if (baseplate) return 'baseplate';
@@ -274,7 +344,7 @@ function updateRenderEnvironmentToggleButtons() {
     renderEnvironmentBaseplateToggle?.setChecked(toggles.baseplate);
 }
 
-function setRenderEnvironmentToggle(toggleName, isEnabled) {
+function setRenderEnvironmentToggle(toggleName: string, isEnabled: boolean) {
     const toggles = getRenderEnvironmentTogglesFromMode(
         selectedRenderEnvironmentMode,
     );
@@ -291,7 +361,7 @@ function setRenderEnvironmentToggle(toggleName, isEnabled) {
     applyItemRenderEnvironmentMode();
 }
 
-function resolveRenderEnvironmentUrl(url) {
+function resolveRenderEnvironmentUrl(url: string) {
     try {
         new URL(url);
         return url;
@@ -300,8 +370,8 @@ function resolveRenderEnvironmentUrl(url) {
     }
 }
 
-function sortSkyboxUrls(skyboxUrls) {
-    const mapping = {
+function sortSkyboxUrls(skyboxUrls: string[]) {
+    const mapping: {[key: string]: number} = {
         _rt: 0,
         _lf: 1,
         _up: 2,
@@ -329,10 +399,10 @@ function sortSkyboxUrls(skyboxUrls) {
     return matchCount === 6 ? sorted : skyboxUrls;
 }
 
-function transformSkyboxImage(url, { angle = 0, darken = false } = {}) {
+function transformSkyboxImage(url: string, { angle = 0, darken = false } = {}) {
     if (!angle && !darken) return Promise.resolve(url);
 
-    return new Promise((resolve) => {
+    return new Promise<string>((resolve) => {
         const img = new Image();
         img.crossOrigin = 'Anonymous';
         img.onload = () => {
@@ -342,6 +412,7 @@ function transformSkyboxImage(url, { angle = 0, darken = false } = {}) {
                 canvas.width = isRotated ? img.height : img.width;
                 canvas.height = isRotated ? img.width : img.height;
                 const ctx = canvas.getContext('2d');
+                if (!ctx) throw "no context"
                 ctx.translate(canvas.width / 2, canvas.height / 2);
                 if (angle) ctx.rotate((angle * Math.PI) / 180);
                 ctx.drawImage(img, -img.width / 2, -img.height / 2);
@@ -360,7 +431,7 @@ function transformSkyboxImage(url, { angle = 0, darken = false } = {}) {
     });
 }
 
-async function applyItemRenderSkybox(skyboxUrls, darken = false) {
+async function applyItemRenderSkybox(skyboxUrls: string[], darken = false) {
     if (!Array.isArray(skyboxUrls) || skyboxUrls.length !== 6) return false;
     if (!skyboxUrls.every((url) => url)) return false;
 
@@ -386,9 +457,9 @@ async function applyItemRenderSkybox(skyboxUrls, darken = false) {
 }
 
 async function applyItemRenderEnvironmentBackground(
-    config,
-    usesBaseplate,
-    usesDarkLighting,
+    config: any,
+    usesBaseplate: boolean,
+    usesDarkLighting: boolean,
 ) {
     const atmosphere = config?.atmosphere;
     const hasSkybox =
@@ -401,6 +472,7 @@ async function applyItemRenderEnvironmentBackground(
         mainScene.scene.background = new THREE.Color(
             RBXRenderer.backgroundColorHex,
         );
+        setSceneColor(mainScene, getMainColor());
     } else if (!hasSkybox) {
         mainScene.scene.background = null;
     }
@@ -441,7 +513,7 @@ async function getBaseplateEnvironmentConfig() {
     return baseplateEnvironmentConfig;
 }
 
-async function loadItemRenderEnvironmentModel(config) {
+async function loadItemRenderEnvironmentModel(config: ModelConfig) {
     if (!config?.url) return;
 
     if (
@@ -480,7 +552,7 @@ async function loadItemRenderEnvironmentModel(config) {
                     itemRenderEnvironmentModel.scale.set(...config.scale);
 
                 itemRenderEnvironmentModel.traverse((node) => {
-                    if (!node.isMesh) return;
+                    if (!(node instanceof THREE.Mesh)) return;
                     node.userData.isEnvironment = true;
                     if (config.receiveShadow !== undefined)
                         node.receiveShadow = config.receiveShadow;
@@ -491,7 +563,7 @@ async function loadItemRenderEnvironmentModel(config) {
                 });
 
                 mainScene.scene.add(itemRenderEnvironmentModel);
-                resolve();
+                resolve(null);
             },
             undefined,
             (error) => {
@@ -506,8 +578,8 @@ function removeItemRenderEnvironmentModel() {
     if (!itemRenderEnvironmentModel) return;
 
     mainScene.scene.remove(itemRenderEnvironmentModel);
-    itemRenderEnvironmentModel = null;
-    itemRenderEnvironmentModelUrl = null;
+    itemRenderEnvironmentModel = undefined;
+    itemRenderEnvironmentModelUrl = undefined;
 }
 
 async function applyItemRenderEnvironmentMode() {
@@ -578,7 +650,7 @@ function positionRenderEnvironmentPanel() {
     renderEnvironmentMenu.panel.style.right = 'auto';
 }
 
-function createRenderEnvironmentToggleRow({ label, toggleName }) {
+function createRenderEnvironmentToggleRow({ label, toggleName }: {label: string, toggleName: string}) {
     const row = document.createElement('div');
     row.className = 'flex items-center justify-between';
 
@@ -590,10 +662,11 @@ function createRenderEnvironmentToggleRow({ label, toggleName }) {
         checked: getRenderEnvironmentTogglesFromMode(
             selectedRenderEnvironmentMode,
         )[toggleName],
-        onChange: (isChecked) => {
+        // @ts-ignore
+        onChange: (isChecked: boolean) => {
             setRenderEnvironmentToggle(toggleName, isChecked);
         },
-    });
+    }) as RadioElement;
 
     if (toggleName === 'dark') {
         renderEnvironmentDarkToggle = toggle;
@@ -616,7 +689,7 @@ function updateRenderEnvironmentDropdown() {
         button.dataset.rovalraItemRendererControl = 'true';
         button.setAttribute('aria-label', ts('itemRender.renderOptions'));
         button.title = ts('itemRender.renderOptions');
-        button.style.zIndex = 2;
+        button.style.zIndex = "2";
         button.style.display = mainRendererEnabled ? '' : 'none';
         button.style.alignItems = 'center';
         button.style.justifyContent = 'center';
@@ -670,7 +743,9 @@ function updateRenderEnvironmentDropdown() {
 
         document.addEventListener('click', (event) => {
             if (
+                // @ts-ignore
                 !button.contains(event.target) &&
+                // @ts-ignore
                 !panel.contains(event.target)
             ) {
                 closeRenderEnvironmentMenu();
@@ -699,7 +774,7 @@ function updateRenderEnvironmentDropdown() {
     }
 }
 
-function updateMousePos(e) {
+function updateMousePos(e: MouseEvent) {
     mousePos = [e.clientX, e.clientY];
 }
 
@@ -707,7 +782,7 @@ function stopItemHoverCameraRotation() {
     itemHoverCameraRotating = false;
 }
 
-function updateHoverRotateButton(bounds) {
+function updateHoverRotateButton(bounds?: DOMRect) {
     if (!itemHoverRotateButton) return;
 
     if (!bounds) {
@@ -738,7 +813,7 @@ function noLoadingIconPos() {
     }
 }
 
-function applyIconTheme(icon) {
+function applyIconTheme(icon: string) {
     if (!isDarkMode()) {
         //eww! (i dont know how to do this in a better way)
         return icon.replace('fill%3D%22%23FFFFFF', 'fill%3D%22%23202227');
@@ -760,9 +835,9 @@ function getApparelIcon() {
 
 //Updates camera for outfitRenderer based on added assetType
 function assetTypeToCamera(
-    renderScene,
-    outfitRenderer,
-    assetType,
+    renderScene: RBXRendererScene,
+    outfitRenderer: OutfitRenderer,
+    assetType: string,
     rotation = 0,
 ) {
     const rig = outfitRenderer.currentRig;
@@ -895,9 +970,9 @@ function assetTypeToCamera(
     const part = rig.FindFirstChild(partName);
 
     if (part) {
-        const partCF = part.Prop('CFrame').clone();
+        const partCF = (part.Prop('CFrame') as CFrame).clone();
         partCF.Orientation = [0, 0, 0];
-        const partSize = part.Prop('Size');
+        const partSize = part.Prop('Size') as Vector3;
         const distance =
             Math.max(partSize.X, partSize.Y, partSize.Z) *
             zOffset *
@@ -911,12 +986,12 @@ function assetTypeToCamera(
             xOffset * Math.sin(rotationRadians) +
             -distance * Math.cos(rotationRadians);
 
-        const targetPosition = [
+        const targetPosition: Vec3 = [
             partCF.Position[0],
             partCF.Position[1] + partSize.Y * yOffsetMultiplier,
             partCF.Position[2],
         ];
-        const cameraPosition = [
+        const cameraPosition: Vec3 = [
             targetPosition[0] + rotatedX,
             targetPosition[1],
             targetPosition[2] + rotatedZ,
@@ -929,19 +1004,21 @@ function assetTypeToCamera(
 
 //loads users original avatar
 async function loadOgAvatar() {
-    const userId = await getAuthenticatedUserId();
-
     //get avatar data for the user
     if (!ogAvatarDataLoaded) {
-        const avatarData = await getUserAvatar(userId);
-        ogAvatarData.fromJson(avatarData);
-        ogAvatarData.playerAvatarType = avatarData.playerAvatarType;
+        const avatarData = await API.Avatar.GetAvatarModel();
+        if (!(avatarData instanceof Response)) {
+            ogAvatarData = avatarData
+            ogAvatarData.outfit.playerAvatarType = avatarData.outfit.playerAvatarType;
+        }
     }
     ogAvatarDataLoaded = true;
 }
 
 //adds item to outfit
-async function addItem(outfit, itemId, itemType, typee) {
+async function addItem(outfitModel: OutfitModel, itemId: any, itemType: string, typee: any) {
+    const outfit = outfitModel.outfit
+
     if (itemType === 'Bundle') {
         if (!(await outfit.addBundleId(itemId))) return;
     } else if (itemType === 'Asset') {
@@ -951,6 +1028,12 @@ async function addItem(outfit, itemId, itemType, typee) {
         } else {
             outfit.removeAssetType(typee);
             outfit.addAsset(itemId, typee, '');
+        }
+
+        for (const asset of outfit.assets) {
+            if (asset.assetType.name == "AvatarBackground") {
+                outfitModel.background = asset
+            }
         }
     } else if (itemType === 'Look') {
         const lookResult = await API.Looks.GetLook(itemId);
@@ -974,7 +1057,7 @@ async function addItem(outfit, itemId, itemType, typee) {
 }
 
 //adds item to outfit based on item link
-async function addItemFromLink(outfit, itemLink, typee) {
+async function addItemFromLink(outfit: OutfitModel, itemLink: string, typee?: any) {
     const itemId = getPlaceIdFromUrl(itemLink);
     let itemType = itemLink.includes('bundles/') ? 'Bundle' : 'Asset';
     if (itemLink.includes('looks/')) {
@@ -987,13 +1070,19 @@ async function addItemFromLink(outfit, itemLink, typee) {
 function loadCurrentHoveredItem() {
     const originalCurrentHoveredItemElement = currentHoveredItemElement;
     const targetLink = currentHoveredItemLink;
+    if (!targetLink) return;
     const targetType = currentHoveredItemType;
 
     const buildHoverOutfit = ogAvatarData.clone();
-    itemHoverOutfitRenderer.setOutfit(buildHoverOutfit);
+    if (!itemHoverOutfitRenderer) return;
+    itemHoverOutfitRenderer.setOutfitModel(buildHoverOutfit);
     itemHoverOutfitRenderer.setMainAnimation('idle');
 
     currentHoveredItemLoading = true;
+
+    const originalIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+    itemHoverShouldAutoSwitchAnim = false;
+    itemHoverAutoSwitchAnimTimePassed = 0;
 
     addItemFromLink(buildHoverOutfit, targetLink, targetType).then(() => {
         if (
@@ -1001,15 +1090,22 @@ function loadCurrentHoveredItem() {
             currentHoveredItemLink !== targetLink
         )
             return;
+        const newIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+        if (originalIdleAnimation !== newIdleAnimation) itemHoverShouldAutoSwitchAnim = true;
+
         currentHoveredItemLoading = false;
         itemHoverOutfit = buildHoverOutfit;
-        itemHoverOutfitRenderer.setOutfit(itemHoverOutfit);
-        playAppropriateAnim(itemHoverOutfit, itemHoverOutfitRenderer);
+        if (itemHoverOutfitRenderer) {
+            itemHoverOutfitRenderer.setOutfitModel(itemHoverOutfit);
+            playAppropriateAnim(itemHoverOutfit, itemHoverOutfitRenderer);
+        }
     });
 }
 
 //plays emote if outfit contains emote, otherwise default
-function playAppropriateAnim(outfit, outfitRenderer) {
+function playAppropriateAnim(outfitModel: OutfitModel, outfitRenderer: OutfitRenderer) {
+    const outfit = outfitModel.outfit;
+
     if (outfit.containsAssetType('EmoteAnimation')) {
         for (const asset of outfit.assets) {
             if (asset.assetType.name === 'EmoteAnimation') {
@@ -1030,10 +1126,21 @@ async function startRenderer() {
     if (startedRenderer) return true;
     startedRenderer = true;
 
+    //flags (these are set to true since the avatar is frequently changed)
+    FLAGS.ENABLE_API_MESH_CACHE = true;
+    FLAGS.ENABLE_API_RBX_CACHE = true;
+
+    //cache limits (i doubt this actually does much at all, maybe we save like 10mb...)
+    RENDERER_CACHE.Mesh.maxEntries = 150;
+    RENDERER_CACHE.AssetBuffer.maxEntries = 150;
+    RENDERER_CACHE.IsLayered.maxEntries = 100;
+    RENDERER_CACHE.ItemDetails.maxEntries = 50;
+    RENDERER_CACHE.ItemOwned.maxEntries = 50;
+
     const success = await RBXRenderer.fullSetup(true, true, false);
     if (!success) return false;
 
-    RBXRenderer.loadingIcon.style.zIndex = 2;
+    if (RBXRenderer.loadingIcon) RBXRenderer.loadingIcon.style.zIndex = "2";
     noLoadingIconPos();
 
     //main
@@ -1044,6 +1151,7 @@ async function startRenderer() {
         mainOutfit,
         mainScene,
     );
+    mainOutfitRenderer.backgroundRenderer.affectSceneAppearance = false
     mainOutfitRenderer.startAnimating();
     mainOutfitRenderer.setMainAnimation(selectedAnimName);
 
@@ -1054,6 +1162,7 @@ async function startRenderer() {
         itemHoverOutfit,
         itemHoverScene,
     );
+    itemHoverOutfitRenderer.backgroundRenderer.affectSceneAppearance = false
     itemHoverOutfitRenderer.startAnimating();
     itemHoverOutfitRenderer.setMainAnimation('idle');
 
@@ -1062,7 +1171,7 @@ async function startRenderer() {
     rendererElement.style.position = 'fixed';
     rendererElement.style.left = '0px';
     rendererElement.style.top = '0px';
-    rendererElement.style.zIndex = 1;
+    rendererElement.style.zIndex = "1";
     document.body.appendChild(rendererElement);
     createHoverRotateButton();
     document.body.addEventListener('mousemove', updateMousePos);
@@ -1101,14 +1210,14 @@ async function updateMainRenderer() {
     if (needsMainOutfitRenderer) {
         const buildOutfit = ogAvatarData.clone();
         if (selectedRigType) {
-            buildOutfit.playerAvatarType = selectedRigType;
+            buildOutfit.outfit.playerAvatarType = selectedRigType;
         }
 
         //remove accessories if theyre disabled
         if (accessoriesEnabled === false) {
             const assetsToRemove = [];
 
-            for (const asset of buildOutfit.assets) {
+            for (const asset of buildOutfit.outfit.assets) {
                 if (
                     asset.assetType.name.includes('Accessory') ||
                     asset.assetType.name === 'Hat'
@@ -1118,7 +1227,7 @@ async function updateMainRenderer() {
             }
 
             for (const assetToRemove of assetsToRemove) {
-                buildOutfit.removeAsset(assetToRemove);
+                buildOutfit.outfit.removeAsset(assetToRemove);
             }
         }
 
@@ -1130,7 +1239,7 @@ async function updateMainRenderer() {
         mainOutfit = buildOutfit;
 
         if (mainOutfitRenderer) {
-            mainOutfitRenderer.setOutfit(mainOutfit);
+            mainOutfitRenderer.setOutfitModel(mainOutfit);
             playAppropriateAnim(mainOutfit, mainOutfitRenderer);
             pendingAnimationUpdate = true;
 
@@ -1140,8 +1249,11 @@ async function updateMainRenderer() {
     }
 }
 
+let lastFrameTime = Date.now() / 1000;
 //runs every frame
 function customAnimate() {
+    const deltaTime = Date.now() / 1000 - lastFrameTime;
+
     //SPA support
     if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
@@ -1162,7 +1274,7 @@ function customAnimate() {
     }
 
     //renderer size
-    const newSize = [window.innerWidth, window.innerHeight];
+    const newSize: Vec2 = [window.innerWidth, window.innerHeight];
     if (
         RBXRenderer.resolution[0] !== newSize[0] ||
         RBXRenderer.resolution[1] !== newSize[1]
@@ -1180,9 +1292,11 @@ function customAnimate() {
         const mainSceneBounds = mainSceneContainer.getBoundingClientRect();
         if (!currentHoveredItemElement && mainRendererEnabled) {
             resetLoadingIconPos();
-            RBXRenderer.loadingIcon.style.left =
-                mainSceneBounds.left + 12 + 'px';
-            RBXRenderer.loadingIcon.style.top = mainSceneBounds.top + 12 + 'px';
+            if (RBXRenderer.loadingIcon) {
+                RBXRenderer.loadingIcon.style.left =
+                    mainSceneBounds.left + 12 + 'px';
+                RBXRenderer.loadingIcon.style.top = mainSceneBounds.top + 12 + 'px';
+            }
         }
 
         mainScene.setRect(mainSceneBounds);
@@ -1196,6 +1310,12 @@ function customAnimate() {
     }
 
     rendererElement.style.pointerEvents = mouseWithin ? 'auto' : 'none';
+
+    //plane position to avoid z fighting with background
+    mainScene.plane?.position.set(0,-0.1,0)
+    mainScene.shadowPlane?.position.set(0,-0.1,0)
+    itemHoverScene.plane?.position.set(0,-0.1,0)
+    itemHoverScene.shadowPlane?.position.set(0,-0.1,0)
 
     //disable main renderer
     if (!mainRendererEnabled) {
@@ -1240,15 +1360,30 @@ function customAnimate() {
 
     if (itemHoverCameraRotating) {
         itemHoverCameraRotation =
-            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED) % 360;
+            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED * deltaTime) % 360;
     }
 
+    //update item hover camera
+    if (itemHoverOutfitRenderer)
     assetTypeToCamera(
         itemHoverScene,
         itemHoverOutfitRenderer,
-        currentHoveredItemType,
+        currentHoveredItemType!,
         itemHoverCameraRotation,
     );
+
+    //update item hover animation (for animation packs)
+    itemHoverAutoSwitchAnimTimePassed += deltaTime;
+    if (itemHoverAutoSwitchAnimTimePassed >= HOVER_AUTO_SWITCH_ANIM_TIME && itemHoverShouldAutoSwitchAnim) {
+        itemHoverAutoSwitchAnimTimePassed = 0;
+
+        const animationNames = itemHoverOutfit.outfit.playerAvatarType === "R15" ? R15_ANIMATION_NAMES : R6_ANIMATION_NAMES;
+        const currentIndex = animationNames.indexOf(itemHoverOutfitRenderer?.animatorW?.data?.currentAnimation || "");
+        if (currentIndex > -1) {
+            const nextIndex = (currentIndex + 1) % animationNames.length;
+            itemHoverOutfitRenderer?.setMainAnimation(animationNames[nextIndex]);
+        }
+    }
 
     //loading icon
     if (
@@ -1257,16 +1392,19 @@ function customAnimate() {
         currentHoveredItemFrames >= HOVER_FRAME_TIME &&
         (currentlyLoadingAssets || currentHoveredItemLoading)
     ) {
-        const itemHoverBounds =
-            currentHoveredItemThumbElement.getBoundingClientRect();
-        resetLoadingIconPos();
-        RBXRenderer.loadingIcon.style.left = itemHoverBounds.left + 12 + 'px';
-        RBXRenderer.loadingIcon.style.top = itemHoverBounds.top + 12 + 'px';
+        if (currentHoveredItemThumbElement && RBXRenderer.loadingIcon) {
+            const itemHoverBounds =
+                currentHoveredItemThumbElement.getBoundingClientRect();
+            resetLoadingIconPos();
+            RBXRenderer.loadingIcon.style.left = itemHoverBounds.left + 12 + 'px';
+            RBXRenderer.loadingIcon.style.top = itemHoverBounds.top + 12 + 'px';
+        }
     }
 
     //render
     RBXRenderer.animateAll(false);
 
+    lastFrameTime = Date.now() / 1000;
     window.requestAnimationFrame(customAnimate);
 }
 
@@ -1323,10 +1461,10 @@ function createHoverRotateButton() {
     document.body.appendChild(button);
 }
 
-function updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer) {
+function updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer: HTMLElement) {
     if (itemThumbnailImageContainer) {
         const itemThumbnailImage = itemThumbnailImageContainer.children[0];
-        if (itemThumbnailImage && itemThumbnailImage.src) {
+        if (itemThumbnailImage && itemThumbnailImage instanceof HTMLImageElement && itemThumbnailImage.src) {
             const potentialAssetType = itemThumbnailImage.src.split('/')[6];
             if (AssetTypes.includes(potentialAssetType)) {
                 currentHoveredItemType = potentialAssetType;
@@ -1351,7 +1489,7 @@ async function asyncInit() {
                     : 'default';
                 hoverPreviewEnabled =
                     !data.marketplace3DRenderHoverPreviewDisabled;
-                resolve();
+                resolve(null);
             },
         );
     });
@@ -1361,7 +1499,7 @@ async function asyncInit() {
     await updateMainRenderer();
 
     //update main renderer
-    observeElement('.thumbnail-holder', (element) => {
+    observeElement('.thumbnail-holder', (element: HTMLElement) => {
         const url = window.location.href;
         if (
             !url.includes('/catalog') &&
@@ -1376,7 +1514,7 @@ async function asyncInit() {
     });
 
     //buttons for main thumbnail
-    observeElement('.thumbnail-button-container', (element) => {
+    observeElement('.thumbnail-button-container', (element: HTMLElement) => {
         const url = window.location.href;
         if (
             !url.includes('/catalog') &&
@@ -1395,7 +1533,7 @@ async function asyncInit() {
             buttonFor3d.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
             buttonFor3d.dataset.rovalraItemRendererControl = 'true';
-            buttonFor3d.style.zIndex = 2;
+            buttonFor3d.style.zIndex = "2";
 
             const buttonFor3dIcon = document.createElement('img');
             buttonFor3dIcon.src = applyIconTheme(
@@ -1445,7 +1583,7 @@ async function asyncInit() {
             toggleAccessories.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
             toggleAccessories.dataset.rovalraItemRendererControl = 'true';
-            toggleAccessories.style.zIndex = 2;
+            toggleAccessories.style.zIndex = "2";
             toggleAccessories.style.display = mainRendererEnabled ? '' : 'none';
 
             const toggleAccessoriesIcon = document.createElement('img');
@@ -1468,7 +1606,7 @@ async function asyncInit() {
             buttonForRig.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
             buttonForRig.dataset.rovalraItemRendererControl = 'true';
-            buttonForRig.style.zIndex = 2;
+            buttonForRig.style.zIndex = "2";
             buttonForRig.style.display = mainRendererEnabled ? '' : 'none';
             buttonForRig.style.color = 'var(--rovalra-main-text-color)';
             buttonForRig.style.fontSize = '12px';
@@ -1476,7 +1614,7 @@ async function asyncInit() {
 
             buttonForRig.addEventListener('click', async () => {
                 const currentType =
-                    selectedRigType || ogAvatarData.playerAvatarType;
+                    selectedRigType || ogAvatarData.outfit.playerAvatarType;
                 selectedRigType = currentType === 'R6' ? 'R15' : 'R6';
                 updateRigButtonText();
                 await updateMainRenderer();
@@ -1489,7 +1627,7 @@ async function asyncInit() {
         updateAnimationDropdown();
         updateRenderEnvironmentDropdown();
 
-        element.appendChild(renderEnvironmentMenu.wrapper);
+        if (renderEnvironmentMenu) element.appendChild(renderEnvironmentMenu.wrapper);
         element.appendChild(buttonForRig);
         element.appendChild(toggleAccessories);
         element.appendChild(buttonFor3d);
@@ -1502,8 +1640,8 @@ async function asyncInit() {
     //item cards linking to catalog or bundles
     observeElement(
         'div.item-card-container',
-        (element) => {
-            const itemLinkElement = element.querySelector('a.item-card-link');
+        (element: HTMLElement) => {
+            const itemLinkElement = element.querySelector('a.item-card-link') as HTMLAnchorElement;
             if (!itemLinkElement) return;
             if (
                 !itemLinkElement.href.includes('/catalog') &&
@@ -1514,10 +1652,10 @@ async function asyncInit() {
 
             const itemThumbContainer = element.querySelector(
                 'div.item-card-thumb-container',
-            );
+            ) as HTMLDivElement;
             const itemThumbnailImageContainer = element.querySelector(
                 '.thumbnail-2d-container',
-            );
+            ) as HTMLElement;
 
             if (itemLinkElement && itemThumbContainer) {
                 itemThumbContainer.addEventListener('mouseenter', () => {
@@ -1528,12 +1666,14 @@ async function asyncInit() {
                     currentHoveredItemLink = itemLinkElement.href;
                     currentHoveredItemType = undefined;
 
+                    setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainer))
+
                     updateHoveredItemTypeFromThumbnail(
                         itemThumbnailImageContainer,
                     );
                 });
                 itemThumbContainer.addEventListener('mouseleave', (e) => {
-                    if (itemHoverRotateButton?.contains(e.relatedTarget)) {
+                    if (itemHoverRotateButton?.contains(e.relatedTarget as HTMLElement)) {
                         return;
                     }
 
@@ -1549,10 +1689,10 @@ async function asyncInit() {
     //item cards outside marketplace
     observeElement(
         '.list-item.item-card',
-        (element) => {
+        (element: HTMLElement) => {
             const itemLinkElement = element.querySelector(
                 'a.item-card-container',
-            );
+            ) as HTMLAnchorElement;
             if (!itemLinkElement) return;
             if (
                 !itemLinkElement.href.includes('/catalog') &&
@@ -1563,12 +1703,12 @@ async function asyncInit() {
 
             const itemThumbContainerContainer = element.querySelector(
                 '.item-card-thumb-container',
-            );
+            ) as HTMLElement;
             const itemThumbContainer =
-                element.querySelector('.item-card-thumb');
+                element.querySelector('.item-card-thumb') as HTMLElement;
             const itemThumbnailImageContainer = element.querySelector(
                 '.thumbnail-2d-container',
-            );
+            ) as HTMLElement;
 
             if (
                 itemThumbContainerContainer &&
@@ -1586,6 +1726,8 @@ async function asyncInit() {
                         currentHoveredItemLink = itemLinkElement.href;
                         currentHoveredItemType = undefined;
 
+                        setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainerContainer))
+
                         updateHoveredItemTypeFromThumbnail(
                             itemThumbnailImageContainer,
                         );
@@ -1594,7 +1736,7 @@ async function asyncInit() {
                 itemThumbContainerContainer.addEventListener(
                     'mouseleave',
                     (e) => {
-                        if (itemHoverRotateButton?.contains(e.relatedTarget)) {
+                        if (itemHoverRotateButton?.contains(e.relatedTarget as HTMLElement)) {
                             return;
                         }
 
@@ -1613,7 +1755,7 @@ async function asyncInit() {
 }
 
 export function init() {
-    chrome.storage.onChanged.addListener((changes, areaName) => {
+    chrome.storage.onChanged.addListener((changes: any, areaName: any) => {
         if (
             areaName !== 'local' ||
             !changes.marketplace3DRenderHoverPreviewDisabled

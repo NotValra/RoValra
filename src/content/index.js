@@ -13,11 +13,11 @@ import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js';
 import { init as initTests } from './features/developer/tests.js';
-import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { initUnfriendDetectorTracking } from './core/utils/trackers/unfriendDetector.js';
 import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initAvatarInventoryTracking } from './core/utils/trackers/avatarInventory.js';
@@ -34,7 +34,6 @@ import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
-import { init as initDocsLink } from './features/navigation/docslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
@@ -49,7 +48,10 @@ import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePl
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
+import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndicator.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
+import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
+import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -88,12 +90,15 @@ import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
 import { init as initDeveloperProductsSection } from './features/games/DeveloperProductsSection.js';
 import { init as initDeveloperProductAutoBuy } from './features/games/developerProductAutoBuy.js';
+import { init as initBtrDonationWarning } from './features/games/btrDonationWarning.js';
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
 import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
+import { init as initSpentPerGame } from './features/transactions/spentPerGame.js';
+import { init as initSpentPerCreator } from './features/transactions/spentPerCreator.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
@@ -111,6 +116,7 @@ import { init as initDraggableGroups } from './features/groups/draggableGroups.j
 import { init as initBulkLeaveGroups } from './features/groups/bulkLeave.js';
 import { init as initPlaceVisits } from './features/groups/placevisits.js';
 import { init as initGroupCreateDate } from './features/groups/createDate.js';
+import { init as initGroupPendingFunds } from './features/groups/groupPendingFunds.js';
 // Plus
 import { init as initRobloxPlusStats } from './features/plus/stats.js';
 import { init as initRobloxPlusTransferLimits } from './features/plus/transferLimits.js';
@@ -139,13 +145,17 @@ import { init as initProfilePronouns } from './features/profile/header/pronouns.
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
+import { init as initAgeVerificationBadge } from './features/profile/header/ageVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
+import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
 import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initAvatarDownload } from './features/profile/header/avatarDownload.js';
 import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
+import { init as initProfileFrame } from './features/profile/profileFrame.js';
 import { init as initImprovedAvatarCard } from './features/profile/improvedAvatarCard.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
+import { init as initMoreRobuxDigits } from './features/sitewide/moreRobuxDigits.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
@@ -153,7 +163,10 @@ import { init as initUsernameColor } from './features/profile/header/usernameCol
 import { init as initDisplayNameGradient } from './features/profile/header/displayNameGradient.js';
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
+import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
+import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
+import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -163,12 +176,16 @@ import { init as initLegacyThemeSwitcher } from './features/settings/roblox/lega
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
+import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
-import { enforceSettingOverrides } from './core/settings/handlesettings.js';
+import {
+    enforceSettingOverrides,
+    loadSettings,
+} from './core/settings/handlesettings.js';
 import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
 // buy page
 import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRobux.js';
@@ -197,6 +214,8 @@ const featureRoutes = [
             initBirthdayTracker,
             initServerTracker,
             initFriendsListTracking,
+            initUnfriendDetectorTracking,
+            initUnfriendDetector,
             initTransactionsTracking,
             initBadgesTracking,
             initAvatarInventoryTracking,
@@ -213,10 +232,10 @@ const featureRoutes = [
             initBannedUsers,
             initGroupFunds,
             initTransactionsLink,
-            initDocsLink,
             initStatus,
             initCustomFont,
             initRobuxIcons,
+            initMoreRobuxDigits,
             initProfileBackground,
             initAvatarBorder,
             initDisplayNameGradient,
@@ -230,6 +249,7 @@ const featureRoutes = [
             initCustomRobloxBanner,
             initSidebarCollapse,
             initSidebarLayout,
+            initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,
             initWideTilePlayerCounts,
@@ -237,6 +257,8 @@ const featureRoutes = [
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
+            initSitewideAppThemesOnProfiles,
+            initQuickPrivacyTogglesNav,
         ],
     },
     // pretty much just the 40% method
@@ -284,6 +306,7 @@ const featureRoutes = [
             initDraggableGroups,
             initPlaceVisits,
             initGroupCreateDate,
+            initGroupPendingFunds,
             initItemRender,
         ],
     },
@@ -326,6 +349,11 @@ const featureRoutes = [
             initBadgeOwnership,
         ],
     },
+    // Donation store page
+    {
+        paths: ['/games/store-section/'],
+        features: [initBtrDonationWarning],
+    },
     // Private games page and unavailable game redirects
     {
         paths: ['/games/', '/private-games/'],
@@ -352,6 +380,7 @@ const featureRoutes = [
         features: [
             initDonationLink,
             initImprovedAvatarCard,
+            initProfileFrame,
             initRap,
             initInstantJoiner,
             initOutfits,
@@ -362,6 +391,7 @@ const featureRoutes = [
             initProfileTestTab,
             initProfileShowcase,
             initIdVerificationBadge,
+            initAgeVerificationBadge,
             initFriendsSince,
             initUnfriend,
             initLastPlayed,
@@ -375,8 +405,14 @@ const featureRoutes = [
             initAvatarDownload,
             initChatEligibilityTooltip,
             initProfileCustomization,
+            initSocialLinks,
             initSendRobuxProfileButton,
+            initProfileAppThemesOnProfiles,
         ],
+    },
+    {
+        paths: ['/users/profile/edit'],
+        features: [initProfileEditFeatures],
     },
     {
         paths: ['/users/', '/banned-users/'],
@@ -384,13 +420,19 @@ const featureRoutes = [
     },
     {
         paths: ['/deleted-users/'],
-        features: [initUsernameColor]
+        features: [initUsernameColor],
     },
 
     // Transactions page
     {
         paths: ['/transactions'],
-        features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned],
+        features: [
+            initTotalSpent,
+            initSpentPerGame,
+            initSpentPerCreator,
+            initPendingRobuxTrans,
+            initTotalEarned,
+        ],
     },
     {
         paths: ['/upgrades/paymentmethods'],
@@ -409,11 +451,6 @@ const featureRoutes = [
         ],
     },
 
-    // API Docs
-    {
-        paths: ['/docs'],
-        features: [initApiDocs],
-    },
     // Moderation Panel
     {
         paths: ['/moderation'],
@@ -431,6 +468,7 @@ const featureRoutes = [
             initUnderratedGamesHome,
             initAccurateContinue,
             initHideAddFriendsButton,
+            initFriendLabels,
         ],
     },
     {
@@ -590,6 +628,19 @@ async function initializePage() {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
+
+        await enforceSettingOverrides();
+        const settings = await loadSettings();
+        document.dispatchEvent(
+            new CustomEvent('rovalra:settingsState', {
+                detail: {
+                    disableThumbnailBackground:
+                        settings.disableThumbnailBackground === true,
+                    disableThumbnailProfileFrame:
+                        settings.disableThumbnailProfileFrame === true,
+                },
+            }),
+        );
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 
@@ -604,42 +655,57 @@ async function initializePage() {
         );
     };
 
-
     // preload stuff
     const builderIconsReg = document.createElement('link');
     builderIconsReg.rel = 'preload';
-    builderIconsReg.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2';
+    builderIconsReg.href =
+        'https://www.rovalra.com/static/fonts/BuilderIcons-Regular.woff2';
     builderIconsReg.as = 'font';
     builderIconsReg.type = 'font/woff2';
     builderIconsReg.crossOrigin = 'anonymous';
     const builderIconsFill = document.createElement('link');
     builderIconsFill.rel = 'preload';
-    builderIconsFill.href = 'https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2';
+    builderIconsFill.href =
+        'https://www.rovalra.com/static/fonts/BuilderIcons-Filled.woff2';
     builderIconsFill.as = 'font';
     builderIconsFill.type = 'font/woff2';
     builderIconsFill.crossOrigin = 'anonymous';
     const rovalraIconsWOFF = document.createElement('link');
     rovalraIconsWOFF.rel = 'preload';
-    rovalraIconsWOFF.href = 'https://www.rovalra.com/static/fonts/RoValraIcons.woff2';
+    rovalraIconsWOFF.href =
+        'https://www.rovalra.com/static/fonts/RoValraIcons.woff2';
     rovalraIconsWOFF.as = 'font';
     rovalraIconsWOFF.type = 'font/woff2';
     rovalraIconsWOFF.crossOrigin = 'anonymous';
-    const googleIcons = document.createElement('link')
+    const googleIcons = document.createElement('link');
     googleIcons.rel = 'preload';
-    googleIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap';
+    googleIcons.href =
+        'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons&display=swap';
     googleIcons.rel = 'stylesheet';
     googleIcons.crossOrigin = 'anonymous';
 
     if (document.head) {
-        document.head.append(googleIcons, rovalraIconsWOFF, builderIconsReg, builderIconsFill);
+        document.head.append(
+            googleIcons,
+            rovalraIconsWOFF,
+            builderIconsReg,
+            builderIconsFill,
+        );
     } else {
         const docObserverForHead = new MutationObserver((_, obs) => {
             if (document.head) {
                 obs.disconnect();
-                document.head.append(googleIcons, rovalraIconsWOFF, builderIconsReg, builderIconsFill);
+                document.head.append(
+                    googleIcons,
+                    rovalraIconsWOFF,
+                    builderIconsReg,
+                    builderIconsFill,
+                );
             }
         }); //Verified
-        docObserverForHead.observe(document.documentElement, { childList: true });
+        docObserverForHead.observe(document.documentElement, {
+            childList: true,
+        });
     }
 
     if (document.body) {
@@ -658,7 +724,9 @@ async function initializePage() {
                 );
             }
         }); //Verified
-        docObserverForBody.observe(document.documentElement, { childList: true });
+        docObserverForBody.observe(document.documentElement, {
+            childList: true,
+        });
     }
 }
 

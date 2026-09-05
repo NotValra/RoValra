@@ -1,11 +1,16 @@
 #rovalra-game-notice-banner,
-#rovalra-catalog-notice-banner {
+#rovalra-catalog-notice-banner,
+#rovalra-compatibility-notice-banner {
     background-color: var(--rovalra-container-background-color);
     width: 100%;
     padding: 10px 15px;
-    margin-bottom: 12px;
     display: none;
     flex-direction: column;
+
+    &#rovalra-game-notice-banner,
+    &#rovalra-catalog-notice-banner {
+        margin-bottom: 10px;
+    }
 
     &.rovalra-banner-compact {
         padding: 6px 15px;
@@ -80,5 +85,12 @@
         .rovalra-markdown {
             display: contents;
         }
+    }
+
+    &#rovalra-compatibility-notice-banner {
+        display: flex;
+        margin-bottom: 0px;
+        width: calc(100% - 5px);
+        box-sizing: border-box;
     }
 }

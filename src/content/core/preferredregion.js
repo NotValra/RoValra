@@ -127,7 +127,7 @@ export async function performJoinAction(
         let totalUniqueServersSeen = 0;
 
         const settings = await chrome.storage.local.get({
-            preferredRegionUseRobloxLatency: true,
+            preferredRegionUseRobloxLatencyv1: true,
             preferredRegionLocalSearchEnabled: false,
         });
         const forceLocalSearch =
@@ -135,7 +135,7 @@ export async function performJoinAction(
         const useRobloxLatencyForAutomatic =
             !forceLocalSearch &&
             !preferredRegionCode &&
-            settings.preferredRegionUseRobloxLatency;
+            settings.preferredRegionUseRobloxLatencyv1;
 
         await ClosestServer.dataPromise;
 

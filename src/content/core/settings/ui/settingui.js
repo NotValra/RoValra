@@ -2,6 +2,7 @@ import { getAssets } from '../../assets.js';
 import { callRobloxApi } from '../../api.js';
 import { SETTINGS_CONFIG } from '../settingConfig.js';
 import { createDropdown } from '../../ui/dropdown.js';
+import { t } from '../../locale/i18n.js';
 
 const ACCOUNT_STANDING_TAB_IDS = new Set([
     'info',
@@ -88,6 +89,76 @@ function shouldShowSettingsSection(sectionName, options = {}) {
     return true;
 }
 
+const INCOMPATIBILITY_DETECTIONS = [
+    {
+        name: 'RoGold',
+        bodyClass: 'rogold',
+    },
+    {
+        name: 'BTRoblox',
+        selector: 'html[btr-loaded="true"]',
+    },
+];
+
+function getDetectedIncompatibilities() {
+    return INCOMPATIBILITY_DETECTIONS.filter((detection) => {
+        if (detection.bodyClass) {
+            return document.body?.classList.contains(detection.bodyClass);
+        }
+
+        return Boolean(
+            detection.selector && document.querySelector(detection.selector),
+        );
+    });
+}
+
+function formatCompatibilityList(names) {
+    if (names.length <= 1) return names[0] || '';
+    if (names.length === 2) return `${names[0]} and ${names[1]}`;
+    return `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
+}
+
+async function createCompatibilityWarning() {
+    const detectedNames = getDetectedIncompatibilities().map(
+        (detection) => detection.name,
+    );
+    if (detectedNames.length === 0) return null;
+
+    const detectedExtensions = formatCompatibilityList(detectedNames);
+
+    const warning = document.createElement('div');
+    warning.id = 'rovalra-compatibility-notice-banner';
+    warning.setAttribute('role', 'alert');
+
+    const entry = document.createElement('div');
+    entry.className = 'rovalra-game-notice-entry';
+
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'rovalra-game-notice-icon';
+    iconContainer.innerHTML = '<icon material size="48px">warning_amber</icon>';
+
+    const textContainer = document.createElement('div');
+    textContainer.className = 'rovalra-game-notice-text-container';
+
+    const title = document.createElement('div');
+    title.className = 'rovalra-game-notice-title';
+    title.textContent = await t('settings.compatibilityWarning.title', {
+        extensions: detectedExtensions,
+    });
+
+    const description = document.createElement('div');
+    description.className = 'rovalra-game-notice-description';
+    description.textContent = await t(
+        'settings.compatibilityWarning.description',
+        { extensions: detectedExtensions },
+    );
+
+    textContainer.append(title, description);
+    entry.append(iconContainer, textContainer);
+    warning.appendChild(entry);
+    return warning;
+}
+
 export async function buildSettingsPage({
     handleSearch,
     debounce,
@@ -156,6 +227,8 @@ export async function buildSettingsPage({
 
     headerContainer.appendChild(rovalraHeader);
     rovalraHeader.appendChild(rovalraIcon);
+
+    const compatibilityWarning = await createCompatibilityWarning();
 
     let settingsContainer = document.createElement('div');
     settingsContainer.id = 'settings-container';
@@ -273,6 +346,8 @@ export async function buildSettingsPage({
         'display: block; position: relative; overflow: visible; width: 100%;';
 
     settingsContainer.insertAdjacentElement('afterbegin', rovalraHeader);
+    if (compatibilityWarning)
+        rovalraHeader.insertAdjacentElement('afterend', compatibilityWarning);
 
     uiContainer.innerHTML = '';
 

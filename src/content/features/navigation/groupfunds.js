@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeAttributes, observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { ts } from '../../core/locale/i18n.js';
 import {
@@ -15,7 +15,6 @@ import { getAuthenticatedUserId } from '../../core/user.js';
 import { getUserName } from '../../core/apis/users.js';
 
 const CACHE_KEY = 'rovalra-group-funds-data';
-const CACHE_DURATION = 5 * 60 * 1000;
 const NAVBAR_SELECTORS = '#nav-robux-amount, #nav-robux-balance';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 
@@ -64,14 +63,6 @@ function getCache() {
 
 function setCache(cache) {
     chrome.storage.local.set({ [CACHE_KEY]: cache });
-}
-
-function isCacheFresh(entry) {
-    return (
-        entry &&
-        Number.isFinite(Number(entry.timestamp)) &&
-        Date.now() - entry.timestamp < CACHE_DURATION
-    );
 }
 
 async function fetchAndCacheGroupData(groupId) {
@@ -128,18 +119,6 @@ async function fetchAndCacheGroupData(groupId) {
 
     activeGroupRequests.set(groupId, request);
     return request;
-}
-
-async function ensureFreshDataForConfiguredGroups() {
-    if (!state.groupFundsEnabled || state.groupIds.length === 0) return;
-
-    const cache = await getCache();
-
-    state.groupIds.forEach((groupId) => {
-        if (!isCacheFresh(cache[groupId])) {
-            fetchAndCacheGroupData(groupId).catch(() => {});
-        }
-    });
 }
 
 function clearNavbarOverride() {
@@ -238,9 +217,7 @@ async function getPersonalRobuxBalance() {
 
 function shouldWarmPersonalRowData() {
     return (
-        state.groupFundsEnabled &&
-        state.navbarTotalEnabled &&
-        !state.hideRobux
+        state.groupFundsEnabled && state.navbarTotalEnabled && !state.hideRobux
     );
 }
 
@@ -267,7 +244,9 @@ async function warmPersonalRowData() {
             userId: userData?.userId || personalRowData?.userId || null,
             username: userData?.username || personalRowData?.username || 'User',
             thumbnailData:
-                userData?.thumbnailData || personalRowData?.thumbnailData || null,
+                userData?.thumbnailData ||
+                personalRowData?.thumbnailData ||
+                null,
             personalBalance: Number.isFinite(personalBalance)
                 ? personalBalance
                 : personalRowData?.personalBalance,
@@ -417,10 +396,6 @@ async function syncSettingsAndRender() {
     state.groupIds = sanitizeGroupIds(settings.GroupFundsIds);
     state.hideRobux = settings.streamermode && settings.hideRobux === true;
 
-    if (state.groupFundsEnabled && state.groupIds.length > 0) {
-        await ensureFreshDataForConfiguredGroups();
-    }
-
     if (shouldWarmPersonalRowData()) {
         warmPersonalRowData().catch(() => {});
     }
@@ -428,9 +403,30 @@ async function syncSettingsAndRender() {
     await renderNavbarTotal();
 }
 
+const PENDING_ROW_STYLE_ID = 'rovalra-group-funds-pending-row-style';
+
+function injectPendingRowStyle() {
+    if (document.getElementById(PENDING_ROW_STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = PENDING_ROW_STYLE_ID;
+    style.textContent = `
+        .rovalra-funds-pending-row,
+        .rovalra-funds-pending-row:hover {
+            cursor: default !important;
+            background: transparent !important;
+        }
+        .rovalra-funds-pending-row * {
+            cursor: default !important;
+        }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+}
+
 export function init() {
     if (state.initialized) return;
     state.initialized = true;
+
+    injectPendingRowStyle();
 
     const renderSection = (popover) => {
         const menu = popover.querySelector('.dropdown-menu');
@@ -492,6 +488,7 @@ export function init() {
             section.appendChild(fundsLi);
 
             const pendingLi = document.createElement('li');
+            pendingLi.className = 'rovalra-funds-pending-row';
             const pendingLink = document.createElement('a');
             pendingLink.className = 'rbx-menu-item';
             pendingLink.style.paddingTop = '0';
@@ -499,7 +496,7 @@ export function init() {
             pendingLink.style.fontSize = '12px';
             pendingLink.style.color = 'gray';
             pendingLink.style.textAlign = 'right';
-            pendingLink.style.pointerEvents = 'none';
+            pendingLink.style.cursor = 'default';
             pendingLink.textContent = '';
             pendingLi.appendChild(pendingLink);
             section.appendChild(pendingLi);
@@ -523,9 +520,7 @@ export function init() {
                 rbxIcon.style.verticalAlign = 'text-bottom';
                 rbxIcon.style.marginRight = '3px';
 
-                const text = document.createTextNode(
-                    amount.toLocaleString(),
-                );
+                const text = document.createTextNode(amount.toLocaleString());
 
                 amountSpan.appendChild(rbxIcon);
                 amountSpan.appendChild(text);
@@ -539,12 +534,11 @@ export function init() {
                 const icon = document.createElement('span');
                 icon.className = 'icon-robux-16x16';
                 icon.style.verticalAlign = 'text-bottom';
+
                 icon.style.marginLeft = '3px';
                 icon.style.marginRight = '2px';
                 icon.style.filter = 'grayscale(100%) opacity(0.6)';
-                const value = document.createTextNode(
-                    amount.toLocaleString(),
-                );
+                const value = document.createTextNode(amount.toLocaleString());
 
                 pendingLink.append(label, icon, value);
             };
@@ -564,10 +558,6 @@ export function init() {
 
                 if (cachedData) {
                     updateFromData(cachedData);
-                }
-
-                if (cachedData && isCacheFresh(cachedData)) {
-                    return;
                 }
 
                 const freshData = await fetchAndCacheGroupData(groupId);
@@ -597,21 +587,30 @@ export function init() {
         console.error('RoValra: Failed to initialize group funds', error);
     });
 
+    const popoverOpenState = new WeakMap();
+    const isPopoverOpen = (popover) =>
+        popover instanceof HTMLElement &&
+        getComputedStyle(popover).display !== 'none';
+    const handlePopoverState = (popover) => {
+        const isOpen = isPopoverOpen(popover);
+        const wasOpen = popoverOpenState.get(popover) === true;
+        popoverOpenState.set(popover, isOpen);
+
+        if (isOpen && !wasOpen) renderSection(popover);
+    };
+
     observeElement(
         '#buy-robux-popover',
         (popover) => {
-            const menu = popover.querySelector('.dropdown-menu');
-            if (menu && menu.querySelector('.rovalra-group-funds-section')) {
-                return;
-            }
-            renderSection(popover);
+            handlePopoverState(popover);
+            observeAttributes(popover, () => handlePopoverState(popover), [
+                'class',
+                'style',
+            ]);
         },
         {
             onRemove: () => {
                 state.renderVersion++;
-                document
-                    .querySelectorAll('.rovalra-group-funds-section')
-                    .forEach((el) => el.remove());
             },
         },
     );
