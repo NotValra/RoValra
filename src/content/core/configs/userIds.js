@@ -28,8 +28,8 @@ export const CONTRIBUTOR_USER_IDS = [
     '760897332', // ceyexm
     '2830488781', //idhglua
     '390309731', // AxnxDev
-    '4632962611' // coderpixel
-    '390309731', // AxnxDev 
+    '4632962611', // coderpixel
+    '390309731', // AxnxDev
     '477516666', //return_request :3
 ];
 
