@@ -1,16 +1,19 @@
 import { observeElement } from '../observer.js';
+import DOMPurify from '../packages/dompurify.js';
+import { CUSTOM_ADDED_TAGS } from '../utils/purifyCfg.js';
 import { addTooltip } from './tooltip.js';
 
 /**
  * Creates a new button in the navbar.
  * @param {object} options - The options for the button.
  * @param {string} options.id - The ID for the new navbar item.
- * @param {string} options.iconSvgData - The SVG string for the icon.
+ * @param {string} [options.iconSvgData] - The SVG string for the icon.
+ * @param {string} [options.iconData] - The icon element string for the icon.
  * @param {string} [options.tooltipText] - The tooltip text for the button.
  * @param {function(HTMLElement): void} [options.onClick] - The callback to run when the button is clicked. The button element is passed as an argument.
  * @returns {Promise<HTMLElement|null>} A promise that resolves with the button element when it's created, or null.
  */
-export function createNavbarButton({ id, iconSvgData, tooltipText, onClick }) {
+export function createNavbarButton({ id, iconSvgData, iconData, tooltipText, onClick }) {
     return new Promise((resolve) => {
         const init = () => {
             observeElement('.nav.navbar-right.rbx-navbar-icon-group', (navbar) => {
@@ -26,7 +29,7 @@ export function createNavbarButton({ id, iconSvgData, tooltipText, onClick }) {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'btn-uiblox-common-common-notification-bell-md';
-                
+
                 const spanIcon = document.createElement('span');
                 spanIcon.className = 'rbx-menu-item';
                 spanIcon.style.display = 'flex';
@@ -38,14 +41,22 @@ export function createNavbarButton({ id, iconSvgData, tooltipText, onClick }) {
                         let svgData = iconSvgData.includes('<svg') ? iconSvgData : decodeURIComponent(iconSvgData.split(',')[1]);
                         svgData = svgData.replace('fill="white"', 'fill="var(--rovalra-main-text-color)"');
                         spanIcon.innerHTML = svgData; //Verified
-                        
+
                         const svg = spanIcon.querySelector('svg');
                         if (svg) {
                             svg.setAttribute('width', '28');
                             svg.setAttribute('height', '28');
                         }
                     } catch (e) {
-                        console.error('RoValra: Failed to parse navbar button icon', e);
+                        console.error('RoValra: Failed to parse navbar button icon svg', e);
+                        resolve(null);
+                        return;
+                    }
+                } else if (iconData) {
+                    try {
+                        spanIcon.innerHTML = DOMPurify.sanitize(iconData, { ...CUSTOM_ADDED_TAGS });
+                    } catch (e) {
+                        console.error('RoValra: Failed to parse navbar button icon element', e);
                         resolve(null);
                         return;
                     }

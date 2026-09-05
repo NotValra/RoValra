@@ -618,6 +618,32 @@ export const SETTINGS_CONFIG = {
                 default: null,
                 contributors: ['10646979010'],
             },
+            displayAppThemeUserProfile: {
+                label: 'Display app theme user profiles',
+                description: [
+                    'Displays users app theme on their profile!',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    displayAppThemeOwnProfile: {
+                        label: 'Display app theme your on own profile',
+                        description: [
+                            'Displays your app theme on your profile to other users!',
+                            'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
+                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.'
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator Tier 1 is required to display your app theme on your own profile',
+                        dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
+                    },
+                },
+                contributors: ['650766686'],
+                dependedBy: ['displayAppThemeOwnProfile'],
+            },
             profileNotesEnabled: {
                 label: 'Profile Notes',
                 description: [
@@ -1706,14 +1732,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '546872490'],
             },
-            FreeRobloxPlusThemesEnabledv2: {
+            FreeRobloxPlusThemesEnabledv3: {
                 label: 'Free Roblox Plus Themes',
                 description: [
                     'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['447170745', '4866259395'],
+                contributors: ['447170745', '4866259395', '650766686'],
+                dependedBy: ['displayAppThemeOwnProfile'],
             },
             currencyTransferEnabled: {
                 label: 'Send Robux',
@@ -1767,13 +1794,63 @@ export const SETTINGS_CONFIG = {
     Navigation: {
         title: 'Navigation',
         settings: {
+            privacyTogglesEnabled: {
+                label: "Privacy Toggles in Navigation",
+                description: [
+                    'This setting adds a <icon filled>lock-closed</icon> button to the top navigation bar.',
+                    'This allows you to quickly manage privacy settings.'
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+                exclusiveWith: ['qolTogglesEnabled'],
+                childSettings: { // Toggles to be in the menu
+                    privacyTogglesDropdownOnlineStatusEnabled: {
+                        label: 'Online Status Toggle',
+                        description: [
+                            'Quickly manage your online status.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownJoinStatusEnabled: {
+                        label: 'Experience Status Toggle',
+                        description: [
+                            'Quickly manage who can join you in experiences.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownPrivateServerPrivacyEnabled: {
+                        label: 'Experience Status Toggle',
+                        description: [
+                            'Quickly manage who can invite you to private servers.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownInventoryPrivacyEnabled: {
+                        label: 'Inventory Toggle',
+                        description: [
+                            'Quickly manage who can view your inventory.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             qolTogglesEnabled: {
                 label: 'Adds quality of life toggles to the navigation bar',
                 description:
                     'Allowing you to quickly change your online status, experience status, private server privacy, and inventory visibility without going into settings.',
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '8345351117'],
+                exclusiveWith: ['privacyTogglesEnabled'],
+                isPermanent: true,
+                locked: 'Replaced by Privacy Toggles in Navigation',
+                deprecated: 'Replaced by Privacy Toggles in Navigation.',
+
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
@@ -1806,6 +1883,15 @@ export const SETTINGS_CONFIG = {
                     'rovalra_sidebar_layout_order',
                     'rovalra_sidebar_layout_hidden',
                 ],
+            },
+            voiceBanIndicatorEnabled: {
+                label: 'Voice Ban Indicator',
+                description: [
+                    'Shows a voice status icon in the top bar while your Roblox voice chat is suspended.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4632962611'],
             },
             topbarLayoutEnabled: {
                 label: 'Topbar Layout',

@@ -77,4 +77,10 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(1564574922, "iconElement.addElement", "https://github.com/NotValra/RoValra/pull/168"),  // @BossBoss2021
         ],
     },
+    displayAppThemeUserProfile: {
+        label: "App Themes On User Profiles",
+        contributors: [
+            new Contribution(650766686, "displayAppThemeUserProfile.addedToWebsite", "https://github.com/NotValra/RoValra-Website/pull/7"),  // @auggeeo
+        ]
+    },
 };

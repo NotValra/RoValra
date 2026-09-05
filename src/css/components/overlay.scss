@@ -53,6 +53,33 @@
     word-break: break-word;
 }
 
+.rovalra-overlay-body .setting-controls {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.rovalra-overlay-body .setting-controls > label {
+    flex: 0 0 150px;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.rovalra-overlay-body
+    .rovalra-profile-pronouns-editor
+    .setting-controls
+    > label {
+    align-self: center;
+    font-weight: 700;
+}
+
+.rovalra-overlay-body .setting-description {
+    max-width: 100%;
+    margin: 12px 0;
+    line-height: 1.55;
+    white-space: pre-line;
+}
+
 .rovalra-overlay-header {
     display: flex;
     align-items: center;

@@ -1,49 +1,5 @@
 import { createShimmerBlock } from './shimmer.js';
 
-const injectScrollbarStyles = () => {
-    if (document.getElementById('rovalra-dropdown-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'rovalra-dropdown-styles';
-    style.textContent = `
-        .rovalra-no-scrollbar::-webkit-scrollbar { display: none; }
-        .rovalra-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .rovalra-dropdown-item[data-selected="true"].highlight-enabled {
-            background-color: rgba(255, 255, 255, 0.1) !important;
-            border-left: 3px solid var(--rovalra-play-button-color); 
-        }
-        .rovalra-dropdown-item:hover > [role="presentation"] {
-            background-color: var(--color-surface-300) !important;
-        }
-        .rovalra-dropdown-item > [role="presentation"] {
-            z-index: 0;
-            pointer-events: none;
-        }
-        .rovalra-dropdown-item > :not([role="presentation"]) {
-            position: relative;
-            z-index: 1;
-        }
-        .rovalra-dropdown-item:hover,
-        .rovalra-dropdown-item:hover *:not([role="presentation"]),
-        .rovalra-dropdown-item:hover .content-emphasis,
-        .rovalra-dropdown-item:hover .foundation-web-menu-item-title {
-            color: var(--color-content-emphasis) !important;
-        }
-        .rovalra-dropdown-item:hover .content-secondary {
-            color: var(--color-content-secondary) !important;
-        }
-        .rovalra-text-clamp-2 {
-            display: -webkit-box !important;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: normal !important; 
-            word-break: break-word;
-        }
-    `;
-    document.head.appendChild(style);
-};
-
 const DEFAULT_PANEL_MAX_HEIGHT = 300;
 const VIEWPORT_EDGE_MARGIN = 8;
 const PANEL_GAP = 4;
@@ -64,8 +20,6 @@ export function createDropdownContent(
     highlightSelected = false,
     maxHeight = DEFAULT_PANEL_MAX_HEIGHT,
 ) {
-    injectScrollbarStyles();
-
     const contentPanel = document.createElement('div');
     contentPanel.className =
         'rovalra-dropdown-content-panel foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';

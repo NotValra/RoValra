@@ -3,34 +3,7 @@
 import { createDropdownContent } from './selects.js';
 import { createShimmerBlock } from './shimmer.js';
 
-let isCssInjected = false;
 let openDropdowns = [];
-
-function injectDropdownCss() {
-    if (isCssInjected) return;
-    isCssInjected = true;
-
-    const style = document.createElement('style');
-    style.id = 'rovalra-global-dropdown-style';
-    style.textContent = `
-        .rovalra-dropdown-container {
-            position: relative;
-            display: inline-block;
-            vertical-align: middle; 
-            margin: 0; 
-        }
-        .rovalra-dropdown-trigger .rovalra-dropdown-chevron {
-            transition: transform 0.2s ease !important;
-        }
-        .rovalra-dropdown-trigger[data-state="open"] .rovalra-dropdown-chevron {
-            transform: rotate(180deg);
-        }
-        .rovalra-dropdown-panel {
-            cursor: default;
-        }
-    `;
-    document.head.appendChild(style);
-}
 
 export function createDropdown({
     items = [],
@@ -40,8 +13,6 @@ export function createDropdown({
     onOpen,
     showFlags = false,
 }) {
-    injectDropdownCss();
-
     const container = document.createElement('div');
     container.className = 'rovalra-dropdown-container';
 
@@ -315,8 +286,6 @@ export function createDropdownMenu({
     position,
     maxHeight,
 }) {
-    injectDropdownCss();
-
     const updateTriggerText = () => {};
 
     const handleValueChange = (value) => {

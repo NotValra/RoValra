@@ -94,6 +94,10 @@ const INCOMPATIBILITY_DETECTIONS = [
         name: 'RoGold',
         bodyClass: 'rogold',
     },
+    {
+        name: 'BTRoblox',
+        selector: 'html[btr-loaded="true"]',
+    },
 ];
 
 function getDetectedIncompatibilities() {

@@ -557,7 +557,7 @@ async function addSendRobuxButton(menu) {
     if (!userId || String(userId) === String(authedUserId)) return;
 
     const canTransfer = await getSendRobuxStatus();
-    if (!canTransfer) return;
+    //if (!canTransfer) return;
 
     const { button } = createContextMenuButton(
         await t('plus.sendRobux.profile.button', {
@@ -566,7 +566,30 @@ async function addSendRobuxButton(menu) {
     );
 
     button.addEventListener('click', async () => {
-        showStep1Popup(userId, null, window.event?.shiftKey || false)
+        if (canTransfer) {
+            showStep1Popup(userId, null, window.event?.shiftKey || false)
+        } else {
+            const easterEgg = isAprilFools() || window.event?.shiftKey || false
+            const getPlusOverlay = createOverlay({
+                title: await t(`plus.sendRobux.popup.shared.title${easterEgg ? 'Silly' : '' }`),
+                bodyContent: await t(`plus.sendRobux.popup.plusNeeded.body${easterEgg ? 'Silly' : '' }`),
+                showLogo: true,
+                actions: [
+                    createButton(await t(`plus.sendRobux.popup.plusNeeded.buyPlusBtn${easterEgg ? 'Silly' : '' }`), 'secondary', {
+                        onClick: () => {
+                            getPlusOverlay.close();
+                            window.open("/plus", "_blank");
+                        }
+                    }),
+                    createButton(await t(`plus.sendRobux.popup.${easterEgg ? 'plusNeeded.okBtnSilly' : 'shared.okBtn' }`), 'primary', {
+                        onClick: () => {
+                            getPlusOverlay.close();
+                        }
+                    }),
+                ],
+            });
+        }
+
     });
 
     const container = menu.querySelector('[role="group"]') || menu;
