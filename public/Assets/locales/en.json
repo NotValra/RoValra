@@ -1433,5 +1433,12 @@
                 }
             }
         }
+    },
+    "avatar": {
+        "bodyColors": {
+            "addCustom": "Pick a custom color",
+            "savedColor": "{{hex}}, right click to remove",
+            "applyFailed": "Could not update your body colors. Try again in a moment."
+        }
     }
 }

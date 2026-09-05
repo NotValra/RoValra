@@ -1,4 +1,4 @@
-import { callRobloxApiJson } from '../api.js';
+import { callRobloxApi, callRobloxApiJson } from '../api.js';
 
 const avatarCache = new Map();
 
@@ -33,4 +33,50 @@ export function clearUserAvatarCache(userId) {
         return;
     }
     avatarCache.delete(String(userId));
+}
+
+/**
+ * The six body part keys Roblox uses in the Avatar V2 `bodyColor3s` object.
+ * The order matches how the parts are listed in the avatar editor.
+ */
+export const BODY_COLOR_KEYS = [
+    'headColor3',
+    'torsoColor3',
+    'leftArmColor3',
+    'rightArmColor3',
+    'leftLegColor3',
+    'rightLegColor3',
+];
+
+/**
+ * Read the authenticated user's avatar without going through the shared
+ * `getUserAvatar` cache, so callers always see the current state after a write.
+ *
+ * @param {string|number} userId
+ * @returns {Promise<Object>}
+ */
+export function getCurrentAvatar(userId) {
+    if (!userId) throw new Error('userId is required');
+
+    return callRobloxApiJson({
+        subdomain: 'avatar',
+        endpoint: `/v2/avatar/users/${encodeURIComponent(String(userId))}/avatar`,
+        noCache: true,
+    });
+}
+
+/**
+ * Apply body colours to the authenticated user's avatar.
+ *
+ * @param {Object} bodyColor3s Object keyed by {@link BODY_COLOR_KEYS}.
+ * @returns {Promise<Response>}
+ */
+export function setBodyColors(bodyColor3s) {
+    return callRobloxApi({
+        subdomain: 'avatar',
+        endpoint: '/v2/avatar/set-body-colors',
+        method: 'POST',
+        body: bodyColor3s,
+        noCache: true,
+    });
 }
