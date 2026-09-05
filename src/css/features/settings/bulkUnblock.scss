@@ -1,0 +1,109 @@
+.rovalra-bulk-unblock-user-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--rovalra-container-background-color);
+    color: var(--rovalra-main-text-color);
+    cursor: pointer;
+    text-align: left;
+}
+
+.rovalra-bulk-unblock-selection-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--rovalra-secondary-text-color);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.rovalra-bulk-unblock-selection-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    display: none;
+}
+
+.rovalra-bulk-unblock-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.rovalra-bulk-unblock-display-name {
+    font-weight: 600;
+}
+
+.rovalra-bulk-unblock-username {
+    font-size: 12px;
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-bulk-unblock-result-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rovalra-bulk-unblock-progress {
+    display: none;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.rovalra-bulk-unblock-manager-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 150px;
+}
+
+.rovalra-bulk-unblock-message {
+    text-align: center;
+    padding: 30px;
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-bulk-unblock-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.rovalra-bulk-unblock-search {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--rovalra-container-background-color);
+    color: var(--rovalra-main-text-color);
+    outline: none;
+}
+
+.rovalra-bulk-unblock-status {
+    font-size: 12px;
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-bulk-unblock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.rovalra-bulk-unblock-native-holder {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}

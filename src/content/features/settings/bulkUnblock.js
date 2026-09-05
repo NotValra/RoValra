@@ -1,5 +1,6 @@
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { getUserProfileData } from '../../core/apis/users.js';
+import { settings } from '../../core/settings/getSettings.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 
@@ -217,56 +218,18 @@ function createUserRow(user, updateCount) {
     row.type = 'button';
     row.dataset.userId = String(user.id);
 
-    row.style.cssText = `
-        display: flex;
-        width: 100%;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        background: var(--rovalra-container-background-color);
-        color: var(--rovalra-main-text-color);
-        cursor: pointer;
-        text-align: left;
-    `;
-
-    circle.style.cssText = `
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--rovalra-secondary-text-color);
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        flex-shrink: 0;
-    `;
-
-    dot.style.cssText = `
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: currentColor;
-        display: none;
-    `;
-
-    info.style.cssText = `
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        flex: 1;
-    `;
+    row.classList.add('rovalra-bulk-unblock-user-row');
+    circle.classList.add('rovalra-bulk-unblock-selection-circle');
+    dot.classList.add('rovalra-bulk-unblock-selection-dot');
+    info.classList.add('rovalra-bulk-unblock-user-info');
+    displayName.classList.add('rovalra-bulk-unblock-display-name');
+    username.classList.add('rovalra-bulk-unblock-username');
 
     displayName.textContent = user.displayName;
-    displayName.style.fontWeight = '600';
 
     username.textContent = user.username.startsWith('User ')
         ? `User ID: ${user.id}`
         : `@${user.username}`;
-
-    username.style.cssText = `
-        font-size: 12px;
-        color: var(--rovalra-secondary-text-color);
-    `;
 
     circle.appendChild(dot);
     info.append(displayName, username);
@@ -296,11 +259,7 @@ function createUserRow(user, updateCount) {
 function showResult(success, failed) {
     const body = document.createElement('div');
 
-    body.style.cssText = `
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    `;
+    body.classList.add('rovalra-bulk-unblock-result-body');
 
     const successText = document.createElement('div');
 
@@ -355,13 +314,7 @@ function confirmUnblock(users, managerOverlay) {
             ? 'Are you sure you want to unblock this user?'
             : `Are you sure you want to unblock these ${usersToUnblock.length} users?`;
 
-    progress.style.cssText = `
-        display: none;
-        text-align: center;
-        font-weight: 600;
-        margin-top: 10px;
-    `;
-
+    progress.classList.add('rovalra-bulk-unblock-progress');
     body.append(text, progress);
 
     let overlay;
@@ -432,33 +385,20 @@ function confirmUnblock(users, managerOverlay) {
 async function openManager() {
     if (managerOpen) return;
 
-    const settings = await chrome.storage.local.get({
-        bulkUnblockEnabled: false,
-    });
-
-    if (!settings.bulkUnblockEnabled) return;
+    if (!(await settings.bulkUnblockEnabled)) return;
 
     managerOpen = true;
     selectedUsers.clear();
 
     const body = document.createElement('div');
 
-    body.style.cssText = `
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        min-height: 150px;
-    `;
+    body.classList.add('rovalra-bulk-unblock-manager-body');
 
     const loading = document.createElement('div');
 
     loading.textContent = 'Loading blocked users...';
 
-    loading.style.cssText = `
-        text-align: center;
-        padding: 30px;
-        color: var(--rovalra-secondary-text-color);
-    `;
+    loading.classList.add('rovalra-bulk-unblock-message');
 
     body.appendChild(loading);
 
@@ -495,12 +435,7 @@ async function openManager() {
 
             empty.textContent = 'You do not have any blocked users.';
 
-            empty.style.cssText = `
-                text-align: center;
-                padding: 30px;
-                color: var(--rovalra-secondary-text-color);
-            `;
-
+            empty.classList.add('rovalra-bulk-unblock-message');
             body.appendChild(empty);
             return;
         }
@@ -511,37 +446,14 @@ async function openManager() {
         const status = document.createElement('div');
         const list = document.createElement('div');
 
-        toolbar.style.cssText = `
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        `;
 
         search.type = 'text';
         search.placeholder = 'Search blocked users...';
 
-        search.style.cssText = `
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,.15);
-            background: var(--rovalra-container-background-color);
-            color: var(--rovalra-main-text-color);
-            outline: none;
-        `;
-
-        status.style.cssText = `
-            font-size: 12px;
-            color: var(--rovalra-secondary-text-color);
-        `;
-
-        list.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 420px;
-            overflow-y: auto;
-        `;
+        toolbar.classList.add('rovalra-bulk-unblock-toolbar');
+        search.classList.add('rovalra-bulk-unblock-search');
+        status.classList.add('rovalra-bulk-unblock-status');
+        list.classList.add('rovalra-bulk-unblock-list');
 
         toolbar.append(search, selectAllButton);
 
@@ -620,11 +532,7 @@ async function openManager() {
         errorText.textContent =
             'Failed to load your blocked users. Please try again.';
 
-        errorText.style.cssText = `
-            text-align: center;
-            padding: 30px;
-            color: var(--rovalra-secondary-text-color);
-        `;
+        errorText.classList.add('rovalra-bulk-unblock-message');
 
         body.replaceChildren(errorText);
     }
@@ -733,11 +641,7 @@ async function updateNativeButton() {
 
     if (!isAccountPage()) return;
 
-    const settings = await chrome.storage.local.get({
-        bulkUnblockEnabled: false,
-    });
-
-    if (!settings.bulkUnblockEnabled) return;
+    if (!(await settings.bulkUnblockEnabled)) return;
 
     let ids;
 
@@ -757,12 +661,7 @@ async function updateNativeButton() {
 
     holder.id = BUTTON_ID;
 
-    holder.style.cssText = `
-        display: flex;
-        width: 100%;
-        justify-content: flex-end;
-        margin-bottom: 12px;
-    `;
+    holder.classList.add('rovalra-bulk-unblock-native-holder');
 
     const button = createButton('Bulk Unblock', 'primary', {
         onClick: () => openManager(),
