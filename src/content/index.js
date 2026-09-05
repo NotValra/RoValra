@@ -50,7 +50,8 @@ import { init as initBackgroundImage } from './features/sitewide/backgroundImage
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndicator.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
-import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js'
+import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
+import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -165,6 +166,7 @@ import { init as initProfileCustomization } from './features/profile/profileCust
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
+import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -255,6 +257,7 @@ const featureRoutes = [
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
+            initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
         ],
     },
@@ -404,6 +407,7 @@ const featureRoutes = [
             initProfileCustomization,
             initSocialLinks,
             initSendRobuxProfileButton,
+            initProfileAppThemesOnProfiles,
         ],
     },
     {

@@ -618,6 +618,32 @@ export const SETTINGS_CONFIG = {
                 default: null,
                 contributors: ['10646979010'],
             },
+            displayAppThemeUserProfile: {
+                label: 'Display app theme user profiles',
+                description: [
+                    'Displays users app theme on their profile!',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    displayAppThemeOwnProfile: {
+                        label: 'Display app theme your on own profile',
+                        description: [
+                            'Displays your app theme on your profile to other users!',
+                            'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
+                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.'
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator Tier 1 is required to display your app theme on your own profile',
+                        dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
+                    },
+                },
+                contributors: ['650766686'],
+                dependedBy: ['displayAppThemeOwnProfile'],
+            },
             profileNotesEnabled: {
                 label: 'Profile Notes',
                 description: [
@@ -1706,14 +1732,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '546872490'],
             },
-            FreeRobloxPlusThemesEnabledv2: {
+            FreeRobloxPlusThemesEnabledv3: {
                 label: 'Free Roblox Plus Themes',
                 description: [
                     'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['447170745', '4866259395'],
+                contributors: ['447170745', '4866259395', '650766686'],
+                dependedBy: ['displayAppThemeOwnProfile'],
             },
             currencyTransferEnabled: {
                 label: 'Send Robux',

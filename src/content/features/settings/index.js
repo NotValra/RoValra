@@ -17,7 +17,7 @@ import {
     handleSaveSettings,
     updateConditionalSettingsVisibility,
     buildSettingsKey,
-    getCurrentUserTier,
+    getCurrentUserTierSync,
     syncDonatorTier,
 } from '../../core/settings/handlesettings.js';
 import {
@@ -1123,7 +1123,7 @@ async function openBorderOverlay(
     const effectiveArtistId =
         artistId || variant.artistId || otherVariant?.artistId;
 
-    const tier = getCurrentUserTier();
+    const tier = getCurrentUserTierSync();
     const ownedData = await getOwnedBorders();
     const isOwned = isBorderOwned({
         value: variant.value,
@@ -2408,7 +2408,7 @@ async function loadTopDonators() {
         }));
 
         const authenticatedUserId = await getAuthenticatedUserId();
-        const userTier = getCurrentUserTier();
+        const userTier = getCurrentUserTierSync();
         let authedDonorInfo = null;
 
         if (authenticatedUserId && userTier >= 1 && toggleContainer) {
@@ -3289,7 +3289,7 @@ async function renderStoreBorders(container) {
                 grid: variantsGrid,
             });
 
-            const tier = getCurrentUserTier();
+            const tier = getCurrentUserTierSync();
 
             for (const variant of category.variants) {
                 const visibleLoaders = [];
@@ -4222,7 +4222,7 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
         c.style.borderColor = 'transparent';
     });
 
-    const tier = getCurrentUserTier();
+    const tier = getCurrentUserTierSync();
     getOwnedBorders().then((ownedData) => {
         container.querySelectorAll('[data-equip-btn]').forEach((btn) => {
             const val = btn.getAttribute('data-equip-btn');
@@ -4356,7 +4356,7 @@ export async function updateContent(buttonInfo, contentContainer) {
         renderDonatorPerkStatusPills(contentContainer);
 
         const badgesResponse = await syncDonatorTier();
-        const userTier = getCurrentUserTier();
+        const userTier = getCurrentUserTierSync();
         if (userTier > 0) {
             const userId = await getAuthenticatedUserId();
             if (userId) {
