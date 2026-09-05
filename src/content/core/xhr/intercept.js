@@ -19,8 +19,6 @@ const LayeredAssetTypes = [
     70,
     71,
     72,
-    76,
-    77,
     41,
 ];
 
@@ -59,6 +57,7 @@ const LayeredAssetTypes = [
     const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
     const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
     const THUMBNAIL_BACKGROUND_SETTING = 'disableThumbnailBackground';
+    const THUMBNAIL_PROFILE_FRAME_SETTING = 'disableThumbnailProfileFrame';
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -76,9 +75,14 @@ const LayeredAssetTypes = [
     let robloxGroupFeaturesEnabled = true;
     let freeRobloxPlusThemesEnabled = false;
     let disableThumbnailBackground = false;
+    let disableThumbnailProfileFrame = false;
 
     function updateThumbnailBackgroundSetting(value) {
         disableThumbnailBackground = value === true;
+    }
+
+    function updateThumbnailProfileFrameSetting(value) {
+        disableThumbnailProfileFrame = value === true;
     }
 
     function isThumbnailsApiRequest(url) {
@@ -102,11 +106,19 @@ const LayeredAssetTypes = [
             if (Array.isArray(data)) {
                 data.forEach((request) => {
                     if (request && typeof request === 'object') {
-                        request.includeBackground = false;
+                        if (disableThumbnailBackground) {
+                            request.includeBackground = false;
+                        }
+                        if (disableThumbnailProfileFrame) {
+                            request.includeProfileFrame = false;
+                        }
                     }
                 });
             } else {
-                data.includeBackground = false;
+                if (disableThumbnailBackground) data.includeBackground = false;
+                if (disableThumbnailProfileFrame) {
+                    data.includeProfileFrame = false;
+                }
             }
 
             return JSON.stringify(data);
@@ -115,15 +127,41 @@ const LayeredAssetTypes = [
         }
     }
 
+    function rewriteThumbnailRequestUrl(url) {
+        if (
+            (!disableThumbnailBackground && !disableThumbnailProfileFrame) ||
+            !isThumbnailsApiRequest(url)
+        ) {
+            return url;
+        }
+
+        try {
+            const rewrittenUrl = new URL(url, window.location.origin);
+            if (disableThumbnailBackground) {
+                rewrittenUrl.searchParams.set('includeBackground', 'false');
+            }
+            if (disableThumbnailProfileFrame) {
+                rewrittenUrl.searchParams.set('includeProfileFrame', 'false');
+            }
+            return rewrittenUrl.toString();
+        } catch (e) {
+            return url;
+        }
+    }
+
     async function rewriteThumbnailFetchArgs(args, requestUrl) {
-        if (!disableThumbnailBackground || !isThumbnailsApiRequest(requestUrl)) {
+        if (
+            (!disableThumbnailBackground && !disableThumbnailProfileFrame) ||
+            !isThumbnailsApiRequest(requestUrl)
+        ) {
             return args;
         }
 
         const [input, init] = args;
+        const rewrittenUrl = rewriteThumbnailRequestUrl(requestUrl);
         if (init?.body !== undefined) {
             return [
-                input,
+                rewrittenUrl,
                 { ...init, body: rewriteThumbnailRequestBody(init.body) },
             ];
         }
@@ -133,9 +171,26 @@ const LayeredAssetTypes = [
         try {
             const body = await input.clone().text();
             const rewrittenBody = rewriteThumbnailRequestBody(body);
-            if (rewrittenBody === body) return args;
+            if (rewrittenUrl === requestUrl && rewrittenBody === body) {
+                return args;
+            }
 
-            return [new Request(input, { body: rewrittenBody }), init];
+            return [
+                new Request(rewrittenUrl, {
+                    method: input.method,
+                    headers: input.headers,
+                    body: rewrittenBody || undefined,
+                    credentials: input.credentials,
+                    mode: input.mode,
+                    cache: input.cache,
+                    redirect: input.redirect,
+                    referrer: input.referrer,
+                    referrerPolicy: input.referrerPolicy,
+                    integrity: input.integrity,
+                    keepalive: input.keepalive,
+                }),
+                init,
+            ];
         } catch (e) {
             return args;
         }
@@ -155,6 +210,9 @@ const LayeredAssetTypes = [
         if (event.detail?.name === THUMBNAIL_BACKGROUND_SETTING) {
             updateThumbnailBackgroundSetting(event.detail.value);
         }
+        if (event.detail?.name === THUMBNAIL_PROFILE_FRAME_SETTING) {
+            updateThumbnailProfileFrameSetting(event.detail.value);
+        }
     });
     document.addEventListener('rovalra:settingsState', (event) => {
         if (typeof event.detail?.robloxGroupFeaturesEnabled === 'boolean') {
@@ -167,6 +225,13 @@ const LayeredAssetTypes = [
         ) {
             updateThumbnailBackgroundSetting(
                 event.detail[THUMBNAIL_BACKGROUND_SETTING],
+            );
+        }
+        if (
+            typeof event.detail?.[THUMBNAIL_PROFILE_FRAME_SETTING] === 'boolean'
+        ) {
+            updateThumbnailProfileFrameSetting(
+                event.detail[THUMBNAIL_PROFILE_FRAME_SETTING],
             );
         }
     });
@@ -962,6 +1027,12 @@ const LayeredAssetTypes = [
     const originalXhrSend = XMLHttpRequest.prototype.send;
 
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        if (
+            typeof url === 'string' &&
+            (disableThumbnailBackground || disableThumbnailProfileFrame)
+        ) {
+            url = rewriteThumbnailRequestUrl(url);
+        }
         this._rovalra_url = url;
         this._rovalra_method = method;
 
@@ -1003,7 +1074,7 @@ const LayeredAssetTypes = [
     XMLHttpRequest.prototype.send = function (...args) {
         const xhr = this;
         if (
-            disableThumbnailBackground &&
+            (disableThumbnailBackground || disableThumbnailProfileFrame) &&
             isThumbnailsApiRequest(xhr._rovalra_url)
         ) {
             args[0] = rewriteThumbnailRequestBody(args[0]);
@@ -1360,13 +1431,13 @@ const LayeredAssetTypes = [
                 //enforce accessory limit (10)
                 if (AccessoryAssetTypes.includes(asset.assetType.id)) {
                     accessoryCount++
-                    if (accessoryCount >= 9 && assetToAddIsAccessory) canAdd = false
+                    if (accessoryCount >= 10 && assetToAddIsAccessory) canAdd = false
                 }
 
                 //enforce layered limit (10, also includes hair)
                 if (LayeredAssetTypes.includes(asset.assetType.id)) {
                     layeredCount++
-                    if (layeredCount >= 9 && assetToAddIsLayered) canAdd = false
+                    if (layeredCount >= 10 && assetToAddIsLayered) canAdd = false
                 }
 
                 //enforce limit of items you can only equip one of (although this never happens because then we dont hijack)

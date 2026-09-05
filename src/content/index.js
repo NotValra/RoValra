@@ -48,8 +48,10 @@ import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePl
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
+import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndicator.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
-import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
+import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
+import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -153,6 +155,7 @@ import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
 import { init as initProfileFrame } from './features/profile/profileFrame.js';
 import { init as initImprovedAvatarCard } from './features/profile/improvedAvatarCard.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
+import { init as initMoreRobuxDigits } from './features/sitewide/moreRobuxDigits.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
@@ -160,6 +163,7 @@ import { init as initUsernameColor } from './features/profile/header/usernameCol
 import { init as initDisplayNameGradient } from './features/profile/header/displayNameGradient.js';
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
+import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
@@ -231,6 +235,7 @@ const featureRoutes = [
             initStatus,
             initCustomFont,
             initRobuxIcons,
+            initMoreRobuxDigits,
             initProfileBackground,
             initAvatarBorder,
             initDisplayNameGradient,
@@ -244,6 +249,7 @@ const featureRoutes = [
             initCustomRobloxBanner,
             initSidebarCollapse,
             initSidebarLayout,
+            initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,
             initWideTilePlayerCounts,
@@ -252,6 +258,7 @@ const featureRoutes = [
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
             initSitewideAppThemesOnProfiles,
+            initQuickPrivacyTogglesNav,
         ],
     },
     // pretty much just the 40% method
@@ -402,6 +409,10 @@ const featureRoutes = [
             initSendRobuxProfileButton,
             initProfileAppThemesOnProfiles,
         ],
+    },
+    {
+        paths: ['/users/profile/edit'],
+        features: [initProfileEditFeatures],
     },
     {
         paths: ['/users/', '/banned-users/'],
@@ -625,6 +636,8 @@ async function initializePage() {
                 detail: {
                     disableThumbnailBackground:
                         settings.disableThumbnailBackground === true,
+                    disableThumbnailProfileFrame:
+                        settings.disableThumbnailProfileFrame === true,
                 },
             }),
         );

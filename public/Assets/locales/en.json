@@ -75,7 +75,7 @@
         "subtitle": "Underrated games hand picked by the RoValra community.",
         "rotates": "Rotates",
         "suggestOnDiscord": "Suggest underrated games on {{discord}}",
-        "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 500 HEP requirement."
+        "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 250 HEP requirement."
     },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
@@ -533,6 +533,34 @@
             "description": "We do not promise support for {{extensions}}."
         }
     },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Privacy Settings"
+        },
+        "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
+        "dropdowns" : {
+            "shared": {
+                "allUsers": "Everyone",
+                "friendsFollowingFollowers": "Friends, Following, and Followers",
+                "friendsFollowing": "Friends and Following",
+                "friends": "Friends",
+                "trustedFriends": "Trusted Friends",
+                "noOne": "No one"
+            },
+            "onlineStatus": {
+                "name": "Online Status"
+            },
+            "joinStatus": {
+                "name": "Experience Status"
+            },
+            "privateServerPrivacy": {
+                "name": "Private Server Privacy"
+            },
+            "inventoryPrivacy": {
+                "name": "Inventory Privacy"
+            }
+        }
+    },
     "qolToggles": {
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",
@@ -557,6 +585,11 @@
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
         "expandSidebar": "Expand sidebar"
+    },
+    "voiceBanIndicator": {
+        "title": "Voice Banned",
+        "liftsIn": "Lifts in",
+        "noExpiry": "No expiry provided"
     },
     "ageTheme": {
         "navbarTooltip": "Age Theme",
@@ -936,10 +969,10 @@
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
     "unfriendDetector": {
-        "titleSingle": "Unfriend Detected",
-        "titlePlural": "Unfriends Detected",
-        "descriptionSingle": "This friend removed you since you last played:",
-        "descriptionPlural": "These {{count}} friends removed you since you last played:",
+        "title_one": "Unfriend Detected",
+        "title_other": "Unfriends Detected",
+        "description_one": "This friend removed you since you last played:",
+        "description_other": "These {{count}} friends removed you since you last played:",
         "viewProfile": "View {{name}}'s profile",
         "dismiss": "Dismiss"
     },
@@ -1281,6 +1314,13 @@
         "label": "Pronouns",
         "ariaLabel": "Pronouns: {{pronouns}}"
     },
+    "profileEdit": {
+        "featuresTitle": "RoValra Features",
+        "profilePronouns": "Profile Pronouns",
+        "pronounsPlaceholder": "Enter your pronouns",
+        "donatorPerks": "Donator Perks",
+        "usernameCustomizations": "Username Customizations"
+    },
     "profile": {
         "socialLinks": "Social links",
         "currencyTransfer": "Send Robux",
@@ -1383,6 +1423,13 @@
                     "successfulAskTitleSilly": "we notified ur parents, prepare...",
                     "successfulAskBody": "We have sent the request to your parents and guardians via email!",
                     "successfulAskOkBtnSilly": "alright very cool, thanks"
+                },
+                "plusNeeded": {
+                    "body": "Unfortunetly you need Roblox Plus to be able to send Robux, this is part of the Roblox Plus subscription.",
+                    "bodySilly": "u have no bobloc plus :c so u cant send bobux to people because its reqwired 3:",
+                    "buyPlusBtn": "Buy Roblox Plus",
+                    "buyPlusBtnSilly": "get le bobloc plus c:",
+                    "okBtnSilly": "awww darn okay :c"
                 }
             }
         }

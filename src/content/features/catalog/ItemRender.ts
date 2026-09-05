@@ -14,10 +14,9 @@ import {
     RBXRendererScene,
     Vector3,
     Vec2,
+    CACHE as RENDERER_CACHE,
 } from 'roavatar-renderer';
 import { callRobloxApiJson } from '../../core/api.js';
-import { getUserAvatar } from '../../core/apis/avatar.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
@@ -26,21 +25,19 @@ import { isDarkMode } from '../../core/theme.js';
 import { ts } from '../../core/locale/i18n.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
-import { backgroundRendererRequests } from '../../core/utils/renderer.js';
+import { backgroundRendererRequests, getItemCardColor, getMainColor, setSceneColor } from '../../core/utils/renderer.js';
 
 const assets = getAssets();
 
 //RENDERER FLAGS
-FLAGS.ENABLE_API_MESH_CACHE = true;
-FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
 FLAGS.ONLINE_ASSETS = true;
 FLAGS.AUDIO_ENABLED = false;
 
 backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
-const HOVER_CAMERA_ROTATION_SPEED = 0.75;
+const HOVER_AUTO_SWITCH_ANIM_TIME = 3;
+const HOVER_CAMERA_ROTATION_SPEED = 120;
 const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
 const renderEnvironmentModeValues = new Set([
@@ -49,6 +46,8 @@ const renderEnvironmentModeValues = new Set([
     'baseplate',
     'dark-baseplate',
 ]);
+const R6_ANIMATION_NAMES = ['idle', 'walk', 'jump', 'fall', 'climb'];
+const R15_ANIMATION_NAMES = ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
 
 //outfit data
 let ogAvatarDataLoaded = false;
@@ -156,6 +155,8 @@ let currentHoveredItemType: string | undefined = undefined;
 let itemHoverCameraRotation = 0;
 let itemHoverCameraRotating = false;
 let itemHoverRotateButton: HTMLElement | undefined = undefined;
+let itemHoverShouldAutoSwitchAnim = false;
+let itemHoverAutoSwitchAnimTimePassed = 0;
 
 const toggleDefaultButtons = (enabled: boolean) => {
     if (!mainButtonContainer) return;
@@ -163,6 +164,20 @@ const toggleDefaultButtons = (enabled: boolean) => {
         if (child instanceof HTMLElement) {
             if (child.dataset.rovalraItemRendererControl) continue;
             child.style.display = enabled ? 'none' : '';
+        }
+    }
+
+    //make size of left button container small so it doesnt affect button placement in the right container
+    const leftAlignContainer = document.body.querySelector(".thumbnail-ui-container > .bottom-align-container > .left-align-container") as HTMLElement;
+    if (leftAlignContainer) {
+        leftAlignContainer.style = enabled ? "width: 0;" : "";
+    }
+
+    //stop animations from playing in robloxs animation preview since its super laggy
+    if (enabled) {
+        const bigstop = document.body.querySelector(".enable-three-dee.btn-control > .icon-bigstop") as HTMLElement;
+        if (bigstop) {
+            bigstop.click();
         }
     }
 };
@@ -192,8 +207,8 @@ const updateAnimationDropdown = () => {
         selectedRigType || ogAvatarData.outfit.playerAvatarType || 'R15';
     const isR6 = currentType === 'R6';
     const items = isR6
-        ? ['idle', 'walk', 'jump', 'fall', 'climb']
-        : ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
+        ? R6_ANIMATION_NAMES
+        : R15_ANIMATION_NAMES;
 
     const trueItems = items.map((v) => {
         return { label: ts(`animations.${v}`), value: v };
@@ -457,6 +472,7 @@ async function applyItemRenderEnvironmentBackground(
         mainScene.scene.background = new THREE.Color(
             RBXRenderer.backgroundColorHex,
         );
+        setSceneColor(mainScene, getMainColor());
     } else if (!hasSkybox) {
         mainScene.scene.background = null;
     }
@@ -1064,12 +1080,19 @@ function loadCurrentHoveredItem() {
 
     currentHoveredItemLoading = true;
 
+    const originalIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+    itemHoverShouldAutoSwitchAnim = false;
+    itemHoverAutoSwitchAnimTimePassed = 0;
+
     addItemFromLink(buildHoverOutfit, targetLink, targetType).then(() => {
         if (
             currentHoveredItemElement !== originalCurrentHoveredItemElement ||
             currentHoveredItemLink !== targetLink
         )
             return;
+        const newIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+        if (originalIdleAnimation !== newIdleAnimation) itemHoverShouldAutoSwitchAnim = true;
+
         currentHoveredItemLoading = false;
         itemHoverOutfit = buildHoverOutfit;
         if (itemHoverOutfitRenderer) {
@@ -1102,6 +1125,17 @@ function playAppropriateAnim(outfitModel: OutfitModel, outfitRenderer: OutfitRen
 async function startRenderer() {
     if (startedRenderer) return true;
     startedRenderer = true;
+
+    //flags (these are set to true since the avatar is frequently changed)
+    FLAGS.ENABLE_API_MESH_CACHE = true;
+    FLAGS.ENABLE_API_RBX_CACHE = true;
+
+    //cache limits (i doubt this actually does much at all, maybe we save like 10mb...)
+    RENDERER_CACHE.Mesh.maxEntries = 150;
+    RENDERER_CACHE.AssetBuffer.maxEntries = 150;
+    RENDERER_CACHE.IsLayered.maxEntries = 100;
+    RENDERER_CACHE.ItemDetails.maxEntries = 50;
+    RENDERER_CACHE.ItemOwned.maxEntries = 50;
 
     const success = await RBXRenderer.fullSetup(true, true, false);
     if (!success) return false;
@@ -1215,8 +1249,11 @@ async function updateMainRenderer() {
     }
 }
 
+let lastFrameTime = Date.now() / 1000;
 //runs every frame
 function customAnimate() {
+    const deltaTime = Date.now() / 1000 - lastFrameTime;
+
     //SPA support
     if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
@@ -1323,9 +1360,10 @@ function customAnimate() {
 
     if (itemHoverCameraRotating) {
         itemHoverCameraRotation =
-            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED) % 360;
+            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED * deltaTime) % 360;
     }
 
+    //update item hover camera
     if (itemHoverOutfitRenderer)
     assetTypeToCamera(
         itemHoverScene,
@@ -1333,6 +1371,19 @@ function customAnimate() {
         currentHoveredItemType!,
         itemHoverCameraRotation,
     );
+
+    //update item hover animation (for animation packs)
+    itemHoverAutoSwitchAnimTimePassed += deltaTime;
+    if (itemHoverAutoSwitchAnimTimePassed >= HOVER_AUTO_SWITCH_ANIM_TIME && itemHoverShouldAutoSwitchAnim) {
+        itemHoverAutoSwitchAnimTimePassed = 0;
+
+        const animationNames = itemHoverOutfit.outfit.playerAvatarType === "R15" ? R15_ANIMATION_NAMES : R6_ANIMATION_NAMES;
+        const currentIndex = animationNames.indexOf(itemHoverOutfitRenderer?.animatorW?.data?.currentAnimation || "");
+        if (currentIndex > -1) {
+            const nextIndex = (currentIndex + 1) % animationNames.length;
+            itemHoverOutfitRenderer?.setMainAnimation(animationNames[nextIndex]);
+        }
+    }
 
     //loading icon
     if (
@@ -1353,6 +1404,7 @@ function customAnimate() {
     //render
     RBXRenderer.animateAll(false);
 
+    lastFrameTime = Date.now() / 1000;
     window.requestAnimationFrame(customAnimate);
 }
 
@@ -1614,6 +1666,8 @@ async function asyncInit() {
                     currentHoveredItemLink = itemLinkElement.href;
                     currentHoveredItemType = undefined;
 
+                    setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainer))
+
                     updateHoveredItemTypeFromThumbnail(
                         itemThumbnailImageContainer,
                     );
@@ -1671,6 +1725,8 @@ async function asyncInit() {
                             itemThumbContainerContainer;
                         currentHoveredItemLink = itemLinkElement.href;
                         currentHoveredItemType = undefined;
+
+                        setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainerContainer))
 
                         updateHoveredItemTypeFromThumbnail(
                             itemThumbnailImageContainer,

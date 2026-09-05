@@ -12,6 +12,7 @@ import {
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
 import { safeHtml } from '../../../core/packages/dompurify.js';
+import DOMPurify from '../../../core/packages/dompurify.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import {
     performJoinAction,
@@ -21,6 +22,7 @@ import { showRegionDonationPopup } from '../../../core/review/review.js';
 import { launchGame, followUser } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
+import { createShimmerBlock } from '../../../core/ui/shimmer.js';
 import { createPill } from '../../../core/ui/general/pill.js';
 import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
@@ -32,7 +34,6 @@ import { applyDisplayNameGradientToElement } from '../../profile/header/displayN
 let lastSearchedQuery = '';
 let userSearchAbortController = null;
 let gameSearchAbortController = null;
-const userCache = new Map();
 const assets = getAssets();
 const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
@@ -51,9 +52,14 @@ const debounce = (func, delay) => {
     };
 };
 
-let cachedFriendsData = null;
-let friendsFetchPromise = null;
-let cachedUserId = null;
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 function createQuickSearchRequest(query) {
     return {
@@ -113,7 +119,19 @@ function filterFriendResults(request, userId) {
 }
 
 function commitQuickSearchRequest(request) {
-    if (!request || activeQuickSearchRequest !== request) return;
+    if (
+        !request ||
+        (activeQuickSearchRequest !== request &&
+            latestCommittedQuickSearchRequest !== request)
+    ) {
+        return;
+    }
+
+    if (request.committed) {
+        injectIntoMenu();
+        return;
+    }
+
     if (!request.userDone || !request.gameDone) return;
 
     latestCommittedQuickSearchRequest = request;
@@ -363,127 +381,116 @@ async function performUserSearch(query, request) {
     const signal = userSearchAbortController.signal;
 
     try {
-        const authedUserId = await getAuthenticatedUserId();
+        const userSearchData =
+            searchSettings.userSearchEnabled && query.length >= 2
+                ? await fetchWithRetry(
+                      {
+                          subdomain: 'users',
+                          endpoint: '/v1/usernames/users',
+                          method: 'POST',
+                          body: {
+                              usernames: [query],
+                              excludeBannedUsers: false,
+                          },
+                      },
+                      3,
+                      signal,
+                  )
+                : null;
+
         if (!isCurrentSearchRequest(request, signal)) return;
 
-        const promises = [];
-        if (searchSettings.userSearchEnabled && query.length >= 2) {
-            promises.push(
-                fetchWithRetry(
-                    {
-                        subdomain: 'users',
-                        endpoint: '/v1/usernames/users',
-                        method: 'POST',
-                        body: {
-                            usernames: [query],
-                            excludeBannedUsers: false,
-                        },
-                    },
-                    3,
-                    signal,
-                ),
+        const userResult = userSearchData?.data?.[0];
+        if (userResult) {
+            const userDetails = {
+                id: userResult.id,
+                name: userResult.name,
+                displayName: userResult.displayName,
+                hasVerifiedBadge: userResult.hasVerifiedBadge,
+                isBanned: false,
+            };
+
+            setSearchResult(
+                request,
+                'userResult',
+                createUserResultHtml(userDetails, null, null),
             );
         } else {
-            promises.push(Promise.resolve(null));
+            setSearchResult(request, 'userResult', null);
         }
 
-        const localFriendsPromise = new Promise((resolve) => {
-            chrome.storage.local.get(['rovalra_friends_data'], (result) => {
-                if (!searchSettings.friendSearchEnabled) {
-                    resolve([]);
-                    return;
-                }
+        request.userDone = true;
+        commitQuickSearchRequest(request);
 
-                const friendsData = result.rovalra_friends_data?.[authedUserId];
-                if (!friendsData?.friendsList) {
-                    resolve([]);
-                    return;
-                }
-                const lowerQuery = query.toLowerCase();
-                const matches = friendsData.friendsList.filter(
-                    (f) =>
-                        (f.username &&
-                            f.username.toLowerCase().includes(lowerQuery)) ||
-                        (f.displayName &&
-                            f.displayName.toLowerCase().includes(lowerQuery)) ||
-                        (f.combinedName &&
-                            f.combinedName.toLowerCase().includes(lowerQuery)),
-                );
-                resolve(matches.slice(0, 5));
-            });
-        });
-        promises.push(localFriendsPromise);
+        setTimeout(
+            () =>
+                getAuthenticatedUserId()
+                    .then(
+                        (authedUserId) =>
+                            new Promise((resolve) => {
+                                chrome.storage.local.get(
+                                    ['rovalra_friends_data'],
+                                    (result) => {
+                                        if (
+                                            !searchSettings.friendSearchEnabled
+                                        ) {
+                                            resolve([]);
+                                            return;
+                                        }
 
-        localFriendsPromise
-            .then(async (localFriends) => {
-                if (!isCurrentSearchRequest(request, signal)) return;
-
-                if (localFriends.length > 0) {
-                    const validUsers = localFriends.map((f) => ({
-                        id: f.id,
-                        name: f.username,
-                        displayName: f.combinedName,
-                        hasVerifiedBadge: f.isVerified,
-                        isBanned: f.isDeleted,
-                        isTrusted: f.isTrusted,
-                    }));
-
-                    const thumbnailMap = await fetchThumbnails(
-                        validUsers.map((u) => ({ id: u.id })),
-                        'AvatarHeadshot',
-                        '48x48',
-                        false,
-                        signal,
-                    );
-                    if (!isCurrentSearchRequest(request, signal)) return;
-
-                    setSearchResult(
-                        request,
-                        'friendResults',
-                        validUsers
-                            .map((friendUser) => {
-                                const userResult = getSearchResult(
-                                    request,
-                                    'userResult',
+                                        const friendsData =
+                                            result.rovalra_friends_data?.[
+                                                authedUserId
+                                            ];
+                                        const lowerQuery = query.toLowerCase();
+                                        resolve(
+                                            (friendsData?.friendsList || [])
+                                                .filter(
+                                                    (f) =>
+                                                        f.username
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                                lowerQuery,
+                                                            ) ||
+                                                        f.displayName
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                                lowerQuery,
+                                                            ) ||
+                                                        f.combinedName
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                                lowerQuery,
+                                                            ),
+                                                )
+                                                .slice(0, 5),
+                                        );
+                                    },
                                 );
-                                if (
-                                    userResult &&
-                                    userResult.dataset.userId == friendUser.id
-                                ) {
-                                    return null;
-                                }
-                                const thumbData = thumbnailMap.get(
-                                    friendUser.id,
-                                );
-                                return createUserResultHtml(
-                                    friendUser,
-                                    thumbData,
-                                    null,
-                                    true,
-                                    friendUser.isTrusted,
-                                );
-                            })
-                            .filter((el) => el !== null),
-                    );
-
-                    fetchWithRetry(
-                        {
-                            subdomain: 'presence',
-                            endpoint: '/v1/presence/users',
-                            method: 'POST',
-                            body: { userIds: validUsers.map((u) => u.id) },
-                        },
-                        3,
-                        signal,
+                            }),
                     )
-                        .then((presenceData) => {
+                    .then(async (localFriends) => {
+                        if (!isCurrentSearchRequest(request, signal)) return;
+
+                        if (localFriends.length > 0) {
+                            const validUsers = localFriends.map((f) => ({
+                                id: f.id,
+                                name: f.username,
+                                displayName: f.combinedName,
+                                hasVerifiedBadge: f.isVerified,
+                                isBanned: f.isDeleted,
+                                isTrusted: f.isTrusted,
+                            }));
+
+                            const thumbnailMap = await fetchThumbnails(
+                                validUsers.map((u) => ({ id: u.id })),
+                                'AvatarHeadshot',
+                                '48x48',
+                                false,
+                                signal,
+                            );
                             if (!isCurrentSearchRequest(request, signal))
                                 return;
-
-                            const presences = presenceData?.userPresences || [];
-                            const presenceMap = new Map(
-                                presences.map((p) => [p.userId, p]),
-                            );
 
                             setSearchResult(
                                 request,
@@ -501,163 +508,140 @@ async function performUserSearch(query, request) {
                                         ) {
                                             return null;
                                         }
-
                                         const thumbData = thumbnailMap.get(
-                                            friendUser.id,
-                                        );
-                                        const presence = presenceMap.get(
                                             friendUser.id,
                                         );
                                         return createUserResultHtml(
                                             friendUser,
                                             thumbData,
-                                            presence,
+                                            null,
                                             true,
                                             friendUser.isTrusted,
                                         );
                                     })
                                     .filter((el) => el !== null),
                             );
+
+                            fetchWithRetry(
+                                {
+                                    subdomain: 'presence',
+                                    endpoint: '/v1/presence/users',
+                                    method: 'POST',
+                                    body: {
+                                        userIds: validUsers.map((u) => u.id),
+                                    },
+                                },
+                                3,
+                                signal,
+                            )
+                                .then((presenceData) => {
+                                    if (
+                                        !isCurrentSearchRequest(request, signal)
+                                    )
+                                        return;
+
+                                    const presences =
+                                        presenceData?.userPresences || [];
+                                    const presenceMap = new Map(
+                                        presences.map((p) => [p.userId, p]),
+                                    );
+
+                                    setSearchResult(
+                                        request,
+                                        'friendResults',
+                                        validUsers
+                                            .map((friendUser) => {
+                                                const userResult =
+                                                    getSearchResult(
+                                                        request,
+                                                        'userResult',
+                                                    );
+                                                if (
+                                                    userResult &&
+                                                    userResult.dataset.userId ==
+                                                        friendUser.id
+                                                ) {
+                                                    return null;
+                                                }
+
+                                                const thumbData =
+                                                    thumbnailMap.get(
+                                                        friendUser.id,
+                                                    );
+                                                const presence =
+                                                    presenceMap.get(
+                                                        friendUser.id,
+                                                    );
+                                                return createUserResultHtml(
+                                                    friendUser,
+                                                    thumbData,
+                                                    presence,
+                                                    true,
+                                                    friendUser.isTrusted,
+                                                );
+                                            })
+                                            .filter((el) => el !== null),
+                                    );
+                                    if (request.committed) injectIntoMenu();
+                                })
+                                .catch(() => {});
+                        } else {
+                            setSearchResult(request, 'friendResults', []);
+                        }
+                        if (request.committed) injectIntoMenu();
+                    })
+                    .catch((e) => {
+                        if (e.name !== 'AbortError')
+                            console.error(
+                                ts('quickSearch.friendSearchError'),
+                                e,
+                            );
+                    }),
+            0,
+        );
+        if (userResult) {
+            setTimeout(
+                () =>
+                    Promise.all([
+                        fetchThumbnails(
+                            [{ id: userResult.id }],
+                            'AvatarHeadshot',
+                            '48x48',
+                            false,
+                            signal,
+                        ),
+                        fetchWithRetry(
+                            {
+                                subdomain: 'presence',
+                                endpoint: '/v1/presence/users',
+                                method: 'POST',
+                                body: { userIds: [userResult.id] },
+                            },
+                            3,
+                            signal,
+                        ),
+                    ])
+                        .then(([userThumbnailMap, presenceData]) => {
+                            if (!isCurrentSearchRequest(request, signal))
+                                return;
+
+                            const userPresence =
+                                presenceData?.userPresences?.[0];
+                            setSearchResult(
+                                request,
+                                'userResult',
+                                createUserResultHtml(
+                                    userResult,
+                                    userThumbnailMap.get(userResult.id),
+                                    userPresence,
+                                ),
+                            );
                             if (request.committed) injectIntoMenu();
                         })
-                        .catch(() => {});
-                } else {
-                    setSearchResult(request, 'friendResults', []);
-                }
-                if (request.committed) injectIntoMenu();
-            })
-            .catch((e) => {
-                if (e.name !== 'AbortError')
-                    console.error(ts('quickSearch.friendSearchError'), e);
-            });
-
-        const [userSearchData, localFriends] = await Promise.all(promises);
-
-        if (!isCurrentSearchRequest(request, signal)) return;
-
-        const userResult = userSearchData?.data?.[0];
-        const friendIdsFromSearch = localFriends.map((f) => f.id);
-        let userResultIsFriend = false;
-        let userResultFriendData = null;
-
-        if (userResult) {
-            userResultIsFriend = friendIdsFromSearch.includes(userResult.id);
-            if (userResultIsFriend) {
-                userResultFriendData = localFriends.find(
-                    (f) => f.id === userResult.id,
-                );
-            }
-        }
-        if (userResult) {
-            if (!isCurrentSearchRequest(request, signal)) return;
-
-            const promises2 = [
-                fetchThumbnails(
-                    [{ id: userResult.id }],
-                    'AvatarHeadshot',
-                    '48x48',
-                ),
-            ];
-
-            if (!userResultIsFriend) {
-                promises2.push(
-                    userCache.has(userResult.id)
-                        ? Promise.resolve(userCache.get(userResult.id))
-                        : fetchWithRetry(
-                              {
-                                  subdomain: 'users',
-                                  endpoint: `/v1/users/${userResult.id}`,
-                              },
-                              3,
-                              signal,
-                          ).then((userData) => {
-                              if (userData) {
-                                  userCache.set(userResult.id, userData);
-                              }
-                              return userData;
-                          }),
-                );
-            } else {
-                promises2.push(Promise.resolve(null));
-            }
-
-            const [userThumbnailMap, fetchedUserDetails] =
-                await Promise.all(promises2);
-            if (!isCurrentSearchRequest(request, signal)) return;
-
-            let userDetails = fetchedUserDetails;
-            let isTrusted = false;
-
-            if (userResultIsFriend && userResultFriendData) {
-                userDetails = {
-                    id: userResultFriendData.id,
-                    name: userResultFriendData.username,
-                    displayName: userResultFriendData.combinedName,
-                    hasVerifiedBadge: userResultFriendData.isVerified,
-                    isBanned: userResultFriendData.isDeleted,
-                };
-                isTrusted = userResultFriendData.isTrusted;
-            } else if (!userDetails && userResult) {
-                userDetails = {
-                    id: userResult.id,
-                    name: userResult.name,
-                    displayName: userResult.displayName,
-                    hasVerifiedBadge: userResult.hasVerifiedBadge,
-                    isBanned: false,
-                };
-            }
-
-            const userThumbData = userThumbnailMap.get(userResult.id);
-            setSearchResult(
-                request,
-                'userResult',
-                createUserResultHtml(
-                    userDetails,
-                    userThumbData,
-                    null,
-                    userResultIsFriend,
-                    isTrusted,
-                ),
+                        .catch(() => {}),
+                0,
             );
-
-            fetchWithRetry(
-                {
-                    subdomain: 'presence',
-                    endpoint: '/v1/presence/users',
-                    method: 'POST',
-                    body: { userIds: [userResult.id] },
-                },
-                3,
-                signal,
-            )
-                .then((presenceData) => {
-                    if (!isCurrentSearchRequest(request, signal)) return;
-
-                    const userPresence = presenceData?.userPresences?.[0];
-                    setSearchResult(
-                        request,
-                        'userResult',
-                        createUserResultHtml(
-                            userDetails,
-                            userThumbData,
-                            userPresence,
-                            userResultIsFriend,
-                            isTrusted,
-                        ),
-                    );
-
-                    filterFriendResults(request, userResult.id);
-                    if (request.committed) injectIntoMenu();
-                })
-                .catch(() => {});
-
-            filterFriendResults(request, userResult.id);
-        } else {
-            setSearchResult(request, 'userResult', null);
         }
-
-        request.userDone = true;
-        commitQuickSearchRequest(request);
     } catch (e) {
         if (e.name !== 'AbortError') {
             console.error(ts('quickSearch.userSearchError'), e);
@@ -686,49 +670,14 @@ async function performGameSearch(query, request) {
         const authedUserId = await getAuthenticatedUserId();
         if (!isCurrentSearchRequest(request, signal)) return;
 
-        if (cachedUserId !== authedUserId) {
-            cachedFriendsData = null;
-            friendsFetchPromise = null;
-            cachedUserId = authedUserId;
-        }
-
-        let friendsPromise;
-        if (cachedFriendsData) {
-            friendsPromise = Promise.resolve(cachedFriendsData);
-        } else if (friendsFetchPromise) {
-            friendsPromise = friendsFetchPromise;
-        } else {
-            friendsFetchPromise = fetchWithRetry({
-                subdomain: 'friends',
-                endpoint: `/v1/users/${authedUserId}/friends/online`,
-                signal: signal,
-            })
-                .then((data) => {
-                    cachedFriendsData = data;
-                    return data;
-                })
-                .catch((e) => {
-                    friendsFetchPromise = null;
-                    if (e.name === 'AbortError') throw e;
-                    return { data: [] };
-                });
-            friendsPromise = friendsFetchPromise;
-        }
-
-        const [gameSearchData, settings, friendsData] = await Promise.all([
-            fetchWithRetry(
-                {
-                    subdomain: 'apis',
-                    endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`,
-                },
-                3,
-                signal,
-            ),
-            new Promise((resolve) =>
-                chrome.storage.local.get(['PreferredRegionEnabled'], resolve),
-            ),
-            friendsPromise,
-        ]);
+        const gameSearchData = await fetchWithRetry(
+            {
+                subdomain: 'apis',
+                endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`,
+            },
+            3,
+            signal,
+        );
 
         if (!isCurrentSearchRequest(request, signal)) return;
 
@@ -737,97 +686,82 @@ async function performGameSearch(query, request) {
         );
         if (gameResult) {
             const game = gameResult.contents[0];
-            const friendsPlaying =
-                friendsData?.data?.filter(
-                    (f) => f.userPresence?.universeId === game.universeId,
-                ) || [];
-
-            if (!isCurrentSearchRequest(request, signal)) return;
-            const promises = [
-                fetchThumbnails([{ id: game.universeId }], 'GameIcon', '50x50'),
-                fetchWithRetry(
-                    {
-                        subdomain: 'games',
-                        endpoint: `/v1/games/votes?universeIds=${game.universeId}`,
-                    },
-                    3,
-                    signal,
-                ),
-            ];
-
-            if (friendsPlaying.length > 0) {
-                promises.push(
-                    fetchThumbnails(
-                        friendsPlaying.map((f) => ({ id: f.id })),
-                        'AvatarHeadshot',
-                        '48x48',
-                    ),
-                );
-            }
-
-            const results = await Promise.all(promises);
-            const thumbnailMap = results[0];
-            const votesData = results[1];
-
-            if (!isCurrentSearchRequest(request, signal)) return;
-            const voteInfo =
-                votesData.data && votesData.data[0]
-                    ? votesData.data[0]
-                    : { upVotes: 0, downVotes: 0 };
-            const totalVotes = voteInfo.upVotes + voteInfo.downVotes;
-            const voteRatio =
-                totalVotes > 0
-                    ? Math.floor((voteInfo.upVotes / totalVotes) * 100)
-                    : 0;
-
-            const thumbData = thumbnailMap.get(game.universeId);
-            const thumbnailUrl =
-                thumbData?.state === 'Completed' ? thumbData.imageUrl : '';
-            const playerCount = formatPlayerCount(game.playerCount || 0);
-
-            let friendsInfo = [];
-            if (friendsPlaying.length > 0 && results[2]) {
-                const friendThumbMap = results[2];
-                friendsInfo = friendsPlaying
-                    .map((f) => {
-                        const fThumb = friendThumbMap.get(f.id);
-                        if (fThumb && fThumb.state === 'Completed') {
-                            return {
-                                id: f.id,
-                                userId: f.id,
-                                name: f.displayName || f.name,
-                                displayName: f.displayName,
-                                combinedName: `${f.displayName || f.name} (@${f.name})`,
-                                username: f.name,
-                                thumbnailUrl: fThumb.imageUrl,
-                                rootPlaceId: f.userPresence.rootPlaceId,
-                                gameInstanceId: f.userPresence.gameId,
-                            };
-                        }
-                        return null;
-                    })
-                    .filter((f) => f !== null);
-            }
 
             setSearchResult(
                 request,
                 'gameResult',
-                createResultHtml(
-                    game,
-                    thumbnailUrl,
-                    playerCount,
-                    voteRatio,
-                    totalVotes,
-                    settings,
-                    friendsInfo,
-                ),
+                createResultHtml(game, null, null, null, null, null),
+            );
+
+            request.gameDone = true;
+            commitQuickSearchRequest(request);
+
+            setTimeout(
+                () =>
+                    Promise.all([
+                        fetchThumbnails(
+                            [{ id: game.universeId }],
+                            'GameIcon',
+                            '50x50',
+                        ),
+                        fetchWithRetry(
+                            {
+                                subdomain: 'games',
+                                endpoint: `/v1/games/votes?universeIds=${game.universeId}`,
+                            },
+                            3,
+                            signal,
+                        ),
+                        new Promise((resolve) =>
+                            chrome.storage.local.get(
+                                ['PreferredRegionEnabled'],
+                                resolve,
+                            ),
+                        ),
+                    ])
+                        .then(([thumbnailMap, votesData, settings]) => {
+                            if (!isCurrentSearchRequest(request, signal))
+                                return;
+
+                            const voteInfo = votesData?.data?.[0] || {
+                                upVotes: 0,
+                                downVotes: 0,
+                            };
+                            const totalVotes =
+                                voteInfo.upVotes + voteInfo.downVotes;
+                            const voteRatio =
+                                totalVotes > 0
+                                    ? Math.floor(
+                                          (voteInfo.upVotes / totalVotes) * 100,
+                                      )
+                                    : 0;
+                            const thumbData = thumbnailMap.get(game.universeId);
+                            const thumbnailUrl =
+                                thumbData?.state === 'Completed'
+                                    ? thumbData.imageUrl
+                                    : '';
+                            setSearchResult(
+                                request,
+                                'gameResult',
+                                createResultHtml(
+                                    game,
+                                    thumbnailUrl,
+                                    formatPlayerCount(game.playerCount || 0),
+                                    voteRatio,
+                                    totalVotes,
+                                    settings,
+                                ),
+                            );
+                            if (request.committed) injectIntoMenu();
+                        })
+                        .catch(() => {}),
+                0,
             );
         } else {
             setSearchResult(request, 'gameResult', null);
+            request.gameDone = true;
+            commitQuickSearchRequest(request);
         }
-
-        request.gameDone = true;
-        commitQuickSearchRequest(request);
     } catch (e) {
         if (e.name !== 'AbortError') {
             console.error(ts('quickSearch.gameSearchError'), e);
@@ -891,16 +825,23 @@ function createUserResultHtml(
         overflow: 'visible',
     });
 
-    const thumbEl = createThumbnailElement(
-        thumbData,
-        user.displayName,
-        'avatar-card-image',
-        {
-            height: '100%',
-            width: '100%',
-            borderRadius: '50%',
-        },
-    );
+    const thumbEl = thumbData
+        ? createThumbnailElement(
+              thumbData,
+              user.displayName,
+              'avatar-card-image',
+              {
+                  height: '100%',
+                  width: '100%',
+                  borderRadius: '50%',
+              },
+          )
+        : createShimmerBlock({
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              className: 'avatar-card-image',
+          });
     thumbContainer.appendChild(thumbEl);
 
     if (presence) {
@@ -998,14 +939,25 @@ function createUserResultHtml(
 
     link.appendChild(thumbContainer);
     link.appendChild(infoDiv);
-    applyUserCosmetics(user.id, thumbContainer, displayNameSpan, link);
+    setTimeout(
+        () =>
+            applyUserCosmetics(user.id, thumbContainer, displayNameSpan, link),
+        0,
+    );
 
     if (user.hasVerifiedBadge) {
         if (displayNameDiv) {
             const badge = document.createElement('span');
-            badge.innerHTML = `
-                <icon filled size="medium" class="grow-0 shrink-0 basis-auto content-system-emphasis">verified-backplate</icon>
-                <icon filled size="medium" class="grow-0 shrink-0 basis-auto absolute" style="color: white;">verified-check</icon>`
+            const badgeImage = document.createElement('img');
+            badgeImage.src = assets.verifiedBadge;
+            badgeImage.alt = ts('quickSearch.verifiedBadge');
+            badgeImage.title = ts('quickSearch.verified');
+            Object.assign(badgeImage.style, {
+                width: '16px',
+                height: '16px',
+                display: 'inline-block',
+            });
+            badge.appendChild(badgeImage);
             badge.alt = ts('quickSearch.verifiedBadge');
             badge.title = ts('quickSearch.verified');
             Object.assign(badge.style, {
@@ -1052,7 +1004,7 @@ function createUserResultHtml(
         });
 
         const playBtn = document.createElement('button');
-        playBtn.innerHTML = `<span class="icon-common-play" style="width: 30px; height: 30px; display: inline-block;"></span>`;
+        playBtn.innerHTML = safeHtml`<span class="icon-common-play" style="width: 30px; height: 30px; display: inline-block;"></span>`;
         Object.assign(playBtn.style, {
             backgroundColor: 'var(--rovalra-playbutton-color)',
             border: 'none',
@@ -1103,7 +1055,6 @@ function createResultHtml(
     voteRatio,
     totalVotes,
     settings,
-    friendsInfo,
 ) {
     const li = document.createElement('li');
     li.className =
@@ -1142,23 +1093,35 @@ function createResultHtml(
 
     const votePercentageClass = totalVotes > 0 ? '' : 'hidden';
     const noVoteClass = totalVotes === 0 ? '' : 'hidden';
-
-    ((link.innerHTML = safeHtml`
-        <span class="thumbnail-2d-container" style="height: 48px; width: 48px; border-radius: 8px; flex-shrink: 0;">
-            <img src="${thumbnailUrl}" style="height: 100%; width: 100%; border-radius: 8px;">
-        </span>
-        <div style="display: flex; flex-direction: column; justify-content: center; overflow: hidden; width: 100%;">
-            <div class="game-card-name" title="${game.name}" style="font-size: 16px; font-weight: 500; color: var(--rovalra-main-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${game.name}</div>
-            <div class="game-card-info" style="display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
+    const thumbnailMarkup = thumbnailUrl
+        ? `<img src="${thumbnailUrl}" style="height: 100%; width: 100%; border-radius: 8px;">`
+        : '<span class="thumbnail-2d-container shimmer" style="display: block; height: 100%; width: 100%; border-radius: 8px;"></span>';
+    const statsMarkup =
+        totalVotes === null || playerCount === null
+            ? '<span class="thumbnail-2d-container shimmer" style="display: block; width: 115px; height: 12px; border-radius: 4px;"></span>'
+            : `
                 <span class="info-label icon-votes-gray"></span>
                 <span class="info-label vote-percentage-label ${votePercentageClass}">${voteRatio}%</span>
                 <span class="info-label no-vote ${noVoteClass}"></span>
                 <span class="info-label icon-playing-counts-gray" style="margin-left: 8px;"></span>
-                <span class="info-label playing-counts-label">${playerCount}</span>
+                <span class="info-label playing-counts-label">${playerCount}</span>`;
+
+    link.innerHTML = DOMPurify.sanitize(
+        `
+        <span class="thumbnail-2d-container" style="height: 48px; width: 48px; border-radius: 8px; flex-shrink: 0;">
+            ${thumbnailMarkup}
+        </span>
+        <div style="display: flex; flex-direction: column; justify-content: center; overflow: hidden; width: 100%;">
+            <div class="game-card-name" title="${escapeHtml(game.name)}" style="font-size: 16px; font-weight: 500; color: var(--rovalra-main-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(game.name)}</div>
+            <div class="game-card-info" style="display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
+                ${statsMarkup}
             </div>
         </div>
-    `),
-        { ADD_ATTR: ['style', 'class', 'href', 'title'] });
+    `,
+        {
+            ADD_ATTR: ['style', 'class', 'href', 'title'],
+        },
+    );
 
     const buttonsContainer = document.createElement('div');
     Object.assign(buttonsContainer.style, {
@@ -1172,6 +1135,7 @@ function createResultHtml(
     if (settings && settings.PreferredRegionEnabled) {
         const regionBtn = document.createElement('button');
         regionBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19.3 16.9c.4-.7.7-1.5.7-2.4 0-2.5-2-4.5-4.5-4.5S11 12 11 14.5s2 4.5 4.5 4.5c.9 0 1.7-.3 2.4-.7l3.2 3.2 1.4-1.4zm-3.8.1c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5M12 20v2C6.48 22 2 17.52 2 12S6.48 2 12 2c4.84 0 8.87 3.44 9.8 8h-2.07c-.64-2.46-2.4-4.47-4.73-5.41V5c0 1.1-.9 2-2 2h-2v2c0 .55-.45 1-1 1H8v2h2v3H9l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.41 3.59 8 8 8"></path></svg>`;
+        regionBtn.innerHTML = DOMPurify.sanitize(regionBtn.innerHTML);
         Object.assign(regionBtn.style, {
             backgroundColor: 'var(--rovalra-playbutton-color)',
             border: 'none',
@@ -1232,7 +1196,7 @@ function createResultHtml(
     }
 
     const playBtn = document.createElement('button');
-    playBtn.innerHTML = `<span class="icon-common-play" style="width: 30px; height: 30px; display: inline-block;"></span>`;
+    playBtn.innerHTML = safeHtml`<span class="icon-common-play" style="width: 30px; height: 30px; display: inline-block;"></span>`;
     Object.assign(playBtn.style, {
         backgroundColor: 'var(--rovalra-playbutton-color)',
         border: 'none',
