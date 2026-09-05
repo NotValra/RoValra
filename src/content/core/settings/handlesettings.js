@@ -16,6 +16,8 @@ import { requestTouAgreement } from '../ui/tou/touAgreement.js';
 import {
     normalizeProfilePronouns,
     replacePronounSpecialCharacters,
+    getProfilePronounsForUser,
+    setProfilePronounsForUser,
     truncateProfilePronouns,
 } from '../profile/pronouns.js';
 import {
@@ -74,14 +76,8 @@ function consumeProfilePronounsInputAgreement() {
 
 async function prepareProfilePronounsUpdate(value) {
     const normalizedValue = normalizeProfilePronouns(value);
-    const stored = await chrome.storage.local.get([
-        PROFILE_PRONOUNS_SETTING_NAME,
-        'rovalra_settings',
-    ]);
-    const previousValue = normalizeProfilePronouns(
-        stored[PROFILE_PRONOUNS_SETTING_NAME] ??
-            stored.rovalra_settings?.[PROFILE_PRONOUNS_SETTING_NAME],
-    );
+    const authenticatedUserId = await getAuthenticatedUserId();
+    const previousValue = await getProfilePronounsForUser(authenticatedUserId);
 
     const changed = normalizedValue !== previousValue;
 
@@ -162,6 +158,7 @@ async function prepareProfilePronounsUpdate(value) {
         value: normalizedValue,
         changed,
         syncFailed: !apiSynced,
+        userId: authenticatedUserId,
     };
 }
 
@@ -274,8 +271,7 @@ export const getCurrentUserTierSync = () => currentUserTier;
  * @description get User Tier but calls syncDonatorTier if not initalized
  */
 export const getCurrentUserTier = async () => {
-    if (!currentUserTierLoaded)
-        await syncDonatorTier();
+    if (!currentUserTierLoaded) await syncDonatorTier();
     return currentUserTier;
 };
 
@@ -449,7 +445,7 @@ export const loadSettings = async () => {
 
         chrome.storage.local.get(
             { ...defaultSettings, [REMOTE_SETTING_LOCKS_KEY]: {} },
-            (settings) => {
+            async (settings) => {
                 if (chrome.runtime.lastError) {
                     console.error(
                         'Failed to load settings:',
@@ -470,6 +466,10 @@ export const loadSettings = async () => {
                     for (const [key, value] of Object.entries(forcedSettings)) {
                         settings[key] = value;
                     }
+
+                    const authenticatedUserId = await getAuthenticatedUserId();
+                    settings[PROFILE_PRONOUNS_SETTING_NAME] =
+                        await getProfilePronounsForUser(authenticatedUserId);
                     resolve(settings);
                 }
             },
@@ -513,7 +513,7 @@ export const enforceSettingOverrides = async () => {
             overrides.profile3DRenderEnabled = false;
         }
 
-        await syncDonatorTier() // Sync status
+        await syncDonatorTier(); // Sync status
 
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, config] of Object.entries(
@@ -618,6 +618,7 @@ export const handleSaveSettings = async (settingName, value) => {
         let sanitizedValue = value;
         let profilePronounsChanged = false;
         let profilePronounsSyncFailed = false;
+        let profilePronounsUserId = null;
 
         if (settingConfig) {
             switch (settingConfig.type) {
@@ -837,6 +838,7 @@ export const handleSaveSettings = async (settingName, value) => {
             sanitizedValue = pronounsUpdate.value;
             profilePronounsChanged = pronounsUpdate.changed;
             profilePronounsSyncFailed = pronounsUpdate.syncFailed;
+            profilePronounsUserId = pronounsUpdate.userId;
         }
 
         const settings = { [settingName]: sanitizedValue };
@@ -851,6 +853,17 @@ export const handleSaveSettings = async (settingName, value) => {
                     );
                     reject(chrome.runtime.lastError);
                 } else {
+                    if (settingName === PROFILE_PRONOUNS_SETTING_NAME) {
+                        setProfilePronounsForUser(
+                            profilePronounsUserId,
+                            sanitizedValue,
+                        ).catch((error) =>
+                            console.warn(
+                                'RoValra: Failed to save account-scoped pronouns.',
+                                error,
+                            ),
+                        );
+                    }
                     syncToSettingsKey(settingName, sanitizedValue);
                     if (
                         settingName === REMOTE_SETTING_OVERRIDE_KEY &&
@@ -2110,7 +2123,6 @@ export function initializeSettingsEventListeners() {
             const settingConfig = findSettingConfig(settingName);
 
             if (value) {
-
                 if (
                     target.dataset.featureStatusPromptAccepted !== 'true' &&
                     (await shouldShowFeatureStatusPrompt(settingConfig))
@@ -2188,49 +2200,35 @@ export function initializeSettingsEventListeners() {
                 }
 
                 if (settingConfig?.dependsOn) {
-                    settingConfig.dependsOn.forEach(
-                        (dependedSettingName) => {
-                            if (
-                                findSettingConfig(dependedSettingName) != null
-                            ) {
-                                const dependedElement = document.querySelector(
-                                    `#${dependedSettingName}`,
-                                );
-                                if (dependedElement?.checked === false) {
-                                    dependedElement.checked = true;
-                                }
-                                savePromises.push(
-                                    handleSaveSettings(
-                                        dependedSettingName,
-                                        true,
-                                    ),
-                                );
+                    settingConfig.dependsOn.forEach((dependedSettingName) => {
+                        if (findSettingConfig(dependedSettingName) != null) {
+                            const dependedElement = document.querySelector(
+                                `#${dependedSettingName}`,
+                            );
+                            if (dependedElement?.checked === false) {
+                                dependedElement.checked = true;
                             }
-                        },
-                    );
+                            savePromises.push(
+                                handleSaveSettings(dependedSettingName, true),
+                            );
+                        }
+                    });
                 }
             } else {
                 if (settingConfig?.dependedBy) {
-                    settingConfig.dependedBy.forEach(
-                        (dependedSettingName) => {
-                            if (
-                                findSettingConfig(dependedSettingName) != null
-                            ) {
-                                const dependedElement = document.querySelector(
-                                    `#${dependedSettingName}`,
-                                );
-                                if (dependedElement?.checked) {
-                                    dependedElement.checked = false;
-                                }
-                                savePromises.push(
-                                    handleSaveSettings(
-                                        dependedSettingName,
-                                        false,
-                                    ),
-                                );
+                    settingConfig.dependedBy.forEach((dependedSettingName) => {
+                        if (findSettingConfig(dependedSettingName) != null) {
+                            const dependedElement = document.querySelector(
+                                `#${dependedSettingName}`,
+                            );
+                            if (dependedElement?.checked) {
+                                dependedElement.checked = false;
                             }
-                        },
-                    );
+                            savePromises.push(
+                                handleSaveSettings(dependedSettingName, false),
+                            );
+                        }
+                    });
                 }
             }
 
