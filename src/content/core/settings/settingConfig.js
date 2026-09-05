@@ -849,6 +849,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            sortFriendsByStatus: {
+                label: 'Sort Friends by Status',
+                description: [
+                    'Sorts the friends list so friends who are playing or online appear first.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+            },
             groupRoleEnabled: {
                 label: 'Show Community Roles',
                 description:

@@ -50,7 +50,8 @@ import { init as initBackgroundImage } from './features/sitewide/backgroundImage
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndicator.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
-import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
+
+
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 
 // Avatar
@@ -166,6 +167,7 @@ import { init as initProfileCustomization } from './features/profile/profileCust
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
+import { init as initFriendStatusSort } from './features/profile/friends/statusSort.js';
 import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
 
 // Settings
@@ -394,6 +396,7 @@ const featureRoutes = [
             initAgeVerificationBadge,
             initFriendsSince,
             initUnfriend,
+            initFriendStatusSort,
             initLastPlayed,
             initProfilePronouns,
             initProfileNotes,
