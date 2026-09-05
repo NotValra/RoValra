@@ -31,6 +31,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '477516666', //return_request :3
     '4632962611', //coderpixel
     '2605032407', // walway
+    '1960518316', // lobberxv :3
 ];
 
 export const TESTER_USER_IDS = [

@@ -968,6 +968,17 @@
         "exitBulkMode": "Exit Bulk Mode",
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
+    "blockUser": {
+        "block": "Block",
+        "unblock": "Unblock",
+        "blockTitle": "Block {{username}}",
+        "unblockTitle": "Unblock {{username}}",
+        "blockTitleGeneric": "Block User",
+        "unblockTitleGeneric": "Unblock User",
+        "blockMessage": "They will no longer be able to send you trades. You can still decline any existing trade, but you will not be able to accept or counter it.",
+        "unblockMessage": "They will be able to send you trades again, and you will be able to accept or counter any existing trades.",
+        "cancel": "Cancel"
+    },
     "unfriendDetector": {
         "title_one": "Unfriend Detected",
         "title_other": "Unfriends Detected",

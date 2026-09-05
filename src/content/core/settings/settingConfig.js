@@ -1701,6 +1701,13 @@ export const SETTINGS_CONFIG = {
                 experimental:
                     "May be inaccurate. It isn't recommended to rely on this completely.",
             },
+            blockUserEnabled: {
+                label: 'Block User',
+                description: "Allows you to block users on the trade page, preventing them from sending you trade offers.",
+                type: 'checkbox',
+                default: false,
+                contributors: ['1960518316'],
+            },
         },
     },
     Plus: {
