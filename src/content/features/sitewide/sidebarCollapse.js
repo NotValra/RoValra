@@ -21,6 +21,8 @@ let layoutResizeQueued = false;
 let dispatchingLayoutResize = false;
 let initialized = false;
 let savedCollapsedState = false;
+let expandOnHover = false;
+let suppressHoverUntilLeave = false;
 
 function getToggleLabel(collapsed) {
     return collapsed
@@ -31,6 +33,88 @@ function getToggleLabel(collapsed) {
 function isCollapsed(leftNav) {
     return leftNav?.dataset.rovalraSidebarCollapsed === 'true';
 }
+
+
+function isHoverExpanded(leftNav) {
+    return leftNav?.dataset.rovalraSidebarHoverExpanded === 'true';
+}
+
+function isVisuallyCollapsed(leftNav) {
+    return isCollapsed(leftNav) && !isHoverExpanded(leftNav);
+}
+
+function supportsHover() {
+    return (
+        window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ===
+        true
+    );
+}
+
+function setHoverExpansion(leftNav, expanded) {
+    if (!leftNav) return;
+
+    if (expanded) {
+        leftNav.dataset.rovalraSidebarHoverExpanded = 'true';
+    } else {
+        delete leftNav.dataset.rovalraSidebarHoverExpanded;
+    }
+
+    const contentRoot =
+        currentContentRoot?.isConnected
+            ? currentContentRoot
+            : document.querySelector(CONTENT_ROOT_SELECTOR);
+
+    if (contentRoot) {
+        if (expanded) {
+            contentRoot.dataset.rovalraSidebarHoverExpanded = 'true';
+        } else {
+            delete contentRoot.dataset.rovalraSidebarHoverExpanded;
+        }
+    }
+
+}
+
+function clearHoverExpansion(leftNav) {
+    setHoverExpansion(leftNav, false);
+}
+
+function canExpandOnHover(leftNav) {
+    return (
+        expandOnHover &&
+        !suppressHoverUntilLeave &&
+        isCollapsed(leftNav) &&
+        isCustomSidebarLayoutActive() &&
+        supportsHover()
+    );
+}
+
+function handleSidebarPointerEnter(leftNav) {
+    if (!canExpandOnHover(leftNav)) return;
+
+    setHoverExpansion(leftNav, true);
+}
+
+function handleSidebarPointerLeave(leftNav) {
+    clearHoverExpansion(leftNav);
+    suppressHoverUntilLeave = false;
+}
+
+function attachHoverExpansion(leftNav) {
+    if (leftNav.dataset.rovalraSidebarHoverReady === 'true') {
+        return;
+    }
+
+    leftNav.dataset.rovalraSidebarHoverReady = 'true';
+
+    leftNav.addEventListener('pointerenter', () => {
+        handleSidebarPointerEnter(leftNav);
+    });
+
+    leftNav.addEventListener('pointerleave', () => {
+        handleSidebarPointerLeave(leftNav);
+    });
+}
+
 
 function isVisible(element) {
     if (!element) return false;
@@ -116,6 +200,10 @@ function syncSidebarLayout(leftNav, state = getSidebarState(leftNav)) {
 function syncResponsiveSidebarState() {
     if (!currentLeftNav) return;
 
+    if (!isCustomSidebarLayoutActive()) {
+        clearHoverExpansion(currentLeftNav);
+    }
+
     syncSidebarLayout(currentLeftNav);
 }
 
@@ -168,7 +256,14 @@ function removeRobloxResponsiveNavButton() {
 
 function attachContentRoot(contentRoot) {
     currentContentRoot = contentRoot;
-    if (currentLeftNav) syncSidebarLayout(currentLeftNav);
+
+    if (isHoverExpanded(currentLeftNav)) {
+        contentRoot.dataset.rovalraSidebarHoverExpanded = 'true';
+    }
+
+    if (currentLeftNav) {
+        syncSidebarLayout(currentLeftNav);
+    }
 }
 
 function removeContentRoot() {
@@ -177,7 +272,14 @@ function removeContentRoot() {
 
 function applyCollapsedState(leftNav, collapsed) {
     const state = getSidebarState(leftNav, collapsed);
+
     leftNav.dataset.rovalraSidebarCollapsed = String(collapsed);
+
+    if (!collapsed) {
+        clearHoverExpansion(leftNav);
+        suppressHoverUntilLeave = false;
+    }
+
     syncSidebarLayout(leftNav, state);
 
     const button = leftNav.querySelector(`#${BUTTON_ID}`);
@@ -257,12 +359,13 @@ function addCollapsedNavTooltip(control) {
     addTooltip(control, () => control.dataset.rovalraSidebarTooltipText, {
         position: 'right',
         showArrow: false,
-        shouldShow: () => isCollapsed(leftNav),
+        shouldShow: () => isVisuallyCollapsed(leftNav),
     });
 }
 
 function attachCollapseButton(leftNav) {
     currentLeftNav = leftNav;
+    attachHoverExpansion(leftNav);
     const collapsed = leftNav.dataset.rovalraSidebarCollapseReady
         ? isCollapsed(leftNav)
         : savedCollapsedState;
@@ -285,7 +388,14 @@ function attachCollapseButton(leftNav) {
         radius: 'radius-medium',
         disableTextTruncation: true,
         onClick: () => {
-            setCollapsed(leftNav, !isCollapsed(leftNav));
+            const nextCollapsed = !isCollapsed(leftNav);
+
+            if (nextCollapsed) {
+                suppressHoverUntilLeave = true;
+                clearHoverExpansion(leftNav);
+            }
+
+            setCollapsed(leftNav, nextCollapsed);
         },
     });
 
@@ -317,14 +427,30 @@ function removeLeftNav() {
 }
 
 async function initSidebarCollapse() {
-    const [enabled, collapsed] = await Promise.all([
-        settings.sidebarCollapseEnabled,
-        storedCollapsedPromise,
+    const [enabled, collapsed, hoverEnabled] = await Promise.all([
+    settings.sidebarCollapseEnabled,
+    storedCollapsedPromise,
+    settings.sidebarExpandOnHover,
     ]);
+
     if (!enabled) return;
 
     savedCollapsedState = collapsed;
+    expandOnHover = hoverEnabled === true;
     window.addEventListener('resize', handleWindowResize, { passive: true });
+
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        if (event.detail?.name !== 'sidebarExpandOnHover') {
+            return;
+        }
+
+        expandOnHover = event.detail.value === true;
+
+        if (!expandOnHover) {
+            clearHoverExpansion(currentLeftNav);
+            suppressHoverUntilLeave = false;
+        }
+    });
 
     observeElement('.left-nav', attachCollapseButton, {
         onRemove: removeLeftNav,

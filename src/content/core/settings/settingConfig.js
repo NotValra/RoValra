@@ -1859,6 +1859,17 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '2963377564'],
                 storageKey: 'rovalraSidebarCollapsed',
+                childSettings: {
+                    sidebarExpandOnHover: {
+                        label: 'Expand on Hover',
+                        description: [
+                            'Temporarily expands the collapsed sidebar while hovering over it.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['4632962611'],
+                    },
+                },
             },
             sidebarLayoutEnabled: {
                 label: 'Sidebar Layout',
