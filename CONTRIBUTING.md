@@ -41,6 +41,9 @@ YourFeatureName: {
     // childSettings: { ... } // If this setting has sub-settings
     // locked: 'Reason for locked', This is used to forcefully disable a feature, e.i if it broke.
     // isPermanent: true, tells the script if its locked permanently
+    // exclusiveWith: ['settingName'], will set other settings listed to false when turned true
+    // dependsOn: ['settingName'], will set other settings listed to true when turned true
+    // dependedBy: ['settingName'], will set other settings listed to false when turned false
 }
 ```
 

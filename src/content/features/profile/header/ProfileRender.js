@@ -22,7 +22,6 @@ import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
     handleSaveSettings,
-    getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
     getUserSettings,
@@ -65,9 +64,7 @@ import {
     getEnabledFrameLink,
     setFrameRenderMode,
 } from '../profileFrame.js';
-FLAGS.ENABLE_API_MESH_CACHE = false;
-FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = false;
+
 FLAGS.ONLINE_ASSETS = true;
 FLAGS.AUDIO_ENABLED = false;
 
@@ -2484,6 +2481,9 @@ function teardownProfileRenderObservers() {
 }
 
 export function init() {
+    FLAGS.ENABLE_API_MESH_CACHE = false;
+    FLAGS.ENABLE_API_RBX_CACHE = false;
+
     migrateLegacyEnvironment();
 
     const userId = getUserIdFromUrl();

@@ -44,6 +44,10 @@
     box-sizing: border-box !important;
 }
 
+.rovalra-catalog-input-field::placeholder {
+    color: transparent;
+}
+
 .rovalra-catalog-input-field::-webkit-search-decoration,
 .rovalra-catalog-input-field::-webkit-search-cancel-button,
 .rovalra-catalog-input-field::-webkit-search-results-button,

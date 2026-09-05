@@ -1,7 +1,6 @@
 import { callRobloxApiJson } from '../api.js';
 import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
-import { getCurrentUserTier } from '../settings/handlesettings.js';
 import {
     getTemporaryLimitedUserMessage,
     isTemporaryLimitedError,
@@ -141,7 +140,8 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !Number(apiSettings.fav_game) &&
                 !Number(apiSettings.fav_group) &&
                 !Number(apiSettings.fav_decal) &&
-                Object.keys(apiSettings).length <= 4
+                Object.keys(apiSettings).length <= 4 &&
+                !apiSettings.theme
             ) {
                 apiProvidedMeaningfulSettings = false;
             } else {
@@ -218,6 +218,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
+        theme: apiSettings.theme || "",
     };
 }
 
@@ -370,7 +371,8 @@ async function processApiSettings(userId, apiSettings, options) {
             !Number(apiSettings.fav_game) &&
             !Number(apiSettings.fav_group) &&
             !Number(apiSettings.fav_decal) &&
-            Object.keys(apiSettings).length <= 4
+            Object.keys(apiSettings).length <= 4 &&
+            !apiSettings.theme
         ) {
             apiProvidedMeaningfulSettings = false;
         } else {
@@ -444,6 +446,7 @@ async function processApiSettings(userId, apiSettings, options) {
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
+        theme: apiSettings.theme || "",
     };
 }
 

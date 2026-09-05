@@ -6,7 +6,7 @@ const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
 import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { shouldUseFallback, getValidFallbackToken } from './fallback.js';
-import { getCurrentUserTier } from '../settings/handlesettings.js';
+import { getCurrentUserTierSync } from '../settings/handlesettings.js';
 
 let activeOAuthPromise = null;
 
@@ -14,7 +14,7 @@ export async function init() {
     try {
         console.log('RoValra: Script loaded. Syncing session...');
 
-        const isDonator = getCurrentUserTier() >= 1;
+        const isDonator = getCurrentUserTierSync() >= 1;
         if (isDonator) {
             const token = await getValidAccessToken(true);
             if (token) {
@@ -65,7 +65,7 @@ export async function getValidAccessToken(
         return await getValidFallbackToken(forceRefresh);
     }
 
-    const isDonator = getCurrentUserTier() >= 1;
+    const isDonator = getCurrentUserTierSync() >= 1;
 
     const storage = await chrome.storage.local.get(STORAGE_KEY);
     let allVerifications = storage[STORAGE_KEY] || {};

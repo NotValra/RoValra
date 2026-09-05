@@ -6,7 +6,11 @@ import {
 import { observeElement } from '../../../core/observer.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
-import { normalizeProfilePronouns } from '../../../core/profile/pronouns.js';
+import {
+    getProfilePronounsForUser,
+    normalizeProfilePronouns,
+    setProfilePronounsForUser,
+} from '../../../core/profile/pronouns.js';
 import { ts } from '../../../core/locale/i18n.js';
 
 const PRONOUNS_SETTING_NAME = 'profilePronouns';
@@ -59,28 +63,6 @@ function renderPronouns(usernameElement) {
 
 function renderAllPronouns() {
     document.querySelectorAll(USERNAME_SELECTOR).forEach(renderPronouns);
-}
-
-async function getStoredPronouns() {
-    const stored = await chrome.storage.local.get([
-        PRONOUNS_SETTING_NAME,
-        'rovalra_settings',
-    ]);
-    return normalizeProfilePronouns(
-        stored[PRONOUNS_SETTING_NAME] ??
-            stored.rovalra_settings?.[PRONOUNS_SETTING_NAME],
-    );
-}
-
-async function setStoredPronouns(pronouns) {
-    const stored = await chrome.storage.local.get('rovalra_settings');
-    const rovalraSettings = { ...(stored.rovalra_settings || {}) };
-    rovalraSettings[PRONOUNS_SETTING_NAME] = pronouns;
-
-    await chrome.storage.local.set({
-        [PRONOUNS_SETTING_NAME]: pronouns,
-        rovalra_settings: rovalraSettings,
-    });
 }
 
 async function syncStoredPronounsToApi(userId, pronouns) {
@@ -141,7 +123,9 @@ async function initProfilePronouns() {
         if (activeProfileUserId !== String(userId)) return;
 
         const isOwnProfile = String(authenticatedUserId) === String(userId);
-        const storedPronouns = isOwnProfile ? await getStoredPronouns() : null;
+        const storedPronouns = isOwnProfile
+            ? await getProfilePronounsForUser(userId)
+            : null;
 
         if (isOwnProfile) {
             activePronouns = storedPronouns;
@@ -164,7 +148,7 @@ async function initProfilePronouns() {
         } else if (apiPronouns) {
             activePronouns = apiPronouns;
             if (apiPronouns !== storedPronouns) {
-                await setStoredPronouns(apiPronouns);
+                await setProfilePronounsForUser(userId, apiPronouns);
             }
         } else if (storedPronouns) {
             activePronouns = await syncStoredPronounsToApi(
