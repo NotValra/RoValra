@@ -555,6 +555,11 @@
         "collapseSidebar": "Collapse sidebar",
         "expandSidebar": "Expand sidebar"
     },
+    "voiceBanIndicator": {
+        "title": "Voice Banned",
+        "liftsIn": "Lifts in",
+        "noExpiry": "No expiry provided"
+    },
     "ageTheme": {
         "navbarTooltip": "Age Theme",
         "options": {

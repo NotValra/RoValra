@@ -1796,6 +1796,15 @@ export const SETTINGS_CONFIG = {
                     'rovalra_sidebar_layout_hidden',
                 ],
             },
+            voiceBanIndicatorEnabled: {
+                label: 'Voice Ban Indicator',
+                description: [
+                    'Shows a voice status icon in the top bar while your Roblox voice chat is suspended.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4632962611'],
+            },
             topbarLayoutEnabled: {
                 label: 'Topbar Layout',
                 description: [
