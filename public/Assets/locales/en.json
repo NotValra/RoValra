@@ -530,6 +530,34 @@
             "description": "We do not promise support for {{extensions}}."
         }
     },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Privacy Settings"
+        },
+        "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
+        "dropdowns" : {
+            "shared": {
+                "allUsers": "Everyone",
+                "friendsFollowingFollowers": "Friends, Following, and Followers",
+                "friendsFollowing": "Friends and Following",
+                "friends": "Friends",
+                "trustedFriends": "Trusted Friends",
+                "noOne": "No one"
+            },
+            "onlineStatus": {
+                "name": "Online Status"
+            },
+            "joinStatus": {
+                "name": "Experience Status"
+            },
+            "privateServerPrivacy": {
+                "name": "Private Server Privacy"
+            },
+            "inventoryPrivacy": {
+                "name": "Inventory Privacy"
+            }
+        }
+    },
     "qolToggles": {
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",

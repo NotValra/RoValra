@@ -1767,13 +1767,63 @@ export const SETTINGS_CONFIG = {
     Navigation: {
         title: 'Navigation',
         settings: {
+            privacyTogglesEnabled: {
+                label: "Privacy Toggles in Navigation",
+                description: [
+                    'This setting adds a <icon filled>lock-closed</icon> button to the top navigation bar.',
+                    'This allows you to quickly manage privacy settings.'
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+                exclusiveWith: ['qolTogglesEnabled'],
+                childSettings: { // Toggles to be in the menu
+                    privacyTogglesDropdownOnlineStatusEnabled: {
+                        label: 'Online Status Toggle',
+                        description: [
+                            'Quickly manage your online status.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownJoinStatusEnabled: {
+                        label: 'Experience Status Toggle',
+                        description: [
+                            'Quickly manage who can join you in experiences.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownPrivateServerPrivacyEnabled: {
+                        label: 'Experience Status Toggle',
+                        description: [
+                            'Quickly manage who can invite you to private servers.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    privacyTogglesDropdownInventoryPrivacyEnabled: {
+                        label: 'Inventory Toggle',
+                        description: [
+                            'Quickly manage who can view your inventory.'
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             qolTogglesEnabled: {
                 label: 'Adds quality of life toggles to the navigation bar',
                 description:
                     'Allowing you to quickly change your online status, experience status, private server privacy, and inventory visibility without going into settings.',
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '8345351117'],
+                exclusiveWith: ['privacyTogglesEnabled'],
+                isPermanent: true,
+                locked: 'Replaced by Privacy Toggles in Navigation',
+                deprecated: 'Replaced by Privacy Toggles in Navigation.',
+
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
