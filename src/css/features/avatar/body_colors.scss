@@ -1,0 +1,30 @@
+.rovalra-body-colors-add {
+    position: relative;
+    background-color: transparent;
+    border: 1px dashed var(--rovalra-border-color);
+}
+
+/* Centred against the dot itself rather than through the parent's layout, since
+   the palette owns how these dots are laid out. */
+.rovalra-body-colors-add icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    color: var(--rovalra-secondary-text-color);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.rovalra-body-colors-picker {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+}
