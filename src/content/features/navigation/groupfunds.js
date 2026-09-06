@@ -17,6 +17,8 @@ import { getUserName } from '../../core/apis/users.js';
 const CACHE_KEY = 'rovalra-group-funds-data';
 const NAVBAR_SELECTORS = '#nav-robux-amount, #nav-robux-balance';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
+const STREAMER_ROBUX_VISIBILITY_EVENT = 'rovalra-streamer-robux-visibility';
+const STREAMER_ROBUX_VALUE_CLASS = 'rovalra-streamer-robux-value';
 
 const state = {
     initialized: false,
@@ -216,9 +218,7 @@ async function getPersonalRobuxBalance() {
 }
 
 function shouldWarmPersonalRowData() {
-    return (
-        state.groupFundsEnabled && state.navbarTotalEnabled && !state.hideRobux
-    );
+    return state.groupFundsEnabled && state.navbarTotalEnabled;
 }
 
 async function warmPersonalRowData() {
@@ -261,7 +261,7 @@ async function warmPersonalRowData() {
 }
 
 function upsertPersonalRow(section, divider, data) {
-    if (state.hideRobux || !data) return;
+    if (!data) return;
 
     const personalBalance = Number(data.personalBalance);
     if (!Number.isFinite(personalBalance)) return;
@@ -311,7 +311,12 @@ function upsertPersonalRow(section, divider, data) {
     rbxIcon.className = 'icon-robux-16x16';
     rbxIcon.style.verticalAlign = 'text-bottom';
     rbxIcon.style.marginRight = '3px';
-    amountSpan.append(rbxIcon, personalBalance.toLocaleString());
+
+    const amountValue = document.createElement('span');
+    amountValue.className = STREAMER_ROBUX_VALUE_CLASS;
+    amountValue.textContent = personalBalance.toLocaleString();
+
+    amountSpan.append(rbxIcon, amountValue);
 
     leftContainer.append(iconContainer, nameSpan);
     userLink.append(leftContainer, amountSpan);
@@ -450,7 +455,7 @@ export function init() {
         divider.className = 'rbx-divider';
         section.appendChild(divider);
 
-        if (state.navbarTotalEnabled && !state.hideRobux) {
+        if (state.navbarTotalEnabled) {
             upsertPersonalRow(section, divider, personalRowData);
 
             warmPersonalRowData().then((data) => {
@@ -520,10 +525,12 @@ export function init() {
                 rbxIcon.style.verticalAlign = 'text-bottom';
                 rbxIcon.style.marginRight = '3px';
 
-                const text = document.createTextNode(amount.toLocaleString());
+                const value = document.createElement('span');
+                value.className = STREAMER_ROBUX_VALUE_CLASS;
+                value.textContent = amount.toLocaleString();
 
                 amountSpan.appendChild(rbxIcon);
-                amountSpan.appendChild(text);
+                amountSpan.appendChild(value);
             };
 
             const renderPending = (amount) => {
@@ -538,7 +545,9 @@ export function init() {
                 icon.style.marginLeft = '3px';
                 icon.style.marginRight = '2px';
                 icon.style.filter = 'grayscale(100%) opacity(0.6)';
-                const value = document.createTextNode(amount.toLocaleString());
+                const value = document.createElement('span');
+                value.className = STREAMER_ROBUX_VALUE_CLASS;
+                value.textContent = amount.toLocaleString();
 
                 pendingLink.append(label, icon, value);
             };
@@ -657,6 +666,12 @@ export function init() {
     document.addEventListener('rovalra-streamer-mode', (event) => {
         const detail = event.detail || {};
         state.hideRobux = detail.enabled && detail.hideRobux === true;
+        renderNavbarTotal().catch(() => {});
+    });
+
+    document.addEventListener(STREAMER_ROBUX_VISIBILITY_EVENT, (event) => {
+        const detail = event.detail || {};
+        state.hideRobux = detail.hidden === true;
         renderNavbarTotal().catch(() => {});
     });
 }

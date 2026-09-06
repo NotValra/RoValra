@@ -1254,7 +1254,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const childContainer = document.createElement('div');
             childContainer.className = 'child-setting-item';
             childContainer.id = `setting-${childName}`;
-            if (childSetting.condition) {
+            if (childSetting.condition && childSetting.condition.hide !== false) {
                 childContainer.style.display = 'none';
             }
 
