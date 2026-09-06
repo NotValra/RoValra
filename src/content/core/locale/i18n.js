@@ -1,8 +1,20 @@
 import i18next from 'i18next';
+import en from '../../../../public/Assets/locales/en.json';
 
 let i18nInitialized = false;
 const i18nPromise = (async () => {
     if (i18nInitialized) return;
+
+    await i18next.init({
+        lng: 'en',
+        fallbackLng: 'en',
+        debug: false,
+        resources: {
+            en: {
+                translation: en,
+            },
+        },
+    });
 
     try {
         const settings = await new Promise(
@@ -15,15 +27,10 @@ const i18nPromise = (async () => {
         ); // Verified
         const translations = await response.json();
 
-        await i18next.init({
-            lng: language,
-            debug: false,
-            resources: {
-                [language]: {
-                    translation: translations,
-                },
-            },
-        });
+        i18next.addResourceBundle(language, 'translation', translations);
+
+        await i18next.changeLanguage(language);
+
         i18nInitialized = true;
     } catch (error) {
         console.error('RoValra: Failed to initialize i18n', error);
