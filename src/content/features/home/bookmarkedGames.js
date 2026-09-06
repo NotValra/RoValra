@@ -4,6 +4,7 @@ import {
 } from '../../core/apis/games.js';
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
+import { createDropdown } from '../../core/ui/dropdown.js';
 import {
     bookmarkLabel,
     getBookmarkState,
@@ -126,113 +127,32 @@ function enhanceHeaders() {
         const signature = JSON.stringify(getBookmarkState().categories);
         const existing = header.querySelector('.rovalra-bookmark-filter');
         if (existing?.dataset.categories === signature) {
-            updateFilterTrigger(
-                existing.querySelector('.rovalra-bookmark-filter-trigger'),
-                selectedCategory,
-            );
+            existing._rovalraSetValue?.(selectedCategory);
             continue;
         }
-        existing?._rovalraClose?.();
-        existing?.remove();
-        const filter = document.createElement('div');
-        filter.dataset.categories = signature;
-        filter.className = 'rovalra-bookmark-filter';
-        const trigger = document.createElement('button');
-        trigger.type = 'button';
-        trigger.className =
-            'btn-control-sm rovalra-ui-btn rovalra-bookmark-filter-trigger';
-        updateFilterTrigger(trigger, selectedCategory);
-        trigger.setAttribute('aria-label', bookmarkLabel('title'));
-        trigger.setAttribute('aria-haspopup', 'listbox');
-        trigger.setAttribute('aria-expanded', 'false');
-        const menu = document.createElement('div');
-        menu.className = 'rovalra-bookmark-filter-menu';
-        menu.setAttribute('role', 'listbox');
-        menu.hidden = true;
-        let outsideClick = null;
-        const close = () => {
-            menu.hidden = true;
-            trigger.setAttribute('aria-expanded', 'false');
-            outsideClick &&
-                document.removeEventListener('pointerdown', outsideClick);
-            outsideClick = null;
-            if (menu.parentElement !== filter) filter.append(menu);
-            menu.classList.remove('rovalra-bookmark-filter-menu-portal');
-            menu.removeAttribute('style');
-        };
-        const open = () => {
-            const rect = trigger.getBoundingClientRect();
-            menu.hidden = false;
-            menu.classList.add('rovalra-bookmark-filter-menu-portal');
-            document.body.append(menu);
-            const menuHeight = menu.getBoundingClientRect().height;
-            const below = rect.bottom + 4;
-            const top =
-                below + menuHeight <= window.innerHeight - 8
-                    ? below
-                    : Math.max(8, rect.top - menuHeight - 4);
-            menu.style.top = `${top}px`;
-            menu.style.left = `${Math.max(8, rect.left)}px`;
-            menu.style.minWidth = `${rect.width}px`;
-            trigger.setAttribute('aria-expanded', 'true');
-            outsideClick = (event) => {
-                if (
-                    !filter.contains(event.target) &&
-                    !menu.contains(event.target)
-                )
-                    close();
-            };
-            document.addEventListener('pointerdown', outsideClick);
-        };
-        for (const category of [
-            { id: 'all', name: bookmarkLabel('all') },
-            ...getBookmarkState().categories,
-        ]) {
-            const option = document.createElement('button');
-            option.type = 'button';
-            option.className = 'rovalra-bookmark-filter-option';
-            option.setAttribute('role', 'option');
-            option.setAttribute(
-                'aria-selected',
-                String(category.id === selectedCategory),
-            );
-            option.textContent = filterLabel(category.id);
-            option.addEventListener('click', () => {
-                selectedCategory = category.id;
-                updateFilterTrigger(trigger, selectedCategory);
-                for (const item of menu.querySelectorAll(
-                    '.rovalra-bookmark-filter-option',
-                )) {
-                    item.setAttribute('aria-selected', String(item === option));
-                }
-                close();
+        existing?._rovalraDestroy?.();
+        const dropdown = createDropdown({
+            items: [
+                { value: 'all', label: bookmarkLabel('all') },
+                ...getBookmarkState().categories.map((category) => ({
+                    value: category.id,
+                    label: filterLabel(category.id),
+                })),
+            ],
+            initialValue: selectedCategory,
+            onValueChange: (value) => {
+                selectedCategory = value;
                 publish();
-            });
-            menu.append(option);
-        }
-        trigger.addEventListener('click', (event) => {
-            event.stopPropagation();
-            if (menu.hidden) open();
-            else close();
+            },
         });
-        filter.addEventListener('focusout', () => {
-            requestAnimationFrame(() => {
-                if (
-                    !filter.contains(document.activeElement) &&
-                    !menu.contains(document.activeElement)
-                )
-                    close();
-            });
-        });
-        filter.append(trigger, menu);
-        filter._rovalraClose = close;
+        const filter = dropdown.element;
+        filter.dataset.categories = signature;
+        filter.classList.add('rovalra-bookmark-filter');
+        filter._rovalraSetValue = dropdown.setValue;
+        filter._rovalraDestroy = dropdown.destroy;
+        dropdown.trigger.setAttribute('aria-label', bookmarkLabel('title'));
         header.append(filter);
     }
-}
-
-function updateFilterTrigger(trigger, categoryId) {
-    trigger.textContent = filterLabel(categoryId);
-    trigger.dataset.selected = categoryId === 'all' ? 'false' : 'true';
 }
 
 function filterLabel(categoryId) {
