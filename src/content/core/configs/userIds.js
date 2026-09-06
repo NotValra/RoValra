@@ -38,7 +38,8 @@ export const TESTER_USER_IDS = [
 ];
 
 export const TRANSLATOR_USER_IDS = [
-    '1564574922' // bogdan-glitchm,
+    '1564574922', // bogdan-glitchm
+    '10646979010',  // rav4toy
     // https://github.com/AuroxNova (idk his userid, he made the es.json locale)
 ];
 

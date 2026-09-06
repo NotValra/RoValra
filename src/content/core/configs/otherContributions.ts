@@ -83,4 +83,12 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(650766686, "displayAppThemeUserProfile.addedToWebsite", "https://github.com/NotValra/RoValra-Website/pull/7"),  // @auggeeo
         ]
     },
+    Locales: {
+        label: "RoValra Languages",
+        contributors: [
+            new Contribution(1564574922, "locales.madeRo", "..."),  // @BossBoss2021
+            new Contribution(10646979010, "locales.madeRo", "..."),  // @RecreationalActive
+            // new Contribution(00000, "locales.madeEs", "..."),  // @roblox-username  // For @AuroxNova to fill out
+        ]
+    }
 };
