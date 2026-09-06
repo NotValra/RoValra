@@ -11,6 +11,25 @@ async function getLanguage() {
     return 'en';
 }
 
+let loadedLanguages = new Set();
+
+async function update_i18n() {
+    const language = await getLanguage() || 'en';
+
+    if (!loadedLanguages.has(language)) {
+        loadedLanguages.add(language);
+        
+        const response = await fetch(
+            chrome.runtime.getURL(`public/Assets/locales/${language}.json`),
+        ); // Verified
+        const translations = await response.json();
+    
+        i18next.addResourceBundle(language, 'translation', translations);
+    }
+
+    await i18next.changeLanguage(language);
+}
+
 let i18nInitialized = false;
 const i18nPromise = (async () => {
     if (i18nInitialized) return;
@@ -27,16 +46,7 @@ const i18nPromise = (async () => {
     });
 
     try {
-        const language = await getLanguage() || 'en';
-
-        const response = await fetch(
-            chrome.runtime.getURL(`public/Assets/locales/${language}.json`),
-        ); // Verified
-        const translations = await response.json();
-
-        i18next.addResourceBundle(language, 'translation', translations);
-
-        await i18next.changeLanguage(language);
+        await update_i18n();
 
         i18nInitialized = true;
     } catch (error) {
