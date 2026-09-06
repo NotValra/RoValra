@@ -17,7 +17,7 @@ import {
 import { settings } from '../../core/settings/getSettings.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
-import { Icon } from '../../core/ui/buildericon.js';
+import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { t } from '../../core/locale/i18n.js';
 
@@ -60,6 +60,13 @@ export function subscribeBookmarks(listener) {
     return () => listeners.delete(listener);
 }
 
+function updateBookmarkIcon(button, saved) {
+    ChangeIcon(button.querySelector('icon'), {
+        icon: saved ? 'bookmark' : 'bookmark_border',
+        filled: saved,
+    });
+}
+
 function acceptState(value) {
     state = normalizeBookmarks(value);
     for (const [button, getGame] of controls) {
@@ -71,7 +78,7 @@ function acceptState(value) {
         button.setAttribute('aria-pressed', String(saved));
         button.title = saved ? labels.saved : labels.bookmark;
         button.setAttribute('aria-label', button.title);
-        button.querySelector('icon')?.toggleAttribute('filled', saved);
+        updateBookmarkIcon(button, saved);
         const label = button.querySelector('.icon-label');
         if (label) label.textContent = button.title;
     }
@@ -82,7 +89,11 @@ export function createBookmarkButton(getGame, compact = true) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'rovalra-bookmark-control';
-    const icon = Icon({ icon: 'bookmark', material: true, size: 'large' });
+    const icon = Icon({
+        icon: 'bookmark_border',
+        material: true,
+        size: 'large',
+    });
     icon.setAttribute('aria-hidden', 'true');
     button.append(icon);
     if (!compact) {
@@ -93,7 +104,7 @@ export function createBookmarkButton(getGame, compact = true) {
     }
     controls.set(button, getGame);
     const saved = Boolean(state.bookmarks[getGame()?.universeId]);
-    icon.toggleAttribute('filled', saved);
+    updateBookmarkIcon(button, saved);
     button.setAttribute('aria-pressed', String(saved));
     button.setAttribute('aria-label', saved ? labels.saved : labels.bookmark);
     button.title = saved ? labels.saved : labels.bookmark;
