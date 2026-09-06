@@ -5,6 +5,26 @@
     "items": {
         "hiddenFromMarketplace": "This item is hidden from the marketplace"
     },
+    "gameBookmarks": {
+        "bookmark": "Bookmark",
+        "saved": "Bookmarked",
+        "title": "Bookmarks",
+        "uncategorized": "Uncategorized",
+        "create": "+ Create New Category",
+        "categoryName": "Category name",
+        "createSave": "Create and Save",
+        "save": "Save Changes",
+        "deleteCategory": "Delete category",
+        "deleteCategoryConfirm": "Are you sure? This will delete the category and remove it from every bookmarked game.",
+        "confirm": "Delete",
+        "cancel": "Cancel",
+        "remove": "Remove Bookmark",
+        "error": "Could not save bookmark. Please try again.",
+        "loading": "Loading game…",
+        "all": "All",
+        "topic": "Bookmarked Games",
+        "empty": "No bookmarked games in this category."
+    },
     "homeLayout": {
         "untitled": "Untitled",
         "empty": "RoValra was unable to find the layout, refresh and try again.",

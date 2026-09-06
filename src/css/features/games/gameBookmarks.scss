@@ -1,0 +1,307 @@
+.rovalra-bookmark-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 4px;
+    border: 0;
+    border-radius: 6px;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+
+    svg {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linejoin: round;
+    }
+
+    &[aria-pressed='true'] svg {
+        fill: currentColor;
+    }
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+}
+
+.rovalra-bookmark-card-host {
+    position: relative;
+    isolation: isolate;
+}
+.rovalra-bookmark-card {
+    position: absolute;
+    top: 6px;
+    right: auto !important;
+    left: 6px !important;
+    z-index: 20;
+    width: 32px;
+    height: 32px;
+    background: rgba(20, 20, 24, 0.9);
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    touch-action: manipulation;
+}
+
+.game-card-container:hover .rovalra-bookmark-card,
+.rovalra-bookmark-card-host:hover .rovalra-bookmark-card,
+.game-card-link:hover .rovalra-bookmark-card,
+.game-card-link:focus-within .rovalra-bookmark-card,
+.rovalra-bookmark-card[aria-pressed='true'] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (hover: none) {
+    .rovalra-bookmark-card {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.rovalra-bookmark-action {
+    display: inline-block;
+    width: 76px;
+    vertical-align: top;
+}
+#game-context-menu {
+    position: relative;
+
+    .rovalra-bookmark-context-menu-button {
+        position: absolute;
+        top: 34px;
+        inset-inline-end: 0;
+        z-index: 2;
+        width: 30px;
+        height: 30px;
+        padding: 3px;
+        background: var(--color-surface-100, #fff);
+
+        .icon-label {
+            display: none;
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
+.rovalra-bookmark-header {
+    position: relative;
+    padding-inline-end: 44px;
+    min-height: 40px;
+    .game-name {
+        width: auto;
+        max-width: 100%;
+    }
+}
+.rovalra-bookmark-fallback {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    width: 36px;
+    height: 36px;
+    .icon-label {
+        display: none;
+    }
+}
+
+.rovalra-bookmark-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 4px;
+
+    > button {
+        width: 100%;
+        min-height: 40px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .rovalra-bookmark-category-list {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--color-surface-300, #d5d7da);
+        border-radius: 8px;
+        background: var(--color-surface-100, #fff);
+    }
+    .rovalra-bookmark-category-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        margin: 0;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--color-surface-300, #d5d7da);
+        cursor: pointer;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+        &:hover {
+            background: var(--color-surface-200, rgba(0, 0, 0, 0.04));
+        }
+        &:has(input:focus-visible) {
+            outline: 2px solid var(--rovalra-playbutton-color, #335fff);
+            outline-offset: -2px;
+        }
+        input {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 auto;
+            accent-color: var(--rovalra-playbutton-color, #335fff);
+        }
+        span {
+            flex: 1;
+            min-width: 0;
+            color: var(--color-content-emphasis, inherit);
+            font-size: 15px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+    }
+    .rovalra-bookmark-delete-category {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        min-width: 30px;
+        height: 30px;
+        min-height: 30px;
+        margin-inline-start: auto;
+        padding: 0;
+        color: var(--color-content-error, #d32f2f);
+        border-radius: 6px;
+
+        svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+    }
+    button[aria-pressed='true'] {
+        outline: 2px solid currentColor;
+        outline-offset: -2px;
+    }
+    form:not([hidden]) {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+
+        .form-control {
+            min-width: 0;
+            flex: 1;
+        }
+        button {
+            flex: 0 0 auto;
+        }
+    }
+    input {
+        width: 100%;
+    }
+}
+
+.rovalra-bookmarked-games-header {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    position: relative;
+
+    > :not(.rovalra-bookmark-filter) {
+        flex: 0 1 auto;
+        min-width: 0;
+        width: auto !important;
+    }
+}
+.rovalra-bookmark-filter {
+    position: relative;
+    flex: 0 0 auto;
+    margin-inline-start: 8px;
+    z-index: 2;
+}
+.rovalra-bookmark-filter-trigger {
+    display: inline-flex;
+    align-items: center;
+    min-width: 112px;
+    max-width: min(190px, 42vw);
+    min-height: 30px;
+    padding: 4px 28px 4px 10px;
+    overflow: hidden;
+    border-radius: 6px;
+    color: var(--color-content-emphasis, inherit);
+    font-size: 14px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &::after {
+        position: absolute;
+        top: 50%;
+        inset-inline-end: 10px;
+        width: 0;
+        height: 0;
+        border: 4px solid transparent;
+        border-top-color: currentColor;
+        content: '';
+        transform: translateY(-25%);
+    }
+    &[data-selected='true'] {
+        color: var(--rovalra-playbutton-color, #335fff);
+    }
+}
+.rovalra-bookmark-filter-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline-end: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: max(150px, 100%);
+    max-width: min(260px, 70vw);
+    overflow: auto;
+    max-height: min(280px, 50vh);
+    border: 1px solid var(--color-surface-300, #d5d7da);
+    border-radius: 8px;
+    background: var(--color-surface-100, #fff);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+}
+.rovalra-bookmark-filter-menu-portal {
+    position: fixed;
+    z-index: 10001;
+}
+.rovalra-bookmark-filter-option {
+    min-height: 36px;
+    padding: 8px 12px;
+    overflow: hidden;
+    border: 0;
+    color: var(--color-content-emphasis, inherit);
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover,
+    &[aria-selected='true'] {
+        background: var(--color-surface-200, rgba(0, 0, 0, 0.06));
+    }
+    &[aria-selected='true'] {
+        color: var(--rovalra-playbutton-color, #335fff);
+        font-weight: 700;
+    }
+}
+
+.rovalra-bookmarks-empty [data-testid='game-carousel'] {
+    display: none;
+}
+.rovalra-bookmarks-empty-message {
+    padding-block: 12px;
+}
