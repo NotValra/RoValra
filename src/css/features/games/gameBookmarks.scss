@@ -82,20 +82,21 @@
     }
 }
 .rovalra-bookmark-header {
-    position: relative;
-    padding-inline-end: 44px;
+    min-width: 0;
     min-height: 40px;
+
     .game-name {
         width: auto;
         max-width: 100%;
     }
 }
 .rovalra-bookmark-fallback {
-    position: absolute;
-    top: 0;
-    inset-inline-end: 0;
+    position: relative;
+    float: inline-end;
     width: 36px;
     height: 36px;
+    margin-inline-start: 8px;
+
     .icon-label {
         display: none;
     }

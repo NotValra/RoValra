@@ -462,7 +462,7 @@ function attachDetail() {
         }
         title.classList.add('rovalra-bookmark-header');
         button.classList.add('rovalra-bookmark-fallback');
-        title.append(button);
+        title.prepend(button);
     }
     place();
     const resize = observeResize(row, place);
