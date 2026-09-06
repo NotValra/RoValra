@@ -10,17 +10,8 @@
     background: transparent;
     cursor: pointer;
 
-    svg {
-        width: 24px;
-        height: 24px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.8;
-        stroke-linejoin: round;
-    }
-
-    &[aria-pressed='true'] svg {
-        fill: currentColor;
+    icon {
+        flex: 0 0 auto;
     }
     &:focus-visible {
         outline: 2px solid currentColor;
@@ -85,9 +76,8 @@
             display: none;
         }
 
-        svg {
-            width: 20px;
-            height: 20px;
+        icon {
+            --icon-size: 20px;
         }
     }
 }
@@ -179,10 +169,8 @@
         color: var(--color-content-error, #d32f2f);
         border-radius: 6px;
 
-        svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
+        icon {
+            --icon-size: 16px;
         }
     }
     button[aria-pressed='true'] {

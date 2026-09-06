@@ -6,6 +6,10 @@ import {
 } from '../../../shared/gameBookmarks.js';
 import { getPlaceDetails, getUniversesDetails } from '../../core/apis/games.js';
 import {
+    getPlaceIdFromUrl,
+    getUniverseIdFromUrl,
+} from '../../core/idExtractor.js';
+import {
     observeElement,
     observeAttributes,
     observeResize,
@@ -13,6 +17,7 @@ import {
 import { settings } from '../../core/settings/getSettings.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { Icon } from '../../core/ui/buildericon.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { t } from '../../core/locale/i18n.js';
 
@@ -65,6 +70,7 @@ function acceptState(value) {
         button.setAttribute('aria-pressed', String(saved));
         button.title = saved ? labels.saved : labels.bookmark;
         button.setAttribute('aria-label', button.title);
+        button.querySelector('icon')?.toggleAttribute('filled', saved);
         const label = button.querySelector('.icon-label');
         if (label) label.textContent = button.title;
     }
@@ -75,13 +81,9 @@ export function createBookmarkButton(getGame, compact = true) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'rovalra-bookmark-control';
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('aria-hidden', 'true');
-    const path = document.createElementNS(svg.namespaceURI, 'path');
-    path.setAttribute('d', 'M6 3h12v18l-6-4-6 4V3Z');
-    svg.append(path);
-    button.append(svg);
+    const icon = Icon({ icon: 'bookmark', material: true, size: 'large' });
+    icon.setAttribute('aria-hidden', 'true');
+    button.append(icon);
     if (!compact) {
         const label = document.createElement('span');
         label.textContent = labels.bookmark;
@@ -90,6 +92,7 @@ export function createBookmarkButton(getGame, compact = true) {
     }
     controls.set(button, getGame);
     const saved = Boolean(state.bookmarks[getGame()?.universeId]);
+    icon.toggleAttribute('filled', saved);
     button.setAttribute('aria-pressed', String(saved));
     button.setAttribute('aria-label', saved ? labels.saved : labels.bookmark);
     button.title = saved ? labels.saved : labels.bookmark;
@@ -119,16 +122,14 @@ function createDeleteCategoryButton() {
         'btn-control-sm rovalra-ui-btn rovalra-bookmark-delete-category';
     button.setAttribute('aria-label', labels.deleteCategory);
     button.title = labels.deleteCategory;
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('aria-hidden', 'true');
-    const path = document.createElementNS(svg.namespaceURI, 'path');
-    path.setAttribute(
-        'd',
-        'M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-1 11H8L7 9Zm3 2v7h2v-7h-2Zm4 0v7h-2v-7h2Z',
-    );
-    svg.append(path);
-    button.append(svg);
+    const icon = Icon({
+        icon: 'delete',
+        filled: true,
+        material: true,
+        size: 'medium',
+    });
+    icon.setAttribute('aria-hidden', 'true');
+    button.append(icon);
     return button;
 }
 
@@ -356,22 +357,15 @@ async function openPicker(getGame, opener) {
 }
 
 function cardGame(link) {
-    const url = new URL(link.href, location.origin);
     return {
         universeId:
-            positiveId(url.searchParams.get('universeId')) ||
-            positiveId(link.id),
-        placeId: positiveId(url.pathname.match(/\/games\/(\d+)/)?.[1]),
+            positiveId(getUniverseIdFromUrl(link.href)) || positiveId(link.id),
+        placeId: positiveId(getPlaceIdFromUrl(link.href)),
     };
 }
 
 function attachCard(link) {
-    if (
-        !new URL(link.href, location.origin).pathname.match(
-            /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?games\/\d+/i,
-        )
-    )
-        return;
+    if (!getPlaceIdFromUrl(link.href)) return;
     const thumbnail = link.querySelector(
         '.game-card-thumb-container, .featured-game-icon-container',
     );
