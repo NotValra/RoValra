@@ -24,6 +24,7 @@ import { t } from '../../core/locale/i18n.js';
 let initialization;
 let state = normalizeBookmarks();
 let picker = null;
+let cardButtonsEnabled = true;
 const listeners = new Set();
 const controls = new Map();
 const labels = {
@@ -365,6 +366,7 @@ function cardGame(link) {
 }
 
 function attachCard(link) {
+    if (!cardButtonsEnabled) return;
     if (!getPlaceIdFromUrl(link.href)) return;
     const thumbnail = link.querySelector(
         '.game-card-thumb-container, .featured-game-icon-container',
@@ -378,6 +380,23 @@ function attachCard(link) {
     const button = createBookmarkButton(() => cardGame(link));
     button.classList.add('rovalra-bookmark-card');
     host.append(button);
+}
+
+function updateCardButtons(enabled) {
+    cardButtonsEnabled = enabled;
+    if (enabled) {
+        document
+            .querySelectorAll('a.game-card-link[href*="/games/"]')
+            .forEach(attachCard);
+        return;
+    }
+    for (const button of document.querySelectorAll('.rovalra-bookmark-card')) {
+        controls.delete(button);
+        const host = button.closest('.rovalra-bookmark-card-host');
+        button.remove();
+        if (!host?.querySelector('.rovalra-bookmark-card'))
+            host?.classList.remove('rovalra-bookmark-card-host');
+    }
 }
 
 let detailCleanup = null;
@@ -471,10 +490,16 @@ async function initialize() {
         }),
     );
     if ((await settings.gameBookmarksEnabled) === false) return;
+    cardButtonsEnabled =
+        (await settings.gameBookmarksCardButtonsEnabled) !== false;
     acceptState((await chrome.storage.local.get(BOOKMARKS_KEY))[BOOKMARKS_KEY]);
     chrome.storage.onChanged.addListener((changes, area) => {
         if (area === 'local' && changes[BOOKMARKS_KEY])
             acceptState(changes[BOOKMARKS_KEY].newValue);
+        if (area === 'local' && changes.gameBookmarksCardButtonsEnabled)
+            updateCardButtons(
+                changes.gameBookmarksCardButtonsEnabled.newValue !== false,
+            );
     });
     observeElement('a.game-card-link[href*="/games/"]', attachCard, {
         multiple: true,
@@ -506,7 +531,11 @@ async function initialize() {
                 detailCleanup?.();
                 detailCleanup = null;
                 picker?.close();
+                requestAnimationFrame(attachDetail);
             },
         },
     );
+    observeElement('#game-context-menu', attachDetail, {
+        onRemove: () => requestAnimationFrame(attachDetail),
+    });
 }

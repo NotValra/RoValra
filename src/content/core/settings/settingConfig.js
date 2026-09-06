@@ -153,6 +153,16 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 storageKey: 'rovalra_game_bookmarks',
                 contributors: ['476449201'],
+                childSettings: {
+                    gameBookmarksCardButtonsEnabled: {
+                        label: 'Show Bookmark Buttons on Game Cards',
+                        description: [
+                            'Shows a Bookmark button when you hover over game cards.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             PreferredRegionEnabled: {
                 label: 'Preferred Region Play Button',
