@@ -1,5 +1,15 @@
 import i18next from 'i18next';
 import en from '../../../../public/Assets/locales/en.json';
+import { settings } from '../settings/getSettings';
+
+async function getLanguage() {
+    if (await settings.rovalraLanguage) {
+        let lang = await settings.rovalraLanguage;
+        return lang;
+    }
+
+    return 'en';
+}
 
 let i18nInitialized = false;
 const i18nPromise = (async () => {
@@ -17,10 +27,7 @@ const i18nPromise = (async () => {
     });
 
     try {
-        const settings = await new Promise(
-            (resolve) => chrome.storage.local.get({ language: 'en' }, resolve), //Place holder in case that wasnt clear.
-        );
-        const language = settings.language || 'en';
+        const language = await getLanguage() || 'en';
 
         const response = await fetch(
             chrome.runtime.getURL(`public/Assets/locales/${language}.json`),
