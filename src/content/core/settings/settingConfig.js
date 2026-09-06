@@ -1284,7 +1284,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                contributors: ['760897332'],
+                contributors: ['760897332', '3598865306'],
             },
             homeLayoutEnabled: {
                 label: 'Home Layout',

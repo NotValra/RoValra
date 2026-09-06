@@ -167,7 +167,7 @@ import { init as initProfileCustomization } from './features/profile/profileCust
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
-import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
+import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -629,20 +629,31 @@ async function initializePage() {
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => {});
-
-        await enforceSettingOverrides();
-        const settings = await loadSettings();
-        document.dispatchEvent(
-            new CustomEvent('rovalra:settingsState', {
-                detail: {
-                    disableThumbnailBackground:
-                        settings.disableThumbnailBackground === true,
-                    disableThumbnailProfileFrame:
-                        settings.disableThumbnailProfileFrame === true,
-                },
-            }),
+        await t('__i18n_ready__').catch((error) =>
+            console.error('RoValra: Locale initialization failed.', error),
         );
+        enforceSettingOverrides().catch((error) =>
+            console.error(
+                'RoValra: Failed to enforce setting overrides.',
+                error,
+            ),
+        );
+        loadSettings()
+            .then((settings) => {
+                document.dispatchEvent(
+                    new CustomEvent('rovalra:settingsState', {
+                        detail: {
+                            disableThumbnailBackground:
+                                settings.disableThumbnailBackground === true,
+                            disableThumbnailProfileFrame:
+                                settings.disableThumbnailProfileFrame === true,
+                        },
+                    }),
+                );
+            })
+            .catch((error) =>
+                console.error('RoValra: Failed to load settings.', error),
+            );
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 
