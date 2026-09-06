@@ -24,7 +24,7 @@ export const SETTINGS_CONFIG = {
                     { label: 'English', value: 'en' },
                     { label: 'Romanian (Română)', value: 'ro' },
                     { label: 'Spanish (Español)', value: 'es' },
-                    { label: 'Automatic (doesn\'t apply to settings page)', value: 'auto' }
+                    { label: 'Automatic', value: 'auto' }
                 ],
                 default: 'en',
             },
