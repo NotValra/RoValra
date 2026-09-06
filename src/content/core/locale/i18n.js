@@ -7,9 +7,11 @@ function getLanguageFromUrl(url = window.location.href) {
 
     const language = pathname.split('/').filter(Boolean)[0];
 
-    if (language == 'ro') {
+    if (language === 'ro') {
         return 'ro';
-    } else if (language == 'en') {
+    } else if (language === 'es') {
+        return 'es';
+    } else if (language === 'en') {
         return 'en';
     }
 

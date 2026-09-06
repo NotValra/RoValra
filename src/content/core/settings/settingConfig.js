@@ -23,7 +23,8 @@ export const SETTINGS_CONFIG = {
                 options: [
                     { label: 'English', value: 'en' },
                     { label: 'Romanian (Română)', value: 'ro' },
-                    { label: 'Automatic (doesn\'t apply to settings page)', value: 'auto'}
+                    { label: 'Spanish (Español)', value: 'es' },
+                    { label: 'Automatic (doesn\'t apply to settings page)', value: 'auto' }
                 ],
                 default: 'en',
             },
