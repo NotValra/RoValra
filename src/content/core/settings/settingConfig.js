@@ -16,15 +16,17 @@ export const SETTINGS_CONFIG = {
                 contributors: [1564574922],
                 description: [
                     'Manually configure a language for RoValra. Some translations may be missing.',
-                    'Requires a refresh for changes to apply.'
+                    // it works on the setting page only once it figures out the language from other pages' URLs
+                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.'
                 ],
                 type: 'select',
                 options: [
                     { label: 'English', value: 'en' },
                     { label: 'Romanian (Română)', value: 'ro' },
+                    { label: 'Automatic (doesn\'t apply to settings page)', value: 'auto'}
                 ],
                 default: 'en',
-            }
+            },
         }
     },
     Marketplace: {

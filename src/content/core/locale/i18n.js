@@ -2,9 +2,37 @@ import i18next from 'i18next';
 import en from '../../../../public/Assets/locales/en.json';
 import { settings } from '../settings/getSettings';
 
+function getLanguageFromUrl(url = window.location.href) {
+    const { pathname } = new URL(url);
+
+    const language = pathname.split('/').filter(Boolean)[0];
+
+    if (language == 'ro') {
+        return 'ro';
+    } else if (language == 'en') {
+        return 'en';
+    }
+
+    return 'none';
+}
+
 async function getLanguage() {
     if (await settings.rovalraLanguage) {
         let lang = await settings.rovalraLanguage;
+
+        if (lang === 'auto') {
+            let lang_url = getLanguageFromUrl();
+            console.log(`Auto-detected language: ${lang_url}`);
+            if (lang_url !== 'none') {
+                await chrome.storage.local.set({ rovalra_autolang: lang_url });
+            } else {
+                lang_url = (await chrome.storage.local.get({ rovalra_autolang: 'en' })).rovalra_autolang;
+            }
+            console.log(`Updated Auto-detected language: ${lang_url}`);
+
+            return lang_url;
+        }
+
         return lang;
     }
 
