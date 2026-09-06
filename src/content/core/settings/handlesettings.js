@@ -1587,7 +1587,15 @@ export function updateConditionalSettingsVisibility(
                         currentSettings[childConfig.condition.parent] !==
                         childConfig.condition.value
                     ) {
-                        settingsToHide.add(childName);
+                        if (childConfig.condition.hide !== false) {
+                            settingsToHide.add(childName);
+                        }
+                        settingsToDisable.add(childName);
+                    } else if (
+                        config.type === 'checkbox' &&
+                        !config.keepChildSettingsEnabled &&
+                        !isEnabled
+                    ) {
                         settingsToDisable.add(childName);
                     }
                 } else if (

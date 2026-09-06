@@ -2524,6 +2524,20 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    hideRobuxRevealOnClick: {
+                        label: 'Reveal Robux on click',
+                        description: [
+                            'Lets you click your hidden Robux to show the real amount again, together with its fiat estimate.',
+                            'Clicking it again hides your Robux, and it also hides itself again whenever you reload or leave the page.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        condition: {
+                            parent: 'hideRobux',
+                            value: true,
+                            hide: false,
+                        },
+                    },
                 },
             },
 
