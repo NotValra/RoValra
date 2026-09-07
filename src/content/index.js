@@ -58,6 +58,7 @@ import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';
 import { init as initAvatarRotator } from './features/avatar/avatarRotator.js';
 import { init as initMultiEquip } from './features/avatar/multiEquip.js';
+import { init as initBodyColors } from './features/avatar/bodyColors.js';
 
 // Catalog
 import { init as initItemSales } from './features/catalog/itemsales.js';
@@ -108,6 +109,7 @@ import { init as initTradePreview } from './features/trading/tradePreview.js';
 import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
+import { init as initBlockUser } from './features/trading/blockUser.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -141,6 +143,7 @@ import { init as initProfileShowcase } from './features/profile/showcase.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
+import { init as initCreatorStats } from './features/profile/header/creatorStats.js';
 import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
@@ -166,7 +169,7 @@ import { init as initProfileCustomization } from './features/profile/profileCust
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
-import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js'
+import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -367,6 +370,7 @@ const featureRoutes = [
             initR6Warning,
             initAvatarRotator,
             initMultiEquip,
+            initBodyColors,
         ],
     },
     // Roblox Plus Page
@@ -397,6 +401,7 @@ const featureRoutes = [
             initLastPlayed,
             initProfilePronouns,
             initProfileNotes,
+            initCreatorStats,
             initProfileViews,
             initCurrentlyPlayingSubplace,
             initGroupRole,
@@ -448,6 +453,7 @@ const featureRoutes = [
             initTradeFilter,
             initTradeSearch,
             initTradeProof,
+            initBlockUser,
         ],
     },
 
@@ -627,20 +633,31 @@ async function initializePage() {
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => {});
-
-        await enforceSettingOverrides();
-        const settings = await loadSettings();
-        document.dispatchEvent(
-            new CustomEvent('rovalra:settingsState', {
-                detail: {
-                    disableThumbnailBackground:
-                        settings.disableThumbnailBackground === true,
-                    disableThumbnailProfileFrame:
-                        settings.disableThumbnailProfileFrame === true,
-                },
-            }),
+        await t('__i18n_ready__').catch((error) =>
+            console.error('RoValra: Locale initialization failed.', error),
         );
+        enforceSettingOverrides().catch((error) =>
+            console.error(
+                'RoValra: Failed to enforce setting overrides.',
+                error,
+            ),
+        );
+        loadSettings()
+            .then((settings) => {
+                document.dispatchEvent(
+                    new CustomEvent('rovalra:settingsState', {
+                        detail: {
+                            disableThumbnailBackground:
+                                settings.disableThumbnailBackground === true,
+                            disableThumbnailProfileFrame:
+                                settings.disableThumbnailProfileFrame === true,
+                        },
+                    }),
+                );
+            })
+            .catch((error) =>
+                console.error('RoValra: Failed to load settings.', error),
+            );
         runFeaturesForPage();
         scheduleSettingsMaintenance();
 

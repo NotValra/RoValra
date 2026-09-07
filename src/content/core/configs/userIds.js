@@ -1,6 +1,7 @@
 export const CREATOR_USER_ID = '447170745';
 
 export const CONTRIBUTOR_USER_IDS = [
+    '4489102289', // v6u1
     '1337447242',
     '109176680',
     '795922138',
@@ -27,10 +28,13 @@ export const CONTRIBUTOR_USER_IDS = [
     '170038374', // syra (concept artist)
     '760897332', // ceyexm
     '2830488781', //idhglua
-    '390309731', // AxnxDev 
+    '390309731', // AxnxDev
+    '4632962611', // coderpixel
     '477516666', //return_request :3
     '4632962611', //coderpixel
     '2605032407', // walway
+    '3598865306', // Midga3
+    '1960518316', // lobberxv :3
 ];
 
 export const TESTER_USER_IDS = [

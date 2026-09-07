@@ -968,6 +968,17 @@
         "exitBulkMode": "Exit Bulk Mode",
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
+    "blockUser": {
+        "block": "Block",
+        "unblock": "Unblock",
+        "blockTitle": "Block {{username}}",
+        "unblockTitle": "Unblock {{username}}",
+        "blockTitleGeneric": "Block User",
+        "unblockTitleGeneric": "Unblock User",
+        "blockMessage": "They will no longer be able to send you trades. You can still decline any existing trade, but you will not be able to accept or counter it.",
+        "unblockMessage": "They will be able to send you trades again, and you will be able to accept or counter any existing trades.",
+        "cancel": "Cancel"
+    },
     "unfriendDetector": {
         "title_one": "Unfriend Detected",
         "title_other": "Unfriends Detected",
@@ -1351,6 +1362,14 @@
         },
         "tooltip": "Sort by when the user joined the community"
     },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Visits",
+        "members": "Members",
+        "ccuTooltip": "Current players across public experiences created by this user.",
+        "visitsTooltip": "Lifetime visits across public experiences created by this user.",
+        "membersTooltip": "Members across communities owned by this user."
+        },
     "plus": {
         "stats": {
             "robux": "You've saved {{robux}} when you had Plus",
@@ -1441,6 +1460,13 @@
             },
             "deleted": "The following settings have been recently deleted, locked or deprecated:",
             "replaced": "The following settings have been recently replaced or changed:"
+        }
+    },
+    "avatar": {
+        "bodyColors": {
+            "addCustom": "Pick a custom color",
+            "savedColor": "{{hex}}, right click to remove",
+            "applyFailed": "Could not update your body colors. Try again in a moment."
         }
     }
 }

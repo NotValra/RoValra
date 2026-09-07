@@ -35,12 +35,19 @@ const USD_TARGET_VALUE_SELECTOR = `${VALUE_TEXT_SELECTOR}, .item-card-price, .st
 const IGNORE_USD_SELECTOR =
     '.rovalra-usd-estimate, .tooltip, .modal-dialog, [data-rovalra-skip-usd-estimate], #rovalra-stat-transactions, #rovalra-stat-money-spent, #rovalra-premium-breakdown-container, #rovalra-purchase-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
 
+const STREAMER_ROBUX_HIDDEN_SELECTOR = '[data-rovalra-robux-hidden="true"]';
+const STREAMER_ROBUX_BALANCE_SELECTOR =
+    '#navbar-robux, #nav-robux-amount, #nav-robux-balance';
+const STREAMER_ROBUX_VISIBILITY_EVENT = 'rovalra-streamer-robux-visibility';
+
 const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
 const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 
 let robuxPricingPromise = null;
 let robuxIconInitialized = false;
+let streamerHideRobuxEnabled = false;
+let streamerRobuxRevealed = false;
 
 function scheduleUsdRefresh(delay = 0) {
     window.setTimeout(() => {
@@ -55,6 +62,76 @@ function removeAllEstimates() {
     document.querySelectorAll('[data-rovalra-usd-amount]').forEach((el) => {
         delete el.dataset.rovalraUsdAmount;
     });
+}
+
+function isStreamerRobuxHidden() {
+    return streamerHideRobuxEnabled && !streamerRobuxRevealed;
+}
+
+function isStreamerHiddenRobuxElement(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    if (element.closest(STREAMER_ROBUX_HIDDEN_SELECTOR)) return true;
+    if (element.querySelector(STREAMER_ROBUX_HIDDEN_SELECTOR)) return true;
+    if (!isStreamerRobuxHidden()) return false;
+    if (element.closest('#buy-robux-popover')) return false;
+
+    return element.closest(STREAMER_ROBUX_BALANCE_SELECTOR) !== null;
+}
+
+function clearEstimateState(element) {
+    if (!(element instanceof HTMLElement)) return;
+
+    delete element.dataset.rovalraUsdAmount;
+    delete element.dataset.rovalraTooltipText;
+}
+
+function removeStreamerHiddenEstimates() {
+    document.querySelectorAll('.rovalra-usd-estimate').forEach((estimate) => {
+        if (!isStreamerHiddenRobuxElement(estimate.parentElement)) return;
+
+        clearEstimateState(estimate.parentElement);
+        estimate.remove();
+    });
+
+    document
+        .querySelectorAll(STREAMER_ROBUX_HIDDEN_SELECTOR)
+        .forEach((container) => {
+            clearEstimateState(container);
+            container
+                .querySelectorAll('[data-rovalra-usd-amount]')
+                .forEach(clearEstimateState);
+        });
+}
+
+function setStreamerRobuxState(enabled, revealed) {
+    const nextEnabled = enabled === true;
+    const nextRevealed = revealed === true;
+
+    if (
+        streamerHideRobuxEnabled === nextEnabled &&
+        streamerRobuxRevealed === nextRevealed
+    ) {
+        return;
+    }
+
+    streamerHideRobuxEnabled = nextEnabled;
+    streamerRobuxRevealed = nextRevealed;
+
+    removeStreamerHiddenEstimates();
+    scheduleUsdRefresh(0);
+    scheduleUsdRefresh(250);
+}
+
+function syncStreamerRobuxSetting() {
+    try {
+        chrome.storage.local.get(['streamermode', 'hideRobux'], (data) => {
+            setStreamerRobuxState(
+                Boolean(data.streamermode) && data.hideRobux === true,
+                streamerRobuxRevealed,
+            );
+        });
+    } catch (error) {
+    }
 }
 
 function isTransactionsPage() {
@@ -311,6 +388,7 @@ function getEstimateAnchor(element) {
 function isValidEstimateContainer(element) {
     if (!(element instanceof HTMLElement)) return false;
     if (element.closest(IGNORE_USD_SELECTOR)) return false;
+    if (isStreamerHiddenRobuxElement(element)) return false;
 
     if (element.closest('#navbar-robux .nav-credit')) return false;
     if (element.matches('.rovalra-usd-estimate')) return false;
@@ -520,6 +598,7 @@ function getTransactionsLabelAnchor(element) {
 async function attachTransactionsCellEstimate(labelCell) {
     if (!isTransactionsPage()) return;
     if (!(labelCell instanceof HTMLElement)) return;
+    if (isStreamerHiddenRobuxElement(labelCell)) return;
 
     const row = labelCell.closest('tr');
     if (!(row instanceof HTMLTableRowElement)) return;
@@ -614,6 +693,7 @@ function processTransactionsTable(summaryRoot) {
 async function attachGroupRevenueEstimate(amountCell) {
     if (!isGroupRevenuePage()) return;
     if (!(amountCell instanceof HTMLElement)) return;
+    if (isStreamerHiddenRobuxElement(amountCell)) return;
 
     const amount = getRobuxAmountFromElement(amountCell);
     if (!amount) return;
@@ -701,6 +781,7 @@ function findAmountElementForValueNode(element) {
 async function attachUsdEstimate(icon) {
     if (!(icon instanceof HTMLElement)) return;
     if (icon.closest(IGNORE_USD_SELECTOR)) return;
+    if (isStreamerHiddenRobuxElement(icon)) return;
     if (
         isTransactionsSummaryElement(icon) ||
         isGroupRevenueSummaryElement(icon)
@@ -734,6 +815,7 @@ async function attachUsdEstimate(icon) {
 
 async function attachUsdEstimateToValueElement(element) {
     if (!(element instanceof HTMLElement)) return;
+    if (isStreamerHiddenRobuxElement(element)) return;
     if (
         isTransactionsSummaryElement(element) ||
         isGroupRevenueSummaryElement(element)
@@ -766,6 +848,8 @@ async function attachUsdEstimateToValueElement(element) {
 }
 
 function refreshVisibleUsdEstimates() {
+    removeStreamerHiddenEstimates();
+
     document
         .querySelectorAll('#navbar-robux .nav-credit .rovalra-usd-estimate')
         .forEach((element) => element.remove());
@@ -898,6 +982,10 @@ export function init() {
             'robuxFiatRateMode',
         ];
 
+        if ('streamermode' in changes || 'hideRobux' in changes) {
+            syncStreamerRobuxSetting();
+        }
+
         const hasStyleChange = styleKeys.some((key) => key in changes);
         const hasRerenderChange = rerenderKeys.some((key) => key in changes);
 
@@ -916,6 +1004,21 @@ export function init() {
 
         removeAllEstimates();
         scheduleUsdRefresh(0);
+    });
+
+    syncStreamerRobuxSetting();
+
+    document.addEventListener(STREAMER_ROBUX_VISIBILITY_EVENT, (event) => {
+        const detail = event.detail || {};
+        setStreamerRobuxState(detail.enabled, detail.revealed);
+    });
+
+    document.addEventListener('rovalra-streamer-mode', (event) => {
+        const detail = event.detail || {};
+        setStreamerRobuxState(
+            Boolean(detail.enabled) && detail.hideRobux === true,
+            streamerRobuxRevealed,
+        );
     });
 
     document.addEventListener(USER_CURRENCY_CHANGED_EVENT, () => {

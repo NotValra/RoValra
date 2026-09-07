@@ -119,7 +119,9 @@ async function applyCardUsernameLabel(tile, context) {
             label.className = USERNAME_LABEL_CLASS;
             wrapper.appendChild(label);
         }
-        label.textContent = `@${username}`;
+        label.textContent = username.length > 13
+            ? `@${username.slice(0, 10)}...`
+            : `@${username}`;
         label.setAttribute(
             'aria-label',
             ts('friendUsernames.ariaLabel', { username }),

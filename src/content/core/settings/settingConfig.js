@@ -627,7 +627,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 childSettings: {
                     displayAppThemeOwnProfile: {
-                        label: 'Display app theme your on own profile',
+                        label: 'Display your app theme on your profile',
                         description: [
                             'Displays your app theme on your profile to other users!',
                             'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
@@ -685,6 +685,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            creatorStatsEnabled: {
+                label: 'Creator Stats',
+                description: [
+                    "Shows a user's combined CCU, experience visits, and owned community member count on their profile.",
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
             },
             socialLinksEnabled: {
                 label: 'Profile Social Links',
@@ -1284,7 +1293,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                contributors: ['760897332'],
+                contributors: ['760897332', '3598865306'],
             },
             homeLayoutEnabled: {
                 label: 'Home Layout',
@@ -1471,6 +1480,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            bodyColorsEnabled: {
+                label: 'Custom Body Colors',
+                description: [
+                    "Adds a custom color to the body colors in the avatar editor, so you are not limited to Roblox's preset palette.",
+                    'Colors you pick are saved next to the presets so you can reuse them. Right click a saved color to remove it.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: ['rovalra_body_color_presets'],
+                contributors: ['4489102289'],
             },
             avatarRotatorEnabled: {
                 label: 'Avatar Rotator',
@@ -1701,6 +1721,13 @@ export const SETTINGS_CONFIG = {
                 experimental:
                     "May be inaccurate. It isn't recommended to rely on this completely.",
             },
+            blockUserEnabled: {
+                label: 'Block User',
+                description: "Allows you to block users on the trade page, preventing them from sending you trade offers.",
+                type: 'checkbox',
+                default: false,
+                contributors: ['1960518316'],
+            },
         },
     },
     Plus: {
@@ -1822,7 +1849,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     privacyTogglesDropdownPrivateServerPrivacyEnabled: {
-                        label: 'Experience Status Toggle',
+                        label: 'Private Server Privacy Toggle',
                         description: [
                             'Quickly manage who can invite you to private servers.'
                         ],
@@ -1830,7 +1857,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     privacyTogglesDropdownInventoryPrivacyEnabled: {
-                        label: 'Inventory Toggle',
+                        label: 'Inventory Privacy Toggle',
                         description: [
                             'Quickly manage who can view your inventory.'
                         ],
@@ -2524,9 +2551,43 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    hideRobuxRevealOnClick: {
+                        label: 'Reveal Robux on click',
+                        description: [
+                            'Lets you click your hidden Robux to show the real amount again, together with its fiat estimate.',
+                            'Clicking it again hides your Robux, and it also hides itself again whenever you reload or leave the page.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        condition: {
+                            parent: 'hideRobux',
+                            value: true,
+                            hide: false,
+                        },
+                    },
                 },
             },
-
+            bulkUnblockEnabled: {
+                label: 'Bulk Unblock',
+                description: [
+                    'Allows you to select and unblock multiple blocked users at once.',
+                    'You will be asked to confirm before any users are unblocked.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+                childSettings: {
+                    openBulkUnblockManager: {
+                        label: 'Manage Blocked Users',
+                        description: [
+                            'View your blocked users and select multiple users to unblock.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Open Manager',
+                        event: 'rovalra:openBulkUnblock',
+                    },
+                },
+            },
             spoofAsOffline: {
                 label: 'Spoof status as Offline',
                 description: [
