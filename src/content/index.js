@@ -34,6 +34,7 @@ import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
+import { init as initModerationLink } from './features/navigation/moderationlink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
@@ -262,6 +263,7 @@ const featureRoutes = [
             initReceiveRobuxNotificationCenter,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initModerationLink,
         ],
     },
     // pretty much just the 40% method

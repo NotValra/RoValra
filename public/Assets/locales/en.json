@@ -580,7 +580,8 @@
     },
     "navigation": {
         "transactions": "Transactions",
-        "apiDocs": "API Docs"
+        "apiDocs": "API Docs",
+        "moderationSidebarLink": "Moderation Panel"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
