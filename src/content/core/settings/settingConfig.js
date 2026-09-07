@@ -2546,7 +2546,6 @@ export const SETTINGS_CONFIG = {
                         label: 'Hide Robux',
                         description: [
                             "Simply hides your Robux by changing it to 'Hidden'.",
-                            "This doesn't hide your Robux on purchase prompts.",
                         ],
                         type: 'checkbox',
                         default: false,
