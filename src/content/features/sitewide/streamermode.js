@@ -1,7 +1,7 @@
 import { observeChildren, observeElement } from '../../core/observer.js';
 
 const ROBUX_SELECTORS =
-    '#nav-robux-amount, #nav-robux-balance, #rovalra-robux-after, .price-tag, .text-robux.ml-1.text-body-medium, .text-robux.ng-binding, .rovalra-streamer-robux-value';
+    '#nav-robux-amount, #nav-robux-balance, .rovalra-streamer-robux-value';
 const ROBUX_HIDDEN_ATTRIBUTE = 'data-rovalra-robux-hidden';
 const ROBUX_REAL_VALUE_CLASS = 'rovalra-robux-real-value';
 const ROBUX_HIDDEN_LABEL_CLASS = 'rovalra-robux-hidden-label';
