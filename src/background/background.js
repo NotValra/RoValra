@@ -1,5 +1,8 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
+import { initializeTelemetryBlocker } from './telemetryBlocker.js';
+
+initializeTelemetryBlocker();
 
 // --- Constants & State ---
 
