@@ -2511,10 +2511,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['3050364170'],
-                storageKey: [
-                    'customFaviconUrl',
-                    'customFaviconImage',
-                ],
                 childSettings: {
                     customFaviconUrl: {
                         label: 'Custom Favicon URL',
