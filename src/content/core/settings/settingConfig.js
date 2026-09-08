@@ -70,6 +70,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    marketplace3DPostProcessing: {
+                        label: 'Post Processing',
+                        description:
+                            'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
+                        type: 'checkbox',
+                        default: false,
+                    }
                 },
             },
             EnableRobuxAfterPurchase: {
@@ -818,6 +825,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    profile3DRenderPostProcessing: {
+                        label: 'Post Processing',
+                        description:
+                            'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
+                        type: 'checkbox',
+                        default: false,
+                    }
                 },
             },
             groupFiltersEnabled: {

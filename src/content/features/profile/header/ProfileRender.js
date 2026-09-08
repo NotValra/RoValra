@@ -398,8 +398,8 @@ function customAnimate() {
 
     RBXRenderer.renderer.setRenderTarget(null);
     keyBlackFromEffectMaterials();
-    if (RBXRenderer.effectComposer) {
-        RBXRenderer.effectComposer.render();
+    if (RBXRenderer.firstScene.effectComposer) {
+        RBXRenderer.firstScene.effectComposer.render();
     } else {
         RBXRenderer.renderer.render(RBXRenderer.scene, RBXRenderer.camera);
     }
@@ -2500,7 +2500,7 @@ export function init() {
     }
 
     chrome.storage.local.get(
-        { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
+        { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false, profile3DRenderPostProcessing: false },
         (result) => {
             if (activeProfileRenderUserId !== String(userId)) return;
 
@@ -2514,6 +2514,8 @@ export function init() {
                     }
                 } catch (e) {}
             }
+
+            if (result.profile3DRenderPostProcessing) FLAGS.USE_POST_PROCESSING = true;
 
             if (result.profile3DRenderEnabled) {
                 setupProfileRenderObservers();
