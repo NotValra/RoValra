@@ -65,6 +65,7 @@ function openInterface(onCancel, customLogo, closeOnBackgroundClick) {
 }
 
 function closeInterface(force = false) {
+    stopLiveUptimeTicker();
     document.body.classList.remove(HIDE_ROBLOX_UI_CLASS);
     hideLoadingOverlay(force);
 }
@@ -149,20 +150,39 @@ async function fetchGameDetails(placeId) {
     }
 }
 
-function attachLiveUptimeListener() {
-    const el = document.querySelector('.rovalra-live-uptime');
-    if (el && !el._rovalraUptimeHooked) {
-        el._rovalraUptimeHooked = true;
-        el.addEventListener('rovalra-uptime-update', (e) => {
-            const valEl = el.querySelector('.uptime-value');
-            if (valEl) {
-                valEl.textContent = formatUptime(
-                    e.detail.uptime,
-                    e.detail.isEstimate,
-                );
-            }
-        });
+let liveUptimeInterval = null;
+
+function stopLiveUptimeTicker() {
+    if (liveUptimeInterval) {
+        clearInterval(liveUptimeInterval);
+        liveUptimeInterval = null;
     }
+}
+
+function attachLiveUptimeListener() {
+    stopLiveUptimeTicker();
+
+    const el = document.querySelector('.rovalra-live-uptime');
+    if (!el) return;
+
+    const serverId = el.dataset.rovalraUptimeServerid;
+    if (!serverId) return;
+
+    liveUptimeInterval = setInterval(() => {
+        if (!el.isConnected) {
+            stopLiveUptimeTicker();
+            return;
+        }
+
+        const valEl = el.querySelector('.uptime-value');
+        const uptime = getServerUptime(serverId);
+        if (!valEl || uptime === null) return;
+
+        valEl.textContent = formatUptime(
+            uptime,
+            getServerUptimeIsEstimate(serverId),
+        );
+    }, 1000);
 }
 
 async function fetchUserPresence(userId) {
@@ -246,7 +266,7 @@ const buildInfoList = (
         const isEstimate = getServerUptimeIsEstimate(gameId);
         const uptimeStr = formatUptime(uptime, isEstimate);
         listItems.push(
-            `<li class="rovalra-details-li rovalra-live-uptime" data-rovalra-serverid="${gameId}">${timeIcon} <strong>${ts('revertLogo.uptime')}</strong> <span class="uptime-value">${uptimeStr}</span></li>`,
+            `<li class="rovalra-details-li rovalra-live-uptime" data-rovalra-uptime-serverid="${gameId}">${timeIcon} <strong>${ts('revertLogo.uptime')}</strong> <span class="uptime-value">${uptimeStr}</span></li>`,
         );
     }
 
