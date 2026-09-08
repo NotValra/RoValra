@@ -74,9 +74,10 @@ function saveMapping(mapping) {
 }
 
 const targetCache = new Map();
-let lastApplied = { outfitId: null, at: 0 };
+let lastApplied = { outfitId: null, at: 0, promise: null };
 let currentAvatarType = null;
 let avatarTypeCheckedAt = 0;
+let avatarTypeRequest = null;
 
 function rememberAvatarType(type) {
     currentAvatarType = type || null;
@@ -91,24 +92,50 @@ function knownAvatarType() {
         : null;
 }
 
-// Launches can reach here twice, so the same outfit is not written twice.
-async function equipOnce(outfitId) {
+// Topped up in the background while the page sits there, so the launch itself
+// is never the thing that has to stop and ask.
+function refreshAvatarType(userId) {
+    if (!userId || avatarTypeRequest || knownAvatarType()) return;
+
+    avatarTypeRequest = getCurrentAvatar(userId)
+        .then((avatar) => rememberAvatarType(avatar?.playerAvatarType))
+        .catch(() => {})
+        .finally(() => {
+            avatarTypeRequest = null;
+        });
+}
+
+// Launches can reach here twice. The second one is handed the first write
+// instead of an early return, or it would start the client mid write.
+function equipOnce(outfitId) {
     if (
         lastApplied.outfitId === outfitId &&
         Date.now() - lastApplied.at < REPEAT_GUARD_MS
     ) {
-        return;
+        return lastApplied.promise;
     }
 
-    lastApplied = { outfitId, at: Date.now() };
+    const write = applyOutfit(outfitId, knownAvatarType());
 
-    await Promise.race([
-        applyOutfit(outfitId, knownAvatarType()),
+    // Once it lands the body type is known again, which is what lets the next
+    // launch skip that call. Kept off the launch.
+    write
+        .then(async (ok) => {
+            if (!ok) return;
+            const details = await getOutfitDetails(outfitId);
+            if (details?.playerAvatarType) {
+                rememberAvatarType(details.playerAvatarType);
+            }
+        })
+        .catch(() => {});
+
+    const promise = Promise.race([
+        write,
         new Promise((resolve) => setTimeout(resolve, EQUIP_TIMEOUT_MS)),
     ]);
 
-    const details = await getOutfitDetails(outfitId).catch(() => null);
-    if (details?.playerAvatarType) rememberAvatarType(details.playerAvatarType);
+    lastApplied = { outfitId, at: Date.now(), promise };
+    return promise;
 }
 
 async function resolveTarget(placeId, userId) {
@@ -123,10 +150,13 @@ async function resolveTarget(placeId, userId) {
     let slot = SLOT_BY_AVATAR_TYPE[universes?.[0]?.universeAvatarType];
 
     // Experiences that let you pick come back without a type, and the account's
-    // own setting is that pick.
+    // own setting is that pick. Most experiences are like this, so the already
+    // known type is used when there is one rather than asking again.
     if (!slot) {
-        const avatar = await getCurrentAvatar(userId);
-        slot = SLOT_BY_AVATAR_TYPE[`MorphTo${avatar?.playerAvatarType}`];
+        const type =
+            knownAvatarType() ||
+            (await getCurrentAvatar(userId))?.playerAvatarType;
+        slot = SLOT_BY_AVATAR_TYPE[`MorphTo${type}`];
     }
 
     const target = { universeId: String(universeId), slot: slot || null };
@@ -379,6 +409,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
         });
 
     let target = null;
+    let userId = null;
     let outfitId = null;
     let passthrough = false;
 
@@ -443,6 +474,12 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
         })();
     };
 
+    // Hovering the row is the last chance to top the body type up before the
+    // click, and that is the call the launch would otherwise wait on.
+    const onPrewarm = () => {
+        if (outfitId) refreshAvatarType(userId);
+    };
+
     // Watches for the play button at any depth, as it can arrive nested.
     register(
         observeElement(
@@ -469,10 +506,16 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
                 if (container.dataset.rovalraGameOutfits) return;
                 container.dataset.rovalraGameOutfits = 'true';
                 container.addEventListener('click', onClick, true);
+                container.addEventListener('pointerover', onPrewarm, true);
 
                 register({
                     disconnect: () => {
                         container.removeEventListener('click', onClick, true);
+                        container.removeEventListener(
+                            'pointerover',
+                            onPrewarm,
+                            true,
+                        );
                         delete container.dataset.rovalraGameOutfits;
                     },
                 });
@@ -482,6 +525,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     );
 
     target = await targetPromise;
+    userId = await userIdPromise;
     if (!target || !isCurrent()) return;
 
     const refreshOutfit = async () => {
@@ -489,6 +533,9 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
         outfitId =
             mapping.games[target.universeId] ||
             (target.slot ? mapping[target.slot] : null);
+
+        // Fetched here rather than on the click, where it would be felt.
+        if (outfitId) getOutfitDetails(outfitId).catch(() => null);
     };
 
     await refreshOutfit();
@@ -522,10 +569,9 @@ function buildLauncherHook(userId) {
 // Read ahead so a launch only pays for the writes, and the known type lets the
 // R6/R15 write be skipped when it already matches.
 async function warmUp(userId) {
-    try {
-        const avatar = await getCurrentAvatar(userId);
-        rememberAvatarType(avatar?.playerAvatarType);
+    refreshAvatarType(userId);
 
+    try {
         const mapping = await loadMapping();
         for (const outfitId of [mapping.R6, mapping.R15]) {
             if (outfitId) getOutfitDetails(outfitId).catch(() => null);
