@@ -153,9 +153,11 @@ async function resolveTarget(placeId, userId) {
     // own setting is that pick. Most experiences are like this, so the already
     // known type is used when there is one rather than asking again.
     if (!slot) {
-        const type =
-            knownAvatarType() ||
-            (await getCurrentAvatar(userId))?.playerAvatarType;
+        let type = knownAvatarType();
+        if (!type) {
+            type = (await getCurrentAvatar(userId))?.playerAvatarType;
+            rememberAvatarType(type);
+        }
         slot = SLOT_BY_AVATAR_TYPE[`MorphTo${type}`];
     }
 
@@ -550,6 +552,36 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     });
 }
 
+// A card only shows its play button once it is hovered, so there is always a
+// moment before the click to read what the launch is going to need. Nothing is
+// written here, and an experience with no outfit set costs a storage read.
+function buildCardWarmUp(userId, register) {
+    let lastPlaceId = null;
+
+    const onPointerOver = (event) => {
+        const link = event.target?.closest?.('a[href*="/games/"]');
+        if (!link) return;
+
+        const placeId = getPlaceIdFromUrl(link.href);
+        if (!placeId || placeId === lastPlaceId) return;
+        lastPlaceId = placeId;
+
+        resolveOutfitForPlace(placeId, userId)
+            .then((outfitId) => {
+                if (!outfitId) return null;
+                refreshAvatarType(userId);
+                return getOutfitDetails(outfitId);
+            })
+            .catch(() => null);
+    };
+
+    document.addEventListener('pointerover', onPointerOver, true);
+    register({
+        disconnect: () =>
+            document.removeEventListener('pointerover', onPointerOver, true),
+    });
+}
+
 // Every launch RoValra starts goes through the launcher: experience cards,
 // quick search and the rest. The site's play button is handled above.
 function buildLauncherHook(userId) {
@@ -645,6 +677,7 @@ export function init() {
         if (!isCurrent()) return;
 
         buildLauncherHook(userId);
+        buildCardWarmUp(userId, register);
         warmUp(userId);
     };
 
