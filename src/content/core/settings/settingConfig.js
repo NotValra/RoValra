@@ -2522,6 +2522,29 @@ export const SETTINGS_CONFIG = {
     AntiAccountTracking: {
         title: 'Privacy',
         settings: {
+            telemetryBlockerEnabled: {
+                label: 'Block Roblox Telemetry',
+                description:
+                    'Blocks some of the tracking, analytics, and data collection Roblox uses while you browse the website.',
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    telemetryBlockerAggressiveEnabled: {
+                        label: 'Aggressive Blocking',
+                        condition: {
+                            parent: 'telemetryBlockerEnabled',
+                            value: true,
+                            hide: false,
+                        },
+                        description:
+                            'Blocks even more Roblox tracking, including additional performance metrics and error reports.',
+                        type: 'checkbox',
+                        default: false,
+                        experimental: 'This may affect some Roblox features.',
+                    },
+                },
+            },
             streamermode: {
                 label: 'Streamer Mode',
                 description: [
