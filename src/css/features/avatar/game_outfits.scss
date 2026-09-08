@@ -1,0 +1,108 @@
+.rovalra-game-outfits-item {
+    display: flex;
+    float: left;
+    align-items: center;
+    margin-left: 5px;
+}
+
+/* Sized to sit in the play row next to the other buttons there, ordered after
+   them so play stays first. */
+.rovalra-game-outfits-game-btn {
+    display: flex;
+    flex-shrink: 0;
+    order: 6;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 60px;
+    margin-left: 5px;
+    padding: 0;
+    color: #fff;
+    background-color: var(--rovalra-playbutton-color);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.rovalra-game-outfits-game-btn:focus-visible {
+    outline: 2px solid var(--rovalra-playbutton-color);
+    outline-offset: 2px;
+}
+
+.rovalra-game-outfits-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 120px;
+}
+
+.rovalra-game-outfits-hint {
+    margin: 0;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 13px;
+    line-height: 17px;
+}
+
+.rovalra-game-outfits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.rovalra-game-outfits-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    color: var(--rovalra-main-text-color);
+    text-align: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.rovalra-game-outfits-card:hover {
+    background: var(--rovalra-button-background-color);
+}
+
+.rovalra-game-outfits-card:focus-visible {
+    outline: 2px solid var(--rovalra-playbutton-color);
+    outline-offset: 2px;
+}
+
+.rovalra-game-outfits-selected {
+    border-color: var(--rovalra-playbutton-color);
+    background: var(--rovalra-button-background-color);
+}
+
+.rovalra-game-outfits-thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    overflow: hidden;
+    background: var(--rovalra-container-background-color);
+    border-radius: 6px;
+}
+
+.rovalra-game-outfits-badge {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    padding: 1px 6px;
+    color: var(--rovalra-main-text-color);
+    font-size: 10px;
+    line-height: 14px;
+    background: var(--rovalra-container-background-color);
+    border-radius: 8px;
+}
+
+.rovalra-game-outfits-name {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 16px;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}

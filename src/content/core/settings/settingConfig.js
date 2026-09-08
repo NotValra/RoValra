@@ -1492,6 +1492,18 @@ export const SETTINGS_CONFIG = {
                 storageKey: ['rovalra_body_color_presets'],
                 contributors: ['4489102289'],
             },
+            gameOutfitsEnabled: {
+                label: 'Outfits Per Experience',
+                description: [
+                    'Lets you set an outfit that gets equipped automatically when you play, one for R6 experiences and one for R15 experiences.',
+                    'Experiences that let you choose your own avatar type use whichever of the two matches the type you are currently on.',
+                    'Individual experiences can be given their own outfit from their page, which overrides both.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: ['rovalra_game_outfits'],
+                contributors: ['4489102289'],
+            },
             avatarRotatorEnabled: {
                 label: 'Avatar Rotator',
                 description: [
