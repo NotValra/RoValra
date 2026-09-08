@@ -57,7 +57,7 @@ async function processDialog(dialog) {
     }
 
     container.innerHTML = safeHtml`
-        <span class="text-body-medium" style="color: var(--rovalra-secondary-text-color);">${ts('purchasePrompt.balanceAfter')} <span class="icon-robux-16x16" style="vertical-align: middle; position: relative; top: -1px;"></span> <span class="text-robux" style="${after < 0 ? 'color: #d32f2f;' : ''}">${after.toLocaleString()}</span></span>
+        <span class="text-body-medium" style="color: var(--rovalra-secondary-text-color);">${ts('purchasePrompt.balanceAfter')} <span class="icon-robux-16x16" style="vertical-align: middle; position: relative; top: -1px;"></span> <span class="text-robux" id="rovalra-robux-after" style="${after < 0 ? 'color: #d32f2f;' : ''}">${after.toLocaleString()}</span></span>
     `;
 }
 

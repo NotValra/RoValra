@@ -2557,7 +2557,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 experimental:
                     "This may cause some issues since it tricks Roblox into thinking your private info is something it isn't.",
-                contributors: ['447170745', '48255812'],
+                contributors: ['447170745', '48255812', '3050364170'],
                 childSettings: {
                     settingsPageInfo: {
                         label: 'Hide Private Information on the settings page',
@@ -2572,7 +2572,6 @@ export const SETTINGS_CONFIG = {
                         label: 'Hide Robux',
                         description: [
                             "Simply hides your Robux by changing it to 'Hidden'.",
-                            "This doesn't hide your Robux on purchase prompts.",
                         ],
                         type: 'checkbox',
                         default: false,
