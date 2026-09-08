@@ -35,6 +35,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2605032407', // walway
     '3598865306', // Midga3
     '1960518316', // lobberxv :3
+    '3050364170', // Eli_Cauver :3
 ];
 
 export const TESTER_USER_IDS = [
