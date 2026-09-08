@@ -2506,7 +2506,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Replaces the current favicon (the logo next to your tab) with an image loaded from a URL you provide.',
                     'Recommended image: square PNG or WebP, 256x256 pixels or SVG.',
-                    'You can use this link "https://static.wikia.nocookie.net/logopedia/images/b/b7/ROBLOX_2006-2009.svg/" to get back the old Roblox favicon!', // The link is a wikipedia link
+                    'You can use this link "https://static.wikia.nocookie.net/logopedia/images/b/b7/ROBLOX_2006-2009.svg" to get back the old Roblox favicon!', // The link is a wikipedia link
                 ],
                 type: 'checkbox',
                 default: false,

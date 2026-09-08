@@ -3,9 +3,13 @@ import { settings } from '../../core/settings/getSettings.js';
 const FAVICON_LINK_ID = 'rovalra-custom-favicon';
 const ICON_LINK_SELECTOR =
     'link[rel~="icon" i], link[rel="shortcut icon" i], link[rel="mask-icon" i], link[rel="apple-touch-icon" i], link[rel="apple-touch-icon-precomposed" i]';
+const MAX_IMAGE_BYTES = 1024 * 1024;
+
+const CSP_SAFE_HOST = /(^|\.)(roblox\.com|rbxcdn\.com)$/i;
 
 let enabled = false;
-let faviconUrl = null;
+let requestedUrl = null;
+let faviconHref = null;
 let originalIconLinks = null;
 
 function getHead() {
@@ -29,8 +33,11 @@ function stashOriginalIconLinks() {
     }));
 }
 
-function guessMimeType(url) {
-    const clean = url.split(/[?#]/)[0].toLowerCase().replace(/\/+$/, '');
+function guessMimeType(href) {
+    if (href.startsWith('data:')) {
+        return href.slice(5).split(/[;,]/)[0] || '';
+    }
+    const clean = href.split(/[?#]/)[0].toLowerCase().replace(/\/+$/, '');
     if (clean.endsWith('.svg')) return 'image/svg+xml';
     if (clean.endsWith('.png')) return 'image/png';
     if (clean.endsWith('.webp')) return 'image/webp';
@@ -40,8 +47,50 @@ function guessMimeType(url) {
     return '';
 }
 
+function blobToDataUri(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+    });
+}
+
+async function resolveHref(url) {
+    let host = '';
+    try {
+        host = new URL(url).hostname;
+    } catch {
+        return url;
+    }
+    if (url.startsWith('data:') || CSP_SAFE_HOST.test(host)) {
+        return url;
+    }
+
+    try {
+        const response = await fetch(url, { cache: 'force-cache' });
+        if (!response.ok) return url;
+
+        const blob = await response.blob();
+        if (
+            blob.size === 0 ||
+            blob.size > MAX_IMAGE_BYTES ||
+            !blob.type.startsWith('image/')
+        ) {
+            return url;
+        }
+
+        const dataUri = await blobToDataUri(blob);
+        if (typeof dataUri === 'string' && dataUri.startsWith('data:')) {
+            return dataUri;
+        }
+    } catch {}
+
+    return url;
+}
+
 function applyFavicon() {
-    if (!enabled || !faviconUrl) return;
+    if (!enabled || !faviconHref) return;
 
     try {
         stashOriginalIconLinks();
@@ -55,15 +104,15 @@ function applyFavicon() {
             link.rel = 'icon';
         }
 
-        const mime = guessMimeType(faviconUrl);
+        const mime = guessMimeType(faviconHref);
         if (mime) {
             link.setAttribute('type', mime);
         } else {
             link.removeAttribute('type');
         }
 
-        if (link.getAttribute('href') !== faviconUrl) {
-            link.setAttribute('href', faviconUrl);
+        if (link.getAttribute('href') !== faviconHref) {
+            link.setAttribute('href', faviconHref);
         }
 
         getHead().appendChild(link);
@@ -79,8 +128,7 @@ function restoreOriginalFavicon() {
 
         if (Array.isArray(originalIconLinks) && originalIconLinks.length > 0) {
             const head = getHead();
-            const hasIcon = document.querySelector(ICON_LINK_SELECTOR);
-            if (!hasIcon) {
+            if (!document.querySelector(ICON_LINK_SELECTOR)) {
                 originalIconLinks.forEach((data) => {
                     const link = document.createElement('link');
                     link.setAttribute('rel', data.rel);
@@ -110,30 +158,39 @@ async function refresh() {
     if (!isEnabled || !url) {
         if (enabled) {
             enabled = false;
-            faviconUrl = null;
+            requestedUrl = null;
+            faviconHref = null;
             restoreOriginalFavicon();
         }
         return;
     }
 
     enabled = true;
-    faviconUrl = url;
+
+    if (url !== requestedUrl || !faviconHref) {
+        requestedUrl = url;
+        faviconHref = null;
+        const href = await resolveHref(url);
+        if (!enabled || requestedUrl !== url) return;
+        faviconHref = href;
+    }
+
     applyFavicon();
+}
+
+function handleStorageChange(changes, areaName) {
+    if (areaName !== 'local') return;
+    if (changes.customFaviconEnabled || changes.customFaviconUrl) {
+        refresh();
+    }
 }
 
 export function init() {
     refresh();
 
-    if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
-        chrome.storage.onChanged.addListener((changes, areaName) => {
-            if (areaName !== 'local') return;
-            if (changes.customFaviconEnabled || changes.customFaviconUrl) {
-                refresh();
-            }
-        });
-    }
+    chrome.storage.onChanged.addListener(handleStorageChange);
 
     document.addEventListener('rovalra:urlChanged', () => {
-        if (enabled && faviconUrl) applyFavicon();
+        if (enabled && faviconHref) applyFavicon();
     });
 }
