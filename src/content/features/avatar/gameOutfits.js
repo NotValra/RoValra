@@ -56,9 +56,8 @@ function loadMapping() {
     });
 }
 
-// The settings reader resolves the account first, which is slower than the play
-// row appears, so storage is read straight for the first gate. The reader is
-// still consulted after, in case the setting is locked.
+// The settings reader resolves the account first and the play row does not wait
+// around for that, so storage is read straight for the first gate.
 function readEnabledFast() {
     return new Promise((resolve) => {
         chrome.storage.local.get({ gameOutfitsEnabled: false }, (data) =>
@@ -92,8 +91,6 @@ function knownAvatarType() {
         : null;
 }
 
-// Topped up in the background while the page sits there, so the launch itself
-// is never the thing that has to stop and ask.
 function refreshAvatarType(userId) {
     if (!userId || avatarTypeRequest || knownAvatarType()) return;
 
@@ -117,8 +114,6 @@ function equipOnce(outfitId) {
 
     const write = applyOutfit(outfitId, knownAvatarType());
 
-    // Once it lands the body type is known again, which is what lets the next
-    // launch skip that call. Kept off the launch.
     write
         .then(async (ok) => {
             if (!ok) return;
@@ -150,8 +145,7 @@ async function resolveTarget(placeId, userId) {
     let slot = SLOT_BY_AVATAR_TYPE[universes?.[0]?.universeAvatarType];
 
     // Experiences that let you pick come back without a type, and the account's
-    // own setting is that pick. Most experiences are like this, so the already
-    // known type is used when there is one rather than asking again.
+    // own setting is that pick. Most are like this, so a known type is reused.
     if (!slot) {
         let type = knownAvatarType();
         if (!type) {
@@ -312,8 +306,7 @@ async function openPicker(userId, universeId) {
         console.error('RoValra: Failed to load outfits', error);
     }
 
-    // Names repeat and say nothing about the body an outfit was saved on, so the
-    // type is labelled. Loaded behind the grid and reused when one is worn.
+    // Names repeat and say nothing about the body an outfit was saved on.
     (async () => {
         for (let i = 0; i < outfits.length; i += TYPE_LOOKUP_BATCH) {
             const batch = outfits.slice(i, i + TYPE_LOOKUP_BATCH);
@@ -358,8 +351,7 @@ async function openPicker(userId, universeId) {
 }
 
 function buildEditor(userIdPromise, register) {
-    // The breadcrumb is rerendered as the editor loads, dropping anything put in
-    // it. Only writes when something is missing, so it cannot loop.
+    // The breadcrumb is rerendered as the editor loads, dropping anything in it.
     const ensure = (container) => {
         let item = container.querySelector('.rovalra-game-outfits-item');
 
@@ -401,8 +393,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     const placeId = getPlaceIdFromUrl();
     if (!placeId) return;
 
-    // Not waited on, so the button lands beside the site's play button rather
-    // than after the account and experience lookups.
+    // Not waited on, so the button lands beside the site's play button.
     const targetPromise = userIdPromise
         .then((userId) => (userId ? resolveTarget(placeId, userId) : null))
         .catch((error) => {
@@ -416,8 +407,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     let passthrough = false;
 
     const ensureButton = (container) => {
-        // The row starts empty, so this waits for the play button instead of
-        // sitting there alone.
+        // The row starts empty, so this waits rather than sitting there alone.
         if (!container.querySelector('button[data-testid="play-button"]')) {
             return;
         }
@@ -448,8 +438,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     };
 
     // Bound to the play row, not the document, so a recommended card is not
-    // handed this one's outfit. The click is given back so the site's own age
-    // checks and paid access still run.
+    // handed this one's outfit. The click is given back so age checks still run.
     const onClick = (event) => {
         const button = event.target.closest(PLAY_BUTTON_SELECTOR);
         if (!button || !outfitId) return;
@@ -476,8 +465,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
         })();
     };
 
-    // Hovering the row is the last chance to top the body type up before the
-    // click, and that is the call the launch would otherwise wait on.
+    // Last chance to top the body type up before the click.
     const onPrewarm = () => {
         if (outfitId) refreshAvatarType(userId);
     };
@@ -536,7 +524,6 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
             mapping.games[target.universeId] ||
             (target.slot ? mapping[target.slot] : null);
 
-        // Fetched here rather than on the click, where it would be felt.
         if (outfitId) getOutfitDetails(outfitId).catch(() => null);
     };
 
@@ -553,8 +540,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
 }
 
 // A card only shows its play button once it is hovered, so there is always a
-// moment before the click to read what the launch is going to need. Nothing is
-// written here, and an experience with no outfit set costs a storage read.
+// moment before the click to read what the launch needs. Nothing is written.
 function buildCardWarmUp(userId, register) {
     let lastPlaceId = null;
 
@@ -598,8 +584,7 @@ function buildLauncherHook(userId) {
     });
 }
 
-// Read ahead so a launch only pays for the writes, and the known type lets the
-// R6/R15 write be skipped when it already matches.
+// Read ahead so a launch only pays for the writes.
 async function warmUp(userId) {
     refreshAvatarType(userId);
 
@@ -617,8 +602,7 @@ export function init() {
     let running = false;
     let disposers = [];
 
-    // Bumped on stop and start so work already in flight can tell it is no
-    // longer current and drop out.
+    // Bumped on stop and start so work in flight knows it is stale.
     let generation = 0;
 
     const register = (disposer) => {
