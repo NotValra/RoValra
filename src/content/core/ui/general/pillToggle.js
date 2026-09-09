@@ -13,6 +13,7 @@ export function createPillToggle({ options, initialValue, onChange }) {
     const container = document.createElement('div');
     container.className = 'rovalra-pill-toggle bg-shift-300 radius-circle flex items-center';
     container.style.display = 'inline-flex';
+    container.style.alignSelf = 'flex-start';
     container.style.gap = 'var(--padding-xsmall)';
     container.style.padding = '2px';
 

@@ -27,6 +27,7 @@
 @use 'features/settings/bulkUnblock.scss';
 @use 'features/games/servers/serverstats.scss';
 @use 'features/games/quickplay.scss';
+@use 'features/games/gameBookmarks.scss';
 @use 'features/games/events.scss';
 @use 'features/games/hiddenBadges.scss';
 @use 'features/games/badgeLayoutToggle.scss';
@@ -50,4 +51,5 @@
 @use 'features/plus/sendRobux.scss';
 @use 'features/sitewide/viewid.scss';
 @use 'features/avatar/body_colors.scss';
+@use 'features/avatar/game_outfits.scss';
 @use 'components/dropdown.scss'

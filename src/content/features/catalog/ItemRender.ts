@@ -33,6 +33,8 @@ const assets = getAssets();
 FLAGS.ONLINE_ASSETS = true;
 FLAGS.AUDIO_ENABLED = false;
 
+let postProcessingEnabled = false
+
 backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
@@ -1137,8 +1139,12 @@ async function startRenderer() {
     RENDERER_CACHE.ItemDetails.maxEntries = 50;
     RENDERER_CACHE.ItemOwned.maxEntries = 50;
 
+    FLAGS.USE_POST_PROCESSING = postProcessingEnabled;
+
     const success = await RBXRenderer.fullSetup(true, true, false);
     if (!success) return false;
+
+    if (postProcessingEnabled) RBXRenderer.createEffectComposer(mainScene);
 
     if (RBXRenderer.loadingIcon) RBXRenderer.loadingIcon.style.zIndex = "2";
     noLoadingIconPos();
@@ -1786,8 +1792,11 @@ export function init() {
             {
                 marketplace3DRenderEnabledV2: true,
                 marketplace3DRenderActive: false,
+                marketplace3DPostProcessing: false,
             },
             (result) => {
+                if (result.marketplace3DPostProcessing) postProcessingEnabled = true;
+
                 if (result.marketplace3DRenderEnabledV2) {
                     mainRendererEnabled = result.marketplace3DRenderActive;
                     asyncInit();

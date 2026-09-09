@@ -306,7 +306,7 @@ function enhanceUnderratedGameTile(link) {
 function publishUnderratedGamesSort(sort) {
     document.dispatchEvent(
         new CustomEvent('rovalra-home-extra-sorts', {
-            detail: { sorts: [sort] },
+            detail: { source: UNDERRATED_GAMES_SUB_ID, sorts: [sort] },
         }),
     );
 }

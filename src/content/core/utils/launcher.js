@@ -1,6 +1,29 @@
 // This script should always be used to start up the Roblox client
 import { callRobloxApiJson } from '../api.js';
 
+let preLaunchHook = null;
+
+// Lets a feature do something right before the client starts, such as changing
+// the avatar. Opt in on purpose: with no hook registered every launch below
+// stays exactly as synchronous as it was.
+export function setPreLaunchHook(hook) {
+    preLaunchHook = typeof hook === 'function' ? hook : null;
+}
+
+function runLaunch(placeId, codeToInject) {
+    if (!preLaunchHook) {
+        executeLaunchScript(codeToInject);
+        return;
+    }
+
+    Promise.resolve()
+        .then(() => preLaunchHook(placeId))
+        .catch((error) => {
+            console.error('RoValra Launcher: Pre launch hook failed', error);
+        })
+        .finally(() => executeLaunchScript(codeToInject));
+}
+
 function executeLaunchScript(codeToInject) {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
         chrome.runtime.sendMessage({ action: 'injectScript', codeToInject });
@@ -11,19 +34,18 @@ function executeLaunchScript(codeToInject) {
     }
 }
 
-
 export function launchGame(placeId, jobId = null) {
     const joinFunction = jobId
         ? `Roblox.GameLauncher.joinGameInstance(parseInt('${placeId}', 10), '${jobId}')`
         : `Roblox.GameLauncher.joinGameInstance(parseInt('${placeId}', 10))`;
     const codeToInject = `if (typeof Roblox?.GameLauncher?.joinGameInstance === 'function') { ${joinFunction}; }`;
-    executeLaunchScript(codeToInject);
+    runLaunch(placeId, codeToInject);
 }
 
 export function launchPrivateGame(placeId, accessCode, linkCode) {
     const joinFunction = `Roblox.GameLauncher.joinPrivateGame(parseInt('${placeId}', 10), '${accessCode}', '${linkCode}')`;
     const codeToInject = `if (typeof Roblox?.GameLauncher?.joinPrivateGame === 'function') { ${joinFunction}; }`;
-    executeLaunchScript(codeToInject);
+    runLaunch(placeId, codeToInject);
 }
 
 export function launchMultiplayerGame(placeId, launchData = {}) {
@@ -31,7 +53,7 @@ export function launchMultiplayerGame(placeId, launchData = {}) {
 
     const joinData = { launchData };
     const codeToInject = `if (typeof Roblox.GameLauncher.joinMultiplayerGame === 'function') { Roblox.GameLauncher.joinMultiplayerGame(${placeId}, false, false, null, null, ${JSON.stringify(joinData)}); }`;
-    executeLaunchScript(codeToInject);
+    runLaunch(placeId, codeToInject);
 }
 
 export function followUser(userId) {
@@ -44,6 +66,18 @@ export function followUser(userId) {
             Roblox.GameLauncher.followPlayerIntoGame(${uId});
         } else {
             window.location.href = '${deepLink}';
+        }
+    `;
+    executeLaunchScript(codeToInject);
+}
+
+export function openWebChat(userId) {
+    const uId = parseInt(userId, 10);
+    if (!uId) return;
+
+    const codeToInject = `
+        if (typeof Roblox !== 'undefined' && Roblox.DeepLinkService && typeof Roblox.DeepLinkService.navigateToDeepLink === 'function') {
+            Roblox.DeepLinkService.navigateToDeepLink('roblox://navigation/chat?userId=${uId}');
         }
     `;
     executeLaunchScript(codeToInject);

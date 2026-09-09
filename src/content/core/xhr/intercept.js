@@ -69,6 +69,9 @@ const LayeredAssetTypes = [
     let homeLayoutOrder = [];
     let homeLayoutHidden = [];
     let homeExtraSorts = [];
+    const homeExtraSortSources = new Map();
+    const homeExtraSortKeys = new Set();
+    let homeKnownSorts = [];
     let homeLayoutReady = false;
     let homeLayoutReadyPromise = null;
     let resolveHomeLayoutReady = null;
@@ -303,8 +306,72 @@ const LayeredAssetTypes = [
     });
 
     document.addEventListener('rovalra-home-extra-sorts', (e) => {
-        homeExtraSorts = Array.isArray(e.detail?.sorts) ? e.detail.sorts : [];
+        homeExtraSortSources.set(
+            e.detail?.source || 'legacy',
+            Array.isArray(e.detail?.sorts) ? e.detail.sorts : [],
+        );
+        homeExtraSorts = [...homeExtraSortSources.values()].flat();
+        homeExtraSortKeys.clear();
+        homeExtraSorts.forEach((sort) =>
+            homeExtraSortKeys.add(getHomeSortKey(sort)),
+        );
+        refreshHomeExtraSorts();
     });
+
+    document.addEventListener('rovalra-home-rendered', refreshHomeExtraSorts);
+
+    function refreshHomeExtraSorts() {
+        const card = document.querySelector('#HomeContainer a.game-card-link');
+        if (!card) return;
+        const fiberKey = Object.keys(card).find((key) =>
+            key.startsWith('__reactFiber$'),
+        );
+        for (let fiber = card[fiberKey]; fiber; fiber = fiber.return) {
+            for (let hook = fiber.memoizedState; hook; hook = hook.next) {
+                if (
+                    hook.memoizedState?.pageType !== 'Home' ||
+                    !Array.isArray(hook.memoizedState.sorts) ||
+                    typeof hook.queue?.dispatch !== 'function'
+                )
+                    continue;
+                hook.queue.dispatch((current) => {
+                    if (
+                        current?.pageType !== 'Home' ||
+                        !Array.isArray(current.sorts)
+                    )
+                        return current;
+                    const data = {
+                        ...current,
+                        sorts: current.sorts.filter(
+                            (sort) =>
+                                !homeExtraSortKeys.has(getHomeSortKey(sort)),
+                        ),
+                        games: [...(current.games || [])],
+                        contentMetadata: {
+                            ...current.contentMetadata,
+                            Game: { ...current.contentMetadata?.Game },
+                        },
+                    };
+                    const currentKeys = new Set(data.sorts.map(getHomeSortKey));
+                    for (const sort of homeKnownSorts) {
+                        const key = getHomeSortKey(sort);
+                        if (
+                            homeLayoutHidden.includes(key) &&
+                            !currentKeys.has(key) &&
+                            !homeExtraSortKeys.has(key)
+                        )
+                            data.sorts.push(sort);
+                    }
+                    addHomeExtraSorts(data);
+                    reorderHomeSorts(data);
+                    dispatchHomeLayoutCategories(data);
+                    hideHomeSorts(data);
+                    return data;
+                });
+                return;
+            }
+        }
+    }
 
     function waitForHomeLayoutState() {
         if (homeLayoutReady) return Promise.resolve();
@@ -499,12 +566,14 @@ const LayeredAssetTypes = [
     }
 
     function canAdjustHomeSort(sort) {
+        if (sort?.rovalraKeepEmpty) return true;
         const gameCount = getHomeSortGameCount(sort);
         return gameCount === null || gameCount > 0;
     }
 
     function dispatchHomeLayoutCategories(data) {
         if (data?.pageType !== 'Home' || !Array.isArray(data.sorts)) return;
+        homeKnownSorts = data.sorts;
 
         const seenKeys = new Set();
         const categories = data.sorts

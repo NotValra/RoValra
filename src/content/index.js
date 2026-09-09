@@ -33,6 +33,7 @@ import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
+import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
@@ -59,6 +60,7 @@ import { init as initR6Warning } from './features/avatar/R6Warning.js';
 import { init as initAvatarRotator } from './features/avatar/avatarRotator.js';
 import { init as initMultiEquip } from './features/avatar/multiEquip.js';
 import { init as initBodyColors } from './features/avatar/bodyColors.js';
+import { init as initGameOutfits } from './features/avatar/gameOutfits.js';
 
 // Catalog
 import { init as initItemSales } from './features/catalog/itemsales.js';
@@ -181,7 +183,10 @@ import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
+import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
+import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
+import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
@@ -204,6 +209,7 @@ const featureRoutes = [
         once: true,
         features: [
             initSettingsPage,
+            initGameBookmarks,
             initQuickPlay,
             initEasterEggLinks,
             initCssFixes,
@@ -237,6 +243,7 @@ const featureRoutes = [
             initTransactionsLink,
             initStatus,
             initCustomFont,
+            initCustomFavicon,
             initRobuxIcons,
             initMoreRobuxDigits,
             initProfileBackground,
@@ -260,6 +267,7 @@ const featureRoutes = [
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
+            initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
         ],
@@ -471,10 +479,12 @@ const featureRoutes = [
         paths: ['/home'],
         features: [
             initHomeLayout,
+            initBookmarkedGames,
             initUnderratedGamesHome,
             initAccurateContinue,
             initHideAddFriendsButton,
             initFriendLabels,
+            initFriendsCarouselRedesign,
         ],
     },
     {

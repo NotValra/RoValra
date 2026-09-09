@@ -1,5 +1,6 @@
 import { observeElement, observeChildren } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { parseGradientNameSetting } from '../../../core/donators/gradientName.js';
@@ -11,7 +12,13 @@ import {
 } from '../../../core/profile/userCardElements.js';
 
 const STYLE_ID = 'rovalra-display-name-gradient-style';
-const DISPLAY_NAME_SELECTOR = '#profile-header-title-container-name';
+const PROFILE_HEADER_NAME_SELECTOR = '#profile-header-title-container-name';
+const DISPLAY_NAME_SELECTORS = [
+    PROFILE_HEADER_NAME_SELECTOR,
+    '.age-bracket-label-username',
+    'a[href="/users/profile"] span.text-truncate-end.text-no-wrap',
+];
+const DISPLAY_NAME_SELECTOR = DISPLAY_NAME_SELECTORS.join(', ');
 const USERNAME_SELECTOR = '.stylistic-alts-username';
 const HOME_GREETING_LINK_SELECTOR =
     '#roseal-home-header .greeting-container a[href*="/users/"][href*="/profile"]';
@@ -449,26 +456,59 @@ export function applyDisplayNameGradientToElement(
     return applied;
 }
 
+async function applyGradientToNameElementsForUser(nameEls, userId) {
+    if (!nameEls.length) return;
+
+    try {
+        const userSettings = await getGradientNameSettingsCached(userId);
+        const gradientName = normalizeGradientNameFromSettings(userSettings);
+        if (!gradientName) {
+            nameEls.forEach(clearDisplayNameGradient);
+            return;
+        }
+
+        nameEls.forEach((nameEl) =>
+            applyGradientNameToElement(nameEl, gradientName, { animate: true }),
+        );
+    } catch (error) {
+        console.warn('RoValra: Failed to apply display name gradient', error);
+    }
+}
+
 async function applyDisplayNameGradient() {
-    const enabled = await settings.displayNameGradientEnabled;
-    const nameEl = document.querySelector(DISPLAY_NAME_SELECTOR);
-    if (!nameEl) return;
+    const nameEls = [...document.querySelectorAll(DISPLAY_NAME_SELECTOR)];
+    if (!nameEls.length) return;
+
+    if (!(await settings.displayNameGradientEnabled)) {
+        nameEls.forEach(clearDisplayNameGradient);
+        return;
+    }
+
+    const profileHeaderEls = nameEls.filter((el) =>
+        el.matches(PROFILE_HEADER_NAME_SELECTOR),
+    );
+    const selfEls = nameEls.filter(
+        (el) => !el.matches(PROFILE_HEADER_NAME_SELECTOR),
+    );
 
     const profileUserId = getUserIdFromUrl();
-    if (!enabled || !profileUserId) {
-        clearDisplayNameGradient(nameEl);
-        return;
+    if (profileUserId) {
+        await applyGradientToNameElementsForUser(
+            profileHeaderEls,
+            profileUserId,
+        );
+    } else {
+        profileHeaderEls.forEach(clearDisplayNameGradient);
     }
 
-    const userSettings = await getGradientNameSettingsCached(profileUserId);
-    const gradientName = normalizeGradientNameFromSettings(userSettings);
-
-    if (!gradientName) {
-        clearDisplayNameGradient(nameEl);
-        return;
+    if (selfEls.length) {
+        const selfUserId = await getAuthenticatedUserId();
+        if (selfUserId) {
+            await applyGradientToNameElementsForUser(selfEls, selfUserId);
+        } else {
+            selfEls.forEach(clearDisplayNameGradient);
+        }
     }
-
-    applyGradientNameToElement(nameEl, gradientName, { animate: true });
 }
 
 async function applyDisplayNameGradientToCard(tile, card) {
@@ -521,21 +561,31 @@ export async function init() {
 
     setupCardDisplayNameGradients();
 
-    observeElement(
-        USERNAME_SELECTOR,
-        (el) => {
-            const runUpdate = () => {
-                if (el.innerText.trim() === '') return false;
-                applyDisplayNameGradient();
-                return true;
-            };
+    const observeNameElement = (el) => {
+        const runUpdate = () => {
+            if (el.innerText.trim() === '') return false;
+            applyDisplayNameGradient();
+            return true;
+        };
 
-            if (!runUpdate()) {
-                const { disconnect } = observeChildren(el, () => {
-                    if (runUpdate()) disconnect();
-                });
-            }
-        },
-        { multiple: true },
-    );
+        if (!runUpdate()) {
+            const { disconnect } = observeChildren(el, () => {
+                if (runUpdate()) disconnect();
+            });
+        }
+    };
+
+    observeElement(USERNAME_SELECTOR, observeNameElement, { multiple: true });
+    observeElement(DISPLAY_NAME_SELECTOR, observeNameElement, { multiple: true });
+
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        const name = event.detail?.name;
+        if (
+            name === 'displayNameGradient' ||
+            name === 'displayNameGradientEnabled' ||
+            name === 'displayNameGradientEffect'
+        ) {
+            applyDisplayNameGradient();
+        }
+    });
 }
