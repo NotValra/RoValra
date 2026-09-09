@@ -346,7 +346,8 @@ class HiddenGamesManager {
             sort === 'like-ratio' ||
             sort === 'likes' ||
             sort === 'dislikes' ||
-            sort === 'players'
+            sort === 'players' ||
+            sort === 'default'
         ) {
             await api.getGameDetails(this.allGames, this.cache);
         }
@@ -386,9 +387,12 @@ class HiddenGamesManager {
                 (a, b) => a.name.localeCompare(b.name) * orderMultiplier,
             );
         } else {
-            if (order === 'asc') {
-                processed.reverse();
-            }
+            processed.sort(
+                (a, b) =>
+                    (new Date(this.cache.updated.get(a.id) || 0).getTime() -
+                        new Date(this.cache.updated.get(b.id) || 0).getTime()) *
+                    orderMultiplier,
+            );
         }
 
         this.filteredGames = processed;
