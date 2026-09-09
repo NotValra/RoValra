@@ -5,6 +5,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../core/assets.js';
 import { ts } from '../../core/locale/i18n.js';
+import { getFriendsList } from '../../core/utils/trackers/friendslist.js';
 import {
     createFriendTile,
     batchFetchPresence,
@@ -25,7 +26,6 @@ const ORIGINAL_LIST_SELECTOR =
     '#HomeContainer .react-friends-carousel-container .friends-carousel-list-container';
 
 const FRIEND_ID_CAP = 500;
-const PAGE_LIMIT = 50;
 const RENDER_CHUNK = 40;
 
 let enabled = false;
@@ -425,29 +425,6 @@ function buildCarousel(listWrap) {
     return { scrollEl, refresh, created: true };
 }
 
-async function loadAllFriendIds(userId) {
-    const ids = [];
-    let cursor = '';
-
-    do {
-        const endpoint =
-            `/v1/users/${userId}/friends/find?userSort=1&limit=${PAGE_LIMIT}` +
-            (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '');
-        const res = await callRobloxApiJson({
-            subdomain: 'friends',
-            endpoint,
-        }).catch(() => null);
-
-        for (const item of res?.PageItems || []) {
-            if (item?.id > 0) ids.push(item.id);
-        }
-
-        cursor = res?.NextCursor || '';
-    } while (cursor && ids.length < FRIEND_ID_CAP);
-
-    return ids;
-}
-
 async function loadOnlineFriendIds(userId) {
     const res = await callRobloxApiJson({
         subdomain: 'friends',
@@ -461,39 +438,35 @@ async function loadOnlineFriendIds(userId) {
         .filter((id) => id > 0);
 }
 
-async function loadOrderedFriendIds(userId) {
-    const [onlineIds, allIds] = await Promise.all([
+async function loadFriends() {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return [];
+
+    const [friends, onlineIds] = await Promise.all([
+        getFriendsList(),
         loadOnlineFriendIds(userId),
-        loadAllFriendIds(userId),
     ]);
+    const friendsById = new Map(
+        friends
+            .filter((friend) => friend?.id > 0)
+            .map((friend) => [friend.id, friend]),
+    );
+    const orderedFriends = [];
+    const addFriend = (id) => {
+        const friend = friendsById.get(id);
+        if (!friend) return;
+        orderedFriends.push(friend);
+        friendsById.delete(id);
+    };
 
-    const seen = new Set();
-    const ordered = [];
-    for (const id of [...onlineIds, ...allIds]) {
-        if (seen.has(id)) continue;
-        seen.add(id);
-        ordered.push(id);
-    }
+    onlineIds.forEach(addFriend);
+    friendsById.forEach((friend) => orderedFriends.push(friend));
 
-    return ordered.slice(0, FRIEND_ID_CAP);
+    return orderedFriends.slice(0, FRIEND_ID_CAP);
 }
 
 async function fetchChunkData(ids) {
-    const [profilesRes, thumbs, presenceMap] = await Promise.all([
-        callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: '/user-profile-api/v1/user/profiles/get-profiles',
-            method: 'POST',
-            body: {
-                userIds: ids,
-                fields: [
-                    'names.combinedName',
-                    'isVerified',
-                    'names.username',
-                    'hasRobloxSubscription',
-                ],
-            },
-        }).catch(() => null),
+    const [thumbs, presenceMap] = await Promise.all([
         getBatchThumbnails(ids, 'AvatarHeadshot', '150x150').catch(() => []),
         batchFetchPresence(ids).catch(() => new Map()),
     ]);
@@ -526,9 +499,6 @@ async function fetchChunkData(ids) {
     }
 
     return {
-        profiles: new Map(
-            (profilesRes?.profileDetails || []).map((p) => [p.userId, p]),
-        ),
         thumbs: new Map((thumbs || []).map((t) => [t.targetId, t])),
         presence,
         placeThumbs,
@@ -536,36 +506,28 @@ async function fetchChunkData(ids) {
 }
 
 async function populateCarousel(scrollEl, refresh, token, originalList) {
-    const userId = await getAuthenticatedUserId();
-    if (!userId || token !== populateToken) return;
-
     cloneAddFriendsTile(originalList, scrollEl);
 
-    const ids = await loadOrderedFriendIds(userId);
+    const friends = await loadFriends();
     if (token !== populateToken || !scrollEl.isConnected) return;
 
-    for (let i = 0; i < ids.length; i += RENDER_CHUNK) {
-        const chunk = ids.slice(i, i + RENDER_CHUNK);
-        const { profiles, thumbs, presence, placeThumbs } =
-            await fetchChunkData(chunk);
+    for (let i = 0; i < friends.length; i += RENDER_CHUNK) {
+        const chunk = friends.slice(i, i + RENDER_CHUNK);
+        const ids = chunk.map((friend) => friend.id);
+        const { thumbs, presence, placeThumbs } = await fetchChunkData(ids);
         if (token !== populateToken || !scrollEl.isConnected) return;
 
-        for (const id of chunk) {
-            const profile = profiles.get(id);
-            if (!profile) continue;
-
-            const displayName = profile.names?.combinedName || '';
+        for (const friend of chunk) {
+            const id = friend.id;
+            const displayName = friend.displayName || friend.username || '';
             const tile = createFriendTile(
-                { id },
+                friend,
                 thumbs.get(id) || { state: 'Error' },
                 {
                     displayName,
-                    username: profile.names?.username
-                        ? `@${profile.names.username}`
-                        : '',
+                    username: friend.username ? `@${friend.username}` : '',
                     isHidden: false,
-                    isVerified: profile.isVerified || false,
-                    isSubscribed: profile.hasRobloxSubscription || false,
+                    isVerified: friend.isVerified || false,
                 },
             );
             attachHoverCard(tile, {
