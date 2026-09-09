@@ -49,6 +49,18 @@ export function followUser(userId) {
     executeLaunchScript(codeToInject);
 }
 
+export function openWebChat(userId) {
+    const uId = parseInt(userId, 10);
+    if (!uId) return;
+
+    const codeToInject = `
+        if (typeof Roblox !== 'undefined' && Roblox.DeepLinkService && typeof Roblox.DeepLinkService.navigateToDeepLink === 'function') {
+            Roblox.DeepLinkService.navigateToDeepLink('roblox://navigation/chat?userId=${uId}');
+        }
+    `;
+    executeLaunchScript(codeToInject);
+}
+
 export async function launchStudioForGame(placeId) {
     try {
         const gameDetails = await callRobloxApiJson({

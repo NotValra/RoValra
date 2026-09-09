@@ -1286,6 +1286,15 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['476449201'],
             },
+            friendsCarouselRedesignEnabled: {
+                label: 'App-Style Friends Carousel',
+                description: [
+                    'Replaces the Home page friends carousel with the arrow-navigated carousel from the Roblox app.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
+            },
 
             friendLabelsEnabled: {
                 label: 'Friend Labels',

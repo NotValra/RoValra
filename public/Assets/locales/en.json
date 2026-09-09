@@ -59,6 +59,18 @@
             "settings": "Settings"
         }
     },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Previous friends",
+        "nextFriends": "More friends",
+        "isPlaying": "{{name}} is playing",
+        "online": "Online",
+        "inStudio": "In Studio",
+        "offline": "Offline",
+        "friendFallback": "Friend",
+        "join": "Join",
+        "chat": "Chat",
+        "viewProfile": "View Profile"
+    },
     "friendLabels": {
         "menuAction": "Set Friend Label",
         "dialogTitle": "Label {{displayName}}",

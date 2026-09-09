@@ -182,6 +182,7 @@ import { init as initCustomThemeEditor } from './features/home/customThemeEditor
 import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
+import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
@@ -475,6 +476,7 @@ const featureRoutes = [
             initAccurateContinue,
             initHideAddFriendsButton,
             initFriendLabels,
+            initFriendsCarouselRedesign,
         ],
     },
     {
