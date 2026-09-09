@@ -2553,7 +2553,33 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-
+            customFaviconEnabled: {
+                label: 'Favicon Customization',
+                description: [
+                    'Replaces the current favicon (the logo next to your tab) with an image loaded from a URL you provide.',
+                    'Recommended image: square PNG or WebP, 256x256 pixels or SVG.',
+                    'You can use this link "https://static.wikia.nocookie.net/logopedia/images/b/b7/ROBLOX_2006-2009.svg" to get back the old Roblox favicon!', // The link is a wikipedia link
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
+                childSettings: {
+                    customFaviconUrl: {
+                        label: 'Custom Favicon URL',
+                        description: [
+                            'Enter a direct image URL to use as your favicon.',
+                        ],
+                        type: 'input',
+                        inputType: 'url',
+                        inputWidth: '280px',
+                        placeholder: 'https://example.com/favicon.png',
+                        trim: true,
+                        validateHttpUrl: true,
+                        imageUrlPreview: true,
+                        default: null,
+                    },
+                },
+            },
             settingChangeNote: {
                 label: 'Setting changes alerts',
                 description: [
