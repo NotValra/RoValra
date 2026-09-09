@@ -1,45 +1,38 @@
 import { getPlaceIdFromUrl } from "../../core/idExtractor.js";
 import { callRobloxApiJson } from "../../core/api.js";
 import { getAuthenticatedUserId } from "../../core/user.js";
+import { settings } from "../../core/settings/getSettings.js";
 
 export function init() {
     let lastApiResponse;
     let cachedPrivateServers = [];
     let AllowHoistingAboveOwnPrivateServers = false;
 
-    function updatePrivateServerOccupancySorting() {
-        chrome.storage.local.get(
-            [
-                'PrivateServerOccupancySorting',
-                'AllowHoistingAboveOwnPrivateServers',
-            ],
-            (data) => {
-                try {
-                    if (data.PrivateServerOccupancySorting) {
-                        sessionStorage.setItem(
-                            'rovalra_privateserveroccupancysorting',
-                            'true',
-                        );
-                    } else {
-                        sessionStorage.removeItem(
-                            'rovalra_privateserveroccupancysorting',
-                        );
-                    }
-                } catch (e) {}
-
-                AllowHoistingAboveOwnPrivateServers =
-                    data.PrivateServerOccupancySorting &&
-                    data.AllowHoistingAboveOwnPrivateServers === true;
-
-                document.dispatchEvent(
-                    new CustomEvent(
-                        'rovalra-private-server-occupancy-sorting',
-                        {
-                            detail: data.PrivateServerOccupancySorting,
-                        },
-                    ),
+    async function updatePrivateServerOccupancySorting() {
+        try {
+            if (await settings.PrivateServerOccupancySorting) {
+                sessionStorage.setItem(
+                    'rovalra_privateserveroccupancysorting',
+                    'true',
                 );
-            },
+            } else {
+                sessionStorage.removeItem(
+                    'rovalra_privateserveroccupancysorting',
+                );
+            }
+        } catch (e) {}
+
+        AllowHoistingAboveOwnPrivateServers =
+            await settings.PrivateServerOccupancySorting &&
+            await settings.AllowHoistingAboveOwnPrivateServers === true;
+
+        document.dispatchEvent(
+            new CustomEvent(
+                'rovalra-private-server-occupancy-sorting',
+                {
+                    detail: await settings.PrivateServerOccupancySorting,
+                },
+            ),
         );
     }
 
