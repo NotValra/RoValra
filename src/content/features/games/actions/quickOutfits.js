@@ -12,6 +12,7 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { t, ts } from '../../../core/locale/i18n.js';
+import { addQuickAction } from '../../../core/ui/general/quickActions.js';
 
 async function fetchAllOutfits(userId) {
     let outfits = [];
@@ -423,7 +424,6 @@ function addQuickOutfitsButton(container) {
 
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'rovalra-quick-outfits-btn-container';
-    buttonContainer.style.marginTop = '12px';
 
     const button = createButton('', 'secondary', {
         onClick: showQuickOutfitsOverlay,
@@ -455,12 +455,7 @@ function addQuickOutfitsButton(container) {
 
     buttonContainer.appendChild(button);
 
-    const gameButtonsContainer = container.querySelector(
-        '.game-buttons-container',
-    );
-    if (gameButtonsContainer) {
-        container.insertBefore(buttonContainer, gameButtonsContainer);
-    }
+    addQuickAction(container, buttonContainer);
 }
 
 export function init() {

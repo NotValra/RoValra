@@ -17,12 +17,14 @@ import { createOverlay } from '../../core/ui/overlay.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createSpinnerContainer } from '../../core/ui/spinner.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import { createAssetIcon } from '../../core/ui/general/toast.js';
+import { Icon } from '../../core/ui/buildericon.js';
 import {
     getBatchThumbnails,
     createThumbnailElement,
 } from '../../core/thumbnail/thumbnails.js';
 import { t, ts } from '../../core/locale/i18n.js';
+import { addQuickAction } from '../../core/ui/general/quickActions.js';
+import { createButton } from '../../core/ui/buttons.js';
 
 const STORAGE_KEY = 'rovalra_game_outfits';
 const EDITOR_BUTTON_CLASS = 'rovalra-game-outfits-btn';
@@ -393,7 +395,8 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     const placeId = getPlaceIdFromUrl();
     if (!placeId) return;
 
-    // Not waited on, so the button lands beside the site's play button.
+    // Not waited on, so the quick-action button lands as soon as the CTA row
+    // exists while the launch hook continues to wait for the play button.
     const targetPromise = userIdPromise
         .then((userId) => (userId ? resolveTarget(placeId, userId) : null))
         .catch((error) => {
@@ -407,23 +410,19 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
     let passthrough = false;
 
     const ensureButton = (container) => {
-        // The row starts empty, so this waits rather than sitting there alone.
-        if (!container.querySelector('button[data-testid="play-button"]')) {
-            return;
-        }
         if (container.querySelector(`.${GAME_BUTTON_CLASS}`)) return;
 
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = GAME_BUTTON_CLASS;
+        const button = createButton('', 'secondary');
+        button.classList.add(GAME_BUTTON_CLASS);
+        button.style.width = '40px';
+        button.style.height = '40px';
+        button.style.minWidth = '40px';
+        button.style.padding = '0';
+        button.style.display = 'flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
 
-        const icon = createAssetIcon({
-            assetName: 'outfitIcon',
-            altText: '',
-            width: '24px',
-            height: '24px',
-        });
-        if (icon) button.appendChild(icon);
+        button.appendChild(Icon({ icon: 'tshirt-play', size: '24px' }));
 
         addTooltip(button, ts('avatar.gameOutfits.gameTitle'));
         button.addEventListener('click', async () => {
@@ -434,7 +433,7 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
             if (userId && resolved) openPicker(userId, resolved.universeId);
         });
 
-        container.appendChild(button);
+        addQuickAction(container, button);
     };
 
     // Bound to the play row, not the document, so a recommended card is not
@@ -470,23 +469,19 @@ async function buildGamePage(userIdPromise, register, isCurrent) {
         if (outfitId) refreshAvatarType(userId);
     };
 
-    // Watches for the play button at any depth, as it can arrive nested.
+    // The button belongs in the shared quick-action strip, which is created
+    // next to the site's game buttons.
     register(
         observeElement(
-            '#game-details-play-button-container button[data-testid="play-button"]',
-            (playButton) => {
-                const container = playButton.closest(
-                    '#game-details-play-button-container',
-                );
-                if (container) ensureButton(container);
-            },
+            '.game-calls-to-action',
+            ensureButton,
             { multiple: true },
         ),
     );
 
     register(
         observeElement(
-            '#game-details-play-button-container',
+            '.game-calls-to-action',
             (container) => {
                 ensureButton(container);
                 register(

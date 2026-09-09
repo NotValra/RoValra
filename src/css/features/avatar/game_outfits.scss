@@ -5,28 +5,15 @@
     margin-left: 5px;
 }
 
-/* Sized to sit in the play row next to the other buttons there, ordered after
-   them so play stays first. */
 .rovalra-game-outfits-game-btn {
-    display: flex;
     flex-shrink: 0;
-    order: 6;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 60px;
-    margin-left: 5px;
-    padding: 0;
-    color: #fff;
-    background-color: var(--rovalra-playbutton-color);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
 }
 
-.rovalra-game-outfits-game-btn:focus-visible {
-    outline: 2px solid var(--rovalra-playbutton-color);
-    outline-offset: 2px;
+.rovalra-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
 }
 
 .rovalra-game-outfits-body {
