@@ -627,9 +627,7 @@ export const SETTINGS_CONFIG = {
             },
             displayAppThemeUserProfile: {
                 label: 'Display app theme user profiles',
-                description: [
-                    'Displays users app theme on their profile!',
-                ],
+                description: ['Displays users app theme on their profile!'],
                 type: 'checkbox',
                 default: false,
                 childSettings: {
@@ -638,7 +636,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             'Displays your app theme on your profile to other users!',
                             'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
-                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.'
+                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -1515,6 +1513,18 @@ export const SETTINGS_CONFIG = {
                 storageKey: ['rovalra_body_color_presets'],
                 contributors: ['4489102289'],
             },
+            gameOutfitsEnabled: {
+                label: 'Outfits Per Experience',
+                description: [
+                    'Lets you set an outfit that gets equipped automatically when you play, one for R6 experiences and one for R15 experiences.',
+                    'Experiences that let you choose your own avatar type use whichever of the two matches the type you are currently on.',
+                    'Individual experiences can be given their own outfit from their page, which overrides both.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: ['rovalra_game_outfits'],
+                contributors: ['4489102289'],
+            },
             avatarRotatorEnabled: {
                 label: 'Avatar Rotator',
                 description: [
@@ -1746,7 +1756,8 @@ export const SETTINGS_CONFIG = {
             },
             blockUserEnabled: {
                 label: 'Block User',
-                description: "Allows you to block users on the trade page, preventing them from sending you trade offers.",
+                description:
+                    'Allows you to block users on the trade page, preventing them from sending you trade offers.',
                 type: 'checkbox',
                 default: false,
                 contributors: ['1960518316'],
@@ -1845,28 +1856,27 @@ export const SETTINGS_CONFIG = {
         title: 'Navigation',
         settings: {
             privacyTogglesEnabled: {
-                label: "Privacy Toggles in Navigation",
+                label: 'Privacy Toggles in Navigation',
                 description: [
                     'This setting adds a <icon filled>lock-closed</icon> button to the top navigation bar.',
-                    'This allows you to quickly manage privacy settings.'
+                    'This allows you to quickly manage privacy settings.',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['650766686'],
                 exclusiveWith: ['qolTogglesEnabled'],
-                childSettings: { // Toggles to be in the menu
+                childSettings: {
+                    // Toggles to be in the menu
                     privacyTogglesDropdownOnlineStatusEnabled: {
                         label: 'Online Status Toggle',
-                        description: [
-                            'Quickly manage your online status.'
-                        ],
+                        description: ['Quickly manage your online status.'],
                         type: 'checkbox',
                         default: true,
                     },
                     privacyTogglesDropdownJoinStatusEnabled: {
                         label: 'Experience Status Toggle',
                         description: [
-                            'Quickly manage who can join you in experiences.'
+                            'Quickly manage who can join you in experiences.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1874,7 +1884,7 @@ export const SETTINGS_CONFIG = {
                     privacyTogglesDropdownPrivateServerPrivacyEnabled: {
                         label: 'Private Server Privacy Toggle',
                         description: [
-                            'Quickly manage who can invite you to private servers.'
+                            'Quickly manage who can invite you to private servers.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1882,7 +1892,7 @@ export const SETTINGS_CONFIG = {
                     privacyTogglesDropdownInventoryPrivacyEnabled: {
                         label: 'Inventory Privacy Toggle',
                         description: [
-                            'Quickly manage who can view your inventory.'
+                            'Quickly manage who can view your inventory.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1900,7 +1910,6 @@ export const SETTINGS_CONFIG = {
                 isPermanent: true,
                 locked: 'Replaced by Privacy Toggles in Navigation',
                 deprecated: 'Replaced by Privacy Toggles in Navigation.',
-
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',

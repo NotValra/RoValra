@@ -1466,6 +1466,17 @@
         }
     },
     "avatar": {
+        "gameOutfits": {
+            "button": "Game Outfits",
+            "title": "Outfits for experiences",
+            "hint": "Pick the outfit that gets equipped when you play an R6 or an R15 experience.",
+            "r6": "R6 experiences",
+            "r15": "R15 experiences",
+            "none": "Do not change",
+            "gameTitle": "Outfit for this experience",
+            "gameHint": "This overrides the outfit set for R6 and R15 experiences.",
+            "useGlobal": "Use my default"
+        },
         "bodyColors": {
             "addCustom": "Pick a custom color",
             "savedColor": "{{hex}}, right click to remove",
