@@ -157,7 +157,9 @@ const Api = {
     },
 
     async enrichGameData(games, state) {
-        const batch = games.filter((g) => g && !state.likes.has(g.id));
+        const batch = games.filter(
+            (g) => g && (!state.likes.has(g.id) || !state.updated.has(g.id)),
+        );
         if (!batch.length) return;
 
         const playerResList = [];
@@ -417,7 +419,7 @@ class HiddenGamesManager {
         this.visibleCount = 0;
 
         if (
-            ['like-ratio', 'likes', 'dislikes', 'players'].includes(
+            ['default', 'like-ratio', 'likes', 'dislikes', 'players'].includes(
                 this.filters.sort,
             )
         ) {
@@ -431,8 +433,8 @@ class HiddenGamesManager {
         if (sort === 'default') {
             sorted.sort(
                 (a, b) =>
-                    (new Date(this.cache.updated.get(a.id) || 0) -
-                        new Date(this.cache.updated.get(b.id) || 0)) *
+                    (new Date(this.cache.updated.get(a.id) || 0).getTime() -
+                        new Date(this.cache.updated.get(b.id) || 0).getTime()) *
                     orderMultiplier,
             );
         } else if (sort === 'like-ratio') {
