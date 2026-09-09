@@ -493,6 +493,32 @@ async function wearOutfit(outfitData) {
 
         const outfitModel = details.outfitModel || details;
         const assets = [...(outfitModel.assets || [])];
+
+        let bodyColor3s = details.bodyColor3s || outfitModel.bodyColor3s;
+
+        if (!bodyColor3s && outfitModel.bodyColors) {
+            const colorKeys = {
+                headColor: 'headColor3',
+                torsoColor: 'torsoColor3',
+                leftArmColor: 'leftArmColor3',
+                rightArmColor: 'rightArmColor3',
+                leftLegColor: 'leftLegColor3',
+                rightLegColor: 'rightLegColor3',
+            };
+
+            bodyColor3s = Object.fromEntries(
+                Object.entries(colorKeys)
+                    .filter(([key]) => outfitModel.bodyColors[key])
+                    .map(([key, outputKey]) => {
+                        const color = String(outfitModel.bodyColors[key]);
+                        return [
+                            outputKey,
+                            color.startsWith('#') ? color : `#${color}`,
+                        ];
+                    }),
+            );
+        }
+
         const backgroundAsset =
             details.outfitConfigurations?.background?.backgroundAsset;
         const promises = [];
@@ -544,13 +570,13 @@ async function wearOutfit(outfitData) {
                 }),
             );
 
-        if (outfitModel.bodyColor3s) {
+        if (bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
                     endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: outfitModel.bodyColor3s,
+                    body: bodyColor3s,
                 }),
             );
         }
