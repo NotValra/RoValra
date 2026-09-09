@@ -182,6 +182,8 @@ import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
+import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
+import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 // create
@@ -206,6 +208,7 @@ const featureRoutes = [
         once: true,
         features: [
             initSettingsPage,
+            initGameBookmarks,
             initQuickPlay,
             initEasterEggLinks,
             initCssFixes,
@@ -474,6 +477,7 @@ const featureRoutes = [
         paths: ['/home'],
         features: [
             initHomeLayout,
+            initBookmarkedGames,
             initUnderratedGamesHome,
             initAccurateContinue,
             initHideAddFriendsButton,

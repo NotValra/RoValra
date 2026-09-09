@@ -1,5 +1,6 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
+import { updateGameBookmarks } from './gameBookmarks.js';
 
 // --- Constants & State ---
 
@@ -2103,6 +2104,11 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
+        case 'updateGameBookmarks':
+            updateGameBookmarks(request.operation)
+                .then((state) => sendResponse({ state }))
+                .catch((error) => sendResponse({ error: error.message }));
+            return true;
         case 'fetchJson':
             fetch(request.url)
                 .then((res) => {

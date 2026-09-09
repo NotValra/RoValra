@@ -151,6 +151,26 @@ export const SETTINGS_CONFIG = {
     Games: {
         title: 'Experiences',
         settings: {
+            gameBookmarksEnabled: {
+                label: 'Game Bookmarks',
+                description: [
+                    'Save games to your own bookmark categories and find them later on Home.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_game_bookmarks',
+                contributors: ['476449201'],
+                childSettings: {
+                    gameBookmarksCardButtonsEnabled: {
+                        label: 'Show Bookmark Buttons on Game Cards',
+                        description: [
+                            'Shows a Bookmark button when you hover over game cards.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             PreferredRegionEnabled: {
                 label: 'Preferred Region Play Button',
                 description: [
