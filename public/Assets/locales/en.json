@@ -218,6 +218,9 @@
         "inventoryPrivateOrNoLimiteds": "This user's inventory is private or has no limiteds.",
         "searchByName": "Search by item name"
     },
+    "sendTrade": {
+        "send": "Send"
+    },
     "privateServer": {
         "processingTitle": "Processing Servers",
         "starting": "Starting...",
