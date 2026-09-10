@@ -422,6 +422,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: [546872490],
             },
+            badgeEarnedDateEnabled: {
+                label: 'Badge Earned Date',
+                description: [
+                    'Shows when you earned a badge on badge and experience pages.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: [476449201],
+            },
             updateHistoryEnabled: {
                 label: 'Update History',
                 description: [

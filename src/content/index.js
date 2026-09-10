@@ -81,6 +81,7 @@ import { init as initQuickPlay } from './features/games/quickplay.js';
 import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initBadgeLayoutToggle } from './features/games/badgeLayoutToggle.js';
 import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
+import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
@@ -358,7 +359,12 @@ const featureRoutes = [
             initHiddenBadges,
             initBadgeLayoutToggle,
             initBadgeOwnership,
+            initBadgeEarnedDate,
         ],
+    },
+    {
+        paths: ['/badges/'],
+        features: [initBadgeEarnedDate],
     },
     // Donation store page
     {

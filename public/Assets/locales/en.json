@@ -332,6 +332,9 @@
         "lastOnSale": "Last on sale",
         "for": "for"
     },
+    "badgeEarnedDate": {
+        "unlocked": "Unlocked"
+    },
     "lastEquipped": {
         "label": "Last Equipped"
     },
