@@ -759,6 +759,7 @@
         "noServersApi": "No servers found via the RoValra API.",
         "allServersInactive": "All servers in this region went inactive",
         "loadErrorApi": "Failed to load servers from RoValra API.",
+        "hide": "Hide",
         "join": "Join",
         "peopleMax": "{{playing}} of {{maxPlayers}} people max",
         "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
