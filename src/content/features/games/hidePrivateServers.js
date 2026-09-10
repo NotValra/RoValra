@@ -122,14 +122,8 @@ function registerStorageListener() {
     chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName !== 'local') return;
 
-        if (
-            changes.HidePrivateServersEnabled ||
-            changes.ServerlistmodificationsEnabled
-        ) {
-            enabled =
-                changes.HidePrivateServersEnabled?.newValue !== false &&
-                changes.ServerlistmodificationsEnabled?.newValue !== false;
-        }
+        if (changes.HidePrivateServersEnabled)
+            enabled = changes.HidePrivateServersEnabled.newValue !== false;
 
         if (changes[STORAGE_KEY])
             hiddenPrivateServerIds = new Set(changes[STORAGE_KEY].newValue || []);
@@ -160,9 +154,7 @@ function observePrivateServerRows() {
 export async function init() {
     const stored = await chrome.storage.local.get(STORAGE_KEY);
     hiddenPrivateServerIds = new Set(stored[STORAGE_KEY] || []);
-    enabled =
-        (await settings.ServerlistmodificationsEnabled) !== false &&
-        (await settings.HidePrivateServersEnabled) !== false;
+    enabled = (await settings.HidePrivateServersEnabled) !== false;
 
     registerStorageListener();
     observePrivateServerRows();

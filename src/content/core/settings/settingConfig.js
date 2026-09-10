@@ -594,17 +594,17 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
-                    HidePrivateServersEnabled: {
-                        label: 'Hide Private Servers',
-                        description: [
-                            'Adds an option to hide private servers from the server list.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                        storageKey: 'hiddenFriendPrivateServers',
-                        contributors: ['476449201'],
-                    },
                 },
+            },
+            HidePrivateServersEnabled: {
+                label: 'Hide Private Servers',
+                description: [
+                    'Adds an option to hide private servers from the server list.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'hiddenFriendPrivateServers',
+                contributors: ['476449201'],
             },
             PrivateQuickLinkCopy: {
                 label: 'Quick Private Server Link Copy and Generation',
