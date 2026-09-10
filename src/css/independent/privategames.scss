@@ -785,6 +785,7 @@ li.rovalra-offsale-toggle-item {
         .badge-stats-container {
             display: flex;
             flex-direction: row;
+            flex-wrap: nowrap;
             align-items: center;
             list-style: none;
             padding: 0;
@@ -792,6 +793,7 @@ li.rovalra-offsale-toggle-item {
 
             li {
                 flex: 1;
+                min-width: 0;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -813,6 +815,16 @@ li.rovalra-offsale-toggle-item {
                     line-height: 20px;
                     color: var(--rovalra-secondary-text-color);
                     margin: 0;
+                }
+            }
+
+            .rovalra-badge-earned-date {
+                flex: 1;
+                min-width: 0;
+
+                .badge-stats-info {
+                    font-size: 13px;
+                    white-space: nowrap;
                 }
             }
         }
