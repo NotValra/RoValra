@@ -149,12 +149,13 @@
     },
     "hiddenGamesProfile": {
         "noPublicGames": "User has no public experiences",
-        "overlayText": "Hidden Experiences (Might show not hidden experiences)",
+        "overlayText": "Hidden Experiences",
         "noHiddenGames": "This user has no hidden experiences.",
         "buttonText": "Hidden Experiences",
         "labels": {
             "sort": "Sort",
-            "order": "Order"
+            "order": "Order",
+            "showAll": "Show All Games"
         },
         "sort": {
             "default": "Default",
@@ -177,7 +178,8 @@
         "buttonText": "Hidden Experiences",
         "labels": {
             "sort": "Sort",
-            "order": "Order"
+            "order": "Order",
+            "showAll": "Show All Games"
         },
         "sort": {
             "recentlyUpdated": "Recently Updated",
