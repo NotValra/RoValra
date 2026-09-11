@@ -99,6 +99,19 @@ async function searchCatalog({ keyword, categoryId, subcategoryId, cursor }) {
     });
 }
 
+function extractAssetType(detail) {
+    if (detail?.assetType?.id) {
+        return { id: detail.assetType.id, name: detail.assetType.name || '' };
+    }
+    if (typeof detail?.assetType === 'number') {
+        return { id: detail.assetType, name: detail.assetTypeName || '' };
+    }
+    if (typeof detail?.assetTypeId === 'number') {
+        return { id: detail.assetTypeId, name: detail.assetTypeName || detail.assetType?.name || '' };
+    }
+    return null;
+}
+
 async function resolveAssetDetails(assetId) {
     const response = await callRobloxApi({
         subdomain: 'catalog',
@@ -107,15 +120,22 @@ async function resolveAssetDetails(assetId) {
         body: { items: [{ itemType: 'Asset', id: assetId }] },
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+        console.error(`RoValra Avatar Sandbox: Asset details request failed with status ${response.status}`, assetId);
+        return null;
+    }
     const data = await response.json();
     const detail = data?.data?.[0];
-    if (!detail?.assetType?.id) return null;
+    const assetType = extractAssetType(detail);
+    if (!detail || !assetType) {
+        console.error('RoValra Avatar Sandbox: Asset details missing an assetType', assetId, detail);
+        return null;
+    }
 
     return {
         id: detail.id,
         name: detail.name,
-        assetType: { id: detail.assetType.id, name: detail.assetType.name },
+        assetType,
         currentVersionId: detail.currentVersionId ?? detail.assetVersionId ?? null,
     };
 }
@@ -127,7 +147,10 @@ async function resolveBundleAssets(bundleId) {
     });
 
     const bundledAssetRefs = (bundleDetails?.items || []).filter((item) => item.type === 'Asset');
-    if (bundledAssetRefs.length === 0) return [];
+    if (bundledAssetRefs.length === 0) {
+        console.error('RoValra Avatar Sandbox: Bundle has no resolvable assets', bundleId, bundleDetails);
+        return [];
+    }
 
     const detailsResponse = await callRobloxApi({
         subdomain: 'catalog',
@@ -138,15 +161,19 @@ async function resolveBundleAssets(bundleId) {
         },
     });
 
-    if (!detailsResponse.ok) return [];
+    if (!detailsResponse.ok) {
+        console.error(`RoValra Avatar Sandbox: Bundle asset details request failed with status ${detailsResponse.status}`, bundleId);
+        return [];
+    }
     const detailsData = await detailsResponse.json();
 
     return (detailsData?.data || [])
-        .filter((item) => item.assetType?.id)
-        .map((item) => ({
+        .map((item) => ({ item, assetType: extractAssetType(item) }))
+        .filter(({ assetType }) => assetType)
+        .map(({ item, assetType }) => ({
             id: item.id,
             name: item.name,
-            assetType: { id: item.assetType.id, name: item.assetType.name },
+            assetType,
             currentVersionId: item.currentVersionId ?? item.assetVersionId ?? null,
         }));
 }
@@ -383,33 +410,48 @@ async function openSandbox() {
 
             if (alreadyEquipped) {
                 toggleAssetEquip(sandboxState, { id: item.id });
-            } else if (item.itemType === 'Bundle') {
-                const bundleAssets = await resolveBundleAssets(item.id);
-                if (bundleAssets.length === 0) {
-                    showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
-                    return;
-                }
-                bundleAssets.forEach((asset) => toggleAssetEquip(sandboxState, asset));
-            } else {
-                const asset = item.assetType?.id
+                refreshEquippedList();
+                scheduleRender();
+                return;
+            }
+
+            let equippedSomething = false;
+
+            if (item.itemType !== 'Bundle') {
+                const directAssetType = extractAssetType(item);
+                const asset = directAssetType
                     ? {
                           id: item.id,
                           name: item.name,
-                          assetType: { id: item.assetType.id, name: item.assetType.name },
+                          assetType: directAssetType,
                           currentVersionId: null,
                       }
                     : await resolveAssetDetails(item.id);
 
-                if (!asset) {
-                    showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
-                    return;
+                if (asset) {
+                    toggleAssetEquip(sandboxState, asset);
+                    equippedSomething = true;
                 }
-                toggleAssetEquip(sandboxState, asset);
+            }
+
+            if (!equippedSomething) {
+                const bundleAssets = await resolveBundleAssets(item.id);
+                if (bundleAssets.length > 0) {
+                    bundleAssets.forEach((asset) => toggleAssetEquip(sandboxState, asset));
+                    equippedSomething = true;
+                }
+            }
+
+            if (!equippedSomething) {
+                console.error('RoValra Avatar Sandbox: Could not resolve any equippable assets for item', item);
+                showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
+                return;
             }
 
             refreshEquippedList();
             scheduleRender();
-        } catch {
+        } catch (error) {
+            console.error('RoValra Avatar Sandbox: Failed to equip item', item, error);
             showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
         } finally {
             card.disabled = false;
