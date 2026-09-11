@@ -1791,6 +1791,13 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['1960518316'],
             },
+            sendTradeEnabled: {
+                label: 'Send Trade',
+                description: "Allows you to send new trade offers to other users from the trade page.",
+                type: 'checkbox',
+                default: false,
+                contributors: ['1960518316'],
+            },
         },
     },
     Plus: {
