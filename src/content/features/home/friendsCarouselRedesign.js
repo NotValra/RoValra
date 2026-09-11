@@ -27,6 +27,7 @@ const ORIGINAL_LIST_SELECTOR =
 
 const FRIEND_ID_CAP = 500;
 const RENDER_CHUNK = 40;
+const HOVER_SHOW_DELAY = 30;
 
 let enabled = false;
 let observersRegistered = false;
@@ -339,7 +340,7 @@ function attachHoverCard(tile, data) {
             positionHoverCard(card, tile.getBoundingClientRect());
             card.style.visibility = '';
             activeHoverCard = card;
-        }, 180);
+        }, HOVER_SHOW_DELAY);
     });
 
     tile.addEventListener('mouseleave', () => {
