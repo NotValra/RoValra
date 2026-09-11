@@ -17,6 +17,10 @@ const MAX_PER_STACKABLE_TYPE = 10;
 const SEARCH_LIMIT = 30;
 const SEARCH_DEBOUNCE_MS = 400;
 const RENDER_DEBOUNCE_MS = 350;
+const RENDER_MAX_ATTEMPTS = 4;
+const RENDER_RETRY_DELAY_MS = 1200;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let overlayOpen = false;
 
@@ -51,18 +55,32 @@ async function renderAvatarPreview(baseAvatar, assets) {
         },
     };
 
-    const response = await callRobloxApi({
-        subdomain: 'avatar',
-        endpoint: '/v1/avatar/render',
-        method: 'POST',
-        body: payload,
-        noCache: true,
-    });
+    let lastError = null;
+    for (let attempt = 1; attempt <= RENDER_MAX_ATTEMPTS; attempt++) {
+        try {
+            const response = await callRobloxApi({
+                subdomain: 'avatar',
+                endpoint: '/v1/avatar/render',
+                method: 'POST',
+                body: payload,
+                noCache: true,
+            });
 
-    if (!response.ok) throw new Error(`Render failed with status ${response.status}`);
-    const data = await response.json();
-    if (!data?.imageUrl) throw new Error('Render response missing an imageUrl');
-    return data.imageUrl;
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.imageUrl) return data.imageUrl;
+                lastError = new Error('Render response missing an imageUrl');
+            } else {
+                lastError = new Error(`Render failed with status ${response.status}`);
+            }
+        } catch (error) {
+            lastError = error;
+        }
+
+        if (attempt < RENDER_MAX_ATTEMPTS) await sleep(RENDER_RETRY_DELAY_MS);
+    }
+
+    throw lastError;
 }
 
 async function searchCatalog({ keyword, categoryId, subcategoryId, cursor }) {
@@ -79,6 +97,27 @@ async function searchCatalog({ keyword, categoryId, subcategoryId, cursor }) {
         subdomain: 'catalog',
         endpoint: `/v1/search/items/details?${params.toString()}`,
     });
+}
+
+async function resolveAssetDetails(assetId) {
+    const response = await callRobloxApi({
+        subdomain: 'catalog',
+        endpoint: '/v1/catalog/items/details',
+        method: 'POST',
+        body: { items: [{ itemType: 'Asset', id: assetId }] },
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    const detail = data?.data?.[0];
+    if (!detail?.assetType?.id) return null;
+
+    return {
+        id: detail.id,
+        name: detail.name,
+        assetType: { id: detail.assetType.id, name: detail.assetType.name },
+        currentVersionId: detail.currentVersionId ?? detail.assetVersionId ?? null,
+    };
 }
 
 async function resolveBundleAssets(bundleId) {
@@ -340,23 +379,32 @@ async function openSandbox() {
     async function handleItemClick(item, card) {
         card.disabled = true;
         try {
-            if (item.itemType === 'Bundle') {
+            const alreadyEquipped = sandboxState.assets.some((a) => a.id === item.id);
+
+            if (alreadyEquipped) {
+                toggleAssetEquip(sandboxState, { id: item.id });
+            } else if (item.itemType === 'Bundle') {
                 const bundleAssets = await resolveBundleAssets(item.id);
                 if (bundleAssets.length === 0) {
                     showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
                     return;
                 }
                 bundleAssets.forEach((asset) => toggleAssetEquip(sandboxState, asset));
-            } else if (item.assetType?.id) {
-                toggleAssetEquip(sandboxState, {
-                    id: item.id,
-                    name: item.name,
-                    assetType: { id: item.assetType.id, name: item.assetType.name },
-                    currentVersionId: null,
-                });
             } else {
-                showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
-                return;
+                const asset = item.assetType?.id
+                    ? {
+                          id: item.id,
+                          name: item.name,
+                          assetType: { id: item.assetType.id, name: item.assetType.name },
+                          currentVersionId: null,
+                      }
+                    : await resolveAssetDetails(item.id);
+
+                if (!asset) {
+                    showSystemAlert(ts('avatarSandbox.equipFailed'), 'error');
+                    return;
+                }
+                toggleAssetEquip(sandboxState, asset);
             }
 
             refreshEquippedList();
