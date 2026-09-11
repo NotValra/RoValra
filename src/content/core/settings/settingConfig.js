@@ -937,6 +937,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            bulkBadgeRemoverEnabled: {
+                label: 'Bulk Badge Removal',
+                description: 'This allows you to delete your badges in bulk.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['476449201'],
+            },
             unfriendDetectorEnabled: {
                 label: 'Unfriend Detector',
                 experimental: 'May cause issues',
