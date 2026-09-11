@@ -27,7 +27,7 @@ const ORIGINAL_LIST_SELECTOR =
 
 const FRIEND_ID_CAP = 500;
 const RENDER_CHUNK = 40;
-const HOVER_SHOW_DELAY = 30;
+const HOVER_SHOW_DELAY = 0;
 
 let enabled = false;
 let observersRegistered = false;
@@ -61,8 +61,10 @@ function ensureStyle() {
             overflow-y: hidden;
             scroll-behavior: smooth;
             scrollbar-width: none;
+       
             padding: 90px 4px 14px;
             margin: -90px -4px -14px;
+            pointer-events: none;
         }
 
         .${SCROLL_CLASS}::-webkit-scrollbar {
@@ -71,6 +73,7 @@ function ensureStyle() {
 
         .${SCROLL_CLASS} .friends-carousel-tile {
             flex: 0 0 auto;
+            pointer-events: auto;
         }
 
         .${ARROW_CLASS} {
@@ -529,6 +532,7 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                     username: friend.username ? `@${friend.username}` : '',
                     isHidden: false,
                     isVerified: friend.isVerified || false,
+                    isSubscribed: friend.hasRobloxSubscription === true,
                 },
             );
             attachHoverCard(tile, {

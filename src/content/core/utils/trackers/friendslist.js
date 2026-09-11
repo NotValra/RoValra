@@ -419,6 +419,8 @@ export async function updateFriendsList(userId) {
                             displayName: displayName,
                             combinedName: combinedName,
                             isVerified: profile.isVerified,
+                            hasRobloxSubscription:
+                                profile.hasRobloxSubscription,
                             isDeleted: profile.isDeleted,
                             isTrusted: isTrusted,
                             canChat: chatStatus?.canChat ?? null,
