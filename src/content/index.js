@@ -61,6 +61,7 @@ import { init as initAvatarRotator } from './features/avatar/avatarRotator.js';
 import { init as initMultiEquip } from './features/avatar/multiEquip.js';
 import { init as initBodyColors } from './features/avatar/bodyColors.js';
 import { init as initGameOutfits } from './features/avatar/gameOutfits.js';
+import { init as initAvatarSandbox } from './features/avatar/avatarSandbox.js';
 
 // Catalog
 import { init as initItemSales } from './features/catalog/itemsales.js';
@@ -388,6 +389,7 @@ const featureRoutes = [
             initAvatarRotator,
             initMultiEquip,
             initBodyColors,
+            initAvatarSandbox,
         ],
     },
     // Roblox Plus Page

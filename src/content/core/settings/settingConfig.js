@@ -1586,6 +1586,16 @@ export const SETTINGS_CONFIG = {
                     'rovalra_avatar_rotator_interval',
                 ],
             },
+            avatarSandboxEnabled: {
+                label: 'Avatar Sandbox',
+                description: [
+                    'Adds an Avatar Sandbox to the avatar editor, letting you search the marketplace and try on items on your avatar without owning or equipping them.',
+                    'Nothing is actually purchased or equipped, this is purely a visual preview.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['617784'],
+            },
         },
     },
     transactions: {

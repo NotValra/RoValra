@@ -1,4 +1,20 @@
 {
+    "avatarSandbox": {
+        "button": "Avatar Sandbox",
+        "title": "Avatar Sandbox",
+        "searchPlaceholder": "Search for items…",
+        "allCategories": "All Categories",
+        "allSubcategories": "All",
+        "loadMore": "Load More",
+        "loading": "Loading…",
+        "noResults": "No items found.",
+        "equipped": "Equipped Items ({{count}})",
+        "noneEquipped": "Nothing equipped yet. Click an item to try it on.",
+        "reset": "Reset to My Avatar",
+        "remove": "Remove",
+        "renderFailed": "Could not render the avatar preview.",
+        "equipFailed": "Could not equip that item."
+    },
     "freeRobloxPlusThemes": {
         "notice": "Select and use any theme without Roblox Plus."
     },
