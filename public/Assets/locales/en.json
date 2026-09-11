@@ -1004,7 +1004,6 @@
         "bulk": "Bulk Badge Remover",
         "exit": "Exit Bulk Mode",
         "delete": "Delete Badges",
-        "deleteAll": "Delete All Badges",
         "deleteCount": "Delete Badges ({{count}})",
         "confirmTitle": "Confirm Badge Deletion",
         "finalTitle": "Are You Really Sure?",
@@ -1012,7 +1011,6 @@
         "descriptionSingle": "You are about to delete 1 badge from your inventory. This action cannot be undone.",
         "descriptionPlural": "You are about to delete {{count}} badges from your inventory. This action cannot be undone.",
         "deletingProgress": "Deleting badges... {{current}}/{{total}}",
-        "loadFailed": "Could not load all badges.",
         "cancel": "Cancel",
         "success": "Deleted {{successCount}}/{{totalCount}} badges."
     },

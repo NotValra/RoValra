@@ -6,11 +6,14 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { ts } from '../../../core/locale/i18n.js';
+import {
+    getBadgeIdFromUrl,
+    getUserIdFromInventoryUrl,
+} from '../../../core/idExtractor.js';
 
 const selectedBadges = new Set();
 let bulkMode = false;
 let actionButton = null;
-let deleteAllButton = null;
 let toggleButton = null;
 
 function isBadgeInventoryPage() {
@@ -19,7 +22,7 @@ function isBadgeInventoryPage() {
 
 function getBadgeId(card) {
     const href = card.querySelector('a[href*="/badges/"]')?.href || '';
-    return href.match(/\/badges\/(\d+)/)?.[1] || null;
+    return getBadgeIdFromUrl(href);
 }
 
 function updateActionButton() {
@@ -97,23 +100,6 @@ async function deleteBadge(badgeId) {
     } catch {
         return false;
     }
-}
-
-async function getAllBadgeIds() {
-    const userId = await getAuthenticatedUserId();
-    const badgeIds = [];
-    let cursor = null;
-    do {
-        const suffix = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
-        const response = await callRobloxApi({
-            subdomain: 'badges',
-            endpoint: `/v1/users/${userId}/badges?limit=100&sortOrder=Desc${suffix}`,
-        });
-        const data = await response.json();
-        data.data?.forEach((badge) => badge?.id && badgeIds.push(String(badge.id)));
-        cursor = data.nextPageCursor || null;
-    } while (cursor);
-    return badgeIds;
 }
 
 function showFinalConfirmation(ids) {
@@ -218,8 +204,7 @@ async function confirmDeletion() {
 
 async function injectActions(header) {
     const userId = await getAuthenticatedUserId();
-    const match = location.pathname.match(/\/users\/(\d+\/)?inventory\/?$/);
-    const pageUserId = match?.[1]?.replace('/', '') || String(userId);
+    const pageUserId = getUserIdFromInventoryUrl() || String(userId);
     if (!isBadgeInventoryPage() || String(userId) !== pageUserId) {
         cleanup();
         return;
@@ -233,7 +218,6 @@ async function injectActions(header) {
             bulkMode = !bulkMode;
             if (!bulkMode) selectedBadges.clear();
             document.querySelectorAll('#assetsItems .item-card-container').forEach(setCardMode);
-            deleteAllButton.style.display = bulkMode ? 'inline-flex' : 'none';
             toggleButton.textContent = ts(bulkMode ? 'bulkBadgeRemover.exit' : 'bulkBadgeRemover.bulk');
             updateActionButton();
         },
@@ -243,24 +227,7 @@ async function injectActions(header) {
     actionButton = createButton(ts('bulkBadgeRemover.delete'), 'alert', { onClick: confirmDeletion });
     actionButton.style.display = 'none';
     actionButton.style.marginLeft = '8px';
-    deleteAllButton = createButton(ts('bulkBadgeRemover.deleteAll'), 'primary', {
-        onClick: async () => {
-            deleteAllButton.disabled = true;
-            try {
-                selectedBadges.clear();
-                (await getAllBadgeIds()).forEach((badgeId) => selectedBadges.add(badgeId));
-                await confirmDeletion();
-            } catch {
-                showSystemAlert(ts('bulkBadgeRemover.loadFailed'), 'error');
-            } finally {
-                deleteAllButton.disabled = false;
-            }
-        },
-    });
-    deleteAllButton.style.display = 'none';
-    deleteAllButton.style.marginLeft = '8px';
-    deleteAllButton.style.backgroundColor = 'var(--rovalra-playbutton-color)';
-    header.append(toggleButton, actionButton, deleteAllButton);
+    header.append(toggleButton, actionButton);
 }
 
 function cleanup() {
@@ -268,10 +235,8 @@ function cleanup() {
     selectedBadges.clear();
     toggleButton?.remove();
     actionButton?.remove();
-    deleteAllButton?.remove();
     toggleButton = null;
     actionButton = null;
-    deleteAllButton = null;
     document.querySelectorAll('.rovalra-badge-radio').forEach((radio) => radio.remove());
     document.querySelectorAll('#assetsItems .item-card-container').forEach(restoreCard);
 }
@@ -281,8 +246,7 @@ export async function init() {
     if (!settings.bulkBadgeRemoverEnabled) return;
     const refresh = async () => {
         const userId = await getAuthenticatedUserId();
-        const match = location.pathname.match(/\/users\/(\d+\/)?inventory\/?$/);
-        const pageUserId = match?.[1]?.replace('/', '') || String(userId);
+        const pageUserId = getUserIdFromInventoryUrl() || String(userId);
         if (!isBadgeInventoryPage() || String(userId) !== pageUserId) {
             cleanup();
             return;
