@@ -141,13 +141,15 @@ export function loadDatacenterMap() {
     window.rovalraDatacenterState = 'loading';
     datacenterMapPromise = (async () => {
         let currentData = null;
+        let hasStoredCache = false;
         try {
             currentData = await CacheHandler.get(
                 'regions',
                 STORAGE_KEY_DATACENTERS,
                 'local',
             );
-            if (currentData) {
+            hasStoredCache = currentData !== null && currentData !== undefined;
+            if (hasStoredCache) {
                 processDataIntoMap(currentData);
             }
         } catch (e) {
@@ -181,7 +183,7 @@ export function loadDatacenterMap() {
         }
 
         window.rovalraDatacenterState = 'complete';
-        refreshDatacenterMap(currentData);
+        if (!hasStoredCache) refreshDatacenterMap(currentData);
     })();
 
     return datacenterMapPromise;
