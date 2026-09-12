@@ -763,15 +763,14 @@ async function getReactServerId(element) {
                     );
                 if (accessCode)
                     element.setAttribute('data-access-code', accessCode);
-                if (isFriendServer) {
-                    element.setAttribute(
-                        'data-rovalra-is-friend-server',
-                        'true',
-                    );
-                }
-                if (isOwner) {
-                    element.setAttribute('data-rovalra-is-owner', 'true');
-                }
+                element.setAttribute(
+                    'data-rovalra-is-friend-server',
+                    String(Boolean(isFriendServer)),
+                );
+                element.setAttribute(
+                    'data-rovalra-is-owner',
+                    String(Boolean(isOwner)),
+                );
 
                 resolve(event.detail);
             }
