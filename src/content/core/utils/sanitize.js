@@ -46,9 +46,8 @@ export function setSafeText(element, text) {
         return element;
     }
 
-    const sanitized = sanitizeString(String(text));
-
-    element.textContent = sanitized;
+    // no need to sanitize here, textContent doesnt get parsed as HTML
+    element.textContent = String(text);
 
     return element;
 }
