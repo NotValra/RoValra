@@ -1,5 +1,6 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
+import { updateGameBookmarks } from './gameBookmarks.js';
 
 // --- Constants & State ---
 
@@ -492,6 +493,32 @@ async function wearOutfit(outfitData) {
 
         const outfitModel = details.outfitModel || details;
         const assets = [...(outfitModel.assets || [])];
+
+        let bodyColor3s = details.bodyColor3s || outfitModel.bodyColor3s;
+
+        if (!bodyColor3s && outfitModel.bodyColors) {
+            const colorKeys = {
+                headColor: 'headColor3',
+                torsoColor: 'torsoColor3',
+                leftArmColor: 'leftArmColor3',
+                rightArmColor: 'rightArmColor3',
+                leftLegColor: 'leftLegColor3',
+                rightLegColor: 'rightLegColor3',
+            };
+
+            bodyColor3s = Object.fromEntries(
+                Object.entries(colorKeys)
+                    .filter(([key]) => outfitModel.bodyColors[key])
+                    .map(([key, outputKey]) => {
+                        const color = String(outfitModel.bodyColors[key]);
+                        return [
+                            outputKey,
+                            color.startsWith('#') ? color : `#${color}`,
+                        ];
+                    }),
+            );
+        }
+
         const backgroundAsset =
             details.outfitConfigurations?.background?.backgroundAsset;
         const promises = [];
@@ -543,13 +570,13 @@ async function wearOutfit(outfitData) {
                 }),
             );
 
-        if (outfitModel.bodyColor3s) {
+        if (bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
                     endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: outfitModel.bodyColor3s,
+                    body: bodyColor3s,
                 }),
             );
         }
@@ -2103,6 +2130,11 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
+        case 'updateGameBookmarks':
+            updateGameBookmarks(request.operation)
+                .then((state) => sendResponse({ state }))
+                .catch((error) => sendResponse({ error: error.message }));
+            return true;
         case 'fetchJson':
             fetch(request.url)
                 .then((res) => {

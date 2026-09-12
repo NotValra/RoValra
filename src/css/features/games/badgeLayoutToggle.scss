@@ -1,4 +1,17 @@
 .game-badges-list {
+    .badge-stats-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        width: 100%;
+
+        > li {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    }
+
     .container-header {
         .rovalra-badge-layout-toggle {
             margin-left: auto;
@@ -12,10 +25,18 @@
         }
     }
 
+    .rovalra-badge-earned-date {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     &.rovalra-badge-grid-view {
         > .rovalra-badge-native-list {
             display: none !important;
         }
+
 
         > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list) {
             display: grid;

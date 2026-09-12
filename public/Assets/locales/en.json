@@ -5,6 +5,26 @@
     "items": {
         "hiddenFromMarketplace": "This item is hidden from the marketplace"
     },
+    "gameBookmarks": {
+        "bookmark": "Bookmark",
+        "saved": "Bookmarked",
+        "title": "Bookmarks",
+        "uncategorized": "Uncategorized",
+        "create": "+ Create New Category",
+        "categoryName": "Category name",
+        "createSave": "Create and Save",
+        "save": "Save Changes",
+        "deleteCategory": "Delete category",
+        "deleteCategoryConfirm": "Are you sure? This will delete the category and remove it from every bookmarked game.",
+        "confirm": "Delete",
+        "cancel": "Cancel",
+        "remove": "Remove Bookmark",
+        "error": "Could not save bookmark. Please try again.",
+        "loading": "Loading game…",
+        "all": "All",
+        "topic": "Bookmarked Games",
+        "empty": "No bookmarked games in this category."
+    },
     "homeLayout": {
         "untitled": "Untitled",
         "empty": "RoValra was unable to find the layout, refresh and try again.",
@@ -58,6 +78,18 @@
             "robuxBalance": "Robux Balance",
             "settings": "Settings"
         }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Previous friends",
+        "nextFriends": "More friends",
+        "isPlaying": "{{name}} is playing",
+        "online": "Online",
+        "inStudio": "In Studio",
+        "offline": "Offline",
+        "friendFallback": "Friend",
+        "join": "Join",
+        "chat": "Chat",
+        "viewProfile": "View Profile"
     },
     "friendLabels": {
         "menuAction": "Set Friend Label",
@@ -218,6 +250,9 @@
         "inventoryPrivateOrNoLimiteds": "This user's inventory is private or has no limiteds.",
         "searchByName": "Search by item name"
     },
+    "sendTrade": {
+        "send": "Send"
+    },
     "privateServer": {
         "processingTitle": "Processing Servers",
         "starting": "Starting...",
@@ -299,6 +334,9 @@
         "text": "Previous Price:",
         "lastOnSale": "Last on sale",
         "for": "for"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Unlocked"
     },
     "lastEquipped": {
         "label": "Last Equipped"
@@ -968,6 +1006,20 @@
         "exitBulkMode": "Exit Bulk Mode",
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
+    "bulkBadgeRemover": {
+        "bulk": "Bulk Badge Remover",
+        "exit": "Exit Bulk Mode",
+        "delete": "Delete Badges",
+        "deleteCount": "Delete Badges ({{count}})",
+        "confirmTitle": "Confirm Badge Deletion",
+        "finalTitle": "Are You Really Sure?",
+        "finalDescription": "This will permanently delete {{count}} badges from your inventory.",
+        "descriptionSingle": "You are about to delete 1 badge from your inventory. This action cannot be undone.",
+        "descriptionPlural": "You are about to delete {{count}} badges from your inventory. This action cannot be undone.",
+        "deletingProgress": "Deleting badges... {{current}}/{{total}}",
+        "cancel": "Cancel",
+        "success": "Deleted {{successCount}}/{{totalCount}} badges."
+    },
     "blockUser": {
         "block": "Block",
         "unblock": "Unblock",
@@ -1463,10 +1515,25 @@
         }
     },
     "avatar": {
+        "gameOutfits": {
+            "button": "Game Outfits",
+            "title": "Outfits for experiences",
+            "hint": "Pick the outfit that gets equipped when you play an R6 or an R15 experience.",
+            "r6": "R6 experiences",
+            "r15": "R15 experiences",
+            "none": "Do not change",
+            "gameTitle": "Outfit for this experience",
+            "gameHint": "This overrides the outfit set for R6 and R15 experiences.",
+            "useGlobal": "Use my default"
+        },
         "bodyColors": {
             "addCustom": "Pick a custom color",
             "savedColor": "{{hex}}, right click to remove",
             "applyFailed": "Could not update your body colors. Try again in a moment."
         }
+    },
+    "pinnedFriends": {
+        "pin": "Pin to top",
+        "unpin": "Unpin"
     }
 }

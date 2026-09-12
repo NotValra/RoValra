@@ -75,7 +75,7 @@ const Api = {
     },
 
     async getGamesFromInventory(userId) {
-        let games = [];
+        const itemByUniverse = new Map();
         let nextCursor = '';
 
         do {
@@ -86,22 +86,41 @@ const Api = {
             const data = res ? await res.json().catch(() => null) : null;
 
             if (data?.data) {
-                const formattedGames = data.data
-                    .filter((item) => item.universeId != null)
-                    .map((item) => ({
-                        id: item.universeId,
-                        name: item.name,
-                        rootPlaceId: item.placeId,
-                    }));
-
-                games = games.concat(formattedGames);
+                for (const item of data.data) {
+                    if (
+                        item.universeId != null &&
+                        !itemByUniverse.has(item.universeId)
+                    ) {
+                        itemByUniverse.set(item.universeId, item);
+                    }
+                }
                 nextCursor = data.nextPageCursor;
             } else {
                 nextCursor = null;
             }
         } while (nextCursor);
 
-        return games;
+        const universeIds = [...itemByUniverse.keys()];
+        const gameById = new Map();
+        for (let i = 0; i < universeIds.length; i += 50) {
+            const chunk = universeIds.slice(i, i + 50);
+            const res = await this.fetchWithRetry({
+                subdomain: 'games',
+                endpoint: ENDPOINTS.GAMES_V1(chunk.join(',')),
+            });
+            const data = res ? await res.json().catch(() => null) : null;
+            data?.data?.forEach((g) => gameById.set(g.id, g));
+        }
+
+        return universeIds.map((id) => {
+            const info = gameById.get(id);
+            const fallback = itemByUniverse.get(id);
+            return {
+                id,
+                name: info?.name || fallback.name,
+                rootPlaceId: info?.rootPlaceId || fallback.placeId,
+            };
+        });
     },
 
     async getGamesFromV2(userId) {
@@ -157,7 +176,9 @@ const Api = {
     },
 
     async enrichGameData(games, state) {
-        const batch = games.filter((g) => g && !state.likes.has(g.id));
+        const batch = games.filter(
+            (g) => g && (!state.likes.has(g.id) || !state.updated.has(g.id)),
+        );
         if (!batch.length) return;
 
         const playerResList = [];
@@ -417,7 +438,7 @@ class HiddenGamesManager {
         this.visibleCount = 0;
 
         if (
-            ['like-ratio', 'likes', 'dislikes', 'players'].includes(
+            ['default', 'like-ratio', 'likes', 'dislikes', 'players'].includes(
                 this.filters.sort,
             )
         ) {
@@ -431,8 +452,8 @@ class HiddenGamesManager {
         if (sort === 'default') {
             sorted.sort(
                 (a, b) =>
-                    (new Date(this.cache.updated.get(a.id) || 0) -
-                        new Date(this.cache.updated.get(b.id) || 0)) *
+                    (new Date(this.cache.updated.get(a.id) || 0).getTime() -
+                        new Date(this.cache.updated.get(b.id) || 0).getTime()) *
                     orderMultiplier,
             );
         } else if (sort === 'like-ratio') {

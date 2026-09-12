@@ -28,6 +28,7 @@
 @use 'features/settings/bulkUnblock.scss';
 @use 'features/games/servers/serverstats.scss';
 @use 'features/games/quickplay.scss';
+@use 'features/games/gameBookmarks.scss';
 @use 'features/games/events.scss';
 @use 'features/games/hiddenBadges.scss';
 @use 'features/games/badgeLayoutToggle.scss';
@@ -39,6 +40,7 @@
 @use 'features/home/hideAddFriendsButton.scss';
 @use 'features/sitewide/friendGameLink.scss';
 @use 'features/sitewide/friendUsernames.scss';
+@use 'features/sitewide/pinned_friends.scss';
 @use 'features/sitewide/wideGameTileStats.scss';
 @use 'components/region_filters.scss';
 @use 'features/catalog/depenencies.scss';
@@ -51,4 +53,5 @@
 @use 'features/plus/sendRobux.scss';
 @use 'features/sitewide/viewid.scss';
 @use 'features/avatar/body_colors.scss';
+@use 'features/avatar/game_outfits.scss';
 @use 'components/dropdown.scss'
