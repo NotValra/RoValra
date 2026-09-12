@@ -115,7 +115,7 @@ export async function fetchFriendsCustom(
 ) {
     try {
         let endpoint = `/v1/users/${userId}/friends/find`;
-        if (cursor) params.append('cursor', value);
+        if (cursor) params.append('cursor', cursor);
         if (params.size > 0) endpoint += `?${params.toString()}`;
         return await callRobloxApiJson({
             subdomain: 'friends',
@@ -232,26 +232,14 @@ export async function updateFriendsList(userId) {
                         content?.includes('has not completed an age check')
                     );
                 });
-                const existingStatus = chatAnalysisMap.get(friendId);
-                const canChat = !hasRestrictedMsg;
-                const hasAgeChecked = !needsAgeCheck;
+                const existingStatus = chatAnalysisMap.get(friendId) || {
+                    isRestricted: false,
+                    needsAgeCheck: false,
+                };
 
                 chatAnalysisMap.set(friendId, {
-                    canChat:
-                        existingStatus?.canChat === false || canChat === false
-                            ? false
-                            : existingStatus?.canChat === true ||
-                                canChat === true
-                              ? true
-                              : null,
-                    hasAgeChecked:
-                        existingStatus?.hasAgeChecked === false ||
-                        hasAgeChecked === false
-                            ? false
-                            : existingStatus?.hasAgeChecked === true ||
-                                hasAgeChecked === true
-                              ? true
-                              : null,
+                    isRestricted: existingStatus.isRestricted || hasRestrictedMsg,
+                    needsAgeCheck: existingStatus.needsAgeCheck || needsAgeCheck,
                 });
             });
         }
@@ -306,12 +294,16 @@ export async function updateFriendsList(userId) {
                     .map((profile) => profile.userId);
 
                 const deletedAccountsMap = new Map();
-                for (const userId of deletedUserIds) {
-                    const accountData = await fetchDeletedAccountData(userId);
-                    if (accountData) {
-                        deletedAccountsMap.set(userId, accountData);
+                const deletedAccountResults = await Promise.all(
+                    deletedUserIds.map((deletedId) =>
+                        fetchDeletedAccountData(deletedId).catch(() => null),
+                    ),
+                );
+                deletedUserIds.forEach((deletedId, i) => {
+                    if (deletedAccountResults[i]) {
+                        deletedAccountsMap.set(deletedId, deletedAccountResults[i]);
                     }
-                }
+                });
 
                 const enrichedFriends = profileData.profileDetails.map(
                     (profile) => {
@@ -423,8 +415,8 @@ export async function updateFriendsList(userId) {
                                 profile.hasRobloxSubscription,
                             isDeleted: profile.isDeleted,
                             isTrusted: isTrusted,
-                            canChat: chatStatus?.canChat ?? null,
-                            hasAgeChecked: chatStatus?.hasAgeChecked ?? null,
+                            canChat: chatStatus ? !chatStatus.isRestricted : null,
+                            hasAgeChecked: chatStatus ? !chatStatus.needsAgeCheck : null,
                             mutualFriends: mutualFriends,
                             accountCreated: accountCreated,
                             friendsSince: friendsSince,
