@@ -525,6 +525,10 @@
                 },
                 "displayAppThemeUserProfile": {
                     "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
+                },
+                "locales": {
+                    "madeRo": "Helped make the Romanian locale",
+                    "madeEs": "Helped make the Spanish locale"
                 }
             },
             "ui": {
