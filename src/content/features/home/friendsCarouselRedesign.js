@@ -6,10 +6,7 @@ import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../core/assets.js';
 import { ts } from '../../core/locale/i18n.js';
 import { getFriendsList } from '../../core/utils/trackers/friendslist.js';
-import {
-    createFriendTile,
-    batchFetchPresence,
-} from '../../core/ui/profile/userCard.js';
+import { createFriendTile } from '../../core/ui/profile/userCard.js';
 import { followUser, openWebChat } from '../../core/utils/launcher.js';
 
 const SETTING_NAME = 'friendsCarouselRedesignEnabled';
@@ -429,26 +426,53 @@ function buildCarousel(listWrap) {
     return { scrollEl, refresh, created: true };
 }
 
-async function loadOnlineFriendIds(userId) {
+async function loadOnlineFriendPresence(userId) {
     const res = await callRobloxApiJson({
         subdomain: 'friends',
         endpoint: `/v1/users/${userId}/friends/online`,
     }).catch(() => null);
 
-    return (res?.data || [])
-        .slice()
-        .sort((a, b) => (b.sortScore || 0) - (a.sortScore || 0))
-        .map((entry) => entry.id)
-        .filter((id) => id > 0);
+    return new Map(
+        (res?.data || [])
+            .filter((entry) => entry?.id > 0)
+            .map((entry) => [
+                entry.id,
+                normalizeFriendPresence(entry.userPresence),
+            ])
+            .filter(
+                ([, presence]) =>
+                    presence?.userPresenceType === 2 ||
+                    presence?.userPresenceType === 3,
+            ),
+    );
+}
+
+function normalizeFriendPresence(presence) {
+    if (!presence) return null;
+
+    const type =
+        typeof presence.UserPresenceType === 'string'
+            ? ({
+                  Offline: 0,
+                  Online: 1,
+                  InGame: 2,
+                  InStudio: 3,
+              }[presence.UserPresenceType] ?? 0)
+            : (presence.userPresenceType ?? presence.UserPresenceType ?? 0);
+
+    return {
+        ...presence,
+        userPresenceType: type,
+    };
 }
 
 async function loadFriends() {
     const userId = await getAuthenticatedUserId();
-    if (!userId) return [];
+    if (!userId) return { friends: [], onlinePresence: new Map() };
 
-    const [friends, onlineIds] = await Promise.all([
+    const [friends, onlinePresence] = await Promise.all([
         getFriendsList(),
-        loadOnlineFriendIds(userId),
+        loadOnlineFriendPresence(userId),
     ]);
     const friendsById = new Map(
         friends
@@ -463,19 +487,25 @@ async function loadFriends() {
         friendsById.delete(id);
     };
 
-    onlineIds.forEach(addFriend);
+    onlinePresence.forEach((_, id) => addFriend(id));
     friendsById.forEach((friend) => orderedFriends.push(friend));
 
-    return orderedFriends.slice(0, FRIEND_ID_CAP);
+    return {
+        friends: orderedFriends.slice(0, FRIEND_ID_CAP),
+        onlinePresence,
+    };
 }
 
-async function fetchChunkData(ids) {
-    const [thumbs, presenceMap] = await Promise.all([
-        getBatchThumbnails(ids, 'AvatarHeadshot', '150x150').catch(() => []),
-        batchFetchPresence(ids).catch(() => new Map()),
-    ]);
+async function fetchChunkData(ids, onlinePresence) {
+    const thumbs = await getBatchThumbnails(
+        ids,
+        'AvatarHeadshot',
+        '150x150',
+    ).catch(() => []);
 
-    const presence = presenceMap || new Map();
+    const presence = new Map(
+        ids.map((id) => [id, onlinePresence.get(id) || null]),
+    );
 
     const placeIdByUser = new Map();
     for (const [uid, p] of presence) {
@@ -512,13 +542,16 @@ async function fetchChunkData(ids) {
 async function populateCarousel(scrollEl, refresh, token, originalList) {
     cloneAddFriendsTile(originalList, scrollEl);
 
-    const friends = await loadFriends();
+    const { friends, onlinePresence } = await loadFriends();
     if (token !== populateToken || !scrollEl.isConnected) return;
 
     for (let i = 0; i < friends.length; i += RENDER_CHUNK) {
         const chunk = friends.slice(i, i + RENDER_CHUNK);
         const ids = chunk.map((friend) => friend.id);
-        const { thumbs, presence, placeThumbs } = await fetchChunkData(ids);
+        const { thumbs, presence, placeThumbs } = await fetchChunkData(
+            ids,
+            onlinePresence,
+        );
         if (token !== populateToken || !scrollEl.isConnected) return;
 
         for (const friend of chunk) {
@@ -533,6 +566,7 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                     isHidden: false,
                     isVerified: friend.isVerified || false,
                     isSubscribed: friend.hasRobloxSubscription === true,
+                    presence: presence.get(id),
                 },
             );
             attachHoverCard(tile, {

@@ -249,8 +249,25 @@ export function createUserCard({
 export function createFriendTile(
     item,
     thumbData,
-    { displayName, username, isHidden, isVerified = false, isSubscribed = false },
+    options,
 ) {
+    const {
+        displayName,
+        username,
+        isHidden,
+        isVerified = false,
+        isSubscribed = false,
+    } = options;
+    const hasProvidedPresence = Object.prototype.hasOwnProperty.call(
+        options,
+        'presence',
+    );
+    const suppliedPresence = hasProvidedPresence ? options.presence : null;
+    const presenceType = suppliedPresence?.userPresenceType ?? 0;
+    const gameName =
+        presenceType === 2 && suppliedPresence?.lastLocation
+            ? suppliedPresence.lastLocation
+            : null;
     const href = isHidden
         ? ''
         : `https://www.roblox.com/users/${item.id}/profile`;
@@ -260,7 +277,9 @@ export function createFriendTile(
         thumbData: thumbData || { state: 'Error' },
         href,
         userId: isHidden ? -1 : item.id,
-        presenceInfo: 0,
+        presenceInfo: presenceType,
+        gameName,
+        presenceData: suppliedPresence,
         isVerified,
         isSubscribed,
     });
@@ -293,7 +312,7 @@ export function createFriendTile(
             .catch(() => { });
     }
 
-    if (!isHidden) {
+    if (!isHidden && !hasProvidedPresence) {
         fetchPresenceBatched(item.id).then((presence) => {
             if (!presence) return;
             const presenceType = presence.userPresenceType ?? 0;
