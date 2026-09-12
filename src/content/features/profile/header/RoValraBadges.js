@@ -2,10 +2,10 @@ import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createConfetti } from '../../../core/fun/confetti.js';
 import { BADGE_CONFIG } from '../../../core/configs/badges.js';
-import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { settings } from '../../../core/settings/getSettings.js';
+import { getUserSettings } from '../../../core/donators/settingHandler.js';
 const badgeCache = new Map();
 const groupRuntimeBadgeCache = new Map();
 const VIDEO_STAR_GROUP_ID = 4199740;
@@ -14,6 +14,12 @@ const COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID = 12051064;
 const COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME = 'community_feedback_program';
 const CREATOR_EVENTS_GROUP_ID = 9420522;
 const CREATOR_EVENTS_BADGE_NAME = 'creator_events';
+const DONATOR_BADGE_KEYS = [
+    'donator_1',
+    'donator_2',
+    'donator_3',
+    'legacy_donator',
+];
 let groupRolesListenerInitialized = false;
 
 function isVideoStarGroupMember(item) {
@@ -46,6 +52,23 @@ function mergeRuntimeBadges(userId, badges, options = {}) {
         if (!mergedBadges.includes(badgeName)) mergedBadges.push(badgeName);
     });
     return mergedBadges;
+}
+
+function createDirectImageBadgeConfig(name, imageUrl) {
+    if (!imageUrl) return null;
+
+    const badge = BADGE_CONFIG[name] || {
+        type: 'header',
+        userIds: [],
+        tooltip: name.replace(/_/g, ' '),
+    };
+
+    return {
+        ...badge,
+        icon: imageUrl,
+        iconAssetName: null,
+        confettiAssetName: null,
+    };
 }
 
 function rerenderCurrentProfileBadges() {
@@ -245,10 +268,9 @@ function createHeaderBadge(parentContainer, badge) {
             left: '-100%',
             width: badge.grayGlimmer ? '70%' : '50%',
             height: '100%',
-            background:
-                badge.grayGlimmer
-                    ? 'linear-gradient(to right, transparent, rgba(70, 70, 70, 0.8), rgba(145, 145, 145, 0.75), transparent)'
-                    : 'linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent)',
+            background: badge.grayGlimmer
+                ? 'linear-gradient(to right, transparent, rgba(70, 70, 70, 0.8), rgba(145, 145, 145, 0.75), transparent)'
+                : 'linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent)',
             mixBlendMode: badge.grayGlimmer ? 'multiply' : '',
             transform: 'skewX(-25deg)',
             animation: badge.grayGlimmer
@@ -342,18 +364,13 @@ async function addHeaderBadges(container) {
     try {
         let data = badgeCache.get(currentUserId);
         if (!data) {
-            let apiBadges = [];
+            let donatorBadges = {};
             try {
-                const res = await callRobloxApiJson({
-                    isRovalraApi: true,
-                    subdomain: 'apis',
-                    endpoint: `/v1/users/${currentUserId}/badges`,
-                    method: 'GET',
-                });
-                if (res?.status === 'success') apiBadges = res.badges;
+                const userSettings = await getUserSettings(currentUserId);
+                donatorBadges = userSettings?.badges || {};
             } catch {}
 
-            data = { apiBadges };
+            data = { donatorBadges };
             badgeCache.set(currentUserId, data);
         }
 
@@ -363,7 +380,7 @@ async function addHeaderBadges(container) {
         if ((await settings.videoStarBadgeEnabled) === false) {
             disabledRuntimeBadges.add(VIDEO_STAR_BADGE_NAME);
         }
-        const mergedApiBadges = mergeRuntimeBadges(currentUserId, data.apiBadges, {
+        const mergedRuntimeBadges = mergeRuntimeBadges(currentUserId, [], {
             robloxGroupFeaturesEnabled,
             disabledRuntimeBadges,
         });
@@ -380,7 +397,21 @@ async function addHeaderBadges(container) {
             }
         }
 
-        mergedApiBadges.forEach((name) => {
+        DONATOR_BADGE_KEYS.forEach((name) => {
+            const config = createDirectImageBadgeConfig(
+                name,
+                data.donatorBadges?.[name],
+            );
+            if (config) badgesToRender.push({ isIcon: true, config });
+        });
+
+        Object.entries(data.donatorBadges || {}).forEach(([name, imageUrl]) => {
+            if (DONATOR_BADGE_KEYS.includes(name)) return;
+            const config = createDirectImageBadgeConfig(name, imageUrl);
+            if (config) badgesToRender.push({ isIcon: true, config });
+        });
+
+        mergedRuntimeBadges.forEach((name) => {
             if (BADGE_CONFIG[name]) {
                 badgesToRender.push({
                     isIcon: true,

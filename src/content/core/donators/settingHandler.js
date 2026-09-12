@@ -21,6 +21,19 @@ import { findFrameByLink, getFrames } from '../configs/frames.js';
 
 const GRADIENT_NAME_API_KEY = 'GradientName';
 
+function extractBadgeLinks(apiSettings) {
+    const badges = apiSettings?.badges;
+    if (!badges || typeof badges !== 'object') return {};
+
+    return Object.fromEntries(
+        Object.entries(badges).flatMap(([key, value]) => {
+            return typeof value === 'string' && value.trim()
+                ? [[key, value.trim()]]
+                : [];
+        }),
+    );
+}
+
 function extractProfilePronouns(apiSettings) {
     const value =
         apiSettings?.pronouns ??
@@ -140,6 +153,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !Number(apiSettings.fav_game) &&
                 !Number(apiSettings.fav_group) &&
                 !Number(apiSettings.fav_decal) &&
+                !Object.keys(extractBadgeLinks(apiSettings)).length &&
                 Object.keys(apiSettings).length <= 4 &&
                 !apiSettings.theme
             ) {
@@ -218,6 +232,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
+        badges: extractBadgeLinks(apiSettings),
         theme: apiSettings.theme || "",
     };
 }
@@ -371,6 +386,7 @@ async function processApiSettings(userId, apiSettings, options) {
             !Number(apiSettings.fav_game) &&
             !Number(apiSettings.fav_group) &&
             !Number(apiSettings.fav_decal) &&
+            !Object.keys(extractBadgeLinks(apiSettings)).length &&
             Object.keys(apiSettings).length <= 4 &&
             !apiSettings.theme
         ) {
@@ -446,6 +462,7 @@ async function processApiSettings(userId, apiSettings, options) {
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
+        badges: extractBadgeLinks(apiSettings),
         theme: apiSettings.theme || "",
     };
 }
