@@ -2042,126 +2042,6 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            customRobloxBannerEnabled: {
-                label: 'Roblox Logo Customization',
-                description: [
-                    'Replaces the Roblox banner in the top-left navigation bar with an image loaded from a URL you provide.',
-                    'Also supports GIFs!',
-                    'Recommended image: square PNG or WebP with transparency, 256x256 pixels.',
-                    'You can use this link "https://www.roblox.com/images/roblox_logo.png" to get back the old Roblox Logo!',
-                ],
-                type: 'checkbox',
-                default: false,
-                contributors: ['476449201'],
-                storageKey: [
-                    'customRobloxBannerImageUrl',
-                    'customRobloxBannerImage',
-                    'customRobloxBannerPositionX',
-                    'customRobloxBannerPositionY',
-                    'customRobloxBannerZoom',
-                ],
-                childSettings: {
-                    customRobloxBannerImageUrl: {
-                        label: 'Custom Roblox Banner URL',
-                        description: [
-                            'Enter a direct image URL to use as your Roblox banner.',
-                        ],
-                        type: 'input',
-                        inputType: 'url',
-                        inputWidth: '280px',
-                        placeholder: 'https://example.com/banner.png',
-                        trim: true,
-                        validateHttpUrl: true,
-                        imageUrlPreview: true,
-                        default: null,
-                    },
-                    customRobloxBannerFitMode: {
-                        label: 'Display Mode',
-                        description: [
-                            'Contain keeps the whole image visible.',
-                            'Cover fills the banner area while preserving aspect ratio.',
-                            'Stretch fills the full default Roblox banner area and may distort the image.',
-                        ],
-                        type: 'select',
-                        options: [
-                            { label: 'Contain', value: 'contain' },
-                            { label: 'Cover', value: 'cover' },
-                            { label: 'Stretch', value: 'stretch' },
-                        ],
-                        default: 'contain',
-                    },
-                    customRobloxBannerPositionControls: {
-                        label: 'Image Position',
-                        description: [
-                            'Moves the image inside the banner area. This is most useful in Cover mode.',
-                        ],
-                        type: 'buttonGroup',
-                        buttons: [
-                            {
-                                text: '↑',
-                                event: 'rovalra:customRobloxBannerMoveUp',
-                            },
-                            {
-                                text: '↓',
-                                event: 'rovalra:customRobloxBannerMoveDown',
-                            },
-                            {
-                                text: '←',
-                                event: 'rovalra:customRobloxBannerMoveLeft',
-                            },
-                            {
-                                text: '→',
-                                event: 'rovalra:customRobloxBannerMoveRight',
-                            },
-                            {
-                                text: 'Center',
-                                event: 'rovalra:customRobloxBannerCenter',
-                            },
-                            {
-                                text: 'Zoom In',
-                                event: 'rovalra:customRobloxBannerZoomIn',
-                            },
-                            {
-                                text: 'Zoom Out',
-                                event: 'rovalra:customRobloxBannerZoomOut',
-                            },
-                        ],
-                    },
-                    customRobloxBannerPositionX: {
-                        label: 'Image Position X',
-                        description:
-                            'Horizontal image position from left to right. 50 is centered.',
-                        type: 'number',
-                        min: 0,
-                        max: 100,
-                        step: 1,
-                        default: 50,
-                        hidden: true,
-                    },
-                    customRobloxBannerPositionY: {
-                        label: 'Image Position Y',
-                        description:
-                            'Vertical image position from top to bottom. 50 is centered.',
-                        type: 'number',
-                        min: 0,
-                        max: 100,
-                        step: 1,
-                        default: 50,
-                        hidden: true,
-                    },
-                    customRobloxBannerZoom: {
-                        label: 'Image Zoom',
-                        description:
-                            'Image zoom percentage. 100 is the default size.',
-                        type: 'number',
-                        min: 25,
-                        max: 300,
-                        step: 10,
-                        default: 100,
-                        hidden: true,
-                    },
-                },
-            },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
                 description: [
@@ -2370,30 +2250,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            CustomThemeBackgroundEnabled: {
-                label: 'Customizable Background Image',
-                description:
-                    'Allows you to add a custom background image to the Roblox website.',
-                type: 'checkbox',
-                default: false,
-                contributors: ['476449201'],
-                childSettings: {
-                    customBackgroundImage: {
-                        label: 'Background Image Configuration',
-                        type: 'backgroundImage',
-                        default: DEFAULT_BACKGROUND_IMAGE,
-                        hidden: true,
-                    },
-                    openCustomThemeBackground: {
-                        label: 'Customize Image Settings',
-                        description:
-                            "Adjust the image's opacity, blur, position, size, and more.",
-                        type: 'button',
-                        buttonText: 'Edit',
-                        event: 'rovalra:openCustomThemeBackground',
-                    },
-                },
-            },
 
             ExplorerEnabled: {
                 label: 'Explorer',
@@ -2403,27 +2259,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['9502859424'],
-            },
-            Customfont: {
-                label: 'Custom font',
-                description: [
-                    'This allows you to set a custom font for the Roblox website.',
-                ],
-                type: 'checkbox',
-                default: false,
-                contributors: [48255812],
-                childSettings: {
-                    Customfontlink: {
-                        label: 'Google Fonts link',
-                        description: [
-                            'You can find Fonts at https://fonts.google.com/',
-                            'The link should look like "https://fonts.google.com/specimen/Comic+Neue"',
-                        ],
-                        type: 'input',
-                        default: null,
-                        placeholder: 'Enter Font Link here...',
-                    },
-                },
             },
             ServerdataEnabled: {
                 label: "Send Server IDs and Place IDs to RoValra's API",
@@ -2584,33 +2419,6 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: 'checkbox',
                         default: true,
-                    },
-                },
-            },
-            customFaviconEnabled: {
-                label: 'Favicon Customization',
-                description: [
-                    'Replaces the current favicon (the logo next to your tab) with an image loaded from a URL you provide.',
-                    'Recommended image: square PNG or WebP, 256x256 pixels or SVG.',
-                    'You can use this link "https://static.wikia.nocookie.net/logopedia/images/b/b7/ROBLOX_2006-2009.svg" to get back the old Roblox favicon!', // The link is a wikipedia link
-                ],
-                type: 'checkbox',
-                default: false,
-                contributors: ['3050364170'],
-                childSettings: {
-                    customFaviconUrl: {
-                        label: 'Custom Favicon URL',
-                        description: [
-                            'Enter a direct image URL to use as your favicon.',
-                        ],
-                        type: 'input',
-                        inputType: 'url',
-                        inputWidth: '280px',
-                        placeholder: 'https://example.com/favicon.png',
-                        trim: true,
-                        validateHttpUrl: true,
-                        imageUrlPreview: true,
-                        default: null,
                     },
                 },
             },
@@ -2982,6 +2790,203 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '126448532'],
+            },
+        },
+    },
+    WebsiteCustomization: {
+        title: 'Website Customization',
+        settings: {
+            CustomThemeBackgroundEnabled: {
+                label: 'Customizable Background Image',
+                description:
+                    'Allows you to add a custom background image to the Roblox website.',
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    customBackgroundImage: {
+                        label: 'Background Image Configuration',
+                        type: 'backgroundImage',
+                        default: DEFAULT_BACKGROUND_IMAGE,
+                        hidden: true,
+                    },
+                    openCustomThemeBackground: {
+                        label: 'Customize Image Settings',
+                        description:
+                            "Adjust the image's opacity, blur, position, size, and more.",
+                        type: 'button',
+                        buttonText: 'Edit',
+                        event: 'rovalra:openCustomThemeBackground',
+                    },
+                },
+            },
+            customRobloxBannerEnabled: {
+                label: 'Roblox Logo Customization',
+                description: [
+                    'Replaces the Roblox banner in the top-left navigation bar with an image loaded from a URL you provide.',
+                    'Also supports GIFs!',
+                    'Recommended image: square PNG or WebP with transparency, 256x256 pixels.',
+                    'You can use this link "https://www.roblox.com/images/roblox_logo.png" to get back the old Roblox Logo!',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                storageKey: [
+                    'customRobloxBannerImageUrl',
+                    'customRobloxBannerImage',
+                    'customRobloxBannerPositionX',
+                    'customRobloxBannerPositionY',
+                    'customRobloxBannerZoom',
+                ],
+                childSettings: {
+                    customRobloxBannerImageUrl: {
+                        label: 'Custom Roblox Banner URL',
+                        description: [
+                            'Enter a direct image URL to use as your Roblox banner.',
+                        ],
+                        type: 'input',
+                        inputType: 'url',
+                        inputWidth: '280px',
+                        placeholder: 'https://example.com/banner.png',
+                        trim: true,
+                        validateHttpUrl: true,
+                        imageUrlPreview: true,
+                        default: null,
+                    },
+                    customRobloxBannerFitMode: {
+                        label: 'Display Mode',
+                        description: [
+                            'Contain keeps the whole image visible.',
+                            'Cover fills the banner area while preserving aspect ratio.',
+                            'Stretch fills the full default Roblox banner area and may distort the image.',
+                        ],
+                        type: 'select',
+                        options: [
+                            { label: 'Contain', value: 'contain' },
+                            { label: 'Cover', value: 'cover' },
+                            { label: 'Stretch', value: 'stretch' },
+                        ],
+                        default: 'contain',
+                    },
+                    customRobloxBannerPositionControls: {
+                        label: 'Image Position',
+                        description: [
+                            'Moves the image inside the banner area. This is most useful in Cover mode.',
+                        ],
+                        type: 'buttonGroup',
+                        buttons: [
+                            {
+                                text: '↑',
+                                event: 'rovalra:customRobloxBannerMoveUp',
+                            },
+                            {
+                                text: '↓',
+                                event: 'rovalra:customRobloxBannerMoveDown',
+                            },
+                            {
+                                text: '←',
+                                event: 'rovalra:customRobloxBannerMoveLeft',
+                            },
+                            {
+                                text: '→',
+                                event: 'rovalra:customRobloxBannerMoveRight',
+                            },
+                            {
+                                text: 'Center',
+                                event: 'rovalra:customRobloxBannerCenter',
+                            },
+                            {
+                                text: 'Zoom In',
+                                event: 'rovalra:customRobloxBannerZoomIn',
+                            },
+                            {
+                                text: 'Zoom Out',
+                                event: 'rovalra:customRobloxBannerZoomOut',
+                            },
+                        ],
+                    },
+                    customRobloxBannerPositionX: {
+                        label: 'Image Position X',
+                        description:
+                            'Horizontal image position from left to right. 50 is centered.',
+                        type: 'number',
+                        min: 0,
+                        max: 100,
+                        step: 1,
+                        default: 50,
+                        hidden: true,
+                    },
+                    customRobloxBannerPositionY: {
+                        label: 'Image Position Y',
+                        description:
+                            'Vertical image position from top to bottom. 50 is centered.',
+                        type: 'number',
+                        min: 0,
+                        max: 100,
+                        step: 1,
+                        default: 50,
+                        hidden: true,
+                    },
+                    customRobloxBannerZoom: {
+                        label: 'Image Zoom',
+                        description:
+                            'Image zoom percentage. 100 is the default size.',
+                        type: 'number',
+                        min: 25,
+                        max: 300,
+                        step: 10,
+                        default: 100,
+                        hidden: true,
+                    },
+                },
+            },
+            customFaviconEnabled: {
+                label: 'Favicon Customization',
+                description: [
+                    'Replaces the current favicon (the logo next to your tab) with an image loaded from a URL you provide.',
+                    'Recommended image: square PNG or WebP, 256x256 pixels or SVG.',
+                    'You can use this link "https://static.wikia.nocookie.net/logopedia/images/b/b7/ROBLOX_2006-2009.svg" to get back the old Roblox favicon!', // The link is a wikipedia link
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
+                childSettings: {
+                    customFaviconUrl: {
+                        label: 'Custom Favicon URL',
+                        description: [
+                            'Enter a direct image URL to use as your favicon.',
+                        ],
+                        type: 'input',
+                        inputType: 'url',
+                        inputWidth: '280px',
+                        placeholder: 'https://example.com/favicon.png',
+                        trim: true,
+                        validateHttpUrl: true,
+                        imageUrlPreview: true,
+                        default: null,
+                    },
+                },
+            },
+            Customfont: {
+                label: 'Custom font',
+                description: [
+                    'This allows you to set a custom font for the Roblox website.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: [48255812],
+                childSettings: {
+                    Customfontlink: {
+                        label: 'Google Fonts link',
+                        description: [
+                            'You can find Fonts at https://fonts.google.com/',
+                            'The link should look like "https://fonts.google.com/specimen/Comic+Neue"',
+                        ],
+                        type: 'input',
+                        default: null,
+                        placeholder: 'Enter Font Link here...',
+                    },
+                },
             },
         },
     },
