@@ -1,6 +1,8 @@
 import { observeElement } from '../../core/observer.js';
+import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
+import { createToggle } from '../../core/ui/general/toggle.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/thumbnails.js';
@@ -8,9 +10,10 @@ import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { t } from '../../core/locale/i18n.js';
+import { settings } from '../../core/settings/getSettings.js';
 const CONFIG = {
     PAGE_SIZE: 50,
-    ACCESS_FILTER: 2,
+    ACCESS_FILTER: { PUBLIC: 2 },
     RETRY: {
         MAX_ATTEMPTS: 5,
         DELAY_MS: 3000,
@@ -23,8 +26,8 @@ const ENDPOINTS = {
     INVENTORY_GAMES: (userId, cursor = '') =>
         `/v1/users/${userId}/places/inventory?cursor=${cursor}&itemsPerPage=100&placesTab=Created`,
 
-    GAMES_V2: (userId, cursor = '') =>
-        `/v2/users/${userId}/games?accessFilter=${CONFIG.ACCESS_FILTER}&limit=50&sortOrder=Asc&cursor=${cursor}`,
+    GAMES_V2: (userId, accessFilter, cursor = '') =>
+        `/v2/users/${userId}/games?accessFilter=${accessFilter}&limit=50&sortOrder=Asc&cursor=${cursor}`,
 
     VOTES_V1: (ids) => `/v1/games/votes?universeIds=${ids}`,
     GAMES_V1: (ids) => `/v1/games?universeIds=${ids}`,
@@ -74,7 +77,7 @@ const Api = {
         return data?.canView === true;
     },
 
-    async getGamesFromInventory(userId) {
+    async getAllOwnedUniverses(userId) {
         const itemByUniverse = new Map();
         let nextCursor = '';
 
@@ -100,7 +103,41 @@ const Api = {
             }
         } while (nextCursor);
 
-        const universeIds = [...itemByUniverse.keys()];
+        return itemByUniverse;
+    },
+
+    async getPublicGames(userId) {
+        let games = [];
+        let nextCursor = null;
+
+        do {
+            const endpoint = ENDPOINTS.GAMES_V2(
+                userId,
+                CONFIG.ACCESS_FILTER.PUBLIC,
+                nextCursor || '',
+            );
+
+            const res = await this.fetchWithRetry({
+                subdomain: 'games',
+                endpoint: endpoint,
+            });
+            const data = res ? await res.json().catch(() => null) : null;
+
+            if (data?.data) {
+                const formattedGames = data.data.filter(
+                    (item) => item.id != null,
+                );
+                games = games.concat(formattedGames);
+                nextCursor = data.nextPageCursor;
+            } else {
+                nextCursor = null;
+            }
+        } while (nextCursor);
+
+        return games;
+    },
+
+    async resolveGameInfo(universeIds, itemByUniverse) {
         const gameById = new Map();
         for (let i = 0; i < universeIds.length; i += 50) {
             const chunk = universeIds.slice(i, i + 50);
@@ -123,56 +160,36 @@ const Api = {
         });
     },
 
-    async getGamesFromV2(userId) {
-        let games = [];
-        let nextCursor = null;
-
-        do {
-            const endpoint = ENDPOINTS.GAMES_V2(userId, nextCursor || '');
-
-            const res = await this.fetchWithRetry({
-                subdomain: 'games',
-                endpoint: endpoint,
-            });
-            const data = res ? await res.json().catch(() => null) : null;
-
-            if (data?.data) {
-                const formattedGames = data.data
-                    .filter((item) => item.id != null && item.rootPlace)
-                    .map((item) => ({
-                        id: item.id,
-                        name: item.name,
-                        rootPlaceId: item.rootPlace.id,
-                    }));
-
-                games = games.concat(formattedGames);
-                nextCursor = data.nextPageCursor;
-            } else {
-                nextCursor = null;
-            }
-        } while (nextCursor);
-
-        return games;
-    },
-
     async getUserGames(userId) {
         if (userListCache.has(userId)) {
             return userListCache.get(userId).catch((err) => {
                 console.error(err);
-                return [];
+                return { all: [], hidden: [] };
             });
         }
 
         const fetchPromise = (async () => {
             const isPublic = await this.checkInventoryPublic(userId);
-            return isPublic
-                ? await this.getGamesFromInventory(userId)
-                : await this.getGamesFromV2(userId);
+            if (!isPublic) return { all: [], hidden: [] };
+
+            const [itemByUniverse, publicGames] = await Promise.all([
+                this.getAllOwnedUniverses(userId),
+                this.getPublicGames(userId),
+            ]);
+
+            const publicIds = new Set(publicGames.map((g) => g.id));
+            const allIds = [...itemByUniverse.keys()];
+            const all = await this.resolveGameInfo(allIds, itemByUniverse);
+            const hidden = all.filter((g) => !publicIds.has(g.id));
+
+            return { all, hidden };
         })();
 
         userListCache.set(userId, fetchPromise);
         fetchPromise.catch(() => userListCache.delete(userId));
-        return fetchPromise.catch((err) => (console.error(err), []));
+        return fetchPromise.catch(
+            (err) => (console.error(err), { all: [], hidden: [] }),
+        );
     },
 
     async enrichGameData(games, state) {
@@ -299,6 +316,19 @@ const UI = {
             onValueChange: (v) => onFilterChange('order', v),
         });
 
+        const showAllToggle = createToggle({
+            checked: false,
+            onChange: (v) => onFilterChange('showAll', v),
+        });
+        showAllToggle.style.transform = 'scale(1.3)';
+        showAllToggle.style.transformOrigin = 'left center';
+
+        const showAllToggleWrapper = document.createElement('div');
+        showAllToggleWrapper.style.display = 'flex';
+        showAllToggleWrapper.style.alignItems = 'center';
+        showAllToggleWrapper.style.minHeight = '38px';
+        showAllToggleWrapper.appendChild(showAllToggle);
+
         container.append(
             createFilterSection(
                 await t('hiddenGamesProfile.labels.sort'),
@@ -308,13 +338,18 @@ const UI = {
                 await t('hiddenGamesProfile.labels.order'),
                 orderDropdown.element,
             ),
+            createFilterSection(
+                await t('hiddenGamesProfile.labels.showAll'),
+                showAllToggleWrapper,
+            ),
         );
 
         return container;
     },
 
     async injectButton(header, onClick) {
-        if (!header || header.querySelector('.hidden-games-button')) return;
+        if (!header || header.querySelector('.rovalra-hidden-games-button'))
+            return;
 
         if (
             header.querySelector('social-link-icon-list') ||
@@ -326,7 +361,7 @@ const UI = {
             await t('hiddenGamesProfile.buttonText'),
             'secondary',
         );
-        btn.classList.add('hidden-games-button');
+        btn.classList.add('rovalra-hidden-games-button');
         btn.style.marginLeft = '5px';
         btn.addEventListener('click', onClick);
         const buttonContainer = header.querySelector('.container-buttons');
@@ -349,7 +384,7 @@ const UI = {
             await t('hiddenGamesProfile.buttonText'),
             'secondary',
         );
-        btn.classList.add('hidden-games-button');
+        btn.classList.add('rovalra-hidden-games-button');
         btn.addEventListener('click', onClick);
 
         container.append(text, btn);
@@ -360,7 +395,9 @@ const UI = {
 class HiddenGamesManager {
     constructor(userId) {
         this.userId = userId;
-        this.allGames = [];
+        this.ownedGames = [];
+        this.hiddenGames = [];
+        this.showAllGames = false;
         this.cache = sharedStatsCache;
         this.filters = { sort: 'default', order: 'desc' };
         this.processedGames = [];
@@ -373,15 +410,14 @@ class HiddenGamesManager {
         const body = document.createElement('div');
 
         const list = document.createElement('div');
-        list.className = 'hidden-games-list';
-        list.classList.add('rovalra-hidden-games-list');
+        list.className = 'rovalra-hidden-games-list';
         list.appendChild(
             createShimmerGrid(12, { width: '150px', height: '240px' }),
         );
 
         const loader = document.createElement('div');
         loader.className = 'rovalra-load-more-container';
-        loader.classList.add('hidden-games-list', 'rovalra-hidden-games-list');
+        loader.classList.add('rovalra-hidden-games-list');
         loader.style.paddingTop = '0';
 
         body.append(list, loader);
@@ -395,10 +431,12 @@ class HiddenGamesManager {
             maxHeight: '85vh',
         });
 
-        this.allGames = await Api.getUserGames(this.userId);
+        const { all, hidden } = await Api.getUserGames(this.userId);
+        this.ownedGames = all;
+        this.hiddenGames = hidden;
 
-        if (!this.allGames || this.allGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="no-hidden-games-message">${await t('hiddenGamesProfile.noHiddenGames')}</p>`; // Verified
+        if (!this.ownedGames || this.ownedGames.length === 0) {
+            this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t('hiddenGamesProfile.noHiddenGames')}</p>`;
             return;
         }
 
@@ -423,7 +461,11 @@ class HiddenGamesManager {
     }
 
     handleFilterChange(key, value) {
-        this.filters[key] = value;
+        if (key === 'showAll') {
+            this.showAllGames = value;
+        } else {
+            this.filters[key] = value;
+        }
         this.applyFilters();
     }
 
@@ -437,17 +479,19 @@ class HiddenGamesManager {
         );
         this.visibleCount = 0;
 
+        const source = this.showAllGames ? this.ownedGames : this.hiddenGames;
+
         if (
             ['default', 'like-ratio', 'likes', 'dislikes', 'players'].includes(
                 this.filters.sort,
             )
         ) {
-            await Api.enrichGameData(this.allGames, this.cache);
+            await Api.enrichGameData(source, this.cache);
         }
 
         const { sort, order } = this.filters;
         const orderMultiplier = order === 'desc' ? -1 : 1;
-        let sorted = [...this.allGames];
+        let sorted = [...source];
 
         if (sort === 'default') {
             sorted.sort(
@@ -499,7 +543,11 @@ class HiddenGamesManager {
 
         this.elements.list.innerHTML = '';
         if (this.processedGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="no-hidden-games-message">${await t('hiddenGamesProfile.noMatches')}</p>`;
+            const emptyKey =
+                !this.showAllGames && source.length === 0
+                    ? 'hiddenGamesProfile.noHiddenGames'
+                    : 'hiddenGamesProfile.noMatches';
+            this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t(emptyKey)}</p>`;
         } else {
             await this.loadMore();
         }
@@ -539,61 +587,52 @@ class HiddenGamesManager {
     }
 }
 
-function getUserId() {
-    const match = window.location.href.match(/users\/(\d+)\/profile/);
-    return match ? match[1] : null;
-}
-
 let isInitialized = false;
-export function init() {
-    chrome.storage.local.get(['userGamesEnabled'], (result) => {
-        if (result.userGamesEnabled !== true) return;
+export async function init() {
+    if (isInitialized) return;
+    if ((await settings.userGamesEnabled) !== true) return;
+    isInitialized = true;
 
-        if (isInitialized) return;
-        isInitialized = true;
+    const handleButtonClick = () => {
+        const userId = getUserIdFromUrl();
+        if (!userId) return;
+        new HiddenGamesManager(userId).openOverlay();
+    };
 
-        const handleButtonClick = () => {
-            const userId = getUserId();
-            if (!userId) return;
-            new HiddenGamesManager(userId).openOverlay();
-        };
+    observeElement(
+        '.profile-experiences.profile-game .container-header, .btr-profile-right .profile-game .container-header, .placeholder-games .container-header',
+        (header) => {
+            if (header.dataset.rovalraProcessed) return;
+            header.dataset.rovalraProcessed = 'true';
+            UI.injectButton(header, handleButtonClick);
+        },
+        { multiple: true },
+    );
 
-        observeElement(
-            '.profile-experiences.profile-game .container-header, .btr-profile-right .profile-game .container-header, .placeholder-games .container-header',
-            (header) => {
-                if (header.dataset.rovalraProcessed) return;
-                header.dataset.rovalraProcessed = 'true';
-                UI.injectButton(header, handleButtonClick);
-            },
-            { multiple: true },
-        );
+    const checkEmptyState = async () => {
+        if (!window.location.hash.includes('#creations')) return;
 
-        const checkEmptyState = async () => {
-            if (!window.location.hash.includes('#creations')) return;
+        const contents = document.querySelectorAll('.profile-tab-content');
+        for (const content of contents) {
+            if (content.classList.contains('ng-hide')) return;
 
-            const contents = document.querySelectorAll('.profile-tab-content');
-            for (const content of contents) {
-                if (content.classList.contains('ng-hide')) return;
-
-                if (content.children.length === 1) {
-                    const inner = content.children[0];
-                    if (
-                        inner.tagName === 'DIV' &&
-                        inner.children.length === 0 &&
-                        inner.textContent.trim() === ''
-                    ) {
-                        if (content.querySelector('.rovalra-empty-state'))
-                            return;
-                        content.innerHTML = '';
-                        content.appendChild(
-                            await UI.createEmptyState(handleButtonClick),
-                        );
-                    }
+            if (content.children.length === 1) {
+                const inner = content.children[0];
+                if (
+                    inner.tagName === 'DIV' &&
+                    inner.children.length === 0 &&
+                    inner.textContent.trim() === ''
+                ) {
+                    if (content.querySelector('.rovalra-empty-state')) return;
+                    content.innerHTML = '';
+                    content.appendChild(
+                        await UI.createEmptyState(handleButtonClick),
+                    );
                 }
             }
-        };
+        }
+    };
 
-        window.addEventListener('hashchange', checkEmptyState);
-        observeElement('.profile-tab-content', checkEmptyState);
-    });
+    window.addEventListener('hashchange', checkEmptyState);
+    observeElement('.profile-tab-content', checkEmptyState);
 }
