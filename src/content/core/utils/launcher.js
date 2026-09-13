@@ -2,12 +2,120 @@
 import { callRobloxApiJson } from '../api.js';
 
 let preLaunchHook = null;
+let followUserHook = null;
+let followLaunchObserver = null;
+let lastObservedFollowLaunch = null;
 
 // Lets a feature do something right before the client starts, such as changing
 // the avatar. Opt in on purpose: with no hook registered every launch below
 // stays exactly as synchronous as it was.
 export function setPreLaunchHook(hook) {
     preLaunchHook = typeof hook === 'function' ? hook : null;
+}
+
+export function setFollowUserHook(hook) {
+    followUserHook = typeof hook === 'function' ? hook : null;
+    if (followUserHook && !followLaunchObserver) {
+        followLaunchObserver = observeGameLaunch((_frame, launch) => {
+            if (
+                !followUserHook ||
+                !launch ||
+                launch.request !== 'RequestFollowUser' ||
+                !launch.userId ||
+                launch.src === lastObservedFollowLaunch
+            ) {
+                return;
+            }
+
+            lastObservedFollowLaunch = launch.src;
+            resolveGameLaunchPlaceId(launch)
+                .then((placeId) => followUserHook?.(placeId))
+                .catch((error) => {
+                    console.error(
+                        'RoValra Launcher: Observed follow hook failed',
+                        error,
+                    );
+                });
+        });
+    } else if (!followUserHook && followLaunchObserver) {
+        followLaunchObserver.disconnect();
+        followLaunchObserver = null;
+        lastObservedFollowLaunch = null;
+    }
+}
+
+export function parseGameLaunchUrl(src) {
+    if (typeof src !== 'string' || !src.includes('placelauncherurl:')) {
+        return null;
+    }
+
+    try {
+        const urlString = src.substring(src.indexOf('placelauncherurl:'));
+        const decodedUrl = decodeURIComponent(
+            urlString.split('+')[0].substring('placelauncherurl:'.length),
+        );
+        const params = new URLSearchParams(new URL(decodedUrl).search);
+
+        return {
+            src,
+            params,
+            placeId: params.get('placeId'),
+            userId: params.get('userId'),
+            request: params.get('request'),
+            gameId: params.get('gameId'),
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+export async function resolveGameLaunchPlaceId(launch) {
+    if (!launch) return null;
+    if (launch.placeId) return launch.placeId;
+    if (launch.request !== 'RequestFollowUser' || !launch.userId) return null;
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'presence',
+            endpoint: '/v1/presence/users',
+            method: 'POST',
+            body: { userIds: [parseInt(launch.userId, 10)] },
+        });
+        const presence = data?.userPresences?.[0];
+        return presence?.rootPlaceId || presence?.placeId || null;
+    } catch (error) {
+        return null;
+    }
+}
+
+export function observeGameLaunch(callback) {
+    if (typeof callback !== 'function') return { disconnect() {} };
+
+    let active = true;
+    const notify = (frame) => {
+        if (active) callback(frame, parseGameLaunchUrl(frame?.src));
+    };
+    const scan = () => {
+        const frame = document.querySelector('#gamelaunch');
+        if (frame) notify(frame);
+    };
+
+    const observer = new MutationObserver(() => scan());
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['src'],
+    });
+    scan();
+
+    return {
+        disconnect() {
+            if (!active) return;
+            active = false;
+            observer.disconnect();
+        },
+    };
 }
 
 function runLaunch(placeId, codeToInject) {
@@ -58,6 +166,8 @@ export function launchMultiplayerGame(placeId, launchData = {}) {
 
 export function followUser(userId) {
     const uId = parseInt(userId, 10);
+    if (!uId) return;
+
     const placeLauncherUrl = `https://assetgame.roblox.com/game/PlaceLauncher.ashx?request=RequestFollowUser&userId=${uId}&is30=false`;
     const deepLink = `roblox-player:1+launchmode:play+placelauncherurl:${encodeURIComponent(placeLauncherUrl)}`;
 
@@ -68,7 +178,21 @@ export function followUser(userId) {
             window.location.href = '${deepLink}';
         }
     `;
-    executeLaunchScript(codeToInject);
+
+    if (!followUserHook) {
+        executeLaunchScript(codeToInject);
+        return;
+    }
+
+    resolveGameLaunchPlaceId({
+        request: 'RequestFollowUser',
+        userId: String(uId),
+    })
+        .then((placeId) => followUserHook(placeId))
+        .catch((error) => {
+            console.error('RoValra Launcher: Follow user hook failed', error);
+        })
+        .finally(() => executeLaunchScript(codeToInject));
 }
 
 export function openWebChat(userId) {
