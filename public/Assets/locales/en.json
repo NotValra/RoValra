@@ -1382,6 +1382,7 @@
     "profileEdit": {
         "featuresTitle": "RoValra Features",
         "profilePronouns": "Profile Pronouns",
+        "profileBadges": "Profile Badges",
         "pronounsPlaceholder": "Enter your pronouns",
         "donatorPerks": "Donator Perks",
         "usernameCustomizations": "Username Customizations"

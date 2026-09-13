@@ -172,6 +172,7 @@ import { init as initDisplayNameGradient } from './features/profile/header/displ
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
+import './features/profile/profileBadges.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
