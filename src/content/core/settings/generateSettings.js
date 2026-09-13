@@ -596,6 +596,12 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             input.type = setting.inputType;
         }
 
+        if (setting.inputType === 'number') {
+            if (setting.min !== undefined) input.min = String(setting.min);
+            if (setting.max !== undefined) input.max = String(setting.max);
+            if (setting.step !== undefined) input.step = String(setting.step);
+        }
+
         if (
             setting.characterReplacements ||
             setting.replaceSpecialCharactersWithPipe
