@@ -97,6 +97,10 @@ const DONATOR_PERKS_GAME_URL =
     'https://www.roblox.com/games/store-section/' + DONATOR_PERKS_UNIVERSE_ID;
 const DONATOR_PERKS_FALLBACK_ONSALE_URL =
     'https://www.roblox.com/catalog?taxonomy=2a2rf9qyeTd8W5iegK2Prc&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
+const CUSTOM_PROFILE_BADGE_ITEM_URL =
+    'https://www.roblox.com/catalog/82011134345292/4000';
+const ROVALRA_DISCORD_URL = 'https://discord.gg/GHd5cSKJRk';
+const CUSTOM_PROFILE_BADGE_CONFIRMATION_COOLDOWN_SECONDS = 5;
 let requestedDonatorGameUnblock = false;
 let requestedDonatorGameUnblockChecked = false;
 let donatorGameUnblockConsentId = 0;
@@ -557,6 +561,100 @@ function renderDonatorPerksDonationButton(container = document) {
             content: [text, spinner],
             id: 'rovalra-donator-perks-donation-button',
             onClick: openDonatorPerksDonationUrl,
+            width: 'auto',
+            height: 'height-1000',
+            paddingX: 'padding-x-medium',
+            radius: 'radius-medium',
+            disableTextTruncation: true,
+        }),
+    );
+}
+
+function openCustomProfileBadgePurchaseOverlay() {
+    const body = document.createElement('div');
+    body.innerHTML = `
+        <p>This purchase is for people who really want to support RoValra.</p>
+        <p>After buying this item, go into the RoValra Discord and create a ticket.</p>
+        <p>Give staff the image and name you want your custom profile badge to have.</p>
+        <p>Buying this item will count towards RoValra donator tiers.</p>
+        <div style="margin: 18px 0; padding: 12px 14px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.35)); border-left: 4px solid var(--rovalra-theme-discordLink, #5865f2); border-radius: 6px; background: var(--rovalra-container-background-color, rgba(0,0,0,0.12));">
+            <strong style="display: block; margin-bottom: 8px; color: var(--rovalra-main-text-color);">Image requirements</strong>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li>The image must be a <strong>WEBP</strong> file smaller than <strong>1 MB</strong>.</li>
+                <li>Official Roblox SVGs or badges cannot be used.</li>
+                <li>Images must follow Roblox ToS</li>
+            </ul>
+        </div>
+        <p><a href="${ROVALRA_DISCORD_URL}" target="_blank" rel="noopener noreferrer" style="color: var(--rovalra-theme-discordLink, #5865f2); font-weight: 700; text-decoration: underline; text-underline-offset: 2px;">Join the RoValra Discord</a></p>
+    `;
+
+    let overlay;
+    let remainingSeconds = CUSTOM_PROFILE_BADGE_CONFIRMATION_COOLDOWN_SECONDS;
+    const agreeButton = createButton(`Agree (${remainingSeconds})`, 'primary', {
+        disabled: true,
+        onClick: () => {
+            overlay.close();
+            window.open(CUSTOM_PROFILE_BADGE_ITEM_URL, '_blank', 'noopener');
+        },
+    });
+    const cancelButton = createButton('Cancel', 'secondary', {
+        onClick: () => overlay.close(),
+    });
+    let cooldownTimer;
+
+    overlay = createOverlay({
+        title: 'Custom RoValra Profile Badge',
+        bodyContent: body,
+        actions: [cancelButton, agreeButton],
+        maxWidth: '440px',
+        showLogo: true,
+        onClose: () => {
+            if (cooldownTimer) window.clearInterval(cooldownTimer);
+        },
+    });
+
+    cooldownTimer = window.setInterval(() => {
+        remainingSeconds -= 1;
+        if (remainingSeconds <= 0) {
+            window.clearInterval(cooldownTimer);
+            agreeButton.disabled = false;
+            agreeButton.setAttribute('aria-disabled', 'false');
+            agreeButton.textContent = 'Agree';
+            return;
+        }
+
+        agreeButton.textContent = `Agree (${remainingSeconds})`;
+    }, 1000);
+}
+
+function renderCustomProfileBadgePurchaseButton(container = document) {
+    const holder = container.querySelector(
+        '#rovalra-custom-profile-badge-button-holder',
+    );
+    if (!holder || holder.dataset.rovalraCustomProfileBadgeRendered === 'true')
+        return;
+
+    const iconHolder = container.querySelector(
+        '#rovalra-custom-profile-badge-icon-holder',
+    );
+    if (iconHolder) {
+        const badgeIcon = Icon({
+            icon: 'crown',
+            filled: true,
+            size: 'xx-large',
+        });
+        badgeIcon.setAttribute('aria-hidden', 'true');
+        badgeIcon.style.cssText =
+            'width: 52px; height: 52px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;';
+        iconHolder.replaceChildren(badgeIcon);
+    }
+
+    holder.dataset.rovalraCustomProfileBadgeRendered = 'true';
+    holder.replaceChildren(
+        createSquareButton({
+            content: 'Buy',
+            id: 'rovalra-custom-profile-badge-button',
+            onClick: openCustomProfileBadgePurchaseOverlay,
             width: 'auto',
             height: 'height-1000',
             paddingX: 'padding-x-medium',
@@ -2595,6 +2693,19 @@ export const buttonData = [
                     </div>
                 </div>
 
+                <div style="margin-top: 10px; padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2)); display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                    <div style="min-width: 220px; flex: 1; display: flex; align-items: center; gap: 14px;">
+                        <div id="rovalra-custom-profile-badge-icon-holder" aria-label="Custom profile badge icon"></div>
+                        <div>
+                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">Custom RoValra Profile Badge</h3>
+                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">Get a custom badge for your profile</p>
+                        </div>
+                    </div>
+                    <div style="flex-shrink: 0;">
+                        <div id="rovalra-custom-profile-badge-button-holder"></div>
+                    </div>
+                </div>
+
                 <div style="margin-top: 10px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.perkTiers')}</h3>
                     ${getDonatorPerksComparisonHtml(themeColors)}
@@ -4354,6 +4465,7 @@ export async function updateContent(buttonInfo, contentContainer) {
 
     if (buttonId === 'donatorPerks') {
         renderDonatorPerksDonationButton(contentContainer);
+        renderCustomProfileBadgePurchaseButton(contentContainer);
         renderDonatorPerkStatusPills(contentContainer);
 
         const badgesResponse = await syncDonatorTier();
