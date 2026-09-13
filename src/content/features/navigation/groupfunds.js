@@ -377,6 +377,10 @@ async function renderNavbarTotal() {
         return;
     }
 
+    await Promise.allSettled(
+        state.groupIds.map((groupId) => fetchAndCacheGroupData(groupId)),
+    );
+
     const cache = await getCache();
     const mergedTotal = personalRobux + sumConfiguredGroupFunds(cache);
     const formattedTotal = mergedTotal.toLocaleString();
