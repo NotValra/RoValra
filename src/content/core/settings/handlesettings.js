@@ -2276,6 +2276,10 @@ export function initializeSettingsEventListeners() {
             const min = parseFloat(target.min) || 0;
             const max = parseFloat(target.max) || Infinity;
             value = Math.max(min, Math.min(max, parseFloat(target.value) || 0));
+            target.value = String(value);
+            if (findSettingConfig(settingName)?.type === 'input') {
+                value = String(value);
+            }
 
             const toggleElement = document.querySelector(
                 `[data-controls-setting="${settingName}"]`,
