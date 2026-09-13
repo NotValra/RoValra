@@ -181,6 +181,65 @@ function normalizeCollectibleItem(item) {
     };
 }
 
+function groupCollectibleItems(items) {
+    const groupedItems = new Map();
+
+    items.forEach((item) => {
+        const bundleId = getCollectibleBundleId(item);
+        const itemType = bundleId ? 'Bundle' : 'Asset';
+        const itemId = bundleId || item.assetId;
+        const key = `${itemType}:${itemId}`;
+        const existingItem = groupedItems.get(key);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            groupedItems.set(key, { ...item, quantity: 1 });
+        }
+    });
+
+    return Array.from(groupedItems.values());
+}
+
+function addQuantityBadge(card, quantity) {
+    if (quantity <= 1) return;
+
+    const thumbnailContainer = card.querySelector(
+        '.rovalra-item-thumb-container',
+    );
+    if (!thumbnailContainer) return;
+
+    const quantityBadge = document.createElement('span');
+    quantityBadge.textContent = quantity.toLocaleString();
+    quantityBadge.setAttribute(
+        'aria-label',
+        ts('rap.itemAmount', { quantity }),
+    );
+    Object.assign(quantityBadge.style, {
+        position: 'absolute',
+        top: '8px',
+        left: '8px',
+        zIndex: '3',
+        minWidth: '24px',
+        height: '24px',
+        padding: '0 6px',
+        boxSizing: 'border-box',
+        borderRadius: '9999px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'var(--color-content-emphasis)',
+        color: 'var(--color-surface-100)',
+        fontSize: '12px',
+        fontWeight: '700',
+        lineHeight: '1',
+    });
+    addTooltip(quantityBadge, ts('rap.itemAmount', { quantity }), {
+        position: 'top',
+    });
+    thumbnailContainer.appendChild(quantityBadge);
+}
+
 async function showInventoryOverlay(
     userId,
     items,
@@ -190,7 +249,7 @@ async function showInventoryOverlay(
 ) {
     const displayName = (await getDisplayNameFromPageData()) || ts('rap.user');
     const sortKey = useValue ? 'value' : 'recentAveragePrice';
-    const allItems = items.sort(
+    const allItems = groupCollectibleItems(items).sort(
         (a, b) => (b[sortKey] || 0) - (a[sortKey] || 0),
     );
     let filteredItems = [...allItems];
@@ -227,10 +286,12 @@ async function showInventoryOverlay(
                     normalizedItem,
                     itemThumbnailCache,
                     {
-                        showSerial: true,
+                        showSerial: normalizedItem.quantity === 1,
                         hideSerial,
                     },
                 );
+
+                addQuantityBadge(card, normalizedItem.quantity);
 
                 updateItemCard(card, normalizedItem.assetId, {
                     fontSize: '12px',
