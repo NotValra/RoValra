@@ -2336,7 +2336,7 @@ export const SETTINGS_CONFIG = {
                             'Combines your Robux balance with your configured community funds in the navbar. Click the balance to see your Robux and each community separately.',
                         type: 'checkbox',
                         default: false,
-                        contributors: ['278039610'],
+                        contributors: ['278039610', '476449201'],
                     },
                     GroupFundsIds: {
                         label: 'Community IDs',
