@@ -1909,6 +1909,7 @@ export const SETTINGS_CONFIG = {
     Navigation: {
         title: 'Navigation',
         settings: {
+
             privacyTogglesEnabled: {
                 label: 'Privacy Toggles in Navigation',
                 description: [
@@ -2348,6 +2349,15 @@ export const SETTINGS_CONFIG = {
                         placeholder: 'Enter Community ID...',
                     },
                 },
+            },
+            incidentTrackingEnabled: {
+                label: 'RoValra Status Banners',
+                description: [
+                    'This feature shows when RoValra, or it\'s services are experiencing issues. We do not recommend turning this off.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
             },
         },
     },
