@@ -2017,6 +2017,126 @@ async function getCustomFontFamily(assetId) {
     }
 }
 
+// --- React Stuff ---
+function extractGetPropsWorker(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return { error: "Element not found" };
+
+    const key = Object.keys(el).find(
+        (k) => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$')
+    );
+    if (!key) return { error: "React props key not found" };
+
+    const data = el[key];
+    const props = key.startsWith('__reactProps$') ? data : (data?.memoizedProps || data?.return?.memoizedProps);
+
+    if (!props) return { error: "Props are empty" };
+
+    return JSON.parse(JSON.stringify(props));
+}
+
+function extractGetFiberWorker(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return { error: "Element not found" };
+
+    const key = Object.keys(el).find(
+        (k) => k.startsWith('__reactFiber$')
+    );
+    if (!key) return { error: "React fiber key not found" };
+
+    const data = el[key];
+
+    const sanitizeFiber = (fiber) => {
+        if (!fiber) return null;
+
+        const seen = new WeakSet();
+
+        const transform = (node) => {
+            if (!node || typeof node !== 'object') return node;
+            if (seen.has(node)) return undefined;
+            seen.add(node);
+
+            if (node instanceof Node || ('nodeType' in node) || node === window || node === document) {
+                return undefined;
+            }
+
+            const safeNode = {};
+
+            if (node.elementType) safeNode.elementType = typeof node.elementType === 'function' ? (node.elementType.name || 'AnonymousComponent') : node.elementType;
+            if (node.tag !== undefined) safeNode.tag = node.tag;
+            if (node.key !== undefined) safeNode.key = node.key;
+
+            if (node.memoizedProps) safeNode.memoizedProps = sanitizePayload(node.memoizedProps);
+            if (node.memoizedState) safeNode.memoizedState = sanitizePayload(node.memoizedState);
+
+            if (node.child) safeNode.child = transform(node.child);
+            if (node.sibling) safeNode.sibling = transform(node.sibling);
+
+            return safeNode;
+        };
+
+        const sanitizePayload = (payload) => {
+            try {
+                const payloadSeen = new WeakSet();
+                return JSON.parse(JSON.stringify(payload, (k, v) => {
+                    if (v instanceof Node || (v && typeof v === 'object' && 'nodeType' in v) || v === window || v === document) return undefined;
+                    if (typeof v === 'function') return undefined;
+                    if (typeof v === 'object' && v !== null) {
+                        if (payloadSeen.has(v)) return undefined;
+                        payloadSeen.add(v);
+                    }
+                    return v;
+                }));
+            } catch {
+                return "[Unserializable Payload]";
+            }
+        };
+
+        return transform(fiber);
+    };
+
+    try {
+        return sanitizeFiber(data);
+    } catch (err) {
+        return { error: "Fiber transformation crashed: " + err.message };
+    }
+}
+
+function extractGetKeyWorker(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return { error: "Element not found" };
+
+    const key = Object.keys(el).find(
+        (k) => k.startsWith('__reactFiber$')
+    );
+    if (!key) return { error: "React fiber key not found" };
+
+    const data = el[key];
+
+    return data.return.key || data.return.return.key || data.return.child.key || data.return.return.child.key;
+}
+
+async function executeGetReactData(tabId, selector, type = 'props') {
+    const types = {
+        props: extractGetPropsWorker,
+        fiber: extractGetFiberWorker,
+        key: extractGetKeyWorker
+    }
+    const [injectionResult] = await chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        world: "MAIN",
+        func: types[type ?? 'props'],
+        args: [selector]
+    });
+
+    if (injectionResult?.result?.error) {
+        throw new Error(injectionResult.result.error);
+    }
+
+    return injectionResult?.result;
+}
+
+
 // --- Event Listeners ---
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -2446,6 +2566,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
             }
             return false;
+
+        case 'getReactProps':
+            executeGetReactData(sender.tab.id, request.selector, 'props')
+              .then(result => sendResponse({ data: result }))
+              .catch(err => sendResponse({ error: err.message }));
+
+            return true;
+
+        case 'getReactFiber':
+            executeGetReactData(sender.tab.id, request.selector, 'fiber')
+                .then(result => sendResponse({ data: result }))
+                .catch(err => sendResponse({ error: err.message }));
+
+            return true;
+        case 'getReactKey':
+            executeGetReactData(sender.tab.id, request.selector, 'key')
+                .then(result => sendResponse({ data: result }))
+                .catch(err => sendResponse({ error: err.message }));
+
+            return true;
     }
     return false;
 });
