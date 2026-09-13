@@ -20,6 +20,8 @@ const DONATOR_BADGE_KEYS = [
     'donator_3',
     'legacy_donator',
 ];
+const DONATOR_PERKS_URL =
+    'https://www.roblox.com/my/account?rovalra=donator+perks';
 let groupRolesListenerInitialized = false;
 
 function isVideoStarGroupMember(item) {
@@ -54,7 +56,7 @@ function mergeRuntimeBadges(userId, badges, options = {}) {
     return mergedBadges;
 }
 
-function createDirectImageBadgeConfig(name, imageUrl) {
+function createDirectImageBadgeConfig(name, imageUrl, isRemoteBadge = false) {
     if (!imageUrl) return null;
 
     const badge = BADGE_CONFIG[name] || {
@@ -68,6 +70,9 @@ function createDirectImageBadgeConfig(name, imageUrl) {
         icon: imageUrl,
         iconAssetName: null,
         confettiAssetName: null,
+        ...(isRemoteBadge
+            ? { url: DONATOR_PERKS_URL }
+            : {}),
     };
 }
 
@@ -401,13 +406,14 @@ async function addHeaderBadges(container) {
             const config = createDirectImageBadgeConfig(
                 name,
                 data.donatorBadges?.[name],
+                true,
             );
             if (config) badgesToRender.push({ isIcon: true, config });
         });
 
         Object.entries(data.donatorBadges || {}).forEach(([name, imageUrl]) => {
             if (DONATOR_BADGE_KEYS.includes(name)) return;
-            const config = createDirectImageBadgeConfig(name, imageUrl);
+            const config = createDirectImageBadgeConfig(name, imageUrl, true);
             if (config) badgesToRender.push({ isIcon: true, config });
         });
 
