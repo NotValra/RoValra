@@ -577,11 +577,13 @@ function openCustomProfileBadgePurchaseOverlay() {
         <p>After buying this item, go into the RoValra Discord and create a ticket.</p>
         <p>Give staff the image and name you want your custom profile badge to have.</p>
         <p>Buying this item will count towards RoValra donator tiers.</p>
+        <p>These custom badges are only visible to RoValra users.</p>
         <div style="margin: 18px 0; padding: 12px 14px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.35)); border-left: 4px solid var(--rovalra-theme-discordLink, #5865f2); border-radius: 6px; background: var(--rovalra-container-background-color, rgba(0,0,0,0.12));">
             <strong style="display: block; margin-bottom: 8px; color: var(--rovalra-main-text-color);">Image requirements</strong>
             <ul style="margin: 0; padding-left: 20px;">
                 <li>The image must be a <strong>WEBP</strong> file smaller than <strong>1 MB</strong>.</li>
                 <li>Official Roblox SVGs or badges cannot be used.</li>
+                <li>Official RoValra badges like contributor and artist badges aren't allowed.</li>
                 <li>Images must follow Roblox ToS</li>
             </ul>
         </div>
