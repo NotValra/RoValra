@@ -76,7 +76,7 @@ export const SETTINGS_CONFIG = {
                             'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
                         type: 'checkbox',
                         default: false,
-                    }
+                    },
                 },
             },
             EnableRobuxAfterPurchase: {
@@ -858,7 +858,7 @@ export const SETTINGS_CONFIG = {
                             'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
                         type: 'checkbox',
                         default: false,
-                    }
+                    },
                 },
             },
             groupFiltersEnabled: {
@@ -1811,7 +1811,8 @@ export const SETTINGS_CONFIG = {
             },
             sendTradeEnabled: {
                 label: 'Send Trade',
-                description: "Allows you to send new trade offers to other users from the trade page.",
+                description:
+                    'Allows you to send new trade offers to other users from the trade page.',
                 type: 'checkbox',
                 default: false,
                 contributors: ['1960518316'],
@@ -2732,67 +2733,6 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
-    PublicDeveloper: {
-        title: 'Developer',
-        settings: {
-            EnableRobloxApiDocsv2: {
-                label: 'Roblox API docs',
-                description: [
-                    'Adds OpenAPI documentation for Roblox and RoValra APIs on https://www.roblox.com/docs.',
-                    'This documents undocumented Roblox APIs, which can be really useful for Developers.',
-                    'All Roblox APIs were documented by [Cam](https://www.roblox.com/users/4866259395/profile)',
-                ],
-                type: 'checkbox',
-                default: true,
-                locked: 'Temporarily disabled while the API Docs feature is being rebuilt.',
-                isPermanent: false,
-                contributors: ['4866259395', '447170745'],
-                childSettings: {
-                    apiDocsSidebarLinkEnabled: {
-                        label: 'API Docs sidebar link',
-                        description:
-                            'Adds an API Docs link below Communities in the Roblox sidebar.',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                },
-            },
-            viewIdEnabled: {
-                label: 'View Bundled IDs',
-                description:
-                    'Allows you to view all bundles items and their IDs of any catalog item.',
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
-                contributors: ['1564574922'],
-            },
-            copyIdEnabled: {
-                label: "Allows you to quickly copy an ID of a thing you're right-clicking.",
-                description:
-                    "This adds a Copy ID button directly to the right-click context menu, so you don't have to open the link and copy the ID from it.",
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
-                contributors: ['447170745', '1564574922'],
-            },
-            copyUniverseIdEnabled: {
-                label: 'Allows you to quickly copy a universe id',
-                description:
-                    'This adds a copy universe id button directly into the right click context menu.',
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['contextMenus'],
-            },
-            DownloadCreateEnabled: {
-                label: 'Adds a download button to create.roblox.com',
-                description:
-                    'This feature allows you to download assets like meshes, images, audios, etc from the create page.',
-                type: 'checkbox',
-                default: true,
-                contributors: ['447170745', '126448532'],
-            },
-        },
-    },
     WebsiteCustomization: {
         title: 'Website Customization',
         settings: {
@@ -2990,6 +2930,68 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
+    PublicDeveloper: {
+        title: 'Developer',
+        settings: {
+            EnableRobloxApiDocsv2: {
+                label: 'Roblox API docs',
+                description: [
+                    'Adds OpenAPI documentation for Roblox and RoValra APIs on https://www.roblox.com/docs.',
+                    'This documents undocumented Roblox APIs, which can be really useful for Developers.',
+                    'All Roblox APIs were documented by [Cam](https://www.roblox.com/users/4866259395/profile)',
+                ],
+                type: 'checkbox',
+                default: true,
+                locked: 'Temporarily disabled while the API Docs feature is being rebuilt.',
+                isPermanent: false,
+                contributors: ['4866259395', '447170745'],
+                childSettings: {
+                    apiDocsSidebarLinkEnabled: {
+                        label: 'API Docs sidebar link',
+                        description:
+                            'Adds an API Docs link below Communities in the Roblox sidebar.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
+            viewIdEnabled: {
+                label: 'View Bundled IDs',
+                description:
+                    'Allows you to view all bundles items and their IDs of any catalog item.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+                contributors: ['1564574922'],
+            },
+            copyIdEnabled: {
+                label: "Allows you to quickly copy an ID of a thing you're right-clicking.",
+                description:
+                    "This adds a Copy ID button directly to the right-click context menu, so you don't have to open the link and copy the ID from it.",
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+                contributors: ['447170745', '1564574922'],
+            },
+            copyUniverseIdEnabled: {
+                label: 'Allows you to quickly copy a universe id',
+                description:
+                    'This adds a copy universe id button directly into the right click context menu.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['contextMenus'],
+            },
+            DownloadCreateEnabled: {
+                label: 'Adds a download button to create.roblox.com',
+                description:
+                    'This feature allows you to download assets like meshes, images, audios, etc from the create page.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['447170745', '126448532'],
+            },
+        },
+    },
+
     Developer: {
         title: 'RoValra Developer',
         settings: {
