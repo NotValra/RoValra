@@ -605,6 +605,17 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            HidePrivateServersEnabled: {
+                label: 'Hide Private Servers',
+                description: [
+                    'Adds an option to hide private servers from the server list.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: 'hiddenFriendPrivateServers',
+                contributors: ['476449201'],
+                experimental: 'Has a few quality of life issues.',
+            },
             PrivateQuickLinkCopy: {
                 label: 'Quick Private Server Link Copy and Generation',
                 description: [
