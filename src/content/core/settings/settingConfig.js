@@ -2284,15 +2284,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            disableChannelTracking: {
-                label: 'Disable Channel Tracking',
-                description: [
-                    'Stops RoValra from sending your channel to the RoValra backends. We use this to improve RoValra, and the data is public. We have safety measures in place to prevent private channels from ever being stored.',
-                    'After this feature has been disabled any data stored related to channels from you will be removed.',
-                ],
-                type: 'checkbox',
-                default: false,
-            },
             loginBannerEnabled: {
                 label: 'Login Banner',
                 description: [
