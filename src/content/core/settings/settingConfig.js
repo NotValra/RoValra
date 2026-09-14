@@ -2241,6 +2241,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            incidentTrackingEnabled: {
+                label: 'RoValra Status Banners',
+                description: [
+                    "This feature shows when RoValra, or it's services are experiencing issues. We do not recommend turning this off.",
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+            },
         },
     },
     Miscellaneous: {
