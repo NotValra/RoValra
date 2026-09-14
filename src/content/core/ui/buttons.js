@@ -17,6 +17,9 @@ export function createButton(text, type = 'secondary', options = {}) {
     if (typeof options.onClick === 'function') {
         button.addEventListener('click', options.onClick);
     }
+    if (options.classList && Array.isArray(options.classList)) {
+        button.classList.add(...options.classList);
+    }
 
     if (options.disabled) {
         button.disabled = true;

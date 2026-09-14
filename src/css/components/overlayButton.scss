@@ -1,0 +1,15 @@
+/* Not applied automatically! */
+.rovalra-overlay-btn {
+    cursor: pointer !important;
+
+    transition: scale 0.3s ease !important;
+
+    &:hover {
+        scale: 1.05 !important;
+        transition: scale 0.1s ease !important;
+    }
+
+    &:active {
+        scale: 0.95 !important;
+    }
+}
