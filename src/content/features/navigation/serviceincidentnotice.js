@@ -1,4 +1,5 @@
 import { callRobloxApi } from "../../core/api";
+import { t } from '../../core/locale/i18n.js';
 import { settings } from "../../core/settings/getSettings";
 
 const STATUS_SUBDOMAIN = 'status'
@@ -6,6 +7,7 @@ const STATUS_SLUG = 'rovalra'
 const MAINTENANCE_GROUP_ID = 1;
 const MAINTENANCE_MONITOR_ID = 2;
 const SETTING_NAME = 'incidentTrackingEnabled'
+const SETTING_URL = 'https://www.roblox.com/my/account?rovalra=search&q=incidenttrackingenabled#!/search'
 
 async function incident(status) {
     if (!status.incidents || !status.incidents[0]) return;
@@ -14,6 +16,7 @@ async function incident(status) {
     const incidentEl = document.createElement('div');
     const incidentTitleEl = document.createElement('span');
     const incidentLinkEl = document.createElement('a');
+    const settingLinkEl = document.createElement('a');
 
     incidentEl.classList.add('alert-info', 'rovalra-status-alert');
     incidentEl.role = 'alert';
@@ -26,13 +29,20 @@ async function incident(status) {
         )
     );
 
-    incidentLinkEl.innerText = 'Click here to learn more.';
+    incidentLinkEl.innerText = await t('navigation.incidentLearnMore');
     incidentLinkEl.href = 'https://status.rovalra.com';
     incidentLinkEl.target = '_blank';
     incidentLinkEl.style.color = '#101217';
     incidentLinkEl.style.textDecoration = 'underline';
 
-    incidentEl.append(incidentTitleEl, incidentLinkEl);
+    settingLinkEl.innerText = await t('navigation.incidentHideNotice');
+    settingLinkEl.href = SETTING_URL;
+    settingLinkEl.target = '_blank';
+    settingLinkEl.rel = 'noopener noreferrer';
+    settingLinkEl.style.color = '#101217';
+    settingLinkEl.style.textDecoration = 'underline';
+
+    incidentEl.append(incidentTitleEl, incidentLinkEl, ' ', settingLinkEl);
     incidentElParent.appendChild(incidentEl);
 
     const alertContainer = document.querySelector('.alert-container')
@@ -59,7 +69,7 @@ async function statusChecker() {
 
         const statusRes = await statusReq.json();
 
-        incident(statusRes);
+        await incident(statusRes);
         maintenance(statusRes);
 
 

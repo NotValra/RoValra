@@ -76,7 +76,7 @@ export const SETTINGS_CONFIG = {
                             'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
                         type: 'checkbox',
                         default: false,
-                    }
+                    },
                 },
             },
             EnableRobuxAfterPurchase: {
@@ -858,7 +858,7 @@ export const SETTINGS_CONFIG = {
                             'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
                         type: 'checkbox',
                         default: false,
-                    }
+                    },
                 },
             },
             groupFiltersEnabled: {
@@ -1811,7 +1811,8 @@ export const SETTINGS_CONFIG = {
             },
             sendTradeEnabled: {
                 label: 'Send Trade',
-                description: "Allows you to send new trade offers to other users from the trade page.",
+                description:
+                    'Allows you to send new trade offers to other users from the trade page.',
                 type: 'checkbox',
                 default: false,
                 contributors: ['1960518316'],
@@ -1909,7 +1910,6 @@ export const SETTINGS_CONFIG = {
     Navigation: {
         title: 'Navigation',
         settings: {
-
             privacyTogglesEnabled: {
                 label: 'Privacy Toggles in Navigation',
                 description: [
@@ -2353,7 +2353,7 @@ export const SETTINGS_CONFIG = {
             incidentTrackingEnabled: {
                 label: 'RoValra Status Banners',
                 description: [
-                    'This feature shows when RoValra, or it\'s services are experiencing issues. We do not recommend turning this off.',
+                    "This feature shows when RoValra, or it's services are experiencing issues. We do not recommend turning this off.",
                 ],
                 type: 'checkbox',
                 default: true,

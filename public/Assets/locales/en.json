@@ -621,7 +621,9 @@
     },
     "navigation": {
         "transactions": "Transactions",
-        "apiDocs": "API Docs"
+        "apiDocs": "API Docs",
+        "incidentLearnMore": "Click here to learn more.",
+        "incidentHideNotice": "You can hide this notice here"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
