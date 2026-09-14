@@ -8,22 +8,7 @@ async function init() {
 
 init();
 
-let toFlush: string = "";
-
 export function debugVerbose(fmt: string, ...args: any[]) {
-    if (toFlush.length >= 500) {
-        flush();
-    }
-    if (verbose) {
+    if (verbose)
         console.debug(fmt, ...args);
-    } else {
-        toFlush += fmt;
-        toFlush += (args?.length || 0) >= 1 ? ` (${args.length} suppressed Objects)` : ``;
-        toFlush += "\n";
-    }
-}
-
-export function flush() {
-    console.debug(toFlush);
-    toFlush = "";
 }
