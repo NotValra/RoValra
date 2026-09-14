@@ -52,6 +52,7 @@ import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndic
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
+import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js'
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -274,6 +275,7 @@ const featureRoutes = [
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initRoValraIncidentTracker,
         ],
     },
     // pretty much just the 40% method
