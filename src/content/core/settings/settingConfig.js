@@ -76,7 +76,7 @@ export const SETTINGS_CONFIG = {
                             'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
                         type: 'checkbox',
                         default: false,
-                    }
+                    },
                 },
             },
             EnableRobuxAfterPurchase: {
@@ -602,9 +602,10 @@ export const SETTINGS_CONFIG = {
                     'Adds an option to hide private servers from the server list.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 storageKey: 'hiddenFriendPrivateServers',
                 contributors: ['476449201'],
+                experimental: 'Has a few quality of life issues.',
             },
             PrivateQuickLinkCopy: {
                 label: 'Quick Private Server Link Copy and Generation',
@@ -859,7 +860,7 @@ export const SETTINGS_CONFIG = {
                             'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
                         type: 'checkbox',
                         default: false,
-                    }
+                    },
                 },
             },
             groupFiltersEnabled: {
