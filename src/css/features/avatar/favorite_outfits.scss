@@ -1,0 +1,20 @@
+.rovalra-outfit-favorite-star {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    z-index: 5;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5l2.99 6.06 6.69.97-4.84 4.72 1.14 6.66L12 17.77l-5.98 3.14 1.14-6.66-4.84-4.72 6.69-.97z' fill='rgba(0,0,0,0.45)' stroke='%23ffffff' stroke-width='1.5'/%3E%3C/svg%3E");
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+    opacity: 0.85;
+}
+
+.rovalra-outfit-favorite-star.favorited {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5l2.99 6.06 6.69.97-4.84 4.72 1.14 6.66L12 17.77l-5.98 3.14 1.14-6.66-4.84-4.72 6.69-.97z' fill='%23f6b702' stroke='%23f6b702' stroke-width='1.5'/%3E%3C/svg%3E");
+    opacity: 1;
+}
