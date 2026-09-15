@@ -1605,6 +1605,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: ['rovalra_favorite_outfits'],
+                contributors: ['617784'],
             },
         },
     },
