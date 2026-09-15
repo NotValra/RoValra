@@ -1,0 +1,16 @@
+.rovalra-outfit-favorite-star {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    z-index: 5;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+    opacity: 0.85;
+}
+
+.rovalra-outfit-favorite-star:hover,
+.rovalra-outfit-favorite-star.favorited {
+    opacity: 1;
+}
