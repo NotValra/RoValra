@@ -2030,6 +2030,8 @@ export const SETTINGS_CONFIG = {
                     'rovalra_topbar_layout_order',
                     'rovalra_topbar_layout_hidden',
                 ],
+                locked: 'Too much work to up keep. Sorry :C',
+                isPermanent: true,
             },
             moreRobuxDigitsEnabled: {
                 label: 'More Robux Digits',
