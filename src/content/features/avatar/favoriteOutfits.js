@@ -56,6 +56,8 @@ export function init() {
 
         const favorites = await loadFavorites(userId);
         const cardOutfitIds = new WeakMap();
+        const originalOrder = new Map();
+        let orderCounter = 0;
         const pendingContainers = new Set();
         let resortScheduled = false;
 
@@ -68,9 +70,13 @@ export function init() {
             if (sortable.length < 2) return;
 
             const sorted = [...sortable].sort((a, b) => {
-                const favA = favorites.has(cardOutfitIds.get(a.child)) ? 0 : 1;
-                const favB = favorites.has(cardOutfitIds.get(b.child)) ? 0 : 1;
-                return favA !== favB ? favA - favB : a.index - b.index;
+                const idA = cardOutfitIds.get(a.child);
+                const idB = cardOutfitIds.get(b.child);
+                const favA = favorites.has(idA) ? 0 : 1;
+                const favB = favorites.has(idB) ? 0 : 1;
+                return favA !== favB
+                    ? favA - favB
+                    : originalOrder.get(idA) - originalOrder.get(idB);
             });
 
             sortable.forEach((entry, i) => {
@@ -127,7 +133,7 @@ export function init() {
                 }
 
                 const star = document.createElement('div');
-                star.className = 'rovalra-outfit-favorite-star icon-favorite';
+                star.className = 'rovalra-outfit-favorite-star';
                 star.setAttribute('role', 'button');
                 star.setAttribute('tabindex', '0');
                 updateStarState(star, outfitId);
@@ -154,6 +160,9 @@ export function init() {
 
                 thumbContainer.appendChild(star);
                 cardOutfitIds.set(card, outfitId);
+                if (!originalOrder.has(outfitId)) {
+                    originalOrder.set(outfitId, orderCounter++);
+                }
                 scheduleResort(card.parentElement);
             },
             { multiple: true },
