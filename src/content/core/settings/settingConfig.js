@@ -8,6 +8,28 @@ import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
+    RoValra: {
+        title: 'RoValra',
+        settings: {
+            rovalraLanguage: {
+                label: 'RoValra Language',
+                contributors: [1564574922],
+                description: [
+                    'Manually configure a language for RoValra. Some translations may be missing.',
+                    // it works on the setting page only once it figures out the language from other pages' URLs
+                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.'
+                ],
+                type: 'select',
+                options: [
+                    { label: 'English', value: 'en' },
+                    { label: 'Romanian (Română)', value: 'ro' },
+                    { label: 'Spanish (Español)', value: 'es' },
+                    { label: 'Automatic', value: 'auto' }
+                ],
+                default: 'en',
+            },
+        }
+    },
     Marketplace: {
         title: 'Marketplace',
         settings: {
