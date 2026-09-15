@@ -394,6 +394,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
+                childSettings: {
+                    subplacesSortEnabled: {
+                        label: 'Sorting',
+                        description: [
+                            'Adds sort and order controls to the Subplaces tab.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             hiddenBadgesEnabled: {
                 label: 'Hidden Badges',
