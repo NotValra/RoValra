@@ -636,7 +636,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['8345351117', '447170745'],
+                contributors: ['8345351117', '447170745', '3050364170'],
             },
             avatarDownloadEnabled: {
                 label: 'Download Avatar',
@@ -1431,7 +1431,7 @@ export const SETTINGS_CONFIG = {
                 description: ['Shows a communities hidden experiences.'],
                 type: 'checkbox',
                 default: true,
-                contributors: ['8345351117', '447170745'],
+                contributors: ['8345351117', '447170745', '3050364170'],
             },
             pendingRobuxEnabled: {
                 label: 'Unpending Robux',
