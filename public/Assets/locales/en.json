@@ -579,7 +579,7 @@
             "tooltip": "Privacy Settings"
         },
         "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
-        "dropdowns" : {
+        "dropdowns": {
             "shared": {
                 "allUsers": "Everyone",
                 "friendsFollowingFollowers": "Friends, Following, and Followers",
@@ -747,6 +747,20 @@
         "rootPlace": "Root Place",
         "noSubplaces": "No subplaces found.",
         "failedToLoad": "Failed to load subplaces.",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "default": "Default",
+            "updated": "Recently Updated",
+            "created": "Recently Created",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        },
         "banner": {
             "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
             "descriptionDefault": "Some experiences may disable joining subplaces.",
@@ -1428,7 +1442,7 @@
         "ccuTooltip": "Current players across public experiences created by this user.",
         "visitsTooltip": "Lifetime visits across public experiences created by this user.",
         "membersTooltip": "Members across communities owned by this user."
-        },
+    },
     "plus": {
         "stats": {
             "robux": "You've saved {{robux}} when you had Plus",
