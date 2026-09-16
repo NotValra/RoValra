@@ -19,6 +19,8 @@ export async function init() {
     if ((await settings.subplacesEnabled) !== true) return;
     isInitialized = true;
 
+    const cleanupByTabContainer = new WeakMap();
+
     const fetchUniverseId = async (placeId) => {
         const response = await callRobloxApi({
             subdomain: 'games',
@@ -414,6 +416,18 @@ export async function init() {
             },
         });
 
+        let destroyed = false;
+        let removeHashChangeListener = () => {};
+        const cleanup = () => {
+            if (destroyed) return;
+            destroyed = true;
+            sortDropdown.destroy();
+            orderDropdown.destroy();
+            removeHashChangeListener();
+            cleanupByTabContainer.delete(horizontalTabs);
+        };
+        cleanupByTabContainer.set(horizontalTabs, cleanup);
+
         filtersContainer.append(
             createFilterSection(
                 ts('subplaces.labels.sort'),
@@ -446,6 +460,7 @@ export async function init() {
         loadMoreWrapper.appendChild(loadMoreButton);
 
         const sortEnabled = await settings.subplacesSortEnabled;
+        if (destroyed) return;
         subplacesContentDiv.append(
             ...(sortEnabled ? [filtersContainer] : []),
             searchWrapper,
@@ -612,13 +627,17 @@ export async function init() {
         };
 
         window.addEventListener('hashchange', checkUrl);
+        removeHashChangeListener = () =>
+            window.removeEventListener('hashchange', checkUrl);
         checkUrl();
     };
 
+    let trackedTabContainer = null;
     const initializeSubplacesFeature = async (tabContainer) => {
         if (tabContainer.dataset.rovalraSubplacesInitialized === 'true') {
             return;
         }
+        trackedTabContainer = tabContainer;
         tabContainer.dataset.rovalraSubplacesInitialized = 'true';
 
         const placeId = getPlaceIdFromUrl();
@@ -648,11 +667,11 @@ export async function init() {
     };
 
     const onTabContainerRemoved = () => {
-        const oldTabContainer = document.querySelector(
-            '[data-rovalra-subplaces-initialized]',
-        );
+        const oldTabContainer = trackedTabContainer;
         if (oldTabContainer) {
+            cleanupByTabContainer.get(oldTabContainer)?.();
             oldTabContainer.dataset.rovalraSubplacesInitialized = 'false';
+            trackedTabContainer = null;
         }
     };
 
