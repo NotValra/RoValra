@@ -753,6 +753,20 @@
         "rootPlace": "Root Place",
         "noSubplaces": "No subplaces found.",
         "failedToLoad": "Failed to load subplaces.",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "default": "Default",
+            "updated": "Recently Updated",
+            "created": "Recently Created",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        },
         "banner": {
             "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
             "descriptionDefault": "Some experiences may disable joining subplaces.",
