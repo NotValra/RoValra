@@ -291,6 +291,12 @@
         "tooltip": "This shows if Roblox thinks your account is your first account. <br>This info comes directly from Roblox but may not be accurate.",
         "createdDate": "First account created: {{date}}"
     },
+    "trustedCreator": {
+        "label": "In Trusted Creator Program",
+        "yes": "Yes",
+        "no": "No",
+        "tooltip": "This is believed to indicate early access to UGC-related features. This is only a guess based on leaks, and the program is not currently available."
+    },
     "legacyThemeSwitcher": {
         "label": "Theme",
         "light": "Light",
@@ -579,7 +585,7 @@
             "tooltip": "Privacy Settings"
         },
         "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
-        "dropdowns" : {
+        "dropdowns": {
             "shared": {
                 "allUsers": "Everyone",
                 "friendsFollowingFollowers": "Friends, Following, and Followers",
@@ -1428,7 +1434,7 @@
         "ccuTooltip": "Current players across public experiences created by this user.",
         "visitsTooltip": "Lifetime visits across public experiences created by this user.",
         "membersTooltip": "Members across communities owned by this user."
-        },
+    },
     "plus": {
         "stats": {
             "robux": "You've saved {{robux}} when you had Plus",

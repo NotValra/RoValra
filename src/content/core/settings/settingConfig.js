@@ -2404,6 +2404,14 @@ export const SETTINGS_CONFIG = {
                 storageKey: 'rovalra_first_account_cache',
                 contributors: ['4866259395', '447170745'],
             },
+            trustedCreatorEnabled: {
+                label: 'In Trusted Creator Program?',
+                description:
+                    "This adds a section in Roblox's settings showing whether Roblox considers your account part of the Trusted Creator Program.",
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_trusted_creator_cache',
+            },
             revertLogo: {
                 label: 'Change the app launch icon',
                 description: [
