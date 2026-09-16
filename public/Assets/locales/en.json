@@ -273,30 +273,30 @@
         "alreadyOwned": "Already Owned",
         "joinToPurchase": "Join game to purchase",
         "confirmPurchase": "Confirm Purchase",
-        "purchaseError": "Purchase Error"
-        ,"ownerAccount": "<strong>Owner Account:</strong> The group owner CANNOT be the same account you are buying items with. The owner should be a secured alt account with 2FA enabled and a strong, unique password."
-        ,"payouts": "<strong>Payouts:</strong> Only the group's owner account can pay out the saved Robux from the group's funds."
-        ,"pendingRobux": "<strong>Pending Robux:</strong> Be aware that after using this feature, the Robux will be pending for approximately one month before they can be paid out."
-        ,"groupRequiredBody": "To use the 40% method with your own group, you need a group that you can manage experiences in."
-        ,"groupRequiredImportant": "<strong>Important:</strong> For this to work correctly, the group must be owned by a secure alternate account. Your main account (the one you're using to buy items) should have a role with permissions to create and manage group experiences."
-        ,"groupRequiredDonate": "If you don't have a suitable group, you can instead support RoValra by using our experience to process the purchase, which will give RoValra the saved Robux ❤️"
-        ,"ownershipBody": "The 40% method will not work if you are the owner of this group. Please select a different group or transfer ownership to a secured alt account."
-        ,"experienceAccepted": "Experience Accepted"
-        ,"experienceAcceptedSpecific": "<strong>Only specific experiences work.</strong> Ensure this experience is set up with the required scripts to handle in-game purchases."
-        ,"experienceAcceptedGroup": "Make sure the experience belongs to a group <strong>you control, but is not owned by this account</strong>. Preferably the group should be owned by an alt. If you own the group, the 40% method will not work."
-        ,"experienceAcceptedPending": "The saved Robux will be pending for roughly one month before payout. Use a secure alt as group owner for payouts."
-        ,"createExperienceBody": "Create a new experience for this group to use the 40% method."
-        ,"createNewExperienceBody": "To create a new experience for this method:"
-        ,"createStepOne": "Open the uncopylocked experience in Studio:"
-        ,"openStudio": "Open Studio"
-        ,"createStepTwo": "In Studio, go to <strong>File > Game Settings > Security > Turn on \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>"
-        ,"createStepThree": "Select this group from the Creator list."
-        ,"createStepFour": "Click <strong>Create</strong> and the experience will be published"
-        ,"createPublishedBody": "Once published, click the button below and we'll automatically find and select it for you."
-        ,"publishedGame": "I've Published the Game"
-        ,"saveSettingsUnavailable": "Failed to save settings. Storage API unavailable."
-        ,"groupsLoadFailed": "Failed to load groups. Please refresh and try again."
-        ,"noGroupSelected": "No group selected. Please try again."
+        "purchaseError": "Purchase Error",
+        "ownerAccount": "<strong>Owner Account:</strong> The group owner CANNOT be the same account you are buying items with. The owner should be a secured alt account with 2FA enabled and a strong, unique password.",
+        "payouts": "<strong>Payouts:</strong> Only the group's owner account can pay out the saved Robux from the group's funds.",
+        "pendingRobux": "<strong>Pending Robux:</strong> Be aware that after using this feature, the Robux will be pending for approximately one month before they can be paid out.",
+        "groupRequiredBody": "To use the 40% method with your own group, you need a group that you can manage experiences in.",
+        "groupRequiredImportant": "<strong>Important:</strong> For this to work correctly, the group must be owned by a secure alternate account. Your main account (the one you're using to buy items) should have a role with permissions to create and manage group experiences.",
+        "groupRequiredDonate": "If you don't have a suitable group, you can instead support RoValra by using our experience to process the purchase, which will give RoValra the saved Robux ❤️",
+        "ownershipBody": "The 40% method will not work if you are the owner of this group. Please select a different group or transfer ownership to a secured alt account.",
+        "experienceAccepted": "Experience Accepted",
+        "experienceAcceptedSpecific": "<strong>Only specific experiences work.</strong> Ensure this experience is set up with the required scripts to handle in-game purchases.",
+        "experienceAcceptedGroup": "Make sure the experience belongs to a group <strong>you control, but is not owned by this account</strong>. Preferably the group should be owned by an alt. If you own the group, the 40% method will not work.",
+        "experienceAcceptedPending": "The saved Robux will be pending for roughly one month before payout. Use a secure alt as group owner for payouts.",
+        "createExperienceBody": "Create a new experience for this group to use the 40% method.",
+        "createNewExperienceBody": "To create a new experience for this method:",
+        "createStepOne": "Open the uncopylocked experience in Studio:",
+        "openStudio": "Open Studio",
+        "createStepTwo": "In Studio, go to <strong>File > Game Settings > Security > Turn on \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>",
+        "createStepThree": "Select this group from the Creator list.",
+        "createStepFour": "Click <strong>Create</strong> and the experience will be published",
+        "createPublishedBody": "Once published, click the button below and we'll automatically find and select it for you.",
+        "publishedGame": "I've Published the Game",
+        "saveSettingsUnavailable": "Failed to save settings. Storage API unavailable.",
+        "groupsLoadFailed": "Failed to load groups. Please refresh and try again.",
+        "noGroupSelected": "No group selected. Please try again."
     },
     "risk": {
         "projected": "Item is flagged as projected.",
@@ -942,7 +942,7 @@
                 "donatorPerk": "RoValra Donator Perk (Tier {{tier}})",
                 "featureDisabled": "This feature has been disabled {{lockType}}"
             },
-        "featureStatus": {
+            "featureStatus": {
                 "title": "Before Enabling This Feature",
                 "message": "Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.",
                 "acknowledge": "I Acknowledge"
@@ -1045,6 +1045,11 @@
                 "joinDiscord": "Join the RoValra Discord",
                 "agree": "Agree",
                 "agreeCountdown": "Agree ({{count}})"
+            },
+            "githubSponsorBadge": {
+                "title": "GitHub Sponsors Profile Badge",
+                "description": "Rainbow heart profile badge. Only for GitHub Sponsors",
+                "get": "Get (min $1 USD)"
             },
             "store": {
                 "artist": "Artist",

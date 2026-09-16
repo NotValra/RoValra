@@ -101,6 +101,8 @@ const DONATOR_PERKS_FALLBACK_ONSALE_URL =
 const CUSTOM_PROFILE_BADGE_ITEM_URL =
     'https://www.roblox.com/catalog/82011134345292/4000';
 const GITHUB_SPONSORS_URL = 'https://github.com/sponsors/NotValra';
+const GITHUB_SPONSOR_BADGE_IMAGE_URL =
+    'https://www.rovalra.com/badges/icons/github.webp';
 const GITHUB_SPONSOR_TRANSPARENT_PIXEL =
     'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 const ROVALRA_DISCORD_URL = 'https://discord.gg/GHd5cSKJRk';
@@ -676,6 +678,30 @@ function renderCustomProfileBadgePurchaseButton(container = document) {
                     : ui('profileBadge.getRobux'),
             id: 'rovalra-custom-profile-badge-button',
             onClick: openCustomProfileBadgePurchaseOverlay,
+            width: 'auto',
+            height: 'height-1000',
+            paddingX: 'padding-x-medium',
+            radius: 'radius-medium',
+            disableTextTruncation: true,
+        }),
+    );
+}
+
+function renderGithubSponsorBadgeButton(container = document) {
+    const holder = container.querySelector(
+        '#rovalra-github-sponsor-badge-button-holder',
+    );
+    if (!holder || holder.dataset.rovalraGithubSponsorBadgeRendered === 'true')
+        return;
+
+    holder.dataset.rovalraGithubSponsorBadgeRendered = 'true';
+    holder.replaceChildren(
+        createSquareButton({
+            content: ui('githubSponsorBadge.get'),
+            id: 'rovalra-github-sponsor-badge-button',
+            onClick: () => {
+                window.open(GITHUB_SPONSORS_URL, '_blank', 'noopener,noreferrer');
+            },
             width: 'auto',
             height: 'height-1000',
             paddingX: 'padding-x-medium',
@@ -3001,6 +3027,17 @@ export const buttonData = [
                     </div>
                 </div>
 
+                <div style="margin-top: 10px; padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2)); display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                    <div style="min-width: 220px; flex: 1; display: flex; align-items: center; gap: 14px;">
+                        <img src="${GITHUB_SPONSOR_BADGE_IMAGE_URL}" alt="${ui('githubSponsorBadge.title')}" style="width: 52px; height: 52px; object-fit: contain; flex-shrink: 0;" />
+                        <div>
+                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">${ui('githubSponsorBadge.title')}</h3>
+                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">${ui('githubSponsorBadge.description')}</p>
+                        </div>
+                    </div>
+                    <div id="rovalra-github-sponsor-badge-button-holder" style="flex-shrink: 0;"></div>
+                </div>
+
                 <div style="margin-top: 10px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.perkTiers')}</h3>
                     ${getDonatorPerksComparisonHtml(themeColors)}
@@ -4789,6 +4826,7 @@ export async function updateContent(buttonInfo, contentContainer) {
         renderDonatorCurrencyToggle(contentContainer);
         renderDonatorPerksDonationButton(contentContainer);
         renderCustomProfileBadgePurchaseButton(contentContainer);
+        renderGithubSponsorBadgeButton(contentContainer);
         renderDonatorPerkStatusPills(contentContainer);
 
         const badgesResponse = await syncDonatorTier();
