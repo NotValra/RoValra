@@ -84,6 +84,7 @@ function ensureDeveloperSettings() {
 }
 
 function shouldShowSettingsSection(sectionName, options = {}) {
+    if (SETTINGS_CONFIG[sectionName]?.hidden) return false;
     if (sectionName === 'Developer' && !options.devTabAdded) return false;
     if (sectionName === 'FunStuff' && !options.funStuffTabEnabled) return false;
     return true;

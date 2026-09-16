@@ -9,7 +9,6 @@ import {
     exportSettings,
     importProfileNotes,
     importSettings,
-    createExportImportButtons,
 } from '../../core/settings/portSettings.js';
 import {
     initSettings,
@@ -2930,7 +2929,6 @@ export const buttonData = [
                                                 <icon>twitter</icon> ${ts('settings.info.x')}
                                             </a>
                                         </div>
-                                        <div id="export-import-buttons-container" style="border-top: 1px solid var(--rovalra-secondary-text-color); opacity: 0.8; padding-top: 15px; display: flex; justify-content: flex-start; gap: 10px;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -4746,11 +4744,28 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 
     if (buttonId === 'info') {
-        const buttonContainer = contentContainer.querySelector(
-            '#export-import-buttons-container',
+        const settingsSection = contentContainer.querySelector(
+            '#setting-section-content',
         );
-        if (buttonContainer) {
-            buttonContainer.appendChild(createExportImportButtons());
+        const rovalraSettings = SETTINGS_CONFIG.RoValra?.settings || {};
+
+        if (settingsSection && Object.keys(rovalraSettings).length > 0) {
+            const rovalraSettingsFragment = document.createDocumentFragment();
+
+            Object.entries(rovalraSettings).forEach(
+                ([settingName, setting]) => {
+                    if (!setting.hidden) {
+                        rovalraSettingsFragment.appendChild(
+                            generateSingleSettingHTML(settingName, setting),
+                        );
+                    }
+                },
+            );
+
+            if (rovalraSettingsFragment.childNodes.length > 0) {
+                settingsSection.appendChild(rovalraSettingsFragment);
+                await initSettings(contentContainer);
+            }
         }
     }
 

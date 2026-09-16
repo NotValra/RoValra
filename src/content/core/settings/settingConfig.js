@@ -10,6 +10,7 @@ import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 export const SETTINGS_CONFIG = {
     RoValra: {
         title: 'RoValra',
+        hidden: true,
         settings: {
             rovalraLanguage: {
                 label: 'RoValra Language',
@@ -17,18 +18,18 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Manually configure a language for RoValra. Some translations may be missing.',
                     // it works on the setting page only once it figures out the language from other pages' URLs
-                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.'
+                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.',
                 ],
                 type: 'select',
                 options: [
                     { label: 'English', value: 'en' },
                     { label: 'Romanian (Română)', value: 'ro' },
                     { label: 'Spanish (Español)', value: 'es' },
-                    { label: 'Automatic', value: 'auto' }
+                    { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
             },
-        }
+        },
     },
     Marketplace: {
         title: 'Marketplace',
@@ -2987,6 +2988,23 @@ export const SETTINGS_CONFIG = {
     PublicDeveloper: {
         title: 'Developer',
         settings: {
+            exportSettings: {
+                label: 'Export Settings',
+                description: [
+                    'Export or import your RoValra settings as a JSON file.',
+                ],
+                type: 'buttonGroup',
+                buttons: [
+                    {
+                        id: 'export-rovalra-settings',
+                        text: 'Export Settings',
+                    },
+                    {
+                        id: 'import-rovalra-settings',
+                        text: 'Import Settings',
+                    },
+                ],
+            },
             EnableRobloxApiDocsv2: {
                 label: 'Roblox API docs',
                 description: [
