@@ -13,12 +13,39 @@ const itemOffSaleDeadlines = new Map();
 const pendingCards = new Map();
 let listenersAttached = false;
 
+function isOffSaleItem(item) {
+    return Boolean(
+        item?.isOffSale === true ||
+        item?.priceStatus === 'Off Sale' ||
+        Number(item?.productSaleStatus) === 2,
+    );
+}
+
+function hasValidPreviousPrice(price) {
+    return typeof price === 'number' && Number.isFinite(price) && price >= 0;
+}
+
+function isValidOffSaleDeadline(deadline) {
+    if (!deadline) return false;
+
+    const date = new Date(deadline);
+    const now = Date.now();
+    const oneHundredYearsAgo = new Date();
+    oneHundredYearsAgo.setFullYear(oneHundredYearsAgo.getFullYear() - 100);
+
+    return (
+        !isNaN(date.getTime()) &&
+        date.getTime() <= now &&
+        date.getTime() >= oneHundredYearsAgo.getTime()
+    );
+}
+
 function addPriceIconToCard(card, assetId) {
     const price = itemPrices.get(assetId);
     const isOffSale = itemIsOffSale.get(assetId);
     const deadline = itemOffSaleDeadlines.get(assetId);
 
-    if (isOffSale && price !== undefined && price > 1) {
+    if (isOffSale && hasValidPreviousPrice(price)) {
         if (card.matches('.price-container-text')) {
             addTextPrice(card, price, deadline);
             return;
@@ -83,10 +110,7 @@ export function init() {
             data.data.forEach((item) => {
                 if (item.id) {
                     itemPrices.set(item.id, item.price);
-                    itemIsOffSale.set(
-                        item.id,
-                        item.isOffSale || item.priceStatus === 'Off Sale',
-                    );
+                    itemIsOffSale.set(item.id, isOffSaleItem(item));
                     if (item.offSaleDeadline) {
                         itemOffSaleDeadlines.set(item.id, item.offSaleDeadline);
                     }
@@ -165,8 +189,7 @@ export function init() {
                                 if (bundleDetails.data) {
                                     bundleDetails.data.forEach((bundle) => {
                                         const bundleIsOffSale =
-                                            bundle.isOffSale ||
-                                            bundle.priceStatus === 'Off Sale';
+                                            isOffSaleItem(bundle);
                                         if (
                                             bundleIsOffSale &&
                                             bundle.price !== undefined
@@ -321,15 +344,16 @@ async function handleOffsalePriceContainer(container) {
     const itemType = isBundle ? 'Bundle' : 'Asset';
 
     const currentPrice = itemPrices.get(numericAssetId);
-    const hasValidPreviousPrice =
-        currentPrice !== undefined && currentPrice > 1;
-    const hasDeadline = itemOffSaleDeadlines.has(numericAssetId);
+    const hasPrice = hasValidPreviousPrice(currentPrice);
+    const hasDeadline = isValidOffSaleDeadline(
+        itemOffSaleDeadlines.get(numericAssetId),
+    );
 
-    if (!hasValidPreviousPrice || !hasDeadline) {
+    if (!hasPrice || !hasDeadline) {
         try {
             const details = await getItemDetails(numericAssetId, itemType);
             if (details) {
-                const previousPrice = details.price || details.lowestPrice;
+                const previousPrice = details.price ?? details.lowestPrice;
                 if (previousPrice !== undefined && previousPrice !== null)
                     itemPrices.set(numericAssetId, previousPrice);
 
@@ -339,10 +363,7 @@ async function handleOffsalePriceContainer(container) {
                         details.offSaleDeadline,
                     );
 
-                itemIsOffSale.set(
-                    numericAssetId,
-                    details.isOffSale || details.priceStatus === 'Off Sale',
-                );
+                itemIsOffSale.set(numericAssetId, isOffSaleItem(details));
             }
         } catch (e) {
             console.warn(
@@ -370,8 +391,7 @@ function addIcon(container, price, deadline) {
 
     const assets = getAssets();
     const date = new Date(deadline);
-    const hasDeadline =
-        deadline && !isNaN(date.getTime()) && date.getFullYear() >= 2000;
+    const hasDeadline = isValidOffSaleDeadline(deadline);
 
     const icon = document.createElement('div');
     icon.className = 'rovalra-offsale-price-icon';
@@ -411,9 +431,7 @@ function addIcon(container, price, deadline) {
 function addTextPrice(container, price, deadline) {
     if (container.querySelector('.rovalra-previous-price-text')) return;
 
-    const date = new Date(deadline);
-    const hasDeadline =
-        deadline && !isNaN(date.getTime()) && date.getFullYear() >= 2000;
+    const hasDeadline = isValidOffSaleDeadline(deadline);
 
     const div = document.createElement('div');
     div.className = 'rovalra-previous-price-text';
