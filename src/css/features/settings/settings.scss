@@ -204,6 +204,61 @@ body.rovalra-settings-page {
         vertical-align: -2px;
     }
 
+    .rovalra-github-sponsors-section {
+        margin-bottom: 25px;
+    }
+
+    .rovalra-donator-section-heading {
+        color: var(--rovalra-main-text-color);
+        margin: 0 0 10px;
+        font-size: 18px;
+    }
+
+    .rovalra-github-sponsors-heading {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .rovalra-github-sponsors-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .rovalra-github-sponsors-link:hover {
+        text-decoration: underline;
+    }
+
+    .rovalra-github-sponsors-blush {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .rovalra-github-sponsors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 56px);
+        gap: 5px;
+        align-items: center;
+    }
+
+    .rovalra-github-sponsor-link {
+        display: block;
+        width: 56px;
+        height: 56px;
+    }
+
+    .rovalra-github-sponsor-avatar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        overflow: hidden;
+        background-color: var(--rovalra-container-background-color);
+    }
+
     .rovalra-contributors-toolbar {
         display: flex;
         align-items: center;
@@ -274,7 +329,7 @@ body.rovalra-settings-page {
         transition: color 0.4s ease;
         cursor: pointer;
     }
-    
+
     .rovalra-contributor-count:hover {
         color: rgb(194, 223, 250);
     }
@@ -343,6 +398,17 @@ body.rovalra-settings-page {
                 opacity: 0;
             }
         }
+    }
+
+    .rovalra-donator-currency-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+        color: var(--rovalra-secondary-text-color);
+        font-size: 16px;
+        font-weight: 700;
     }
 
     .rovalra-donator-perks-compare {
@@ -703,7 +769,8 @@ body.rovalra-settings-page {
     }
 
     a.rovalra-tiktok-link {
-        & > icon { /* the tiktok icon is very small so i made it large then put it back and aligned it with the other text */
+        & > icon {
+            /* the tiktok icon is very small so i made it large then put it back and aligned it with the other text */
             transform: translate(-4px, 1px);
             margin-right: -8px;
         }

@@ -80,6 +80,7 @@ import {
 } from '../../core/moderationStatus.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { createSpinner } from '../../core/ui/spinner.js';
+import { createShimmerBlock } from '../../core/ui/shimmer.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
@@ -99,8 +100,12 @@ const DONATOR_PERKS_FALLBACK_ONSALE_URL =
     'https://www.roblox.com/catalog?taxonomy=2a2rf9qyeTd8W5iegK2Prc&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
 const CUSTOM_PROFILE_BADGE_ITEM_URL =
     'https://www.roblox.com/catalog/82011134345292/4000';
+const GITHUB_SPONSORS_URL = 'https://github.com/sponsors/NotValra';
+const GITHUB_SPONSOR_TRANSPARENT_PIXEL =
+    'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 const ROVALRA_DISCORD_URL = 'https://discord.gg/GHd5cSKJRk';
 const CUSTOM_PROFILE_BADGE_CONFIRMATION_COOLDOWN_SECONDS = 5;
+let donatorCurrency = 'USD';
 let requestedDonatorGameUnblock = false;
 let requestedDonatorGameUnblockChecked = false;
 let donatorGameUnblockConsentId = 0;
@@ -132,6 +137,7 @@ const ACCOUNT_STANDING_LEVELS = [
 
 let standingCache = null;
 let topDonatorsCache = null;
+let githubSponsorsCache = null;
 let ownedBordersCache = null;
 let changelogsCache = null;
 const priceCache = new Map();
@@ -256,6 +262,11 @@ async function renderChangelogs(container) {
 }
 
 async function openDonatorPerksDonationUrl() {
+    if (donatorCurrency === 'USD') {
+        window.open(GITHUB_SPONSORS_URL, '_blank', 'noopener,noreferrer');
+        return;
+    }
+
     let canPlayUniverse = false;
     let canPlayUniverseReason = 'Unknown';
     const btn = document.querySelector(
@@ -553,7 +564,10 @@ function renderDonatorPerksDonationButton(container = document) {
     });
     const text = document.createElement('span');
     text.classList.add('rovalra-donator-perks-donation-btn-content');
-    text.textContent = 'Donate';
+    text.textContent =
+        donatorCurrency === 'USD'
+            ? 'Donate (min $1 USD)'
+            : 'Donate (min 5 Robux)';
 
     holder.dataset.rovalraDonationButtonRendered = 'true';
     holder.replaceChildren(
@@ -654,7 +668,10 @@ function renderCustomProfileBadgePurchaseButton(container = document) {
     holder.dataset.rovalraCustomProfileBadgeRendered = 'true';
     holder.replaceChildren(
         createSquareButton({
-            content: 'Buy',
+            content:
+                donatorCurrency === 'USD'
+                    ? 'Get ($5 USD)'
+                    : 'Get (4,000 Robux)',
             id: 'rovalra-custom-profile-badge-button',
             onClick: openCustomProfileBadgePurchaseOverlay,
             width: 'auto',
@@ -664,6 +681,49 @@ function renderCustomProfileBadgePurchaseButton(container = document) {
             disableTextTruncation: true,
         }),
     );
+}
+
+function updateDonatorCurrencyUI(container = document) {
+    const donationText = container.querySelector(
+        '.rovalra-donator-perks-donation-btn-content',
+    );
+    if (donationText) {
+        donationText.textContent =
+            donatorCurrency === 'USD'
+                ? 'Donate (min $1 USD)'
+                : 'Donate (min 5 Robux)';
+    }
+
+    const badgeButton = container.querySelector(
+        '#rovalra-custom-profile-badge-button',
+    );
+    const badgeButtonText = badgeButton?.querySelector('span.padding-y-xsmall');
+    if (badgeButtonText) {
+        badgeButtonText.textContent =
+            donatorCurrency === 'USD' ? 'Get ($5 USD)' : 'Get (4,000 Robux)';
+    }
+}
+
+function renderDonatorCurrencyToggle(container = document) {
+    const toggleHolder = container.querySelector(
+        '#rovalra-donator-currency-toggle',
+    );
+    if (!toggleHolder || toggleHolder.dataset.rendered === 'true') return;
+
+    toggleHolder.replaceChildren(
+        createPillToggle({
+            options: [
+                { text: 'USD', value: 'USD' },
+                { text: 'Robux', value: 'Robux' },
+            ],
+            initialValue: donatorCurrency,
+            onChange: (value) => {
+                donatorCurrency = value;
+                updateDonatorCurrencyUI(container);
+            },
+        }),
+    );
+    toggleHolder.dataset.rendered = 'true';
 }
 
 function getUserProfileHref(userId) {
@@ -2070,6 +2130,230 @@ function createVerifiedBadgeIcon(size = '14px') {
     return badge;
 }
 
+function getGithubSponsorImageSource(sponsor) {
+    const image =
+        sponsor?.avatar_url ??
+        sponsor?.avatarUrl ??
+        sponsor?.image_url ??
+        sponsor?.image ??
+        (sponsor?.content
+            ? {
+                  content: sponsor.content,
+                  mimeType:
+                      sponsor.contentType ?? sponsor.mimeType ?? sponsor.type,
+              }
+            : null);
+
+    if (typeof image === 'string') {
+        const source = image.trim();
+        if (
+            source.startsWith('https://') ||
+            source.startsWith('http://') ||
+            source.startsWith('data:image/')
+        ) {
+            return source;
+        }
+        return null;
+    }
+
+    if (image && typeof image === 'object') {
+        const content = image.content ?? image.data ?? image.base64;
+        if (typeof content !== 'string' || !content.trim()) return null;
+
+        const value = content.trim();
+        if (value.startsWith('data:image/')) return value;
+        if (value.startsWith('https://') || value.startsWith('http://')) {
+            return value;
+        }
+
+        const mimeType =
+            image.mimeType ?? image.contentType ?? image.type ?? 'image/png';
+        if (typeof mimeType !== 'string' || !mimeType.startsWith('image/')) {
+            return null;
+        }
+        return `data:${mimeType};base64,${value}`;
+    }
+
+    return null;
+}
+
+function getGithubSponsorAvatarEndpoint(sponsor, imageSource) {
+    const login = sponsor?.login ?? sponsor?.username;
+    if (login) {
+        return `/v1/github/sponsors/${encodeURIComponent(login)}/avatar`;
+    }
+
+    if (typeof imageSource === 'string') {
+        try {
+            const url = new URL(imageSource);
+            if (
+                url.hostname === 'apis.rovalra.com' &&
+                url.pathname.includes('/v1/github/sponsors/')
+            ) {
+                return `${url.pathname}${url.search}`;
+            }
+        } catch {}
+    }
+
+    return null;
+}
+
+async function loadGithubSponsorAvatar(avatar, sponsor, imageSource) {
+    const setAvatarSource = (source) => {
+        avatar.addEventListener(
+            'load',
+            () => avatar.classList.remove('shimmer'),
+            { once: true },
+        );
+        avatar.src = source;
+    };
+
+    if (imageSource?.startsWith('data:image/')) {
+        setAvatarSource(imageSource);
+        return;
+    }
+
+    const endpoint = getGithubSponsorAvatarEndpoint(sponsor, imageSource);
+    if (!endpoint) {
+        if (imageSource) setAvatarSource(imageSource);
+        return;
+    }
+
+    try {
+        const response = await callRobloxApi({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint,
+            method: 'GET',
+            noCache: true,
+        });
+
+        if (!response.ok)
+            throw new Error(`Avatar request failed (${response.status})`);
+
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType && !contentType.toLowerCase().startsWith('image/')) {
+            throw new Error(
+                `Avatar response was not an image (${contentType})`,
+            );
+        }
+
+        const blob = await response.blob();
+        if (!blob.type.toLowerCase().startsWith('image/')) {
+            throw new Error(
+                `Avatar blob was not an image (${blob.type || 'unknown'})`,
+            );
+        }
+
+        const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () =>
+                reject(
+                    reader.error || new Error('Could not read avatar image'),
+                );
+            reader.readAsDataURL(blob);
+        });
+
+        setAvatarSource(dataUrl);
+    } catch (error) {
+        console.warn('RoValra: Failed to load GitHub sponsor avatar', error);
+    }
+}
+
+function renderGithubSponsors(container, sponsors) {
+    container.replaceChildren();
+
+    if (!sponsors.length) {
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'rovalra-github-sponsors-grid';
+
+    sponsors.forEach((sponsor) => {
+        const imageSource = getGithubSponsorImageSource(sponsor);
+        const profileUrl = sponsor?.profile_url ?? sponsor?.profileUrl;
+        const avatarEndpoint = getGithubSponsorAvatarEndpoint(
+            sponsor,
+            imageSource,
+        );
+        if ((!imageSource && !avatarEndpoint) || !profileUrl) return;
+
+        const link = document.createElement('a');
+        link.className = 'rovalra-github-sponsor-link';
+        link.href = profileUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        const sponsorName = sponsor.name || sponsor.login || 'GitHub sponsor';
+        link.setAttribute('aria-label', sponsorName);
+        addTooltip(link, sponsorName);
+
+        const avatar = document.createElement('img');
+        avatar.className = 'rovalra-github-sponsor-avatar';
+        avatar.classList.add('shimmer');
+        avatar.src = GITHUB_SPONSOR_TRANSPARENT_PIXEL;
+        avatar.alt = sponsorName;
+        avatar.title = sponsorName;
+        avatar.loading = 'lazy';
+        avatar.referrerPolicy = 'no-referrer';
+
+        link.appendChild(avatar);
+        grid.appendChild(link);
+        loadGithubSponsorAvatar(avatar, sponsor, imageSource);
+    });
+
+    if (grid.childElementCount > 0) container.appendChild(grid);
+}
+
+function renderGithubSponsorsShimmer(container) {
+    container.replaceChildren();
+    const grid = document.createElement('div');
+    grid.className = 'rovalra-github-sponsors-grid';
+
+    for (let i = 0; i < 3; i++) {
+        const avatar = createShimmerBlock({
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            className: 'rovalra-github-sponsor-avatar',
+        });
+        grid.appendChild(avatar);
+    }
+
+    container.appendChild(grid);
+}
+
+async function loadGithubSponsors() {
+    const container = document.getElementById('rovalra-github-sponsors');
+    if (!container) return;
+
+    if (githubSponsorsCache) {
+        renderGithubSponsors(container, githubSponsorsCache);
+        return;
+    }
+
+    renderGithubSponsorsShimmer(container);
+
+    try {
+        const response = await callRobloxApi({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/github/sponsors',
+            method: 'GET',
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch GitHub sponsors');
+        const data = await response.json();
+        const sponsors = Array.isArray(data.sponsors) ? data.sponsors : [];
+        githubSponsorsCache = sponsors;
+        renderGithubSponsors(container, sponsors);
+    } catch (err) {
+        console.error('RoValra: Error loading GitHub sponsors', err);
+        container.replaceChildren();
+    }
+}
+
 function renderTopDonators(container, donators, thumbMap, currentUserId) {
     container.innerHTML = '';
     const wrapper = document.createElement('div');
@@ -2682,6 +2966,11 @@ export const buttonData = [
                     ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
                 </div>
 
+                <div class="rovalra-donator-currency-toolbar" aria-label="Donation currency">
+                    <span>Donate with</span>
+                    <div id="rovalra-donator-currency-toggle"></div>
+                </div>
+
                 <div style="margin-top: 15px; padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2)); display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                     <div style="min-width: 220px; flex: 1; display: flex; align-items: center; gap: 14px;">
                         <img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" alt="" style="width: 52px; height: 52px; flex-shrink: 0;" />
@@ -2714,8 +3003,16 @@ export const buttonData = [
                 </div>
 
                 <div style="margin-top: 25px;">
+                    <div class="rovalra-github-sponsors-section">
+                        <h3 class="rovalra-donator-section-heading rovalra-github-sponsors-heading">
+                            <a class="rovalra-github-sponsors-link" href="${GITHUB_SPONSORS_URL}" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a>
+                            <img class="rovalra-github-sponsors-blush" src="${assets.blush}" alt="" aria-hidden="true" />
+
+                        </h3>
+                        <div id="rovalra-github-sponsors" aria-label="GitHub Sponsors"></div>
+                    </div>
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <h3 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 18px;">Top Donators</h3>
+                        <h3 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 18px;">Top Donators (Robux)</h3>
                         <div id="rovalra-anon-toggle-container"></div>
                     </div>
                     <div id="rovalra-top-donators"></div>
@@ -4466,6 +4763,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 
     if (buttonId === 'donatorPerks') {
+        renderDonatorCurrencyToggle(contentContainer);
         renderDonatorPerksDonationButton(contentContainer);
         renderCustomProfileBadgePurchaseButton(contentContainer);
         renderDonatorPerkStatusPills(contentContainer);
@@ -4539,6 +4837,7 @@ export async function updateContent(buttonInfo, contentContainer) {
             }
         }
 
+        loadGithubSponsors();
         loadTopDonators();
     }
 
