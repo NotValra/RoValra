@@ -28,6 +28,18 @@ const GAMEPASS_DISABLE_DATE = new Date(2026, 4, 29).getTime();
 
 const methodText = (key, options) => ts(`fortyMethod.${key}`, options);
 
+const launch40MethodGame = (placeId, launchData, useSoberSupportDeeplinks) => {
+    if (!useSoberSupportDeeplinks) {
+        launchMultiplayerGame(placeId, launchData);
+        return;
+    }
+
+    const deeplink = new URL('roblox://experiences/start');
+    deeplink.searchParams.set('placeId', String(placeId));
+    deeplink.searchParams.set('launchData', String(launchData));
+    window.location.href = deeplink.toString();
+};
+
 const isGamePassBeforeDisable = () => {
     return Date.now() < GAMEPASS_DISABLE_DATE;
 };
@@ -1563,7 +1575,11 @@ const executeCartPurchase = async (
     } else {
         result = await new Promise((resolve) => {
             chrome.storage.local.get(
-                ['RobuxPlaceId', 'useRoValraGroup'],
+                [
+                    'RobuxPlaceId',
+                    'useRoValraGroup',
+                    'useSoberSupportDeeplinks',
+                ],
                 resolve,
             );
         });
@@ -1571,6 +1587,8 @@ const executeCartPurchase = async (
 
     const savedPlaceId = result.RobuxPlaceId;
     const useRoValraGroup = result.useRoValraGroup === true;
+    const useSoberSupportDeeplinks =
+        result.useSoberSupportDeeplinks === true;
 
     if (!savedPlaceId) {
         alert(
@@ -1889,7 +1907,11 @@ const executeCartPurchase = async (
     });
     const launchData = launchDataParts.join(',');
 
-    launchMultiplayerGame(placeIdToUse, launchData);
+    launch40MethodGame(
+        placeIdToUse,
+        launchData,
+        useSoberSupportDeeplinks,
+    );
 };
 
 const execute40MethodPurchase = async (
@@ -1920,7 +1942,11 @@ const execute40MethodPurchase = async (
     } else {
         result = await new Promise((resolve) => {
             chrome.storage.local.get(
-                ['RobuxPlaceId', 'useRoValraGroup'],
+                [
+                    'RobuxPlaceId',
+                    'useRoValraGroup',
+                    'useSoberSupportDeeplinks',
+                ],
                 resolve,
             );
         });
@@ -1928,6 +1954,8 @@ const execute40MethodPurchase = async (
 
     const savedPlaceId = result.RobuxPlaceId;
     const useRoValraGroup = result.useRoValraGroup === true;
+    const useSoberSupportDeeplinks =
+        result.useSoberSupportDeeplinks === true;
 
     if (!savedPlaceId) {
         alert(
@@ -2326,7 +2354,11 @@ const execute40MethodPurchase = async (
             ? actualPlaceId
             : savedPlaceId;
 
-    launchMultiplayerGame(placeIdToUse, launchData);
+    launch40MethodGame(
+        placeIdToUse,
+        launchData,
+        useSoberSupportDeeplinks,
+    );
 };
 
 const addSaveButton = (modal) => {
@@ -2449,7 +2481,11 @@ const addSaveButton = (modal) => {
         if (currentUserId) {
             prefetchData.storage = new Promise((resolve) =>
                 chrome.storage.local.get(
-                    ['RobuxPlaceId', 'useRoValraGroup'],
+                    [
+                        'RobuxPlaceId',
+                        'useRoValraGroup',
+                        'useSoberSupportDeeplinks',
+                    ],
                     resolve,
                 ),
             );

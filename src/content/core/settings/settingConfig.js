@@ -79,6 +79,13 @@ export const SETTINGS_CONFIG = {
                         buttonText: 'Open Setup',
                         event: 'rovalra:open40methodSetup',
                     },
+                    useSoberSupportDeeplinks: {
+                        label: 'Use Roblox deeplinks for Sober support',
+                        description:
+                            'This is less stable and should only be used if on sober',
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             marketplace3DRenderEnabledV2: {
