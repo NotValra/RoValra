@@ -38,7 +38,7 @@ export function createDevProductCard({ id, name, price, thumbnail, universeId })
     
     const nameDiv = document.createElement('div');
     nameDiv.className = 'store-card-name';
-    nameDiv.textContent = name || 'Unnamed Product';
+    nameDiv.textContent = name || ts('common.unnamedProduct');
     nameDiv.title = name || 'Unnamed Product';
     nameDiv.style.display = '-webkit-box';
     nameDiv.style.webkitLineClamp = '2';
@@ -58,7 +58,7 @@ export function createDevProductCard({ id, name, price, thumbnail, universeId })
     
     const priceSpan = document.createElement('span');
     priceSpan.className = 'text-robux';
-    priceSpan.textContent = price !== null ? price : 'Off Sale';
+    priceSpan.textContent = price !== null ? price : ts('common.offSale');
 
     priceContainer.appendChild(icon);
     priceContainer.appendChild(priceSpan);
@@ -73,3 +73,4 @@ export function createDevProductCard({ id, name, price, thumbnail, universeId })
     
     return card;
 }
+import { ts } from '../../locale/i18n.js';

@@ -17,6 +17,7 @@ import {
     getStateCodeFromRegion,
     loadDatacenterMap,
 } from './regions.js';
+import { ts } from './locale/i18n.js';
 
 export { getStateCodeFromRegion };
 
@@ -32,26 +33,18 @@ const joinedServerIds = new Set();
 document.addEventListener('rovalra-gamejoin-critical-error', (e) => {
     if (isCurrentlyFetchingData) {
         userRequestedStop = true;
-        const detailMsg = e.detail?.errorMessage || 'Unknown error';
+        const detailMsg = e.detail?.errorMessage || ts('common.unknown');
 
-        let displayMessage = `The Roblox Join API is failing to respond. You might have to wait a bit.
-This is usually caused by a network issue or a problem with Roblox servers. If this persists, try disabling [Preferred Region.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) or clearing browser cache.
-If the issue keeps happening, please report it in the RoValra Discord server.
-
----
-**Error Details:**
-${detailMsg}`;
+        let displayMessage = ts('preferredRegion.criticalError', { detailMsg });
 
         if (detailMsg.includes('404') || detailMsg.includes('410')) {
-            displayMessage = `Roblox might be moving away from the gamejoin API, This is out of RoValras control and it will effect region selectors for a bit and we are working on a fix ASAP
-
----
-**Error Details:**
-${detailMsg}`;
+            displayMessage = ts('preferredRegion.criticalErrorApiMoved', {
+                detailMsg,
+            });
         }
 
         showLoadingOverlayResult(displayMessage, {
-            text: 'Close',
+            text: ts('common.close'),
             onClick: () => hideLoadingOverlay(true),
         });
     }
@@ -139,7 +132,7 @@ export async function performJoinAction(
 
         await ClosestServer.dataPromise;
 
-        updateLoadingOverlayText('Detecting your location...');
+        updateLoadingOverlayText(ts('preferredRegion.detectingLocation'));
         await getRegionData();
         const locationData = await getUserLocation(placeId);
 
@@ -175,13 +168,13 @@ export async function performJoinAction(
 
         const targetRegionName = preferredRegionCode
             ? getFullRegionName(preferredRegionCode)
-            : 'closest region';
+            : ts('preferredRegion.closestRegion');
         const shortTargetName = targetRegionName.split(',')[0];
 
         if (preferredRegionCode && REGIONS[preferredRegionCode]?.inactive) {
             showLoadingOverlayResult(
-                `${shortTargetName} is no longer used as a server location by Roblox.`,
-                { text: 'Close', onClick: () => hideLoadingOverlay(true) },
+                ts('preferredRegion.inactiveRegion', { region: shortTargetName }),
+                { text: ts('common.close'), onClick: () => hideLoadingOverlay(true) },
             );
             isCurrentlyFetchingData = false;
             return;
@@ -189,15 +182,17 @@ export async function performJoinAction(
 
         let runManualScan = true;
         let manualScanReason = forceLocalSearch
-            ? `Scanning locally for ${shortTargetName}...`
-            : `Region API unavailable. Scanning for ${shortTargetName}...`;
+            ? ts('preferredRegion.scanningLocally', { region: shortTargetName })
+            : ts('preferredRegion.regionApiUnavailable', {
+                  region: shortTargetName,
+              });
 
         if (!userRequestedStop) {
             let rovalraResult = null;
 
             if (useRobloxLatencyForAutomatic) {
                 updateLoadingOverlayText(
-                    'Finding the lowest-latency server...',
+                    ts('preferredRegion.findingLowestLatency'),
                 );
                 const latencyCandidate =
                     await ClosestServer.findServerViaRobloxLatencyApi(
@@ -217,7 +212,11 @@ export async function performJoinAction(
                 !useRobloxLatencyForAutomatic &&
                 !forceLocalSearch
             ) {
-                updateLoadingOverlayText(`Searching in ${shortTargetName}...`);
+                updateLoadingOverlayText(
+                    ts('preferredRegion.searchingInRegion', {
+                        region: shortTargetName,
+                    }),
+                );
                 rovalraResult = await ClosestServer.findServerViaRovalraApi(
                     placeId,
                     universeId,
@@ -241,11 +240,15 @@ export async function performJoinAction(
                     runManualScan = false;
                 } else {
                     runManualScan = true;
-                    manualScanReason = `Next best servers via API are inactive. Scanning locally for ${shortTargetName}...`;
+                    manualScanReason = ts('preferredRegion.fallbackInactive', {
+                        region: shortTargetName,
+                    });
                 }
             } else if (rovalraResult?.status === 'NO_SERVERS') {
                 runManualScan = true;
-                manualScanReason = `No servers found in ${shortTargetName} via API. Scanning locally...`;
+                manualScanReason = ts('preferredRegion.noServersApi', {
+                    region: shortTargetName,
+                });
             }
         }
 
@@ -257,7 +260,9 @@ export async function performJoinAction(
                 REGIONS[preferredRegionCode]?.loadbalancing
             ) {
                 effectiveMaxPages = 1;
-                manualScanReason = `${shortTargetName} is used for load balancing and is likely only active under heavy load. Scanning...`;
+                manualScanReason = ts('preferredRegion.loadBalancing', {
+                    region: shortTargetName,
+                });
             }
 
             updateLoadingOverlayText(manualScanReason);
@@ -338,11 +343,16 @@ export async function performJoinAction(
 
                             if (bestServerTier === 0) {
                                 updateLoadingOverlayText(
-                                    `Found ${bestName}! Joining...`,
+                                    ts('preferredRegion.foundJoining', {
+                                        region: bestName,
+                                    }),
                                 );
                             } else {
                                 updateLoadingOverlayText(
-                                    `Found: ${bestName}. Continuing search for ${shortTargetName}...`,
+                                    ts('preferredRegion.foundContinuing', {
+                                        region: bestName,
+                                        targetRegion: shortTargetName,
+                                    }),
                                 );
                             }
                         }
@@ -352,7 +362,9 @@ export async function performJoinAction(
                                 getFullRegionName(bestServerRegionCode);
 
                             updateLoadingOverlayText(
-                                `Found ${bestName}! Verifying...`,
+                                ts('preferredRegion.foundVerifying', {
+                                    region: bestName,
+                                }),
                             );
                             if (
                                 await isServerActive(
@@ -383,7 +395,7 @@ export async function performJoinAction(
                             pageCount > 5
                         ) {
                             updateLoadingOverlayText(
-                                'Verifying server status...',
+                                ts('preferredRegion.verifyingStatus'),
                             );
                             if (
                                 await isServerActive(
@@ -431,7 +443,9 @@ export async function performJoinAction(
                 !userRequestedStop
             ) {
                 updateLoadingOverlayText(
-                    `Searching for closest region to ${shortTargetName}...`,
+                    ts('preferredRegion.searchingClosest', {
+                        region: shortTargetName,
+                    }),
                 );
                 const apiFallback = await ClosestServer.findClosestServerViaApi(
                     placeId,
@@ -478,7 +492,7 @@ export async function performJoinAction(
                 const serverId =
                     bestServerFoundSoFar.id || bestServerFoundSoFar.server_id;
                 if (!preferredRegionCode) {
-                    updateLoadingOverlayText('Verifying server status...');
+                    updateLoadingOverlayText(ts('preferredRegion.verifyingStatus'));
                     if (serverId && (await isServerActive(placeId, serverId))) {
                         hideLoadingOverlay(true);
                         joinedServerIds.add(serverId);
@@ -503,12 +517,16 @@ export async function performJoinAction(
                     const isPreferredRegionMatch =
                         bestServerRegionCode === preferredRegionCode;
 
-                    let message = `No ${shortTargetName} servers running.`;
+                    let message = ts('preferredRegion.noServersRunning', {
+                        region: shortTargetName,
+                    });
                     if (REGIONS[preferredRegionCode]?.loadbalancing) {
-                        message = `${shortTargetName} is used for load balancing and is likely only active under heavy load.`;
+                        message = ts('preferredRegion.loadBalancing', {
+                            region: shortTargetName,
+                        });
                     }
 
-                    updateLoadingOverlayText('Verifying server status...');
+                    updateLoadingOverlayText(ts('preferredRegion.verifyingStatus'));
                     if (serverId && (await isServerActive(placeId, serverId))) {
                         if (isPreferredRegionMatch) {
                             hideLoadingOverlay(true);
@@ -521,7 +539,9 @@ export async function performJoinAction(
                             showReviewPopup('region_filters');
                         } else {
                             showLoadingOverlayResult(message, {
-                                text: `Join ${foundRegionName}`,
+                                text: ts('preferredRegion.joinRegion', {
+                                    region: foundRegionName,
+                                }),
                                 onClick: async () => {
                                     hideLoadingOverlay(true);
                                     joinedServerIds.add(serverId);
@@ -556,7 +576,7 @@ export async function performJoinAction(
         }
     } catch (error) {
         showLoadingOverlayResult(
-            error.message || 'Could not find any servers.',
+            error.message || ts('preferredRegion.couldNotFindServers'),
         );
     } finally {
         isCurrentlyFetchingData = false;

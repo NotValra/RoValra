@@ -1,4 +1,5 @@
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
+import { ts } from '../../core/locale/i18n.js';
 
 const STORE_SECTION_PATH = '/games/store-section/';
 const WARNING_MARKER = 'data-rovalra-btr-warning-shown';
@@ -20,14 +21,10 @@ function showBtrWarning() {
     html.setAttribute(WARNING_MARKER, window.location.href);
 
     showConfirmationPrompt({
-        title: 'IMPORTANT: disable BTRoblox',
-        message: `
-                <p style="margin: 0 0 10px; line-height: 1.5;">BTRoblox was detected. It may interfere with Roblox’s purchase flow. If you have trouble purchasing, try disabling BTRoblox temporarily and reload the page.</p>
-                <p style="margin: 0; line-height: 1.5; font-weight: 700;">Please disable BTRoblox, reload this page, and then try your purchase again.</p>
-        
-        `,
-        confirmText: 'Continue anyway',
-        cancelText: 'Close',
+        title: ts('btrDonationWarning.title'),
+        message: ts('btrDonationWarning.message'),
+        confirmText: ts('btrDonationWarning.continue'),
+        cancelText: ts('common.close'),
         confirmType: 'primary-destructive',
         closeBtnCallsCancel: false,
         preventBackdropClose: true,

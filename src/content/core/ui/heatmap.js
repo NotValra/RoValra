@@ -1,6 +1,7 @@
 import { addTooltip } from './tooltip.js';
 import { createInteractiveTimestamp } from './time/time.js';
 import { createDropdown } from './dropdown.js';
+import { ts } from '../locale/i18n.js';
 
 function renderDetails(
     container,
@@ -318,7 +319,7 @@ function _renderHeatmap(
     if (legendX < leftPadding) legendX = leftPadding;
 
     const lessText = document.createElementNS(svgNS, 'text');
-    lessText.textContent = 'Less';
+    lessText.textContent = ts('common.less');
     lessText.setAttribute('font-size', '10');
     lessText.setAttribute('fill', 'var(--rovalra-secondary-text-color)');
     lessText.setAttribute('x', legendX);
@@ -363,7 +364,7 @@ function _renderHeatmap(
     }
 
     const moreText = document.createElementNS(svgNS, 'text');
-    moreText.textContent = 'More';
+    moreText.textContent = ts('common.more');
     moreText.setAttribute('font-size', '10');
     moreText.setAttribute('fill', 'var(--rovalra-secondary-text-color)');
     moreText.setAttribute('x', currentX + 2);
@@ -399,11 +400,11 @@ export function createHeatmap(historyData, titleText = 'Update History') {
     header.style.marginBottom = '10px';
 
     const dropdownItems = [
-        { label: 'Past Year', value: 'year' },
-        { label: 'Past 6 Months', value: '6months' },
-        { label: 'Past 3 Months', value: '3months' },
-        { label: 'Past Month', value: 'month' },
-        { label: 'Past Week', value: 'week' },
+        { label: ts('common.pastYear'), value: 'year' },
+        { label: ts('common.past6Months'), value: '6months' },
+        { label: ts('common.past3Months'), value: '3months' },
+        { label: ts('common.pastMonth'), value: 'month' },
+        { label: ts('common.pastWeek'), value: 'week' },
     ];
 
     const getStartTime = (tf) => {

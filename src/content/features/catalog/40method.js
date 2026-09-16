@@ -16,6 +16,7 @@ import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { cleanPrice } from '../../core/utils/priceCleaner.js';
+import { ts } from '../../core/locale/i18n.js';
 
 const ROVALRA_PLACE_ID = '107845747621646';
 let assetToSubcategoryMap = null;
@@ -24,6 +25,8 @@ let metadataPromise = null;
 const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646;
 
 const GAMEPASS_DISABLE_DATE = new Date(2026, 4, 29).getTime();
+
+const methodText = (key, options) => ts(`fortyMethod.${key}`, options);
 
 const isGamePassBeforeDisable = () => {
     return Date.now() < GAMEPASS_DISABLE_DATE;
@@ -484,7 +487,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         alert(
-            'Could not identify your user ID. Please make sure you are logged in.',
+            methodText('loginRequired'),
         );
         return;
     }
@@ -493,103 +496,103 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     bodyContent.innerHTML = DOMPurify.sanitize(
         `
         <div id="sr-view-main">
-            <h4 class="text font-header-2" style="margin:0 0 12px 0;">Set Up an Experience</h4>
+                    <h4 class="text font-header-2" style="margin:0 0 12px 0;">${methodText('setupExperience')}</h4>
             <p class="text font-body" style="margin: 0 0 10px 0; line-height:1.4;">
-                <strong>Only a specific template works</strong>
+                <strong>${methodText('specificTemplate')}</strong>
             </p>
-            <p class="text font-body" style="margin: 0 0 8px 0;">Select a group you can manage experiences in. <br>And the extension will create the experience for you.</p>
+            <p class="text font-body" style="margin: 0 0 8px 0;">${methodText('selectGroup')}</p>
             <div id="sr-group-dropdown-container" style="margin-bottom: 16px;"></div>
             <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px 0;">
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
-                <span class="text font-body" style="font-size:12px;opacity:.7;">OR</span>
+                <span class="text font-body" style="font-size:12px;opacity:.7;">${methodText('or')}</span>
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
             </div>
-            <p class="text font-body" style="margin: 0 0 8px 0;">Manually enter a Place ID <br> (Only do this if you know what your doing.)</p>
+            <p class="text font-body" style="margin: 0 0 8px 0;">${methodText('manualPlaceId')}</p>
             <div id="sr-game-id-input-container" style="width: 100%;"></div>
             <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px 0;">
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
-                <span class="text font-body" style="font-size:12px;opacity:.7;">OR</span>
+                <span class="text font-body" style="font-size:12px;opacity:.7;">${methodText('or')}</span>
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
             </div>
-            <button id="sr-use-rovalra-group-btn" class="btn-secondary-md btn-min-width" style="width: 100%;">Donate Saved Robux to RoValra</button>
-            <p class="text font-body" style="margin:12px 0 0 0;font-size:12px;opacity:.65;">Estimated savings shown later are approximate and may be inaccurate.</p>
+            <button id="sr-use-rovalra-group-btn" class="btn-secondary-md btn-min-width" style="width: 100%;">${methodText('donateSavedRobux')}</button>
+            <p class="text font-body" style="margin:12px 0 0 0;font-size:12px;opacity:.65;">${methodText('estimatedSavings')}</p>
         </div>
         
         <div id="sr-view-non-owner-ack" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Important Information</h4>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>Owner Account:</strong> The group owner CANNOT be the same account you are buying items with. The owner should be a secured alt account with 2FA enabled and a strong, unique password.</p>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>Payouts:</strong> Only the group's owner account can pay out the saved Robux from the group's funds.</p>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>Pending Robux:</strong> Be aware that after using this feature, the Robux will be pending for approximately one month before they can be paid out.</p>
-            <button class="btn-cta-md btn-min-width" id="sr-acknowledge-btn" style="width: 100%; margin-top: 10px;">I Acknowledge</button>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('importantInformation')}</h4>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('ownerAccount')}</p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('payouts')}</p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('pendingRobux')}</p>
+            <button class="btn-cta-md btn-min-width" id="sr-acknowledge-btn" style="width: 100%; margin-top: 10px;">${methodText('acknowledge')}</button>
         </div>
 
         <div id="sr-view-no-group-info" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Group Required</h4>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">To use the 40% method with your own group, you need a group that you can manage experiences in.</p>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>Important:</strong> For this to work correctly, the group must be owned by a secure alternate account. Your main account (the one you're using to buy items) should have a role with permissions to create and manage group experiences.</p>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">If you don't have a suitable group, you can instead support RoValra by using our experience to process the purchase, which will give RoValra the saved Robux ❤️</p>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('groupRequired')}</h4>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('groupRequiredBody')}</p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('groupRequiredImportant')}</p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('groupRequiredDonate')}</p>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-no-group-back-btn" style="flex: 1;">Go Back</button>
+                <button class="btn-secondary-md btn-min-width" id="sr-no-group-back-btn" style="flex: 1;">${methodText('goBack')}</button>
             </div>
         </div>
 
         <div id="sr-view-owner-warning" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Ownership Detected</h4>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">The 40% method will not work if you are the owner of this group. Please select a different group or transfer ownership to a secured alt account.</p>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('ownershipDetected')}</h4>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('ownershipBody')}</p>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-owner-warning-back-btn" style="flex: 1;">Go Back</button>
+                <button class="btn-secondary-md btn-min-width" id="sr-owner-warning-back-btn" style="flex: 1;">${methodText('goBack')}</button>
             </div>
         </div>
         <div id="sr-view-manual-ack" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Experience Accepted</h4>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('experienceAccepted')}</h4>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height:1.5;">
-                <strong>Only specific experiences work.</strong> Ensure this experience is set up with the required scripts to handle in-game purchases.
+                ${methodText('experienceAcceptedSpecific')}
             </p>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height:1.5;">
-                Make sure the experience belongs to a group <strong>you control, but is not owned by this account</strong>. Preferably the group should be owned by an alt. If you own the group, the 40% method will not work.
+                ${methodText('experienceAcceptedGroup')}
             </p>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height:1.5;">
-                The saved Robux will be pending for roughly one month before payout. Use a secure alt as group owner for payouts.
+                ${methodText('experienceAcceptedPending')}
             </p>
-            <button id="sr-manual-ack-btn" class="btn-cta-md btn-min-width" style="width:100%;">I Understand & Continue</button>
+            <button id="sr-manual-ack-btn" class="btn-cta-md btn-min-width" style="width:100%;">${methodText('understandContinue')}</button>
         </div>
         
         <div id="sr-view-wip" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Create Experience</h4>
-            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">Create a new experience for this group to use the 40% method.</p>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('createExperience')}</h4>
+            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">${methodText('createExperienceBody')}</p>
             <div id="sr-create-game-error" class="text font-body" style="margin-bottom: 10px; font-size: 12px; color: #d32f2f; display: none;"></div>
-            <button class="btn-cta-md btn-min-width" id="sr-create-new-game-btn" style="width: 100%;">Create New Experience</button>
+            <button class="btn-cta-md btn-min-width" id="sr-create-new-game-btn" style="width: 100%;">${methodText('createNewExperience')}</button>
         </div>
 
         <div id="sr-view-manual-create-instructions" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Create New Experience</h4>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">To create a new experience for this method:</p>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('createNewExperience')}</h4>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">${methodText('createNewExperienceBody')}</p>
             <div style="margin-bottom: 16px; border-radius: 8px; overflow: hidden;">
                 <iframe width="100%" height="250" src="https://www.youtube.com/embed/-kUAWWmmkaQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
             <ol class="text font-body" style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.5;">
-                <li>Open the uncopylocked experience in Studio: <a href="#" id="sr-edit-game-link" style="text-decoration: underline;">Open Studio</a></li>
-                <li>In Studio, go to <strong>File > Game Settings > Security > Turn on "Allow Third Party Sales" > File > Publish to Roblox As...</strong></li>
-                <li>Select this group from the Creator list.</li>
-                <li>Click <strong>Create</strong> and the experience will be published</li>
+                <li>${methodText('createStepOne')} <a href="#" id="sr-edit-game-link" style="text-decoration: underline;">${methodText('openStudio')}</a></li>
+                <li>${methodText('createStepTwo')}</li>
+                <li>${methodText('createStepThree')}</li>
+                <li>${methodText('createStepFour')}</li>
             </ol>
-            <p class="text font-body" style="margin: 0 0 16px 0; line-height: 1.5;">Once published, click the button below and we'll automatically find and select it for you.</p>
+            <p class="text font-body" style="margin: 0 0 16px 0; line-height: 1.5;">${methodText('createPublishedBody')}</p>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-manual-create-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-manual-create-done-btn" style="flex: 1;">I've Published the Game</button>
+                <button class="btn-secondary-md btn-min-width" id="sr-manual-create-back-btn" style="flex: 1;">${methodText('back')}</button>
+                <button class="btn-cta-md btn-min-width" id="sr-manual-create-done-btn" style="flex: 1;">${methodText('publishedGame')}</button>
             </div>
         </div>
 
         <div id="sr-view-finding-game" class="sr-hidden">
             <div style="text-align: center; padding: 20px 0;">
                 <div id="sr-finding-game-spinner" style="margin: 0 auto 16px;"></div>
-                <h4 class="text font-header-2" style="margin: 0 0 8px 0;">Finding Your Experience</h4>
-                <p class="text font-body" style="margin: 0;">Please wait while we look for your newly published experience...</p>
+                <h4 class="text font-header-2" style="margin: 0 0 8px 0;">${methodText('findingExperience')}</h4>
+                <p class="text font-body" style="margin: 0;">${methodText('findingExperienceWait')}</p>
             </div>
         </div>
 
         <div id="sr-view-rovalra-group" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Donate to RoValra</h4>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('donateToRoValra')}</h4>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>How it works:</strong> Your purchase will go through a game owned by RoValra, and RoValra will earn a commission on your purchase which will help support RoValra's development.</p>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>No Setup Required:</strong> Perfect if you don't have your own group or want to support the extension!</p>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>Requirements:</strong></p>
@@ -599,33 +602,33 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 <li>And you will support RoValra at no extra cost for you.</li>
             </ul>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-rovalra-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-rovalra-confirm-btn" style="flex: 1;">I Understand & Continue</button>
+                <button class="btn-secondary-md btn-min-width" id="sr-rovalra-back-btn" style="flex: 1;">${methodText('back')}</button>
+                <button class="btn-cta-md btn-min-width" id="sr-rovalra-confirm-btn" style="flex: 1;">${methodText('understandContinue')}</button>
             </div>
         </div>
 
         <div id="sr-view-validation-warning" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Validation Warning</h4>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('validationWarning')}</h4>
             <div id="sr-validation-message-container"></div>
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-                <button class="btn-cta-md btn-min-width" id="sr-validation-create-btn" style="display: none;">Create New Experience</button>
-                <button class="btn-cta-md btn-min-width" id="sr-validation-update-btn" style="display: none;">Update Experience</button>
-                <button class="btn-secondary-md btn-min-width" id="sr-validation-use-anyway-btn">Use Anyway</button>
+                <button class="btn-cta-md btn-min-width" id="sr-validation-create-btn" style="display: none;">${methodText('createNewExperience')}</button>
+                <button class="btn-cta-md btn-min-width" id="sr-validation-update-btn" style="display: none;">${methodText('updateExperience')}</button>
+                <button class="btn-secondary-md btn-min-width" id="sr-validation-use-anyway-btn">${methodText('useAnyway')}</button>
             </div>
         </div>
 
         <div id="sr-view-permission-error" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Permission Required</h4>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('permissionRequired')}</h4>
             <p class="text font-body" style="margin: 5px 0 12px 0; line-height: 1.5;">You don't have permission to manage experiences for this group. You need a role with creation/management rights. You can pick a different group or choose the donate option instead.</p>
             <div style="display: flex; gap: 8px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-permission-error-back-btn" style="flex: 1;">Back to Group Selection</button>
+                <button class="btn-secondary-md btn-min-width" id="sr-permission-error-back-btn" style="flex: 1;">${methodText('backToGroupSelection')}</button>
             </div>
         </div>
 
         <div id="sr-view-update-instructions" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Update Experience</h4>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">${methodText('updateExperience')}</h4>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">
-                Experience: <strong id="sr-update-game-name">Loading...</strong>
+                ${methodText('experience')}: <strong id="sr-update-game-name">${methodText('loading')}</strong>
             </p>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">Your experience is outdated. To ensure it works correctly, please update it.</p>
             
@@ -654,12 +657,12 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     );
 
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save & Continue';
+    saveBtn.textContent = methodText('saveContinue');
     saveBtn.className = 'btn-cta-md btn-min-width';
     saveBtn.id = 'sr-save-btn';
 
     const { overlay, close } = createOverlay({
-        title: 'Set Up Your Game',
+        title: methodText('setupGame'),
         bodyContent: bodyContent,
         actions: [saveBtn],
         maxWidth: '500px',
@@ -816,7 +819,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             );
         } else {
             console.error('RoValra: Storage API unavailable.');
-            alert('Failed to save settings. Storage API unavailable.');
+            alert(methodText('saveSettingsUnavailable'));
         }
     };
 
@@ -977,7 +980,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
         } catch (error) {
             console.error('RoValra: Failed to fetch groups:', error);
             groupDropdownContainer.innerHTML = DOMPurify.sanitize(
-                '<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">Failed to load groups. Please refresh and try again.</div>',
+                `<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">${methodText('groupsLoadFailed')}</div>`,
             );
         }
     };
@@ -1018,13 +1021,13 @@ export const createAndShowPopup = (onSave, initialState = null) => {
         if (errorEl) errorEl.style.display = 'none';
 
         if (!selectedGroupId) {
-            alert('No group selected. Please try again.');
+            alert(methodText('noGroupSelected'));
             return;
         }
 
         createNewGameBtn.disabled = true;
         const originalText = createNewGameBtn.textContent;
-        createNewGameBtn.textContent = 'Creating...';
+        createNewGameBtn.textContent = methodText('creating');
 
         try {
             const createResponse = await callRobloxApiJson({
@@ -1048,10 +1051,10 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 `RoValra: Created Universe ${newUniverseId}, Place ${newPlaceId}`,
             );
 
-            createNewGameBtn.textContent = 'Uploading Template...';
+            createNewGameBtn.textContent = methodText('uploadingTemplate');
             await publishTemplateToPlace(newPlaceId, newUniverseId);
 
-            createNewGameBtn.textContent = 'Configuring...';
+            createNewGameBtn.textContent = methodText('configuring');
             await updateGameDescription(newUniverseId, ROVALRA_PLACE_ID);
 
             try {
@@ -1072,7 +1075,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 );
             }
 
-            createNewGameBtn.textContent = 'Done!';
+            createNewGameBtn.textContent = methodText('done');
 
             safeSaveSettings(newPlaceId, false, async () => {
                 close();
@@ -1225,7 +1228,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
 
     updateConfirmBtn.addEventListener('click', async () => {
         const originalText = updateConfirmBtn.textContent;
-        updateConfirmBtn.textContent = 'Updating...';
+        updateConfirmBtn.textContent = methodText('updating');
         updateConfirmBtn.disabled = true;
 
         try {
@@ -1375,7 +1378,7 @@ const showFailureNotification = (errorDetails) => {
     `);
 
     const { overlay, close } = createOverlay({
-        title: 'Purchase Failed',
+        title: methodText('purchaseFailed'),
         bodyContent: bodyContent,
         actions: [],
         maxWidth: '450px',
@@ -1471,11 +1474,11 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
     `);
 
     const confirmBtn = document.createElement('button');
-    confirmBtn.textContent = 'Got It';
+    confirmBtn.textContent = methodText('gotIt');
     confirmBtn.className = 'btn-cta-md btn-min-width';
 
     const { overlay: confirmOverlay, close: closeConfirm } = createOverlay({
-        title: 'Confirm 40% Method Purchase',
+        title: methodText('confirmMethodPurchase'),
         bodyContent: confirmBody,
         actions: [confirmBtn],
         maxWidth: '500px',
@@ -1530,7 +1533,7 @@ const executeCartPurchase = async (
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         alert(
-            'Could not identify your user ID. Please make sure you are logged in.',
+            methodText('loginRequired'),
         );
         return;
     }
@@ -1699,7 +1702,7 @@ const executeCartPurchase = async (
             </div>
         `);
         const { overlay, close } = createOverlay({
-            title: 'Already Owned',
+            title: methodText('alreadyOwned'),
             bodyContent: errorBody,
             actions: [],
             maxWidth: '400px',
@@ -1796,17 +1799,17 @@ const executeCartPurchase = async (
     `);
 
     const finalConfirmBtn = document.createElement('button');
-    finalConfirmBtn.textContent = 'Confirm Cart Purchase';
+    finalConfirmBtn.textContent = methodText('confirmCartPurchase');
     finalConfirmBtn.className = 'btn-cta-md btn-min-width';
     finalConfirmBtn.disabled = robuxAfterPurchase < 0;
 
     const finalCancelBtn = document.createElement('button');
-    finalCancelBtn.textContent = 'Cancel';
+    finalCancelBtn.textContent = methodText('cancel');
     finalCancelBtn.className = 'btn-secondary-md btn-min-width';
 
     const { overlay: finalConfirmOverlay, close: origCloseFinalConfirm } =
         createOverlay({
-            title: 'Confirm Cart Purchase',
+            title: methodText('confirmCartPurchase'),
             bodyContent: finalConfirmBody,
             actions: [finalCancelBtn, finalConfirmBtn],
             maxWidth: '500px',
@@ -1906,7 +1909,7 @@ const execute40MethodPurchase = async (
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         alert(
-            'Could not identify your user ID. Please make sure you are logged in.',
+            methodText('loginRequired'),
         );
         return;
     }
@@ -2141,7 +2144,7 @@ const execute40MethodPurchase = async (
             </div>
         `);
         const { overlay, close } = createOverlay({
-            title: 'Already Owned',
+            title: methodText('alreadyOwned'),
             bodyContent: ownedBody,
             actions: [],
             maxWidth: '400px',
@@ -2227,17 +2230,17 @@ const execute40MethodPurchase = async (
         `);
 
     const finalConfirmBtn = document.createElement('button');
-    finalConfirmBtn.textContent = 'Join game to purchase';
+    finalConfirmBtn.textContent = methodText('joinToPurchase');
     finalConfirmBtn.className = 'btn-cta-md btn-min-width';
     finalConfirmBtn.disabled = robuxAfterPurchase < 0;
 
     const finalCancelBtn = document.createElement('button');
-    finalCancelBtn.textContent = 'Cancel';
+    finalCancelBtn.textContent = methodText('cancel');
     finalCancelBtn.className = 'btn-secondary-md btn-min-width';
 
     const { overlay: finalConfirmOverlay, close: origCloseFinalConfirm } =
         createOverlay({
-            title: 'Confirm Purchase',
+            title: methodText('confirmPurchase'),
             bodyContent: finalConfirmBody,
             actions: [finalCancelBtn, finalConfirmBtn],
             maxWidth: '500px',
@@ -2737,7 +2740,7 @@ const addSaveButton = (modal) => {
                     </div>
                 `);
                 const { overlay, close } = createOverlay({
-                    title: 'Purchase Error',
+                    title: methodText('purchaseError'),
                     bodyContent: errorBody,
                     actions: [],
                     maxWidth: '450px',

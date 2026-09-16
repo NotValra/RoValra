@@ -1,12 +1,13 @@
 import { createOverlay } from './overlay.js';
 import { createButton } from './buttons.js';
 import DOMPurify from 'dompurify';
+import { ts } from '../locale/i18n.js';
 
 export function showConfirmationPrompt({
-    title = 'Confirm Action',
-    message = 'Are you sure you want to proceed?',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    title = ts('common.confirmAction'),
+    message = ts('common.areYouSure'),
+    confirmText = ts('common.confirm'),
+    cancelText = ts('common.cancel'),
     confirmType = 'primary',
     cancelType = 'secondary',
     onConfirm,

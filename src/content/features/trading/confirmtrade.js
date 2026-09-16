@@ -19,6 +19,7 @@ import {
     getCachedItemValue,
     getCachedRolimonsItem,
 } from '../../core/trade/itemHandler.js';
+import { ts } from '../../core/locale/i18n.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 
 let observerRequest = null;
@@ -524,7 +525,7 @@ async function injectTradePreview(
                     height: '16px',
                     zIndex: '2',
                 });
-                addTooltip(projIcon, 'Projected', { position: 'top' });
+                addTooltip(projIcon, ts('trading.projected'), { position: 'top' });
                 wrap.appendChild(projIcon);
             }
 
@@ -539,14 +540,14 @@ async function injectTradePreview(
                     height: '16px',
                     zIndex: '2',
                 });
-                addTooltip(rareIcon, 'Rare Item', { position: 'top' });
+                addTooltip(rareIcon, ts('trading.rareItem'), { position: 'top' });
                 wrap.appendChild(rareIcon);
             }
 
-            let tooltipHtml = `<b>${item.name}</b><br>RAP: ${item.rap ? item.rap.toLocaleString() : '?'}`;
-            tooltipHtml += `<br>Value: ${item.value ? item.value.toLocaleString() : '?'}`;
+            let tooltipHtml = `<b>${item.name}</b><br>${ts('trading.rap')}: ${item.rap ? item.rap.toLocaleString() : '?'}`;
+            tooltipHtml += `<br>${ts('trading.valueLabel')}: ${item.value ? item.value.toLocaleString() : '?'}`;
             if (item.serial) {
-                tooltipHtml += `<br>Serial: #${item.serial} / ${item.stock ? item.stock.toLocaleString() : '?'}`;
+                tooltipHtml += `<br>${ts('trading.serial')}: #${item.serial} / ${item.stock ? item.stock.toLocaleString() : '?'}`;
             }
             addTooltip(wrap, tooltipHtml, { position: 'top' });
             itemsDiv.appendChild(wrap);
@@ -576,7 +577,9 @@ async function injectTradePreview(
             );
             rDiv.appendChild(text);
 
-            const tooltipLabel = isGiving ? 'After Tax' : 'Before Tax';
+            const tooltipLabel = isGiving
+                ? ts('trading.afterTax')
+                : ts('trading.beforeTax');
             const tooltipValue = isGiving ? afterTax : data.robux;
 
             addTooltip(
@@ -601,7 +604,7 @@ async function injectTradePreview(
         rapTotal.style.display = 'flex';
         rapTotal.style.alignItems = 'center';
         rapTotal.style.justifyContent = 'center';
-        rapTotal.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span> RAP: ${data.totalRap.toLocaleString()}`;
+        rapTotal.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span> ${ts('trading.rap')}: ${data.totalRap.toLocaleString()}`;
         totalDiv.appendChild(rapTotal);
 
         const valueTotal = document.createElement('div');
@@ -611,7 +614,7 @@ async function injectTradePreview(
         valueTotal.style.display = 'flex';
         valueTotal.style.alignItems = 'center';
         valueTotal.style.justifyContent = 'center';
-        valueTotal.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;"> Value: ${data.totalValue.toLocaleString()}`;
+        valueTotal.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;"> ${ts('trading.valueLabel')}: ${data.totalValue.toLocaleString()}`;
         totalDiv.appendChild(valueTotal);
 
         div.appendChild(totalDiv);
@@ -620,7 +623,7 @@ async function injectTradePreview(
     };
 
     flex.appendChild(
-        createSide('You Give', previewData.giving, '#d43f3a', true),
+        createSide(ts('trading.youGive'), previewData.giving, '#d43f3a', true),
     );
 
     const middleDiv = document.createElement('div');
@@ -666,7 +669,7 @@ async function injectTradePreview(
     flex.appendChild(middleDiv);
 
     flex.appendChild(
-        createSide('You Get', previewData.receiving, '#00b06f', false),
+        createSide(ts('trading.youGet'), previewData.receiving, '#00b06f', false),
     );
 
     const dialogFooter = isRadixDialog

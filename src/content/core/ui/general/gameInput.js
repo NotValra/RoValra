@@ -17,7 +17,7 @@ function debounce(func, wait) {
 }
 
 export function createSearchInput({
-    placeholder = 'Search',
+    placeholder = ts('common.search'),
     onResultSelect,
     style = {},
     searchGroups: useGroupSearch = false,

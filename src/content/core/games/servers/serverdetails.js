@@ -13,6 +13,7 @@ import {
     getServerVersion,
     formatUptime,
 } from '../../apis/serverApi.js';
+import { ts } from '../../locale/i18n.js';
 
 const CLASSES = {
     CONTAINER: 'rovalra-details-container',
@@ -467,7 +468,7 @@ export function displayUptime(
     let visible = true;
 
     if (uptime === 'fetching') {
-        text = 'Loading...';
+        text = ts('serverInfo.loading');
     } else if (typeof uptime === 'number') {
         text = formatUptime(uptime, isEstimate);
     } else if (uptime === 'N/A') {
@@ -487,7 +488,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    let text = 'Version Unknown';
+    let text = ts('serverInfo.versionUnknown');
     let visible = false;
 
     const existingVersion = container.querySelector(`.${CLASSES.Version}`);
@@ -501,15 +502,15 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     if (version && version !== 'Unknown') {
-        text = `Version ${version}`;
+        text = ts('serverInfo.version', { version });
         const containerList = document.getElementById(
             'rbx-public-game-server-item-container',
         );
         if (containerList) {
             if (String(version) === containerList.dataset.newestVersion)
-                text += ' (Latest)';
+                text += ts('serverInfo.latest');
             else if (String(version) === containerList.dataset.oldestVersion)
-                text += ' (Oldest)';
+                text += ts('serverInfo.oldest');
         }
         visible = true;
     }
@@ -629,7 +630,13 @@ export function displayServerFullStatus(server) {
         return;
     }
 
-    updateInfoElement(container, 'Full', ICONS.full, 'Server is Full', true);
+    updateInfoElement(
+        container,
+        'Full',
+        ICONS.full,
+        ts('serverInfo.serverFull'),
+        true,
+    );
 }
 
 export function displayPrivateServerStatus(server) {
@@ -645,7 +652,7 @@ export function displayPrivateServerStatus(server) {
         container,
         'Private',
         ICONS.private,
-        'Playing in a private server',
+        ts('serverInfo.privateServer'),
         true,
     );
 }
@@ -663,7 +670,7 @@ export function displayPurchaseGameStatus(server) {
         container,
         'Purchase',
         ICONS.purchase,
-        'Buy game to see regions.',
+        ts('serverInfo.purchaseGame'),
         true,
     );
 }
@@ -860,7 +867,7 @@ export async function fetchAndDisplayRegion(
                 if (joinBtn) {
                     const joinLabel =
                         joinBtn.querySelector('.text-no-wrap') || joinBtn;
-                    joinLabel.textContent = 'Join (Server Full)';
+                    joinLabel.textContent = ts('common.joinServerFull');
                     joinBtn.classList.replace(
                         'btn-primary-md',
                         'btn-secondary-md',
@@ -966,7 +973,7 @@ export async function addCopyJoinLinkButton(server, serverId) {
     const btn = document.createElement('button');
     btn.className =
         'btn-full-width btn-control-xs btn-primary-md btn-min-width rovalra-copy-join-link';
-    btn.textContent = 'Share';
+    btn.textContent = ts('common.share');
     btn.style.cssText = 'margin-top: 5px; width: 100%;';
 
     btn.onclick = (e) => {
@@ -974,8 +981,8 @@ export async function addCopyJoinLinkButton(server, serverId) {
         e.stopPropagation();
         const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
         navigator.clipboard.writeText(link).then(() => {
-            btn.textContent = 'Copied!';
-            setTimeout(() => (btn.textContent = 'Share'), 2000);
+            btn.textContent = ts('common.copied');
+            setTimeout(() => (btn.textContent = ts('common.share')), 2000);
         });
     };
 
@@ -1161,7 +1168,7 @@ export async function enhanceServer(server, context) {
         idDiv.innerHTML = '';
 
         const prefixSpan = document.createElement('span');
-        prefixSpan.textContent = 'ID: ';
+    prefixSpan.textContent = ts('common.id');
         prefixSpan.style.userSelect = 'none';
 
         const uuidSpan = document.createElement('span');

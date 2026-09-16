@@ -4,6 +4,7 @@ import { callRobloxApi } from '../../api.js';
 import { addTooltip } from '../../ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { observeElement, startObserving } from '../../observer.js';
+import { ts } from '../../locale/i18n.js';
 
 let versionDataCache = null;
 
@@ -193,14 +194,14 @@ async function createStatsBarUI(serverListContainer) {
         totalServersBar.innerHTML = DOMPurify.sanitize(
             createStatItem(
                 totalIcon,
-                'Total Servers',
+                ts('serverStats.totalServers'),
                 counts.total_servers,
                 theme,
             ),
         );
         addTooltip(
             totalServersBar,
-            'Total servers RoValra is tracking under this experience',
+            ts('serverStats.totalServersTooltip'),
             { position: 'top' },
         );
         statsContainer.appendChild(totalServersBar);
@@ -213,12 +214,12 @@ async function createStatsBarUI(serverListContainer) {
         versionBar.innerHTML = DOMPurify.sanitize(
             createStatItem(
                 versionIcon,
-                'Version',
+                ts('serverInfo.versionLabel'),
                 `v${counts.newest_place_version}`,
                 theme,
             ),
         );
-        addTooltip(versionBar, 'The current version published.', {
+        addTooltip(versionBar, ts('serverInfo.currentVersionTooltip'), {
             position: 'top',
         });
         statsContainer.appendChild(versionBar);
@@ -235,14 +236,14 @@ async function createStatsBarUI(serverListContainer) {
         oldestVersionBar.innerHTML = DOMPurify.sanitize(
             createStatItem(
                 oldestVersionIcon,
-                'Oldest',
+                ts('serverStats.oldest'),
                 `v${counts.oldest_place_version}`,
                 theme,
             ),
         );
         addTooltip(
             oldestVersionBar,
-            'The oldest version a server is currently running.',
+            ts('serverStats.oldestTooltip'),
             { position: 'top' },
         );
         statsContainer.appendChild(oldestVersionBar);

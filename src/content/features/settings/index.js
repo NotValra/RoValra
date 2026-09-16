@@ -87,6 +87,7 @@ import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
 import { getCatalogItemDetails } from '../../core/apis/catalog.js';
 
 const assets = getAssets();
+const ui = (key, options) => ts(`settings.ui.${key}`, options);
 const CREDITS_USER_IDS = [
     ...new Set([CREATOR_USER_ID, ...CONTRIBUTOR_USER_IDS]),
 ];
@@ -114,24 +115,24 @@ let parentAttchedToAccountChecked = false;
 const CHANGELOGS_ENDPOINT = '/static/json/changelogs.json';
 
 const RESTRICTION_LEVELS = [
-    'None / No restrictions',
-    'Limited',
-    'Very Limited',
-    'At Risk',
-    'Suspended',
+    'standing.levels.none',
+    'standing.levels.limited',
+    'standing.levels.veryLimited',
+    'standing.levels.atRisk',
+    'standing.levels.suspended',
 ];
 const APPEAL_STATUSES = [
-    'Not appealed',
-    'Appeal Pending',
-    'Appeal Denied',
-    'Appeal Accepted',
+    'standing.appealStatuses.notAppealed',
+    'standing.appealStatuses.pending',
+    'standing.appealStatuses.denied',
+    'standing.appealStatuses.accepted',
 ];
 const ACCOUNT_STANDING_LEVELS = [
-    { label: 'All Good', color: '#23a55a' },
-    { label: 'Limited', color: '#f0b232' },
-    { label: 'Very Limited', color: '#f26522' },
-    { label: 'At Risk', color: '#f23f43' },
-    { label: 'Suspended', color: '#8b0000' },
+    { labelKey: 'levels.allGood', color: '#23a55a' },
+    { labelKey: 'levels.limited', color: '#f0b232' },
+    { labelKey: 'levels.veryLimited', color: '#f26522' },
+    { labelKey: 'levels.atRisk', color: '#f23f43' },
+    { labelKey: 'levels.suspended', color: '#8b0000' },
 ];
 
 let standingCache = null;
@@ -172,20 +173,21 @@ function renderChangelogRelease(release) {
 
     const title = document.createElement('h3');
     title.className = 'rovalra-changelog-title';
-    title.textContent = release.name || release.tag_name || 'Untitled release';
+    title.textContent =
+        release.name || release.tag_name || ui('changelogs.untitledRelease');
 
     const dates = document.createElement('div');
     dates.className = 'rovalra-changelog-dates';
 
     if (release.published_date) {
         const githubDate = document.createElement('span');
-        githubDate.textContent = `GitHub: ${release.published_date}`;
+        githubDate.textContent = `${ui('changelogs.github')}: ${release.published_date}`;
         dates.appendChild(githubDate);
     }
 
     if (release.chrome_release_date) {
         const chromeDate = document.createElement('span');
-        chromeDate.textContent = `Chrome: ${release.chrome_release_date}`;
+        chromeDate.textContent = `${ui('changelogs.chrome')}: ${release.chrome_release_date}`;
         dates.appendChild(chromeDate);
     }
 
@@ -199,7 +201,7 @@ function renderChangelogRelease(release) {
         parseUntrustedMarkdown(release.body, {
             fullMarkdown: true,
             githubMentions: true,
-        }) || 'No changelog notes were provided for this release.';
+        }) || ui('changelogs.noNotes');
 
     card.append(header, body);
     return card;
@@ -230,7 +232,7 @@ async function renderChangelogs(container) {
 
     const loading = document.createElement('div');
     loading.className = 'rovalra-changelog-status';
-    loading.textContent = 'Loading changelogs...';
+    loading.textContent = ui('changelogs.loading');
     container.appendChild(loading);
 
     try {
@@ -240,7 +242,7 @@ async function renderChangelogs(container) {
         if (!releases.length) {
             const empty = document.createElement('div');
             empty.className = 'rovalra-changelog-status';
-            empty.textContent = 'No changelogs are available right now.';
+            empty.textContent = ui('changelogs.empty');
             container.appendChild(empty);
             return;
         }
@@ -254,8 +256,7 @@ async function renderChangelogs(container) {
 
         const errorMessage = document.createElement('div');
         errorMessage.className = 'rovalra-changelog-status';
-        errorMessage.textContent =
-            'Failed to load changelogs. Please try again later.';
+        errorMessage.textContent = ui('changelogs.loadFailed');
         container.appendChild(errorMessage);
     }
 }
@@ -292,8 +293,8 @@ async function openDonatorPerksDonationUrl() {
 
     async function overlayUnblockGame() {
         const loadingOverlay = createOverlay({
-            title: 'Sending Request',
-            bodyContent: 'Please wait...',
+            title: ui('parentRequest.sendingTitle'),
+            bodyContent: ui('common.pleaseWait'),
             showLogo: true,
         });
         try {
@@ -321,16 +322,16 @@ async function openDonatorPerksDonationUrl() {
             loadingOverlay.close();
 
             const requestSentOverlay = createOverlay({
-                title: 'Request Sent!',
+                title: ui('parentRequest.sentTitle'),
                 bodyContent:
-                    'Your request was sent to your parents and guardians via email.' +
+                    ui('parentRequest.sentBody') +
                     (universeDetailsRequest.ok
-                        ? '<br />The experience name is: <b>' +
+                        ? `<br />${ui('parentRequest.experienceName')}: <b>` +
                           DOMPurify.sanitize(universeDetails.name) +
                           '</b>'
                         : ''),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             requestSentOverlay.close();
                         },
@@ -344,11 +345,10 @@ async function openDonatorPerksDonationUrl() {
             console.warn('[RoValra Unblock Request] Error:', error);
             loadingOverlay.close();
             const requestFailedOverlay = createOverlay({
-                title: 'Request Failed to Send',
-                bodyContent:
-                    'Your request failed to send for an unknown reason. Maybe you have been ratelimited. Check console for more details.',
+                title: ui('parentRequest.sendFailedTitle'),
+                bodyContent: ui('parentRequest.sendFailedBody'),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             requestFailedOverlay.close();
                         },
@@ -365,8 +365,8 @@ async function openDonatorPerksDonationUrl() {
     ) {
         btn.dataset.rovalraDonatorPerksDonationButtonLoading = true;
         const loadingOverlay = createOverlay({
-            title: 'Canceling Request',
-            bodyContent: 'Please wait...',
+            title: ui('parentRequest.cancelingTitle'),
+            bodyContent: ui('common.pleaseWait'),
             showLogo: true,
         });
         try {
@@ -382,11 +382,10 @@ async function openDonatorPerksDonationUrl() {
             loadingOverlay.close();
 
             const cancelRequestSentOverlay = createOverlay({
-                title: 'Canceled Request',
-                bodyContent:
-                    'Your request to your parents and guardians were canceled',
+                title: ui('parentRequest.canceledTitle'),
+                bodyContent: ui('parentRequest.canceledBody'),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             cancelRequestSentOverlay.close();
                         },
@@ -399,11 +398,10 @@ async function openDonatorPerksDonationUrl() {
         } catch {
             loadingOverlay.close();
             const cancelRequestFailedOverlay = createOverlay({
-                title: 'Request Cancellation Failed',
-                bodyContent:
-                    'Cancellation for your unblock request failed. Maybe you have been ratelimited. Check console for more details.',
+                title: ui('parentRequest.cancelFailedTitle'),
+                bodyContent: ui('parentRequest.cancelFailedBody'),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             cancelRequestFailedOverlay.close();
                         },
@@ -501,29 +499,27 @@ async function openDonatorPerksDonationUrl() {
         parentAttchedToAccount
     ) {
         showConfirmationPrompt({
-            title: 'Help Support RoValra More!',
-            message:
-                'RoValra gets more of the donation cut when using gamepasses. We see you have at least 1 parent account linked. You can request to unblock the experience so RoValra gets a better cut versus using 2D (and 3D) clothing.',
-            confirmText: 'Send Unblock Request',
+            title: ui('donation.parentApprovalTitle'),
+            message: ui('donation.parentApprovalMessage'),
+            confirmText: ui('parentRequest.sendUnblock'),
             confirmType: 'primary',
-            cancelText: 'Use Marketplace',
+            cancelText: ui('donation.useMarketplace'),
             cancelType: 'secondary',
             onConfirm: !requestedDonatorGameUnblock
                 ? overlayUnblockGame
                 : () => {
                       btn.dataset.rovalraDonatorPerksDonationButtonLoading = false;
                       const alreadyRequestedOverlay = createOverlay({
-                          title: 'Already Requested',
-                          bodyContent:
-                              'You already requested the experience silly!',
+                          title: ui('parentRequest.alreadyRequestedTitle'),
+                          bodyContent: ui('parentRequest.alreadyRequestedBody'),
                           actions: [
-                              createButton('Cancel', 'alert', {
+                              createButton(ui('common.cancel'), 'alert', {
                                   onClick: () => {
                                       alreadyRequestedOverlay.close();
                                       overlayCancelRequest();
                                   },
                               }),
-                              createButton('Okay', 'primary', {
+                              createButton(ui('common.okay'), 'primary', {
                                   onClick: () => {
                                       alreadyRequestedOverlay.close();
                                   },
@@ -565,8 +561,8 @@ function renderDonatorPerksDonationButton(container = document) {
     text.classList.add('rovalra-donator-perks-donation-btn-content');
     text.textContent =
         donatorCurrency === 'USD'
-            ? 'Donate (min $1 USD)'
-            : 'Donate (min 5 Robux)';
+            ? ui('donation.donateUsd')
+            : ui('donation.donateRobux');
 
     holder.dataset.rovalraDonationButtonRendered = 'true';
     holder.replaceChildren(
@@ -591,39 +587,39 @@ function openCustomProfileBadgePurchaseOverlay() {
 
     const body = document.createElement('div');
     body.innerHTML = `
-        <p>This purchase is for people who really want to support RoValra.</p>
-        <p>After buying this item, go into the RoValra Discord and create a ticket.</p>
-        <p>Give staff the image and name you want your custom profile badge to have.</p>
-        <p>Buying this item will count towards RoValra donator tiers.</p>
-        <p>These custom badges are only visible to RoValra users.</p>
+        <p>${ui('profileBadge.purchaseIntro')}</p>
+        <p>${ui('profileBadge.createTicket')}</p>
+        <p>${ui('profileBadge.provideDetails')}</p>
+        <p>${ui('profileBadge.countsTowardTier')}</p>
+        <p>${ui('profileBadge.visibility')}</p>
         <div style="margin: 18px 0; padding: 12px 14px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.35)); border-left: 4px solid var(--rovalra-theme-discordLink, #5865f2); border-radius: 6px; background: var(--rovalra-container-background-color, rgba(0,0,0,0.12));">
-            <strong style="display: block; margin-bottom: 8px; color: var(--rovalra-main-text-color);">Image requirements</strong>
+            <strong style="display: block; margin-bottom: 8px; color: var(--rovalra-main-text-color);">${ui('profileBadge.imageRequirements')}</strong>
             <ul style="margin: 0; padding-left: 20px;">
-                <li>The image must be a <strong>WEBP</strong> file smaller than <strong>1 MB</strong>.</li>
-                <li>Official Roblox SVGs or badges cannot be used.</li>
-                <li>Official RoValra badges like contributor and artist badges aren't allowed.</li>
-                <li>Images must follow Roblox ToS</li>
+                <li>${ui('profileBadge.webpRequirement')}</li>
+                <li>${ui('profileBadge.noRobloxBadges')}</li>
+                <li>${ui('profileBadge.noOfficialRoValraBadges')}</li>
+                <li>${ui('profileBadge.followTerms')}</li>
             </ul>
         </div>
-        <p><a href="${ROVALRA_DISCORD_URL}" target="_blank" rel="noopener noreferrer" style="color: var(--rovalra-theme-discordLink, #5865f2); font-weight: 700; text-decoration: underline; text-underline-offset: 2px;">Join the RoValra Discord</a></p>
+        <p><a href="${ROVALRA_DISCORD_URL}" target="_blank" rel="noopener noreferrer" style="color: var(--rovalra-theme-discordLink, #5865f2); font-weight: 700; text-decoration: underline; text-underline-offset: 2px;">${ui('profileBadge.joinDiscord')}</a></p>
     `;
 
     let overlay;
     let remainingSeconds = CUSTOM_PROFILE_BADGE_CONFIRMATION_COOLDOWN_SECONDS;
-    const agreeButton = createButton(`Agree (${remainingSeconds})`, 'primary', {
+    const agreeButton = createButton(ui('profileBadge.agreeCountdown', { count: remainingSeconds }), 'primary', {
         disabled: true,
         onClick: () => {
             overlay.close();
             window.open(CUSTOM_PROFILE_BADGE_ITEM_URL, '_blank', 'noopener');
         },
     });
-    const cancelButton = createButton('Cancel', 'secondary', {
+    const cancelButton = createButton(ui('common.cancel'), 'secondary', {
         onClick: () => overlay.close(),
     });
     let cooldownTimer;
 
     overlay = createOverlay({
-        title: 'Custom RoValra Profile Badge',
+        title: ui('profileBadge.title'),
         bodyContent: body,
         actions: [cancelButton, agreeButton],
         maxWidth: '440px',
@@ -639,11 +635,13 @@ function openCustomProfileBadgePurchaseOverlay() {
             window.clearInterval(cooldownTimer);
             agreeButton.disabled = false;
             agreeButton.setAttribute('aria-disabled', 'false');
-            agreeButton.textContent = 'Agree';
+            agreeButton.textContent = ui('profileBadge.agree');
             return;
         }
 
-        agreeButton.textContent = `Agree (${remainingSeconds})`;
+        agreeButton.textContent = ui('profileBadge.agreeCountdown', {
+            count: remainingSeconds,
+        });
     }, 1000);
 }
 
@@ -674,8 +672,8 @@ function renderCustomProfileBadgePurchaseButton(container = document) {
         createSquareButton({
             content:
                 donatorCurrency === 'USD'
-                    ? 'Get ($5 USD)'
-                    : 'Get (4,000 Robux)',
+                    ? ui('profileBadge.getUsd')
+                    : ui('profileBadge.getRobux'),
             id: 'rovalra-custom-profile-badge-button',
             onClick: openCustomProfileBadgePurchaseOverlay,
             width: 'auto',
@@ -694,8 +692,8 @@ function updateDonatorCurrencyUI(container = document) {
     if (donationText) {
         donationText.textContent =
             donatorCurrency === 'USD'
-                ? 'Donate (min $1 USD)'
-                : 'Donate (min 5 Robux)';
+                ? ui('donation.donateUsd')
+                : ui('donation.donateRobux');
     }
 
     const badgeButton = container.querySelector(
@@ -704,7 +702,9 @@ function updateDonatorCurrencyUI(container = document) {
     const badgeButtonText = badgeButton?.querySelector('span.padding-y-xsmall');
     if (badgeButtonText) {
         badgeButtonText.textContent =
-            donatorCurrency === 'USD' ? 'Get ($5 USD)' : 'Get (4,000 Robux)';
+            donatorCurrency === 'USD'
+                ? ui('profileBadge.getUsd')
+                : ui('profileBadge.getRobux');
     }
 }
 
@@ -911,7 +911,7 @@ function createArtistCreditSection(artistId) {
     const artistLabel = document.createElement('div');
     artistLabel.style.cssText =
         'font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--rovalra-secondary-text-color); opacity: 0.8;';
-    artistLabel.textContent = 'Artist';
+    artistLabel.textContent = ui('store.artist');
 
     const contributorsWrapper = document.createElement('div');
     contributorsWrapper.className = 'setting-contributors';
@@ -944,12 +944,12 @@ function createArtistCreditSection(artistId) {
         if (!data) return;
         addTooltip(
             link,
-            `${data.name || artistId} created this avatar border.`,
+            ui('store.artistTooltip', { name: data.name || artistId }),
             {
                 position: 'top',
             },
         );
-        const thumbEl = createThumbnailElement(data.thumb, 'Artist', '', {
+        const thumbEl = createThumbnailElement(data.thumb, ui('store.artist'), '', {
             width: '100%',
             height: '100%',
         });
@@ -959,11 +959,11 @@ function createArtistCreditSection(artistId) {
 
         target.innerHTML = '';
         target.appendChild(thumbEl);
-        nameSpan.textContent = data.name || 'Unknown';
+        nameSpan.textContent = data.name || ui('common.unknown');
     };
 
     const cached = artistCache.get(String(artistId));
-    nameSpan.textContent = cached ? cached.name || 'Unknown' : '...';
+    nameSpan.textContent = cached ? cached.name || ui('common.unknown') : '...';
 
     link.append(thumbContainer, nameSpan);
     artistPill.appendChild(link);
@@ -1013,8 +1013,8 @@ async function openAvatarBorderUrl(gamepassId) {
 
     async function overlayUnblockGame() {
         const loadingOverlay = createOverlay({
-            title: 'Sending Request',
-            bodyContent: 'Please wait...',
+            title: ui('parentRequest.sendingTitle'),
+            bodyContent: ui('common.pleaseWait'),
             showLogo: true,
         });
         try {
@@ -1042,16 +1042,16 @@ async function openAvatarBorderUrl(gamepassId) {
             loadingOverlay.close();
 
             const requestSentOverlay = createOverlay({
-                title: 'Request Sent!',
+                title: ui('parentRequest.sentTitle'),
                 bodyContent:
-                    'Your request was sent to your parents and guardians via email.' +
+                    ui('parentRequest.sentBody') +
                     (universeDetailsRequest.ok
-                        ? '<br />The experience name is: <b>' +
+                        ? `<br />${ui('parentRequest.experienceName')}: <b>` +
                           DOMPurify.sanitize(universeDetails.name) +
                           '</b>'
                         : ''),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             requestSentOverlay.close();
                         },
@@ -1065,11 +1065,10 @@ async function openAvatarBorderUrl(gamepassId) {
             console.warn('[RoValra Unblock Request] Error:', error);
             loadingOverlay.close();
             const requestFailedOverlay = createOverlay({
-                title: 'Request Failed to Send',
-                bodyContent:
-                    'Your request failed to send for an unknown reason. Maybe you have been ratelimited. Check console for more details.',
+                title: ui('parentRequest.sendFailedTitle'),
+                bodyContent: ui('parentRequest.sendFailedBody'),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             requestFailedOverlay.close();
                         },
@@ -1084,8 +1083,8 @@ async function openAvatarBorderUrl(gamepassId) {
         consentId = donatorGameUnblockConsentId,
     ) {
         const loadingOverlay = createOverlay({
-            title: 'Canceling Request',
-            bodyContent: 'Please wait...',
+            title: ui('parentRequest.cancelingTitle'),
+            bodyContent: ui('common.pleaseWait'),
             showLogo: true,
         });
         try {
@@ -1101,11 +1100,10 @@ async function openAvatarBorderUrl(gamepassId) {
             loadingOverlay.close();
 
             const cancelRequestSentOverlay = createOverlay({
-                title: 'Canceled Request',
-                bodyContent:
-                    'Your request to your parents and guardians were canceled',
+                title: ui('parentRequest.canceledTitle'),
+                bodyContent: ui('parentRequest.canceledBody'),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             cancelRequestSentOverlay.close();
                         },
@@ -1118,11 +1116,10 @@ async function openAvatarBorderUrl(gamepassId) {
         } catch {
             loadingOverlay.close();
             const cancelRequestFailedOverlay = createOverlay({
-                title: 'Request Cancellation Failed',
-                bodyContent:
-                    'Cancellation for your unblock request failed. Maybe you have been ratelimited. Check console for more details.',
+                title: ui('parentRequest.cancelFailedTitle'),
+                bodyContent: ui('parentRequest.cancelFailedBody'),
                 actions: [
-                    createButton('OK', 'secondary', {
+                    createButton(ui('common.ok'), 'secondary', {
                         onClick: () => {
                             cancelRequestFailedOverlay.close();
                         },
@@ -1219,28 +1216,26 @@ async function openAvatarBorderUrl(gamepassId) {
         parentAttchedToAccount
     ) {
         showConfirmationPrompt({
-            title: 'Parent Action Needed',
-            message:
-                'In order to buy avatar borders, you need parent permission.',
-            confirmText: 'Send Unblock Request',
+            title: ui('border.parentApprovalTitle'),
+            message: ui('border.parentApprovalMessage'),
+            confirmText: ui('parentRequest.sendUnblock'),
             confirmType: 'primary',
-            cancelText: 'Cancel',
+            cancelText: ui('common.cancel'),
             cancelType: 'secondary',
             onConfirm: !requestedDonatorGameUnblock
                 ? overlayUnblockGame
                 : () => {
                       const alreadyRequestedOverlay = createOverlay({
-                          title: 'Already Requested',
-                          bodyContent:
-                              'You already requested the experience silly!',
+                          title: ui('parentRequest.alreadyRequestedTitle'),
+                          bodyContent: ui('parentRequest.alreadyRequestedBody'),
                           actions: [
-                              createButton('Cancel', 'alert', {
+                              createButton(ui('common.cancel'), 'alert', {
                                   onClick: () => {
                                       alreadyRequestedOverlay.close();
                                       overlayCancelRequest();
                                   },
                               }),
-                              createButton('Okay', 'primary', {
+                              createButton(ui('common.okay'), 'primary', {
                                   onClick: () => {
                                       alreadyRequestedOverlay.close();
                                   },
@@ -1257,11 +1252,10 @@ async function openAvatarBorderUrl(gamepassId) {
         canPlayUniverseReason == 'ContextualPlayabilityRequireParentApproval'
     ) {
         const needsParentOverlay = createOverlay({
-            title: 'You cannot use Avatar Borders',
-            bodyContent:
-                'Roblox requires you to get permission from a parent but you do not have any parent linked to your account. If you want to use avatar borders you will need to link a parent account and request to unblock the experience.',
+            title: ui('border.noParentTitle'),
+            bodyContent: ui('border.noParentBody'),
             actions: [
-                createButton('Okay', 'secondary', {
+                createButton(ui('common.okay'), 'secondary', {
                     onClick: () => {
                         needsParentOverlay.close();
                     },
@@ -1360,8 +1354,7 @@ async function openBorderOverlay(
         const bundleNotice = document.createElement('div');
         bundleNotice.style.cssText =
             'font-size: 12px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 2px; font-weight: 600;';
-        bundleNotice.textContent =
-            '(Includes both Static and Animated variants)';
+        bundleNotice.textContent = ui('border.bundleNotice');
         infoWrapper.appendChild(bundleNotice);
     }
 
@@ -1378,7 +1371,7 @@ async function openBorderOverlay(
                         <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
                             <span class="icon-robux-16x16"></span>${priceValue}
                         </span>
-                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 16px;">${tier >= 3 ? 'Free' : 'Owned'}</span>
+                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 16px;">${tier >= 3 ? ui('store.free') : ui('store.owned')}</span>
                     `; //Verified
                     const freeLabel = priceLabel.querySelector(
                         '.rovalra-free-label',
@@ -1386,8 +1379,8 @@ async function openBorderOverlay(
                     addTooltip(
                         freeLabel,
                         tier >= 3
-                            ? 'Free because you have Donator Tier 3!'
-                            : 'You own this border!',
+                            ? ui('border.freeTier3Tooltip')
+                            : ui('border.ownedTooltip'),
                         {
                             position: 'top',
                         },
@@ -1401,8 +1394,8 @@ async function openBorderOverlay(
     } else {
         const freeLabel = document.createElement('div');
         freeLabel.className = 'rovalra-free-label';
-        freeLabel.textContent = 'Free';
-        addTooltip(freeLabel, 'This border is free to equip.', {
+        freeLabel.textContent = ui('store.free');
+        addTooltip(freeLabel, ui('border.freeTooltip'), {
             position: 'top',
         });
         infoWrapper.appendChild(freeLabel);
@@ -1416,7 +1409,7 @@ async function openBorderOverlay(
     supportNotice.style.cssText =
         'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 10px; font-style: italic; opacity: 0.8;';
     supportNotice.textContent =
-        'Buying the cosmetics directly will support the artist and RoValra';
+        ui('border.supportNotice');
     infoWrapper.appendChild(supportNotice);
 
     if (!isOwned && hasBorderGamepassId(effectiveGamepassId)) {
@@ -1424,7 +1417,7 @@ async function openBorderOverlay(
         purchaseWarning.style.cssText =
             'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 4px; opacity: 0.7;';
         purchaseWarning.textContent =
-            'it may take up to a minute for the avatar border to show up after buying';
+            ui('border.purchaseDelay');
         infoWrapper.appendChild(purchaseWarning);
     }
 
@@ -1435,12 +1428,12 @@ async function openBorderOverlay(
     actionBtn.style.width = '100%';
 
     if (isOwned) {
-        actionBtn.textContent = `Equip ${variant.label}`;
+        actionBtn.textContent = ui('store.equip', { name: variant.label });
         addTooltip(
             actionBtn,
             tier >= 3
-                ? 'Free because you have Donator Tier 3!'
-                : 'You own this border!',
+                ? ui('border.freeTier3Tooltip')
+                : ui('border.ownedTooltip'),
             { position: 'top' },
         );
         actionBtn.onclick = async () => {
@@ -1454,13 +1447,13 @@ async function openBorderOverlay(
             close();
         };
     } else if (hasBorderGamepassId(effectiveGamepassId)) {
-        actionBtn.textContent = 'Loading...';
+        actionBtn.textContent = ui('common.loading');
         (async () => {
             const price = await getGamePassPrice(effectiveGamepassId);
             if (price !== null) {
-                actionBtn.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>Buy for ${price.toLocaleString()}`;
+                actionBtn.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>${ui('store.buyFor', { price: price.toLocaleString() })}`;
             } else {
-                actionBtn.textContent = 'View Gamepass';
+                actionBtn.textContent = ui('store.viewGamepass');
             }
         })();
         actionBtn.onclick = () => {
@@ -1468,7 +1461,7 @@ async function openBorderOverlay(
             close();
         };
     } else {
-        actionBtn.textContent = 'Unavailable';
+        actionBtn.textContent = ui('common.unavailable');
         actionBtn.disabled = true;
     }
 
@@ -1570,7 +1563,9 @@ function getDonatorSettingsPerkRows() {
 }
 
 function getDonatorPerkStatusCell(hasPerk) {
-    const label = hasPerk ? 'Included' : 'Not included';
+    const label = hasPerk
+        ? ui('donation.included')
+        : ui('donation.notIncluded');
     return `<td class="rovalra-donator-perk-status-cell" aria-label="${label}" data-rovalra-donator-perk-included="${hasPerk ? 'true' : 'false'}"></td>`;
 }
 
@@ -1580,7 +1575,9 @@ function renderDonatorPerkStatusPills(container) {
         .forEach((cell) => {
             const isIncluded =
                 cell.dataset.rovalraDonatorPerkIncluded === 'true';
-            const label = isIncluded ? 'Included' : 'Not included';
+            const label = isIncluded
+                ? ui('donation.included')
+                : ui('donation.notIncluded');
             const symbol = Icon({
                 icon: isIncluded ? 'circle-check' : 'circle-minus',
                 filled: true,
@@ -1945,7 +1942,7 @@ function renderContributors(container, users, thumbMap) {
             const bodyContent = document.createElement('div');
             bodyContent.innerHTML = html;
 
-            const okayBtn = createButton('Okay', 'primary', {
+            const okayBtn = createButton(ui('common.okay'), 'primary', {
                 onClick: async () => {
                     overlay.close();
                 },
@@ -2019,7 +2016,7 @@ function renderContributorsShimmer(container) {
 
         const thumbShimmer = createThumbnailElement(
             { state: 'Pending' },
-            'Loading...',
+            ui('common.loading'),
             '',
             {
                 width: '100%',
@@ -2634,7 +2631,7 @@ function renderTopDonatorsShimmer(container) {
 
         const thumbShimmer = createThumbnailElement(
             { state: 'Pending' },
-            'Loading...',
+            ui('common.loading'),
             '',
             {
                 width: '100%',
@@ -2697,7 +2694,7 @@ function renderTopDonatorsShimmer(container) {
 
         const thumbShimmer = createThumbnailElement(
             { state: 'Pending' },
-            'Loading...',
+            ui('common.loading'),
             '',
             {
                 width: '100%',
@@ -2973,8 +2970,8 @@ export const buttonData = [
                     ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
                 </div>
 
-                <div class="rovalra-donator-currency-toolbar" aria-label="Donation currency">
-                    <span>Donate with</span>
+                <div class="rovalra-donator-currency-toolbar" aria-label="${ui('donation.currencyLabel')}">
+                    <span>${ui('donation.donateWith')}</span>
                     <div id="rovalra-donator-currency-toggle"></div>
                 </div>
 
@@ -2982,8 +2979,8 @@ export const buttonData = [
                     <div style="min-width: 220px; flex: 1; display: flex; align-items: center; gap: 14px;">
                         <img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" alt="" style="width: 52px; height: 52px; flex-shrink: 0;" />
                         <div>
-                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">Help Support RoValra</h3>
-                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">Get exclusive cosmetic perks by donating</p>
+                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">${ui('donation.supportTitle')}</h3>
+                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">${ui('donation.supportDescription')}</p>
                         </div>
                     </div>
                     <div style="flex-shrink: 0;">
@@ -2993,10 +2990,10 @@ export const buttonData = [
 
                 <div style="margin-top: 10px; padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2)); display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                     <div style="min-width: 220px; flex: 1; display: flex; align-items: center; gap: 14px;">
-                        <div id="rovalra-custom-profile-badge-icon-holder" aria-label="Custom profile badge icon"></div>
+                        <div id="rovalra-custom-profile-badge-icon-holder" aria-label="${ui('profileBadge.iconLabel')}"></div>
                         <div>
-                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">Custom RoValra Profile Badge</h3>
-                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">Get a custom badge for your profile</p>
+                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">${ui('profileBadge.title')}</h3>
+                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">${ui('profileBadge.description')}</p>
                         </div>
                     </div>
                     <div style="flex-shrink: 0;">
@@ -3012,14 +3009,14 @@ export const buttonData = [
                 <div style="margin-top: 25px;">
                     <div class="rovalra-github-sponsors-section">
                         <h3 class="rovalra-donator-section-heading rovalra-github-sponsors-heading">
-                            <a class="rovalra-github-sponsors-link" href="${GITHUB_SPONSORS_URL}" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a>
+                            <a class="rovalra-github-sponsors-link" href="${GITHUB_SPONSORS_URL}" target="_blank" rel="noopener noreferrer">${ui('donation.githubSponsors')}</a>
                             <img class="rovalra-github-sponsors-blush" src="${assets.blush}" alt="" aria-hidden="true" />
 
                         </h3>
-                        <div id="rovalra-github-sponsors" aria-label="GitHub Sponsors"></div>
+                        <div id="rovalra-github-sponsors" aria-label="${ui('donation.githubSponsors')}"></div>
                     </div>
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <h3 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 18px;">Top Donators (Robux)</h3>
+                        <h3 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 18px;">${ui('donation.topDonators')}</h3>
                         <div id="rovalra-anon-toggle-container"></div>
                     </div>
                     <div id="rovalra-top-donators"></div>
@@ -3030,16 +3027,16 @@ export const buttonData = [
     {
         id: 'store',
         get text() {
-            return 'Store';
+            return ts('settings.tabs.store');
         },
         get content() {
             return `
             <div style="padding: 8px;">
                 <div id="rovalra-store-section-tabs" style="display: flex; justify-content: flex-start; margin: 0 0 20px 0; overflow-x: auto; max-width: 100%;"></div>
                 <div id="rovalra-store-borders-section" data-store-section="borders">
-                    <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
-                    <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free.</strong> Buying Avatar Borders counts towards your Donator Tier!</p>
-                    <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
+                    <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ui('store.borderTitle')}</h2>
+                    <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">${ui('store.borderDescription')}</p>
+                    <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">${ui('store.loadingBorders')}</div>
                 </div>
                 <div id="rovalra-store-frames-section" data-store-section="frames" hidden>
                     <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ts('profileFrame.storeTitle')}</h2>
@@ -3052,13 +3049,13 @@ export const buttonData = [
     {
         id: 'changelogs',
         get text() {
-            return 'Changelogs';
+            return ui('changelogs.title');
         },
         get content() {
             return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Changelogs</h2>
-                <div id="rovalra-changelogs-container" style="color: var(--rovalra-secondary-text-color);">Loading changelogs...</div>
+                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ui('changelogs.title')}</h2>
+                <div id="rovalra-changelogs-container" style="color: var(--rovalra-secondary-text-color);">${ui('changelogs.loading')}</div>
             </div>`;
         },
     },
@@ -3070,7 +3067,7 @@ export const buttonData = [
         get content() {
             return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ts('settings.tabs.accountStanding') || 'Account Standing'}</h2>
+                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ts('settings.tabs.accountStanding')}</h2>
                 <div id="rovalra-account-standing-container">
                     <div style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.loadingContributors')}</div>
                 </div>
@@ -3104,7 +3101,7 @@ function openAppealOverlay(onSave) {
 
     const { container: inputContainer, input } = createStyledInput({
         id: 'rovalra-appeal-message-input',
-        label: 'Enter your appeal message (20-3000 characters)',
+        label: ui('appeal.messageLabel'),
         value: '',
         multiline: true,
     });
@@ -3125,14 +3122,14 @@ function openAppealOverlay(onSave) {
 
     const submitBtn = document.createElement('button');
     submitBtn.className = 'btn-primary-md';
-    submitBtn.textContent = 'Submit Appeal';
+    submitBtn.textContent = ui('appeal.submit');
 
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'btn-control-md';
-    cancelBtn.textContent = 'Cancel';
+    cancelBtn.textContent = ui('common.cancel');
 
     const { close } = createOverlay({
-        title: 'Submit Appeal',
+        title: ui('appeal.title'),
         bodyContent: container,
         actions: [cancelBtn, submitBtn],
         maxWidth: '450px',
@@ -3143,8 +3140,7 @@ function openAppealOverlay(onSave) {
     submitBtn.onclick = async () => {
         const appealMessage = input.value.trim();
         if (appealMessage.length < 20 || appealMessage.length > 3000) {
-            errorDisplay.textContent =
-                'Appeal message must be between 20 and 3000 characters.';
+            errorDisplay.textContent = ui('appeal.invalidLength');
             errorDisplay.style.display = 'block';
             return;
         }
@@ -3158,8 +3154,7 @@ function openAppealOverlay(onSave) {
             if (standingContainer) renderAccountStanding(standingContainer);
         } else {
             submitBtn.disabled = false;
-            errorDisplay.textContent =
-                'Failed to submit appeal. Please try again.';
+            errorDisplay.textContent = ui('appeal.submitFailed');
             errorDisplay.style.display = 'block';
         }
     };
@@ -3182,8 +3177,8 @@ async function renderAccountStanding(container) {
                 <icon size="large" style="transform: translate(1px, 1px)">check-large</icon>
             </div>
             <div style="flex: 1;">
-                <h3 class="standing-status-title" style="margin: 0 0 8px 0; font-size: 18px; color: var(--rovalra-main-text-color);">Your account is in good standing.</h3>
-                <p class="standing-status-desc" style="margin: 0; font-size: 14px; color: var(--rovalra-secondary-text-color); line-height: 1.5;">You do not have any active violations or restrictions from the RoValra safety team.</p>
+                <h3 class="standing-status-title" style="margin: 0 0 8px 0; font-size: 18px; color: var(--rovalra-main-text-color);">${ui('standing.goodTitle')}</h3>
+                <p class="standing-status-desc" style="margin: 0; font-size: 14px; color: var(--rovalra-secondary-text-color); line-height: 1.5;">${ui('standing.goodDescription')}</p>
             </div>
         </div>
         <div style="padding: 20px 10px 40px 10px; border-radius: 8px; margin-top: 10px;">
@@ -3194,15 +3189,15 @@ async function renderAccountStanding(container) {
                         (index / (ACCOUNT_STANDING_LEVELS.length - 1)) * 100;
                     return `
                         <div class="standing-status-dot" data-index="${index}" style="position: absolute; left: ${leftPos}%; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: ${index === 0 ? level.color : '#4f545c'}; border: 4px solid var(--rovalra-container-background-color); z-index: 2; transition: background 0.3s;"></div>
-                        <div class="standing-status-label" data-index="${index}" style="font-size: 12px; font-weight: 600; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
+                        <div class="standing-status-label" data-index="${index}" style="font-size: 12px; font-weight: 600; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${ui(level.labelKey)}</div>
                     `;
                 }).join('')}
             </div>
         </div>
         <div class="standing-policy-anchor"></div>
         <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color); font-size: 12px; color: var(--rovalra-secondary-text-color); line-height: 1.5;">
-            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">RoValra Safety Policy</div>
-            Accounts found in violation of the <a href="https://www.rovalra.com/tou/" target="_blank" style="color: inherit; text-decoration: underline;">RoValra Terms of Service</a> or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">${ui('standing.policyTitle')}</div>
+            ${ui('standing.policyDescription', { termsLink: '<a href="https://www.rovalra.com/tou/" target="_blank" style="color: inherit; text-decoration: underline;">RoValra Terms of Service</a>' })}
         </div>
     `,
         { ...CUSTOM_ADDED_TAGS },
@@ -3256,18 +3251,19 @@ function updateAccountStandingUI(discordCard, data, levels) {
     if (isGoodStanding) {
         iconBg.style.backgroundColor = '#23a55a';
         ChangeIcon(iconEl, { icon: 'check-large' });
-        statusTitle.textContent = 'Your account is in good standing.';
-        statusDesc.textContent =
-            'You do not have any active violations or restrictions from the RoValra safety team.';
+        statusTitle.textContent = ui('standing.goodTitle');
+        statusDesc.textContent = ui('standing.goodDescription');
     }
 
     if (!isGoodStanding) {
         iconBg.style.backgroundColor = '#f23f43';
         ChangeIcon(iconEl, { icon: 'x' });
         statusTitle.textContent = isTemporary
-            ? 'Your account is temporarily limited.'
-            : 'We found a violation on your account.';
-        statusDesc.textContent = `Your account status has been set to: ${getModerationStatusLabel(currentStatus)}`;
+            ? ui('standing.temporaryTitle')
+            : ui('standing.violationTitle');
+        statusDesc.textContent = ui('standing.statusDescription', {
+            status: getModerationStatusLabel(currentStatus),
+        });
     }
 
     fill.style.width = `${(currentStatus / (levels.length - 1)) * 100}%`;
@@ -3291,8 +3287,8 @@ function updateAccountStandingUI(discordCard, data, levels) {
         const modContent = activeModeration.moderated_content_history || [];
 
         const automatedHtml = activeModeration.automated
-            ? `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: #0084ff; color: white; border-radius: 4px; font-size: 12px; font-weight: 600;">Automated Action</div>`
-            : `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: rgba(128, 128, 128, 0.2); color: var(--rovalra-secondary-text-color); border-radius: 4px; font-size: 12px; font-weight: 600;">Manual Review</div>`;
+            ? `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: #0084ff; color: white; border-radius: 4px; font-size: 12px; font-weight: 600;">${ui('standing.automatedAction')}</div>`
+            : `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: rgba(128, 128, 128, 0.2); color: var(--rovalra-secondary-text-color); border-radius: 4px; font-size: 12px; font-weight: 600;">${ui('standing.manualReview')}</div>`;
 
         const disabledFeatures =
             (typeof reason === 'object' && reason?.disabled_features) || [];
@@ -3300,7 +3296,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
         const disabledFeaturesHtml =
             disabledFeatures.length > 0
                 ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--rovalra-border-color);">
-                <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Disabled Features</div>
+                <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">${ui('standing.disabledFeatures')}</div>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     ${disabledFeatures
                         .map(
@@ -3315,7 +3311,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
         const modContentHtml =
             modContent.length > 0
                 ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--rovalra-border-color);">
-                <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Moderated Content</div>
+                <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">${ui('standing.moderatedContent')}</div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${modContent
                         .map(
@@ -3337,17 +3333,17 @@ function updateAccountStandingUI(discordCard, data, levels) {
         reasonHtml.style.cssText =
             'margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color);';
         reasonHtml.innerHTML = DOMPurify.sanitize(`
-            <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Violation Details</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">${ui('standing.violationDetails')}</div>
             <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid ${violationColor};">
-                <div style="font-weight: 600; color: var(--rovalra-main-text-color); margin-bottom: 4px;">${typeof reason === 'string' ? reason : reason?.title || 'Unknown Reason'}</div>
+                <div style="font-weight: 600; color: var(--rovalra-main-text-color); margin-bottom: 4px;">${typeof reason === 'string' ? reason : reason?.title || ui('standing.unknownReason')}</div>
                 ${reason?.description ? `<div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${reason.description}</div>` : ''}
                 ${automatedHtml}
                 ${disabledFeaturesHtml}
                 ${modContentHtml}
-                <div style="margin-top: 10px; font-size: 11px; opacity: 0.7;" class="standing-mod-date">Moderated: </div>
+                <div style="margin-top: 10px; font-size: 11px; opacity: 0.7;" class="standing-mod-date">${ui('standing.moderated')}: </div>
                 ${
                     isTemporary
-                        ? '<div style="margin-top: 6px; font-size: 11px; opacity: 0.85;" class="standing-expiry-date">Temporary restriction expires: </div>'
+                        ? `<div style="margin-top: 6px; font-size: 11px; opacity: 0.85;" class="standing-expiry-date">${ui('standing.temporaryExpires')}: </div>`
                         : ''
                 }
             </div>
@@ -3383,16 +3379,16 @@ function updateAccountStandingUI(discordCard, data, levels) {
             appealSection.className = 'standing-dynamic-section';
             appealSection.style.cssText = `padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border-left: 4px solid ${statusColor};`;
             appealSection.innerHTML = DOMPurify.sanitize(`
-                <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Appeal Case</div>
-                <div style="font-size: 14px; color: var(--rovalra-main-text-color); margin-bottom: 12px;">Status: <strong style="color: ${statusColor};">${APPEAL_STATUSES[data.appeal.appeal_status]}</strong></div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">${ui('standing.appealCase')}</div>
+                <div style="font-size: 14px; color: var(--rovalra-main-text-color); margin-bottom: 12px;">${ui('standing.status')}: <strong style="color: ${statusColor};">${ui(APPEAL_STATUSES[data.appeal.appeal_status])}</strong></div>
 
                 <div style="margin-bottom: 10px;">
-                    <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Your Message</div>
-                    <div style="font-size: 13px; color: var(--rovalra-main-text-color); opacity: 0.9;">${data.appeal.appeal_message || 'N/A'}</div>
+                    <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">${ui('standing.yourMessage')}</div>
+                    <div style="font-size: 13px; color: var(--rovalra-main-text-color); opacity: 0.9;">${data.appeal.appeal_message || ui('common.notAvailable')}</div>
                 </div>
 
-                <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Response</div>
-                <div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${data.appeal.appeal_response || 'Our team is currently reviewing your appeal.'}</div>
+                <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">${ui('standing.response')}</div>
+                <div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${data.appeal.appeal_response || ui('standing.reviewingAppeal')}</div>
             `);
             discordCard.insertBefore(appealSection, policyAnchor);
         }
@@ -3401,7 +3397,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
             const btn = document.createElement('button');
             btn.className = 'btn-secondary-md';
             btn.classList.add('standing-dynamic-section');
-            btn.textContent = 'Appeal this decision';
+            btn.textContent = ui('standing.appealDecision');
             btn.style.marginTop = '20px';
             btn.style.width = '100%';
             btn.onclick = () =>
@@ -3546,8 +3542,7 @@ async function renderStoreBorders(container) {
         const borderCategories = await getBorders();
         const ownedData = await getOwnedBorders();
         if (!borderCategories || borderCategories.length === 0) {
-            container.innerHTML =
-                '<p style="color: var(--rovalra-secondary-text-color);">No borders available.</p>';
+            container.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ui('border.noBorders')}</p>`;
             return;
         }
 
@@ -3573,14 +3568,14 @@ async function renderStoreBorders(container) {
         let authedUserData = null;
         if (userId) {
             const [displayRes, thumbnails] = await Promise.all([
-                getUserDisplayName ? await getUserDisplayName(userId) : 'User',
+                getUserDisplayName ? await getUserDisplayName(userId) : ui('common.user'),
                 getBatchThumbnails([userId], 'AvatarHeadshot', '150x150'),
             ]);
             authedUserData = {
                 displayName:
                     typeof displayRes === 'string'
                         ? displayRes
-                        : displayRes || 'User',
+                        : displayRes || ui('common.user'),
                 thumbData: thumbnails[0] || { state: 'Error' },
                 userId,
                 profileHref: getUserProfileHref(userId),
@@ -3595,7 +3590,7 @@ async function renderStoreBorders(container) {
         previewWrapper.style.cssText =
             'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-bottom: 20px;';
         previewWrapper.innerHTML = `
-            <div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Current Selection Preview</div>
+            <div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">${ui('border.currentPreview')}</div>
             <div class="setting-label-divider" style="width: 100%; margin-bottom: 10px;"></div>
             <div id="rovalra-store-preview-holder"></div>
         `;
@@ -3638,8 +3633,7 @@ async function renderStoreBorders(container) {
                 }
             }
         } else {
-            previewHolder.innerHTML =
-                '<p style="color: var(--rovalra-secondary-text-color);">Sign in to preview borders on your avatar.</p>';
+            previewHolder.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ui('border.signInPreview')}</p>`;
         }
 
         const visibleCategories = borderCategories.filter(
@@ -3649,7 +3643,7 @@ async function renderStoreBorders(container) {
         const emptyTabMessage = document.createElement('p');
         emptyTabMessage.style.cssText =
             'color: var(--rovalra-secondary-text-color); margin: 16px 0 0 0;';
-        emptyTabMessage.textContent = 'No borders found in this tab.';
+        emptyTabMessage.textContent = ui('border.noBordersInTab');
         emptyTabMessage.hidden = true;
 
         const setStoreTab = (tab) => {
@@ -3672,8 +3666,8 @@ async function renderStoreBorders(container) {
             'display: flex; justify-content: flex-start; margin: 0 0 16px 0; overflow-x: auto; max-width: 100%;';
         const storeTabs = createPillToggle({
             options: [
-                { text: 'All', value: 'all' },
-                { text: 'New', value: 'new' },
+                { text: ui('store.all'), value: 'all' },
+                { text: ui('store.new'), value: 'new' },
                 ...visibleCategories.map((category) => ({
                     text: category.label,
                     value: category.value,
@@ -3743,7 +3737,7 @@ async function renderStoreBorders(container) {
                     'display: flex; flex-direction: column; align-items: center; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
 
                 const staticCard = createUserCard({
-                    displayName: authedUserData?.displayName || 'User',
+                displayName: authedUserData?.displayName || ui('common.user'),
                     username: '',
                     thumbData: authedUserData?.thumbData || { state: 'Error' },
                     href: authedUserData?.profileHref || '',
@@ -3776,7 +3770,7 @@ async function renderStoreBorders(container) {
                 const staticLabel = document.createElement('div');
                 staticLabel.style.cssText =
                     'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; white-space: nowrap; margin-top: 5px; font-weight: 700;';
-                staticLabel.textContent = 'STATIC';
+                staticLabel.textContent = ui('store.static');
                 staticContainer.append(staticCard, staticLabel);
 
                 const staticEquipBtn = createEquipButton(
@@ -3805,7 +3799,7 @@ async function renderStoreBorders(container) {
                         'display: flex; flex-direction: column; align-items: center; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
 
                     const animCard = createUserCard({
-                        displayName: authedUserData?.displayName || 'User',
+                        displayName: authedUserData?.displayName || ui('common.user'),
                         username: '',
                         thumbData: authedUserData?.thumbData || {
                             state: 'Error',
@@ -3840,7 +3834,7 @@ async function renderStoreBorders(container) {
                     const animLabel = document.createElement('div');
                     animLabel.style.cssText =
                         'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; white-space: nowrap; margin-top: 5px; font-weight: 700;';
-                    animLabel.textContent = 'ANIMATED';
+                    animLabel.textContent = ui('store.animated');
                     animContainer.append(animCard, animLabel);
 
                     const animIsOwned = isBorderOwned({
@@ -3884,7 +3878,7 @@ async function renderStoreBorders(container) {
                                         <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
                                             <span class="icon-robux-16x16"></span>${priceValue}
                                         </span>
-                                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">${tier >= 3 ? 'Free' : 'Owned'}</span>
+                                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">${tier >= 3 ? ui('store.free') : ui('store.owned')}</span>
                                     `; //Verified
                                     const freeLabel = priceLabel.querySelector(
                                         '.rovalra-free-label',
@@ -3893,8 +3887,8 @@ async function renderStoreBorders(container) {
                                         addTooltip(
                                             freeLabel,
                                             tier >= 3
-                                                ? 'Free because you have Donator Tier 3!'
-                                                : 'You own this border!',
+                                                ? ui('border.freeTier3Tooltip')
+                                                : ui('border.ownedTooltip'),
                                             {
                                                 position: 'top',
                                             },
@@ -3908,10 +3902,10 @@ async function renderStoreBorders(container) {
                     });
                 } else {
                     priceLabel.className = 'rovalra-free-label';
-                    priceLabel.textContent = 'Free';
+                    priceLabel.textContent = ui('store.free');
                     priceLabel.style.width = '100%';
                     priceLabel.style.textAlign = 'center';
-                    addTooltip(priceLabel, 'This border is free to equip.', {
+                    addTooltip(priceLabel, ui('border.freeTooltip'), {
                         position: 'top',
                     });
                 }
@@ -3940,8 +3934,7 @@ async function renderStoreBorders(container) {
         setStoreTab('all');
     } catch (error) {
         console.error('RoValra: Failed to render store borders', error);
-        container.innerHTML =
-            '<p style="color: var(--rovalra-secondary-text-color);">Failed to load borders. Please try again later.</p>';
+        container.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ui('border.loadFailed')}</p>`;
     }
 }
 
@@ -4170,7 +4163,7 @@ async function openFrameOverlay(
         getFrameAssetDetails(frame).then((details) => {
             const price = getFrameAssetPrice(frame, details);
             if (price === null) {
-                priceLabel.textContent = 'View item';
+                priceLabel.textContent = ts('profileFrame.viewItem');
                 return;
             }
 
@@ -4223,16 +4216,16 @@ async function openFrameOverlay(
     } else {
         const assetUrl = getFrameAssetUrl(frame);
         if (!assetUrl) {
-            actionBtn.textContent = 'View item';
+            actionBtn.textContent = ts('profileFrame.viewItem');
             actionBtn.disabled = true;
         } else {
-            actionBtn.textContent = 'Loading...';
+            actionBtn.textContent = ts('profileFrame.loading');
             getFrameAssetDetails(frame).then((details) => {
                 const price = getFrameAssetPrice(frame, details);
                 actionBtn.innerHTML =
                     price === null
-                        ? 'View item'
-                        : `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>Buy for ${price.toLocaleString()}`; //Verified
+                        ? ts('profileFrame.viewItem')
+                        : `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>${ts('profileFrame.buyFor', { price: price.toLocaleString() })}`; //Verified
             });
             actionBtn.onclick = () => window.open(assetUrl, '_blank');
         }
@@ -4308,13 +4301,15 @@ async function renderStoreFrames(container) {
         let authedUserData = null;
         if (userId) {
             const [displayName, thumbnails] = await Promise.all([
-                getUserDisplayName(userId).catch(() => 'User'),
+                getUserDisplayName(userId).catch(() => ui('common.user')),
                 getBatchThumbnails([userId], 'Avatar', '420x420'),
             ]);
             authedUserData = {
                 userId,
                 displayName:
-                    typeof displayName === 'string' ? displayName : 'User',
+                    typeof displayName === 'string'
+                        ? displayName
+                        : ui('common.user'),
                 thumbData: thumbnails[0] || { state: 'Error' },
             };
         }
@@ -4510,7 +4505,7 @@ async function renderStoreFrames(container) {
                         getFrameAssetDetails(frame).then((details) => {
                             const price = getFrameAssetPrice(frame, details);
                             if (price === null) {
-                                priceLabel.textContent = 'View item';
+                                priceLabel.textContent = ts('profileFrame.viewItem');
                                 return;
                             }
 
@@ -4569,12 +4564,16 @@ function createEquipButton(
     btnContainer.style.cssText =
         'margin-top: 8px; width: 100%; display: flex; justify-content: center;';
 
-    const text = isSelected ? 'Equipped' : isOwned ? 'Equip' : 'Buy';
-    const tooltip = isSelected
-        ? 'Click to unequip this border'
+    const text = isSelected
+        ? ui('store.equipped')
         : isOwned
-          ? 'Equip this border'
-          : 'Buy this border';
+          ? ui('store.equip')
+          : ui('store.buy');
+    const tooltip = isSelected
+        ? ui('border.unequipTooltip')
+        : isOwned
+          ? ui('border.equipTooltip')
+          : ui('border.buyTooltip');
 
     const pill = createPill(text, tooltip, { isButton: true });
     pill.setAttribute('data-equip-btn', variant.value);
@@ -4596,14 +4595,14 @@ function createEquipButton(
         const currentText = pill.textContent.trim();
         const val = pill.getAttribute('data-equip-btn');
 
-        if (currentText === 'Equipped') {
+        if (currentText === ui('store.equipped')) {
             updateUserSettingViaApi('border', '').catch(() => {});
             updatePreviewAndUI('none', null, container, previewHolder);
-        } else if (currentText === 'Equip') {
+        } else if (currentText === ui('store.equip')) {
             const link = pill.getAttribute('data-variant-link');
             updateUserSettingViaApi('border', link).catch(() => {});
             updatePreviewAndUI(val, link, container, previewHolder);
-        } else if (currentText === 'Buy') {
+        } else if (currentText === ui('store.buy')) {
             openBorderOverlay(
                 variant,
                 hasAnimated && animVariant ? animVariant : null,
@@ -4648,8 +4647,8 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
             const isSelected = val === selectedValue;
             let newText, newTooltip;
             if (isSelected) {
-                newText = 'Equipped';
-                newTooltip = 'Click to unequip this border';
+                newText = ui('store.equipped');
+                newTooltip = ui('border.unequipTooltip');
             } else {
                 const isOwned = isBorderOwned({
                     value: val,
@@ -4658,11 +4657,11 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
                     tier,
                 });
                 if (isOwned) {
-                    newText = 'Equip';
-                    newTooltip = 'Equip this border';
+                    newText = ui('store.equip');
+                    newTooltip = ui('border.equipTooltip');
                 } else {
-                    newText = 'Buy';
-                    newTooltip = 'Buy this border';
+                    newText = ui('store.buy');
+                    newTooltip = ui('border.buyTooltip');
                 }
             }
             const contentSpan = btn.querySelector('span');
@@ -4852,8 +4851,10 @@ export async function updateContent(buttonInfo, contentContainer) {
                     addTooltip(
                         tierBadge,
                         totalDonatedLabel
-                            ? `Your total donated to RoValra: ${totalDonatedLabel}`
-                            : 'Your donator tier',
+                            ? ui('donation.totalDonated', {
+                                  amount: totalDonatedLabel,
+                              })
+                            : ui('donation.tierTooltip'),
                         { position: 'top' },
                     );
                     (tierCopy || tierContainer).appendChild(tierBadge);

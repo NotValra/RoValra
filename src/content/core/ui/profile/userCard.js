@@ -11,6 +11,7 @@ import {
     clearSubplaceCardFromPresenceTarget,
 } from './subplaceCard.js';
 import { CUSTOM_ADDED_TAGS } from '../../utils/purifyCfg.js';
+import { ts } from '../../locale/i18n.js';
 
 async function isSubplaceHoverCardEnabled() {
     return (
@@ -81,10 +82,10 @@ export function fetchPresenceBatched(userId) {
 }
 
 const PRESENCE_MAP = {
-    0: { class: 'offline icon-offline', title: 'Offline' },
-    1: { class: 'online icon-online', title: 'Website' },
-    2: { class: 'game icon-game', title: 'Playing' },
-    3: { class: 'studio icon-studio', title: 'Studio' },
+    0: { class: 'offline icon-offline', title: ts('common.offline') },
+    1: { class: 'online icon-online', title: ts('common.website') },
+    2: { class: 'game icon-game', title: ts('common.playing') },
+    3: { class: 'studio icon-studio', title: ts('common.studio') },
 };
 
 export function updateUserCardPresence(

@@ -1,6 +1,7 @@
 import { callRobloxApiJson } from '../api.js';
 import { generateSettingInput } from './generateSettings.js';
 import { initSettings, syncDonatorTier } from './handlesettings.js';
+import { ts } from '../locale/i18n.js';
 
 export async function setBadgeVisibility(badgeName, isVisible) {
     try {
@@ -63,7 +64,7 @@ export async function createBadgeSettings(container) {
         mainControls.className = 'setting-controls';
 
         const mainLabel = document.createElement('label');
-        mainLabel.textContent = 'Toggle your donation badges visibility.';
+        mainLabel.textContent = ts('settings.ui.badges.visibility');
         mainControls.appendChild(mainLabel);
 
         const mainToggle = generateSettingInput('ShowAllBadges', {

@@ -89,7 +89,10 @@ export async function setProfilePronounsForUser(userId, pronouns) {
     });
 }
 
-registerProfileEditCategory({ id: 'rovalra', label: 'RoValra Features' });
+registerProfileEditCategory({
+    id: 'rovalra',
+    label: ts('profileFeatures.title'),
+});
 registerProfileEditFeature('rovalra', {
     id: 'profilePronouns',
 
