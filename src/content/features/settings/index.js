@@ -585,6 +585,11 @@ function renderDonatorPerksDonationButton(container = document) {
 }
 
 function openCustomProfileBadgePurchaseOverlay() {
+    if (donatorCurrency === 'USD') {
+        window.open(GITHUB_SPONSORS_URL, '_blank', 'noopener,noreferrer');
+        return;
+    }
+
     const body = document.createElement('div');
     body.innerHTML = `
         <p>This purchase is for people who really want to support RoValra.</p>
