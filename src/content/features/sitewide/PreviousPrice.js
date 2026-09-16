@@ -40,45 +40,58 @@ function isValidOffSaleDeadline(deadline) {
     );
 }
 
+function shouldShowPreviousPrice(price, deadline, isOffSale) {
+    return (
+        isOffSale &&
+        hasValidPreviousPrice(price) &&
+        (!deadline || isValidOffSaleDeadline(deadline))
+    );
+}
+
 function addPriceIconToCard(card, assetId) {
     const price = itemPrices.get(assetId);
     const isOffSale = itemIsOffSale.get(assetId);
     const deadline = itemOffSaleDeadlines.get(assetId);
+    const shouldShow = shouldShowPreviousPrice(price, deadline, isOffSale);
 
-    if (isOffSale && hasValidPreviousPrice(price)) {
-        if (card.matches('.price-container-text')) {
-            addTextPrice(card, price, deadline);
-            return;
+    if (!shouldShow) {
+        if (deadline && !isValidOffSaleDeadline(deadline)) {
+            card.querySelectorAll(
+                '.rovalra-offsale-price-icon, .rovalra-previous-price-text',
+            ).forEach((element) => element.remove());
         }
+        return;
+    }
 
-        let container;
-        const priceLabelSelector =
-            '.text-overflow.item-card-price, .rovalra-item-rap';
-        container = card.querySelector(priceLabelSelector);
+    if (card.matches('.price-container-text')) {
+        addTextPrice(card, price, deadline);
+        return;
+    }
 
-        if (!container) {
-            const caption = card.querySelector('.item-card-caption');
-            if (caption) {
-                const newContainer = document.createElement('div');
-                newContainer.className =
-                    'text-overflow item-card-price font-header-2 text-subheader margin-top-none';
+    let container;
+    const priceLabelSelector =
+        '.text-overflow.item-card-price, .rovalra-item-rap';
+    container = card.querySelector(priceLabelSelector);
 
-                const offSaleSpan = document.createElement('span');
-                offSaleSpan.className = 'text text-label text-robux-tile';
-                offSaleSpan.textContent = ts('previousPrice.offSale');
-                newContainer.appendChild(offSaleSpan);
+    if (!container) {
+        const caption = card.querySelector('.item-card-caption');
+        if (caption) {
+            const newContainer = document.createElement('div');
+            newContainer.className =
+                'text-overflow item-card-price font-header-2 text-subheader margin-top-none';
 
-                caption.appendChild(newContainer);
-                container = newContainer;
-            }
+            const offSaleSpan = document.createElement('span');
+            offSaleSpan.className = 'text text-label text-robux-tile';
+            offSaleSpan.textContent = ts('previousPrice.offSale');
+            newContainer.appendChild(offSaleSpan);
+
+            caption.appendChild(newContainer);
+            container = newContainer;
         }
+    }
 
-        if (
-            container &&
-            !container.querySelector('.rovalra-offsale-price-icon')
-        ) {
-            addIcon(container, price, deadline);
-        }
+    if (container && !container.querySelector('.rovalra-offsale-price-icon')) {
+        addIcon(container, price, deadline);
     }
 }
 
@@ -108,13 +121,14 @@ export function init() {
             const updatedAssetIds = new Set();
 
             data.data.forEach((item) => {
-                if (item.id) {
-                    itemPrices.set(item.id, item.price);
-                    itemIsOffSale.set(item.id, isOffSaleItem(item));
+                const itemId = item.id ?? item.itemTargetId;
+                if (itemId) {
+                    itemPrices.set(itemId, item.price);
+                    itemIsOffSale.set(itemId, isOffSaleItem(item));
                     if (item.offSaleDeadline) {
-                        itemOffSaleDeadlines.set(item.id, item.offSaleDeadline);
+                        itemOffSaleDeadlines.set(itemId, item.offSaleDeadline);
                     }
-                    updatedAssetIds.add(item.id);
+                    updatedAssetIds.add(itemId);
                 }
             });
 
