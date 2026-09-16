@@ -1782,7 +1782,11 @@ function getContributions() {
     }
     for (const [contKey, contData] of Object.entries(OTHER_CONTRIBUTIONS)) {
         for (const contribution of contData.contributors) {
-            contributions[String(contribution.userId)].push({
+            const contributorKey = String(contribution.userId);
+            if (contributions[contributorKey] === undefined) {
+                contributions[contributorKey] = [];
+            }
+            contributions[contributorKey].push({
                 feature: contData.label,
                 key: contKey,
                 contributionDescription: contribution.contributionDescription,
