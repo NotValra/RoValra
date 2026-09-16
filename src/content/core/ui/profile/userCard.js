@@ -175,7 +175,7 @@ export function createUserCard({
         </span>`
         : '';
     const plusBadge = isSubscribed
-        ? '<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="Roblox Plus subscriber">roblox-plus</icon>'
+        ? `<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="${ts('common.robloxPlusSubscriber')}">roblox-plus</icon>`
         : '';
 
     const tileContainer = document.createElement('div');

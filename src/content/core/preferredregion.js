@@ -19,6 +19,12 @@ import {
 } from './regions.js';
 import { ts } from './locale/i18n.js';
 
+function getLocalizedRegionName(regionCode) {
+    return regionCode === 'AUTO'
+        ? ts('regionSelector.automatic')
+        : getFullRegionName(regionCode);
+}
+
 export { getStateCodeFromRegion };
 
 const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
@@ -167,7 +173,7 @@ export async function performJoinAction(
         }
 
         const targetRegionName = preferredRegionCode
-            ? getFullRegionName(preferredRegionCode)
+            ? getLocalizedRegionName(preferredRegionCode)
             : ts('preferredRegion.closestRegion');
         const shortTargetName = targetRegionName.split(',')[0];
 
@@ -339,7 +345,7 @@ export async function performJoinAction(
 
                         if (improvedThisRound) {
                             const bestName =
-                                getFullRegionName(bestServerRegionCode);
+                                getLocalizedRegionName(bestServerRegionCode);
 
                             if (bestServerTier === 0) {
                                 updateLoadingOverlayText(
@@ -359,7 +365,7 @@ export async function performJoinAction(
 
                         if (bestServerTier === 0) {
                             const bestName =
-                                getFullRegionName(bestServerRegionCode);
+                                getLocalizedRegionName(bestServerRegionCode);
 
                             updateLoadingOverlayText(
                                 ts('preferredRegion.foundVerifying', {
@@ -513,7 +519,7 @@ export async function performJoinAction(
                     }
                 } else {
                     const foundRegionName =
-                        getFullRegionName(bestServerRegionCode);
+                        getLocalizedRegionName(bestServerRegionCode);
                     const isPreferredRegionMatch =
                         bestServerRegionCode === preferredRegionCode;
 

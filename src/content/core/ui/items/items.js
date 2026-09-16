@@ -631,7 +631,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     if (isFAEItem(item)) {
         const faeIconElement = document.createElement('div');
         faeIconElement.className = 'rovalra-fae-icon';
-        faeIconElement.setAttribute('aria-label', 'FAE item');
+        faeIconElement.setAttribute('aria-label', ts('items.faeItem'));
         faeIconElement.innerHTML =
             '<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-lock-closed size-[var(--icon-size-medium)]"></span>';
         Object.assign(faeIconElement.style, {

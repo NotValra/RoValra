@@ -38,6 +38,8 @@
         "copied": "Copied!",
         "free": "Free",
         "unknown": "Unknown",
+        "somethingWentWrong": "Something went wrong",
+        "robloxPlusSubscriber": "Roblox Plus subscriber",
         "joinServerFull": "Join (Server Full)",
         "id": "ID: ",
         "profile": "Profile",
@@ -74,6 +76,11 @@
         "donationMessage": "Running features such as the region selector isn't free, and RoValra completely relies on donations to cover those costs.\n\nDonating helps us keep the servers running so features like this can stay free for everyone.",
         "donate": "Donate",
         "donationTitle": "Wanna help support RoValra?"
+    },
+    "heatmap": {
+        "updatesBetween": "Updates between {{start}} - {{end}} on {{date}}",
+        "updatesOn": "Updates on {{date}}",
+        "trackingSince": "Update history has only been tracking since February 15, 2026"
     },
     "profileFeatures": {
         "title": "RoValra Features"
@@ -313,7 +320,8 @@
         "hiddenFromMarketplace": "This item is hidden from the marketplace",
         "notFound": "Not Found",
         "failedToLoad": "Failed to load",
-        "onHold": "On Hold"
+        "onHold": "On Hold",
+        "faeItem": "FAE item"
     },
     "inventory": {
         "openRolimons": "Open in Rolimon's",
@@ -922,7 +930,9 @@
                 "add": "Add",
                 "experimental": "Experimental",
                 "beta": "Beta",
-                "deprecated": "Deprecated"
+                "deprecated": "Deprecated",
+                "invalidImageUrl": "Enter a valid http:// or https:// image URL.",
+                "enablePermission": "Enable {{permission}} permission"
             },
             "badges": {
                 "visibility": "Toggle your donation badges visibility."
@@ -938,6 +948,7 @@
                 "acknowledge": "I Acknowledge"
             },
             "environment": {
+                "exported": "Environment JSON has been printed to the console (F12).",
                 "imported": "Environment config imported successfully. The page will reload to apply changes.",
                 "parseFailed": "Failed to parse the JSON file.",
                 "storageUsed": "Total Local Storage Used: {{size}}"

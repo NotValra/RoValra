@@ -485,7 +485,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         if (setting.options === 'REGIONS') {
             dropdownOptions.push({
                 value: 'AUTO',
-                label: getFullRegionName('AUTO'),
+                label: ts('regionSelector.automatic'),
             });
 
             const regionsByContinent = {};
@@ -1432,7 +1432,9 @@ function createPermissionManager(settingName, permissionName) {
         'display: flex; align-items: center; justify-content: space-between;';
 
     const text = document.createElement('span');
-    text.textContent = `Enable ${permissionName} permission`;
+    text.textContent = ts('settings.ui.controls.enablePermission', {
+        permission: permissionName,
+    });
     text.style.cssText =
         'font-size: 15px; color: var(--rovalra-main-text-color); font-weight: 400;';
 

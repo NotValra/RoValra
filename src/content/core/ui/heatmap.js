@@ -41,9 +41,13 @@ function renderDetails(
             timeOptions,
         );
         const endFormatted = endObj.toLocaleTimeString(undefined, timeOptions);
-        header.textContent = `Updates between ${startFormatted} - ${endFormatted} on ${dateFormatted}`;
+        header.textContent = ts('heatmap.updatesBetween', {
+            start: startFormatted,
+            end: endFormatted,
+            date: dateFormatted,
+        });
     } else {
-        header.textContent = `Updates on ${dateFormatted}`;
+        header.textContent = ts('heatmap.updatesOn', { date: dateFormatted });
     }
     header.style.fontWeight = '600';
     header.style.fontSize = '16px';
@@ -354,8 +358,7 @@ function _renderHeatmap(
     const expiryDate = new Date(2027, 1, 15); // February 15, 2027
     if (now < expiryDate) {
         const noticeText = document.createElementNS(svgNS, 'text');
-        noticeText.textContent =
-            'Update history has only been tracking since February 15, 2026';
+        noticeText.textContent = ts('heatmap.trackingSince');
         noticeText.setAttribute('font-size', '9');
         noticeText.setAttribute('fill', 'var(--rovalra-secondary-text-color)');
         noticeText.setAttribute('x', leftPadding);

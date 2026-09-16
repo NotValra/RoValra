@@ -669,7 +669,7 @@ export const handleSaveSettings = async (settingName, value) => {
                             if (normalizedUrl === INVALID_HTTP_URL) {
                                 await restoreTextSettingInput(settingName);
                                 showSystemAlert(
-                                    'Enter a valid http:// or https:// image URL.',
+                                    ts('settings.ui.controls.invalidImageUrl'),
                                     'warning',
                                 );
                                 return;
@@ -1207,7 +1207,9 @@ export const initSettings = async (settingsContent) => {
                                                 );
                                             option.value = regionCode;
                                             option.textContent =
-                                                getFullRegionName(regionCode);
+                                                regionCode === 'AUTO'
+                                                    ? ts('regionSelector.automatic')
+                                                    : getFullRegionName(regionCode);
                                             childElement.appendChild(option);
                                         },
                                     );
@@ -1921,7 +1923,7 @@ export function initializeSettingsEventListeners() {
             'Generated Environment JSON:\n' +
                 JSON.stringify(envConfig, null, 2),
         );
-        alert('Environment JSON has been printed to the console (F12).');
+        alert(ts('settings.ui.environment.exported'));
     });
 
     document.addEventListener('rovalra:importEnvironmentJson', () => {
