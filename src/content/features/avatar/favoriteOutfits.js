@@ -55,21 +55,54 @@ export async function init() {
     if (outfitIds.size === 0) return;
 
     const favorites = await loadFavorites(userId);
+    const cardOutfitIds = new WeakMap();
     const originalOrder = new Map();
     let orderCounter = 0;
-    // Roblox renders this list through React, so cards get re-diffed/replaced on
-    // its own re-renders. Reordering the DOM directly gets fought/undone by React,
-    // so favorited cards are floated to the front with a flex `order` style instead,
-    // which React leaves alone and which we can reapply idempotently per card.
-    const FAVORITED_ORDER_OFFSET = 100000;
+    const pendingContainers = new Set();
+    let resortScheduled = false;
 
-    function computeOrder(outfitId) {
-        const base = originalOrder.get(outfitId) ?? 0;
-        return favorites.has(outfitId) ? base : base + FAVORITED_ORDER_OFFSET;
+    // `order` only reorders flex/grid children, and this grid is neither, so cards
+    // are physically moved. Every resort fully recomputes the target order from a
+    // fixed first-seen index plus the live favorite state, so unfavoriting always
+    // lands a card back where it started instead of drifting from prior moves.
+    function resortContainer(container) {
+        const children = Array.from(container.children);
+        const sortable = [];
+        children.forEach((child, index) => {
+            if (cardOutfitIds.has(child)) sortable.push({ child, index });
+        });
+        if (sortable.length < 2) return;
+
+        const sorted = [...sortable].sort((a, b) => {
+            const idA = cardOutfitIds.get(a.child);
+            const idB = cardOutfitIds.get(b.child);
+            const favA = favorites.has(idA) ? 0 : 1;
+            const favB = favorites.has(idB) ? 0 : 1;
+            return favA !== favB
+                ? favA - favB
+                : originalOrder.get(idA) - originalOrder.get(idB);
+        });
+
+        sortable.forEach((entry, i) => {
+            children[entry.index] = sorted[i].child;
+        });
+
+        const fragment = document.createDocumentFragment();
+        children.forEach((child) => fragment.appendChild(child));
+        container.appendChild(fragment);
     }
 
-    function applyCardOrder(card, outfitId) {
-        card.style.order = String(computeOrder(outfitId));
+    function scheduleResort(container) {
+        if (!container) return;
+        pendingContainers.add(container);
+        if (resortScheduled) return;
+
+        resortScheduled = true;
+        requestAnimationFrame(() => {
+            resortScheduled = false;
+            pendingContainers.forEach(resortContainer);
+            pendingContainers.clear();
+        });
     }
 
     function updateStarState(star, outfitId) {
@@ -78,13 +111,13 @@ export async function init() {
         star.setAttribute('aria-pressed', String(isFavorited));
     }
 
-    function toggleFavorite(outfitId, star, card) {
+    function toggleFavorite(outfitId, star, container) {
         if (favorites.has(outfitId)) favorites.delete(outfitId);
         else favorites.add(outfitId);
 
         updateStarState(star, outfitId);
         persistFavorites(userId, favorites);
-        applyCardOrder(card, outfitId);
+        scheduleResort(container);
     }
 
     observeElement(
@@ -112,13 +145,13 @@ export async function init() {
             star.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                toggleFavorite(outfitId, star, card);
+                toggleFavorite(outfitId, star, card.parentElement);
             });
             star.addEventListener('keydown', (event) => {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 event.preventDefault();
                 event.stopPropagation();
-                toggleFavorite(outfitId, star, card);
+                toggleFavorite(outfitId, star, card.parentElement);
             });
 
             addTooltip(star, () =>
@@ -130,10 +163,11 @@ export async function init() {
             );
 
             thumbContainer.appendChild(star);
+            cardOutfitIds.set(card, outfitId);
             if (!originalOrder.has(outfitId)) {
                 originalOrder.set(outfitId, orderCounter++);
             }
-            applyCardOrder(card, outfitId);
+            scheduleResort(card.parentElement);
         },
         { multiple: true },
     );
