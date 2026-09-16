@@ -29,6 +29,11 @@ export const SETTINGS_CONFIG = {
                 ],
                 default: 'en',
             },
+            rovalraVersion: {
+                label: `RoValra Version: v${chrome.runtime.getManifest().version}`,
+                type: 'yay',
+                hideContributors: true,
+            },
         },
     },
     Marketplace: {
