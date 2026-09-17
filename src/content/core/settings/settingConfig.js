@@ -1902,8 +1902,10 @@ export const SETTINGS_CONFIG = {
                     'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '546872490'],
+                locked: 'Roblox made their own version of this.',
+                isPermanent: true,
             },
             FreeRobloxPlusThemesEnabledv3: {
                 label: 'Free Roblox Plus Themes',
