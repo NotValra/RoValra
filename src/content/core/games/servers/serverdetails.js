@@ -408,8 +408,8 @@ function injectStyles() {
 
 function shouldSpoilerServerId(server) {
     return (
-        server.hasAttribute('data-rovalra-is-friend-server') ||
-        server.hasAttribute('data-rovalra-is-recent-server') ||
+        server.dataset.rovalraIsFriendServer === 'true' ||
+        server.dataset.rovalraIsRecentServer === 'true' ||
         server.classList.contains('rbx-friends-game-server-item') ||
         !!server.querySelector(
             '.player-thumbnails-container .avatar-card-link[href*="/users/"]',
@@ -676,7 +676,7 @@ export function displayPurchaseGameStatus(server) {
 }
 
 export function displayInactivePlaceStatus(server) {
-    if (server) {
+    if (server?.dataset.rovalraAddedByFilter === 'true') {
         server.remove();
     }
 }

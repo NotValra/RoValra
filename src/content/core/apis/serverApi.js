@@ -1,4 +1,5 @@
 import { callRobloxApi } from '../api.js';
+import { getPlaceDetails } from './games.js';
 import { loadDatacenterMap, datacenterList } from '../regions.js';
 
 const serverDataCache = new Map();
@@ -7,6 +8,30 @@ const serverUptimeBases = {};
 const serverUptimeIsEstimate = {};
 const serverVersionsCache = {};
 let uptimeUpdateInterval = null;
+const rootPlaceIdCache = new Map();
+
+export async function resolveRootPlaceId(placeId) {
+    const normalizedPlaceId = String(placeId || '');
+    if (!/^\d+$/.test(normalizedPlaceId)) return placeId;
+
+    if (rootPlaceIdCache.has(normalizedPlaceId)) {
+        return rootPlaceIdCache.get(normalizedPlaceId);
+    }
+
+    try {
+        const details = await getPlaceDetails(normalizedPlaceId);
+        const rootPlaceId = String(
+            details?.universeRootPlaceId ||
+                details?.rootPlaceId ||
+                normalizedPlaceId,
+        );
+        rootPlaceIdCache.set(normalizedPlaceId, rootPlaceId);
+        return rootPlaceId;
+    } catch (e) {
+        rootPlaceIdCache.set(normalizedPlaceId, normalizedPlaceId);
+        return normalizedPlaceId;
+    }
+}
 
 export function formatUptime(seconds, isEstimate = false) {
     if (typeof seconds !== 'number' || seconds < 0) return 'N/A';
@@ -65,6 +90,7 @@ export function createUUID() {
 }
 
 export async function fetchServerDetails(placeId, serverIds) {
+    placeId = await resolveRootPlaceId(placeId);
     const validIds = serverIds.filter((id) => id && id !== 'null');
     if (!validIds.length) return { servers: [] };
 
@@ -177,6 +203,8 @@ export async function fetchServerDetails(placeId, serverIds) {
 
 export async function fetchServerRegion(placeId, serverId, options = {}) {
     try {
+        placeId = await resolveRootPlaceId(placeId);
+
         if (serverId && serverDataCache.has(serverId)) {
             return serverDataCache.get(serverId);
         }
@@ -300,6 +328,7 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
 export async function isServerActive(placeId, gameId) {
     if (!gameId) return false;
     try {
+        placeId = await resolveRootPlaceId(placeId);
         const response = await callRobloxApi({
             subdomain: 'gamejoin',
             endpoint: '/v2/join-game-instance',

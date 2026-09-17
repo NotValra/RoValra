@@ -559,7 +559,9 @@ function attachGlobalListeners() {
         const serverElement = document.querySelector(
             `li[data-rovalra-serverid="${serverId}"], div[data-rovalra-serverid="${serverId}"]`,
         );
-        if (serverElement) serverElement.remove();
+        if (serverElement?.dataset.rovalraAddedByFilter === 'true') {
+            serverElement.remove();
+        }
     });
 }
 
@@ -714,7 +716,6 @@ async function loadServerIpMap() {
         if (typeof loadDatacenterMap === 'function') await loadDatacenterMap();
         _state.serverIpMap = serverIpMap;
     } catch (e) {}
-
     _state.serverIpMap = null;
 }
 
@@ -1010,12 +1011,17 @@ try {
     });
 } catch (e) {}
 
-export async function createServerCardFromRobloxApi(server, placeId) {
+export async function createServerCardFromRobloxApi(
+    server,
+    placeId,
+    options = {},
+) {
     try {
         const isModern =
             !document.getElementById('rbx-public-game-server-item-container') &&
             !!document.querySelector('.rovalra-modern-ui');
-        if (isModern) return createModernServerCard(server, placeId);
+        if (isModern)
+            return createModernServerCard(server, placeId, options);
 
         const listItemClass =
             'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
@@ -1023,6 +1029,9 @@ export async function createServerCardFromRobloxApi(server, placeId) {
         serverItem.className = listItemClass;
         const serverId = server.id || server.server_id || '';
         serverItem.dataset.rovalraServerid = serverId;
+        if (options.addedByRovalraFilter === true) {
+            serverItem.dataset.rovalraAddedByFilter = 'true';
+        }
 
         const playerTokens = server.playerTokens || [];
         let playerThumbnailsHTML = '';
@@ -1090,12 +1099,17 @@ export async function createServerCardFromRobloxApi(server, placeId) {
     }
 }
 
-export async function createServerCardFromApi(server, placeId = '') {
+export async function createServerCardFromApi(
+    server,
+    placeId = '',
+    options = {},
+) {
     try {
         const isModern =
             !document.getElementById('rbx-public-game-server-item-container') &&
             !!document.querySelector('.rovalra-modern-ui');
-        if (isModern) return createModernServerCard(server, placeId);
+        if (isModern)
+            return createModernServerCard(server, placeId, options);
 
         const listItemClass =
             'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
@@ -1103,6 +1117,9 @@ export async function createServerCardFromApi(server, placeId = '') {
         serverItem.className = listItemClass;
         const serverId = server.server_id || server.id || '';
         serverItem.dataset.rovalraServerid = serverId;
+        if (options.addedByRovalraFilter === true) {
+            serverItem.dataset.rovalraAddedByFilter = 'true';
+        }
 
         const cachedServerData = _state.serverDataCache.get(serverId);
         if (cachedServerData) {
@@ -1318,10 +1335,13 @@ async function renderAndAppendServers(servers, serverListContainer, placeId) {
     }
 
     const serverCardPromises = activeServers.map((server) => {
+        const options = {
+            addedByRovalraFilter: true,
+        };
         if (server.playerTokens) {
-            return createServerCardFromRobloxApi(server, placeId);
+            return createServerCardFromRobloxApi(server, placeId, options);
         } else {
-            return createServerCardFromApi(server, placeId);
+            return createServerCardFromApi(server, placeId, options);
         }
     });
 
@@ -1377,12 +1397,15 @@ function displayMessageInContainer(message, isError = false) {
     serverListContainer.appendChild(listItem);
 }
 
-async function createModernServerCard(server, placeId) {
+async function createModernServerCard(server, placeId, options = {}) {
     const serverItem = document.createElement('div');
     serverItem.className =
         'flex items-center justify-between padding-y-medium width-full';
     const serverId = server.id || server.server_id || '';
     serverItem.dataset.rovalraServerid = serverId;
+    if (options.addedByRovalraFilter === true) {
+        serverItem.dataset.rovalraAddedByFilter = 'true';
+    }
 
     const cachedServerData = _state.serverDataCache.get(serverId);
     if (cachedServerData) {
