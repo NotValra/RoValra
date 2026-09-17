@@ -148,7 +148,9 @@ export const SETTINGS_CONFIG = {
                 description:
                     "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
                 type: 'checkbox',
-                default: true,
+                default: false,
+                locked: 'Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind.',
+                isPermanent: true,
             },
             ParentItemsEnabled: {
                 label: 'Show what bundle an item is a part of.',
