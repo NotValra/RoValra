@@ -20,15 +20,40 @@ export async function resolveRootPlaceId(placeId) {
 
     try {
         const details = await getPlaceDetails(normalizedPlaceId);
-        const rootPlaceId = String(
-            details?.universeRootPlaceId ||
-                details?.rootPlaceId ||
-                normalizedPlaceId,
-        );
-        rootPlaceIdCache.set(normalizedPlaceId, rootPlaceId);
-        return rootPlaceId;
+        let rootPlaceId =
+            details?.universeRootPlaceId || details?.rootPlaceId || null;
+
+        if (!/^\d+$/.test(String(rootPlaceId || ''))) {
+            const universeResponse = await callRobloxApi({
+                subdomain: 'apis',
+                endpoint: `/universes/v1/places/${normalizedPlaceId}/universe`,
+                method: 'GET',
+            });
+
+            if (universeResponse.ok) {
+                const { universeId } = await universeResponse.json();
+                if (universeId) {
+                    const gameResponse = await callRobloxApi({
+                        subdomain: 'games',
+                        endpoint: `/v1/games?universeIds=${universeId}`,
+                        method: 'GET',
+                    });
+                    if (gameResponse.ok) {
+                        const gameData = await gameResponse.json();
+                        rootPlaceId = gameData?.data?.[0]?.rootPlaceId;
+                    }
+                }
+            }
+        }
+
+        if (/^\d+$/.test(String(rootPlaceId || ''))) {
+            rootPlaceId = String(rootPlaceId);
+            rootPlaceIdCache.set(normalizedPlaceId, rootPlaceId);
+            return rootPlaceId;
+        }
+
+        return normalizedPlaceId;
     } catch (e) {
-        rootPlaceIdCache.set(normalizedPlaceId, normalizedPlaceId);
         return normalizedPlaceId;
     }
 }

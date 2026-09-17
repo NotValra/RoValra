@@ -7,6 +7,7 @@ import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js'; 
 import DOMPurify from 'dompurify';
 import { ts } from '../../../locale/i18n.js';
+import { resolveRootPlaceId } from '../../../apis/serverApi.js';
 
 let isInitialized = false;
 let currentCursor = null;
@@ -67,7 +68,7 @@ function getPlaceIdFromUrl() {
 
 async function fetchVersionCounts() {
     try {
-        const placeId = getPlaceIdFromUrl();
+        const placeId = await resolveRootPlaceId(getPlaceIdFromUrl());
         if (!placeId) return [];
         
         const response = await callRobloxApiJson({
@@ -82,7 +83,7 @@ async function fetchVersionCounts() {
 }
 
 async function fetchServersForVersion(version, cursor = null) {
-    const placeId = getPlaceIdFromUrl();
+    const placeId = await resolveRootPlaceId(getPlaceIdFromUrl());
     if (!placeId) return null;
 
     let endpoint = `/v1/servers/versions?place_id=${placeId}&place_version=${version}&limit=10`;

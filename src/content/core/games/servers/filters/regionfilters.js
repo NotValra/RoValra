@@ -13,6 +13,7 @@ import { createButton } from '../../../ui/buttons.js';
 import { showRegionDonationPopup } from '../../../review/review.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../../locale/i18n.js';
+import { resolveRootPlaceId } from '../../../apis/serverApi.js';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;
 const GLOBE_DRAG_THRESHOLD = 6;
@@ -319,7 +320,7 @@ function generateRegionKey(country, city, regionName) {
 
 async function fetchCounts() {
     try {
-        const pid = getPlaceIdFromUrl();
+        const pid = await resolveRootPlaceId(getPlaceIdFromUrl());
         const json = await callRobloxApiJson({
             endpoint: `/v1/servers/counts?place_id=${encodeURIComponent(pid)}`,
             isRovalraApi: true,
@@ -341,7 +342,7 @@ async function fetchCounts() {
 
 async function fetchServers(regionCode, cursor) {
     try {
-        const pid = getPlaceIdFromUrl();
+        const pid = await resolveRootPlaceId(getPlaceIdFromUrl());
 
         let city;
         const country = regionCode.split('-')[0];
@@ -691,6 +692,7 @@ async function getAndCacheServerRegion(server, placeId) {
     )
         return;
     try {
+        placeId = await resolveRootPlaceId(placeId);
         const res = await callRobloxApiJson({
             subdomain: 'gamejoin',
             endpoint: '/v2/join-game-instance',
@@ -741,7 +743,7 @@ async function startIndependentServerScan() {
         State.localServersByRegion = {};
         State.allLocalServerIds.clear();
     }
-    const placeId = getPlaceIdFromUrl();
+    const placeId = await resolveRootPlaceId(getPlaceIdFromUrl());
     let pageCount = 0;
 
     while (pageCount++ < Infinity && State.isScanning) {

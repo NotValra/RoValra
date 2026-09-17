@@ -5,6 +5,7 @@ import { addTooltip } from '../../ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { observeElement, startObserving } from '../../observer.js';
 import { ts } from '../../locale/i18n.js';
+import { resolveRootPlaceId } from '../../apis/serverApi.js';
 
 let versionDataCache = null;
 
@@ -52,6 +53,7 @@ export async function fetchServerStats(placeId) {
     if (!placeId) return null;
 
     try {
+        placeId = await resolveRootPlaceId(placeId);
         const response = await callRobloxApi({
             subdomain: 'apis',
             endpoint: `/v1/servers/counts?place_id=${placeId}`,
