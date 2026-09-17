@@ -85,6 +85,11 @@ import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
 import { OTHER_CONTRIBUTIONS } from '../../core/configs/otherContributions.js';
 import { getCatalogItemDetails } from '../../core/apis/catalog.js';
+import {
+    convertCurrencyAmount,
+    formatDisplayCurrency,
+    getRobuxFiatSettings,
+} from '../../core/transactions/fiat.js';
 
 const assets = getAssets();
 const ui = (key, options) => ts(`settings.ui.${key}`, options);
@@ -732,7 +737,128 @@ function updateDonatorCurrencyUI(container = document) {
                 ? ui('profileBadge.getUsd')
                 : ui('profileBadge.getRobux');
     }
+
+    const githubButtonText = container
+        .querySelector('#rovalra-github-sponsor-badge-button')
+        ?.querySelector('span.padding-y-xsmall');
+    if (githubButtonText) {
+        githubButtonText.textContent = ui('githubSponsorBadge.get');
+    }
+
+    updateDonatorTierPrices(container);
 }
+
+function getDonatorTierRobuxPrice(tier) {
+    return ts(`settings.donatorPerks.tier${tier}Desc`)
+        .replace(/<[^>]*>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function replaceUsdButtonPrice(text, usdAmount, localizedPrice) {
+    return text.replace(
+        new RegExp(`\\$${usdAmount}(?:\\.00)?\\s*USD`, 'i'),
+        localizedPrice,
+    );
+}
+
+async function updateDonatorTierPrices(container = document) {
+    const priceElements = container.querySelectorAll(
+        '.rovalra-donator-tier-price',
+    );
+    if (!priceElements.length) return;
+
+    if (donatorCurrency !== 'USD') {
+        priceElements.forEach((priceElement) => {
+            const tier = Number(priceElement.dataset.tier);
+            priceElement.textContent = getDonatorTierRobuxPrice(tier);
+        });
+    }
+
+    let tierThreePriceText = '$1';
+    let customBadgePriceText = '$5';
+    try {
+        const fiatSettings = await getRobuxFiatSettings();
+        const targetCurrency = fiatSettings.robuxFiatDisplayCurrency || 'USD';
+        const [tierThreePrice, customBadgePrice] = await Promise.all([
+            convertCurrencyAmount(1, 'USD', targetCurrency),
+            convertCurrencyAmount(5, 'USD', targetCurrency),
+        ]);
+
+        if (Number.isFinite(tierThreePrice))
+            tierThreePriceText = formatDisplayCurrency(
+                tierThreePrice,
+                targetCurrency,
+            );
+        if (Number.isFinite(customBadgePrice))
+            customBadgePriceText = formatDisplayCurrency(
+                customBadgePrice,
+                targetCurrency,
+            );
+    } catch (error) {
+        console.warn('RoValra: Failed to localize donator tier price', error);
+    }
+
+    if (donatorCurrency !== 'USD') {
+        const githubButtonText = container
+            .querySelector('#rovalra-github-sponsor-badge-button')
+            ?.querySelector('span.padding-y-xsmall');
+        if (githubButtonText) {
+            githubButtonText.textContent = replaceUsdButtonPrice(
+                ui('githubSponsorBadge.get'),
+                1,
+                tierThreePriceText,
+            );
+        }
+        return;
+    }
+
+    priceElements.forEach((priceElement) => {
+        const tier = Number(priceElement.dataset.tier);
+        priceElement.textContent =
+            tier === 3 ? tierThreePriceText : ui('common.unavailable');
+    });
+
+    const donationText = container.querySelector(
+        '.rovalra-donator-perks-donation-btn-content',
+    );
+    if (donationText) {
+        donationText.textContent = replaceUsdButtonPrice(
+            ui('donation.donateUsd'),
+            1,
+            tierThreePriceText,
+        );
+    }
+
+    const badgeButtonText = container
+        .querySelector('#rovalra-custom-profile-badge-button')
+        ?.querySelector('span.padding-y-xsmall');
+    if (badgeButtonText) {
+        badgeButtonText.textContent = replaceUsdButtonPrice(
+            ui('profileBadge.getUsd'),
+            5,
+            customBadgePriceText,
+        );
+    }
+
+    const githubButtonText = container
+        .querySelector('#rovalra-github-sponsor-badge-button')
+        ?.querySelector('span.padding-y-xsmall');
+    if (githubButtonText) {
+        githubButtonText.textContent = replaceUsdButtonPrice(
+            ui('githubSponsorBadge.get'),
+            1,
+            tierThreePriceText,
+        );
+    }
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' || !changes.robuxFiatDisplayCurrency) return;
+    updateDonatorTierPrices(
+        document.querySelector('#content-container') || document,
+    );
+});
 
 function renderDonatorCurrencyToggle(container = document) {
     const toggleHolder = container.querySelector(
@@ -747,10 +873,10 @@ function renderDonatorCurrencyToggle(container = document) {
                 { text: 'Robux', value: 'Robux' },
             ],
             initialValue: donatorCurrency,
-            onChange: (value) => {
-                donatorCurrency = value;
-                updateDonatorCurrencyUI(container);
-            },
+        onChange: (value) => {
+            donatorCurrency = value;
+            updateDonatorCurrencyUI(container);
+        },
         }),
     );
     toggleHolder.dataset.rendered = 'true';
@@ -1548,6 +1674,10 @@ function getDonatorTierHeaderHtml(tier) {
     </span>`;
 }
 
+function getDonatorTierUsdPrice(tier) {
+    return tier === 3 ? '$1' : ui('common.unavailable');
+}
+
 function createDonatorPerkLink(settingName, label) {
     return `<a href="#!/search?q=${encodeURIComponent(settingName)}" class="rovalra-perk-link" data-setting="${settingName}">${label}</a>`;
 }
@@ -1678,7 +1808,7 @@ function getDonatorPerksComparisonHtml(themeColors) {
                                 <img ${getBadgeAssetAttribute(`donator_${tier}`)} src="${BADGE_CONFIG[`donator_${tier}`].icon}" alt="" style="${getBadgeStyle(`donator_${tier}`)}" />
                                 <div class="rovalra-donator-tier-copy">
                                     <h4>${ts(`settings.donatorPerks.tier${tier}`)}</h4>
-                                    <p>${parseMarkdown(ts(`settings.donatorPerks.tier${tier}Desc`), themeColors)}</p>
+                                    <span class="rovalra-donator-tier-price" data-tier="${tier}" style="display: block; margin-top: 4px; color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 600;">${donatorCurrency === 'USD' ? getDonatorTierUsdPrice(tier) : getDonatorTierRobuxPrice(tier)}</span>
                                 </div>
                             </div>`,
                     )
@@ -4827,6 +4957,7 @@ export async function updateContent(buttonInfo, contentContainer) {
         renderDonatorPerksDonationButton(contentContainer);
         renderCustomProfileBadgePurchaseButton(contentContainer);
         renderGithubSponsorBadgeButton(contentContainer);
+        updateDonatorCurrencyUI(contentContainer);
         renderDonatorPerkStatusPills(contentContainer);
 
         const badgesResponse = await syncDonatorTier();
