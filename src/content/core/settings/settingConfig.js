@@ -2349,7 +2349,7 @@ export const SETTINGS_CONFIG = {
             playtimeEnabled: {
                 label: 'Playtime Tracking',
                 description: [
-                    'Allows RoValra to track and store what games you are playing.',
+                    'Allows RoValra to track and store how long you are playing a game for which allows you to view the total playtime on that game.',
                     "This is currently experimental and won't show up anywhere in the extension until a future update.",
                     'This information is stored server side.',
                 ],
