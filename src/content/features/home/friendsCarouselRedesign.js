@@ -442,7 +442,8 @@ async function loadOnlineFriendPresence(userId) {
             .filter(
                 ([, presence]) =>
                     presence?.userPresenceType === 2 ||
-                    presence?.userPresenceType === 3,
+                    presence?.userPresenceType === 3 ||
+                    presence?.userPresenceType === 1,
             ),
     );
 }
@@ -479,16 +480,18 @@ async function loadFriends() {
             .filter((friend) => friend?.id > 0)
             .map((friend) => [friend.id, friend]),
     );
-    const orderedFriends = [];
-    const addFriend = (id) => {
-        const friend = friendsById.get(id);
-        if (!friend) return;
-        orderedFriends.push(friend);
-        friendsById.delete(id);
+    const presencePriority = {
+        2: 0, // In game
+        3: 1, // In studio
+        1: 2, // Online
     };
-
-    onlinePresence.forEach((_, id) => addFriend(id));
-    friendsById.forEach((friend) => orderedFriends.push(friend));
+    const orderedFriends = friends
+        .filter((friend) => friendsById.has(friend.id))
+        .sort(
+            (a, b) =>
+                (presencePriority[onlinePresence.get(a.id)?.userPresenceType] ?? 3) -
+                (presencePriority[onlinePresence.get(b.id)?.userPresenceType] ?? 3),
+        );
 
     return {
         friends: orderedFriends.slice(0, FRIEND_ID_CAP),
