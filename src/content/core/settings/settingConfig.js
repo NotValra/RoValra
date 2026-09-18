@@ -2350,7 +2350,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Playtime Tracking',
                 description: [
                     'Allows RoValra to track and store what games you are playing.',
-                    "This is currently experimental and won' show up anywhere in the extension until a future update.",
+                    "This is currently experimental and won't show up anywhere in the extension until a future update.",
                     'This information is stored server side.',
                 ],
                 type: 'checkbox',
