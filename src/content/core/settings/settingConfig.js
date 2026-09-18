@@ -566,114 +566,124 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            ServerlistmodificationsEnabled: {
-                label: 'Server List Modifications',
-                description: [
-                    'This adds multiple features to the server list.',
-                    "These modifications will also apply to the 'Servers My Friends Are In' section.",
-                ],
-                type: 'checkbox',
-                default: true,
-                childSettings: {
-                    enableShareLink: {
-                        label: 'Share link button',
-                        description: [
-                            'This adds a share link button under the join button so you can send a link to the server for other people to join with.',
-                            'This uses fishstrap.app for the share link.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableServerUptime: {
-                        label: 'Server Uptime',
-                        description: [
-                            "This shows an estimate of a server's uptime in the server list.",
-                            'This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableServerRegion: {
-                        label: 'Server Region',
-                        description: [
-                            "This shows the server's region or location.",
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnablePlaceVersion: {
-                        label: 'Server Version',
-                        description: [
-                            'This shows the version of the experience that a specific server is running.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableFullServerID: {
-                        label: 'Show the entire ServerID',
-                        description: [
-                            'This shows the entire ServerID',
-                            'By default Roblox only shows a part of it.',
-                            "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over.",
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableFullServerIndicators: {
-                        label: 'Full Server Indicators',
-                        description: [
-                            'This adds indicators when a server is full',
-                            "Like text that tells you the server is full if we don't have region data.",
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableServerPerformance: {
-                        label: 'Show Server Performance',
-                        description: [
-                            'This shows the server performance, which is useful if you want to avoid poorly performing servers.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableMiscIndicators: {
-                        label: 'Show misc indicators',
-                        description: [
-                            "This shows indicators for servers you can't join, such as when someone is playing in a private server.",
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableDatacenterandId: {
-                        label: 'Show Datacenter ID and Server Ip',
-                        description:
-                            'This shows the Datacenter ID server Ip of servers in the server list.',
-                        type: 'checkbox',
-                        default: false,
+                ServerlistmodificationsEnabled: {
+                    label: 'Server List Modifications',
+                    description: [
+                        'This adds multiple features to the server list.',
+                        "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                    ],
+                    type: 'checkbox',
+                    default: true,
+                    childSettings: {
+                        PrivateServerGridEnabled: {
+                            label: 'Private Server Grid',
+                            description: [
+                                'Displays private/VIP servers in a compact responsive grid.',
+                                'Only changes the private server section.',
+                            ],
+                            type: 'checkbox',
+                            default: false,
+                            contributors: ['4632962611'],
+                        },
+                        enableShareLink: {
+                            label: 'Share link button',
+                            description: [
+                                'This adds a share link button under the join button so you can send a link to the server for other people to join with.',
+                                'This uses fishstrap.app for the share link.',
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableServerUptime: {
+                            label: 'Server Uptime',
+                            description: [
+                                "This shows an estimate of a server's uptime in the server list.",
+                                'This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime.',
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableServerRegion: {
+                            label: 'Server Region',
+                            description: [
+                                "This shows the server's region or location.",
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnablePlaceVersion: {
+                            label: 'Server Version',
+                            description: [
+                                'This shows the version of the experience that a specific server is running.',
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableFullServerID: {
+                            label: 'Show the entire ServerID',
+                            description: [
+                                'This shows the entire ServerID',
+                                'By default Roblox only shows a part of it.',
+                                "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over.",
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableFullServerIndicators: {
+                            label: 'Full Server Indicators',
+                            description: [
+                                'This adds indicators when a server is full',
+                                "Like text that tells you the server is full if we don't have region data.",
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableServerPerformance: {
+                            label: 'Show Server Performance',
+                            description: [
+                                'This shows the server performance, which is useful if you want to avoid poorly performing servers.',
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableMiscIndicators: {
+                            label: 'Show misc indicators',
+                            description: [
+                                "This shows indicators for servers you can't join, such as when someone is playing in a private server.",
+                            ],
+                            type: 'checkbox',
+                            default: true,
+                        },
+                        EnableDatacenterandId: {
+                            label: 'Show Datacenter ID and Server Ip',
+                            description:
+                                'This shows the Datacenter ID server Ip of servers in the server list.',
+                            type: 'checkbox',
+                            default: false,
+                        },
                     },
                 },
-            },
-            HidePrivateServersEnabled: {
-                label: 'Hide Private Servers',
-                description: [
-                    'Adds an option to hide private servers from the server list.',
-                ],
-                type: 'checkbox',
-                default: false,
-                storageKey: 'hiddenFriendPrivateServers',
-                contributors: ['476449201'],
-                experimental: 'Has a few quality of life issues.',
-            },
-            PrivateQuickLinkCopy: {
-                label: 'Quick Private Server Link Copy and Generation',
-                description: [
-                    'This allows you to quickly copy a private server link or generate a new private server link.',
-                ],
-                type: 'checkbox',
-                default: true,
+                HidePrivateServersEnabled: {
+                    label: 'Hide Private Servers',
+                    description: [
+                        'Adds an option to hide private servers from the server list.',
+                    ],
+                    type: 'checkbox',
+                    default: false,
+                    storageKey: 'hiddenFriendPrivateServers',
+                    contributors: ['476449201'],
+                    experimental: 'Has a few quality of life issues.',
+                },
+                PrivateQuickLinkCopy: {
+                    label: 'Quick Private Server Link Copy and Generation',
+                    description: [
+                        'This allows you to quickly copy a private server link or generate a new private server link.',
+                    ],
+                    type: 'checkbox',
+                    default: true,
+                },
             },
         },
-    },
     Profile: {
         title: 'Profile',
         settings: {
