@@ -13,6 +13,12 @@
         },
         {
             "matches": ["*://*.roblox.com/*"],
+            "js": ["public/Assets/data/subplaceServers.js"],
+            "run_at": "document_start",
+            "world": "MAIN"
+        },
+        {
+            "matches": ["*://*.roblox.com/*"],
             "js": ["public/Assets/data/serverid_extractor.js"],
             "run_at": "document_start",
             "world": "MAIN"
