@@ -619,6 +619,16 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    playtimeEnabled: {
+                        label: 'Playtime Tracking',
+                        description: [
+                            'Allows RoValra to track and store what games you are playing.',
+                            "This is currently experimental and won' show up anywhere in the extension until a future update.",
+                            'This information is stored server side.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                     EnableFullServerIndicators: {
                         label: 'Full Server Indicators',
                         description: [
