@@ -1,5 +1,4 @@
 import { callRobloxApi } from '../../core/api.js';
-import { init as initSubplaceServerList } from './serverlist/SubplaceServerList.js';
 
 let isInitialized = false;
 const capturedServerData = {};
@@ -52,8 +51,6 @@ function processServerData(placeId, responseData) {
 }
 
 export function init() {
-    initSubplaceServerList();
-
     if (isInitialized) return;
 
     chrome.storage.local.get({ ServerdataEnabled: true }, function (settings) {
