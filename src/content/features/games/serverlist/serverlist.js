@@ -1,6 +1,8 @@
 import { callRobloxApi } from '../../../core/api.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
+import { getPlaceDetails } from '../../../core/apis/games.js';
+import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
 import { loadDatacenterMap, serverIpMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
@@ -703,12 +705,50 @@ function startController() {
     );
 }
 
-function getPlaceIdFromUrl() {
-    return (
-        window.location.pathname.match(/\/games\/(\d+)\//)?.[1] ||
-        window.location.pathname.match(/\/(\d{5,})\b/)?.[1] ||
-        ''
+let currentPageIsSubplacePromise = null;
+
+function isCurrentPageSubplace() {
+    if (currentPageIsSubplacePromise) return currentPageIsSubplacePromise;
+
+    const placeId = getPlaceIdFromUrl();
+    if (!placeId) return Promise.resolve(false);
+
+    currentPageIsSubplacePromise = getPlaceDetails(placeId)
+        .then((details) => {
+            const rootPlaceId =
+                details?.universeRootPlaceId || details?.rootPlaceId;
+            return (
+                /^\d+$/.test(String(rootPlaceId || '')) &&
+                String(rootPlaceId) !== String(placeId)
+            );
+        })
+        .catch(() => false);
+
+    return currentPageIsSubplacePromise;
+}
+
+async function replaceSubplaceJoinButton(serverElement) {
+    if (!(await isCurrentPageSubplace())) return;
+
+    const serverId = serverElement.getAttribute('data-rovalra-serverid');
+    const placeId = getPlaceIdFromUrl();
+    if (!serverId || !placeId) return;
+
+    const joinButton = serverElement.querySelector(
+        '[data-rovalra-join-button="true"], .game-server-join-btn, .rovalra-join-btn',
     );
+    if (!joinButton || joinButton.dataset.rovalraSubplaceJoin === 'true') {
+        return;
+    }
+
+    const rovalraJoinButton = joinButton.cloneNode(true);
+    rovalraJoinButton.dataset.rovalraSubplaceJoin = 'true';
+    rovalraJoinButton.onclick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        launchGame(placeId, serverId);
+    };
+    joinButton.replaceWith(rovalraJoinButton);
 }
 
 async function loadServerIpMap() {
@@ -721,7 +761,7 @@ async function loadServerIpMap() {
 
 export function processUptimeBatch() {
     if (_state.uptimeBatch.size === 0) return;
-    const placeId = window.location.pathname.match(/\/games\/(\d+)\//)?.[1];
+    const placeId = window.location.pathname.match(/\/games\/(\d+)(?:\/|$)/)?.[1];
     if (!placeId) return;
 
     const batch = Array.from(_state.uptimeBatch);
@@ -872,6 +912,8 @@ function initializeEnhancementObserver() {
             ) {
                 addModernShareButton(el);
             }
+
+            await replaceSubplaceJoinButton(el);
 
             const section = el.closest('.flex.flex-col.gap-large.width-full');
             if (section) {
