@@ -12,7 +12,6 @@ import { getAuthenticatedUserId } from '../../../core/user.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
-import { resolveRootPlaceId } from '../../../core/apis/serverApi.js';
 
 let isRenderingRecentServers = false;
 
@@ -163,7 +162,6 @@ function createModernServerItem(serverData, userThumbnailUrl, userId) {
 
 async function checkServerIsActive(placeId, gameId) {
     try {
-        placeId = await resolveRootPlaceId(placeId);
         const info = await callRobloxApiJson({
             subdomain: 'gamejoin',
             endpoint: '/v2/join-game-instance',

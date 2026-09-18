@@ -31,10 +31,7 @@ import {
     getOrCreateDetailsContainer,
     createInfoElement,
 } from '../../../core/games/servers/serverdetails.js';
-import {
-    createUUID,
-    resolveRootPlaceId,
-} from '../../../core/apis/serverApi.js';
+import { createUUID } from '../../../core/apis/serverApi.js';
 import { addModernPrivateServerControls } from '../privateserver.js';
 
 const SHARED_STYLES = `
@@ -255,7 +252,6 @@ function findServerListContainer() {
 async function isServerActive(placeId, gameId) {
     if (!gameId) return false;
     try {
-        placeId = await resolveRootPlaceId(placeId);
         const response = await callRobloxApi({
             subdomain: 'gamejoin',
             endpoint: '/v2/join-game-instance',
@@ -1331,10 +1327,9 @@ export async function createServerCardFromApi(
 }
 
 async function renderAndAppendServers(servers, serverListContainer, placeId) {
-    const rootPlaceId = await resolveRootPlaceId(placeId);
     const activeServers = [];
     for (const s of servers) {
-        if (await isServerActive(rootPlaceId, s.id || s.server_id)) {
+        if (await isServerActive(placeId, s.id || s.server_id)) {
             activeServers.push(s);
         }
     }
@@ -1344,9 +1339,9 @@ async function renderAndAppendServers(servers, serverListContainer, placeId) {
             addedByRovalraFilter: true,
         };
         if (server.playerTokens) {
-            return createServerCardFromRobloxApi(server, rootPlaceId, options);
+            return createServerCardFromRobloxApi(server, placeId, options);
         } else {
-            return createServerCardFromApi(server, rootPlaceId, options);
+            return createServerCardFromApi(server, placeId, options);
         }
     });
 

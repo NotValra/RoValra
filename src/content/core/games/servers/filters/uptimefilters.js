@@ -5,7 +5,6 @@ import { callRobloxApiJson } from '../../../api.js';
 import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js';
 import { ts } from '../../../locale/i18n.js';
-import { resolveRootPlaceId } from '../../../apis/serverApi.js';
 
 let isInitialized = false;
 let currentDropdownInstance = null;
@@ -26,7 +25,7 @@ function getPlaceIdFromUrl() {
 }
 
 async function fetchUptimeServers(value, cursor = null) {
-    const placeId = await resolveRootPlaceId(getPlaceIdFromUrl());
+    const placeId = getPlaceIdFromUrl();
     if (!placeId) {
         console.error('RoValra UptimeFilters: Could not determine Place ID.');
         return null;
