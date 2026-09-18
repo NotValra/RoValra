@@ -1,4 +1,4 @@
-import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 
 const SERVERS_RE = /^(https:\/\/games\.roblox\.com\/v[12]\/games\/)(\d+)(\/servers\/)/i;
 const START_RE = /^(https:\/\/www\.roblox\.com\/games\/start\?.*placeId=)(\d+)/i;
