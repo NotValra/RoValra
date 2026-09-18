@@ -619,16 +619,7 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
-                    playtimeEnabled: {
-                        label: 'Playtime Tracking',
-                        description: [
-                            'Allows RoValra to track and store what games you are playing.',
-                            "This is currently experimental and won' show up anywhere in the extension until a future update.",
-                            'This information is stored server side.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
+
                     EnableFullServerIndicators: {
                         label: 'Full Server Indicators',
                         description: [
@@ -2351,6 +2342,16 @@ export const SETTINGS_CONFIG = {
                     'Leaving this feature on will help improve the Server Uptime and Total Servers features.',
                     '**No personal data is sent, not even user ID or username—only the server IDs and the place ID.**',
                     '**No data that could link the server IDs or place IDs to you is sent or logged.**',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            playtimeEnabled: {
+                label: 'Playtime Tracking',
+                description: [
+                    'Allows RoValra to track and store what games you are playing.',
+                    "This is currently experimental and won' show up anywhere in the extension until a future update.",
+                    'This information is stored server side.',
                 ],
                 type: 'checkbox',
                 default: true,
