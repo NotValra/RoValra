@@ -1,5 +1,3 @@
-// TODO Remove console logs
-
 const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
 
@@ -7,23 +5,24 @@ import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { shouldUseFallback, getValidFallbackToken } from './fallback.js';
 import { getCurrentUserTierSync } from '../settings/handlesettings.js';
+import { debugVerbose } from '../debug.js';
 
 let activeOAuthPromise = null;
 
 export async function init() {
     try {
-        console.log('RoValra: Script loaded. Syncing session...');
+        debugVerbose('RoValra: Script loaded. Syncing session...');
 
         const isDonator = getCurrentUserTierSync() >= 1;
         if (isDonator) {
             const token = await getValidAccessToken(true);
             if (token) {
-                console.log('RoValra: Session synchronized successfully.');
+                debugVerbose('RoValra: Session synchronized successfully.');
             } else {
-                console.log('RoValra: No active session or re-auth required.');
+                debugVerbose('RoValra: No active session or re-auth required.');
             }
         } else {
-            console.log(
+            debugVerbose(
                 'RoValra: Non-donator detected, skipped auto OAuth sync.',
             );
         }
@@ -60,7 +59,7 @@ export async function getValidAccessToken(
 
     const useFallback = await shouldUseFallback();
     if (useFallback) {
-        console.log('RoValra: Using fallback authentication (skipping OAuth)');
+        debugVerbose('RoValra: Using fallback authentication (skipping OAuth)');
         await clearOAuthProgress();
         return await getValidFallbackToken(forceRefresh);
     }
@@ -79,7 +78,7 @@ export async function getValidAccessToken(
         existingProgress?.data?.userId &&
         String(existingProgress.data.userId) !== String(userId)
     ) {
-        console.log(
+        debugVerbose(
             'RoValra: OAuth progress belongs to another user. Clearing.',
         );
         await clearOAuthProgress();
@@ -91,7 +90,7 @@ export async function getValidAccessToken(
         !storedVerification &&
         !isAccountSwitch
     ) {
-        console.log(
+        debugVerbose(
             'RoValra: Non-donator lazy mode - skipping OAuth generation until explicitly needed.',
         );
         return null;
@@ -103,7 +102,7 @@ export async function getValidAccessToken(
             const newStorage = await chrome.storage.local.get(STORAGE_KEY);
             return newStorage[STORAGE_KEY]?.[userId]?.accessToken || null;
         }
-        console.log('RoValra: OAuth failed, trying fallback...');
+        debugVerbose('RoValra: OAuth failed, trying fallback...');
         await clearOAuthProgress();
         return await getValidFallbackToken(forceRefresh);
     }
@@ -120,7 +119,7 @@ export async function getValidAccessToken(
             const newStorage = await chrome.storage.local.get(STORAGE_KEY);
             return newStorage[STORAGE_KEY]?.[userId]?.accessToken || null;
         }
-        console.log('RoValra: OAuth failed (wrong user), trying fallback...');
+        debugVerbose('RoValra: OAuth failed (wrong user), trying fallback...');
         await clearOAuthProgress();
         return await getValidFallbackToken(forceRefresh);
     }
@@ -154,7 +153,7 @@ export async function getValidAccessToken(
                 const updated = await chrome.storage.local.get(STORAGE_KEY);
                 return updated[STORAGE_KEY]?.[userId]?.accessToken || null;
             }
-            console.log('RoValra: OAuth re-auth failed, trying fallback...');
+            debugVerbose('RoValra: OAuth re-auth failed, trying fallback...');
             await clearOAuthProgress();
             return await getValidFallbackToken(true);
         }
@@ -197,28 +196,28 @@ async function startOAuthFlow(silent = false) {
                 String(currentProgress.data?.userId) === String(userId)
             ) {
                 if (elapsed < 60000) {
-                    console.log('RoValra: Resuming recent OAuth process...');
+                    debugVerbose('RoValra: Resuming recent OAuth process...');
                     const success = await resumeOAuthFlow(
                         userId,
                         currentProgress,
                     );
                     if (success) return true;
 
-                    console.log(
+                    debugVerbose(
                         'RoValra: Resumption attempt failed. Too recent to redo steps.',
                     );
                     return false;
                 } else {
-                    console.log(
+                    debugVerbose(
                         'RoValra: OAuth flow stale (> 1 min). Restarting.',
                     );
                     await clearOAuthProgress();
                 }
             }
 
-            console.log('RoValra: Starting new OAuth flow...');
+            debugVerbose('RoValra: Starting new OAuth flow...');
 
-            console.log('RoValra: Checking birthdate...');
+            debugVerbose('RoValra: Checking birthdate...');
             const birthResponse = await callRobloxApi({
                 subdomain: 'users',
                 endpoint: '/v1/birthdate',
@@ -237,7 +236,7 @@ async function startOAuthFlow(silent = false) {
                 }
 
                 if (age < 13) {
-                    console.log(
+                    debugVerbose(
                         'RoValra: User is under 13. Will use fallback auth.',
                     );
                     await clearOAuthProgress();
@@ -250,7 +249,7 @@ async function startOAuthFlow(silent = false) {
             await saveOAuthProgress('existence_verified', { userId });
 
             try {
-                console.log(
+                debugVerbose(
                     'RoValra: Attempting direct OAuth authorization POST request...',
                 );
 
@@ -327,7 +326,7 @@ async function resumeOAuthFlow(userId, progress) {
         if (step === 'got_auth_code') {
             const storage = await chrome.storage.local.get(STORAGE_KEY);
             if (storage[STORAGE_KEY]?.[userId]?.accessToken) {
-                console.log(
+                debugVerbose(
                     'RoValra: Token already present, clearing progress.',
                 );
                 await clearOAuthProgress();
@@ -336,7 +335,7 @@ async function resumeOAuthFlow(userId, progress) {
 
             const { locationUrl } = data;
 
-            console.log('RoValra: Resuming token fetch from callback...');
+            debugVerbose('RoValra: Resuming token fetch from callback...');
             const tokenResponse = await callRobloxApi({
                 fullUrl: locationUrl,
                 method: 'GET',
@@ -406,7 +405,7 @@ async function resumeOAuthFlow(userId, progress) {
                     return false;
                 }
 
-                console.log(
+                debugVerbose(
                     'RoValra: Got authorization code. Fetching token from callback URL...',
                 );
 

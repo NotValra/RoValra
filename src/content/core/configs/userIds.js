@@ -29,13 +29,14 @@ export const CONTRIBUTOR_USER_IDS = [
     '760897332', // ceyexm
     '2830488781', //idhglua
     '390309731', // AxnxDev
+    '4632962611', // coderpixel
     '477516666', //return_request :3
-    '4632962611', //coderpixel
     '2605032407', // walway
     '3598865306', // Midga3
     '1960518316', // lobberxv :3
     '3050364170', // Eli_Cauver :3
     '315646839', // imderlord :3
+    '3365639978', // PowFPS1 =^.^=
 ];
 
 export const TESTER_USER_IDS = [
