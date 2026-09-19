@@ -22,6 +22,7 @@ import { initTransactionsTracking } from './core/utils/trackers/transactions.js'
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initAvatarInventoryTracking } from './core/utils/trackers/avatarInventory.js';
 import { initUserCurrencyTracking } from './core/utils/trackers/currency.js';
+import { initAuthenticatedUserLanguageTracking } from './core/utils/trackers/language.js';
 import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
@@ -236,6 +237,7 @@ const featureRoutes = [
             initBadgesTracking,
             initAvatarInventoryTracking,
             initUserCurrencyTracking,
+            initAuthenticatedUserLanguageTracking,
             initPlaytimeTracker,
             initQoLToggles,
             initCopyId,
