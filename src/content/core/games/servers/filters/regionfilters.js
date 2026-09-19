@@ -95,7 +95,6 @@ const State = {
     serverIpMap: {},
     regionServersCache: {},
     activeServerCounts: {},
-    flags: {},
     apiCounts: null,
     allLocalServerIds: new Set(),
     localServersByRegion: {},
@@ -173,18 +172,6 @@ function getPlaceIdFromUrl() {
         if (match) return match[1];
     } catch {}
     return DEFAULT_PLACE_ID;
-}
-
-async function cacheFlag(countryCode) {
-    const code = countryCode.toLowerCase();
-    if (State.flags[code]) return;
-    try {
-        const response = await fetch(`https://flagcdn.com/w40/${code}.png`);
-        const blob = await response.blob();
-        State.flags[code] = URL.createObjectURL(blob);
-    } catch (e) {
-        console.warn('RoValra: Failed to cache flag for', code);
-    }
 }
 
 function closeGlobalPanels() {
@@ -793,12 +780,15 @@ function handleGlobeHover(e) {
     const countryCode = regionCode.split('-')[0].toLowerCase();
     const serverCount = State.activeServerCounts[regionCode] || 0;
     const dcCount = State.dataCenterCounts[regionCode] || 0;
-    let flagSrc = State.flags[countryCode];
-    if (!flagSrc) {
-        flagSrc = `https://flagcdn.com/w40/${countryCode}.png`;
-        cacheFlag(countryCode);
+    tooltip.innerHTML = DOMPurify.sanitize(`<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img class="rovalra-globe-tooltip-flag" alt=""><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>${ts('regionSelector.servers')}<b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>${ts('regionSelector.datacenters')}<b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`);
+    const flag = tooltip.querySelector('.rovalra-globe-tooltip-flag');
+    if (flag) {
+        flag.src = `https://flagcdn.com/w40/${countryCode}.png`;
+        flag.alt = `${countryCode.toUpperCase()} flag`;
+        flag.width = 20;
+        flag.height = 13;
+        flag.style.borderRadius = '2px';
     }
-    tooltip.innerHTML = DOMPurify.sanitize(`<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img src="${flagSrc}" style="width: 20px; height: 13px; border-radius: 2px;"><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>${ts('regionSelector.servers')}<b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>${ts('regionSelector.datacenters')}<b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`);
     tooltip.style.left = `${x}px`;
     tooltip.style.top = `${y}px`;
     tooltip.style.display = 'flex';
