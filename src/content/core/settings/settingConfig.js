@@ -3120,6 +3120,14 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'yay',
             },
+            homePlaytimeEnabled: {
+                label: 'Home Playtime Section',
+                description: [
+                    'Adds the Playtime carousel and per-game playtime to the home page.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             alwaysShowDeveloperSettings: {
                 label: ['Always show RoValra developer settings tab'],
                 description: [
