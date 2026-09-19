@@ -121,8 +121,11 @@ export async function init() {
     }
 
     observeElement(
-        'ul.item-cards-stackable li.list-item',
-        (card) => {
+        'ul.item-cards-stackable li.list-item .outfit-card',
+        (outfitCardEl) => {
+            const card = outfitCardEl.closest('li.list-item');
+            if (!card) return;
+
             const outfitId = getCardOutfitId(card);
             if (outfitId === null || !outfitIds.has(outfitId)) return;
             if (card.querySelector('.rovalra-outfit-favorite-star')) return;
@@ -141,6 +144,8 @@ export async function init() {
             star.style.webkitMask = starMask;
             star.style.mask = starMask;
             updateStarState(star, outfitId);
+
+            thumbContainer.appendChild(star);
 
             star.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -162,7 +167,6 @@ export async function init() {
                 ),
             );
 
-            thumbContainer.appendChild(star);
             cardOutfitIds.set(card, outfitId);
             if (!originalOrder.has(outfitId)) {
                 originalOrder.set(outfitId, orderCounter++);
