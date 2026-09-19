@@ -6,6 +6,7 @@ import { createStyledInput } from '../../../ui/catalog/input.js';
 import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js'; 
 import DOMPurify from 'dompurify';
+import { ts } from '../../../locale/i18n.js';
 
 let isInitialized = false;
 let currentCursor = null;
@@ -150,7 +151,7 @@ function resetFilter() {
 
     if (currentDropdownInstance) {
         const span = currentDropdownInstance.trigger.querySelector('.content-emphasis');
-        if (span) span.textContent = 'Version';
+        if (span) span.textContent = ts('serverFilters.version');
         currentDropdownInstance.trigger.setAttribute('data-placeholder', 'true');
     }
 }
@@ -167,13 +168,13 @@ async function createVersionWidget(container) {
     const dropdown = createDropdown({
         items: [], 
         initialValue: null,
-        placeholder: 'Version',
+        placeholder: ts('serverFilters.versionPlaceholder'),
         onValueChange: () => {}, 
         showFlags: false
     });
 
     if (dropdown.trigger) {
-        addTooltip(dropdown.trigger, 'Filter servers by game version', { position: 'top' });
+        addTooltip(dropdown.trigger, ts('regionSelector.filterByVersion'), { position: 'top' });
     }
 
     dropdown.element.classList.add('rovalra-version-filter-widget', 'rovalra-filter-widget');
@@ -187,7 +188,7 @@ async function createVersionWidget(container) {
         
         inputInstance = createStyledInput({
             id: 'rovalra-version-search',
-            label: 'Enter Version',
+            label: ts('serverFilters.enterVersion'),
             placeholder: ' '
         });
         

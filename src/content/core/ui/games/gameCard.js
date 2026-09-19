@@ -27,6 +27,7 @@
  * });
  * document.body.appendChild(customCard);
  */
+import { ts } from '../../locale/i18n.js';
 import {
     createThumbnailElement,
     fetchThumbnails,
@@ -440,7 +441,7 @@ export function createGameCard(options) {
             } catch (e) {
                 console.warn('RoValra: Error creating game card from ID', e);
                 card.innerHTML =
-                    '<div style="padding: 10px; color: var(--text-error);">Failed to load game</div>';
+                    `<div style="padding: 10px; color: var(--text-error);">${ts('games.failedToLoad')}</div>`;
             }
         })();
         return card;

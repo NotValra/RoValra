@@ -83,4 +83,12 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(650766686, "displayAppThemeUserProfile.addedToWebsite", "https://github.com/NotValra/RoValra-Website/pull/7"),  // @auggeeo
         ]
     },
+    Locales: {
+        label: "RoValra Languages",
+        contributors: [
+            new Contribution(1564574922, "locales.madeRo", "https://github.com/NotValra/RoValra/pull/215"),  // @BossBoss2021
+            new Contribution(10646979010, "locales.madeRo", "https://github.com/NotValra/RoValra/pull/215"),  // @RecreationalActive
+            new Contribution(3121706, "locales.madeEs", "https://github.com/NotValra/RoValra/pull/215"),  // @AuroxNova
+        ]
+    }
 };

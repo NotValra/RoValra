@@ -58,6 +58,8 @@ const LayeredAssetTypes = [
     const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
     const THUMBNAIL_BACKGROUND_SETTING = 'disableThumbnailBackground';
     const THUMBNAIL_PROFILE_FRAME_SETTING = 'disableThumbnailProfileFrame';
+    const GAME_SERVERS_REQUEST_PATH =
+        /^\/v[12]\/games\/\d+\/(?:servers\/(?:Public|Friend)|private-servers)\/?$/;
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -393,6 +395,80 @@ const LayeredAssetTypes = [
         if (typeof url === 'string') return url;
         if (url instanceof Request) return url.url;
         return '';
+    }
+
+    function getGameIdFromPageUrl() {
+        try {
+            const pageUrl = new URL(window.location.href);
+            const queryPlaceId = pageUrl.searchParams.get('PlaceId');
+            if (queryPlaceId) return queryPlaceId;
+
+            const match = pageUrl.pathname.match(
+                /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/(?:games|catalog|bundles|hidden-catalog|looks|library|game-pass|private-games)\/(\d+)/i,
+            );
+            if (match && match[1]) return match[1];
+        } catch (e) {}
+
+        const match = window.location.href.match(
+            /\/(?:games|catalog|bundles|hidden-catalog|looks|library|game-pass|private-games)\/(\d+)/,
+        );
+        return match ? match[1] : null;
+    }
+    function rewriteGameServersRequestUrl(url) {
+        if (typeof url !== 'string') return url;
+
+        try {
+            const requestUrl = new URL(url, window.location.origin);
+            if (
+                requestUrl.hostname !== 'games.roblox.com' ||
+                !GAME_SERVERS_REQUEST_PATH.test(requestUrl.pathname)
+            ) {
+                return url;
+            }
+
+            const gameId = getGameIdFromPageUrl();
+            if (!gameId) return url;
+
+            const pathParts = requestUrl.pathname.split('/');
+            pathParts[3] = gameId;
+            requestUrl.pathname = pathParts.join('/');
+            return requestUrl.toString();
+        } catch (e) {
+            return url;
+        }
+    }
+
+    async function rewriteGameServersFetchArgs(args, requestUrl) {
+        const rewrittenUrl = rewriteGameServersRequestUrl(requestUrl);
+        if (rewrittenUrl === requestUrl) return args;
+
+        const [input, init] = args;
+        if (!(input instanceof Request)) {
+            return [rewrittenUrl, init];
+        }
+
+        try {
+            return [
+                new Request(rewrittenUrl, {
+                    method: input.method,
+                    headers: input.headers,
+                    body: input.method === 'GET' || input.method === 'HEAD'
+                        ? undefined
+                        : await input.clone().arrayBuffer(),
+                    credentials: input.credentials,
+                    mode: input.mode,
+                    cache: input.cache,
+                    redirect: input.redirect,
+                    referrer: input.referrer,
+                    referrerPolicy: input.referrerPolicy,
+                    integrity: input.integrity,
+                    keepalive: input.keepalive,
+                }),
+                init,
+            ];
+        } catch (e) {
+            return args;
+        }
     }
 
     function isRobloxAdminGroupMember(data) {
@@ -843,8 +919,10 @@ const LayeredAssetTypes = [
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
         const [url] = args;
-        const requestUrl = getRequestUrl(url);
+        const originalRequestUrl = getRequestUrl(url);
+        const requestUrl = rewriteGameServersRequestUrl(originalRequestUrl);
 
+        args = await rewriteGameServersFetchArgs(args, originalRequestUrl);
         args = await rewriteThumbnailFetchArgs(args, requestUrl);
 
         let response = await originalFetch(...args);
@@ -1096,6 +1174,9 @@ const LayeredAssetTypes = [
     const originalXhrSend = XMLHttpRequest.prototype.send;
 
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        if (typeof url === 'string') {
+            url = rewriteGameServersRequestUrl(url);
+        }
         if (
             typeof url === 'string' &&
             (disableThumbnailBackground || disableThumbnailProfileFrame)

@@ -13,6 +13,9 @@ import {
     getServerVersion,
     formatUptime,
 } from '../../apis/serverApi.js';
+import { ts } from '../../locale/i18n.js';
+import { getAuthenticatedUserLanguageName } from '../../utils/trackers/language.js';
+import { IconText } from '../../ui/buildericon.js';
 
 const CLASSES = {
     CONTAINER: 'rovalra-details-container',
@@ -21,6 +24,7 @@ const CLASSES = {
     Uptime: 'rovalra-uptime-info',
     Performance: 'rovalra-performance-info',
     Version: 'rovalra-version-info',
+    LanguageMatch: 'rovalra-language-match-info',
     Full: 'rovalra-server-full-info',
     Private: 'rovalra-private-server-info',
     Purchase: 'rovalra-purchase-game-info',
@@ -31,16 +35,17 @@ const ORDERS = {
     Performance: 1,
     Uptime: 2,
     Version: 3,
-    Region: 4,
-    Purchase: 5,
-    Status: 6,
+    LanguageMatch: 4,
+    Region: 5,
+    Purchase: 6,
+    Status: 7,
 };
 
 const STYLES = {
     container:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 88px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 112px;',
     containerFriends:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 88px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 116px;',
     row: 'display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 400;',
     icon: 'display: flex; align-items: center; flex-shrink: 0; height: 20px;',
     text: 'line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 100%; flex: 1;',
@@ -51,6 +56,11 @@ const ICONS = {
     performanceLow: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m16 18 2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     uptime: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m22 5.7-4.6-3.9-1.3 1.5 4.6 3.9zM7.9 3.4 6.6 1.9 2 5.7l1.3 1.5zM12.5 8H11v6l4.7 2.9.8-1.2-4-2.4zM12 4c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9m0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7" fill="currentColor"/></svg>`,
     version: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3zM12.5 8v4.25l3.5 2.08-.72 1.21L11 13V8z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
+    language: IconText({
+        icon: 'globe-simplified',
+        filled: false,
+        size: '20px',
+    }),
     regionDefault: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     full: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     private: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
@@ -62,6 +72,7 @@ let isShareLinkEnabled = true;
 let isServerUptimeEnabled = true;
 let isServerRegionEnabled = true;
 let isPlaceVersionEnabled = true;
+let isServerLanguageMatchEnabled = true;
 let isFullServerIDEnabled = true;
 let isFullServerIndicatorsEnabled = true;
 let isServerPerformanceEnabled = true;
@@ -83,6 +94,7 @@ const cacheReadyPromise = new Promise((resolve) => {
             'EnableServerUptime',
             'EnableServerRegion',
             'EnablePlaceVersion',
+            'EnableServerLanguageMatch',
             'EnableFullServerID',
             'EnableFullServerIndicators',
             'EnableServerPerformance',
@@ -101,6 +113,9 @@ const cacheReadyPromise = new Promise((resolve) => {
                 isServerRegionEnabled = res.EnableServerRegion;
             if (res?.EnablePlaceVersion !== undefined)
                 isPlaceVersionEnabled = res.EnablePlaceVersion;
+            if (res?.EnableServerLanguageMatch !== undefined)
+                isServerLanguageMatchEnabled =
+                    res.EnableServerLanguageMatch;
             if (res?.EnableFullServerID !== undefined)
                 isFullServerIDEnabled = res.EnableFullServerID;
             if (res?.EnableFullServerIndicators !== undefined)
@@ -138,6 +153,26 @@ const cacheReadyPromise = new Promise((resolve) => {
                 isServerRegionEnabled = changes.EnableServerRegion.newValue;
             if (changes.EnablePlaceVersion)
                 isPlaceVersionEnabled = changes.EnablePlaceVersion.newValue;
+            if (changes.EnableServerLanguageMatch) {
+                isServerLanguageMatchEnabled =
+                    changes.EnableServerLanguageMatch.newValue;
+
+                if (!isServerLanguageMatchEnabled) {
+                    document
+                        .querySelectorAll(`.${CLASSES.LanguageMatch}`)
+                        .forEach((row) => (row.style.display = 'none'));
+                } else {
+                    document
+                        .querySelectorAll('[data-rovalra-serverid]')
+                        .forEach((server) => {
+                            const apiData = server._rovalraApiData;
+                            displayLanguageMatch(
+                                server,
+                                apiData?.languageMatchCount,
+                            ).catch(() => {});
+                        });
+                }
+            }
             if (changes.EnableFullServerID)
                 isFullServerIDEnabled = changes.EnableFullServerID.newValue;
             if (changes.EnableFullServerIndicators)
@@ -407,8 +442,8 @@ function injectStyles() {
 
 function shouldSpoilerServerId(server) {
     return (
-        server.hasAttribute('data-rovalra-is-friend-server') ||
-        server.hasAttribute('data-rovalra-is-recent-server') ||
+        server.dataset.rovalraIsFriendServer === 'true' ||
+        server.dataset.rovalraIsRecentServer === 'true' ||
         server.classList.contains('rbx-friends-game-server-item') ||
         !!server.querySelector(
             '.player-thumbnails-container .avatar-card-link[href*="/users/"]',
@@ -467,7 +502,7 @@ export function displayUptime(
     let visible = true;
 
     if (uptime === 'fetching') {
-        text = 'Loading...';
+        text = ts('serverInfo.loading');
     } else if (typeof uptime === 'number') {
         text = formatUptime(uptime, isEstimate);
     } else if (uptime === 'N/A') {
@@ -487,7 +522,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    let text = 'Version Unknown';
+    let text = ts('serverInfo.versionUnknown');
     let visible = false;
 
     const existingVersion = container.querySelector(`.${CLASSES.Version}`);
@@ -501,20 +536,69 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     if (version && version !== 'Unknown') {
-        text = `Version ${version}`;
+        text = ts('serverInfo.version', { version });
         const containerList = document.getElementById(
             'rbx-public-game-server-item-container',
         );
         if (containerList) {
             if (String(version) === containerList.dataset.newestVersion)
-                text += ' (Latest)';
+                text += ts('serverInfo.latest');
             else if (String(version) === containerList.dataset.oldestVersion)
-                text += ' (Oldest)';
+                text += ts('serverInfo.oldest');
         }
         visible = true;
     }
 
     updateInfoElement(container, 'Version', ICONS.version, text, visible);
+}
+
+export async function displayLanguageMatch(server, languageMatchCount) {
+    await cacheReadyPromise;
+    if (
+        !isServerListModificationsEnabled ||
+        !isServerLanguageMatchEnabled
+    ) {
+        return;
+    }
+
+    const container = getOrCreateDetailsContainer(server);
+    if (!container) return;
+
+    let row = container.querySelector(`.${CLASSES.LanguageMatch}`);
+    if (!row) {
+        row = updateInfoElement(
+            container,
+            'LanguageMatch',
+            ICONS.language,
+            '',
+        );
+        row.style.display = 'none';
+    }
+
+    if (!Number.isFinite(languageMatchCount) || languageMatchCount < 0) {
+        row.style.display = 'none';
+        return;
+    }
+
+    const languageName = await getAuthenticatedUserLanguageName();
+    if (
+        !languageName ||
+        !isServerListModificationsEnabled ||
+        !isServerLanguageMatchEnabled
+    ) {
+        return;
+    }
+
+    row = updateInfoElement(
+        container,
+        'LanguageMatch',
+        ICONS.language,
+        ts('serverInfo.languageMatchCount', {
+            language: languageName,
+            count: languageMatchCount,
+        }),
+    );
+    row.style.visibility = 'visible';
 }
 
 export function displayRegion(server, regionName, serverLocations = {}) {
@@ -629,7 +713,13 @@ export function displayServerFullStatus(server) {
         return;
     }
 
-    updateInfoElement(container, 'Full', ICONS.full, 'Server is Full', true);
+    updateInfoElement(
+        container,
+        'Full',
+        ICONS.full,
+        ts('serverInfo.serverFull'),
+        true,
+    );
 }
 
 export function displayPrivateServerStatus(server) {
@@ -645,7 +735,7 @@ export function displayPrivateServerStatus(server) {
         container,
         'Private',
         ICONS.private,
-        'Playing in a private server',
+        ts('serverInfo.privateServer'),
         true,
     );
 }
@@ -663,13 +753,13 @@ export function displayPurchaseGameStatus(server) {
         container,
         'Purchase',
         ICONS.purchase,
-        'Buy game to see regions.',
+        ts('serverInfo.purchaseGame'),
         true,
     );
 }
 
 export function displayInactivePlaceStatus(server) {
-    if (server) {
+    if (server?.dataset.rovalraAddedByFilter === 'true') {
         server.remove();
     }
 }
@@ -860,7 +950,7 @@ export async function fetchAndDisplayRegion(
                 if (joinBtn) {
                     const joinLabel =
                         joinBtn.querySelector('.text-no-wrap') || joinBtn;
-                    joinLabel.textContent = 'Join (Server Full)';
+                    joinLabel.textContent = ts('common.joinServerFull');
                     joinBtn.classList.replace(
                         'btn-primary-md',
                         'btn-secondary-md',
@@ -966,7 +1056,7 @@ export async function addCopyJoinLinkButton(server, serverId) {
     const btn = document.createElement('button');
     btn.className =
         'btn-full-width btn-control-xs btn-primary-md btn-min-width rovalra-copy-join-link';
-    btn.textContent = 'Share';
+    btn.textContent = ts('common.share');
     btn.style.cssText = 'margin-top: 5px; width: 100%;';
 
     btn.onclick = (e) => {
@@ -974,8 +1064,8 @@ export async function addCopyJoinLinkButton(server, serverId) {
         e.stopPropagation();
         const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
         navigator.clipboard.writeText(link).then(() => {
-            btn.textContent = 'Copied!';
-            setTimeout(() => (btn.textContent = 'Share'), 2000);
+            btn.textContent = ts('common.copied');
+            setTimeout(() => (btn.textContent = ts('common.share')), 2000);
         });
     };
 
@@ -1040,7 +1130,11 @@ export async function enhanceServer(server, context) {
 
     if (!server._rovalraUptimeListener) {
         server._rovalraUptimeListener = (e) => {
-            if (e.detail.serverId === serverId) {
+            const currentServerId = server.dataset.rovalraServerid;
+            if (
+                currentServerId &&
+                String(e.detail.serverId) === String(currentServerId)
+            ) {
                 displayUptime(
                     server,
                     e.detail.uptime,
@@ -1084,8 +1178,24 @@ export async function enhanceServer(server, context) {
     const cachedLocation = serverLocations[serverId];
     displayRegion(server, cachedLocation || 'Unknown', serverLocations);
 
-    const apiData = server._rovalraApiData;
-    if (apiData && (apiData.server_id || apiData.id) === serverId) {
+    const cachedApiData = context.serverDataCache?.get(String(serverId));
+    const attachedApiData = server._rovalraApiData;
+    const attachedApiDataId =
+        attachedApiData?.server_id || attachedApiData?.id;
+    const apiData =
+        cachedApiData &&
+        String(cachedApiData.server_id || cachedApiData.id) ===
+            String(serverId)
+            ? cachedApiData
+            : attachedApiData &&
+                String(attachedApiDataId) === String(serverId)
+              ? attachedApiData
+              : null;
+    if (apiData) server._rovalraApiData = apiData;
+    if (apiData) {
+        displayLanguageMatch(server, apiData.languageMatchCount).catch(
+            () => {},
+        );
         if (apiData.place_version && !getServerVersion(serverId)) {
             displayPlaceVersion(server, apiData.place_version, serverLocations);
         }
@@ -1109,6 +1219,8 @@ export async function enhanceServer(server, context) {
             serverLocations[serverId] = locStr;
             displayRegion(server, locStr, serverLocations);
         }
+    } else {
+        displayLanguageMatch(server, undefined).catch(() => {});
     }
 
     if (
@@ -1161,7 +1273,7 @@ export async function enhanceServer(server, context) {
         idDiv.innerHTML = '';
 
         const prefixSpan = document.createElement('span');
-        prefixSpan.textContent = 'ID: ';
+    prefixSpan.textContent = ts('common.id');
         prefixSpan.style.userSelect = 'none';
 
         const uuidSpan = document.createElement('span');

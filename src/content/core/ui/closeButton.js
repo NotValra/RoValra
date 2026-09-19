@@ -1,8 +1,10 @@
-// Creates a close button in Robloxs close button style!!! 
+import { ts } from '../locale/i18n.js';
+
+// Creates a close button in Roblox's close button style.
 export function createCloseButton({ onClick } = {}) {
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
-    closeButton.setAttribute('aria-label', 'Close');
+    closeButton.setAttribute('aria-label', ts('common.close'));
     closeButton.className = 'foundation-web-close-affordance flex stroke-none bg-none cursor-pointer relative clip group/interactable focus-visible:outline-focus disabled:outline-none bg-over-media-100 padding-medium radius-circle';
 
     const closeButtonHoverEffect = document.createElement('div');

@@ -4,14 +4,15 @@ import { observeElement } from '../../../observer.js';
 import { callRobloxApiJson } from '../../../api.js';
 import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js';
+import { ts } from '../../../locale/i18n.js';
 
 let isInitialized = false;
 let currentDropdownInstance = null;
 let currentCursor = null;
 
 const LABELS = {
-    newest: 'Newest Servers',
-    oldest: 'Oldest Servers',
+    newest: ts('serverFilters.newest'),
+    oldest: ts('serverFilters.oldest'),
 };
 
 function getPlaceIdFromUrl() {
@@ -91,8 +92,8 @@ async function onFilterChange(value) {
 
 function createUptimeDropdown(container) {
     const dropdownItems = [
-        { value: 'newest', label: 'Newest Servers' },
-        { value: 'oldest', label: 'Oldest Servers' },
+        { value: 'newest', label: ts('serverFilters.newest') },
+        { value: 'oldest', label: ts('serverFilters.oldest') },
     ];
 
     const dropdown = createDropdown({
@@ -112,13 +113,13 @@ function createUptimeDropdown(container) {
     const trigger = dropdown.element.querySelector(
         '.rovalra-dropdown-trigger .content-emphasis',
     );
-    if (trigger) trigger.textContent = 'Server Uptime';
+    if (trigger) trigger.textContent = ts('serverFilters.uptime');
 
     const triggerBtn =
         dropdown.trigger ||
         dropdown.element.querySelector('.rovalra-dropdown-trigger');
     if (triggerBtn) {
-        addTooltip(triggerBtn, 'Filter servers by uptime (newest/oldest)', {
+        addTooltip(triggerBtn, ts('regionSelector.filterByUptime'), {
             position: 'top',
         });
     }
@@ -174,7 +175,7 @@ export function initUptimeFilters() {
             const trigger = currentDropdownInstance.element.querySelector(
                 '.rovalra-dropdown-trigger .content-emphasis',
             );
-            if (trigger) trigger.textContent = 'Server Uptime';
+            if (trigger) trigger.textContent = ts('serverFilters.uptime');
         }
     });
 
@@ -188,7 +189,7 @@ export function initUptimeFilters() {
             const trigger = currentDropdownInstance.element.querySelector(
                 '.rovalra-dropdown-trigger .content-emphasis',
             );
-            if (trigger) trigger.textContent = 'Server Uptime';
+            if (trigger) trigger.textContent = ts('serverFilters.uptime');
         }
     });
     observeElement(

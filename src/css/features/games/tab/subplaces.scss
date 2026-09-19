@@ -72,3 +72,13 @@
 .rovalra-subplaces-search-wrapper {
     margin-bottom: 16px;
 }
+
+#subplaces-content-pane .rovalra-filters-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#subplaces-content-pane .rovalra-filter-section,
+#subplaces-content-pane .rovalra-filter-section .rovalra-dropdown-container {
+    width: 100%;
+}

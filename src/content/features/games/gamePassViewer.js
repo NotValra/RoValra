@@ -94,7 +94,7 @@ function render(data, place, passId) {
     const ownedTag = isOwned
         ? `<div class="divider">&nbsp;</div>
            <div class="label-checkmark"><span class="icon-checkmark-white-bold"></span></div>
-           <span>${ts('gamePassViewer.owned')} Item</span>`
+           <span>${ts('gamePassViewer.ownedItem')}</span>`
         : '';
 
     const isLight = document.body.classList.contains('light-theme');
@@ -112,7 +112,7 @@ function render(data, place, passId) {
         ? `<span class="text-label">${ts('privateGames.passes.offSale')}</span>`
         : `<div class="icon-text-wrapper clearfix icon-robux-price-container" style="display:inline-flex;align-items:center;gap:4px;">
                 <span id="rovalra-gp-robux-icon"></span>
-                <span class="text-robux-lg">${price === 0 ? 'Free' : Number(price).toLocaleString()}</span>
+                <span class="text-robux-lg">${price === 0 ? ts('gamePassViewer.free') : Number(price).toLocaleString()}</span>
            </div>`;
 
     const ownedFirstLine = isOwned

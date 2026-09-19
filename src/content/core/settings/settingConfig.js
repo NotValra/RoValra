@@ -8,6 +8,34 @@ import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
+    RoValra: {
+        title: 'RoValra',
+        hidden: true,
+        settings: {
+            rovalraLanguage: {
+                label: 'RoValra Language',
+                contributors: [1564574922],
+                description: [
+                    'Manually configure a language for RoValra. Some translations may be missing.',
+                    // it works on the setting page only once it figures out the language from other pages' URLs
+                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.',
+                ],
+                type: 'select',
+                options: [
+                    { label: 'English', value: 'en' },
+                    { label: 'Romanian (Română)', value: 'ro' },
+                    { label: 'Spanish (Español)', value: 'es' },
+                    { label: 'Automatic', value: 'auto' },
+                ],
+                default: 'en',
+            },
+            rovalraVersion: {
+                label: `RoValra Version: v${chrome.runtime.getManifest().version}`,
+                type: 'yay',
+                hideContributors: true,
+            },
+        },
+    },
     Marketplace: {
         title: 'Marketplace',
         settings: {
@@ -50,6 +78,13 @@ export const SETTINGS_CONFIG = {
                         type: 'button',
                         buttonText: 'Open Setup',
                         event: 'rovalra:open40methodSetup',
+                    },
+                    useSoberSupportDeeplinks: {
+                        label: 'Use Roblox deeplinks for Sober support',
+                        description:
+                            'This is less stable and should only be used if on sober',
+                        type: 'checkbox',
+                        default: false,
                     },
                 },
             },
@@ -113,7 +148,9 @@ export const SETTINGS_CONFIG = {
                 description:
                     "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
                 type: 'checkbox',
-                default: true,
+                default: false,
+                locked: 'Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind.',
+                isPermanent: true,
             },
             ParentItemsEnabled: {
                 label: 'Show what bundle an item is a part of.',
@@ -394,6 +431,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
+                childSettings: {
+                    subplacesSortEnabled: {
+                        label: 'Sorting',
+                        description: [
+                            'Adds sort and order controls to the Subplaces tab.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             hiddenBadgesEnabled: {
                 label: 'Hidden Badges',
@@ -527,6 +575,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 childSettings: {
+                    PrivateServerGridEnabled: {
+                        label: 'Private Server Grid',
+                        description: [
+                            'Displays private/VIP servers in a compact responsive grid.',
+                            'Only changes the private server section.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['4632962611'],
+                    },
+
                     enableShareLink: {
                         label: 'Share link button',
                         description: [
@@ -561,6 +620,14 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    EnableServerLanguageMatch: {
+                        label: 'Server Language Match',
+                        description: [
+                            'Shows how many players in each server speak your language.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                     EnableFullServerID: {
                         label: 'Show the entire ServerID',
                         description: [
@@ -571,6 +638,7 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+
                     EnableFullServerIndicators: {
                         label: 'Full Server Indicators',
                         description: [
@@ -636,7 +704,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['8345351117', '447170745'],
+                contributors: ['8345351117', '447170745', '3050364170'],
             },
             avatarDownloadEnabled: {
                 label: 'Download Avatar',
@@ -1431,7 +1499,7 @@ export const SETTINGS_CONFIG = {
                 description: ['Shows a communities hidden experiences.'],
                 type: 'checkbox',
                 default: true,
-                contributors: ['8345351117', '447170745'],
+                contributors: ['8345351117', '447170745', '3050364170'],
             },
             pendingRobuxEnabled: {
                 label: 'Unpending Robux',
@@ -1866,8 +1934,10 @@ export const SETTINGS_CONFIG = {
                     'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '546872490'],
+                locked: 'Roblox made their own version of this.',
+                isPermanent: true,
             },
             FreeRobloxPlusThemesEnabledv3: {
                 label: 'Free Roblox Plus Themes',
@@ -2305,6 +2375,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            playtimeEnabled: {
+                label: 'Playtime Tracking',
+                description: [
+                    'Allows RoValra to track and store how long you are playing a game for which allows you to view the total playtime on that game.',
+                    "This is currently experimental and won't show up anywhere in the extension until a future update.",
+                    'This information is stored server side.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             loginBannerEnabled: {
                 label: 'Login Banner',
                 description: [
@@ -2413,6 +2493,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 storageKey: 'rovalra_first_account_cache',
                 contributors: ['4866259395', '447170745'],
+            },
+            trustedCreatorEnabled: {
+                label: 'In Trusted Creator Program?',
+                description:
+                    "This adds a section in Roblox's settings showing whether Roblox considers your account part of the Trusted Creator Program.",
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_trusted_creator_cache',
             },
             revertLogo: {
                 label: 'Change the app launch icon',
@@ -2956,6 +3044,23 @@ export const SETTINGS_CONFIG = {
     PublicDeveloper: {
         title: 'Developer',
         settings: {
+            exportSettings: {
+                label: 'Export Settings',
+                description: [
+                    'Export or import your RoValra settings as a JSON file.',
+                ],
+                type: 'buttonGroup',
+                buttons: [
+                    {
+                        id: 'export-rovalra-settings',
+                        text: 'Export Settings',
+                    },
+                    {
+                        id: 'import-rovalra-settings',
+                        text: 'Import Settings',
+                    },
+                ],
+            },
             EnableRobloxApiDocsv2: {
                 label: 'Roblox API docs',
                 description: [
@@ -3024,6 +3129,14 @@ export const SETTINGS_CONFIG = {
                     "These are features used mostly to develop RoValra. If you don't know what you're doing, don't touch them.",
                 ],
                 type: 'yay',
+            },
+            homePlaytimeEnabled: {
+                label: 'Home Playtime Section',
+                description: [
+                    'Adds the Playtime carousel and per-game playtime to the home page.',
+                ],
+                type: 'checkbox',
+                default: false,
             },
             alwaysShowDeveloperSettings: {
                 label: ['Always show RoValra developer settings tab'],

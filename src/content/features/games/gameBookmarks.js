@@ -19,7 +19,7 @@ import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
-import { t } from '../../core/locale/i18n.js';
+import { t, ts } from '../../core/locale/i18n.js';
 
 let initialization;
 let state = normalizeBookmarks();
@@ -28,25 +28,24 @@ let cardButtonsEnabled = true;
 const listeners = new Set();
 const controls = new Map();
 const labels = {
-    bookmark: 'Bookmark',
-    saved: 'Bookmarked',
-    title: 'Bookmarks',
-    uncategorized: 'Uncategorized',
-    create: '+ Create New Category',
-    categoryName: 'Category name',
-    createSave: 'Create and Save',
-    save: 'Save Changes',
-    deleteCategory: 'Delete category',
-    deleteCategoryConfirm:
-        'Are you sure? This will delete the category and remove it from every bookmarked game.',
-    confirm: 'Delete',
-    cancel: 'Cancel',
-    remove: 'Remove Bookmark',
-    error: 'Could not save bookmark. Please try again.',
-    loading: 'Loading game…',
-    all: 'All',
-    topic: 'Bookmarked Games',
-    empty: 'No bookmarked games in this category.',
+    bookmark: ts('gameBookmarks.bookmark'),
+    saved: ts('gameBookmarks.saved'),
+    title: ts('gameBookmarks.title'),
+    uncategorized: ts('gameBookmarks.uncategorized'),
+    create: ts('gameBookmarks.create'),
+    categoryName: ts('gameBookmarks.categoryName'),
+    createSave: ts('gameBookmarks.createSave'),
+    save: ts('gameBookmarks.save'),
+    deleteCategory: ts('gameBookmarks.deleteCategory'),
+    deleteCategoryConfirm: ts('gameBookmarks.deleteCategoryConfirm'),
+    confirm: ts('gameBookmarks.confirm'),
+    cancel: ts('gameBookmarks.cancel'),
+    remove: ts('gameBookmarks.remove'),
+    error: ts('gameBookmarks.error'),
+    loading: ts('gameBookmarks.loading'),
+    all: ts('gameBookmarks.all'),
+    topic: ts('gameBookmarks.topic'),
+    empty: ts('gameBookmarks.empty'),
 };
 
 export function getBookmarkState() {

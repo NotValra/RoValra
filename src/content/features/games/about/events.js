@@ -17,8 +17,7 @@ const injectionLocks = new Set();
 const INITIAL_VISIBLE_ACTIVE_EVENTS = 3;
 
 function getLoadMoreText() {
-    const text = ts('subplaces.loadMore');
-    return text && text !== 'subplaces.loadMore' ? text : 'Load More';
+    return ts('events.loadMore');
 }
 
 function removeNativeLoadMoreButton(eventsContainer) {
@@ -244,7 +243,7 @@ function createEventCard(
                 <div class="game-card-text-pill rovalra-event-category-pill">
                     <div class="game-card-info">${overlayPillText}</div>
                 </div>
-                <div class="game-card-text-pill rovalra-event-release-pill" aria-label="Event release date"></div>
+                    <div class="game-card-text-pill rovalra-event-release-pill" aria-label="${ts('events.releaseDate')}"></div>
             </div>
             <div class="info-container">
                 <div class="info-metadata-container">

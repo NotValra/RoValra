@@ -602,7 +602,7 @@ async function addShowcaseTab(tabContainer) {
     const decalMenuButton = document.createElement('button');
     decalMenuButton.type = 'button';
     decalMenuButton.className = 'rovalra-showcase-menu-button btn-control-md';
-    decalMenuButton.setAttribute('aria-label', ts('showcase.decalOptions'));
+    decalMenuButton.setAttribute('aria-label', ts('showcase.decalImageOptions'));
     decalMenuButton.setAttribute('aria-haspopup', 'listbox');
     decalMenuButton.appendChild(createMoreIcon());
     const decalDropdown = createDropdownContent(

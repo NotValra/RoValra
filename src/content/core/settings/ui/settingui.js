@@ -2,7 +2,7 @@ import { getAssets } from '../../assets.js';
 import { callRobloxApi } from '../../api.js';
 import { SETTINGS_CONFIG } from '../settingConfig.js';
 import { createDropdown } from '../../ui/dropdown.js';
-import { t } from '../../locale/i18n.js';
+import { t, ts } from '../../locale/i18n.js';
 
 const ACCOUNT_STANDING_TAB_IDS = new Set([
     'info',
@@ -77,13 +77,14 @@ function shouldShowStaticTab(item, accountStandingTabVisible) {
 function ensureDeveloperSettings() {
     if (!SETTINGS_CONFIG.Developer) {
         SETTINGS_CONFIG.Developer = {
-            title: 'RoValra Developer',
+            title: ts('common.rovalraDeveloper'),
             settings: {},
         };
     }
 }
 
 function shouldShowSettingsSection(sectionName, options = {}) {
+    if (SETTINGS_CONFIG[sectionName]?.hidden) return false;
     if (sectionName === 'Developer' && !options.devTabAdded) return false;
     if (sectionName === 'FunStuff' && !options.funStuffTabEnabled) return false;
     return true;
@@ -221,7 +222,7 @@ export async function buildSettingsPage({
         'width: 35px; height: 35px; margin-left: 5px;  user-select: none;';
 
     let rovalraHeader = document.createElement('h1');
-    rovalraHeader.textContent = 'RoValra Settings';
+    rovalraHeader.textContent = ts('common.rovalraSettings');
     rovalraHeader.style.margin = '0';
     rovalraHeader.style.color = 'var(--rovalra-main-text-color)';
 
@@ -286,7 +287,7 @@ export async function buildSettingsPage({
         const mobileDropdown = createDropdown({
             items: dropdownItems,
             initialValue: initialTab,
-            placeholder: 'Select Setting...',
+                        placeholder: ts('settings.ui.search.placeholder'),
             onValueChange: async (value) => {
                 const newUrl = new URL(window.location.href);
                 if (newUrl.searchParams.get('rovalra') !== value) {
@@ -489,7 +490,7 @@ function createUnifiedMenu({
     const searchInput = document.createElement('input');
     searchInput.type = 'search';
     searchInput.id = 'settings-search-input';
-    searchInput.placeholder = 'Search Settings...';
+    searchInput.placeholder = ts('settings.ui.search.placeholder');
     searchInput.style.cssText =
         'width: 89%; padding: 8px; border-radius: 0px; font-size: 14px; border: 0px solid var(--rovalra-container-background-color) !important; background: transparent !important; color: var(--rovalra-main-text-color) !important;';
 

@@ -8,7 +8,7 @@ let openDropdowns = [];
 export function createDropdown({
     items = [],
     initialValue,
-    placeholder = 'Select...',
+    placeholder = ts('common.select'),
     onValueChange,
     onOpen,
     showFlags = false,
@@ -373,3 +373,4 @@ export function createDropdownMenu({
 
     return { panel: contentPanel, toggle };
 }
+import { ts } from '../locale/i18n.js';

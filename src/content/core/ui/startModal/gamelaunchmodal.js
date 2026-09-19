@@ -137,7 +137,7 @@ export function updateServerInfo(gameName, iconUrl, detailsHtml) {
     textDiv.className = 'rovalra-gamelaunch-text-container';
 
     const nameLabel = document.createElement('span');
-    nameLabel.innerText = gameName || 'Roblox Experience';
+    nameLabel.innerText = gameName || ts('common.robloxExperience');
     nameLabel.className = 'rovalra-gamelaunch-game-name';
 
     textDiv.appendChild(nameLabel);
@@ -189,3 +189,4 @@ export function showLoadingOverlayResult(message, buttonOptions) {
         };
     }
 }
+import { ts } from '../../locale/i18n.js';
