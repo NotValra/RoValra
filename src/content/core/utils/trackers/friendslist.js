@@ -13,7 +13,7 @@ import {
 } from '../../apis/users.js';
 
 const FRIENDS_DATA_KEY = 'rovalra_friends_data';
-const FRIENDS_DATA_VERSION = 5;
+const FRIENDS_DATA_VERSION = 6;
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
 const TRUSTED_FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -202,6 +202,7 @@ export async function updateFriendsList(userId) {
             onlineMap.set(item.id, {
                 lastOnline: item.userPresence?.lastOnline,
                 lastLocation: item.userPresence?.placeId,
+                sortScore: item.sortScore,
             });
         });
 
@@ -439,6 +440,10 @@ export async function updateFriendsList(userId) {
                                 presence?.lastLocation ||
                                 existingFriend?.lastLocation ||
                                 null,
+                            sortScore:
+                                presence?.sortScore ??
+                                existingFriend?.sortScore ??
+                                null,
                         };
                     },
                 );
@@ -476,6 +481,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
             onlineMap.set(item.id, {
                 lastOnline: item.userPresence?.lastOnline,
                 lastLocation: item.userPresence?.placeId,
+                sortScore: item.sortScore,
             });
         });
 
@@ -487,6 +493,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
                     ...friend,
                     lastOnline: presence.lastOnline || friend.lastOnline,
                     lastLocation: presence.lastLocation || friend.lastLocation,
+                    sortScore: presence.sortScore ?? friend.sortScore ?? null,
                 };
             }
             return friend;
