@@ -1,5 +1,6 @@
 import { callRobloxApiJson } from './api.js';
 import { showSystemAlert } from './ui/roblox/alert.js';
+import { ts } from './locale/i18n.js';
 
 export async function reportUserContent(userId, configKey) {
     if (!userId || !configKey) {
@@ -31,7 +32,7 @@ export async function reportUserContent(userId, configKey) {
         if (error.status === 409 && error.response && error.response.message) {
             showSystemAlert(error.response.message, 'warning');
         } else {
-            showSystemAlert('Something went wrong', 'warning');
+            showSystemAlert(ts('common.somethingWentWrong'), 'warning');
         }
 
         throw error;

@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeResize } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getRegionData } from '../../core/regions.js';
 import {
@@ -14,13 +14,12 @@ const playButtonSelector = 'button[data-testid="play-button"]';
 const buttonToHideSelector = 'button.random-server-join-button';
 
 const NEW_BUTTON_ID = 'rovalra-join-preferred-region';
-const NEW_BUTTON_WIDTH = 64;
-const NEW_BUTTON_HEIGHT = 60;
 const NEW_BUTTON_MARGIN_LEFT = 5;
 const ROVALRA_BUTTON_CLASS = 'rovalra-region-button';
 
 let REGIONS = {};
 let isRegionsLoaded = false;
+const buttonResizeSubscriptions = new WeakMap();
 
 function getPlaceId() {
     const match = window.location.href.match(/\/games\/(\d+)/);
@@ -83,7 +82,8 @@ function injectCustomCSS() {
     const css = `
         .${ROVALRA_BUTTON_CLASS} {
             position: relative; overflow: visible;
-            width: ${NEW_BUTTON_WIDTH}px !important; height: ${NEW_BUTTON_HEIGHT}px !important;
+            width: var(--rovalra-region-button-size, auto) !important;
+            height: var(--rovalra-region-button-height, auto) !important;
             margin-left: ${NEW_BUTTON_MARGIN_LEFT}px !important; 
             padding: 0 !important; display: flex !important; align-items: center !important;
             justify-content: center !important; flex-shrink: 0 !important; visibility: visible !important;
@@ -106,6 +106,31 @@ function injectCustomCSS() {
     style.id = styleId;
     style.textContent = css;
     document.head.appendChild(style);
+}
+
+function syncButtonHeight(regionButton, playButton) {
+    const height = playButton.getBoundingClientRect().height;
+    if (height > 0) {
+        regionButton.style.setProperty(
+            '--rovalra-region-button-height',
+            height + 'px',
+        );
+        regionButton.style.setProperty(
+            '--rovalra-region-button-size',
+            height + 'px',
+        );
+    }
+}
+
+function observeButtonHeight(regionButton, playButton) {
+    syncButtonHeight(regionButton, playButton);
+
+    if (buttonResizeSubscriptions.has(regionButton)) return;
+
+    const subscription = observeResize(playButton, () => {
+        syncButtonHeight(regionButton, playButton);
+    });
+    buttonResizeSubscriptions.set(regionButton, subscription);
 }
 
 async function updateButtonTooltip(button) {
@@ -237,6 +262,12 @@ function addCustomButton(container) {
 function processContainer(container) {
     addCustomButton(container);
     reconcileButtons(container);
+
+    const playButton = container.querySelector(playButtonSelector);
+    const regionButton = container.querySelector('.' + ROVALRA_BUTTON_CLASS);
+    if (playButton && regionButton) {
+        observeButtonHeight(regionButton, playButton);
+    }
 }
 
 export function init() {

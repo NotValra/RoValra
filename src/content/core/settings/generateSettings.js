@@ -14,6 +14,7 @@ import { addTooltip } from '../ui/tooltip.js';
 import { createButton } from '../ui/buttons.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 import { ensureTouAgreement } from '../ui/tou/touAgreement.js';
+import { ts } from '../locale/i18n.js';
 import {
     getBatchThumbnails,
     createThumbnailElement,
@@ -100,7 +101,7 @@ async function attachContributors(container, config, isChild = false) {
         const name = document.createElement('span');
         name.style.cssText =
             'font-size: 11px; font-weight: 600; color: var(--rovalra-main-text-color); white-space: nowrap;';
-        name.textContent = displayName || 'Unknown';
+        name.textContent = displayName || ts('settings.ui.common.unknown');
 
         link.append(thumbContainer, name);
         item.appendChild(link);
@@ -176,7 +177,7 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
     icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"></path></svg>`;
     btn.appendChild(icon);
 
-    addTooltip(btn, 'Clear Storage', { position: 'top' });
+    addTooltip(btn, ts('settings.ui.controls.clearStorage'), { position: 'top' });
 
     btn.onclick = (e) => {
         e.preventDefault();
@@ -318,7 +319,7 @@ function injectAvatarPreview(container, inputElement, settingName) {
     previewWrapper.className = 'rovalra-preview-section';
     previewWrapper.style.cssText =
         'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-top: 15px;';
-    previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Preview</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder" data-rovalra-preview="${settingName}"></div>`;
+    previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">${ts('settings.ui.controls.preview')}</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder" data-rovalra-preview="${settingName}"></div>`;
     container.appendChild(previewWrapper);
 
     if (inputElement) {
@@ -356,7 +357,7 @@ function createImageUrlPreview(inputElement, settingName) {
     const title = document.createElement('div');
     title.style.cssText =
         'font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);';
-    title.textContent = 'Preview';
+        title.textContent = ts('settings.ui.controls.preview');
 
     const divider = document.createElement('div');
     divider.className = 'setting-label-divider';
@@ -484,7 +485,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         if (setting.options === 'REGIONS') {
             dropdownOptions.push({
                 value: 'AUTO',
-                label: getFullRegionName('AUTO'),
+                label: ts('regionSelector.automatic'),
             });
 
             const regionsByContinent = {};
@@ -780,7 +781,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         const fadeLabel = document.createElement('div');
         fadeLabel.className = 'text-label-small';
-        fadeLabel.textContent = 'Fade Strength';
+        fadeLabel.textContent = ts('settings.ui.controls.fadeStrength');
         fadeLabel.style.fontSize = '12px';
 
         const fadeSlider = document.createElement('input');
@@ -985,7 +986,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         return wrapper;
     } else if (setting.type === 'button') {
         const button = createButton(
-            setting.buttonText || 'Click Me',
+            setting.buttonText || ts('settings.ui.controls.clickMe'),
             'secondary',
         );
         button.dataset.settingName = settingName;
@@ -1008,7 +1009,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         for (const buttonConfig of setting.buttons || []) {
             const button = createButton(
-                buttonConfig.text || 'Click Me',
+                buttonConfig.text || ts('settings.ui.controls.clickMe'),
                 buttonConfig.type || 'secondary',
                 { id: buttonConfig.id },
             );
@@ -1054,7 +1055,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             row.style.gap = '8px';
 
             const { container: inputContainer, input } = createStyledInput({
-                label: setting.placeholder || 'Enter value',
+                label: setting.placeholder || ts('settings.ui.controls.enterValue'),
                 placeholder: ' ',
             });
             input.value = value;
@@ -1067,7 +1068,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             removeBtn.style.width = '32px';
             removeBtn.style.height = '32px';
             removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>`;
-            addTooltip(removeBtn, 'Remove');
+            addTooltip(removeBtn, ts('settings.ui.controls.remove'), { position: 'top' });
 
             removeBtn.onclick = () => {
                 row.remove();
@@ -1083,7 +1084,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         };
 
         const addBtn = createButton(
-            setting.addButtonText || 'Add',
+            setting.addButtonText || ts('settings.ui.controls.add'),
             'secondary',
         );
         addBtn.style.marginTop = '8px';
@@ -1128,19 +1129,19 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
     if (setting.experimental) {
         const experimentalPill = createPill(
-            'Experimental',
+            ts('settings.ui.controls.experimental'),
             setting.experimental,
             'experimental',
         );
         controlsContainer.appendChild(experimentalPill);
     }
     if (setting.beta) {
-        const betaPill = createPill('Beta', setting.beta, 'beta');
+        const betaPill = createPill(ts('settings.ui.controls.beta'), setting.beta, 'beta');
         controlsContainer.appendChild(betaPill);
     }
     if (setting.deprecated) {
         const deprecatedPill = createPill(
-            'Deprecated',
+            ts('settings.ui.controls.deprecated'),
             setting.deprecated,
             'deprecated',
         );
@@ -1267,19 +1268,19 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
             if (childSetting.experimental) {
                 const experimentalPill = createPill(
-                    'Experimental',
+                    ts('settings.ui.controls.experimental'),
                     childSetting.experimental,
                     'experimental',
                 );
                 childControls.appendChild(experimentalPill);
             }
             if (childSetting.beta) {
-                const betaPill = createPill('Beta', childSetting.beta, 'beta');
+                const betaPill = createPill(ts('settings.ui.controls.beta'), childSetting.beta, 'beta');
                 childControls.appendChild(betaPill);
             }
             if (childSetting.deprecated) {
                 const deprecatedPill = createPill(
-                    'Deprecated',
+                    ts('settings.ui.controls.deprecated'),
                     childSetting.deprecated,
                     'deprecated',
                 );
@@ -1431,7 +1432,9 @@ function createPermissionManager(settingName, permissionName) {
         'display: flex; align-items: center; justify-content: space-between;';
 
     const text = document.createElement('span');
-    text.textContent = `Enable ${permissionName} permission`;
+    text.textContent = ts('settings.ui.controls.enablePermission', {
+        permission: permissionName,
+    });
     text.style.cssText =
         'font-size: 15px; color: var(--rovalra-main-text-color); font-weight: 400;';
 

@@ -1,8 +1,9 @@
 import { callRobloxApiJson } from '../api.js';
 import { generateSettingInput } from './generateSettings.js';
 import { initSettings, syncDonatorTier } from './handlesettings.js';
+import { ts } from '../locale/i18n.js';
 
-async function setBadgeVisibility(badgeName, isVisible) {
+export async function setBadgeVisibility(badgeName, isVisible) {
     try {
         await callRobloxApiJson({
             isRovalraApi: true,
@@ -18,6 +19,25 @@ async function setBadgeVisibility(badgeName, isVisible) {
         );
     }
 }
+
+export async function getBadgeVisibilitySettings() {
+    const response = await syncDonatorTier();
+    if (!response || response.status !== 'success' || !response.badges) {
+        return [];
+    }
+
+    return Object.keys(response.badges)
+        .filter(
+            (key) =>
+                typeof response.badges[key] === 'boolean' &&
+                !key.endsWith('_visible') &&
+                response.badges[key] === true,
+        )
+        .map((key) => ({
+            key,
+            isVisible: response.badges[`${key}_visible`] !== false,
+        }));
+}
 function updateMainToggleState(mainToggle, childToggles) {
     const someChecked = childToggles.some((t) => t.checked);
     mainToggle.checked = someChecked;
@@ -25,19 +45,8 @@ function updateMainToggleState(mainToggle, childToggles) {
 
 export async function createBadgeSettings(container) {
     try {
-        const response = await syncDonatorTier();
-
-        if (!response || response.status !== 'success' || !response.badges) {
-            return;
-        }
-
-        const badges = response.badges;
-        const badgeKeys = Object.keys(badges).filter(
-            (key) =>
-                typeof badges[key] === 'boolean' &&
-                !key.endsWith('_visible') &&
-                badges[key] === true,
-        );
+        const badgeSettings = await getBadgeVisibilitySettings();
+        const badgeKeys = badgeSettings.map(({ key }) => key);
 
         if (badgeKeys.length === 0) {
             return;
@@ -55,7 +64,7 @@ export async function createBadgeSettings(container) {
         mainControls.className = 'setting-controls';
 
         const mainLabel = document.createElement('label');
-        mainLabel.textContent = 'Toggle your donation badges visibility.';
+        mainLabel.textContent = ts('settings.ui.badges.visibility');
         mainControls.appendChild(mainLabel);
 
         const mainToggle = generateSettingInput('ShowAllBadges', {
@@ -81,7 +90,9 @@ export async function createBadgeSettings(container) {
             }
             isFirstChild = false;
 
-            const isVisible = badges[`${key}_visible`] !== false;
+            const isVisible =
+                badgeSettings.find((badge) => badge.key === key)?.isVisible ??
+                true;
             const badgeLabel = key
                 .replace(/_/g, ' ')
                 .replace(/\b\w/g, (l) => l.toUpperCase());

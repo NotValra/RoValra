@@ -1,3 +1,5 @@
+import { ts } from '../locale/i18n.js';
+
 export const RISK_LEVELS = {
     NO_RISK: 'No Risk',
     LOW: 'Low Risk',
@@ -147,7 +149,7 @@ export function calculateRisk(
 
     if (rolimonsData && rolimonsData.is_projected) {
         reasons.push({
-            text: 'Item is flagged as projected.',
+            text: ts('risk.projected'),
             type: 'bad',
         });
     }
@@ -226,19 +228,19 @@ export function calculateRisk(
             if (diff > threshold * 1.5) {
                 riskScore -= 0.25;
                 reasons.push({
-                    text: 'RAP is much higher than Value, value might go up.',
+                    text: ts('risk.rapMuchHigher'),
                     type: 'good',
                 });
             } else if (diff > 0) {
                 riskScore -= 0.15;
                 reasons.push({
-                    text: 'RAP is higher than Value, value might go up.',
+                    text: ts('risk.rapHigher'),
                     type: 'good',
                 });
             } else if (diff < -threshold) {
                 riskScore += 0.3;
                 reasons.push({
-                    text: 'RAP is much lower than Value, value might go down.',
+                    text: ts('risk.rapMuchLower'),
                     type: 'bad',
                 });
                 metrics.rapValueDrop = (value - rap) / value;
@@ -254,20 +256,20 @@ export function calculateRisk(
                 if (rolimonsData.best_price > rap) {
                     riskScore -= 0.1;
                     reasons.push({
-                        text: 'RAP is higher than sales, but Best Price validates it.',
+                        text: ts('risk.rapHigherSales'),
                         type: 'good',
                     });
                 } else {
                     riskScore += 0.2;
                     reasons.push({
-                        text: 'RAP is unusually high compared to recent stable sales price.',
+                        text: ts('risk.rapUnusuallyHigh'),
                         type: 'bad',
                     });
                 }
             } else if (rapToStableRatio > 1.05) {
                 riskScore -= 0.15;
                 reasons.push({
-                    text: 'RAP is higher than stable price (Gradually increasing).',
+                    text: ts('risk.rapHigherStable'),
                     type: 'good',
                 });
             }
@@ -280,25 +282,25 @@ export function calculateRisk(
             if (ratio < 0.75) {
                 riskScore += 0.3;
                 reasons.push({
-                    text: 'Best Price is significantly lower than RAP.',
+                    text: ts('risk.bestPriceMuchLower'),
                     type: 'bad',
                 });
             } else if (ratio < 0.95) {
                 riskScore += 0.15;
                 reasons.push({
-                    text: 'Best Price is lower than RAP.',
+                    text: ts('risk.bestPriceLower'),
                     type: 'bad',
                 });
             } else if (ratio > 1.1) {
                 riskScore -= 0.2;
                 reasons.push({
-                    text: 'Best Price is higher than RAP.',
+                    text: ts('risk.bestPriceHigher'),
                     type: 'good',
                 });
             } else if (ratio > 1.02) {
                 riskScore -= 0.1;
                 reasons.push({
-                    text: 'Best Price is slightly higher than RAP.',
+                    text: ts('risk.bestPriceSlightlyHigher'),
                     type: 'good',
                 });
             }
@@ -406,7 +408,7 @@ export function calculateRisk(
                     ) {
                         riskScore += 0.5;
                         reasons.push({
-                            text: 'Item is suffering from projection.',
+                            text: ts('risk.sufferingProjection'),
                             type: 'bad',
                         });
                         break;
@@ -421,7 +423,7 @@ export function calculateRisk(
     }
 
     if (reasons.length === 0 && riskScore === 0) {
-        reasons.push({ text: 'Stable price trend.', type: 'good' });
+        reasons.push({ text: ts('risk.stableTrend'), type: 'good' });
     }
 
     let level = RISK_LEVELS.NO_RISK;

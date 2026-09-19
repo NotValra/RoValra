@@ -22,7 +22,8 @@ import { initTransactionsTracking } from './core/utils/trackers/transactions.js'
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initAvatarInventoryTracking } from './core/utils/trackers/avatarInventory.js';
 import { initUserCurrencyTracking } from './core/utils/trackers/currency.js';
-import { init as initClientChannelTracker } from './core/utils/trackers/channels.js';
+import { initAuthenticatedUserLanguageTracking } from './core/utils/trackers/language.js';
+import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
@@ -53,6 +54,7 @@ import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndic
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
+import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js'
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -136,6 +138,7 @@ import { init as initRovalraBadges } from './features/profile/header/RoValraBadg
 import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initGroupRole } from './features/profile/grouprole.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
+import { init as initHidePrivateServers } from './features/games/hidePrivateServers.js';
 import { init as initPlusPrivateServerTooltip } from './features/games/plusPrivateServerTooltip.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
@@ -172,6 +175,7 @@ import { init as initDisplayNameGradient } from './features/profile/header/displ
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
+import './features/profile/profileBadges.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
@@ -188,6 +192,7 @@ import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
 import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
+import { init as initPlaytime } from './features/home/playtime.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
@@ -233,7 +238,8 @@ const featureRoutes = [
             initBadgesTracking,
             initAvatarInventoryTracking,
             initUserCurrencyTracking,
-            initClientChannelTracker,
+            initAuthenticatedUserLanguageTracking,
+            initPlaytimeTracker,
             initQoLToggles,
             initCopyId,
             initViewIds,
@@ -274,6 +280,7 @@ const featureRoutes = [
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initRoValraIncidentTracker,
         ],
     },
     // pretty much just the 40% method
@@ -345,6 +352,7 @@ const featureRoutes = [
             quickOutfits,
             initRecentServers,
             initPrivateServerControls,
+            initHidePrivateServers,
             initHeatmap,
             initPlusPrivateServerTooltip,
             initCatalogExplorer,
@@ -491,6 +499,7 @@ const featureRoutes = [
         features: [
             initHomeLayout,
             initBookmarkedGames,
+            initPlaytime,
             initUnderratedGamesHome,
             initAccurateContinue,
             initHideAddFriendsButton,

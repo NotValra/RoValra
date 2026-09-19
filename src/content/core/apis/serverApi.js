@@ -7,7 +7,6 @@ const serverUptimeBases = {};
 const serverUptimeIsEstimate = {};
 const serverVersionsCache = {};
 let uptimeUpdateInterval = null;
-
 export function formatUptime(seconds, isEstimate = false) {
     if (typeof seconds !== 'number' || seconds < 0) return 'N/A';
     const days = Math.floor(seconds / 86400);
@@ -177,6 +176,7 @@ export async function fetchServerDetails(placeId, serverIds) {
 
 export async function fetchServerRegion(placeId, serverId, options = {}) {
     try {
+
         if (serverId && serverDataCache.has(serverId)) {
             return serverDataCache.get(serverId);
         }

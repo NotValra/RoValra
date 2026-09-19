@@ -5,6 +5,7 @@ import {
     queueRolimonsFetch,
 } from '../../core/trade/itemHandler.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { ts } from '../../core/locale/i18n.js';
 
 const PAGING_COOLDOWN = 100;
 const activeSearches = new WeakMap();
@@ -67,7 +68,7 @@ export function init() {
 function injectSearchInput(dropdown) {
     const { container, input } = createStyledInput({
         id: `rovalra-trade-search-${Math.random().toString(36).substr(2, 9)}`,
-        label: 'Search Inventory',
+        label: ts('trading.searchInventory'),
     });
 
     container.classList.add('rovalra-trade-search-wrapper');
@@ -79,7 +80,7 @@ function injectSearchInput(dropdown) {
     container.style.float = 'right';
 
     const continueSearchButton = document.createElement('button');
-    continueSearchButton.textContent = 'Continue Search';
+    continueSearchButton.textContent = ts('trading.continueSearch');
     continueSearchButton.className = 'btn-primary-md';
     continueSearchButton.style.display = 'none';
     continueSearchButton.style.marginLeft = '8px';

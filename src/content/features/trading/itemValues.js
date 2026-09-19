@@ -20,6 +20,7 @@ import {
     queueRiskFetch,
 } from '../../core/trade/itemHandler.js';
 import { RISK_COLORS } from '../../core/trade/riskCalculator.js';
+import { ts } from '../../core/locale/i18n.js';
 import {
     createRapDiffPill,
     createValueDiffPill,
@@ -393,7 +394,7 @@ export function updateItemCard(card, assetId, options = {}) {
                 rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
                 addTooltip(
                     rolimonsLink,
-                    `Open ${rolimonsTargetType} on Rolimons`,
+                    ts('trading.openOnRolimons', { type: rolimonsTargetType }),
                     {
                         position: 'top',
                     },
@@ -437,7 +438,7 @@ export function updateItemCard(card, assetId, options = {}) {
                 projIconStyle.right = '4px';
             }
             Object.assign(projIcon.style, projIconStyle);
-            addTooltip(projIcon, 'Projected Item', { position: 'top' });
+            addTooltip(projIcon, ts('trading.projectedItem'), { position: 'top' });
             if (!card.classList.contains('trade-request-item'))
                 thumbContainer.style.position = 'relative';
             thumbContainer.appendChild(projIcon);
@@ -472,7 +473,7 @@ export function updateItemCard(card, assetId, options = {}) {
                 rareIconStyle.right = data.is_projected ? '26px' : '4px';
             }
             Object.assign(rareIcon.style, rareIconStyle);
-            addTooltip(rareIcon, 'Rare Item', { position: 'top' });
+            addTooltip(rareIcon, ts('trading.rareItem'), { position: 'top' });
             if (!card.classList.contains('trade-request-item'))
                 thumbContainer.style.position = 'relative';
             thumbContainer.appendChild(rareIcon);
@@ -758,7 +759,7 @@ function injectTotalValueLine(offer, totalValue) {
         const label = valueLine.querySelector('.text-lead');
         if (label) {
             label.removeAttribute('ng-bind');
-            label.innerText = 'Value:';
+            label.innerText = ts('trading.value');
         }
 
         const amountContainer = valueLine.querySelector('.robux-line-amount');
@@ -826,7 +827,7 @@ function injectTotalDemandLine(offer, totalDemand, itemCount) {
 
         const label = demandLine.querySelector('.text-lead');
         if (label) {
-            label.innerText = 'Demand:';
+            label.innerText = ts('trading.demand');
         }
 
         const amountContainer = demandLine.querySelector('.robux-line-amount');
@@ -942,7 +943,7 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         });
 
         const toggleLabel = document.createElement('span');
-        toggleLabel.innerText = 'Include Robux';
+        toggleLabel.innerText = ts('trading.includeRobux');
 
         toggleContainer.appendChild(robuxToggle);
         toggleContainer.appendChild(toggleLabel);

@@ -1,6 +1,8 @@
 import { callRobloxApi } from '../../../core/api.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
+import { getPlaceDetails } from '../../../core/apis/games.js';
+import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
 import { loadDatacenterMap, serverIpMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
@@ -11,6 +13,7 @@ import { initVersionFilters } from '../../../core/games/servers/filters/versionf
 import { createButton } from '../../../core/ui/buttons.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { settings as sharedSettings } from '../../../core/settings/getSettings.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import {
     enhanceServer,
@@ -18,6 +21,7 @@ import {
     fetchServerUptime,
     displayUptime,
     displayPlaceVersion,
+    displayLanguageMatch,
     displayRegion,
     displayServerFullStatus,
     displayPrivateServerStatus,
@@ -38,14 +42,14 @@ const SHARED_STYLES = `
     #rovalra-main-controls {
         display: flex;
         align-items: center;
-        flex: 1; 
-        margin-left: 5px; 
-        gap: 10px; 
+        flex: 1;
+        margin-left: 5px;
+        gap: 10px;
         flex-wrap: nowrap;
     }
 
     #rovalra-main-controls .rovalra-dropdown-container {
-        margin: 0 !important; 
+        margin: 0 !important;
     }
 
     .filter-button-alignment {
@@ -54,10 +58,10 @@ const SHARED_STYLES = `
         justify-content: center;
         gap: 6px;
         padding: 6px 8px;
-        min-height: 38px; 
+        min-height: 38px;
         box-sizing: border-box;
     }
-    
+
     .filter-button-alignment svg { width: 20px; height: 20px; }
 
     body.rovalra-filter-active .rbx-public-running-games-footer { display: none !important; }
@@ -100,24 +104,25 @@ const SHARED_STYLES = `
         white-space: nowrap !important;
     }
 
-    .rovalra-modern-ui .rovalra-performance-info { 
-        order: 3 !important; 
+    .rovalra-modern-ui .rovalra-performance-info {
+        order: 3 !important;
         min-width: 200px !important;
     }
-    .rovalra-modern-ui .rovalra-uptime-info { 
-        order: 4 !important; 
+    .rovalra-modern-ui .rovalra-uptime-info {
+        order: 4 !important;
         min-width: 110px !important;
     }
     .rovalra-modern-ui .rovalra-version-info { order: 5 !important; }
+    .rovalra-modern-ui .rovalra-language-match-info { order: 6 !important; }
 
-    .rovalra-modern-ui .rovalra-region-info { 
-        order: 10 !important; 
-        width: 100% !important; 
+    .rovalra-modern-ui .rovalra-region-info {
+        order: 10 !important;
+        width: 100% !important;
         margin-top: 4px !important;
     }
-    .rovalra-modern-ui .rovalra-server-full-info { 
-        order: 11 !important; 
-        width: 100% !important; 
+    .rovalra-modern-ui .rovalra-server-full-info {
+        order: 11 !important;
+        width: 100% !important;
         display: flex;
         margin-top: 4px !important;
     }
@@ -278,6 +283,7 @@ export function init() {
         safeInitAll();
         return;
     }
+
     chrome.storage.local.get(
         [
             'ServerlistmodificationsEnabled',
@@ -291,17 +297,17 @@ export function init() {
                 settings &&
                 settings.ServerlistmodificationsEnabled === false &&
                 settings.ServerFilterEnabled === false
-            )
+            ) {
                 return;
-
-            if (settings) {
-                _state.filterSettings = {
-                    serverFilter: settings.ServerFilterEnabled !== false,
-                    region: settings.RegionFiltersEnabled !== false,
-                    uptime: settings.UptimeFiltersEnabled !== false,
-                    version: settings.VersionFiltersEnabled !== false,
-                };
             }
+            if (settings) {
+            _state.filterSettings = {
+                serverFilter: settings.ServerFilterEnabled !== false,
+                region: settings.RegionFiltersEnabled !== false,
+                uptime: settings.UptimeFiltersEnabled !== false,
+                version: settings.VersionFiltersEnabled !== false,
+            };
+        }
             safeInitAll();
         },
     );
@@ -559,7 +565,9 @@ function attachGlobalListeners() {
         const serverElement = document.querySelector(
             `li[data-rovalra-serverid="${serverId}"], div[data-rovalra-serverid="${serverId}"]`,
         );
-        if (serverElement) serverElement.remove();
+        if (serverElement?.dataset.rovalraAddedByFilter === 'true') {
+            serverElement.remove();
+        }
     });
 }
 
@@ -620,9 +628,29 @@ function manageLoadMoreButton(nextCursor, regionCode) {
 }
 
 const _started = { value: false };
+
 function startController() {
     if (_started.value) return;
     _started.value = true;
+
+    document.addEventListener(
+        'rovalra:settingSaved',
+        (event) => {
+            const settingName =
+                event.detail?.name;
+
+            if (
+                settingName ===
+                    'PrivateServerGridEnabled' ||
+                settingName ===
+                    'ServerlistmodificationsEnabled'
+            ) {
+                refreshPrivateServerGrid().catch(
+                    () => {},
+                );
+            }
+        },
+    );
 
     try {
         if (typeof startObserving === 'function') startObserving();
@@ -701,12 +729,50 @@ function startController() {
     );
 }
 
-function getPlaceIdFromUrl() {
-    return (
-        window.location.pathname.match(/\/games\/(\d+)\//)?.[1] ||
-        window.location.pathname.match(/\/(\d{5,})\b/)?.[1] ||
-        ''
+let currentPageIsSubplacePromise = null;
+
+function isCurrentPageSubplace() {
+    if (currentPageIsSubplacePromise) return currentPageIsSubplacePromise;
+
+    const placeId = getPlaceIdFromUrl();
+    if (!placeId) return Promise.resolve(false);
+
+    currentPageIsSubplacePromise = getPlaceDetails(placeId)
+        .then((details) => {
+            const rootPlaceId =
+                details?.universeRootPlaceId || details?.rootPlaceId;
+            return (
+                /^\d+$/.test(String(rootPlaceId || '')) &&
+                String(rootPlaceId) !== String(placeId)
+            );
+        })
+        .catch(() => false);
+
+    return currentPageIsSubplacePromise;
+}
+
+async function replaceSubplaceJoinButton(serverElement) {
+    if (!(await isCurrentPageSubplace())) return;
+
+    const serverId = serverElement.getAttribute('data-rovalra-serverid');
+    const placeId = getPlaceIdFromUrl();
+    if (!serverId || !placeId) return;
+
+    const joinButton = serverElement.querySelector(
+        '[data-rovalra-join-button="true"], .game-server-join-btn, .rovalra-join-btn',
     );
+    if (!joinButton || joinButton.dataset.rovalraSubplaceJoin === 'true') {
+        return;
+    }
+
+    const rovalraJoinButton = joinButton.cloneNode(true);
+    rovalraJoinButton.dataset.rovalraSubplaceJoin = 'true';
+    rovalraJoinButton.onclick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        launchGame(placeId, serverId);
+    };
+    joinButton.replaceWith(rovalraJoinButton);
 }
 
 async function loadServerIpMap() {
@@ -714,13 +780,12 @@ async function loadServerIpMap() {
         if (typeof loadDatacenterMap === 'function') await loadDatacenterMap();
         _state.serverIpMap = serverIpMap;
     } catch (e) {}
-
     _state.serverIpMap = null;
 }
 
 export function processUptimeBatch() {
     if (_state.uptimeBatch.size === 0) return;
-    const placeId = window.location.pathname.match(/\/games\/(\d+)\//)?.[1];
+    const placeId = window.location.pathname.match(/\/games\/(\d+)(?:\/|$)/)?.[1];
     if (!placeId) return;
 
     const batch = Array.from(_state.uptimeBatch);
@@ -763,15 +828,14 @@ async function getReactServerId(element) {
                     );
                 if (accessCode)
                     element.setAttribute('data-access-code', accessCode);
-                if (isFriendServer) {
-                    element.setAttribute(
-                        'data-rovalra-is-friend-server',
-                        'true',
-                    );
-                }
-                if (isOwner) {
-                    element.setAttribute('data-rovalra-is-owner', 'true');
-                }
+                element.setAttribute(
+                    'data-rovalra-is-friend-server',
+                    String(Boolean(isFriendServer)),
+                );
+                element.setAttribute(
+                    'data-rovalra-is-owner',
+                    String(Boolean(isOwner)),
+                );
 
                 resolve(event.detail);
             }
@@ -820,7 +884,7 @@ function addModernShareButton(el) {
         <button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard width-full rovalra-share-btn">
             <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
             <span class="flex items-center min-width-0 gap-xsmall">
-                <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('serverList.share', { defaultValue: 'Share' })}</span>
+                <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('localizationFallbacks.serverShare')}</span>
             </span>
         </button>
     `);
@@ -835,9 +899,7 @@ function addModernShareButton(el) {
         navigator.clipboard.writeText(joinLink).then(async () => {
             const span = shareBtn.querySelector('.text-no-wrap');
             const originalText = span.textContent;
-            span.textContent = await t('serverList.copied', {
-                defaultValue: 'Copied!',
-            });
+            span.textContent = await t('localizationFallbacks.serverCopied');
             setTimeout(() => {
                 span.textContent = originalText;
             }, 1000);
@@ -847,62 +909,203 @@ function addModernShareButton(el) {
     btnContainer.appendChild(shareBtnWrapper);
 }
 
+async function refreshPrivateServerGrid() {
+    const serverListEnabled =
+        await sharedSettings.ServerlistmodificationsEnabled;
+
+    const gridEnabled =
+        await sharedSettings.PrivateServerGridEnabled;
+
+    const enabled =
+        serverListEnabled !== false &&
+        gridEnabled === true;
+
+    document
+        .querySelectorAll(
+            '.rovalra-private-server-grid',
+        )
+        .forEach((container) => {
+            container.classList.remove(
+                'rovalra-private-server-grid',
+            );
+        });
+
+    document
+        .querySelectorAll(
+            '.rovalra-private-server-grid-card',
+        )
+        .forEach((card) => {
+            card.classList.remove(
+                'rovalra-private-server-grid-card',
+            );
+        });
+
+    if (!enabled) {
+        return;
+    }
+
+    const privateCards = Array.from(
+        document.querySelectorAll(
+            [
+                '.rbx-private-game-server-item[data-private-server-id]',
+                '.flex.items-center.justify-between.padding-y-medium.width-full[data-private-server-id]',
+            ].join(','),
+        ),
+    );
+
+    const containers = new Map();
+
+    for (const card of privateCards) {
+        const container = card.parentElement;
+
+        if (!container) {
+            continue;
+        }
+
+        if (!containers.has(container)) {
+            containers.set(
+                container,
+                [],
+            );
+        }
+
+        containers
+            .get(container)
+            .push(card);
+    }
+
+    for (const [container] of containers) {
+        container.classList.add(
+            'rovalra-private-server-grid',
+        );
+
+        const gridItems = Array.from(
+            container.children,
+        ).filter((child) =>
+            child.matches(
+                [
+                    '.flex.items-center.justify-between.padding-y-medium.width-full',
+                    '.rbx-private-game-server-item',
+                ].join(','),
+            ),
+        );
+
+        for (const item of gridItems) {
+            item.classList.add(
+                'rovalra-private-server-grid-card',
+            );
+        }
+    }
+}
+
 function initializeEnhancementObserver() {
     const serverSelector =
         '.rbx-public-game-server-item, .rbx-friends-game-server-item, .flex.items-center.justify-between.padding-y-medium.width-full';
 
     let uptimeDebounce = null;
+
     const scheduleUptime = () => {
         clearTimeout(uptimeDebounce);
-        uptimeDebounce = setTimeout(() => processUptimeBatch(), 120);
+
+        uptimeDebounce = setTimeout(
+            () => processUptimeBatch(),
+            120,
+        );
     };
 
     observeElement(
         serverSelector,
         async (el) => {
-            const hasId = el.hasAttribute('data-rovalra-serverid');
-            const hasAccess = el.hasAttribute('data-access-code');
-            const hasPrivateId = el.hasAttribute('data-private-server-id');
+            const hasId =
+                el.hasAttribute(
+                    'data-rovalra-serverid',
+                );
 
-            if (!hasId && !hasAccess && !hasPrivateId) {
+            const hasAccess =
+                el.hasAttribute(
+                    'data-access-code',
+                );
+
+            const hasPrivateId =
+                el.hasAttribute(
+                    'data-private-server-id',
+                );
+
+            if (
+                !hasId &&
+                !hasAccess &&
+                !hasPrivateId
+            ) {
                 await getReactServerId(el);
             }
 
             if (
-                el.classList.contains('width-full') &&
+                el.hasAttribute(
+                    'data-private-server-id',
+                )
+            ) {
+                await refreshPrivateServerGrid();
+            }
+
+            if (
+                el.classList.contains(
+                    'width-full',
+                ) &&
                 el.classList.contains('flex')
             ) {
                 addModernShareButton(el);
             }
 
-            const section = el.closest('.flex.flex-col.gap-large.width-full');
+            await replaceSubplaceJoinButton(el);
+
+            const section = el.closest(
+                '.flex.flex-col.gap-large.width-full',
+            );
+
             if (section) {
-                section.classList.add('rovalra-modern-ui');
+                section.classList.add(
+                    'rovalra-modern-ui',
+                );
+
                 const mainWrapper =
                     section.closest(
                         '.flex.flex-col.padding-x-large.width-full',
                     ) || section.parentElement;
-                if (mainWrapper)
-                    mainWrapper.classList.add('rovalra-modern-container');
+
+                if (mainWrapper) {
+                    mainWrapper.classList.add(
+                        'rovalra-modern-container',
+                    );
+                }
             }
 
             try {
                 enhanceServer(el, {
-                    serverLocations: _state.serverLocations,
-                    serverStatuses: _state.serverStatuses,
-                    serverUptimes: _state.serverUptimes,
-                    serverPerformanceCache: _state.serverPerformanceCache,
-                    vipStatusCache: _state.vipStatusCache,
-                    uptimeBatch: _state.uptimeBatch,
-                    serverIpMap: _state.serverIpMap,
+                    serverDataCache: _state.serverDataCache,
+                    serverLocations:
+                        _state.serverLocations,
+                    serverStatuses:
+                        _state.serverStatuses,
+                    serverUptimes:
+                        _state.serverUptimes,
+                    serverPerformanceCache:
+                        _state.serverPerformanceCache,
+                    vipStatusCache:
+                        _state.vipStatusCache,
+                    uptimeBatch:
+                        _state.uptimeBatch,
+                    serverIpMap:
+                        _state.serverIpMap,
                     processUptimeBatch,
                 }).catch(() => {});
             } catch (e) {}
+
             scheduleUptime();
         },
         { multiple: true },
     );
 }
+
 try {
     document.addEventListener('rovalra-game-servers-response', (event) => {
         try {
@@ -924,7 +1127,7 @@ try {
                         serverData.serverId;
                     if (!serverId) continue;
 
-                    _state.serverDataCache.set(serverId, serverData);
+                    _state.serverDataCache.set(String(serverId), serverData);
                     const fps =
                         serverData.fps ??
                         serverData.FPS ??
@@ -995,6 +1198,11 @@ try {
                             } catch (e) {}
                         }
 
+                        displayLanguageMatch(
+                            serverElement,
+                            serverData.languageMatchCount,
+                        ).catch(() => {});
+
                         const placeVersion =
                             serverData.placeVersion ?? serverData.place_version;
                         if (placeVersion != null) {
@@ -1013,12 +1221,17 @@ try {
     });
 } catch (e) {}
 
-export async function createServerCardFromRobloxApi(server, placeId) {
+export async function createServerCardFromRobloxApi(
+    server,
+    placeId,
+    options = {},
+) {
     try {
         const isModern =
             !document.getElementById('rbx-public-game-server-item-container') &&
             !!document.querySelector('.rovalra-modern-ui');
-        if (isModern) return createModernServerCard(server, placeId);
+        if (isModern)
+            return createModernServerCard(server, placeId, options);
 
         const listItemClass =
             'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
@@ -1026,6 +1239,9 @@ export async function createServerCardFromRobloxApi(server, placeId) {
         serverItem.className = listItemClass;
         const serverId = server.id || server.server_id || '';
         serverItem.dataset.rovalraServerid = serverId;
+        if (options.addedByRovalraFilter === true) {
+            serverItem.dataset.rovalraAddedByFilter = 'true';
+        }
 
         const playerTokens = server.playerTokens || [];
         let playerThumbnailsHTML = '';
@@ -1093,12 +1309,17 @@ export async function createServerCardFromRobloxApi(server, placeId) {
     }
 }
 
-export async function createServerCardFromApi(server, placeId = '') {
+export async function createServerCardFromApi(
+    server,
+    placeId = '',
+    options = {},
+) {
     try {
         const isModern =
             !document.getElementById('rbx-public-game-server-item-container') &&
             !!document.querySelector('.rovalra-modern-ui');
-        if (isModern) return createModernServerCard(server, placeId);
+        if (isModern)
+            return createModernServerCard(server, placeId, options);
 
         const listItemClass =
             'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
@@ -1106,6 +1327,9 @@ export async function createServerCardFromApi(server, placeId = '') {
         serverItem.className = listItemClass;
         const serverId = server.server_id || server.id || '';
         serverItem.dataset.rovalraServerid = serverId;
+        if (options.addedByRovalraFilter === true) {
+            serverItem.dataset.rovalraAddedByFilter = 'true';
+        }
 
         const cachedServerData = _state.serverDataCache.get(serverId);
         if (cachedServerData) {
@@ -1321,10 +1545,13 @@ async function renderAndAppendServers(servers, serverListContainer, placeId) {
     }
 
     const serverCardPromises = activeServers.map((server) => {
+        const options = {
+            addedByRovalraFilter: true,
+        };
         if (server.playerTokens) {
-            return createServerCardFromRobloxApi(server, placeId);
+            return createServerCardFromRobloxApi(server, placeId, options);
         } else {
-            return createServerCardFromApi(server, placeId);
+            return createServerCardFromApi(server, placeId, options);
         }
     });
 
@@ -1380,12 +1607,15 @@ function displayMessageInContainer(message, isError = false) {
     serverListContainer.appendChild(listItem);
 }
 
-async function createModernServerCard(server, placeId) {
+async function createModernServerCard(server, placeId, options = {}) {
     const serverItem = document.createElement('div');
     serverItem.className =
         'flex items-center justify-between padding-y-medium width-full';
     const serverId = server.id || server.server_id || '';
     serverItem.dataset.rovalraServerid = serverId;
+    if (options.addedByRovalraFilter === true) {
+        serverItem.dataset.rovalraAddedByFilter = 'true';
+    }
 
     const cachedServerData = _state.serverDataCache.get(serverId);
     if (cachedServerData) {
@@ -1476,7 +1706,7 @@ async function createModernServerCard(server, placeId) {
                 ${!hasPlayerCount ? `<span class="icon-moreinfo rovalra-unknown-count-icon" style="position: absolute; top: -8px; left: -8px; z-index: 5; cursor: help; transform: scale(0.8);"></span>` : ''}
             </div>
             <div class="flex flex-col min-width-0">
-                <span class="text-body-large content-emphasis text-truncate-end">${ts('recentServers.serverTitle', { defaultValue: 'Server' })}</span>
+                <span class="text-body-large content-emphasis text-truncate-end">${ts('localizationFallbacks.recentServerTitle')}</span>
                 <span class="text-body-medium content-muted">${playingText}</span>
             </div>
         </div>
@@ -1493,7 +1723,7 @@ async function createModernServerCard(server, placeId) {
                 <button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard width-full rovalra-share-btn">
                     <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
                     <span class="flex items-center min-width-0 gap-xsmall">
-                        <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('serverList.share', { defaultValue: 'Share' })}</span>
+                        <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('localizationFallbacks.serverShare')}</span>
                     </span>
                 </button>
             </div>
@@ -1510,9 +1740,7 @@ async function createModernServerCard(server, placeId) {
             navigator.clipboard.writeText(joinLink).then(async () => {
                 const span = shareBtn.querySelector('.text-no-wrap');
                 const originalText = span.textContent;
-                span.textContent = await t('serverList.copied', {
-                    defaultValue: 'Copied!',
-                });
+                span.textContent = await t('localizationFallbacks.serverCopied');
                 setTimeout(() => {
                     span.textContent = originalText;
                 }, 1000);

@@ -600,7 +600,7 @@ export async function createProfileSubplaceListCard(presence) {
 
     const heading = document.createElement('div');
     heading.className = 'rovalra-profile-subplace-list-heading';
-    heading.textContent = 'SUBPLACE';
+    heading.textContent = ts('common.subplaceUpper');
 
     const rootRow = createProfileRow({
         name: rootName,
@@ -700,7 +700,7 @@ export async function createPersistentSubplaceCard(presence, options = {}) {
 
     const label = document.createElement('span');
     label.className = 'rovalra-current-subplace-label';
-    label.textContent = 'Subplace';
+    label.textContent = ts('common.subplace');
 
     const name = document.createElement('span');
     name.className = 'rovalra-current-subplace-name';
@@ -718,3 +718,4 @@ export async function createPersistentSubplaceCard(presence, options = {}) {
 
     return card;
 }
+import { ts } from '../../locale/i18n.js';

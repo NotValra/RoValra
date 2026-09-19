@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
+import { createToggle } from '../../core/ui/general/toggle.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -9,6 +10,7 @@ import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { getGroupIdFromUrl } from '../../core/idExtractor.js';
+import { settings } from '../../core/settings/getSettings.js';
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -145,7 +147,9 @@ const api = {
 class HiddenGamesManager {
     constructor(groupId) {
         this.groupId = groupId;
-        this.allGames = [];
+        this.ownedGames = [];
+        this.hiddenGames = [];
+        this.showAllGames = false;
         this.filteredGames = [];
         this.filters = { sort: 'default', order: 'desc' };
         this.displayedCount = 0;
@@ -206,6 +210,29 @@ class HiddenGamesManager {
             },
         });
 
+        const showAllToggle = createToggle({
+            checked: false,
+            onChange: (v) => {
+                this.showAllGames = v;
+                this.applyFilters();
+            },
+        });
+        showAllToggle.style.transform = 'scale(1.3)';
+        showAllToggle.style.transformOrigin = 'left center';
+
+        const showAllToggleWrapper = el(
+            'div',
+            '',
+            {
+                style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    minHeight: '38px',
+                },
+            },
+            [showAllToggle],
+        );
+
         const createFilterGroup = (label, input) =>
             el(
                 'div',
@@ -258,9 +285,13 @@ class HiddenGamesManager {
                             await t('hiddenGroupGames.labels.order'),
                             orderDropdown.element,
                         ),
+                        createFilterGroup(
+                            await t('hiddenGroupGames.labels.showAll'),
+                            showAllToggleWrapper,
+                        ),
                     ],
                 ),
-                el('div', 'hidden-games-list rovalra-hidden-games-list', {
+                el('div', 'rovalra-hidden-games-list', {
                     style: {
                         display: 'grid',
                         gridTemplateColumns:
@@ -271,7 +302,7 @@ class HiddenGamesManager {
                 }),
                 el(
                     'div',
-                    'rovalra-load-more-container hidden-games-list rovalra-hidden-games-list',
+                    'rovalra-load-more-container rovalra-hidden-games-list',
                     {
                         style: { padding: '0', textAlign: 'center' },
                     },
@@ -279,7 +310,7 @@ class HiddenGamesManager {
             ],
         );
 
-        this.elements.list = body.querySelector('.hidden-games-list');
+        this.elements.list = body.querySelector('.rovalra-hidden-games-list');
         this.elements.filters = body.querySelector(
             '.rovalra-filters-container',
         );
@@ -312,11 +343,12 @@ class HiddenGamesManager {
                 ]);
 
                 const publicIds = new Set(publicGames.map((g) => g.id));
-                this.allGames = allGames.filter((g) => !publicIds.has(g.id));
+                this.ownedGames = allGames;
+                this.hiddenGames = allGames.filter((g) => !publicIds.has(g.id));
 
-                if (this.allGames.length === 0) {
+                if (this.ownedGames.length === 0) {
                     this.elements.list.innerHTML = DOMPurify.sanitize(
-                        `<p class="btr-no-servers-message">${await t('hiddenGroupGames.noHiddenGames')}</p>`,
+                        `<p class="rovalra-no-hidden-games-message">${await t('hiddenGroupGames.noHiddenGames')}</p>`,
                     );
                     this.elements.filters.style.display = 'none';
                     return;
@@ -341,6 +373,7 @@ class HiddenGamesManager {
         this.elements.loader.innerHTML = '';
 
         const { sort, order } = this.filters;
+        const source = this.showAllGames ? this.ownedGames : this.hiddenGames;
 
         if (
             sort === 'like-ratio' ||
@@ -349,11 +382,11 @@ class HiddenGamesManager {
             sort === 'players' ||
             sort === 'default'
         ) {
-            await api.getGameDetails(this.allGames, this.cache);
+            await api.getGameDetails(source, this.cache);
         }
 
         const orderMultiplier = order === 'desc' ? -1 : 1;
-        let processed = [...this.allGames];
+        let processed = [...source];
         if (sort === 'like-ratio') {
             processed.sort(
                 (a, b) =>
@@ -416,8 +449,11 @@ class HiddenGamesManager {
         const gamesToShow = this.filteredGames.slice(0, this.displayedCount);
 
         if (gamesToShow.length === 0) {
+            const emptyKey = this.showAllGames
+                ? 'hiddenGroupGames.noMatches'
+                : 'hiddenGroupGames.noHiddenGames';
             this.elements.list.innerHTML = DOMPurify.sanitize(
-                `<p class="btr-no-servers-message">${ts('hiddenGroupGames.noMatches')}</p>`,
+                `<p class="rovalra-no-hidden-games-message">${ts(emptyKey)}</p>`,
             );
             return;
         }
@@ -470,98 +506,94 @@ class HiddenGamesManager {
     }
 }
 
-export function init() {
+export async function init() {
     if (init._run) return;
+    if ((await settings.groupGamesEnabled) !== true) return;
     init._run = true;
 
-    chrome.storage.local.get(['groupGamesEnabled'], (result) => {
-        if (result.groupGamesEnabled !== true) return;
+    let isInserting = false;
 
-        let isInserting = false;
+    const ensureSingleButton = () => {
+        const all = document.querySelectorAll(
+            '.rovalra-hidden-games-container',
+        );
+        if (all.length > 1) {
+            for (let i = 0; i < all.length - 1; i++) all[i].remove();
+        }
+    };
 
-        const ensureSingleButton = () => {
-            const all = document.querySelectorAll(
-                '.rovalra-hidden-games-container',
-            );
-            if (all.length > 1) {
-                for (let i = 0; i < all.length - 1; i++) all[i].remove();
-            }
-        };
+    const createAndInsertButton = async () => {
+        const header = document.querySelector('.group-profile-header');
+        if (!header) return;
 
-        const createAndInsertButton = async () => {
-            const header = document.querySelector('.group-profile-header');
-            if (!header) return;
-
-            const btn = createButton(
-                await t('hiddenGroupGames.buttonText'),
-                'secondary',
-            );
-            btn.addEventListener('click', () => {
-                const groupId = getGroupIdFromUrl();
-                if (!groupId) return;
-                new HiddenGamesManager(groupId);
-            });
-
-            const container = el(
-                'div',
-                'rovalra-hidden-games-container',
-                {
-                    style: { marginTop: '10px' },
-                },
-                [btn],
-            );
-
-            currentBtn = container;
-            ensureSingleButton();
-
-            const description = header.querySelector('.description-container');
-            if (description) {
-                description.after(container);
-            } else {
-                header.appendChild(container);
-            }
-            ensureSingleButton();
-        };
-
-        const tryInsert = () => {
-            if (isInserting) return;
-            isInserting = true;
-
-            if (document.querySelector('.rovalra-hidden-games-container')) {
-                isInserting = false;
-                return;
-            }
-
-            ensureSingleButton();
-            createAndInsertButton().finally(() => {
-                isInserting = false;
-            });
-        };
-
-        observeElement('.group-profile-header', () => {
-            tryInsert();
+        const btn = createButton(
+            await t('hiddenGroupGames.buttonText'),
+            'secondary',
+        );
+        btn.addEventListener('click', () => {
+            const groupId = getGroupIdFromUrl();
+            if (!groupId) return;
+            new HiddenGamesManager(groupId);
         });
 
-        let lastUrl = window.location.href;
-        const checkForUrlChange = () => {
-            const currentUrl = window.location.href;
-            if (currentUrl !== lastUrl) {
-                lastUrl = currentUrl;
-                if (!getGroupIdFromUrl()) return;
+        const container = el(
+            'div',
+            'rovalra-hidden-games-container',
+            {
+                style: { marginTop: '10px' },
+            },
+            [btn],
+        );
 
-                document
-                    .querySelectorAll('.rovalra-hidden-games-container')
-                    .forEach((el) => el.remove());
-                isInserting = false;
-                tryInsert();
-            }
-        };
+        ensureSingleButton();
 
-        setInterval(checkForUrlChange, 500);
-        window.addEventListener('popstate', checkForUrlChange);
+        const description = header.querySelector('.description-container');
+        if (description) {
+            description.after(container);
+        } else {
+            header.appendChild(container);
+        }
+        ensureSingleButton();
+    };
 
-        if (getGroupIdFromUrl()) {
+    const tryInsert = () => {
+        if (isInserting) return;
+        isInserting = true;
+
+        if (document.querySelector('.rovalra-hidden-games-container')) {
+            isInserting = false;
+            return;
+        }
+
+        ensureSingleButton();
+        createAndInsertButton().finally(() => {
+            isInserting = false;
+        });
+    };
+
+    observeElement('.group-profile-header', () => {
+        tryInsert();
+    });
+
+    let lastUrl = window.location.href;
+    const checkForUrlChange = () => {
+        const currentUrl = window.location.href;
+        if (currentUrl !== lastUrl) {
+            lastUrl = currentUrl;
+            if (!getGroupIdFromUrl()) return;
+
+            document
+                .querySelectorAll('.rovalra-hidden-games-container')
+                .forEach((el) => el.remove());
+            isInserting = false;
             tryInsert();
         }
-    });
+    };
+
+    setInterval(checkForUrlChange, 500);
+    window.addEventListener('popstate', checkForUrlChange);
+
+    if (getGroupIdFromUrl()) {
+        tryInsert();
+    }
 }

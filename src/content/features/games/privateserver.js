@@ -416,9 +416,7 @@ export async function addModernPrivateServerControls(
                 .then(async () => {
                     const span = shareBtn.querySelector('.text-no-wrap');
                     const originalText = span.textContent;
-                    span.textContent = await t('serverList.copied', {
-                        defaultValue: 'Copied!',
-                    });
+                    span.textContent = await t('localizationFallbacks.serverCopied');
                     setTimeout(() => {
                         span.textContent = originalText;
                     }, 1000);

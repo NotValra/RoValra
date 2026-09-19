@@ -1,5 +1,6 @@
 import { getAssets } from '../../assets.js';
 import { settings } from '../getSettings.js';
+import { ts } from '../../locale/i18n.js';
 
 let rovalraButtonAdded = false;
 const NAVBAR_DROPDOWN_SETTING_NAME = 'hideRoValraSettingsNavbarDropdown';
@@ -41,7 +42,7 @@ export function addCustomButton(debouncedAddPopoverButton) {
     if (rovalraButtonAdded) return;
 
     const existingButton = menuList.querySelector(
-        'li.menu-option > a > span.font-caption-header[textContent="RoValra Settings"]',
+        `li.menu-option > a > span.font-caption-header[textContent="${ts('common.rovalraSettings')}"]`,
     );
     if (existingButton) {
         rovalraButtonAdded = true;
@@ -72,7 +73,7 @@ export function addCustomButton(debouncedAddPopoverButton) {
 
     const newButtonSpan = document.createElement('span');
     newButtonSpan.classList.add('font-caption-header');
-    newButtonSpan.textContent = 'RoValra Settings';
+    newButtonSpan.textContent = ts('common.rovalraSettings');
     newButtonSpan.style.fontSize = '12px';
 
     const logo = document.createElement('img');

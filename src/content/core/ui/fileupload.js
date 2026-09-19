@@ -1,4 +1,6 @@
 // file uploading thing
+import { ts } from '../locale/i18n.js';
+
 const MAX_FILE_SIZE = 1024 * 1024; 
 const MAX_IMAGE_DIMENSION = 512; 
 
@@ -152,7 +154,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
     const triggerValue = document.createElement('span');
     triggerValue.className = 'text-no-wrap text-truncate-split content-emphasis';
     triggerValue.style.pointerEvents = 'none';
-    triggerValue.textContent = 'Upload File';
+    triggerValue.textContent = ts('common.uploadFile');
     textWrapper.appendChild(triggerValue);
 
     const fileNameDisplay = document.createElement('span');
@@ -196,7 +198,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                 try {
                     const base64Data = e.target.result;                    
                     if (!base64Data || !base64Data.startsWith('data:')) {
-                        errorMessage.textContent = 'Invalid file format.';
+                        errorMessage.textContent = ts('common.invalidFileFormat');
                         errorMessage.style.display = 'block';
                         fileInput.value = '';
                         clearPreview();
@@ -206,7 +208,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                     const isImageUpload = accept.includes('image');
 
                     if (isImageUpload && !base64Data.startsWith('data:image/')) {
-                        errorMessage.textContent = 'Invalid file format. Please upload a valid image.';
+                        errorMessage.textContent = ts('common.invalidImageFile');
                         errorMessage.style.display = 'block';
                         fileInput.value = '';
                         clearPreview();
@@ -225,7 +227,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                     }
                     
                     if (!finalData) {
-                        errorMessage.textContent = 'File processing failed. Please try another file.';
+                        errorMessage.textContent = ts('common.fileProcessingFailed');
                         errorMessage.style.display = 'block';
                         fileInput.value = '';
                         clearPreview();
@@ -252,7 +254,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                     onFileSelect(finalData);
                 } catch (error) {
                     console.error('Error processing file:', error);
-                    errorMessage.textContent = 'Error processing file. Please try another file.';
+                        errorMessage.textContent = ts('common.errorProcessingFile');
                     errorMessage.style.display = 'block';
                     fileInput.value = '';
                     clearPreview();
@@ -280,10 +282,10 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
         if (name) {
             fileNameDisplay.textContent = name;
             fileNameDisplay.style.display = 'inline';
-            triggerValue.textContent = 'Change';
+            triggerValue.textContent = ts('common.change');
         } else {
             fileNameDisplay.style.display = 'none';
-            triggerValue.textContent = 'Upload File';
+            triggerValue.textContent = ts('common.uploadFile');
         }
     };
 

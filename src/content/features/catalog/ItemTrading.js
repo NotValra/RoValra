@@ -9,6 +9,7 @@ import {
 import { getAssets } from '../../core/assets.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { RISK_COLORS } from '../../core/trade/riskCalculator.js';
+import { ts } from '../../core/locale/i18n.js';
 
 let featureSettings = { itemTradingEnabled: true, tradeRiskEnabled: true };
 let isInitialized = false;
@@ -33,7 +34,9 @@ function getRolimonsUrl(assetId) {
 }
 
 function getRolimonsTooltip() {
-    return `Open ${isBundlePage() ? 'bundle' : 'item'} on Rolimons`;
+    return ts('trading.openOnRolimons', {
+        type: isBundlePage() ? ts('trading.bundle') : ts('trading.item'),
+    });
 }
 
 function updateInfo(parent, referenceElement, assetId) {
@@ -61,7 +64,7 @@ function updateInfo(parent, referenceElement, assetId) {
             </a>
         </span>
     `;
-    const valueRow = createRow('Value', valueHtml);
+    const valueRow = createRow(ts('trading.valueLabel'), valueHtml);
     const rolimonsLink = valueRow.querySelector('.rovalra-rolimons-link');
     if (rolimonsLink) {
         addTooltip(rolimonsLink, getRolimonsTooltip(), { position: 'top' });
@@ -69,7 +72,7 @@ function updateInfo(parent, referenceElement, assetId) {
     rows.push(valueRow);
 
     if (data.demand) {
-        rows.push(createRow('Demand', data.demand));
+        rows.push(createRow(ts('trading.demandLabel'), data.demand));
     }
 
     if (data.trend) {
@@ -175,14 +178,14 @@ function updateItemName(header, assetId) {
             const projIcon = document.createElement('img');
             projIcon.src = assets.projectedWarning;
             Object.assign(projIcon.style, { width: '24px', height: '24px' });
-            addTooltip(projIcon, 'Projected Item', { position: 'top' });
+            addTooltip(projIcon, ts('trading.projectedItem'), { position: 'top' });
             container.appendChild(projIcon);
         }
         if (data.is_rare) {
             const rareIcon = document.createElement('img');
             rareIcon.src = assets.rareIcon;
             Object.assign(rareIcon.style, { width: '24px', height: '24px' });
-            addTooltip(rareIcon, 'Rare Item', { position: 'top' });
+            addTooltip(rareIcon, ts('trading.rareItem'), { position: 'top' });
             container.appendChild(rareIcon);
         }
     }

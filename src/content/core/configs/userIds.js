@@ -10,7 +10,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '48255812', //aliceenight
     '7982684834', //qborder
     '126448532', //steinann
-    '1564574922', //cornusandu
+    '1564574922', //bogdan-glitchm
     '587159802', //zoinbase
     '193520242', //tigodev1
     '2615068449', //lolct
@@ -29,7 +29,6 @@ export const CONTRIBUTOR_USER_IDS = [
     '760897332', // ceyexm
     '2830488781', //idhglua
     '390309731', // AxnxDev
-    '4632962611', // coderpixel
     '477516666', //return_request :3
     '4632962611', //coderpixel
     '2605032407', // walway
@@ -42,7 +41,11 @@ export const TESTER_USER_IDS = [
     '1163412141', //Tino
 ];
 
-export const TRANSLATOR_USER_IDS = [];
+export const TRANSLATOR_USER_IDS = [
+    '1564574922', // bogdan-glitchm
+    '10646979010',  // rav4toy
+    '3121706',  // AuroxNova
+];
 
 export const ARTIST_USER_IDS = [
     '1337447242',

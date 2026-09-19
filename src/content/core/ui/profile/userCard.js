@@ -11,6 +11,8 @@ import {
     clearSubplaceCardFromPresenceTarget,
 } from './subplaceCard.js';
 import { CUSTOM_ADDED_TAGS } from '../../utils/purifyCfg.js';
+import { ts } from '../../locale/i18n.js';
+import { safeHtml } from '../../packages/dompurify.js';
 
 async function isSubplaceHoverCardEnabled() {
     return (
@@ -81,10 +83,10 @@ export function fetchPresenceBatched(userId) {
 }
 
 const PRESENCE_MAP = {
-    0: { class: 'offline icon-offline', title: 'Offline' },
-    1: { class: 'online icon-online', title: 'Website' },
-    2: { class: 'game icon-game', title: 'Playing' },
-    3: { class: 'studio icon-studio', title: 'Studio' },
+    0: { class: 'offline icon-offline', title: ts('common.offline') },
+    1: { class: 'online icon-online', title: ts('common.website') },
+    2: { class: 'game icon-game', title: ts('common.playing') },
+    3: { class: 'studio icon-studio', title: ts('common.studio') },
 };
 
 export function updateUserCardPresence(
@@ -162,10 +164,13 @@ export function createUserCard({
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
     const showSublabel = showUsername && gameName ? true : showUsername;
-    const sublabelText = showUsername && gameName ? gameName : username;
+    const sublabelText =
+        showUsername && gameName ? safeHtml`${gameName}` : safeHtml`${username}`;
     const sublabelFontSize = gameName ? '9.6px' : '12px';
     const presenceTitle =
-        presenceInfo === 2 && gameName ? gameName : presence.title;
+        presenceInfo === 2 && gameName
+            ? safeHtml`${gameName}`
+            : presence.title;
     const assets = getAssets();
     const verifiedBadge = isVerified
         ? `<span class="relative flex items-center justify-center">
@@ -174,7 +179,7 @@ export function createUserCard({
         </span>`
         : '';
     const plusBadge = isSubscribed
-        ? '<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="Roblox Plus subscriber">roblox-plus</icon>'
+        ? `<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="${ts('common.robloxPlusSubscriber')}">roblox-plus</icon>`
         : '';
 
     const tileContainer = document.createElement('div');

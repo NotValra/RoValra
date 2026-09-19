@@ -12,6 +12,7 @@ import {
 import { createButton } from '../../../ui/buttons.js';
 import { showRegionDonationPopup } from '../../../review/review.js';
 import DOMPurify from 'dompurify';
+import { ts } from '../../../locale/i18n.js';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;
 const GLOBE_DRAG_THRESHOLD = 6;
@@ -94,7 +95,6 @@ const State = {
     serverIpMap: {},
     regionServersCache: {},
     activeServerCounts: {},
-    flags: {},
     apiCounts: null,
     allLocalServerIds: new Set(),
     localServersByRegion: {},
@@ -172,18 +172,6 @@ function getPlaceIdFromUrl() {
         if (match) return match[1];
     } catch {}
     return DEFAULT_PLACE_ID;
-}
-
-async function cacheFlag(countryCode) {
-    const code = countryCode.toLowerCase();
-    if (State.flags[code]) return;
-    try {
-        const response = await fetch(`https://flagcdn.com/w40/${code}.png`);
-        const blob = await response.blob();
-        State.flags[code] = URL.createObjectURL(blob);
-    } catch (e) {
-        console.warn('RoValra: Failed to cache flag for', code);
-    }
 }
 
 function closeGlobalPanels() {
@@ -414,7 +402,7 @@ function createGlobePanel(container) {
     const panel = document.createElement('div');
     panel.id = GLOBE_PANEL_ID;
     panel.className = theme;
-    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="${EASTER_EGG_TRIGGER_ID}" alt="Logo"><div id="${HEADER_TITLE_ID}" style="font-weight:bold;">RoValra Region Selector</div></div><div id="${GLOBE_CONTAINER_ID}"></div>`;
+    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="${EASTER_EGG_TRIGGER_ID}" alt="Logo"><div id="${HEADER_TITLE_ID}" style="font-weight:bold;">${ts('regionSelector.title')}</div></div><div id="${GLOBE_CONTAINER_ID}"></div>`;
     container.appendChild(panel);
 
     const globeContainer = panel.querySelector(`#${GLOBE_CONTAINER_ID}`);
@@ -440,12 +428,12 @@ function createGlobePanel(container) {
                         detail: { iconUrl: assets.rovalraIcon },
                     }),
                 );
-                if (title) title.textContent = 'Gilberts In Your Area';
+                if (title) title.textContent = ts('regionSelector.gilbertsInYourArea');
             } else {
                 document.dispatchEvent(
                     new CustomEvent(EVT_GLOBE_EASTER_EGG_OFF),
                 );
-                if (title) title.textContent = 'RoValra Region Selector';
+                if (title) title.textContent = ts('regionSelector.title');
             }
         }
     });
@@ -607,7 +595,10 @@ function populateRegionSidePanel(container, theme) {
             row.innerHTML = DOMPurify.sanitize(
                 `<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`,
             );
-            addTooltip(row, `Filter by ${item.label} (${item.count} servers)`, {
+            addTooltip(row, ts('regionSelector.filterByRegionItem', {
+                region: item.label,
+                count: item.count,
+            }), {
                 position: 'left',
             });
 
@@ -630,10 +621,11 @@ function createRegionDropdownWidget(container) {
     wrapper.id = 'rovalra-region-filter-dropdown-wrapper';
     wrapper.className = 'filter-dropdown-container rovalra-filter-widget';
 
-    const btn = createButton('Region', 'secondary');
+    const btn = createButton(ts('serverFilters.region'), 'secondary');
     btn.classList.add('filter-button-alignment');
-    btn.innerHTML = `<span>Region</span><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19.3 16.9c.4-.7.7-1.5.7-2.4 0-2.5-2-4.5-4.5-4.5S11 12 11 14.5s2 4.5 4.5 4.5c.9 0 1.7-.3 2.4-.7l3.2 3.2 1.4-1.4zm-3.8.1c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5M12 20v2C6.48 22 2 17.52 2 12S6.48 2 12 2c4.84 0 8.87 3.44 9.8 8h-2.07c-.64-2.46-2.4-4.47-4.73-5.41V5c0 1.1-.9 2-2 2h-2v2c0 .55-.45 1-1 1H8v2h2v3H9l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.41 3.59 8 8 8"></path></svg>`;
-    addTooltip(btn, 'Filter servers by region', { position: 'top' });
+    btn.innerHTML = `<span>${ts('serverFilters.region')}</span><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19.3 16.9c.4-.7.7-1.5.7-2.4 0-2.5-2-4.5-4.5-4.5S11 12 11 14.5s2 4.5 4.5 4.5c.9 0 1.7-.3 2.4-.7l3.2 3.2 1.4-1.4zm-3.8.1c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5M12 20v2C6.48 22 2 17.52 2 12S6.48 2 12 2c4.84 0 8.87 3.44 9.8 8h-2.07c-.64-2.46-2.4-4.47-4.73-5.41V5c0 1.1-.9 2-2 2h-2v2c0 .55-.45 1-1 1H8v2h2v3H9l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.41 3.59 8 8 8"></path></svg>`;
+    addTooltip(btn, ts('regionSelector.filterByRegion'), { position: 'top' });
+    btn.querySelector('span').textContent = ts('serverFilters.region');
     wrapper.appendChild(btn);
 
     const sidePanel = document.createElement('div');
@@ -788,12 +780,15 @@ function handleGlobeHover(e) {
     const countryCode = regionCode.split('-')[0].toLowerCase();
     const serverCount = State.activeServerCounts[regionCode] || 0;
     const dcCount = State.dataCenterCounts[regionCode] || 0;
-    let flagSrc = State.flags[countryCode];
-    if (!flagSrc) {
-        flagSrc = `https://flagcdn.com/w40/${countryCode}.png`;
-        cacheFlag(countryCode);
+    tooltip.innerHTML = DOMPurify.sanitize(`<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img class="rovalra-globe-tooltip-flag" alt=""><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>${ts('regionSelector.servers')}<b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>${ts('regionSelector.datacenters')}<b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`);
+    const flag = tooltip.querySelector('.rovalra-globe-tooltip-flag');
+    if (flag) {
+        flag.src = `https://flagcdn.com/w40/${countryCode}.png`;
+        flag.alt = `${countryCode.toUpperCase()} flag`;
+        flag.width = 20;
+        flag.height = 13;
+        flag.style.borderRadius = '2px';
     }
-    tooltip.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img src="${flagSrc}" style="width: 20px; height: 13px; border-radius: 2px;"><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>Servers: <b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>Datacenters: <b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`;
     tooltip.style.left = `${x}px`;
     tooltip.style.top = `${y}px`;
     tooltip.style.display = 'flex';

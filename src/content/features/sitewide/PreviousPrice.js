@@ -13,45 +13,85 @@ const itemOffSaleDeadlines = new Map();
 const pendingCards = new Map();
 let listenersAttached = false;
 
+function isOffSaleItem(item) {
+    return Boolean(
+        item?.isOffSale === true ||
+        item?.priceStatus === 'Off Sale' ||
+        Number(item?.productSaleStatus) === 2,
+    );
+}
+
+function hasValidPreviousPrice(price) {
+    return typeof price === 'number' && Number.isFinite(price) && price >= 0;
+}
+
+function isValidOffSaleDeadline(deadline) {
+    if (!deadline) return false;
+
+    const date = new Date(deadline);
+    const now = Date.now();
+    const oneHundredYearsAgo = new Date();
+    oneHundredYearsAgo.setFullYear(oneHundredYearsAgo.getFullYear() - 100);
+
+    return (
+        !isNaN(date.getTime()) &&
+        date.getTime() <= now &&
+        date.getTime() >= oneHundredYearsAgo.getTime()
+    );
+}
+
+function shouldShowPreviousPrice(price, deadline, isOffSale) {
+    return (
+        isOffSale &&
+        hasValidPreviousPrice(price) &&
+        (!deadline || isValidOffSaleDeadline(deadline))
+    );
+}
+
 function addPriceIconToCard(card, assetId) {
     const price = itemPrices.get(assetId);
     const isOffSale = itemIsOffSale.get(assetId);
     const deadline = itemOffSaleDeadlines.get(assetId);
+    const shouldShow = shouldShowPreviousPrice(price, deadline, isOffSale);
 
-    if (isOffSale && price !== undefined && price > 1) {
-        if (card.matches('.price-container-text')) {
-            addTextPrice(card, price, deadline);
-            return;
+    if (!shouldShow) {
+        if (deadline && !isValidOffSaleDeadline(deadline)) {
+            card.querySelectorAll(
+                '.rovalra-offsale-price-icon, .rovalra-previous-price-text',
+            ).forEach((element) => element.remove());
         }
+        return;
+    }
 
-        let container;
-        const priceLabelSelector =
-            '.text-overflow.item-card-price, .rovalra-item-rap';
-        container = card.querySelector(priceLabelSelector);
+    if (card.matches('.price-container-text')) {
+        addTextPrice(card, price, deadline);
+        return;
+    }
 
-        if (!container) {
-            const caption = card.querySelector('.item-card-caption');
-            if (caption) {
-                const newContainer = document.createElement('div');
-                newContainer.className =
-                    'text-overflow item-card-price font-header-2 text-subheader margin-top-none';
+    let container;
+    const priceLabelSelector =
+        '.text-overflow.item-card-price, .rovalra-item-rap';
+    container = card.querySelector(priceLabelSelector);
 
-                const offSaleSpan = document.createElement('span');
-                offSaleSpan.className = 'text text-label text-robux-tile';
-                offSaleSpan.textContent = ts('previousPrice.offSale');
-                newContainer.appendChild(offSaleSpan);
+    if (!container) {
+        const caption = card.querySelector('.item-card-caption');
+        if (caption) {
+            const newContainer = document.createElement('div');
+            newContainer.className =
+                'text-overflow item-card-price font-header-2 text-subheader margin-top-none';
 
-                caption.appendChild(newContainer);
-                container = newContainer;
-            }
+            const offSaleSpan = document.createElement('span');
+            offSaleSpan.className = 'text text-label text-robux-tile';
+            offSaleSpan.textContent = ts('previousPrice.offSale');
+            newContainer.appendChild(offSaleSpan);
+
+            caption.appendChild(newContainer);
+            container = newContainer;
         }
+    }
 
-        if (
-            container &&
-            !container.querySelector('.rovalra-offsale-price-icon')
-        ) {
-            addIcon(container, price, deadline);
-        }
+    if (container && !container.querySelector('.rovalra-offsale-price-icon')) {
+        addIcon(container, price, deadline);
     }
 }
 
@@ -81,16 +121,14 @@ export function init() {
             const updatedAssetIds = new Set();
 
             data.data.forEach((item) => {
-                if (item.id) {
-                    itemPrices.set(item.id, item.price);
-                    itemIsOffSale.set(
-                        item.id,
-                        item.isOffSale || item.priceStatus === 'Off Sale',
-                    );
+                const itemId = item.id ?? item.itemTargetId;
+                if (itemId) {
+                    itemPrices.set(itemId, item.price);
+                    itemIsOffSale.set(itemId, isOffSaleItem(item));
                     if (item.offSaleDeadline) {
-                        itemOffSaleDeadlines.set(item.id, item.offSaleDeadline);
+                        itemOffSaleDeadlines.set(itemId, item.offSaleDeadline);
                     }
-                    updatedAssetIds.add(item.id);
+                    updatedAssetIds.add(itemId);
                 }
             });
 
@@ -165,8 +203,7 @@ export function init() {
                                 if (bundleDetails.data) {
                                     bundleDetails.data.forEach((bundle) => {
                                         const bundleIsOffSale =
-                                            bundle.isOffSale ||
-                                            bundle.priceStatus === 'Off Sale';
+                                            isOffSaleItem(bundle);
                                         if (
                                             bundleIsOffSale &&
                                             bundle.price !== undefined
@@ -321,15 +358,16 @@ async function handleOffsalePriceContainer(container) {
     const itemType = isBundle ? 'Bundle' : 'Asset';
 
     const currentPrice = itemPrices.get(numericAssetId);
-    const hasValidPreviousPrice =
-        currentPrice !== undefined && currentPrice > 1;
-    const hasDeadline = itemOffSaleDeadlines.has(numericAssetId);
+    const hasPrice = hasValidPreviousPrice(currentPrice);
+    const hasDeadline = isValidOffSaleDeadline(
+        itemOffSaleDeadlines.get(numericAssetId),
+    );
 
-    if (!hasValidPreviousPrice || !hasDeadline) {
+    if (!hasPrice || !hasDeadline) {
         try {
             const details = await getItemDetails(numericAssetId, itemType);
             if (details) {
-                const previousPrice = details.price || details.lowestPrice;
+                const previousPrice = details.price ?? details.lowestPrice;
                 if (previousPrice !== undefined && previousPrice !== null)
                     itemPrices.set(numericAssetId, previousPrice);
 
@@ -339,10 +377,7 @@ async function handleOffsalePriceContainer(container) {
                         details.offSaleDeadline,
                     );
 
-                itemIsOffSale.set(
-                    numericAssetId,
-                    details.isOffSale || details.priceStatus === 'Off Sale',
-                );
+                itemIsOffSale.set(numericAssetId, isOffSaleItem(details));
             }
         } catch (e) {
             console.warn(
@@ -370,8 +405,7 @@ function addIcon(container, price, deadline) {
 
     const assets = getAssets();
     const date = new Date(deadline);
-    const hasDeadline =
-        deadline && !isNaN(date.getTime()) && date.getFullYear() >= 2000;
+    const hasDeadline = isValidOffSaleDeadline(deadline);
 
     const icon = document.createElement('div');
     icon.className = 'rovalra-offsale-price-icon';
@@ -411,9 +445,7 @@ function addIcon(container, price, deadline) {
 function addTextPrice(container, price, deadline) {
     if (container.querySelector('.rovalra-previous-price-text')) return;
 
-    const date = new Date(deadline);
-    const hasDeadline =
-        deadline && !isNaN(date.getTime()) && date.getFullYear() >= 2000;
+    const hasDeadline = isValidOffSaleDeadline(deadline);
 
     const div = document.createElement('div');
     div.className = 'rovalra-previous-price-text';

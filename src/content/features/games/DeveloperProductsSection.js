@@ -173,7 +173,7 @@ function createAutoBuyProductCard(product, thumbnail, universeId) {
         'rovalra-products-section-buy PurchaseButton btn-buy-md btn-full-width rbx-gear-passes-purchase btn-primary-md btn-min-width';
     buyButton.dataset.productId = product.ProductId;
     buyButton.dataset.itemId = product.ProductId;
-    buyButton.dataset.itemName = product.Name || 'Unnamed Product';
+    buyButton.dataset.itemName = product.Name || ts('common.unnamedProduct');
     buyButton.dataset.expectedPrice = product.PriceInRobux ?? '';
     buyButton.dataset.assetType = 'Developer Product';
     buyButton.textContent = ts('privateGames.products.buy');
@@ -250,7 +250,7 @@ async function renderProductsPage(content, placeId) {
 
     if (!universeId) {
         section.replaceChildren(
-            createStatus('Unable to load developer products for this game.'),
+            createStatus(ts('devProducts.loadError')),
         );
         return;
     }
