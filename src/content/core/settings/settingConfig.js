@@ -582,7 +582,7 @@ export const SETTINGS_CONFIG = {
                             'Only changes the private server section.',
                         ],
                         type: 'checkbox',
-                        default: false,
+                        default: true,
                         contributors: ['4632962611'],
                     },
 
