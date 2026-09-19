@@ -620,6 +620,14 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    EnableServerLanguageMatch: {
+                        label: 'Server Language Match',
+                        description: [
+                            'Shows how many players in each server speak your language.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                     EnableFullServerID: {
                         label: 'Show the entire ServerID',
                         description: [

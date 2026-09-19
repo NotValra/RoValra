@@ -21,6 +21,7 @@ import {
     fetchServerUptime,
     displayUptime,
     displayPlaceVersion,
+    displayLanguageMatch,
     displayRegion,
     displayServerFullStatus,
     displayPrivateServerStatus,
@@ -112,6 +113,7 @@ const SHARED_STYLES = `
         min-width: 110px !important;
     }
     .rovalra-modern-ui .rovalra-version-info { order: 5 !important; }
+    .rovalra-modern-ui .rovalra-language-match-info { order: 6 !important; }
 
     .rovalra-modern-ui .rovalra-region-info {
         order: 10 !important;
@@ -1079,6 +1081,7 @@ function initializeEnhancementObserver() {
 
             try {
                 enhanceServer(el, {
+                    serverDataCache: _state.serverDataCache,
                     serverLocations:
                         _state.serverLocations,
                     serverStatuses:
@@ -1124,7 +1127,7 @@ try {
                         serverData.serverId;
                     if (!serverId) continue;
 
-                    _state.serverDataCache.set(serverId, serverData);
+                    _state.serverDataCache.set(String(serverId), serverData);
                     const fps =
                         serverData.fps ??
                         serverData.FPS ??
@@ -1194,6 +1197,11 @@ try {
                                 );
                             } catch (e) {}
                         }
+
+                        displayLanguageMatch(
+                            serverElement,
+                            serverData.languageMatchCount,
+                        ).catch(() => {});
 
                         const placeVersion =
                             serverData.placeVersion ?? serverData.place_version;
