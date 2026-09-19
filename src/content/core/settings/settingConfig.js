@@ -575,6 +575,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 childSettings: {
+                    PrivateServerGridEnabled: {
+                        label: 'Private Server Grid',
+                        description: [
+                            'Displays private/VIP servers in a compact responsive grid.',
+                            'Only changes the private server section.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['4632962611'],
+                    },
+
                     enableShareLink: {
                         label: 'Share link button',
                         description: [
