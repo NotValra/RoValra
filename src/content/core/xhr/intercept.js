@@ -38,6 +38,7 @@ const LayeredAssetTypes = [
         'https://metrics.roblox.com/v1/games/report-event';
     const GAME_SERVERS_API_URL = 'https://games.roblox.com/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
+    const PRIVATE_SERVER_CREATE_PATH = '/v1/games/vip-servers/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
     const TRADE_DETAILS_API_URL = 'https://trades.roblox.com/v2/trades/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
@@ -1117,6 +1118,24 @@ const LayeredAssetTypes = [
                     .catch(() => {});
             }
             if (
+                requestUrl.includes(GAMES_ROBLOX_API) &&
+                requestUrl.includes(PRIVATE_SERVER_CREATE_PATH) &&
+                String(args[1]?.method || args[0]?.method).toUpperCase() ===
+                    'POST'
+            ) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) =>
+                        document.dispatchEvent(
+                            new CustomEvent('rovalra-private-server-created', {
+                                detail: d,
+                            }),
+                        ),
+                    )
+                    .catch(() => {});
+            }
+            if (
                 requestUrl.includes(TRADES_API_URL) &&
                 requestUrl.includes('/tradableitems')
             ) {
@@ -1390,6 +1409,15 @@ const LayeredAssetTypes = [
                     )
                         triggerEvent(
                             'rovalra-game-media-response',
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (
+                        url.includes(GAMES_ROBLOX_API) &&
+                        url.includes(PRIVATE_SERVER_CREATE_PATH) &&
+                        String(xhr._rovalra_method).toUpperCase() === 'POST'
+                    )
+                        triggerEvent(
+                            'rovalra-private-server-created',
                             JSON.parse(xhr.responseText),
                         );
                     if (
