@@ -50,6 +50,7 @@ let pillToggleWrapper = null;
 export let isBodyPartsCategoryEnabled = true;
 export let isAnimationsCategoryEnabled = true;
 export let isEmotesCategoryEnabled = true;
+export let isShowOffsaleBundleValueEnabled = true;
 
 export function enableAllCategories() {
     isBodyPartsCategoryEnabled = true;
@@ -179,6 +180,14 @@ export function recalculateTotalPrice() {
     allCards.forEach((card) => {
         if (card.classList.contains('shimmer')) return;
 
+        if (
+            card.closest('.emotes') ||
+            card.closest('.cosmetics') ||
+            card.closest('.animations')
+        ) {
+            return;
+        }
+
         const link = card.querySelector('a.rovalra-item-card-link');
         if (!link) return;
 
@@ -188,32 +197,87 @@ export function recalculateTotalPrice() {
         const assetId = parseInt(match[2]);
         const info = assetInfoCache.get(assetId);
 
-        if (!info || !info.assetType || !info.assetType.id) {
+        if (
+            info?.rovalraCategory === 'emotes' ||
+            info?.rovalraCategory === 'cosmetics' ||
+            info?.rovalraCategory === 'animations'
+        ) {
             return;
         }
 
-        if (ASSET_TYPE_IDS.EMOTES.has(info.assetType.id)) {
+        if (
+            info?.assetType?.id &&
+            (ASSET_TYPE_IDS.EMOTES.has(info.assetType.id) ||
+                ASSET_TYPE_IDS.ANIMATIONS.has(info.assetType.id))
+        ) {
             return;
         }
 
-        const price = parseFloat(card.dataset.rovalraPrice);
-        if (isNaN(price) || price === 0) {
-            return;
-        }
-
+        const onSalePrice = parseFloat(card.dataset.rovalraPrice);
         const bundleId = card.dataset.rovalraBundleId;
+        const bundlePrice = parseFloat(card.dataset.rovalraBundlePrice);
+        const offsalePrice = parseFloat(card.dataset.rovalraOffsalePrice);
 
         if (bundleId) {
             if (!processedBundleIds.has(bundleId)) {
-                totalPrice += price;
-                processedBundleIds.add(bundleId);
+                if (
+                    isShowOffsaleBundleValueEnabled &&
+                    !isNaN(bundlePrice) &&
+                    bundlePrice > 0
+                ) {
+                    totalPrice += bundlePrice;
+                    processedBundleIds.add(bundleId);
+                } else if (!isNaN(onSalePrice) && onSalePrice > 0) {
+                    totalPrice += onSalePrice;
+                    processedBundleIds.add(bundleId);
+                }
             }
         } else {
-            totalPrice += price;
+            if (!isNaN(onSalePrice) && onSalePrice > 0) {
+                totalPrice += onSalePrice;
+            } else if (
+                isShowOffsaleBundleValueEnabled &&
+                !isNaN(offsalePrice) &&
+                offsalePrice > 1
+            ) {
+                totalPrice += offsalePrice;
+            }
         }
     });
 
     updateTotalDisplay();
+}
+
+export function updateCardPriceDisplay(card) {
+    const rapDiv = card.querySelector('.rovalra-item-rap');
+    if (!rapDiv) return;
+
+    const onSalePrice = parseFloat(card.dataset.rovalraPrice);
+    const priceText = card.dataset.rovalraPriceText || 'Off Sale';
+    const rap = parseFloat(card.dataset.rovalraRap);
+
+    if (!isNaN(onSalePrice) && onSalePrice >= 0) {
+        if (onSalePrice === 0) {
+            rapDiv.innerHTML = safeHtml`<span>${priceText || 'Free'}</span>`;
+        } else {
+            rapDiv.innerHTML = safeHtml`<span class="icon-robux-16x16"></span><span>${onSalePrice.toLocaleString()}</span>`;
+        }
+    } else if (card.dataset.rovalraPriceText) {
+        rapDiv.innerHTML = safeHtml`<span>${card.dataset.rovalraPriceText}</span>`;
+    } else if (!isNaN(rap) && rap > 0) {
+        rapDiv.innerHTML = safeHtml`<span class="icon-robux-16x16"></span><span>${rap.toLocaleString()}</span>`;
+    } else {
+        rapDiv.innerHTML = safeHtml`<span>Off Sale</span>`;
+    }
+}
+
+export function updateAllCardPriceDisplays() {
+    const allCards = document.querySelectorAll(
+        '.rovalra-category-grid .rovalra-item-card',
+    );
+    allCards.forEach((card) => {
+        updateCardPriceDisplay(card, isShowOffsaleBundleValueEnabled);
+    });
 }
 
 function updateScrollButtonStates(container, leftBtn, rightBtn) {
@@ -823,6 +887,7 @@ export function addItemToCategoryView(itemEl, assetId) {
         const card = createItemCard(assetId, {
             thumbnailData,
             itemType: info?.itemType || 'Asset',
+            showOffsaleBundleValue: isShowOffsaleBundleValueEnabled,
         });
         card.dataset.rovalraPendingId = assetId;
         targetGrid.appendChild(card);
@@ -886,6 +951,7 @@ export async function init() {
                 'CategorizeBodyParts',
                 'CategorizeAnimations',
                 'CategorizeEmotes',
+                'ShowOffsaleBundleValue',
             ],
             resolve,
         ),
@@ -895,6 +961,16 @@ export async function init() {
     isBodyPartsCategoryEnabled = result.CategorizeBodyParts !== false;
     isAnimationsCategoryEnabled = result.CategorizeAnimations !== false;
     isEmotesCategoryEnabled = result.CategorizeEmotes !== false;
+    isShowOffsaleBundleValueEnabled = result.ShowOffsaleBundleValue !== false;
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local' && changes.ShowOffsaleBundleValue !== undefined) {
+            isShowOffsaleBundleValueEnabled =
+                changes.ShowOffsaleBundleValue.newValue !== false;
+            updateAllCardPriceDisplays();
+            recalculateTotalPrice();
+        }
+    });
 
     await loadAssetTypeIds();
 
