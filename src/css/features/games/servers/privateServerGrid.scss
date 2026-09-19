@@ -160,3 +160,10 @@
     width: 100% !important;
     min-width: 0 !important;
 }
+
+.rovalra-private-server-grid-card
+    .flex.flex-col.min-width-0
+    > * {
+    width: 100% !important;
+    text-align: center !important;
+}
