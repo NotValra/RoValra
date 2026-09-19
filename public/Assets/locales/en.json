@@ -434,6 +434,17 @@
         "suggestOnDiscord": "Suggest underrated games on {{discord}}",
         "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 250 HEP requirement."
     },
+    "playtime": {
+        "topic": "Playtime",
+        "period": "Playtime period",
+        "today": "Today",
+        "thisWeek": "This week",
+        "thisMonth": "This month",
+        "thisYear": "This year",
+        "allTime": "All time",
+        "hours": "{{value}} hours",
+        "minutes": "{{value}} minutes"
+    },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
         "pendingRequest": "Trusted Friend Request Pending",

@@ -437,7 +437,10 @@ async function loadOnlineFriendPresence(userId) {
             .filter((entry) => entry?.id > 0)
             .map((entry) => [
                 entry.id,
-                normalizeFriendPresence(entry.userPresence),
+                {
+                    ...normalizeFriendPresence(entry.userPresence),
+                    sortScore: entry.sortScore,
+                },
             ])
             .filter(
                 ([, presence]) =>
@@ -488,9 +491,21 @@ async function loadFriends() {
     const orderedFriends = friends
         .filter((friend) => friendsById.has(friend.id))
         .sort(
-            (a, b) =>
-                (presencePriority[onlinePresence.get(a.id)?.userPresenceType] ?? 3) -
-                (presencePriority[onlinePresence.get(b.id)?.userPresenceType] ?? 3),
+            (a, b) => {
+                const priorityDifference =
+                    (presencePriority[onlinePresence.get(a.id)?.userPresenceType] ?? 3) -
+                    (presencePriority[onlinePresence.get(b.id)?.userPresenceType] ?? 3);
+                if (priorityDifference !== 0) return priorityDifference;
+
+                const aScore = onlinePresence.get(a.id)?.sortScore ?? a.sortScore;
+                const bScore = onlinePresence.get(b.id)?.sortScore ?? b.sortScore;
+                if (typeof aScore === 'number' && typeof bScore === 'number') {
+                    return bScore - aScore;
+                }
+                if (typeof aScore === 'number') return -1;
+                if (typeof bScore === 'number') return 1;
+                return 0;
+            },
         );
 
     return {

@@ -12,6 +12,7 @@ import {
 } from './subplaceCard.js';
 import { CUSTOM_ADDED_TAGS } from '../../utils/purifyCfg.js';
 import { ts } from '../../locale/i18n.js';
+import { safeHtml } from '../../packages/dompurify.js';
 
 async function isSubplaceHoverCardEnabled() {
     return (
@@ -163,10 +164,13 @@ export function createUserCard({
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
     const showSublabel = showUsername && gameName ? true : showUsername;
-    const sublabelText = showUsername && gameName ? gameName : username;
+    const sublabelText =
+        showUsername && gameName ? safeHtml`${gameName}` : safeHtml`${username}`;
     const sublabelFontSize = gameName ? '9.6px' : '12px';
     const presenceTitle =
-        presenceInfo === 2 && gameName ? gameName : presence.title;
+        presenceInfo === 2 && gameName
+            ? safeHtml`${gameName}`
+            : presence.title;
     const assets = getAssets();
     const verifiedBadge = isVerified
         ? `<span class="relative flex items-center justify-center">
