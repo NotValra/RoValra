@@ -140,6 +140,7 @@ import { init as initGroupRole } from './features/profile/grouprole.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 import { init as initHidePrivateServers } from './features/games/hidePrivateServers.js';
 import { init as initPlusPrivateServerTooltip } from './features/games/plusPrivateServerTooltip.js';
+import { init as initAutoFriendsAllowed } from './features/games/autoFriendsAllowed.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
 import { init as initBannedUsers } from './features/profile/bannedusers.js';
@@ -355,6 +356,7 @@ const featureRoutes = [
             initHidePrivateServers,
             initHeatmap,
             initPlusPrivateServerTooltip,
+            initAutoFriendsAllowed,
             initCatalogExplorer,
             initUnderReviewPill,
         ],
