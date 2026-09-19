@@ -2028,7 +2028,7 @@ function extractGetPropsWorker(selector) {
     if (!key) return { error: "React props key not found" };
 
     const data = el[key];
-    const props = key.startsWith('__reactProps$') ? data : (data?.memoizedProps || data?.return?.memoizedProps);
+    const props = key.startsWith('__reactProps$') ? data : (data?.return?.memoizedProps || data?.memoizedProps);
 
     if (!props) return { error: "Props are empty" };
 

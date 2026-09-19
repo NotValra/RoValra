@@ -23,7 +23,7 @@ import { applyDisplayNameGradientToElement } from '../profile/header/displayName
 import { applyBorderToContainer } from '../profile/avatarBorder.js';
 import { applyGradientForUserId } from '../profile/header/profileBackground.js';
 import { CUSTOM_ADDED_TAGS } from '../../core/utils/purifyCfg.js';
-import { getKey } from '../../core/react/utils.js';
+import { getKey, getProps } from '../../core/react/utils.js';
 
 let keepOpenInAppProfileItem = false;
 const cssClassNamePrefix = "rovalra-sendrobux";
@@ -583,9 +583,6 @@ async function addSendRobuxButton(menu) {
     const userId = getUserIdFromUrl();
     if (!userId || String(userId) === String(authedUserId)) return;
 
-    const canTransfer = await getSendRobuxStatus();
-    //if (!canTransfer) return;
-
     const { button } = createContextMenuButton(
         await t('plus.sendRobux.profile.button', {
             defaultValue: 'Send Robux',
@@ -593,30 +590,7 @@ async function addSendRobuxButton(menu) {
     );
 
     button.addEventListener('click', async () => {
-        if (canTransfer) {
-            showStep1Popup(userId, null, window.event?.shiftKey || false)
-        } else {
-            const easterEgg = isAprilFools() || window.event?.shiftKey || false
-            const getPlusOverlay = createOverlay({
-                title: await t(`plus.sendRobux.popup.shared.title${easterEgg ? 'Silly' : '' }`),
-                bodyContent: await t(`plus.sendRobux.popup.plusNeeded.body${easterEgg ? 'Silly' : '' }`),
-                showLogo: true,
-                actions: [
-                    createButton(await t(`plus.sendRobux.popup.plusNeeded.buyPlusBtn${easterEgg ? 'Silly' : '' }`), 'secondary', {
-                        onClick: () => {
-                            getPlusOverlay.close();
-                            window.open("/plus", "_blank");
-                        }
-                    }),
-                    createButton(await t(`plus.sendRobux.popup.${easterEgg ? 'plusNeeded.okBtnSilly' : 'shared.okBtn' }`), 'primary', {
-                        onClick: () => {
-                            getPlusOverlay.close();
-                        }
-                    }),
-                ],
-            });
-        }
-
+        showSendRobuxPopup(userId, 0, window.event?.shiftKey || false);
     });
 
     const container = menu.querySelector('[role="group"]') || menu;
@@ -685,6 +659,75 @@ export function initNotificationCenter() {
                 } catch { }
             })
 
+        }, { multiple: true, });
+
+        // New Variant React Notification Popup
+
+        const REACT_NOTIFICATION_PROPS_SELECTOR = '#notification-stream-popover > div.popover-content > div > div.notification-stream-base.builder-font > div:nth-child(2) > div.notification-stream-scroll';
+        const REACT_NOTIFICATION_ITEM_SELECTOR = `${REACT_NOTIFICATION_PROPS_SELECTOR} > ul.foundation-web-list > li`;
+
+        observeElement(REACT_NOTIFICATION_ITEM_SELECTOR, async (element) => {
+            const nth = (Array.from(element.parentNode.children)).indexOf(element);
+            const notificationItemProps = await getProps(`${REACT_NOTIFICATION_ITEM_SELECTOR}:nth-child(${nth + 1}) > div > div.sendr-notification-background.sendr-notification-visible`);
+            const notificationData = notificationItemProps.notificationData;
+
+            if (notificationData.content.notificationType !== "RobuxTransferReceived" || !notificationData.content.states.default.visualItems.button[1].actions[0].path.startsWith('roblox://navigation/currency_transfer')) return;
+
+            console.log('GOT NOTIFICATION DATA FROM PROPS:', notificationData);
+
+
+            const notificationEl = element.querySelector('div.foundation-web-notification');
+            const notificationElClone = notificationEl.cloneNode(true);
+            const primaryButton = notificationElClone.querySelector('button.sendr-notification-button--primary.sendr-notification-button.foundation-web-button');
+            const primaryButtonClone = primaryButton.cloneNode(true);
+            const secondaryButton = element.querySelector('button.sendr-notification-button--secondary.sendr-notification-button.foundation-web-button');
+            const secondaryButtonCloned = notificationElClone.querySelector('button.sendr-notification-button--secondary.sendr-notification-button.foundation-web-button');
+
+            const imgParentClone = notificationElClone.querySelector('span.thumbnail-2d-container.notification-icon');
+            const thumbnailData = notificationData.content.states.default.visualItems.thumbnail[0];
+            const thumbnailImg = document.createElement('img');
+            const userThumbnail = await getBatchThumbnails([thumbnailData.id], 'AvatarHeadshot');
+
+            console.log(thumbnailData, userThumbnail);
+
+            thumbnailImg.src = userThumbnail[0].imageUrl;
+            imgParentClone.classList.remove('shimmer');
+            imgParentClone.appendChild(thumbnailImg);
+
+            function btnClick(ev) {
+                ev.preventDefault();
+                sendParentPermissionRecieve(
+                    notificationData.content.states.default.visualItems.button[1].actions[0].path.split('RXT-')[1],
+                    window.event?.shiftKey || false
+                );
+            }
+
+            primaryButtonClone.addEventListener('click', btnClick);
+
+            primaryButton.parentNode.replaceChild(primaryButtonClone, primaryButton);
+
+            secondaryButtonCloned.parentNode.replaceChild(secondaryButton, secondaryButtonCloned);
+
+            notificationEl.parentNode.replaceChild(notificationElClone, notificationEl);
+
+            return;
+
+            const childrenObserver = observeChildren(element, (child) => {
+                try {
+                    var oldEl = element.querySelector('.notif-row-right-button');
+                    var newEl = oldEl.cloneNode(true);
+
+                    newEl.addEventListener('click', (ev) => {
+                        ev.preventDefault()
+                        sendParentPermissionRecieve(
+                            notificationData.content.states.default.visualItems.button[1].actions[0].path.split('RXT-')[1],
+                            window.event?.shiftKey || false
+                        );
+                    });
+                    oldEl.parentNode.replaceChild(newEl, oldEl);
+                    childrenObserver.disconnect();
+                } catch { }
+            })
         }, { multiple: true, });
     });
 }
