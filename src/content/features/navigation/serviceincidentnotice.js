@@ -32,14 +32,14 @@ async function incident(status) {
     incidentLinkEl.innerText = await t('navigation.incidentLearnMore');
     incidentLinkEl.href = 'https://status.rovalra.com';
     incidentLinkEl.target = '_blank';
-    incidentLinkEl.style.color = '#101217';
+    incidentLinkEl.style.color = 'unset';
     incidentLinkEl.style.textDecoration = 'underline';
 
     settingLinkEl.innerText = await t('navigation.incidentHideNotice');
     settingLinkEl.href = SETTING_URL;
     settingLinkEl.target = '_blank';
     settingLinkEl.rel = 'noopener noreferrer';
-    settingLinkEl.style.color = '#101217';
+    settingLinkEl.style.color = 'unset';
     settingLinkEl.style.textDecoration = 'underline';
 
     incidentEl.append(incidentTitleEl, incidentLinkEl, ' ', settingLinkEl);
@@ -54,7 +54,50 @@ async function incident(status) {
 }
 
 async function maintenance(status) {
-    //@TODO at some point i dont wanna now.
+    if (!status.scheduled_maintenances || !status.scheduled_maintenances[0]) return;
+    const scheduledMaintenance = status.scheduled_maintenances[0];
+    const maintenanceElParent = document.createElement('div');
+    const maintenanceEl = document.createElement('div');
+    const maintenanceTitleEl = document.createElement('span');
+    const maintenanceLinkEl = document.createElement('a');
+    const settingLinkEl = document.createElement('a');
+
+    maintenanceEl.classList.add('alert-info', 'rovalra-status-alert');
+    maintenanceEl.role = 'alert';
+
+    const name = scheduledMaintenance.name || '';
+    maintenanceTitleEl.innerText = (
+        await t('navigation.maintenancePrefix') + ' '
+        + name
+        + (name.endsWith('.') || name.endsWith('!') || name.endsWith('?')
+            ? ' '
+            : '. '
+        )
+    );
+
+    maintenanceLinkEl.innerText = await t('navigation.maintenanceLearnMore');
+    maintenanceLinkEl.href = 'https://status.rovalra.com';
+    maintenanceLinkEl.target = '_blank';
+    maintenanceLinkEl.rel = 'noopener noreferrer';
+    maintenanceLinkEl.style.color = 'unset';
+    maintenanceLinkEl.style.textDecoration = 'underline';
+
+    settingLinkEl.innerText = await t('navigation.incidentHideNotice');
+    settingLinkEl.href = SETTING_URL;
+    settingLinkEl.target = '_blank';
+    settingLinkEl.rel = 'noopener noreferrer';
+    settingLinkEl.style.color = 'unset';
+    settingLinkEl.style.textDecoration = 'underline';
+
+    maintenanceEl.append(maintenanceTitleEl, maintenanceLinkEl, ' ', settingLinkEl);
+    maintenanceElParent.appendChild(maintenanceEl);
+
+    const alertContainer = document.querySelector('.alert-container');
+    if (alertContainer) {
+        alertContainer.appendChild(maintenanceElParent);
+    } else {
+        console.warn('RoValra Maintenance Tracker: unable to find alert container to put element', maintenanceElParent);
+    }
 }
 
 async function statusChecker() {
@@ -70,7 +113,7 @@ async function statusChecker() {
         const statusRes = await statusReq.json();
 
         await incident(statusRes);
-        maintenance(statusRes);
+        await maintenance(statusRes);
 
 
     } catch (err) {
