@@ -1126,7 +1126,6 @@ function playAppropriateAnim(outfitModel: OutfitModel, outfitRenderer: OutfitRen
 //setup roavater renderer
 async function startRenderer() {
     if (startedRenderer) return true;
-    startedRenderer = true;
 
     //flags (these are set to true since the avatar is frequently changed)
     FLAGS.ENABLE_API_MESH_CACHE = true;
@@ -1143,6 +1142,7 @@ async function startRenderer() {
 
     const success = await RBXRenderer.fullSetup(true, true, false);
     if (!success) return false;
+    startedRenderer = true;
 
     if (postProcessingEnabled) RBXRenderer.createEffectComposer(mainScene);
 
@@ -1201,6 +1201,7 @@ async function startRenderer() {
 
 //update main renderer outfit for item
 async function updateMainRenderer() {
+    if (!startedRenderer || !mainRendererEnabled) return;
     const targetUrl = window.location.href;
 
     needsMainOutfitRenderer =
@@ -1500,10 +1501,6 @@ async function asyncInit() {
         );
     });
 
-    const success = await startRenderer();
-    if (!success) return;
-    await updateMainRenderer();
-
     //update main renderer
     observeElement('.thumbnail-holder', (element: HTMLElement) => {
         const url = window.location.href;
@@ -1555,7 +1552,16 @@ async function asyncInit() {
                     marketplace3DRenderActive: mainRendererEnabled,
                 });
 
-                if (mainRendererEnabled) updateMainRenderer();
+                if (mainRendererEnabled) {
+                    void startRenderer().then(async (success) => {
+                        if (!success) return;
+                        if (!animationLoopStarted) {
+                            animationLoopStarted = true;
+                            customAnimate();
+                        }
+                        await updateMainRenderer();
+                    });
+                }
 
                 //switch out default buttons with custom
                 buttonFor3dIcon.src = applyIconTheme(
@@ -1667,6 +1673,17 @@ async function asyncInit() {
                 itemThumbContainer.addEventListener('mouseenter', () => {
                     if (!hoverPreviewEnabled) return;
 
+                    if (!startedRenderer) {
+                        void startRenderer().then(async (success) => {
+                            if (!success) return;
+                            await loadOgAvatar();
+                            if (!animationLoopStarted) {
+                                animationLoopStarted = true;
+                                customAnimate();
+                            }
+                        });
+                    }
+
                     currentHoveredItemElement = element;
                     currentHoveredItemThumbElement = itemThumbContainer;
                     currentHoveredItemLink = itemLinkElement.href;
@@ -1721,10 +1738,21 @@ async function asyncInit() {
                 itemLinkElement &&
                 itemThumbContainer
             ) {
-                itemThumbContainerContainer.addEventListener(
+                    itemThumbContainerContainer.addEventListener(
                     'mouseenter',
                     () => {
                         if (!hoverPreviewEnabled) return;
+
+                        if (!startedRenderer) {
+                            void startRenderer().then(async (success) => {
+                                if (!success) return;
+                                await loadOgAvatar();
+                                if (!animationLoopStarted) {
+                                    animationLoopStarted = true;
+                                    customAnimate();
+                                }
+                            });
+                        }
 
                         currentHoveredItemElement = element;
                         currentHoveredItemThumbElement =
@@ -1756,9 +1784,18 @@ async function asyncInit() {
         { multiple: true },
     );
 
-    //animate renderer
-    customAnimate();
+    if (mainRendererEnabled) {
+        const success = await startRenderer();
+        if (success) {
+            animationLoopStarted = true;
+            await updateMainRenderer();
+            customAnimate();
+        }
+    }
+
 }
+
+let animationLoopStarted = false;
 
 export function init() {
     chrome.storage.onChanged.addListener((changes: any, areaName: any) => {
