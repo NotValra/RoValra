@@ -37,7 +37,11 @@ const launch40MethodGame = (placeId, launchData, useSoberSupportDeeplinks) => {
     const deeplink = new URL('roblox://experiences/start');
     deeplink.searchParams.set('placeId', String(placeId));
     deeplink.searchParams.set('launchData', String(launchData));
-    window.location.href = deeplink.toString();
+    const deeplinkUrl = deeplink
+        .toString()
+        .replace(/%3A/gi, ':')
+        .replace(/%2C/gi, ',');
+    window.location.href = deeplinkUrl;
 };
 
 const isGamePassBeforeDisable = () => {
@@ -461,7 +465,7 @@ const detectAndAddSaveButton = () => {
     );
 
     observeElement(
-        '.modal-content, .unified-purchase-dialog-content, .modal-dialog',
+        '.modal-content, .unified-purchase-dialog-content, .foundation-web-dialog-content, .modal-dialog',
         (element) => {
             const modal = element.classList.contains('modal-dialog')
                 ? element.querySelector('.modal-content')
@@ -1695,7 +1699,7 @@ const executeCartPurchase = async (
     } else {
         ownershipChecks = await Promise.all(
             cartItems.map((item) =>
-                checkItemOwnership(currentUserId, item.id, 'Asset'),
+                checkItemOwnership(currentUserId, item.id, item.type || 'Asset'),
             ),
         );
     }
@@ -1857,7 +1861,7 @@ const executeCartPurchase = async (
         changeExperienceBtn.addEventListener('click', () => {
             closeFinalConfirm();
             createAndShowPopup(() => {
-                executeCartPurchase(cartItems, totalPrice);
+                executeCartPurchase(cartItems);
             });
         });
     }
@@ -2383,6 +2387,9 @@ const addSaveButton = (modal) => {
             ) ||
             modalWindow.querySelector(
                 '.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn, .modal-footer .btn-primary-md',
+            ) ||
+            modalWindow.querySelector(
+                '.foundation-web-dialog-content button:not([aria-label="Close"]):not(.btn-save-robux)',
             );
 
         const isUnified =
@@ -2415,6 +2422,7 @@ const addSaveButton = (modal) => {
 
         const closeButton =
             modalWindow.querySelector('.foundation-web-close-affordance') ||
+            modalWindow.querySelector('button[aria-label="Close"]') ||
             modalWindow.querySelector(
                 '.foundation-web-dialog-close-container button',
             ) ||
