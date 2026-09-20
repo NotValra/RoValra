@@ -6,6 +6,7 @@ import * as CacheHandler from './storage/cacheHandler.js';
 
 const API_ENDPOINT_DATACENTERS_LIST = '/v1/datacenters/list';
 const STORAGE_KEY_DATACENTERS = 'rovalraDatacenters';
+const DATACENTER_CACHE_MAX_AGE_MS = 10 * 60 * 1000;
 const STORAGE_KEY_REGIONS = 'cachedRegions';
 const STORAGE_KEY_CONTINENTS = 'cachedRegionContinents';
 
@@ -147,6 +148,7 @@ export function loadDatacenterMap() {
                 'regions',
                 STORAGE_KEY_DATACENTERS,
                 'local',
+                DATACENTER_CACHE_MAX_AGE_MS,
             );
             hasStoredCache = currentData !== null && currentData !== undefined;
             if (hasStoredCache) {
