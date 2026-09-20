@@ -29,7 +29,8 @@
         "i18next": "26.3.6",
         "marked": "^18.0.5",
         "roavatar-renderer": "^1.9.3",
-        "roblox-bat": "0.6.5"
+        "roblox-bat": "0.6.5",
+        "semver": "^7.8.5"
     },
     "overrides": {
         "brace-expansion": "^2.0.1",

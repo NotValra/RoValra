@@ -1,4 +1,5 @@
 import { callRobloxApiJson } from '../api.js';
+import semver from 'semver';
 
 export const REMOTE_SETTING_LOCKS_KEY = 'rovalra_remote_setting_locks';
 
@@ -28,7 +29,7 @@ const fetchRemoteSettingsConfig = () =>
     callRobloxApiJson({
         isRovalraApi: true,
         subdomain: 'www',
-        endpoint: '/RoValra/Settings/config.json',
+        endpoint: '/global-settings/feature-kill.json',
         method: 'GET',
     });
 
@@ -75,14 +76,28 @@ const getRemoteSettingsConfig = async () => {
     }
 };
 
-const getRemoteDisabledKeys = async () => {
-    const config = await getRemoteSettingsConfig();
-    if (!config || typeof config !== 'object' || Array.isArray(config)) {
+const getRemoteDisabledKeys = async (config = await getRemoteSettingsConfig()) => {
+    if (!config || typeof config !== 'object' || Array.isArray(config) || !config.features || typeof config.features !== 'object' || !Array.isArray(config.features)) {
         return [];
     }
 
-    return Object.keys(config).filter((key) => typeof key === 'string' && key);
+    return config.features.filter((settingLock) => typeof settingLock.setting === 'string' && settingLock.setting);
 };
+
+const filterSettings = async (config = await getRemoteSettingsConfig(), curver = chrome.runtime.getManifest().version) => {
+    return {
+        features: config.features.filter((feature) =>
+            feature.versions.find((versionTarget) =>
+                (
+                    typeof versionTarget === "string" && semver.satisfies(curver, versionTarget) && versionTarget
+                ) ||
+                (
+                    typeof versionTarget === "object" && semver.satisfies(curver, versionTarget.ver) && versionTarget
+                )
+            )
+        ),
+    }
+}
 
 export const getRemoteSettingLocks = async () => {
     const result = await getStorage({ [REMOTE_SETTING_LOCKS_KEY]: {} });
@@ -93,7 +108,9 @@ export const getRemoteSettingLocks = async () => {
 };
 
 export const refreshRemoteSettingLocks = async () => {
-    const disabledKeys = await getRemoteDisabledKeys();
+    const disabledSettingsUnfiltered = await getRemoteSettingsConfig();
+    const disabledSettings = filterSettings(disabledSettingsUnfiltered());
+    const disabledKeys = await getRemoteDisabledKeys(disabledSettings);
     const allowRemoteOverrides = await isRemoteSettingOverrideEnabled();
     const disabledKeySet = new Set(disabledKeys);
     const storage = await getStorage(null);
