@@ -929,6 +929,13 @@
                 "unavailable": "Unavailable",
                 "notAvailable": "N/A"
             },
+            "levels": {
+                "allGood": "All Good",
+                "limited": "Limited",
+                "veryLimited": "Very Limited",
+                "atRisk": "At Risk",
+                "suspended": "Suspended"
+            },
             "search": {
                 "placeholder": "Search Settings..."
             },
