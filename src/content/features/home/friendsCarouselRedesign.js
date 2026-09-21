@@ -6,7 +6,10 @@ import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../core/assets.js';
 import { ts } from '../../core/locale/i18n.js';
 import { getFriendsList } from '../../core/utils/trackers/friendslist.js';
-import { createFriendTile } from '../../core/ui/profile/userCard.js';
+import {
+    createFriendTile,
+    updateUserCardPresence,
+} from '../../core/ui/profile/userCard.js';
 import { followUser, openWebChat } from '../../core/utils/launcher.js';
 
 const SETTING_NAME = 'friendsCarouselRedesignEnabled';
@@ -24,6 +27,8 @@ const ORIGINAL_LIST_SELECTOR =
 
 const FRIEND_ID_CAP = 500;
 const RENDER_CHUNK = 40;
+const PRESENCE_REFRESH_MS = 10_000;
+const PRESENCE_BATCH_SIZE = 100;
 const HOVER_SHOW_DELAY = 0;
 
 let enabled = false;
@@ -557,6 +562,78 @@ async function fetchChunkData(ids, onlinePresence) {
     };
 }
 
+async function refreshCarouselPresence(scrollEl, token) {
+    if (scrollEl.rovalraPresenceRefreshing) return;
+    const tiles = [...scrollEl.querySelectorAll('[data-rovalra-user-id]')];
+    const userIds = tiles.map((tile) => Number(tile.dataset.rovalraUserId));
+    if (!userIds.length) return;
+
+    scrollEl.rovalraPresenceRefreshing = true;
+    try {
+        const batches = [];
+        for (let i = 0; i < userIds.length; i += PRESENCE_BATCH_SIZE) {
+            batches.push(userIds.slice(i, i + PRESENCE_BATCH_SIZE));
+        }
+
+        const results = await Promise.all(
+            batches.map((ids) =>
+                callRobloxApiJson({
+                    subdomain: 'presence',
+                    endpoint: '/v1/presence/users',
+                    method: 'POST',
+                    body: { userIds: ids },
+                }).catch(() => null),
+            ),
+        );
+        if (token !== populateToken || !scrollEl.isConnected) return;
+
+        const presenceById = new Map();
+        for (const result of results) {
+            for (const presence of result?.userPresences || []) {
+                presenceById.set(Number(presence.userId), presence);
+            }
+        }
+
+        for (const tile of tiles) {
+            const userId = Number(tile.dataset.rovalraUserId);
+            const presence = presenceById.get(userId) || { userPresenceType: 0 };
+            tile.rovalraPresence = presence;
+            updateUserCardPresence(
+                tile,
+                presence.userPresenceType ?? 0,
+                presence.userPresenceType === 2
+                    ? presence.lastLocation || null
+                    : null,
+                presence,
+            );
+            if (presence.userPresenceType !== 2 || !presence.lastLocation) {
+                const sublabel = tile.querySelector('.user-card-subname');
+                if (sublabel) {
+                    sublabel.textContent = tile.dataset.rovalraUsername || '';
+                }
+            }
+        }
+
+        const presencePriority = { 2: 0, 3: 1, 1: 2 };
+        const orderedTiles = tiles
+            .map((tile, index) => ({ tile, index }))
+            .sort((a, b) => {
+                const aType = a.tile.rovalraPresence?.userPresenceType ?? 0;
+                const bType = b.tile.rovalraPresence?.userPresenceType ?? 0;
+                return (
+                    (presencePriority[aType] ?? 3) -
+                        (presencePriority[bType] ?? 3) ||
+                    a.index - b.index
+                );
+            });
+        for (const { tile } of orderedTiles) {
+            scrollEl.appendChild(tile);
+        }
+    } finally {
+        scrollEl.rovalraPresenceRefreshing = false;
+    }
+}
+
 async function populateCarousel(scrollEl, refresh, token, originalList) {
     cloneAddFriendsTile(originalList, scrollEl);
 
@@ -587,16 +664,32 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                     presence: presence.get(id),
                 },
             );
-            attachHoverCard(tile, {
+            tile.dataset.rovalraUserId = String(id);
+            tile.dataset.rovalraUsername = friend.username ? `@${friend.username}` : '';
+            tile.rovalraHoverData = {
                 userId: id,
                 displayName,
                 presence: presence.get(id) || null,
                 placeThumb: placeThumbs.get(id) || null,
+            };
+            attachHoverCard(tile, tile.rovalraHoverData);
+            tile.addEventListener('mouseenter', () => {
+                if (tile.rovalraHoverData) {
+                    tile.rovalraHoverData.presence = tile.rovalraPresence || null;
+                }
             });
             scrollEl.appendChild(tile);
         }
 
         refresh?.();
+    }
+
+    if (token === populateToken && scrollEl.isConnected) {
+        refreshCarouselPresence(scrollEl, token);
+        scrollEl.rovalraPresenceInterval = setInterval(
+            () => refreshCarouselPresence(scrollEl, token),
+            PRESENCE_REFRESH_MS,
+        );
     }
 }
 
@@ -628,7 +721,11 @@ function teardown() {
 
     document
         .querySelectorAll(`.${WRAPPER_CLASS}`)
-        .forEach((node) => node.remove());
+        .forEach((node) => {
+            const scrollEl = node.querySelector(`.${SCROLL_CLASS}`);
+            clearInterval(scrollEl?.rovalraPresenceInterval);
+            node.remove();
+        });
     document.querySelectorAll(`[${HIDDEN_ATTR}]`).forEach((node) => {
         node.style.removeProperty('display');
         node.removeAttribute(HIDDEN_ATTR);
