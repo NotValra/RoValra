@@ -3,8 +3,11 @@ import { callRobloxApiJson } from '../api.js';
 
 let preLaunchHook = null;
 let followUserHook = null;
+let privateServerLaunchHook = null;
 let followLaunchObserver = null;
+let privateServerLaunchObserver = null;
 let lastObservedFollowLaunch = null;
+let lastObservedPrivateServerLaunch = null;
 
 // Lets a feature do something right before the client starts, such as changing
 // the avatar. Opt in on purpose: with no hook registered every launch below
@@ -41,6 +44,37 @@ export function setFollowUserHook(hook) {
         followLaunchObserver.disconnect();
         followLaunchObserver = null;
         lastObservedFollowLaunch = null;
+    }
+}
+
+export function setPrivateServerLaunchHook(hook) {
+    privateServerLaunchHook = typeof hook === 'function' ? hook : null;
+    if (privateServerLaunchHook && !privateServerLaunchObserver) {
+        privateServerLaunchObserver = observeGameLaunch((_frame, launch) => {
+            if (
+                !privateServerLaunchHook ||
+                !launch ||
+                launch.request !== 'RequestPrivateGame' ||
+                !launch.placeId ||
+                launch.src === lastObservedPrivateServerLaunch
+            ) {
+                return;
+            }
+
+            lastObservedPrivateServerLaunch = launch.src;
+            Promise.resolve()
+                .then(() => privateServerLaunchHook?.(launch.placeId))
+                .catch((error) => {
+                    console.error(
+                        'RoValra Launcher: Private server launch hook failed',
+                        error,
+                    );
+                });
+        });
+    } else if (!privateServerLaunchHook && privateServerLaunchObserver) {
+        privateServerLaunchObserver.disconnect();
+        privateServerLaunchObserver = null;
+        lastObservedPrivateServerLaunch = null;
     }
 }
 

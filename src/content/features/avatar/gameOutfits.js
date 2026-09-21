@@ -10,6 +10,7 @@ import {
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import {
     setFollowUserHook,
+    setPrivateServerLaunchHook,
     setPreLaunchHook,
 } from '../../core/utils/launcher.js';
 import {
@@ -583,6 +584,7 @@ function buildLauncherHook(userId) {
 
     setPreLaunchHook(prepareOutfit);
     setFollowUserHook(prepareOutfit);
+    setPrivateServerLaunchHook(prepareOutfit);
 }
 
 // Read ahead so a launch only pays for the writes.
@@ -617,6 +619,7 @@ export function init() {
 
         setPreLaunchHook(null);
         setFollowUserHook(null);
+        setPrivateServerLaunchHook(null);
         disposers.forEach((disposer) => disposer.disconnect?.());
         disposers = [];
 
