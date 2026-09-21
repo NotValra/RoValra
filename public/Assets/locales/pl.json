@@ -26,7 +26,7 @@
         "pastWeek": "Ostatni tydzień",
         "unnamedProduct": "Produkt bez nazwy",
         "offSale": "Wycofany ze sprzedaży",
-        "robloxExperience": "Doświadczenie Roblox",
+        "robloxExperience": "Gra Roblox",
         "subplace": "Podmiejsce",
         "subplaceUpper": "PODMIEJSCE",
         "offline": "Offline",
@@ -109,7 +109,7 @@
     },
     "serverStats": {
         "totalServers": "Łącznie serwerów",
-        "totalServersTooltip": "Łączna liczba serwerów tego doświadczenia śledzonych przez RoValra",
+        "totalServersTooltip": "Łączna liczba serwerów tej gry śledzonych przez RoValra",
         "oldest": "Najstarsza",
         "oldestTooltip": "Najstarsza wersja, na której obecnie działa jakiś serwer."
     },
@@ -145,7 +145,7 @@
         "insufficientRobux": "Za mało Robux",
         "purchasing": "Kupowanie...",
         "purchaseComplete": "Zakup zakończony",
-        "successMessage": "Udało Ci się kupić <b>{{itemName}}</b>",
+        "successMessage": "Pomyślnie kupiono <b>{{itemName}}</b>",
         "ok": "OK",
         "purchaseError": "Błąd zakupu",
         "purchaseFailed": "Zakup nie powiódł się",
@@ -161,7 +161,7 @@
         "selectedStatus": "Wybierz awatary do rotacji. (wybrano: {{count}})",
         "loading": "Ładowanie...",
         "loadMore": "Załaduj więcej",
-        "interval": "Odstęp (sekundy)",
+        "interval": "Interwał (sekundy)",
         "loadingDetails": "Ładowanie szczegółów stroju...",
         "active": "Rotacja aktywna!",
         "disable": "Wyłącz",
@@ -205,7 +205,7 @@
         "serial": "Numer seryjny",
         "afterTax": "Po podatku",
         "beforeTax": "Przed podatkiem",
-        "youGive": "Dajesz",
+        "youGive": "Oferujesz",
         "youGet": "Otrzymujesz"
     },
     "onboarding": {
@@ -233,9 +233,9 @@
     },
     "fortyMethod": {
         "loginRequired": "Nie udało się ustalić Twojego ID użytkownika. Upewnij się, że jesteś zalogowany.",
-        "setupExperience": "Skonfiguruj doświadczenie",
+        "setupExperience": "Skonfiguruj projekt",
         "specificTemplate": "Działa tylko określony szablon",
-        "selectGroup": "Wybierz grupę, w której możesz zarządzać doświadczeniami. <br>Rozszerzenie utworzy doświadczenie za Ciebie.",
+        "selectGroup": "Wybierz grupę, w której możesz zarządzać projektami. <br>Rozszerzenie utworzy projekt za Ciebie.",
         "or": "LUB",
         "manualPlaceId": "Wpisz ręcznie Place ID <br> (Rób to tylko, jeśli wiesz, co robisz.)",
         "donateSavedRobux": "Przekaż zaoszczędzone Robux na rzecz RoValra",
@@ -246,18 +246,18 @@
         "goBack": "Wróć",
         "ownershipDetected": "Wykryto własność",
         "understandContinue": "Rozumiem, kontynuuj",
-        "createExperience": "Utwórz doświadczenie",
-        "createNewExperience": "Utwórz nowe doświadczenie",
-        "findingExperience": "Szukanie Twojego doświadczenia",
-        "findingExperienceWait": "Poczekaj, aż znajdziemy Twoje nowo opublikowane doświadczenie...",
+        "createExperience": "Utwórz projekt",
+        "createNewExperience": "Utwórz nowy projekt",
+        "findingExperience": "Szukanie Twojego projektu",
+        "findingExperienceWait": "Poczekaj, aż znajdziemy Twój nowo opublikowany projekt...",
         "donateToRoValra": "Wesprzyj RoValra",
         "back": "Wstecz",
         "validationWarning": "Ostrzeżenie walidacji",
-        "updateExperience": "Zaktualizuj doświadczenie",
+        "updateExperience": "Zaktualizuj projekt",
         "useAnyway": "Użyj mimo to",
         "permissionRequired": "Wymagane uprawnienia",
         "backToGroupSelection": "Powrót do wyboru grupy",
-        "experience": "Doświadczenie",
+        "experience": "Projekt",
         "loading": "Ładowanie...",
         "setupGame": "Skonfiguruj swoją grę",
         "saveContinue": "Zapisz i kontynuuj",
@@ -278,21 +278,21 @@
         "ownerAccount": "<strong>Konto właściciela:</strong> Właścicielem grupy NIE MOŻE być to samo konto, którym kupujesz przedmioty. Właścicielem powinno być zabezpieczone konto alternatywne z włączonym 2FA oraz silnym, unikalnym hasłem.",
         "payouts": "<strong>Wypłaty:</strong> Tylko konto właściciela grupy może wypłacić zaoszczędzone Robux ze środków grupy.",
         "pendingRobux": "<strong>Oczekujące Robux:</strong> Pamiętaj, że po użyciu tej funkcji Robux będą oczekiwać około miesiąca, zanim będzie można je wypłacić.",
-        "groupRequiredBody": "Aby użyć metody 40% z własną grupą, potrzebujesz grupy, w której możesz zarządzać doświadczeniami.",
-        "groupRequiredImportant": "<strong>Ważne:</strong> Aby wszystko działało poprawnie, właścicielem grupy musi być zabezpieczone konto alternatywne. Twoje główne konto (to, którym kupujesz przedmioty) powinno mieć rolę z uprawnieniami do tworzenia doświadczeń grupy i zarządzania nimi.",
-        "groupRequiredDonate": "Jeśli nie masz odpowiedniej grupy, możesz zamiast tego wesprzeć RoValra, realizując zakup przez nasze doświadczenie. Wtedy zaoszczędzone Robux trafią do RoValra ❤️",
+        "groupRequiredBody": "Aby użyć metody 40% z własną grupą, potrzebujesz grupy, w której możesz zarządzać projektami.",
+        "groupRequiredImportant": "<strong>Ważne:</strong> Aby wszystko działało poprawnie, właścicielem grupy musi być zabezpieczone konto alternatywne. Twoje główne konto (to, którym kupujesz przedmioty) powinno mieć rolę z uprawnieniami do tworzenia projektów grupy i zarządzania nimi.",
+        "groupRequiredDonate": "Jeśli nie masz odpowiedniej grupy, możesz zamiast tego wesprzeć RoValra, realizując zakup przez naszą grę. Wtedy zaoszczędzone Robux trafią do RoValra ❤️",
         "ownershipBody": "Metoda 40% nie zadziała, jeśli jesteś właścicielem tej grupy. Wybierz inną grupę lub przekaż własność zabezpieczonemu kontu alternatywnemu.",
-        "experienceAccepted": "Doświadczenie zaakceptowane",
-        "experienceAcceptedSpecific": "<strong>Działają tylko określone doświadczenia.</strong> Upewnij się, że to doświadczenie ma skrypty wymagane do obsługi zakupów w grze.",
-        "experienceAcceptedGroup": "Upewnij się, że doświadczenie należy do grupy, <strong>którą kontrolujesz, ale której właścicielem nie jest to konto</strong>. Najlepiej, aby właścicielem grupy było konto alternatywne. Jeśli jesteś właścicielem grupy, metoda 40% nie zadziała.",
+        "experienceAccepted": "Projekt zaakceptowany",
+        "experienceAcceptedSpecific": "<strong>Działają tylko określone projekty.</strong> Upewnij się, że ten projekt ma skrypty wymagane do obsługi zakupów w grze.",
+        "experienceAcceptedGroup": "Upewnij się, że projekt należy do grupy, <strong>którą kontrolujesz, ale której właścicielem nie jest to konto</strong>. Najlepiej, aby właścicielem grupy było konto alternatywne. Jeśli jesteś właścicielem grupy, metoda 40% nie zadziała.",
         "experienceAcceptedPending": "Zaoszczędzone Robux będą oczekiwać około miesiąca przed wypłatą. Do wypłat używaj zabezpieczonego konta alternatywnego jako właściciela grupy.",
-        "createExperienceBody": "Utwórz nowe doświadczenie dla tej grupy, aby użyć metody 40%.",
-        "createNewExperienceBody": "Aby utworzyć nowe doświadczenie dla tej metody:",
-        "createStepOne": "Otwórz odblokowane do kopiowania doświadczenie w Studio:",
+        "createExperienceBody": "Utwórz nowy projekt dla tej grupy, aby użyć metody 40%.",
+        "createNewExperienceBody": "Aby utworzyć nowy projekt dla tej metody:",
+        "createStepOne": "Otwórz odblokowany do kopiowania projekt w Studio:",
         "openStudio": "Otwórz Studio",
         "createStepTwo": "W Studio przejdź do <strong>File > Game Settings > Security > włącz \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>",
         "createStepThree": "Wybierz tę grupę z listy Creator.",
-        "createStepFour": "Kliknij <strong>Create</strong>, a doświadczenie zostanie opublikowane",
+        "createStepFour": "Kliknij <strong>Create</strong>, a projekt zostanie opublikowany",
         "createPublishedBody": "Po opublikowaniu kliknij przycisk poniżej, a my automatycznie je znajdziemy i wybierzemy.",
         "publishedGame": "Opublikowałem grę",
         "saveSettingsUnavailable": "Nie udało się zapisać ustawień. API pamięci jest niedostępne.",
@@ -318,7 +318,7 @@
         "notice": "Wybieraj i używaj dowolnego motywu bez Roblox Plus."
     },
     "items": {
-        "hiddenFromMarketplace": "Ten przedmiot jest ukryty w Marketplace",
+        "hiddenFromMarketplace": "Ten przedmiot jest ukryty na Rynku",
         "notFound": "Nie znaleziono",
         "failedToLoad": "Nie udało się załadować",
         "onHold": "Wstrzymany",
@@ -393,7 +393,7 @@
         "labels": {
             "logo": "Logo Roblox",
             "charts": "Rankingi",
-            "marketplace": "Marketplace",
+            "marketplace": "Rynek",
             "create": "Twórz",
             "robux": "Robux",
             "search": "Szukaj",
@@ -485,14 +485,14 @@
         "emotes": "Emotki"
     },
     "hiddenGamesProfile": {
-        "noPublicGames": "Użytkownik nie ma publicznych doświadczeń",
-        "overlayText": "Ukryte doświadczenia",
-        "noHiddenGames": "Ten użytkownik nie ma ukrytych doświadczeń.",
-        "buttonText": "Ukryte doświadczenia",
+        "noPublicGames": "Użytkownik nie ma publicznych projektów",
+        "overlayText": "Ukryte projekty",
+        "noHiddenGames": "Ten użytkownik nie ma ukrytych projektów.",
+        "buttonText": "Ukryte projekty",
         "labels": {
             "sort": "Sortuj",
             "order": "Kolejność",
-            "showAll": "Pokaż wszystkie gry"
+            "showAll": "Pokaż wszystkie projekty"
         },
         "sort": {
             "default": "Domyślnie",
@@ -506,13 +506,13 @@
             "descending": "Malejąco",
             "ascending": "Rosnąco"
         },
-        "noMatches": "Żadne doświadczenia nie pasują do filtrów.",
+        "noMatches": "Żadne gry nie pasują do filtrów.",
         "loading": "Ładowanie..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "Ukryte doświadczenia grupy (łącznie: {{count}})",
-        "noHiddenGames": "Ta grupa nie ma ukrytych doświadczeń.",
-        "buttonText": "Ukryte doświadczenia",
+        "overlayTitle": "Ukryte projekty grupy (łącznie: {{count}})",
+        "noHiddenGames": "Ta grupa nie ma ukrytych projektów.",
+        "buttonText": "Ukryte projekty",
         "labels": {
             "sort": "Sortuj",
             "order": "Kolejność",
@@ -530,7 +530,7 @@
             "descending": "Malejąco",
             "ascending": "Rosnąco"
         },
-        "noMatches": "Żadne ukryte doświadczenia nie pasują do obecnych filtrów.",
+        "noMatches": "Żadne ukryte projekty nie pasują do obecnych filtrów.",
         "loadingMore": "Ładowanie kolejnych gier..."
     },
     "userOutfits": {
@@ -568,8 +568,8 @@
     "instantJoiner": {
         "instantJoin": "Natychmiastowe dołączenie",
         "stopJoining": "Przestań dołączać",
-        "description": "Automatycznie spróbuje dołączyć do użytkownika, gdy tylko wejdzie on do doświadczenia.<br><br>Wymaga to, aby użytkownik miał dołączanie włączone dla wszystkich albo abyście byli znajomymi.",
-        "searchPlaceholder": "Wyszukaj doświadczenie lub wpisz Place ID (opcjonalnie)",
+        "description": "Automatycznie spróbuje dołączyć do użytkownika, gdy tylko wejdzie on do gry.<br><br>Wymaga to, aby użytkownik miał dołączanie włączone dla wszystkich albo abyście byli znajomymi.",
+        "searchPlaceholder": "Wyszukaj grę lub wpisz Place ID (opcjonalnie)",
         "continue": "Kontynuuj",
         "cancel": "Anuluj",
         "confirmTitle": "Potwierdź działanie"
@@ -1020,7 +1020,7 @@
                 "sendingTitle": "Wysyłanie prośby",
                 "sentTitle": "Prośba wysłana!",
                 "sentBody": "Twoja prośba została wysłana e-mailem do rodziców i opiekunów.",
-                "experienceName": "Nazwa doświadczenia to",
+                "experienceName": "Nazwa gry to",
                 "sendFailedTitle": "Nie udało się wysłać prośby",
                 "sendFailedBody": "Z nieznanego powodu nie udało się wysłać prośby. Możliwe, że przekroczono limit zapytań. Więcej szczegółów znajdziesz w konsoli.",
                 "cancelingTitle": "Anulowanie prośby",
@@ -1030,14 +1030,14 @@
                 "cancelFailedBody": "Nie udało się anulować prośby o odblokowanie. Możliwe, że przekroczono limit zapytań. Więcej szczegółów znajdziesz w konsoli.",
                 "sendUnblock": "Wyślij prośbę o odblokowanie",
                 "alreadyRequestedTitle": "Prośba już wysłana",
-                "alreadyRequestedBody": "Już poprosiłeś o to doświadczenie, gapo!"
+                "alreadyRequestedBody": "Już poprosiłeś o tą grę, gapo!"
             },
             "donation": {
                 "donateUsd": "Wesprzyj (min. 1 USD)",
                 "donateRobux": "Wesprzyj (min. 5 Robux)",
                 "parentApprovalTitle": "Wesprzyj RoValra jeszcze bardziej!",
-                "parentApprovalMessage": "Przy przepustkach RoValra otrzymuje większą część darowizny. Widzimy, że masz połączone co najmniej 1 konto rodzica. Możesz poprosić o odblokowanie doświadczenia, dzięki czemu RoValra dostanie więcej niż przy ubraniach 2D (i 3D).",
-                "useMarketplace": "Użyj Marketplace",
+                "parentApprovalMessage": "Przy przepustkach RoValra otrzymuje większą część darowizny. Widzimy, że masz połączone co najmniej 1 konto rodzica. Możesz poprosić o odblokowanie gry, dzięki czemu RoValra dostanie więcej niż przy ubraniach 2D (i 3D).",
+                "useMarketplace": "Użyj Rynku",
                 "currencyLabel": "Waluta darowizny",
                 "donateWith": "Wesprzyj przez",
                 "supportTitle": "Wesprzyj RoValra",
@@ -1102,7 +1102,7 @@
                 "parentApprovalTitle": "Potrzebna zgoda rodzica",
                 "parentApprovalMessage": "Aby kupić ramki awatara, potrzebujesz zgody rodzica.",
                 "noParentTitle": "Nie możesz używać ramek awatara",
-                "noParentBody": "Roblox wymaga zgody rodzica, ale do Twojego konta nie jest połączone żadne konto rodzica. Jeśli chcesz używać ramek awatara, musisz połączyć konto rodzica i poprosić o odblokowanie doświadczenia.",
+                "noParentBody": "Roblox wymaga zgody rodzica, ale do Twojego konta nie jest połączone żadne konto rodzica. Jeśli chcesz używać ramek awatara, musisz połączyć konto rodzica i poprosić o odblokowanie gry.",
                 "noBorders": "Brak dostępnych ramek.",
                 "currentPreview": "Podgląd obecnego wyboru",
                 "signInPreview": "Zaloguj się, aby zobaczyć podgląd ramek na swoim awatarze.",
@@ -1180,7 +1180,7 @@
                 "name": "Status online"
             },
             "joinStatus": {
-                "name": "Status doświadczenia"
+                "name": "Status gry"
             },
             "privateServerPrivacy": {
                 "name": "Prywatność serwera prywatnego"
@@ -1192,7 +1192,7 @@
     },
     "qolToggles": {
         "onlineStatus": "Status online",
-        "joinStatus": "Status doświadczenia",
+        "joinStatus": "Status gry",
         "privateServerPrivacy": "Prywatność serwera prywatnego",
         "inventoryVisibility": "Widoczność ekwipunku",
         "everyone": "Wszyscy",
@@ -1219,7 +1219,7 @@
     },
     "voiceBanIndicator": {
         "title": "Blokada czatu głosowego",
-        "liftsIn": "Zniesienie za",
+        "liftsIn": "Wygasa za",
         "noExpiry": "Nie podano daty wygaśnięcia"
     },
     "ageTheme": {
@@ -1244,7 +1244,7 @@
     },
     "quickSearch": {
         "aborted": "Przerwano",
-        "apiRequestFailed": "Zapytanie API nie powiodło się, status {{status}}",
+        "apiRequestFailed": "Żądanie API nie powiodło się ze statusem {{status}}",
         "friendSearchError": "RoValra: błąd wyszukiwania znajomych",
         "userSearchError": "RoValra: błąd wyszukiwania użytkowników",
         "gameSearchError": "RoValra: błąd wyszukiwania gier",
@@ -1269,10 +1269,10 @@
         "unknownUser": "Użytkownik {{id}}"
     },
     "regionPlayButton": {
-        "ariaLabel": "Wybierz preferowany region serwera lub dołącz",
-        "tooltip": "Dołącz w preferowanym regionie",
-        "tooltipWithRegion": "Dołącz w preferowanym regionie<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "Dołącz w preferowanym regionie<br><b>Najlepszy region (auto)</b>"
+        "ariaLabel": "Wybierz lub dołącz do preferowanego regionu serwera",
+        "tooltip": "Dołącz do preferowanego regionu",
+        "tooltipWithRegion": "Dołącz do preferowanego regionu<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Dołącz do preferowanego regionu<br><b>Najlepszy region (automatycznie)</b>"
     },
     "quickPlay": {
         "loading": "Ładowanie...",
@@ -1293,10 +1293,10 @@
         "regenerated": "Wygenerowano!"
     },
     "devProducts": {
-        "noProducts": "Nie znaleziono produktów dewelopera.",
-        "loadError": "Nie udało się załadować produktów dewelopera dla tej gry.",
+        "noProducts": "Nie znaleziono produktów deweloperskich.",
+        "loadError": "Nie udało się wczytać produktów deweloperskich dla tej gry.",
         "passes": "Przepustki",
-        "developerProducts": "Produkty dewelopera",
+        "developerProducts": "Produkty deweloperskie",
         "search": "Szukaj",
         "sort": {
             "created": "Sortuj według daty utworzenia",
@@ -1351,21 +1351,21 @@
             "ascending": "Rosnąco"
         },
         "banner": {
-            "title": "Przeglądasz podmiejsce doświadczenia [{{rootPlaceName}}]({{rootPlaceUrl}}).",
-            "descriptionDefault": "Niektóre doświadczenia mogą blokować dołączanie do podmiejsc.",
+            "title": "Przeglądasz podmiejsce gry [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Niektóre gry mogą blokować dołączanie do podmiejsc.",
             "descriptionRestricted": "Nie można dołączyć do tego podmiejsca z powodu ograniczeń dołączania.",
             "descriptionJoinable": "Można dołączyć do tego podmiejsca.",
-            "mainExperience": "głównego doświadczenia"
+            "mainExperience": "głównej gry"
         }
     },
     "updateHistory": {
         "tabTitle": "Aktualizacje",
         "title": "Historia aktualizacji",
         "blocked": {
-            "eighteenPlus": "Historia aktualizacji nie działa w doświadczeniach 18+",
-            "paidAccess": "Historia aktualizacji nie działa w płatnych doświadczeniach",
+            "eighteenPlus": "Historia aktualizacji nie działa w grach 18+",
+            "paidAccess": "Historia aktualizacji nie działa w płatnych grach",
             "subplace": "Historia aktualizacji nie działa w podmiejscach z ograniczeniami dołączania",
-            "noDesktopSupport": "Historia aktualizacji nie jest obsługiwana w doświadczeniach bez wsparcia PC"
+            "noDesktopSupport": "Historia aktualizacji nie jest obsługiwana w grach bez wsparcia PC"
         }
     },
     "serverList": {
@@ -1406,11 +1406,11 @@
     },
     "btrDonationWarning": {
         "title": "WAŻNE: wyłącz BTRoblox",
-        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">Wykryto BTRoblox. Może on zakłócać proces zakupu w Roblox. Jeśli masz problem z zakupem, tymczasowo wyłącz BTRoblox i przeładuj stronę.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Wyłącz BTRoblox, przeładuj tę stronę, a następnie spróbuj ponownie dokonać zakupu.</p>",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">Wykryto BTRoblox. Może ono zakłócać proces zakupu w Roblox. Jeśli masz problemy z zakupem, spróbuj tymczasowo wyłączyć BTRoblox i odśwież stronę.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Wyłącz BTRoblox, odśwież tę stronę, a następnie spróbuj ponownie dokonać zakupu.</p>",
         "continue": "Kontynuuj mimo to"
     },
     "botDetector": {
-        "tooltip": "Boty to konta uruchamiające zautomatyzowane skrypty do farmienia przedmiotów. Jeden użytkownik potrafi czasem uruchomić ponad 50 botów. Pamiętaj, że to nie wina twórców gry. Te informacje mogą być niedokładne, jeśli w doświadczenie grają głównie nowe konta Roblox.",
+        "tooltip": "Boty to konta uruchamiające zautomatyzowane skrypty do farmienia przedmiotów. Jeden użytkownik potrafi czasem uruchomić ponad 50 botów. Pamiętaj, że to nie wina twórców gry. Te informacje mogą być niedokładne, jeśli w grę grają głównie nowe konta Roblox.",
         "lotsOfBots": "W <span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> jest dużo botów",
         "someBots": "W <span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> jest trochę botów, ale głównie prawdziwi gracze",
         "thisGame": "tej grze"
@@ -1444,7 +1444,7 @@
         "unableToDetectPlace": "Nie udało się wykryć tego miejsca.",
         "unableToDetectUniverse": "Nie udało się wykryć tego uniwersum.",
         "stillScanning": "Trwa skanowanie Twoich odznak. Posiadane ukryte odznaki mogą pojawić się wkrótce.",
-        "noneOwnedFound": "Nie znaleziono ukrytych odznak z tego doświadczenia, które posiadasz.",
+        "noneOwnedFound": "Nie znaleziono ukrytych odznak z tej gry, które posiadasz.",
         "failedToLoad": "Nie udało się załadować posiadanych ukrytych odznak."
     },
     "antiBots": {
@@ -1495,8 +1495,8 @@
     "revertLogo": {
         "haveFun": "Baw się dobrze!",
         "close": "Zamknij",
-        "robloxExperience": "Doświadczenie Roblox",
-        "unknownExperience": "Nieznane doświadczenie",
+        "robloxExperience": "Gry Roblox",
+        "unknownExperience": "Nieznane gry",
         "serverId": "ID serwera:",
         "privateServer": "Serwer prywatny",
         "owner": "Właściciel:",
@@ -1513,7 +1513,7 @@
         "step1": "Po pobraniu kliknij dwukrotnie plik <b>RobloxPlayerInstaller.exe</b> w folderze Pobrane.",
         "step2": "Kliknij dwukrotnie <b>RobloxPlayerInstaller</b>, aby zainstalować aplikację.",
         "step3": "Postępuj zgodnie z instrukcjami, aby zainstalować Roblox na komputerze.",
-        "step4": "Po instalacji <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">dołącz do doświadczenia</a>.",
+        "step4": "Po instalacji <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">dołącz do gry</a>.",
         "mobileApp": "Nie zapomnij o aplikacji mobilnej",
         "scanCode": "Zeskanuj ten kod aparatem telefonu, aby pobrać Roblox.",
         "joiningServer": "Dołączanie do serwera...",
@@ -1682,17 +1682,17 @@
         "secondsAgo": "{{count}} s temu",
         "minutesAgo": "{{count}} min temu",
         "hoursAgo": "{{count}} godz. temu",
-        "daysAgo": "{{count}} dn. temu",
-        "weeksAgo": "{{count}} tyg. temu",
+        "daysAgo": "{{count}} dni temu",
+        "weeksAgo": "{{count}} tygodnie temu",
         "monthsAgo": "{{count}} mies. temu",
-        "yearsAgo": "{{count}} l. temu",
+        "yearsAgo": "{{count}} lat temu",
         "secondsFromNow": "za {{count}} s",
         "minutesFromNow": "za {{count}} min",
         "hoursFromNow": "za {{count}} godz.",
         "daysFromNow": "za {{count}} dn.",
         "weeksFromNow": "za {{count}} tyg.",
         "monthsFromNow": "za {{count}} mies.",
-        "yearsFromNow": "za {{count}} l.",
+        "yearsFromNow": "za {{count}} lat",
         "months": {
             "jan": "sty",
             "feb": "lut",
@@ -1730,8 +1730,8 @@
             "playerAvatar": "Gracz",
             "morePlayers": "+{{count}}"
         },
-        "privateExperience": "Prywatne doświadczenie",
-        "experienceIsPrivate": "To doświadczenie jest prywatne.",
+        "privateExperience": "Prywatne gry",
+        "experienceIsPrivate": "Ta gra jest prywatna.",
         "unknown": "Nieznane",
         "rovalraNotice": "Tę stronę mogą oglądać tylko użytkownicy RoValra.",
         "unavailable": "Niedostępne",
@@ -1806,33 +1806,33 @@
         "rovalraNoticeDescription": "Ta przepustka jest nieaktywna i nie można jej kupić z powodu ograniczeń Roblox, być może związanych z wiekiem konta lub widocznością gry."
     },
     "playabilityStatus": {
-        "0": "To doświadczenie jest niedostępne",
-        "1": "W to doświadczenie można grać",
-        "2": "Goście nie mogą dołączyć do tego doświadczenia",
-        "3": "To doświadczenie zostało zmoderowane za naruszenie Standardów społeczności Roblox",
-        "4": "To doświadczenie jest nieprawidłowo skonfigurowane",
-        "5": "To doświadczenie jest prywatne",
-        "6": "Do tego doświadczenia mogą dołączyć tylko znajomi",
-        "7": "Do tego doświadczenia mogą dołączyć tylko członkowie społeczności",
-        "8": "To doświadczenie jest ograniczone na Twoim urządzeniu",
-        "9": "To doświadczenie jest sprawdzane, ponieważ mogło naruszyć Standardy społeczności Roblox",
+        "0": "Ta gra jest niedostępna",
+        "1": "W tą grę można grać",
+        "2": "Goście nie mogą dołączyć do tej gry",
+        "3": "Ta gra została zmoderowane za naruszenie Standardów społeczności Roblox",
+        "4": "Ta gra jest nieprawidłowo skonfigurowana",
+        "5": "Ta gra jest prywatna",
+        "6": "Do tej gry mogą dołączyć tylko znajomi",
+        "7": "Do tej gry mogą dołączyć tylko członkowie społeczności",
+        "8": "Ta gra jest ograniczona na Twoim urządzeniu",
+        "9": "Ta gra jest sprawdzana, ponieważ mogła naruszyć Standardy społeczności Roblox",
         "10": "Aby zagrać, wymagany jest zakup",
         "11": "Twoje konto jest ograniczone",
-        "12": "To doświadczenie jest tymczasowo niedostępne",
-        "13": "To doświadczenie nie ma opublikowanej wersji",
-        "14": "To doświadczenie jest zablokowane ze względów prawnych",
-        "15": "To doświadczenie nie jest dostępne w Twoim regionie",
-        "16": "To doświadczenie jest zablokowane ze względu na przepisy regionalne",
-        "17": "To doświadczenie jest ograniczone przez kontrolę rodzicielską",
-        "18": "To doświadczenie jest zablokowane przez kontrolę rodzicielską",
-        "19": "To doświadczenie ma ograniczenie wiekowe",
-        "20": "Doświadczenia 18+ wymagają weryfikacji",
+        "12": "Ta gra jest tymczasowo niedostępna",
+        "13": "Ta gra nie ma opublikowanej wersji",
+        "14": "Ta gra jest zablokowana ze względów prawnych",
+        "15": "Ta gra jest niedostępna w Twoim regionie",
+        "16": "Ta gra jest zablokowana ze względu na przepisy regionalne",
+        "17": "Ta gra jest ograniczona przez kontrolę rodzicielską",
+        "18": "Ta gra jest zablokowana przez kontrolę rodzicielską",
+        "19": "Ta gra ma ograniczenie wiekowe",
+        "20": "Gry 18+ wymagają weryfikacji",
         "21": "Aby zagrać, wymagany jest zakup",
         "22": "Zakup jest ograniczony na tym urządzeniu",
-        "23": "To doświadczenie nie ma klasyfikacji wiekowej",
-        "24": "To doświadczenie ma ograniczenie wiekowe wynikające z opisu treści",
-        "25": "To doświadczenie zostało zmoderowane z powodu nieprawidłowej klasyfikacji wiekowej.",
-        "unknown": "To doświadczenie jest niedostępne"
+        "23": "Ta gra nie ma klasyfikacji wiekowej",
+        "24": "Ta gra ma ograniczenia wiekowe wynikające z opisu treści",
+        "25": "Ta gra została zmoderowana z powodu nieprawidłowej klasyfikacji wiekowej.",
+        "unknown": "Ta gra jest niedostępna"
     },
     "bannedUsers": {
         "connections": "Znajomi",
@@ -1840,13 +1840,13 @@
         "following": "Obserwowani",
         "about": "Informacje",
         "creations": "Dzieła",
-        "experiences": "Doświadczenia",
+        "experiences": "Gry",
         "bannedStatus": "Zbanowany",
         "seeAll": "Zobacz wszystko",
         "hiddenUser": "Ukryty użytkownik",
         "communities": "Społeczności",
         "badges": "Odznaki",
-        "noExperiences": "Ten użytkownik nie ma publicznych doświadczeń.",
+        "noExperiences": "Ten użytkownik nie ma publicznych gier.",
         "favorites": "Ulubione",
         "joinedDate": "Dołączył",
         "store": "Sklep",
@@ -1898,20 +1898,20 @@
     },
     "showcase": {
         "tab": "Wizytówka",
-        "favoriteGame": "Ulubione doświadczenie",
+        "favoriteGame": "Ulubiona gra",
         "favoriteGroup": "Ulubiona społeczność",
         "favoriteDecal": "Galeria grafiki",
-        "chooseGame": "Wybierz doświadczenie, które chcesz wyróżnić na profilu.",
-        "noFeaturedGame": "Brak wyróżnionego doświadczenia. :C",
+        "chooseGame": "Wybierz grę, którą chcesz wyróżnić na profilu.",
+        "noFeaturedGame": "Brak wyróżnionej gry. :C",
         "chooseGroup": "Wybierz społeczność, którą chcesz wyróżnić na profilu.",
         "noFeaturedGroup": "Brak wyróżnionej społeczności. :,(",
         "chooseDecal": "Wpisz ID naklejki, aby wyróżnić obraz na profilu.",
         "noFeaturedDecal": "Brak wyróżnionego obrazu. :C",
-        "searchGame": "Wyszukaj doświadczenie do wyróżnienia",
+        "searchGame": "Wyszukaj gry do wyróżnienia",
         "searchGroup": "Wyszukaj społeczność do wyróżnienia",
-        "clearGame": "Usuń ulubione doświadczenie",
+        "clearGame": "Usuń ulubioną grę",
         "clearGroup": "Usuń ulubioną społeczność",
-        "gameOptions": "Opcje ulubionego doświadczenia",
+        "gameOptions": "Opcje ulubionej gry",
         "groupOptions": "Opcje ulubionej społeczności",
         "decalId": "ID naklejki",
         "decalImageOptions": "Opcje obrazu",
@@ -1922,9 +1922,9 @@
         "maturity": "Klasyfikacja wiekowa",
         "maturityUnavailable": "Klasyfikacja wiekowa niedostępna",
         "members": "Członkowie: {{count}}",
-        "noResultsGame": "Nie znaleziono doświadczenia.",
+        "noResultsGame": "Nie znaleziono gry.",
         "noResultsGroup": "Nie znaleziono społeczności.",
-        "unknownExperience": "Nieznane doświadczenie",
+        "unknownExperience": "Nieznana gra",
         "unknownCommunity": "Nieznana społeczność",
         "verifiedBadge": "Ikona odznaki weryfikacji"
     },
@@ -2044,8 +2044,8 @@
         "ccu": "CCU",
         "visits": "Odwiedziny",
         "members": "Członkowie",
-        "ccuTooltip": "Obecna liczba graczy we wszystkich publicznych doświadczeniach stworzonych przez tego użytkownika.",
-        "visitsTooltip": "Łączna liczba odwiedzin wszystkich publicznych doświadczeń stworzonych przez tego użytkownika.",
+        "ccuTooltip": "Obecna liczba graczy we wszystkich publicznych projektach stworzonych przez tego użytkownika.",
+        "visitsTooltip": "Łączna liczba odwiedzin wszystkich publicznych projektów stworzonych przez tego użytkownika.",
         "membersTooltip": "Członkowie wszystkich społeczności, których właścicielem jest ten użytkownik."
     },
     "plus": {
@@ -2136,13 +2136,13 @@
     "avatar": {
         "gameOutfits": {
             "button": "Stroje do gier",
-            "title": "Stroje do doświadczeń",
-            "hint": "Wybierz strój, który zostanie założony, gdy grasz w doświadczenie R6 lub R15.",
-            "r6": "Doświadczenia R6",
-            "r15": "Doświadczenia R15",
+            "title": "Stroje do gier",
+            "hint": "Wybierz strój, który zostanie założony, gdy grasz w grę R6 lub R15.",
+            "r6": "Gry R6",
+            "r15": "Gry R15",
             "none": "Nie zmieniaj",
-            "gameTitle": "Strój do tego doświadczenia",
-            "gameHint": "Zastępuje strój ustawiony dla doświadczeń R6 i R15.",
+            "gameTitle": "Strój do tej gry",
+            "gameHint": "Zastępuje strój ustawiony dla gier R6 i R15.",
             "useGlobal": "Użyj mojego domyślnego"
         },
         "bodyColors": {
