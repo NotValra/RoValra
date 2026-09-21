@@ -4914,6 +4914,10 @@ export async function handleSearch(event) {
     const queryNoSpaces = query.replace(/\s+/g, '');
 
     for (const categoryName in SETTINGS_CONFIG) {
+        if (!document.getElementById(`${categoryName.toLowerCase()}-tab`)) {
+            continue;
+        }
+
         const category = SETTINGS_CONFIG[categoryName];
         for (const [settingName, settingDef] of Object.entries(
             category.settings,
