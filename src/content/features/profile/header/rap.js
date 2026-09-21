@@ -68,28 +68,17 @@ async function fetchUserCollectibles(userId) {
     let allItems = [];
     let cursor = '';
     const limit = 100;
-    let retries = 0;
-    const maxRetries = Infinity;
+    const useLegacyApi = String(userId) === '1';
 
     try {
         do {
-            let response;
-            try {
-                response = await callRobloxApi({
-                    subdomain: 'inventory',
-                    endpoint: `/v1/users/${userId}/assets/collectibles?sortOrder=Asc&limit=${limit}&cursor=${cursor}`,
-                    method: 'GET',
-                });
-            } catch (e) {
-                if (retries < maxRetries) {
-                    retries++;
-                    await new Promise((resolve) =>
-                        setTimeout(resolve, 1000 * retries),
-                    );
-                    continue;
-                }
-                throw e;
-            }
+            const response = await callRobloxApi({
+                subdomain: useLegacyApi ? 'inventory' : 'trades',
+                endpoint: useLegacyApi
+                    ? `/v1/users/${userId}/assets/collectibles?sortOrder=Asc&limit=${limit}&cursor=${encodeURIComponent(cursor)}`
+                    : `/v2/users/${userId}/tradableItems?limit=${limit}&sortOrder=Desc${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
+                method: 'GET',
+            });
 
             if (response.status === 429) {
                 const retryAfter = parseInt(
@@ -111,19 +100,48 @@ async function fetchUserCollectibles(userId) {
                 );
 
             const currentPageData = await response.json();
-            currentPageData.data.forEach((item) => {
-                if (typeof item.recentAveragePrice === 'number')
-                    totalRap += item.recentAveragePrice;
-                allItems.push(item);
+            if (useLegacyApi) {
+                (currentPageData.data || []).forEach((item) => {
+                    if (typeof item.recentAveragePrice === 'number')
+                        totalRap += item.recentAveragePrice;
+                    allItems.push(item);
+                });
+                cursor = currentPageData.nextPageCursor;
+                continue;
+            }
+
+            (currentPageData.items || []).forEach((item) => {
+                const itemType = item.itemTarget?.itemType || 'Asset';
+                const targetId = Number(item.itemTarget?.targetId);
+                (item.instances || []).forEach((instance) => {
+                    const instanceItem = {
+                        ...item,
+                        ...instance,
+                        itemType,
+                        name: instance.itemName || item.itemName,
+                        assetId: targetId,
+                        bundleId: itemType === 'Bundle' ? targetId : undefined,
+                        recentAveragePrice:
+                            instance.recentAveragePrice ??
+                            item.recentAveragePrice ??
+                            0,
+                    };
+                    if (typeof instanceItem.recentAveragePrice === 'number')
+                        totalRap += instanceItem.recentAveragePrice;
+                    allItems.push(instanceItem);
+                });
             });
             cursor = currentPageData.nextPageCursor;
         } while (cursor);
 
-        const assetIds = allItems.map((item) => item.assetId);
+        const assetIds = allItems
+            .filter((item) => !getCollectibleBundleId(item))
+            .map((item) => item.assetId);
         await fetchRolimonsItems(assetIds);
 
         allItems.forEach((item) => {
-            const data = getCachedRolimonsItem(item.assetId);
+            const bundleId = getCollectibleBundleId(item);
+            const data = getCachedRolimonsItem(bundleId || item.assetId);
             let val = item.recentAveragePrice || 0;
             if (data && typeof data.default_price === 'number') {
                 val = data.default_price;
@@ -142,23 +160,39 @@ async function fetchUserCollectibles(userId) {
 }
 
 async function fetchItemThumbnails(items, thumbnailCache, signal) {
-    const itemsToFetch = items.filter(
-        (item) => !thumbnailCache.has(item.assetId),
-    );
-    if (itemsToFetch.length === 0) return;
+    const itemsByThumbnailType = new Map([
+        ['Asset', []],
+        ['BundleThumbnail', []],
+    ]);
 
-    const itemsForBatch = itemsToFetch.map((item) => ({ id: item.assetId }));
-    const fetchedThumbnailsMap = await fetchThumbnailsBatch(
-        itemsForBatch,
-        'Asset',
-        '150x150',
-        false,
-        signal,
-    );
-
-    fetchedThumbnailsMap.forEach((thumbData, id) => {
-        thumbnailCache.set(id, thumbData);
+    items.forEach((item) => {
+        const thumbnailType = getCollectibleBundleId(item)
+            ? 'BundleThumbnail'
+            : 'Asset';
+        if (!thumbnailCache.has(item.assetId)) {
+            itemsByThumbnailType.get(thumbnailType).push({
+                id: item.assetId,
+            });
+        }
     });
+
+    await Promise.all(
+        Array.from(itemsByThumbnailType, async ([thumbnailType, batch]) => {
+            if (batch.length === 0) return;
+
+            const fetchedThumbnailsMap = await fetchThumbnailsBatch(
+                batch,
+                thumbnailType,
+                '150x150',
+                false,
+                signal,
+            );
+
+            fetchedThumbnailsMap.forEach((thumbData, id) => {
+                thumbnailCache.set(id, thumbData);
+            });
+        }),
+    );
 }
 
 function getCollectibleBundleId(item) {
