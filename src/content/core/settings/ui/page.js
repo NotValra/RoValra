@@ -203,6 +203,10 @@ export async function checkRoValraPage() {
 
     window.addEventListener('hashchange', handleHashChange, false);
 
+    const initialHash = decodeURIComponent(
+        window.location.hash.replace('#!/', '').replace('#!', ''),
+    );
+
     const debouncedSearch = (func, wait) => {
         let timeout;
         return function executedFunction(...args) {
@@ -226,7 +230,7 @@ export async function checkRoValraPage() {
 
     if (rovalraHeader && settingsContainer) {
         const unifiedMenu = document.getElementById('unified-menu');
-        await loadTabContent(rovalraTab || 'info');
+        await loadTabContent(initialHash || rovalraTab || 'info');
         await applyTheme();
 
         regionDataPromise.then((loadedRegionData) => {
