@@ -47,6 +47,7 @@ import {
     getBatchThumbnails,
     createThumbnailElement,
 } from '../../core/thumbnail/thumbnails.js';
+import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import {
@@ -593,13 +594,21 @@ function openCustomProfileBadgePurchaseOverlay() {
 
     let overlay;
     let remainingSeconds = CUSTOM_PROFILE_BADGE_CONFIRMATION_COOLDOWN_SECONDS;
-    const agreeButton = createButton(ui('profileBadge.agreeCountdown', { count: remainingSeconds }), 'primary', {
-        disabled: true,
-        onClick: () => {
-            overlay.close();
-            window.open(CUSTOM_PROFILE_BADGE_ITEM_URL, '_blank', 'noopener');
+    const agreeButton = createButton(
+        ui('profileBadge.agreeCountdown', { count: remainingSeconds }),
+        'primary',
+        {
+            disabled: true,
+            onClick: () => {
+                overlay.close();
+                window.open(
+                    CUSTOM_PROFILE_BADGE_ITEM_URL,
+                    '_blank',
+                    'noopener',
+                );
+            },
         },
-    });
+    );
     const cancelButton = createButton(ui('common.cancel'), 'secondary', {
         onClick: () => overlay.close(),
     });
@@ -888,10 +897,15 @@ function createArtistCreditSection(artistId) {
                 position: 'top',
             },
         );
-        const thumbEl = createThumbnailElement(data.thumb, ui('store.artist'), '', {
-            width: '100%',
-            height: '100%',
-        });
+        const thumbEl = createThumbnailElement(
+            data.thumb,
+            ui('store.artist'),
+            '',
+            {
+                width: '100%',
+                height: '100%',
+            },
+        );
         const target =
             thumbContainer.querySelector('.rovalra-avatar-border-clip') ||
             thumbContainer;
@@ -1347,16 +1361,14 @@ async function openBorderOverlay(
     const supportNotice = document.createElement('div');
     supportNotice.style.cssText =
         'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 10px; font-style: italic; opacity: 0.8;';
-    supportNotice.textContent =
-        ui('border.supportNotice');
+    supportNotice.textContent = ui('border.supportNotice');
     infoWrapper.appendChild(supportNotice);
 
     if (!isOwned && hasBorderGamepassId(effectiveGamepassId)) {
         const purchaseWarning = document.createElement('div');
         purchaseWarning.style.cssText =
             'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 4px; opacity: 0.7;';
-        purchaseWarning.textContent =
-            ui('border.purchaseDelay');
+        purchaseWarning.textContent = ui('border.purchaseDelay');
         infoWrapper.appendChild(purchaseWarning);
     }
 
@@ -1591,7 +1603,12 @@ function getDonatorPerksComparisonHtml(themeColors) {
                                 <img ${getBadgeAssetAttribute(`donator_${tier}`)} src="${BADGE_CONFIG[`donator_${tier}`].icon}" alt="" style="${getBadgeStyle(`donator_${tier}`)}" />
                                 <div class="rovalra-donator-tier-copy">
                                     <h4>${ts(`settings.donatorPerks.tier${tier}`)}</h4>
-                                    <span class="rovalra-donator-tier-price" data-tier="${tier}" style="display: block; margin-top: 4px; color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 600;">${ts(`settings.donatorPerks.tier${tier}Desc`).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()}</span>
+                                    <span class="rovalra-donator-tier-price" data-tier="${tier}" style="display: block; margin-top: 4px; color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 600;">${ts(
+                                        `settings.donatorPerks.tier${tier}Desc`,
+                                    )
+                                        .replace(/<[^>]*>/g, '')
+                                        .replace(/\s+/g, ' ')
+                                        .trim()}</span>
                                 </div>
                             </div>`,
                     )
@@ -3512,7 +3529,9 @@ async function renderStoreBorders(container) {
         let authedUserData = null;
         if (userId) {
             const [displayRes, thumbnails] = await Promise.all([
-                getUserDisplayName ? await getUserDisplayName(userId) : ui('common.user'),
+                getUserDisplayName
+                    ? await getUserDisplayName(userId)
+                    : ui('common.user'),
                 getBatchThumbnails([userId], 'AvatarHeadshot', '150x150'),
             ]);
             authedUserData = {
@@ -3681,7 +3700,8 @@ async function renderStoreBorders(container) {
                     'display: flex; flex-direction: column; align-items: center; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
 
                 const staticCard = createUserCard({
-                displayName: authedUserData?.displayName || ui('common.user'),
+                    displayName:
+                        authedUserData?.displayName || ui('common.user'),
                     username: '',
                     thumbData: authedUserData?.thumbData || { state: 'Error' },
                     href: authedUserData?.profileHref || '',
@@ -3743,7 +3763,8 @@ async function renderStoreBorders(container) {
                         'display: flex; flex-direction: column; align-items: center; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
 
                     const animCard = createUserCard({
-                        displayName: authedUserData?.displayName || ui('common.user'),
+                        displayName:
+                            authedUserData?.displayName || ui('common.user'),
                         username: '',
                         thumbData: authedUserData?.thumbData || {
                             state: 'Error',
@@ -4449,7 +4470,9 @@ async function renderStoreFrames(container) {
                         getFrameAssetDetails(frame).then((details) => {
                             const price = getFrameAssetPrice(frame, details);
                             if (price === null) {
-                                priceLabel.textContent = ts('profileFrame.viewItem');
+                                priceLabel.textContent = ts(
+                                    'profileFrame.viewItem',
+                                );
                                 return;
                             }
 
