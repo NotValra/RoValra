@@ -1,11 +1,10 @@
 // TODO i hate this script...
 
 import { callRobloxApi } from './api.js';
-import { getAssets } from './assets.js';
 import * as CacheHandler from './storage/cacheHandler.js';
 
 const API_ENDPOINT_DATACENTERS_LIST = '/v1/datacenters/list';
-const STORAGE_KEY_DATACENTERS = 'rovalraDatacenters';
+const STORAGE_KEY_DATACENTERS = 'rovalraDatacentersCache';
 const DATACENTER_CACHE_MAX_AGE_MS = 10 * 60 * 1000;
 const STORAGE_KEY_REGIONS = 'cachedRegions';
 const STORAGE_KEY_CONTINENTS = 'cachedRegionContinents';
@@ -16,6 +15,50 @@ export let datacenterList = [];
 let cachedRegionData = null;
 let datacenterMapPromise = null;
 export let REGIONS = {};
+
+async function readDatacenterCache() {
+    const stored = await chrome.storage.local.get(STORAGE_KEY_DATACENTERS);
+    if (stored[STORAGE_KEY_DATACENTERS]) return stored[STORAGE_KEY_DATACENTERS];
+
+    const legacy = await CacheHandler.get(
+        'regions',
+        'rovalraDatacenters',
+        'local',
+    );
+    if (Array.isArray(legacy) && legacy.length) {
+        const migrated = { data: legacy, fetchedAt: 0 };
+        await chrome.storage.local.set({
+            [STORAGE_KEY_DATACENTERS]: migrated,
+        });
+        return migrated;
+    }
+    return null;
+}
+
+async function writeDatacenterCache(data) {
+    await chrome.storage.local.set({
+        [STORAGE_KEY_DATACENTERS]: { data, fetchedAt: Date.now() },
+    });
+}
+
+async function fetchDatacenterList() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+        const response = await callRobloxApi({
+            isRovalraApi: true,
+            endpoint: API_ENDPOINT_DATACENTERS_LIST,
+            signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`API Status: ${response.status}`);
+        const data = await response.json();
+        if (!isValidDatacenterList(data))
+            throw new Error('API returned an invalid datacenter list.');
+        return data;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
 const stateMap = {
     Alabama: 'AL',
     Alaska: 'AK',
@@ -98,35 +141,12 @@ function processDataIntoMap(serverListData) {
     serverIpMap = map;
 }
 
-async function refreshDatacenterMap(currentData) {
+async function refreshDatacenterMap() {
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        let apiResponse;
+        const apiData = await fetchDatacenterList();
 
-        try {
-            apiResponse = await callRobloxApi({
-                isRovalraApi: true,
-                endpoint: API_ENDPOINT_DATACENTERS_LIST,
-                signal: controller.signal,
-            });
-        } finally {
-            clearTimeout(timeoutId);
-        }
-
-        if (!apiResponse.ok)
-            throw new Error(`API Status: ${apiResponse.status}`);
-
-        const apiData = await apiResponse.json();
-        if (JSON.stringify(apiData) !== JSON.stringify(currentData)) {
-            await CacheHandler.set(
-                'regions',
-                STORAGE_KEY_DATACENTERS,
-                apiData,
-                'local',
-            );
-            processDataIntoMap(apiData);
-        }
+        await writeDatacenterCache(apiData);
+        processDataIntoMap(apiData);
     } catch (e) {
         const msg = e.name === 'AbortError' ? 'Timeout' : e.message;
         console.warn(
@@ -136,23 +156,38 @@ async function refreshDatacenterMap(currentData) {
     }
 }
 
+function isValidDatacenterList(data) {
+    return (
+        Array.isArray(data) &&
+        data.length > 0 &&
+        data.some(
+            (dc) =>
+                Array.isArray(dc?.dataCenterIds) &&
+                dc.dataCenterIds.length > 0 &&
+                dc.location?.country &&
+                Array.isArray(dc.location.latLong) &&
+                dc.location.latLong.length === 2,
+        )
+    );
+}
+
 export function loadDatacenterMap() {
     if (datacenterMapPromise) return datacenterMapPromise;
 
     window.rovalraDatacenterState = 'loading';
     datacenterMapPromise = (async () => {
         let currentData = null;
-        let hasStoredCache = false;
+        let fetchedAt = 0;
         try {
-            currentData = await CacheHandler.get(
-                'regions',
-                STORAGE_KEY_DATACENTERS,
-                'local',
-                DATACENTER_CACHE_MAX_AGE_MS,
-            );
-            hasStoredCache = currentData !== null && currentData !== undefined;
-            if (hasStoredCache) {
+            currentData = await readDatacenterCache();
+            if (currentData && !Array.isArray(currentData)) {
+                fetchedAt = Number(currentData.fetchedAt) || 0;
+                currentData = currentData.data;
+            }
+            if (isValidDatacenterList(currentData)) {
                 processDataIntoMap(currentData);
+            } else {
+                currentData = null;
             }
         } catch (e) {
             console.error(
@@ -161,31 +196,27 @@ export function loadDatacenterMap() {
             );
         }
         if (!currentData) {
+            serverIpMap = {};
             try {
-                const fallbackUrl = getAssets().serverListJson;
-                const response = await fetch(fallbackUrl);
-                if (!response.ok) throw new Error(`Status: ${response.status}`);
-
-                const localData = await response.json();
-                currentData = localData;
-                await CacheHandler.set(
-                    'regions',
-                    STORAGE_KEY_DATACENTERS,
-                    localData,
-                    'local',
-                );
-                processDataIntoMap(localData);
+                const apiData = await fetchDatacenterList();
+                currentData = apiData;
+                fetchedAt = Date.now();
+                await writeDatacenterCache(apiData);
+                processDataIntoMap(apiData);
             } catch (e) {
                 console.error(
-                    'RoValra: Could not load local fallback JSON.',
+                    'RoValra: Could not load datacenters from API.',
                     e,
                 );
-                serverIpMap = {};
             }
         }
 
         window.rovalraDatacenterState = 'complete';
-        if (!hasStoredCache) refreshDatacenterMap(currentData);
+        if (
+            currentData &&
+            Date.now() - fetchedAt >= DATACENTER_CACHE_MAX_AGE_MS
+        )
+            refreshDatacenterMap();
     })();
 
     return datacenterMapPromise;
