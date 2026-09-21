@@ -15,6 +15,8 @@ function getLanguageFromUrl(url = window.location.href) {
         return 'ro';
     } else if (language === 'es') {
         return 'es';
+    } else if (language === 'pl') {
+        return 'pl';
     } else if (language === 'en') {
         return 'en';
     }
