@@ -26,30 +26,19 @@ function prepareTemplates() {
 
 function replaceIcon(element) {
     let type = null;
-    let targetTextElement = null;
 
     if (element.classList.contains('icon-votes-gray')) {
         type = 'votes';
-        element.classList.remove('icon-votes-gray');
-        targetTextElement = element.nextElementSibling;
     } else if (element.classList.contains('icon-playing-counts-gray')) {
         type = 'playing';
-        element.classList.remove('icon-playing-counts-gray');
-        targetTextElement = element.nextElementSibling;
     }
 
     const template = ICON_TEMPLATES.get(type);
-    if (template) {
-        if (!targetTextElement) targetTextElement = element;
+    if (!template || !element.isConnected) return;
 
-        targetTextElement.prepend(template.cloneNode(true));
-
-        if (element !== targetTextElement) {
-            element.remove();
-        } else {
-            element.style.background = 'none';
-        }
-    }
+    const replacement = template.cloneNode(true);
+    replacement.setAttribute('aria-hidden', 'true');
+    element.replaceWith(replacement);
 }
 
 export function initializeModernIcons() {
