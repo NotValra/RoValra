@@ -23,6 +23,7 @@ export const SETTINGS_CONFIG = {
                 type: 'select',
                 options: [
                     { label: 'English', value: 'en' },
+                    { label: 'Polish (Polski)', value: 'pl' },
                     { label: 'Romanian (Română)', value: 'ro' },
                     { label: 'Spanish (Español)', value: 'es' },
                     { label: 'Automatic', value: 'auto' },
