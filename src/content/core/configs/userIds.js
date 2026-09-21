@@ -46,6 +46,7 @@ export const TRANSLATOR_USER_IDS = [
     '1564574922', // bogdan-glitchm
     '10646979010',  // rav4toy
     '3121706',  // AuroxNova
+	'48255812', //aliceenight
 ];
 
 export const ARTIST_USER_IDS = [

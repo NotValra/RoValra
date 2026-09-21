@@ -2,92 +2,84 @@ import i18next from 'i18next';
 import en from '../../../../public/Assets/locales/en.json';
 import { settings } from '../settings/getSettings';
 
+const defaultLanguage = 'en';
+const supportedLanguages = new Set(['en', 'es', 'ro', 'pl']);
+const neutralPrefixes = new Set(['my']);
+
 function getLanguageFromUrl(url = window.location.href) {
-    const { pathname } = new URL(url);
+    const [segment] = new URL(url).pathname.split('/').filter(Boolean);
+    const code = segment?.toLowerCase();
 
-    const language = pathname.split('/').filter(Boolean)[0];
-
-    if (language === 'my') {
-        return 'none';
-    }
-
-    if (language === 'ro') {
-        return 'ro';
-    } else if (language === 'es') {
-        return 'es';
-    } else if (language === 'en') {
-        return 'en';
-    }
-
-    return 'en';
+    if (neutralPrefixes.has(code)) return null;
+    return supportedLanguages.has(code) ? code : defaultLanguage;
 }
 
 async function getLanguage() {
-    if (await settings.rovalraLanguage) {
-        let lang = await settings.rovalraLanguage;
+    const lang = await settings.rovalraLanguage;
 
-        if (lang === 'auto') {
-            let lang_url = getLanguageFromUrl();
-            console.log(`Auto-detected language: ${lang_url}`);
-            if (lang_url !== 'none') {
-                await chrome.storage.local.set({ rovalra_autolang: lang_url });
-            } else {
-                lang_url = (await chrome.storage.local.get({ rovalra_autolang: 'en' })).rovalra_autolang;
-            }
-            console.log(`Updated Auto-detected language: ${lang_url}`);
+    if (!lang) return defaultLanguage;
+    if (lang !== 'auto') return lang;
 
-            return lang_url;
-        }
-
-        return lang;
+    const detected = getLanguageFromUrl();
+    if (detected) {
+        await chrome.storage.local.set({ rovalra_autolang: detected });
+        return detected;
     }
 
-    return 'en';
+    const { rovalra_autolang } = await chrome.storage.local.get({
+        rovalra_autolang: defaultLanguage,
+    });
+    return rovalra_autolang;
 }
 
-let loadedLanguages = new Set();
+const pendingLoads = new Map();
 
-async function update_i18n() {
-    const language = await getLanguage() || 'en';
-
-    if (!loadedLanguages.has(language)) {
-        loadedLanguages.add(language);
-        
-        const response = await fetch(
-            chrome.runtime.getURL(`public/Assets/locales/${language}.json`),
-        ); // Verified
-        const translations = await response.json();
-    
-        i18next.addResourceBundle(language, 'translation', translations);
+function loadLanguage(language) {
+    if (i18next.hasResourceBundle(language, 'translation')) {
+        return Promise.resolve();
     }
 
+    if (!pendingLoads.has(language)) {
+        const load = fetch(
+            chrome.runtime.getURL(`public/Assets/locales/${language}.json`),
+        ) // Verified
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} loading "${language}"`);
+                }
+                return response.json();
+            })
+            .then((translations) => {
+                i18next.addResourceBundle(language, 'translation', translations);
+            })
+            .finally(() => pendingLoads.delete(language));
+
+        pendingLoads.set(language, load);
+    }
+
+    return pendingLoads.get(language);
+}
+
+async function update_i18n() {
+    const language = await getLanguage();
+    await loadLanguage(language);
     await i18next.changeLanguage(language);
 }
 
-let i18nInitialized = false;
 const i18nPromise = (async () => {
-    if (i18nInitialized) return;
-
     await i18next.init({
-        lng: 'en',
-        fallbackLng: 'en',
+        lng: defaultLanguage,
+        fallbackLng: defaultLanguage,
         debug: false,
         resources: {
-            en: {
-                translation: en,
-            },
+            en: { translation: en },
         },
     });
 
     try {
         await update_i18n();
-
-        i18nInitialized = true;
     } catch (error) {
-        console.error('RoValra: Failed to initialize i18n', error);
-
-        i18nInitialized = true;
-        throw error;
+        console.error('RoValra: Failed to load language, falling back to English', error);
     }
 })();
 
