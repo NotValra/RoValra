@@ -1,8 +1,9 @@
 {
     "manifest_version": 3,
-    "name": "RoValra - Roblox Improved",
+    "name": "__MSG_extensionName__",
     "version": "2.6.11",
-    "description": "An extension aiming to provide features that other Roblox extensions paywall!",
+    "description": "__MSG_extensionDescription__",
+    "default_locale": "en",
     "content_scripts": [
         {
             "matches": ["*://*.roblox.com/*"],

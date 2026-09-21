@@ -269,6 +269,9 @@ if (fs.existsSync('public')) {
 if (fs.existsSync('assets')) {
     processDirectory('assets', path.join('dist', 'assets'));
 }
+if (fs.existsSync('_locales')) {
+    processDirectory('_locales', path.join('dist', '_locales'));
+}
 
 if (fs.existsSync('manifest.json')) {
     try {
