@@ -548,6 +548,10 @@
         "errorNoUserId": "Could not determine the User ID from the page.",
         "errorFetch": "Could not fetch outfits."
     },
+    "avatarFavoriteOutfits": {
+        "add": "Add to Favorites",
+        "remove": "Remove from Favorites"
+    },
     "donationLink": {
         "donate": "Donate",
         "overlayTitle": "Pls Donate",
