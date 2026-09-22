@@ -83,7 +83,7 @@ async function checkNoToggles(noTogglesEl, togglesEnabledCount = togglesEnabled)
 async function changeToggleElements(dropdown = createDropdown(), currentItems) {
     const dropdownElement = dropdown.panel.querySelector('div.flex-dropdown-menu');
 
-    for (item of dropdownElement.children) {
+    for (const item of dropdownElement.children) {
         const connectedItemInfo = currentItems.filter(a => a.value == item.getAttribute('data-value'))[0];
 
         item.disabled = connectedItemInfo.disabled
