@@ -586,7 +586,17 @@ export const SETTINGS_CONFIG = {
                         default: false,
                         contributors: ['4632962611'],
                     },
-
+                    PinPrivateServersEnabled: {
+                        label: 'Pin Private Servers',
+                        description: [
+                            'Allows private/VIP servers to be pinned to the top of the list.',
+                            'Pinned servers stay above normal private servers.',
+                            'Missing a bit of quality of life.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['4632962611'],
+                    },
                     enableShareLink: {
                         label: 'Share link button',
                         description: [

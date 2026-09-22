@@ -1372,6 +1372,8 @@
         "hide": "Hide",
         "join": "Join",
         "peopleMax": "{{playing}} of {{maxPlayers}} people max",
+        "pinPrivateServer": "Pin private server",
+        "unpinPrivateServer": "Unpin private server",
         "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
         "playerCountUnknownLabel": "Player count unknown"
     },
