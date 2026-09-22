@@ -99,7 +99,6 @@
         "versionUnknown": "Version Unknown",
         "version": "Version {{version}}",
         "versionLabel": "Version",
-        "languageMatchCount": "~{{count}} {{language}} speakers",
         "latest": " (Latest)",
         "oldest": " (Oldest)",
         "serverFull": "Server is Full",
@@ -1207,7 +1206,9 @@
         "transactions": "Transactions",
         "apiDocs": "API Docs",
         "incidentLearnMore": "Click here to learn more.",
-        "incidentHideNotice": "You can hide this notice here"
+        "incidentHideNotice": "You can hide this notice here",
+        "maintenancePrefix": "Scheduled Maintenance:",
+        "maintenanceLearnMore": "Click here to learn more."
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
