@@ -42,7 +42,7 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     const pillStyles = {
         fontWeight: '600',
         padding: '1px 6px',
-        fontSize: '11px',
+        fontSize: '12px',
         height: '22px',
         lineHeight: '20px',
     };
