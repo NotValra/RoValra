@@ -23,7 +23,7 @@ export const SETTINGS_CONFIG = {
                 type: 'select',
                 options: [
                     { label: 'English', value: 'en' },
-					{ label: 'Polish (Polski)', value: 'pl' },
+                    { label: 'Polish (Polski)', value: 'pl' },
                     { label: 'Romanian (Română)', value: 'ro' },
                     { label: 'Spanish (Español)', value: 'es' },
                     { label: 'Automatic', value: 'auto' },
@@ -1996,6 +1996,14 @@ export const SETTINGS_CONFIG = {
                     'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
                 type: 'checkbox',
                 default: true,
+            },
+            plusReferralEnabled: {
+                label: 'Show RoValra Plus Referral',
+                description:
+                    'Shows RoValra’s referral offer on the [Plus](https://www.roblox.com/plus) page. Only new Roblox Plus users qualify for the reward.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['231260921', '447170745'],
             },
         },
     },

@@ -128,6 +128,7 @@ import { init as initGroupPendingFunds } from './features/groups/groupPendingFun
 // Plus
 import { init as initRobloxPlusStats } from './features/plus/stats.js';
 import { init as initRobloxPlusTransferLimits } from './features/plus/transferLimits.js';
+import { init as initRobloxPlusReferral } from './features/plus/referral.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -403,7 +404,11 @@ const featureRoutes = [
     // Roblox Plus Page
     {
         paths: ['/plus'],
-        features: [initRobloxPlusStats, initRobloxPlusTransferLimits],
+        features: [
+            initRobloxPlusStats,
+            initRobloxPlusTransferLimits,
+            initRobloxPlusReferral,
+        ],
     },
     // User profile pages
     {

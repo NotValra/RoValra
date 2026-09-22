@@ -2059,6 +2059,11 @@
             "sentThisMonth": "Sent this month",
             "caption": "Daily limit is {{dailyLimit}}. Monthly limit is {{monthlyLimit}}. Updates every 5 minutes. The remaining are estimates and may be inaccurate."
         },
+        "referral": {
+            "reward": "Get 100 Robux for free and help support RoValra!",
+            "details": "Only new Roblox Plus users qualify. RoValra will also receive 100 Robux when you subscribe using RoValra's referral code.",
+            "button": "Subscribe using RoValra's referral code"
+        },
         "privateServerTooltip": {
             "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
         },
