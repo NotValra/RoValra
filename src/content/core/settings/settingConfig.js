@@ -590,6 +590,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             'Allows private/VIP servers to be pinned to the top of the list.',
                             'Pinned servers stay above normal private servers.',
+                            'Missing a bit of quality of life.',
                         ],
                         type: 'checkbox',
                         default: false,
