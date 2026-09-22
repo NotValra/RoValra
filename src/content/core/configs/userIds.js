@@ -36,6 +36,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '1960518316', // lobberxv :3
     '3050364170', // Eli_Cauver :3
     '315646839', // imderlord :3
+    '231260921', // textuired
 ];
 
 export const TESTER_USER_IDS = [
@@ -44,10 +45,10 @@ export const TESTER_USER_IDS = [
 
 export const TRANSLATOR_USER_IDS = [
     '1564574922', // bogdan-glitchm
-    '10646979010',  // rav4toy
-    '3121706',  // AuroxNova
-	'48255812', //aliceenight
-	'315646839', // imderlord
+    '10646979010', // rav4toy
+    '3121706', // AuroxNova
+    '48255812', //aliceenight
+    '315646839', // imderlord
 ];
 
 export const ARTIST_USER_IDS = [
