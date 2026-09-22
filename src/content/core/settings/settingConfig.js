@@ -2010,7 +2010,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['650766686'],
+                contributors: ['650766686', '48255812'],
                 exclusiveWith: ['qolTogglesEnabled'],
                 childSettings: {
                     // Toggles to be in the menu
@@ -2240,6 +2240,7 @@ export const SETTINGS_CONFIG = {
                     "This allows you to toggle beta programs you're enrolled in easily.",
                 type: 'checkbox',
                 default: false,
+                contributors: ['447170745', '48255812'],
                 childSettings: {
                     previousBetaProgramsEnabled: {
                         label: 'Show Previous Beta Programs',
