@@ -34,6 +34,20 @@ function findStaticSettingsTab(hashKey) {
     });
 }
 
+function getRequestedSettingsTab() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const rovalraTab = urlParams.get('rovalra');
+    const hashTab = decodeURIComponent(
+        window.location.hash.replace('#!/', '').replace('#!', ''),
+    );
+
+    if (rovalraTab?.toLowerCase() === 'search' && urlParams.has('q')) {
+        return 'search';
+    }
+
+    return hashTab || rovalraTab || 'info';
+}
+
 async function isFunStuffTabEnabled() {
     return new Promise((resolve) => {
         chrome.storage.local.get('FunStuffEnabled', (settings) => {
@@ -192,20 +206,10 @@ export async function checkRoValraPage() {
     }
 
     async function handleHashChange() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const rovalraTabFromParam = urlParams.get('rovalra');
-        const hashPart = decodeURIComponent(
-            window.location.hash.replace('#!/', '').replace('#!', ''),
-        );
-        const currentHash = hashPart || rovalraTabFromParam || 'info';
-        await loadTabContent(currentHash);
+        await loadTabContent(getRequestedSettingsTab());
     }
 
     window.addEventListener('hashchange', handleHashChange, false);
-
-    const initialHash = decodeURIComponent(
-        window.location.hash.replace('#!/', '').replace('#!', ''),
-    );
 
     const debouncedSearch = (func, wait) => {
         let timeout;
@@ -230,7 +234,7 @@ export async function checkRoValraPage() {
 
     if (rovalraHeader && settingsContainer) {
         const unifiedMenu = document.getElementById('unified-menu');
-        await loadTabContent(initialHash || rovalraTab || 'info');
+        await loadTabContent(getRequestedSettingsTab());
         await applyTheme();
 
         regionDataPromise.then((loadedRegionData) => {
