@@ -14,6 +14,8 @@ const USER_BADGES_CACHE_TTL_MS = 5 * 60 * 1000;
 let gameJoinErrorCount = 0;
 let lastGameJoinRequestTime = 0;
 const GAMEJOIN_TIMEOUT_MS = 2000;
+const rateLimitCooldowns = new Map();
+const RETRY_AFTER_BUFFER_MS = 1000;
 const TEMPORARILY_LIMITED_MESSAGE =
     'Your account has been temporarily limited for violating terms of service.';
 
@@ -23,6 +25,66 @@ let cachedRovalraUserAgent = null;
 const hbaClient = new HBAClient({
     onSite: true,
 });
+
+function getRetryAfterDelay(response) {
+    const retryAfter = response.headers.get('retry-after');
+    if (retryAfter) {
+        const seconds = Number(retryAfter);
+        if (Number.isFinite(seconds)) {
+            return Math.max(0, seconds * 1000) + RETRY_AFTER_BUFFER_MS;
+        }
+
+        const retryAt = Date.parse(retryAfter);
+        if (Number.isFinite(retryAt)) {
+            return Math.max(0, retryAt - Date.now()) + RETRY_AFTER_BUFFER_MS;
+        }
+    }
+
+    return 0;
+}
+
+function getRateLimitKey(url) {
+    try {
+        return new URL(url).origin;
+    } catch {
+        return url;
+    }
+}
+
+async function waitForRateLimitCooldown(key, signal) {
+    const cooldownUntil = rateLimitCooldowns.get(key) || 0;
+    const delay = cooldownUntil - Date.now();
+    if (delay <= 0) {
+        rateLimitCooldowns.delete(key);
+        return;
+    }
+
+    await new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(resolve, delay);
+        if (!signal) return;
+
+        const onAbort = () => {
+            clearTimeout(timeoutId);
+            reject(new DOMException('The operation was aborted.', 'AbortError'));
+        };
+        if (signal.aborted) {
+            onAbort();
+            return;
+        }
+        signal.addEventListener('abort', onAbort, { once: true });
+    });
+}
+
+function recordRateLimitCooldown(key, response) {
+    const delay = getRetryAfterDelay(response);
+    if (delay <= 0) return;
+
+    const cooldownUntil = Date.now() + delay;
+    rateLimitCooldowns.set(
+        key,
+        Math.max(rateLimitCooldowns.get(key) || 0, cooldownUntil),
+    );
+}
 
 function getRovalraUserAgent() {
     if (cachedRovalraUserAgent) return cachedRovalraUserAgent;
@@ -543,7 +605,12 @@ export async function callRobloxApi(options) {
         if (isRovalraApi) {
             let lastResponse;
             try {
+                const rateLimitKey = getRateLimitKey(fullUrl);
+                await waitForRateLimitCooldown(rateLimitKey, signal);
                 lastResponse = await fetch(fullUrl, fetchOptions);
+                if (lastResponse.status === 429) {
+                    recordRateLimitCooldown(rateLimitKey, lastResponse);
+                }
                 let newAccessToken = null;
                 try {
                     const bodyClone = await lastResponse.clone().json();
@@ -697,7 +764,9 @@ export async function callRobloxApi(options) {
         };
 
         let response;
+        const rateLimitKey = getRateLimitKey(fullUrl);
         try {
+            await waitForRateLimitCooldown(rateLimitKey, signal);
             response = await fetch(fullUrl, fetchOptions);
         } catch (error) {
             cleanupGameJoinTimeout();
@@ -754,6 +823,9 @@ export async function callRobloxApi(options) {
         }
 
         if (!response.ok) {
+            if (response.status === 429) {
+                recordRateLimitCooldown(rateLimitKey, response);
+            }
             console.error(
                 `RoValra API: Request to ${fullUrl} failed with status ${response.status}.`,
             );
