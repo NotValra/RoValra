@@ -1,11 +1,14 @@
 import { callRobloxApiJson } from '../api.js';
+import semver from 'semver';
+import DOMPurify from '../packages/dompurify.js';
+import { CUSTOM_ADDED_TAGS } from '../utils/purifyCfg.js';
 
 export const REMOTE_SETTING_LOCKS_KEY = 'rovalra_remote_setting_locks';
 
 export const REMOTE_SETTINGS_CONFIG_CACHE_KEY =
     'rovalra_remote_settings_config_cache';
 
-export const REMOTE_SETTING_LOCK_REASON =
+export const REMOTE_SETTING_LOCK_DEFAULT_REASON =
     'Disabled remotely, likely because of issues. It will be back soon.';
 
 const REMOTE_SETTINGS_CONFIG_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -28,7 +31,7 @@ const fetchRemoteSettingsConfig = () =>
     callRobloxApiJson({
         isRovalraApi: true,
         subdomain: 'www',
-        endpoint: '/RoValra/Settings/config.json',
+        endpoint: '/global-settings/feature-kill.json',
         method: 'GET',
     });
 
@@ -75,13 +78,48 @@ const getRemoteSettingsConfig = async () => {
     }
 };
 
-const getRemoteDisabledKeys = async () => {
-    const config = await getRemoteSettingsConfig();
-    if (!config || typeof config !== 'object' || Array.isArray(config)) {
+const getRemoteDisabledKeys = async (config = {}) => {
+    if (config == {}) config = await filterSettings(await getRemoteSettingsConfig());
+    if (!config || typeof config !== 'object' || Array.isArray(config) || !config.features || typeof config.features !== 'object' || !Array.isArray(config.features)) {
         return [];
     }
 
-    return Object.keys(config).filter((key) => typeof key === 'string' && key);
+    return config.features.map((a) => a.setting);
+};
+
+export const filterSettings = async (config = {}, curver = chrome.runtime.getManifest().version) => {
+    if (config == {}) config = await getRemoteSettingsConfig()
+
+
+    // Originally made my August, but then modified by AI so it added versionIncompReason key that way we didn't have to run all the semver checks again.
+    return {
+        features: config.features
+            .map((feature) => {
+                const matchingIncomp = feature.incompatibilities.find((incomp) =>
+                    (
+                        typeof incomp.versions === "string"
+                        && semver.validRange(incomp.versions)
+                        && semver.satisfies(curver, incomp.versions)
+                    )
+                    || (
+                        typeof incomp.versions === "object"
+                        && Array.isArray(incomp.versions)
+                        && incomp.versions.some((range) =>
+                            semver.validRange(range)
+                            && semver.satisfies(curver, range)
+                        )
+                    )
+                );
+
+                if (!matchingIncomp) return null;
+
+                return {
+                    ...feature,
+                    versionIncompReason: matchingIncomp.reason,
+                };
+            })
+            .filter(Boolean),
+    };
 };
 
 export const getRemoteSettingLocks = async () => {
@@ -93,7 +131,9 @@ export const getRemoteSettingLocks = async () => {
 };
 
 export const refreshRemoteSettingLocks = async () => {
-    const disabledKeys = await getRemoteDisabledKeys();
+    const disabledSettingsUnfiltered = await getRemoteSettingsConfig();
+    const disabledSettings = await filterSettings(disabledSettingsUnfiltered);
+    const disabledKeys = await getRemoteDisabledKeys(disabledSettings);
     const allowRemoteOverrides = await isRemoteSettingOverrideEnabled();
     const disabledKeySet = new Set(disabledKeys);
     const storage = await getStorage(null);
@@ -115,17 +155,29 @@ export const refreshRemoteSettingLocks = async () => {
     const removals = [];
     let bundledChanged = false;
 
-    for (const key of disabledKeys) {
+    for (const disabledSetting of disabledSettings.features) {
+        const key = disabledSetting.setting;
         const existingLock = currentLocks[key];
         const currentValue = Object.prototype.hasOwnProperty.call(storage, key)
             ? storage[key]
             : bundledSettings[key];
 
-        nextLocks[key] = existingLock || {
-            previousValue: currentValue,
-            lockedAt: Date.now(),
-            reason: REMOTE_SETTING_LOCK_REASON,
-        };
+        nextLocks[key] = {
+            ...(
+                existingLock || {
+                    previousValue: currentValue,
+                    lockedAt: Date.now()
+                }
+            ),
+            reason: DOMPurify.sanitize(
+                disabledSetting.versionIncompReason
+                || disabledSetting.reason
+                || REMOTE_SETTING_LOCK_DEFAULT_REASON
+                , { ...CUSTOM_ADDED_TAGS }
+            ),
+        }
+
+
 
         if (allowRemoteOverrides) {
             if (

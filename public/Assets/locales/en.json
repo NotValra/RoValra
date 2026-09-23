@@ -959,7 +959,9 @@
             "locks": {
                 "donatorTierRequired": "RoValra Donator Tier {{tier}} Required",
                 "donatorPerk": "RoValra Donator Perk (Tier {{tier}})",
-                "featureDisabled": "This feature has been disabled {{lockType}}"
+                "featureDisabled_permanent": "This feature has been disabled permanently",
+                "featureDisabled_temporary": "This feature has been disabled temporarily",
+                "featureDisabled_remote": "This feature has been disabled remotely"
             },
             "featureStatus": {
                 "title": "Before Enabling This Feature",

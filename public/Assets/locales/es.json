@@ -37,20 +37,20 @@
         "noHiddenGames": "Este usuario no tiene experiencias ocultas.",
         "buttonText": "Experiencias ocultas",
         "labels": {
-        "sort": "Ordenar",
-        "order": "Orden"
+            "sort": "Ordenar",
+            "order": "Orden"
         },
         "sort": {
-        "default": "Por defecto",
-        "likeRatio": "Ratio de me gusta",
-        "likes": "Me gusta",
-        "dislikes": "No me gusta",
-        "players": "Jugadores",
-        "name": "Nombre (Z-A)"
+            "default": "Por defecto",
+            "likeRatio": "Ratio de me gusta",
+            "likes": "Me gusta",
+            "dislikes": "No me gusta",
+            "players": "Jugadores",
+            "name": "Nombre (Z-A)"
         },
         "order": {
-        "descending": "Descendente",
-        "ascending": "Ascendente"
+            "descending": "Descendente",
+            "ascending": "Ascendente"
         },
         "noMatches": "Ninguna experiencia coincide con los filtros.",
         "loading": "Cargando..."
@@ -60,20 +60,20 @@
         "noHiddenGames": "Este grupo no tiene experiencias ocultas.",
         "buttonText": "Experiencias ocultas",
         "labels": {
-        "sort": "Ordenar",
-        "order": "Orden"
+            "sort": "Ordenar",
+            "order": "Orden"
         },
         "sort": {
-        "recentlyUpdated": "Recientemente actualizado",
-        "likeRatio": "Ratio de me gusta",
-        "likes": "Me gusta",
-        "dislikes": "No me gusta",
-        "players": "Jugadores",
-        "name": "Nombre (Z-A)"
+            "recentlyUpdated": "Recientemente actualizado",
+            "likeRatio": "Ratio de me gusta",
+            "likes": "Me gusta",
+            "dislikes": "No me gusta",
+            "players": "Jugadores",
+            "name": "Nombre (Z-A)"
         },
         "order": {
-        "descending": "Descendente",
-        "ascending": "Ascendente"
+            "descending": "Descendente",
+            "ascending": "Ascendente"
         },
         "noMatches": "Ninguna experiencia oculta coincide con los filtros.",
         "loadingMore": "Cargando más juegos..."
@@ -238,68 +238,68 @@
     },
     "settings": {
         "tabs": {
-        "info": "Información",
-        "credits": "Créditos",
-        "donatorPerks": "Beneficios de donador",
-        "settings": "Configuración",
-        "accountStanding": "Estado de la cuenta"
+            "info": "Información",
+            "credits": "Créditos",
+            "donatorPerks": "Beneficios de donador",
+            "settings": "Configuración",
+            "accountStanding": "Estado de la cuenta"
         },
         "info": {
-        "title": "¡Información de RoValra!",
-        "desc1": "RoValra es una extensión que intenta hacer que las funciones básicas de calidad de vida sean gratuitas y accesibles para todos, haciendo todo completamente de código abierto.",
-        "desc2": "Esto es posible ejecutando casi todo localmente.",
-        "desc3": "Y las funciones del servidor no me cuestan nada de mantener, por eso puedo ofrecer esto gratis.",
-        "desc4": "Esta extensión también es un proyecto para aprender, así que muchas cosas pueden cambiar o rehacerse con el tiempo mientras aprendo más.",
-        "gilbert": "TODOS AMAMOS A GILBERT",
-        "suggestions": "Si tienes sugerencias de funciones, házmelo saber en mi servidor de Discord o por GitHub",
-        "bugs": "Si encuentras algún error, házmelo saber en mi servidor de Discord o por GitHub",
-        "review": "Si te gusta esta extensión, por favor considera <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">dejar una reseña</a>, ayuda mucho ❤️",
-        "discord": "Servidor de Discord",
-        "github": "Repositorio de Github",
-        "support": "Apoyar a RoValra",
-        "tiktok": "TikTok: ValraWantBanana",
-        "x": "X: ValraSwag"
+            "title": "¡Información de RoValra!",
+            "desc1": "RoValra es una extensión que intenta hacer que las funciones básicas de calidad de vida sean gratuitas y accesibles para todos, haciendo todo completamente de código abierto.",
+            "desc2": "Esto es posible ejecutando casi todo localmente.",
+            "desc3": "Y las funciones del servidor no me cuestan nada de mantener, por eso puedo ofrecer esto gratis.",
+            "desc4": "Esta extensión también es un proyecto para aprender, así que muchas cosas pueden cambiar o rehacerse con el tiempo mientras aprendo más.",
+            "gilbert": "TODOS AMAMOS A GILBERT",
+            "suggestions": "Si tienes sugerencias de funciones, házmelo saber en mi servidor de Discord o por GitHub",
+            "bugs": "Si encuentras algún error, házmelo saber en mi servidor de Discord o por GitHub",
+            "review": "Si te gusta esta extensión, por favor considera <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">dejar una reseña</a>, ayuda mucho ❤️",
+            "discord": "Servidor de Discord",
+            "github": "Repositorio de Github",
+            "support": "Apoyar a RoValra",
+            "tiktok": "TikTok: ValraWantBanana",
+            "x": "X: ValraSwag"
         },
         "credits": {
-        "title": "¡Créditos de RoValra!",
-        "contributed": "Gracias a <b style=\"font-weight: bold;\">todos los que</b> <a href=\"https://github.com/NotValra/RoValra/graphs/contributors\" target=\"_blank\" class=\"rovalra-github-link\">contribuyeron</a>",
-        "frames": "Gracias a <b style=\"font-weight: bold;\">Frames</b> por conseguir de alguna manera las ventas e ingresos de Roblox en algunos artículos",
-        "julia": "Gracias a <b style=\"font-weight: bold;\">Julia</b> por hacer un repositorio con todos los datacenters de servidores de Roblox que yo usaba para obtener las regiones, pero ahora cambié a mi propia API.",
-        "aspect": "Gracias a <b style=\"font-weight: bold;\">Aspect</b> por ayudarme aquí y allá cuando tenía muchas preguntas o problemas tontos.",
-        "l5se": "Gracias a <b style=\"font-weight: bold;\">l5se</b> por permitirme usar su selector de regiones de código abierto como plantilla para mi extensión.",
-        "lz": "Gracias a <b style=\"font-weight: bold;\">7_lz</b> por ayudarme mucho al prepararme para el lanzamiento en la Chrome Web Store. Ayudaron muchísimo y estoy muy agradecido.",
-        "mmfw": "Gracias a <b style=\"font-weight: bold;\">mmfw</b> por hacer las capturas de pantalla en la Chrome Web Store y por la ayuda general con el diseño de la interfaz de la extensión.",
-        "coweggs": "Gracias a <b style=\"font-weight: bold;\">Coweggs</b> por inventar el nombre tan gracioso que es \"RoValra\" como broma que luego terminé usando.",
-        "woozynate": "Gracias a <b style=\"font-weight: bold;\">WoozyNate</b> por hacer el increíble juego llamado fisch, de donde viene Gilbert (el logo) <3",
-        "contributorsTitle": "Colaboradores",
-        "loadingContributors": "Cargando...",
-        "failedToLoadContributors": "Error al cargar los colaboradores."
+            "title": "¡Créditos de RoValra!",
+            "contributed": "Gracias a <b style=\"font-weight: bold;\">todos los que</b> <a href=\"https://github.com/NotValra/RoValra/graphs/contributors\" target=\"_blank\" class=\"rovalra-github-link\">contribuyeron</a>",
+            "frames": "Gracias a <b style=\"font-weight: bold;\">Frames</b> por conseguir de alguna manera las ventas e ingresos de Roblox en algunos artículos",
+            "julia": "Gracias a <b style=\"font-weight: bold;\">Julia</b> por hacer un repositorio con todos los datacenters de servidores de Roblox que yo usaba para obtener las regiones, pero ahora cambié a mi propia API.",
+            "aspect": "Gracias a <b style=\"font-weight: bold;\">Aspect</b> por ayudarme aquí y allá cuando tenía muchas preguntas o problemas tontos.",
+            "l5se": "Gracias a <b style=\"font-weight: bold;\">l5se</b> por permitirme usar su selector de regiones de código abierto como plantilla para mi extensión.",
+            "lz": "Gracias a <b style=\"font-weight: bold;\">7_lz</b> por ayudarme mucho al prepararme para el lanzamiento en la Chrome Web Store. Ayudaron muchísimo y estoy muy agradecido.",
+            "mmfw": "Gracias a <b style=\"font-weight: bold;\">mmfw</b> por hacer las capturas de pantalla en la Chrome Web Store y por la ayuda general con el diseño de la interfaz de la extensión.",
+            "coweggs": "Gracias a <b style=\"font-weight: bold;\">Coweggs</b> por inventar el nombre tan gracioso que es \"RoValra\" como broma que luego terminé usando.",
+            "woozynate": "Gracias a <b style=\"font-weight: bold;\">WoozyNate</b> por hacer el increíble juego llamado fisch, de donde viene Gilbert (el logo) <3",
+            "contributorsTitle": "Colaboradores",
+            "loadingContributors": "Cargando...",
+            "failedToLoadContributors": "Error al cargar los colaboradores."
         },
         "donatorPerks": {
-        "title": "¡Beneficios de donador!",
-        "subtitle": "¡Apoya el desarrollo de RoValra y obtén beneficios exclusivos!",
-        "howToGet": "Cómo obtener beneficios",
-        "howToGetDesc": "Puedes donar comprando gamepasses en el juego de apoyo.",
-        "goToGame": "Ir al juego de donación",
-        "perkTiers": "Niveles de beneficios",
-        "tier1": "Nivel 1: Soporte",
-        "tier1Desc": "Dona <strong>cualquier cantidad</strong>",
-        "tier1Reward": "Insignia de Soporte 1",
-        "tier1Feature": "Establecer estado y entornos sin agregar texto a tu sobre mí.",
-        "tier2": "Nivel 2: Soporte",
-        "tier2Desc": "Dona <strong>200+ Robux</strong>",
-        "tier2Reward": "Insignia de Soporte 2",
-        "tier3": "Nivel 3: Soporte",
-        "tier3Desc": "Dona <strong>500+ Robux</strong>",
-        "tier3Reward": "Insignia de Soporte 3",
-        "previousRewards": "+ Todos los beneficios de niveles anteriores",
-        "moreComingSoon": "Más próximamente.",
-        "availableBadges": "Insignias disponibles",
-        "note": "Nota:\n- Las insignias pueden tardar unos minutos en aparecer después de donar.\n- Para gestionar la visibilidad de las insignias, ve a la pestaña de 'Perfil' en configuración. \n- Donar a través de comisiones lamentablemente no da beneficios de donador, esto es una limitación de Roblox.\n- Al donar aceptas los [Términos de uso de RoValra](https://www.rovalra.com/tou/)"
+            "title": "¡Beneficios de donador!",
+            "subtitle": "¡Apoya el desarrollo de RoValra y obtén beneficios exclusivos!",
+            "howToGet": "Cómo obtener beneficios",
+            "howToGetDesc": "Puedes donar comprando gamepasses en el juego de apoyo.",
+            "goToGame": "Ir al juego de donación",
+            "perkTiers": "Niveles de beneficios",
+            "tier1": "Nivel 1: Soporte",
+            "tier1Desc": "Dona <strong>cualquier cantidad</strong>",
+            "tier1Reward": "Insignia de Soporte 1",
+            "tier1Feature": "Establecer estado y entornos sin agregar texto a tu sobre mí.",
+            "tier2": "Nivel 2: Soporte",
+            "tier2Desc": "Dona <strong>200+ Robux</strong>",
+            "tier2Reward": "Insignia de Soporte 2",
+            "tier3": "Nivel 3: Soporte",
+            "tier3Desc": "Dona <strong>500+ Robux</strong>",
+            "tier3Reward": "Insignia de Soporte 3",
+            "previousRewards": "+ Todos los beneficios de niveles anteriores",
+            "moreComingSoon": "Más próximamente.",
+            "availableBadges": "Insignias disponibles",
+            "note": "Nota:\n- Las insignias pueden tardar unos minutos en aparecer después de donar.\n- Para gestionar la visibilidad de las insignias, ve a la pestaña de 'Perfil' en configuración. \n- Donar a través de comisiones lamentablemente no da beneficios de donador, esto es una limitación de Roblox.\n- Al donar aceptas los [Términos de uso de RoValra](https://www.rovalra.com/tou/)"
         },
         "search": {
-        "minLength": "Ingresa al menos 2 caracteres para buscar.",
-        "noResults": "No se encontraron configuraciones para \"{{query}}\"."
+            "minLength": "Ingresa al menos 2 caracteres para buscar.",
+            "noResults": "No se encontraron configuraciones para \"{{query}}\"."
         }
     },
     "qolToggles": {
@@ -376,14 +376,14 @@
         "developerProducts": "Productos de desarrollador",
         "search": "Buscar",
         "sort": {
-        "created": "Ordenar por fecha de creación",
-        "price": "Ordenar por precio",
-        "updated": "Ordenar por actualización",
-        "name": "Ordenar por nombre"
+            "created": "Ordenar por fecha de creación",
+            "price": "Ordenar por precio",
+            "updated": "Ordenar por actualización",
+            "name": "Ordenar por nombre"
         },
         "order": {
-        "ascending": "Ordenar ascendente",
-        "descending": "Ordenar descendente"
+            "ascending": "Ordenar ascendente",
+            "descending": "Ordenar descendente"
         }
     },
     "subplaces": {
@@ -394,21 +394,21 @@
         "noSubplaces": "No se encontraron sublugares.",
         "failedToLoad": "Error al cargar los sublugares.",
         "banner": {
-        "title": "Estás viendo actualmente un sublugar de [{{rootPlaceName}}]({{rootPlaceUrl}}).",
-        "descriptionDefault": "Algunas experiencias pueden deshabilitar la unión a sublugares.",
-        "descriptionRestricted": "Este sublugar no se puede unir debido a restricciones.",
-        "descriptionJoinable": "Este sublugar se puede unir.",
-        "mainExperience": "la experiencia principal"
+            "title": "Estás viendo actualmente un sublugar de [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Algunas experiencias pueden deshabilitar la unión a sublugares.",
+            "descriptionRestricted": "Este sublugar no se puede unir debido a restricciones.",
+            "descriptionJoinable": "Este sublugar se puede unir.",
+            "mainExperience": "la experiencia principal"
         }
     },
     "updateHistory": {
         "tabTitle": "Actualizaciones",
         "title": "Historial de actualizaciones",
         "blocked": {
-        "eighteenPlus": "El historial de actualizaciones no funciona en experiencias para mayores de 18+",
-        "paidAccess": "El historial de actualizaciones no funciona en experiencias de acceso de pago",
-        "subplace": "El historial de actualizaciones no funciona en sublugares con restricciones de unión",
-        "noDesktopSupport": "El historial de actualizaciones no es compatible con experiencias sin soporte para PC"
+            "eighteenPlus": "El historial de actualizaciones no funciona en experiencias para mayores de 18+",
+            "paidAccess": "El historial de actualizaciones no funciona en experiencias de acceso de pago",
+            "subplace": "El historial de actualizaciones no funciona en sublugares con restricciones de unión",
+            "noDesktopSupport": "El historial de actualizaciones no es compatible con experiencias sin soporte para PC"
         }
     },
     "serverList": {
@@ -536,9 +536,9 @@
         "label": "Precio mínimo:",
         "status": "Este artículo está {{status}} del precio mínimo{{difference}}.",
         "statusTypes": {
-        "above": "por encima de",
-        "below": "por debajo de",
-        "at": "en"
+            "above": "por encima de",
+            "below": "por debajo de",
+            "at": "en"
         },
         "difference": " por {{diff}}",
         "description": "El precio mínimo es un precio dinámico mínimo al que se puede vender un artículo."
@@ -602,24 +602,24 @@
         "monthsAgo": "Hace {{count}}mes",
         "yearsAgo": "Hace {{count}}a",
         "months": {
-        "jan": "Ene",
-        "feb": "Feb",
-        "mar": "Mar",
-        "apr": "Abr",
-        "may": "May",
-        "jun": "Jun",
-        "jul": "Jul",
-        "aug": "Ago",
-        "sep": "Sep",
-        "oct": "Oct",
-        "nov": "Nov",
-        "dec": "Dic"
+            "jan": "Ene",
+            "feb": "Feb",
+            "mar": "Mar",
+            "apr": "Abr",
+            "may": "May",
+            "jun": "Jun",
+            "jul": "Jul",
+            "aug": "Ago",
+            "sep": "Sep",
+            "oct": "Oct",
+            "nov": "Nov",
+            "dec": "Dic"
         }
     },
     "privateGames": {
         "tabs": {
-        "about": "Acerca de",
-        "store": "Tienda"
+            "about": "Acerca de",
+            "store": "Tienda"
         },
         "privateExperience": "Experiencia privada",
         "experienceIsPrivate": "Esta experiencia es privada.",
@@ -627,58 +627,58 @@
         "rovalraNotice": "Solo los usuarios de RoValra pueden ver esta página.",
         "unavailable": "No disponible",
         "favorite": {
-        "add": "Añadir a favoritos",
-        "remove": "Quitar de favoritos",
-        "favorited": "En favoritos",
-        "favorite": "Favorito"
+            "add": "Añadir a favoritos",
+            "remove": "Quitar de favoritos",
+            "favorited": "En favoritos",
+            "favorite": "Favorito"
         },
         "notify": {
-        "tooltip": "Activar notificaciones",
-        "label": "Notificar"
+            "tooltip": "Activar notificaciones",
+            "label": "Notificar"
         },
         "description": {
-        "title": "Descripción",
-        "noDescription": "Sin descripción disponible."
+            "title": "Descripción",
+            "noDescription": "Sin descripción disponible."
         },
         "stats": {
-        "active": "Activo",
-        "favorites": "Favoritos",
-        "visits": "Visitas",
-        "maxPlayers": "Jugadores máx.",
-        "genre": "Género",
-        "subgenre": "Subgénero",
-        "created": "Creado",
-        "updated": "Actualizado",
-        "voiceChat": "Chat de voz",
-        "supported": "Soportado",
-        "unsupported": "No soportado"
+            "active": "Activo",
+            "favorites": "Favoritos",
+            "visits": "Visitas",
+            "maxPlayers": "Jugadores máx.",
+            "genre": "Género",
+            "subgenre": "Subgénero",
+            "created": "Creado",
+            "updated": "Actualizado",
+            "voiceChat": "Chat de voz",
+            "supported": "Soportado",
+            "unsupported": "No soportado"
         },
         "reportAbuse": "Reportar abuso",
         "badges": {
-        "title": "Insignias",
-        "noBadges": "Sin insignias aún",
-        "rarity": "Rareza",
-        "wonYesterday": "Ganadas ayer",
-        "wonEver": "Ganadas nunca"
+            "title": "Insignias",
+            "noBadges": "Sin insignias aún",
+            "rarity": "Rareza",
+            "wonYesterday": "Ganadas ayer",
+            "wonEver": "Ganadas nunca"
         },
         "subscriptions": {
-        "title": "Suscripciones",
-        "subscribe": "Suscribirse"
+            "title": "Suscripciones",
+            "subscribe": "Suscribirse"
         },
         "passes": {
-        "title": "Pases",
-        "showOffSale": "Mostrar fuera de venta",
-        "noPasses": "No hay pases disponibles",
-        "offSale": "Fuera de venta",
-        "owned": "Propio",
-        "buy": "Comprar"
+            "title": "Pases",
+            "showOffSale": "Mostrar fuera de venta",
+            "noPasses": "No hay pases disponibles",
+            "offSale": "Fuera de venta",
+            "owned": "Propio",
+            "buy": "Comprar"
         },
         "disabled": "Ver juegos privados/moderados está deshabilitado",
         "disabledDescription": "Para ver juegos privados y moderados necesitas habilitar la configuración aquí:",
         "disabledLinkText": "Ver juegos privados/moderados",
         "products": {
-        "title": "Productos",
-        "buy": "Comprar"
+            "title": "Productos",
+            "buy": "Comprar"
         }
     },
     "playabilityStatus": {
@@ -733,16 +733,16 @@
         "copyId": "Copiar ID de {{type}}",
         "copyUniverseId": "Copiar ID de universo",
         "types": {
-        "bundle": "Paquete",
-        "asset": "Recurso",
-        "gamePass": "GamePass",
-        "badge": "Insignia",
-        "community": "Comunidad",
-        "event": "Evento",
-        "developerProduct": "Producto de desarrollador",
-        "place": "Lugar",
-        "universe": "Universo",
-        "user": "Usuario"
+            "bundle": "Paquete",
+            "asset": "Recurso",
+            "gamePass": "GamePass",
+            "badge": "Insignia",
+            "community": "Comunidad",
+            "event": "Evento",
+            "developerProduct": "Producto de desarrollador",
+            "place": "Lugar",
+            "universe": "Universo",
+            "user": "Usuario"
         }
     },
     "friendsListOverlay": {
