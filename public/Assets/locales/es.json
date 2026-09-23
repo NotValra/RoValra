@@ -2074,6 +2074,11 @@
             "sentThisMonth": "Enviado este mes",
             "caption": "El límite diario es {{dailyLimit}}. El límite mensual es {{monthlyLimit}}. Se actualiza cada 5 minutos. Los restantes son estimaciones y pueden ser inexactos."
         },
+        "referral": {
+            "reward": "Consigue 100 Robux gratis y ayuda a apoyar a RoValra!",
+            "details": "Solo los nuevos usuarios de Roblox Plus pueden optar a esta promoción. RoValra también recibirá 100 Robux cuando te suscribas usando su código de referidos.",
+            "button": "Suscríbete usando el código de referidos de RoValra."
+        },
         "privateServerTooltip": {
             "tooltipText": "Precio original: <b>{{originalPrice}} Robux</b><br>Actualmente aparece como <b>Gratis</b> gracias a Roblox Plus."
         },
