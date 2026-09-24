@@ -4,6 +4,12 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
+import { getTranslationProgress } from '../locale/translationProgress.js';
+
+function languageLabel(label, language) {
+    const progress = getTranslationProgress(language);
+    return progress === null ? label : `${label} (${progress}%)`;
+}
 
 // Settings config (not developer settings)
 
@@ -22,10 +28,22 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'select',
                 options: [
-                    { label: 'English', value: 'en' },
-                    { label: 'Polish (Polski)', value: 'pl' },
-                    { label: 'Romanian (Română)', value: 'ro' },
-                    { label: 'Spanish (Español)', value: 'es' },
+                    {
+                        label: languageLabel('English', 'en'),
+                        value: 'en',
+                    },
+                    {
+                        label: languageLabel('Polish (Polski)', 'pl'),
+                        value: 'pl',
+                    },
+                    {
+                        label: languageLabel('Romanian (Română)', 'ro'),
+                        value: 'ro',
+                    },
+                    {
+                        label: languageLabel('Spanish (Español)', 'es'),
+                        value: 'es',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',

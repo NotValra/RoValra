@@ -265,6 +265,22 @@ function processDirectory(src, dest) {
 
 if (fs.existsSync('public')) {
     processDirectory('public', path.join('dist', 'public'));
+
+    const localeDirectory = path.join('public', 'Assets', 'locales');
+    if (fs.existsSync(localeDirectory)) {
+        const localeCodes = fs
+            .readdirSync(localeDirectory, { withFileTypes: true })
+            .filter(
+                (entry) =>
+                    entry.isFile() && path.extname(entry.name) === '.json',
+            )
+            .map((entry) => path.basename(entry.name, '.json'))
+            .sort();
+        fs.writeFileSync(
+            path.join('dist', 'public', 'Assets', 'locales', 'index.json'),
+            JSON.stringify(localeCodes),
+        );
+    }
 }
 if (fs.existsSync('assets')) {
     processDirectory('assets', path.join('dist', 'assets'));

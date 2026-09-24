@@ -3,8 +3,20 @@ import en from '../../../../public/Assets/locales/en.json';
 import { settings } from '../settings/getSettings';
 
 const defaultLanguage = 'en';
-const supportedLanguages = new Set(['en', 'es', 'ro', 'pl']);
+let supportedLanguages = new Set();
 const neutralPrefixes = new Set(['my']);
+
+const supportedLanguagesReady = fetch(
+    chrome.runtime.getURL('public/Assets/locales/index.json'),
+)
+    .then((response) => response.json())
+    .then((languages) => {
+        supportedLanguages = new Set(languages);
+    })
+    .catch((error) => {
+        console.warn('RoValra: Failed to load supported locales', error);
+        supportedLanguages = new Set([defaultLanguage]);
+    });
 
 function getLanguageFromUrl(url = window.location.href) {
     const [segment] = new URL(url).pathname.split('/').filter(Boolean);
@@ -15,6 +27,7 @@ function getLanguageFromUrl(url = window.location.href) {
 }
 
 async function getLanguage() {
+    await supportedLanguagesReady;
     const lang = await settings.rovalraLanguage;
 
     if (!lang) return defaultLanguage;

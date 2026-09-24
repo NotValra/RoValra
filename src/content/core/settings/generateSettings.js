@@ -16,6 +16,10 @@ import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 import { ensureTouAgreement } from '../ui/tou/touAgreement.js';
 import { ts } from '../locale/i18n.js';
 import {
+    getTranslationProgress,
+    loadTranslationProgress,
+} from '../locale/translationProgress.js';
+import {
     getBatchThumbnails,
     createThumbnailElement,
 } from '../thumbnail/thumbnails.js';
@@ -482,6 +486,8 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         return label;
     } else if (setting.type === 'select') {
         let dropdownOptions = [];
+        let dropdown;
+        let hiddenSelect;
         if (setting.options === 'REGIONS') {
             dropdownOptions.push({
                 value: 'AUTO',
@@ -531,7 +537,31 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             dropdownOptions = setting.options;
         }
 
-        const dropdown = createDropdown({
+        if (settingName === 'rovalraLanguage') {
+            const updateLanguageLabels = () => {
+                dropdownOptions.forEach((option) => {
+                    const progress = getTranslationProgress(option.value);
+                    if (progress !== null) {
+                        option.label = option.label.replace(/ \([\d.]+%\)$/, '');
+                        option.label += ` (${progress}%)`;
+                    }
+                });
+            };
+
+            updateLanguageLabels();
+            loadTranslationProgress().then(() => {
+                updateLanguageLabels();
+                dropdown.refresh();
+                hiddenSelect?.querySelectorAll('option').forEach((option) => {
+                    const languageOption = dropdownOptions.find(
+                        (item) => item.value === option.value,
+                    );
+                    if (languageOption) option.textContent = languageOption.label;
+                });
+            });
+        }
+
+        dropdown = createDropdown({
             items: dropdownOptions,
             initialValue: setting.default,
             showFlags: setting.showFlags || false,
@@ -562,7 +592,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         });
         document.body.removeChild(tempDiv);
 
-        const hiddenSelect = document.createElement('select');
+        hiddenSelect = document.createElement('select');
         hiddenSelect.id = settingName;
         hiddenSelect.dataset.settingName = settingName;
         hiddenSelect.style.display = 'none';
