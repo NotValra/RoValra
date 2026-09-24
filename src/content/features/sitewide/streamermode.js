@@ -1,4 +1,8 @@
-import { observeChildren, observeElement } from '../../core/observer.js';
+import {
+    observeChildren,
+    observeElement,
+    observeText,
+} from '../../core/observer.js';
 
 const ROBUX_SELECTORS =
     '#nav-robux-amount, #nav-robux-balance, #rovalra-robux-after, .price-tag, .text-robux.ml-1.text-body-medium, .text-robux.ng-binding, .rovalra-streamer-robux-value';
@@ -9,11 +13,52 @@ const ROBUX_HIDDEN_TEXT = 'Hidden';
 const ROBUX_REVEAL_HINT = 'Click to reveal your Robux';
 const ROBUX_VISIBILITY_EVENT = 'rovalra-streamer-robux-visibility';
 
+const SETTINGS_MASKED_ATTRIBUTE = 'data-rovalra-streamer-masked';
+const SETTINGS_MASK_TEXT = 'RoValra Streamer Mode Enabled';
+const SETTINGS_PREHIDE_STYLE_ID = 'rovalra-streamer-settings-prehide';
+
+const PHONE_FIELD = '#account-field-phone';
+const EMAIL_FIELD = `${PHONE_FIELD} ~ .settings-text-field-container:not(${PHONE_FIELD} ~ .settings-text-field-container ~ .settings-text-field-container)`;
+const SETTINGS_PREHIDE_CSS = `
+${PHONE_FIELD} .settings-text-span-visible:not([${SETTINGS_MASKED_ATTRIBUTE}]),
+${EMAIL_FIELD} .settings-text-span-visible:not([${SETTINGS_MASKED_ATTRIBUTE}]) {
+    visibility: hidden !important;
+}`;
+
+function setSettingsPrehide(enabled) {
+    const existing = document.getElementById(SETTINGS_PREHIDE_STYLE_ID);
+    if (!enabled) {
+        existing?.remove();
+        return;
+    }
+    if (existing) return;
+
+    const style = document.createElement('style');
+    style.id = SETTINGS_PREHIDE_STYLE_ID;
+    style.textContent = SETTINGS_PREHIDE_CSS;
+    (document.head || document.documentElement).appendChild(style);
+}
+
+try {
+    if (
+        sessionStorage.getItem('rovalra_streamermode') === 'true' &&
+        sessionStorage.getItem('rovalra_settingsPageInfo') !== 'false'
+    ) {
+        setSettingsPrehide(true);
+    }
+} catch (e) {}
+
 export function init() {
     let isHideRobuxEnabled = false;
     let isRevealOnClickEnabled = false;
     let isRobuxRevealed = false;
     let isSettingsPageInfoEnabled = false;
+
+    try {
+        isSettingsPageInfoEnabled =
+            sessionStorage.getItem('rovalra_streamermode') === 'true' &&
+            sessionStorage.getItem('rovalra_settingsPageInfo') !== 'false';
+    } catch (e) {}
 
     const managedRobuxElements = new Set();
     const watchedRobuxElements = new WeakSet();
@@ -204,11 +249,12 @@ export function init() {
         if (!window.location.href.includes('/my/account')) return;
 
         const valueSpan = element.querySelector('.settings-text-span-visible');
-        if (
-            valueSpan &&
-            valueSpan.textContent !== 'RoValra Streamer Mode Enabled'
-        ) {
-            valueSpan.textContent = 'RoValra Streamer Mode Enabled';
+        if (!valueSpan) return;
+        if (valueSpan.textContent !== SETTINGS_MASK_TEXT) {
+            valueSpan.textContent = SETTINGS_MASK_TEXT;
+        }
+        if (!valueSpan.hasAttribute(SETTINGS_MASKED_ATTRIBUTE)) {
+            valueSpan.setAttribute(SETTINGS_MASKED_ATTRIBUTE, '');
         }
     }
 
@@ -231,9 +277,13 @@ export function init() {
         return false;
     }
 
+    function isAccountSettingsPage() {
+        return window.location.href.includes('/my/account');
+    }
+
     function updateSettingsPage() {
         if (!isSettingsPageInfoEnabled) return;
-        if (!window.location.href.includes('/my/account')) return;
+        if (!isAccountSettingsPage()) return;
 
         document
             .querySelectorAll('.settings-text-field-container')
@@ -281,6 +331,7 @@ export function init() {
                     isRobuxRevealed = false;
                 }
 
+                setSettingsPrehide(isSettingsPageInfoEnabled);
                 updateRobuxElements();
                 updateSettingsPage();
 
@@ -338,10 +389,16 @@ export function init() {
 
     observeElement(
         '.settings-text-field-container',
+        () => updateSettingsPage(),
+        { multiple: true },
+    );
+
+    observeElement(
+        '.settings-text-span-visible',
         (element) => {
-            if (isSensitiveAccountSettingsField(element)) {
-                applyStreamerModeToSettingsField(element);
-            }
+            observeChildren(element, updateSettingsPage);
+            observeText(element, updateSettingsPage);
+            updateSettingsPage();
         },
         { multiple: true },
     );
