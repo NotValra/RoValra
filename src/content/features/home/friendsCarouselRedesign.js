@@ -495,23 +495,23 @@ async function loadFriends() {
     };
     const orderedFriends = friends
         .filter((friend) => friendsById.has(friend.id))
-        .sort(
-            (a, b) => {
-                const priorityDifference =
-                    (presencePriority[onlinePresence.get(a.id)?.userPresenceType] ?? 3) -
-                    (presencePriority[onlinePresence.get(b.id)?.userPresenceType] ?? 3);
-                if (priorityDifference !== 0) return priorityDifference;
+        .sort((a, b) => {
+            const priorityDifference =
+                (presencePriority[onlinePresence.get(a.id)?.userPresenceType] ??
+                    3) -
+                (presencePriority[onlinePresence.get(b.id)?.userPresenceType] ??
+                    3);
+            if (priorityDifference !== 0) return priorityDifference;
 
-                const aScore = onlinePresence.get(a.id)?.sortScore ?? a.sortScore;
-                const bScore = onlinePresence.get(b.id)?.sortScore ?? b.sortScore;
-                if (typeof aScore === 'number' && typeof bScore === 'number') {
-                    return bScore - aScore;
-                }
-                if (typeof aScore === 'number') return -1;
-                if (typeof bScore === 'number') return 1;
-                return 0;
-            },
-        );
+            const aScore = onlinePresence.get(a.id)?.sortScore ?? a.sortScore;
+            const bScore = onlinePresence.get(b.id)?.sortScore ?? b.sortScore;
+            if (typeof aScore === 'number' && typeof bScore === 'number') {
+                return bScore - aScore;
+            }
+            if (typeof aScore === 'number') return -1;
+            if (typeof bScore === 'number') return 1;
+            return 0;
+        });
 
     return {
         friends: orderedFriends.slice(0, FRIEND_ID_CAP),
@@ -596,7 +596,10 @@ async function refreshCarouselPresence(scrollEl, token) {
 
         for (const tile of tiles) {
             const userId = Number(tile.dataset.rovalraUserId);
-            const presence = presenceById.get(userId) || { userPresenceType: 0 };
+
+            if (!presenceById.has(userId)) continue;
+
+            const presence = presenceById.get(userId);
             tile.rovalraPresence = presence;
             updateUserCardPresence(
                 tile,
@@ -622,8 +625,7 @@ async function refreshCarouselPresence(scrollEl, token) {
                 const bType = b.tile.rovalraPresence?.userPresenceType ?? 0;
                 return (
                     (presencePriority[aType] ?? 3) -
-                        (presencePriority[bType] ?? 3) ||
-                    a.index - b.index
+                        (presencePriority[bType] ?? 3) || a.index - b.index
                 );
             });
         for (const { tile } of orderedTiles) {
@@ -665,7 +667,10 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                 },
             );
             tile.dataset.rovalraUserId = String(id);
-            tile.dataset.rovalraUsername = friend.username ? `@${friend.username}` : '';
+            tile.dataset.rovalraUsername = friend.username
+                ? `@${friend.username}`
+                : '';
+            tile.rovalraPresence = presence.get(id) || null;
             tile.rovalraHoverData = {
                 userId: id,
                 displayName,
@@ -675,7 +680,8 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
             attachHoverCard(tile, tile.rovalraHoverData);
             tile.addEventListener('mouseenter', () => {
                 if (tile.rovalraHoverData) {
-                    tile.rovalraHoverData.presence = tile.rovalraPresence || null;
+                    tile.rovalraHoverData.presence =
+                        tile.rovalraPresence || null;
                 }
             });
             scrollEl.appendChild(tile);
@@ -719,13 +725,11 @@ function teardown() {
     populateToken++;
     removeHoverCard();
 
-    document
-        .querySelectorAll(`.${WRAPPER_CLASS}`)
-        .forEach((node) => {
-            const scrollEl = node.querySelector(`.${SCROLL_CLASS}`);
-            clearInterval(scrollEl?.rovalraPresenceInterval);
-            node.remove();
-        });
+    document.querySelectorAll(`.${WRAPPER_CLASS}`).forEach((node) => {
+        const scrollEl = node.querySelector(`.${SCROLL_CLASS}`);
+        clearInterval(scrollEl?.rovalraPresenceInterval);
+        node.remove();
+    });
     document.querySelectorAll(`[${HIDDEN_ATTR}]`).forEach((node) => {
         node.style.removeProperty('display');
         node.removeAttribute(HIDDEN_ATTR);
