@@ -1,4 +1,8 @@
-import { observeChildren, observeElement } from '../../core/observer.js';
+import {
+    observeChildren,
+    observeElement,
+    observeText,
+} from '../../core/observer.js';
 
 const ROBUX_SELECTORS =
     '#nav-robux-amount, #nav-robux-balance, #rovalra-robux-after, .price-tag, .text-robux.ml-1.text-body-medium, .text-robux.ng-binding, .rovalra-streamer-robux-value';
@@ -49,7 +53,6 @@ export function init() {
     let isRevealOnClickEnabled = false;
     let isRobuxRevealed = false;
     let isSettingsPageInfoEnabled = false;
-    let settingsPageObserver = null;
 
     try {
         isSettingsPageInfoEnabled =
@@ -278,32 +281,6 @@ export function init() {
         return window.location.href.includes('/my/account');
     }
 
-    function stopSettingsPageObserver() {
-        settingsPageObserver?.disconnect();
-        settingsPageObserver = null;
-    }
-
-    function ensureSettingsPageObserver() {
-        if (!isSettingsPageInfoEnabled || !isAccountSettingsPage()) {
-            stopSettingsPageObserver();
-            return;
-        }
-        if (settingsPageObserver) return;
-
-        settingsPageObserver = new MutationObserver(() => {
-            if (!isSettingsPageInfoEnabled || !isAccountSettingsPage()) {
-                stopSettingsPageObserver();
-                return;
-            }
-            updateSettingsPage();
-        });
-        settingsPageObserver.observe(document.documentElement, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-        });
-    }
-
     function updateSettingsPage() {
         if (!isSettingsPageInfoEnabled) return;
         if (!isAccountSettingsPage()) return;
@@ -357,7 +334,6 @@ export function init() {
                 setSettingsPrehide(isSettingsPageInfoEnabled);
                 updateRobuxElements();
                 updateSettingsPage();
-                ensureSettingsPageObserver();
 
                 document.dispatchEvent(
                     new CustomEvent('rovalra-streamer-mode', {
@@ -375,7 +351,6 @@ export function init() {
         );
     }
 
-    ensureSettingsPageObserver();
     updateStreamerMode();
 
     document.addEventListener('click', handleRobuxToggleEvent, true);
@@ -414,8 +389,15 @@ export function init() {
 
     observeElement(
         '.settings-text-field-container',
+        () => updateSettingsPage(),
+        { multiple: true },
+    );
+
+    observeElement(
+        '.settings-text-span-visible',
         (element) => {
-            ensureSettingsPageObserver();
+            observeChildren(element, updateSettingsPage);
+            observeText(element, updateSettingsPage);
             updateSettingsPage();
         },
         { multiple: true },

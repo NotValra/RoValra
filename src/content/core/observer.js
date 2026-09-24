@@ -3,6 +3,7 @@ const observationRequests = new Set();
 let globalObserver = null;
 let attributeListeners = new Map();
 let childListListeners = new Map();
+const characterDataListeners = new WeakMap();
 const trackedRequestsByElement = new WeakMap();
 
 const OBSERVER_IGNORE_ATTRIBUTE = 'data-rovalra-observer-ignore';
@@ -158,6 +159,18 @@ export function initializeObserver() {
                 continue;
             }
 
+            if (mutation.type === 'characterData') {
+                let node = mutation.target.parentNode;
+                while (node) {
+                    const listeners = characterDataListeners.get(node);
+                    if (listeners) {
+                        for (const listener of listeners) listener(mutation);
+                    }
+                    node = node.parentNode;
+                }
+                continue;
+            }
+
             if (mutation.type === 'childList') {
                 const listeners = childListListeners.get(mutation.target);
                 if (listeners) {
@@ -268,6 +281,27 @@ export function observeChildren(element, callback) {
             if (activeListeners.size === 0) {
                 childListListeners.delete(element);
             }
+        },
+    };
+}
+
+export function observeText(element, callback) {
+    if (!observerInitialized) initializeObserver();
+
+    let listeners = characterDataListeners.get(element);
+    if (!listeners) {
+        listeners = new Set();
+        characterDataListeners.set(element, listeners);
+        globalObserver.observe(element, {
+            characterData: true,
+            subtree: true,
+        });
+    }
+    listeners.add(callback);
+
+    return {
+        disconnect: () => {
+            characterDataListeners.get(element)?.delete(callback);
         },
     };
 }
