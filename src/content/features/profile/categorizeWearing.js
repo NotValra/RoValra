@@ -690,6 +690,17 @@ function hideOriginalWearingSection(wearing) {
         'display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; opacity: 0 !important; pointer-events: none !important;';
 }
 
+function getProfileContent(element = document) {
+    if (element?.matches?.('.profile-content, .profile-tab-content')) {
+        return element;
+    }
+
+    return (
+        element?.closest?.('.profile-content, .profile-tab-content') ||
+        document.querySelector('.profile-content, .profile-tab-content')
+    );
+}
+
 function ensureCategorizedSection(content) {
     let categorizedSection = document.getElementById(
         'rovalra-main-categorized-wrapper',
@@ -899,7 +910,7 @@ export async function init() {
     await loadAssetTypeIds();
 
     observeElement(
-        '.profile-tab-content',
+        '.profile-content, .profile-tab-content',
         (content) => {
             const originalWearing = content.querySelector(
                 '.profile-currently-wearing, .roseal-currently-wearing',
@@ -918,7 +929,7 @@ export async function init() {
         '.profile-currently-wearing, .roseal-currently-wearing',
         (wearing) => {
             hideOriginalWearingSection(wearing);
-            const content = wearing.closest('.profile-tab-content');
+            const content = getProfileContent(wearing);
             if (content) loadCurrentlyWearing(content);
         },
         { multiple: true },
@@ -974,7 +985,7 @@ export async function init() {
     });
 
     window.addEventListener('rovalra-profile-platform-response', (event) => {
-        const content = document.querySelector('.profile-tab-content');
+        const content = getProfileContent();
         if (content) loadCurrentlyWearing(content, event.detail);
     });
 
@@ -1019,7 +1030,7 @@ export async function init() {
 
     window.addEventListener('popstate', () => {
         activeWearingUserId = null;
-        const content = document.querySelector('.profile-tab-content');
+        const content = getProfileContent();
         if (content) loadCurrentlyWearing(content);
     });
 }
