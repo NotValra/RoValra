@@ -33,6 +33,7 @@ import { t, ts } from '../../core/locale/i18n.js';
 import {
     CONTRIBUTOR_USER_IDS,
     CREATOR_USER_ID,
+    TRANSLATOR_USER_IDS,
 } from '../../core/configs/userIds.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
@@ -89,7 +90,11 @@ import { getCatalogItemDetails } from '../../core/apis/catalog.js';
 const assets = getAssets();
 const ui = (key, options) => ts(`settings.ui.${key}`, options);
 const CREDITS_USER_IDS = [
-    ...new Set([CREATOR_USER_ID, ...CONTRIBUTOR_USER_IDS]),
+    ...new Set([
+        CREATOR_USER_ID,
+        ...CONTRIBUTOR_USER_IDS,
+        ...TRANSLATOR_USER_IDS,
+    ]),
 ];
 let REGIONS = {};
 
@@ -1805,6 +1810,7 @@ function createContributorProfile(user, thumbData) {
 function renderContributors(container, users, thumbMap) {
     container.replaceChildren();
 
+    const translatorIds = new Set(TRANSLATOR_USER_IDS.map(String));
     const contributors = CREDITS_USER_IDS.map((id, index) => {
         const stringId = String(id);
         return {
@@ -1827,6 +1833,7 @@ function renderContributors(container, users, thumbMap) {
     const backendContributors = contributors.filter(
         ({ contributionCount }) => contributionCount === 0,
     );
+    const translators = contributors.filter(({ id }) => translatorIds.has(id));
 
     const sortBar = document.createElement('div');
     sortBar.className = 'rovalra-contributors-toolbar';
@@ -1925,16 +1932,41 @@ function renderContributors(container, users, thumbMap) {
 
     container.append(sortBar, listContainer);
 
-    if (backendContributors.length === 0) return;
+    if (backendContributors.length > 0) {
+        const backendNote = document.createElement('p');
+        backendNote.className = 'rovalra-backend-contributors-note';
+        backendNote.textContent = ts('settings.credits.backendContributorsNote');
 
-    const backendNote = document.createElement('p');
-    backendNote.className = 'rovalra-backend-contributors-note';
-    backendNote.textContent = ts('settings.credits.backendContributorsNote');
+        const backendList = document.createElement('div');
+        backendList.className = 'rovalra-backend-contributors-list';
 
-    const backendList = document.createElement('div');
-    backendList.className = 'rovalra-backend-contributors-list';
+        backendContributors.forEach(({ id, user }) => {
+            const link = document.createElement('a');
+            link.className =
+                'avatar-card-link rovalra-donator-card rovalra-backend-contributor-card';
+            link.href = `https://www.roblox.com/users/${id}/profile`;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            addContributorTooltip(link, id);
 
-    backendContributors.forEach(({ id, user }) => {
+            link.appendChild(createContributorProfile(user, thumbMap.get(id)));
+            backendList.appendChild(link);
+        });
+
+        container.append(backendNote, backendList);
+    }
+
+    if (translators.length === 0) return;
+
+    const translatorsTitle = document.createElement('h3');
+    translatorsTitle.textContent = ts('settings.credits.translatorsTitle');
+    translatorsTitle.style.cssText =
+        'margin: 24px 0 10px; color: var(--rovalra-main-text-color);';
+
+    const translatorsList = document.createElement('div');
+    translatorsList.className = 'rovalra-backend-contributors-list';
+
+    translators.forEach(({ id, user }) => {
         const link = document.createElement('a');
         link.className =
             'avatar-card-link rovalra-donator-card rovalra-backend-contributor-card';
@@ -1942,12 +1974,11 @@ function renderContributors(container, users, thumbMap) {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         addContributorTooltip(link, id);
-
         link.appendChild(createContributorProfile(user, thumbMap.get(id)));
-        backendList.appendChild(link);
+        translatorsList.appendChild(link);
     });
 
-    container.append(backendNote, backendList);
+    container.append(translatorsTitle, translatorsList);
 }
 
 function renderContributorsShimmer(container) {
