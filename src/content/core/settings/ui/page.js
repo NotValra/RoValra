@@ -34,6 +34,18 @@ function findStaticSettingsTab(hashKey) {
     });
 }
 
+function isKnownSettingsTab(tab) {
+    if (!tab) return false;
+
+    const normalizedTab = tab.toLowerCase();
+    if (normalizedTab === 'search') return true;
+    if (findStaticSettingsTab(normalizedTab)) return true;
+
+    return Object.keys(SETTINGS_CONFIG).some(
+        (key) => key.toLowerCase() === normalizedTab,
+    );
+}
+
 function getRequestedSettingsTab() {
     const urlParams = new URLSearchParams(window.location.search);
     const rovalraTab = urlParams.get('rovalra');
@@ -45,7 +57,10 @@ function getRequestedSettingsTab() {
         return 'search';
     }
 
-    return hashTab || rovalraTab || 'info';
+    if (isKnownSettingsTab(rovalraTab)) return rovalraTab;
+    if (isKnownSettingsTab(hashTab)) return hashTab;
+
+    return 'info';
 }
 
 async function isFunStuffTabEnabled() {
