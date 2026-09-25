@@ -1150,6 +1150,15 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    ShowOffsaleBundleValue: {
+                        label: 'Show Offsale & Bundle Value',
+                        description: [
+                            'Includes the value of off-sale items and bundles in the total avatar outfit price.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['417758197'],
+                    },
                 },
             },
             userRapEnabled: {
