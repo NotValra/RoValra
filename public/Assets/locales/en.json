@@ -619,7 +619,8 @@
         "setActive": "Set Active",
         "noServersFound": "No {{status}} private servers found.",
         "byCreator": "By ",
-        "allowJoining": "Allow Joining"
+        "allowJoining": "Allow Joining",
+        "friendsAllowed": "Friends Allowed"
     },
     "firstAccount": {
         "label": "First Account",

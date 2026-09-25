@@ -720,6 +720,27 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    privateServerFriendsToggleEnabled: {
+                        label: 'Friends Allowed Toggle',
+                        description: [
+                            'Adds a Friends Allowed switch under Allow Joining, so you can let friends in or keep them out without opening the server settings.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['4489102289'],
+                    },
+                },
+            },
+            autoFriendsAllowedEnabled: {
+                label: 'Friends Allowed On New Private Servers',
+                description: [
+                    'Turns on Friends Allowed as soon as you create a private server, so your friends can join without you going into its settings first.',
+                    'Only new servers are changed. Servers you already have are left as they are.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4489102289'],
             },
         },
     },
