@@ -1,10 +1,10 @@
-// Please don't delete any --8<-- comments, thanks
+// Please don't delete any comments they are for documatation, thanks!
 
-// --8<--[start:creator]
+// --8<-- [start:creator]
 export const CREATOR_USER_ID = '447170745';
-// --8<--[end:creator]
+// --8<-- [end:creator]
 
-// --8<--[start:contributors]
+// --8<-- [start:contributors]
 export const CONTRIBUTOR_USER_IDS = [
     '4489102289', // v6u1
     '1337447242',
@@ -43,15 +43,15 @@ export const CONTRIBUTOR_USER_IDS = [
     '315646839', // imderlord :3
     '231260921', // textuired
 ];
-// --8<--[end:contributors]
+// --8<-- [end:contributors]
 
-// --8<--[start:testers]
+// --8<-- [start:testers]
 export const TESTER_USER_IDS = [
     '1163412141', //Tino
 ];
-// --8<--[end:testers]
+// --8<-- [end:testers]
 
-// --8<--[start:translators]
+// --8<-- [start:translators]
 export const TRANSLATOR_USER_IDS = [
     '1564574922', // bogdan-glitchm
     '10646979010', // rav4toy
@@ -59,16 +59,16 @@ export const TRANSLATOR_USER_IDS = [
     '48255812', //aliceenight
     '315646839', // imderlord
 ];
-// --8<--[end:translators]
+// --8<-- [end:translators]
 
-// --8<--[start:artists]
+// --8<-- [start:artists]
 export const ARTIST_USER_IDS = [
     '1337447242',
     '48255812',
     '1040942162',
     '4866259395',
 ];
-// --8<--[end:artists]
+// --8<-- [end:artists]
 
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
