@@ -1,0 +1,2156 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "مشاركة",
+        "serverCopied": "تم النسخ!",
+        "recentServerTitle": "الخادم",
+        "decalOptions": "خيارات الصورة"
+    },
+    "common": {
+        "select": "اختر...",
+        "search": "بحث",
+        "rovalraSettings": "إعدادات RoValra",
+        "filterItems": "تصفية العناصر",
+        "applyFilter": "تطبيق التصفية",
+        "uploadFile": "رفع ملف",
+        "change": "تغيير",
+        "invalidFileFormat": "تنسيق الملف غير صالح.",
+        "invalidImageFile": "تنسيق الملف غير صالح. يرجى رفع صورة صالحة.",
+        "fileProcessingFailed": "فشلت معالجة الملف. يرجى تجربة ملف آخر.",
+        "errorProcessingFile": "حدث خطأ أثناء معالجة الملف. يرجى تجربة ملف آخر.",
+        "less": "أقل",
+        "more": "المزيد",
+        "pastYear": "العام الماضي",
+        "past6Months": "آخر 6 أشهر",
+        "past3Months": "آخر 3 أشهر",
+        "pastMonth": "الشهر الماضي",
+        "pastWeek": "الأسبوع الماضي",
+        "unnamedProduct": "منتج بدون اسم",
+        "offSale": "غير معروض للبيع",
+        "robloxExperience": "تجربة Roblox",
+        "subplace": "مكان فرعي",
+        "subplaceUpper": "مكان فرعي",
+        "offline": "غير متصل",
+        "website": "الموقع الإلكتروني",
+        "playing": "يلعب",
+        "playingGame": "يلعب {{gameName}}",
+        "studio": "Studio",
+        "share": "مشاركة",
+        "copied": "تم النسخ!",
+        "free": "مجاني",
+        "unknown": "غير معروف",
+        "somethingWentWrong": "حدث خطأ ما",
+        "robloxPlusSubscriber": "مشترك Roblox Plus",
+        "joinServerFull": "انضمام (الخادم ممتلئ)",
+        "id": "المعرّف: ",
+        "profile": "الملف الشخصي",
+        "error": "خطأ",
+        "rovalraDeveloper": "مطور RoValra",
+        "close": "إغلاق",
+        "confirmAction": "تأكيد الإجراء",
+        "areYouSure": "هل أنت متأكد أنك تريد المتابعة؟",
+        "confirm": "تأكيد",
+        "cancel": "إلغاء"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Gilberts في منطقتك",
+        "title": "محدد منطقة RoValra",
+        "automatic": "تلقائي",
+        "servers": "الخوادم: ",
+        "datacenters": "مراكز البيانات: ",
+        "filterByRegion": "تصفية الخوادم حسب المنطقة",
+        "filterByRegionItem": "تصفية حسب {{region}} ({{count}} خادم)",
+        "filterByUptime": "تصفية الخوادم حسب مدة التشغيل (الأحدث/الأقدم)",
+        "filterByVersion": "تصفية الخوادم حسب إصدار اللعبة"
+    },
+    "guidelines": {
+        "title": "إرشادات RoValra",
+        "message": "باستخدام RoValra، فإنك توافق على اتباع شروط الاستخدام الخاصة بنا. قد يؤدي عدم اتباع هذه القواعد إلى تعليق الوصول إلى ميزات معينة، بما في ذلك فقاعات الحالة والضمائر.<br><br><b>النقاط الرئيسية:</b><br>• لا يمكنك توجيه المستخدمين خارج المنصة.<br>• لا يمكنك القيام بأي شيء غير لائق.<br>• يجب ألا تنتهك شروط خدمة Roblox.<br><br>اقرأ المزيد على <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "أفهم"
+    },
+    "review": {
+        "requestMessage": "يبدو أنك تستفيد من RoValra!\nهل تمانع في ترك مراجعة؟\nيساعد ذلك في إبقاء RoValra مجانيًا للجميع دون جدران دفع.",
+        "leaveReview": "اترك مراجعة",
+        "notNow": "ليس الآن",
+        "doNotShowAgain": "لا تعرض هذا مرة أخرى",
+        "rateTitle": "قيّم RoValra",
+        "donationMessage": "تشغيل ميزات مثل محدد المنطقة ليس مجانيًا، وتعتمد RoValra بالكامل على التبرعات لتغطية هذه التكاليف.\n\nيساعدنا التبرع في إبقاء الخوادم تعمل حتى تظل ميزات مثل هذه مجانية للجميع.",
+        "donate": "تبرع",
+        "donationTitle": "هل تريد المساعدة في دعم RoValra؟"
+    },
+    "heatmap": {
+        "updatesBetween": "التحديثات بين {{start}} - {{end}} في {{date}}",
+        "updatesOn": "التحديثات في {{date}}",
+        "trackingSince": "يتم تتبع سجل التحديثات فقط منذ 15 فبراير 2026"
+    },
+    "profileFeatures": {
+        "title": "ميزات RoValra"
+    },
+    "serverFilters": {
+        "newest": "أحدث الخوادم",
+        "oldest": "أقدم الخوادم",
+        "uptime": "مدة تشغيل الخادم",
+        "version": "الإصدار",
+        "enterVersion": "أدخل الإصدار",
+        "region": "المنطقة",
+        "versionPlaceholder": "الإصدار"
+    },
+    "serverInfo": {
+        "loading": "جارٍ التحميل...",
+        "versionUnknown": "الإصدار غير معروف",
+        "version": "الإصدار {{version}}",
+        "versionLabel": "الإصدار",
+        "languageMatchCount": "حوالي {{count}} متحدث باللغة {{language}}",
+        "latest": " (الأحدث)",
+        "oldest": " (الأقدم)",
+        "serverFull": "الخادم ممتلئ",
+        "privateServer": "يلعب في خادم خاص",
+        "purchaseGame": "اشترِ اللعبة لرؤية المناطق.",
+        "currentVersionTooltip": "الإصدار المنشور حاليًا."
+    },
+    "serverStats": {
+        "totalServers": "إجمالي الخوادم",
+        "totalServersTooltip": "إجمالي الخوادم التي تتعقبها RoValra ضمن هذه التجربة",
+        "oldest": "الأقدم",
+        "oldestTooltip": "أقدم إصدار يعمل عليه خادم حاليًا."
+    },
+    "preferredRegion": {
+        "criticalError": "The Roblox Join API لا يستجيب. قد تحتاج إلى الانتظار قليلًا.\nيحدث هذا عادةً بسبب مشكلة في الشبكة أو مشكلة في خوادم Roblox. إذا استمرت المشكلة، فحاول تعطيل [المنطقة المفضلة.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) أو مسح ذاكرة التخزين المؤقت للمتصفح.\nإذا استمرت المشكلة، فيرجى الإبلاغ عنها في خادم Discord الخاص بـ RoValra.\n\n---\n**تفاصيل الخطأ:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "قد تكون Roblox بصدد الابتعاد عن gamejoin API. هذا خارج سيطرة RoValra وسيؤثر في محددات المناطق لفترة قصيرة؛ نحن نعمل على إصلاح بأسرع وقت ممكن.\n\n---\n**تفاصيل الخطأ:**\n{{detailMsg}}",
+        "detectingLocation": "جارٍ اكتشاف موقعك...",
+        "closestRegion": "أقرب منطقة",
+        "inactiveRegion": "لم تعد Roblox تستخدم {{region}} كموقع للخادم.",
+        "scanningLocally": "جارٍ الفحص محليًا عن {{region}}...",
+        "regionApiUnavailable": "واجهة Region API غير متاحة. جارٍ البحث عن {{region}}...",
+        "findingLowestLatency": "جارٍ العثور على الخادم الأقل زمنًا للاستجابة...",
+        "searchingInRegion": "جارٍ البحث في {{region}}...",
+        "fallbackInactive": "أفضل الخوادم التالية عبر API غير نشطة. جارٍ الفحص محليًا عن {{region}}...",
+        "noServersApi": "لم يتم العثور على خوادم في {{region}} عبر API. جارٍ الفحص محليًا...",
+        "loadBalancing": "تُستخدم {{region}} لموازنة الأحمال وغالبًا لا تكون نشطة إلا تحت حمل كبير. جارٍ الفحص...",
+        "foundJoining": "تم العثور على {{region}}! جارٍ الانضمام...",
+        "foundContinuing": "تم العثور على: {{region}}. متابعة البحث عن {{targetRegion}}...",
+        "foundVerifying": "تم العثور على {{region}}! جارٍ التحقق...",
+        "verifyingStatus": "جارٍ التحقق من حالة الخادم...",
+        "searchingClosest": "جارٍ البحث عن أقرب منطقة إلى {{region}}...",
+        "noServersRunning": "لا توجد خوادم {{region}} قيد التشغيل.",
+        "joinRegion": "انضم إلى {{region}}",
+        "couldNotFindServers": "تعذر العثور على أي خوادم."
+    },
+    "purchaseModal": {
+        "title": "شراء العنصر",
+        "buy": "شراء",
+        "savingWithPlus": "توفير <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> مع Plus",
+        "subtotal": "المجموع الفرعي",
+        "plusBenefit": "ميزة Plus (خصم {{percent}}%)",
+        "total": "الإجمالي",
+        "insufficientRobux": "Robux غير كافٍ",
+        "purchasing": "جارٍ الشراء...",
+        "purchaseComplete": "اكتمل الشراء",
+        "successMessage": "لقد اشتريت <b>{{itemName}}</b> بنجاح",
+        "ok": "موافق",
+        "purchaseError": "خطأ في الشراء",
+        "purchaseFailed": "فشل الشراء",
+        "unknownError": "خطأ غير معروف",
+        "errorLoadingTitle": "خطأ في تحميل العنصر",
+        "errorLoadingMessage": "تعذر علينا استرداد معلومات هذا العنصر. التفاصيل: {{errorMessage}}. يرجى المحاولة لاحقًا."
+    },
+    "avatarRotator": {
+        "stop": "إيقاف التدوير",
+        "button": "مُدوّر الأفاتار",
+        "selectMinimum": "اختر صورتين رمزيتين على الأقل",
+        "setRotators": "تعيين كمُدوّرات ({{count}})",
+        "selectedStatus": "اختر الصور الرمزية للتبديل بينها. (تم اختيار {{count}})",
+        "loading": "جارٍ التحميل...",
+        "loadMore": "تحميل المزيد",
+        "interval": "الفاصل الزمني (بالثواني)",
+        "loadingDetails": "جارٍ تحميل تفاصيل الزي...",
+        "active": "المُدوّرات نشطة!",
+        "disable": "تعطيل",
+        "clearSelection": "مسح التحديد",
+        "title": "مُدوّر الأفاتار"
+    },
+    "avatarFilters": {
+        "filterItems": "تصفية العناصر",
+        "filtering": "جارٍ التصفية...",
+        "loading": "جارٍ التحميل...",
+        "creatorName": "اسم المنشئ",
+        "minPrice": "أدنى سعر",
+        "maxPrice": "أقصى سعر",
+        "availability": "التوفر",
+        "showAll": "عرض الكل",
+        "onsaleOnly": "المعروضة للبيع فقط",
+        "offsaleOnly": "غير المعروضة للبيع فقط",
+        "effects": "التأثيرات",
+        "limiteds": "العناصر المحدودة"
+    },
+    "trading": {
+        "searchInventory": "بحث في المخزون",
+        "continueSearch": "متابعة البحث",
+        "filterTrades": "تصفية الصفقات",
+        "noResults": "لم يتم العثور على نتائج",
+        "copyProof": "نسخ الدليل",
+        "copied": "تم النسخ!",
+        "value": "القيمة:",
+        "demand": "الطلب:",
+        "includeRobux": "تضمين Robux",
+        "openUserOnRolimons": "فتح المستخدم على Rolimons",
+        "openOnRolimons": "فتح {{type}} على Rolimons",
+        "projectedItem": "عنصر مُسقَط",
+        "projected": "مُسقَط",
+        "rareItem": "عنصر نادر",
+        "rap": "RAP",
+        "valueLabel": "القيمة",
+        "demandLabel": "الطلب",
+        "bundle": "حزمة",
+        "item": "عنصر",
+        "serial": "تسلسلي",
+        "afterTax": "بعد الضريبة",
+        "beforeTax": "قبل الضريبة",
+        "youGive": "أنت تعطي",
+        "youGet": "أنت تحصل على"
+    },
+    "onboarding": {
+        "title": "مرحبًا بك في RoValra!",
+        "thankYou": "شكرًا لتثبيت <strong>RoValra</strong>!",
+        "exploreFeatures": "لتغيير الإعدادات واستكشاف جميع الميزات، يمكنك:",
+        "settingsInstruction": "انقر على <strong>أيقونة الترس</strong> في شريط Roblox، ثم انقر على \"إعدادات RoValra\".",
+        "imageAlt": "دليل يوضح مكان العثور على زر إعدادات RoValra على موقع Roblox.",
+        "description": "RoValra إضافة مجانية دائمًا لـ Roblox تهدف إلى توفير ميزات تحسين الاستخدام للجميع!",
+        "gotIt": "فهمت!"
+    },
+    "catalogDependencies": {
+        "scan": "فحص الاعتماديات",
+        "loading": "جارٍ تحميل المعلومات ({{count}})...",
+        "title": "الاعتماديات",
+        "unknown": "غير معروف",
+        "assetFallback": "الأصل {{id}}",
+        "verifiedBadge": "شارة التحقق",
+        "by": "بواسطة"
+    },
+    "catalogItemSales": {
+        "sales": "المبيعات",
+        "revenue": "الإيرادات",
+        "statsTooltip": "إحصاءات المبيعات والإيرادات مأخوذة من تسريب ومن المحتمل أن تكون غير دقيقة."
+    },
+    "fortyMethod": {
+        "loginRequired": "تعذر تحديد معرّف المستخدم الخاص بك. يرجى التأكد من تسجيل الدخول.",
+        "setupExperience": "إعداد تجربة",
+        "specificTemplate": "يعمل قالب محدد فقط",
+        "selectGroup": "اختر مجموعة يمكنك إدارة التجارب فيها. <br>وسوف تنشئ الإضافة التجربة لك.",
+        "or": "أو",
+        "manualPlaceId": "أدخل معرّف Place يدويًا <br> (افعل ذلك فقط إذا كنت تعرف ما تفعله.)",
+        "donateSavedRobux": "تبرع بـ Robux الموفَّر إلى RoValra",
+        "estimatedSavings": "التوفير التقديري المعروض لاحقًا تقريبي وقد يكون غير دقيق.",
+        "importantInformation": "معلومات مهمة",
+        "acknowledge": "أقر بذلك",
+        "groupRequired": "المجموعة مطلوبة",
+        "goBack": "رجوع",
+        "ownershipDetected": "تم اكتشاف الملكية",
+        "understandContinue": "أفهم وأتابع",
+        "createExperience": "إنشاء تجربة",
+        "createNewExperience": "إنشاء تجربة جديدة",
+        "findingExperience": "جارٍ العثور على تجربتك",
+        "findingExperienceWait": "يرجى الانتظار بينما نبحث عن تجربتك المنشورة حديثًا...",
+        "donateToRoValra": "تبرع إلى RoValra",
+        "back": "رجوع",
+        "validationWarning": "تحذير تحقق",
+        "updateExperience": "تحديث التجربة",
+        "useAnyway": "استخدمها على أي حال",
+        "permissionRequired": "الإذن مطلوب",
+        "backToGroupSelection": "العودة إلى اختيار المجموعة",
+        "experience": "التجربة",
+        "loading": "جارٍ التحميل...",
+        "setupGame": "إعداد لعبتك",
+        "saveContinue": "حفظ ومتابعة",
+        "creating": "جارٍ الإنشاء...",
+        "uploadingTemplate": "جارٍ رفع القالب...",
+        "configuring": "جارٍ الإعداد...",
+        "done": "تم!",
+        "updating": "جارٍ التحديث...",
+        "purchaseFailed": "فشل الشراء",
+        "gotIt": "فهمت",
+        "confirmMethodPurchase": "تأكيد شراء بطريقة 40%",
+        "confirmCartPurchase": "تأكيد شراء سلة التسوق",
+        "cancel": "إلغاء",
+        "alreadyOwned": "مملوك بالفعل",
+        "joinToPurchase": "انضم إلى اللعبة للشراء",
+        "confirmPurchase": "تأكيد الشراء",
+        "purchaseError": "خطأ في الشراء",
+        "ownerAccount": "<strong>حساب المالك:</strong> لا يمكن أن يكون مالك المجموعة هو نفس الحساب الذي تشتري به العناصر. يجب أن يكون المالك حسابًا بديلًا آمنًا مع تفعيل المصادقة الثنائية وكلمة مرور قوية وفريدة.",
+        "payouts": "<strong>المدفوعات:</strong> يمكن لحساب مالك المجموعة فقط دفع Robux الموفَّر من أموال المجموعة.",
+        "pendingRobux": "<strong>Robux المعلّق:</strong> انتبه إلى أنه بعد استخدام هذه الميزة، سيظل Robux معلّقًا لمدة تقارب شهرًا قبل إمكانية دفعه.",
+        "groupRequiredBody": "لاستخدام طريقة 40% مع مجموعتك الخاصة، تحتاج إلى مجموعة يمكنك إدارة التجارب فيها.",
+        "groupRequiredImportant": "<strong>مهم:</strong> لكي يعمل هذا بشكل صحيح، يجب أن تكون المجموعة مملوكة لحساب بديل آمن. يجب أن يكون حسابك الرئيسي (الذي تستخدمه لشراء العناصر) ضمن دور يملك صلاحيات إنشاء تجارب المجموعة وإدارتها.",
+        "groupRequiredDonate": "إذا لم تكن لديك مجموعة مناسبة، فيمكنك بدلًا من ذلك دعم RoValra باستخدام تجربتنا لمعالجة الشراء، وسيحصل RoValra على Robux الموفَّر ❤️",
+        "ownershipBody": "لن تعمل طريقة 40% إذا كنت مالك هذه المجموعة. يرجى اختيار مجموعة مختلفة أو نقل الملكية إلى حساب بديل آمن.",
+        "experienceAccepted": "تم قبول التجربة",
+        "experienceAcceptedSpecific": "<strong>تعمل تجارب محددة فقط.</strong> تأكد من إعداد هذه التجربة بالبرامج النصية المطلوبة للتعامل مع عمليات الشراء داخل اللعبة.",
+        "experienceAcceptedGroup": "تأكد من أن التجربة تتبع لمجموعة <strong>تتحكم بها، لكن هذا الحساب ليس مالكها</strong>. ويفضل أن تكون المجموعة مملوكة لحساب بديل. إذا كنت مالك المجموعة فلن تعمل طريقة 40%.",
+        "experienceAcceptedPending": "سيظل Robux الموفَّر معلّقًا لنحو شهر قبل الدفع. استخدم حسابًا بديلًا آمنًا كمالك للمجموعة لاستلام المدفوعات.",
+        "createExperienceBody": "أنشئ تجربة جديدة لهذه المجموعة لاستخدام طريقة 40%.",
+        "createNewExperienceBody": "لإنشاء تجربة جديدة لهذه الطريقة:",
+        "createStepOne": "افتح التجربة غير المقفلة للنسخ في Studio:",
+        "openStudio": "فتح Studio",
+        "createStepTwo": "في Studio، انتقل إلى <strong>File > Game Settings > Security > Turn on \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>",
+        "createStepThree": "اختر هذه المجموعة من قائمة Creator.",
+        "createStepFour": "انقر على <strong>Create</strong> وسيتم نشر التجربة",
+        "createPublishedBody": "بعد النشر، انقر الزر أدناه وسنعثر عليها تلقائيًا ونحددها لك.",
+        "publishedGame": "لقد نشرت اللعبة",
+        "saveSettingsUnavailable": "فشل حفظ الإعدادات. واجهة Storage API غير متاحة.",
+        "groupsLoadFailed": "فشل تحميل المجموعات. يرجى التحديث والمحاولة مجددًا.",
+        "noGroupSelected": "لم يتم اختيار مجموعة. يرجى المحاولة مجددًا."
+    },
+    "risk": {
+        "projected": "تم وضع علامة على العنصر بأنه مُسقَط.",
+        "rapMuchHigher": "RAP أعلى بكثير من القيمة، وقد ترتفع القيمة.",
+        "rapHigher": "RAP أعلى من القيمة، وقد ترتفع القيمة.",
+        "rapMuchLower": "RAP أقل بكثير من القيمة، وقد تنخفض القيمة.",
+        "rapHigherSales": "RAP أعلى من المبيعات، لكن أفضل سعر يؤكده.",
+        "rapUnusuallyHigh": "RAP مرتفع بشكل غير معتاد مقارنة بسعر المبيعات المستقر مؤخرًا.",
+        "rapHigherStable": "RAP أعلى من السعر المستقر (يرتفع تدريجيًا).",
+        "bestPriceMuchLower": "أفضل سعر أقل بكثير من RAP.",
+        "bestPriceLower": "أفضل سعر أقل من RAP.",
+        "bestPriceHigher": "أفضل سعر أعلى من RAP.",
+        "bestPriceSlightlyHigher": "أفضل سعر أعلى قليلًا من RAP.",
+        "sufferingProjection": "العنصر يعاني من الإسقاط.",
+        "stableTrend": "اتجاه سعر مستقر."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "اختر واستخدم أي سمة بدون Roblox Plus."
+    },
+    "items": {
+        "hiddenFromMarketplace": "هذا العنصر مخفي من السوق",
+        "notFound": "غير موجود",
+        "failedToLoad": "فشل التحميل",
+        "onHold": "قيد الانتظار",
+        "faeItem": "عنصر FAE"
+    },
+    "inventory": {
+        "openRolimons": "فتح في Rolimon's",
+        "searchPlaceholder": "البحث باسم العنصر..."
+    },
+    "games": {
+        "failedToLoad": "فشل تحميل اللعبة"
+    },
+    "gameBookmarks": {
+        "bookmark": "إشارة مرجعية",
+        "saved": "تمت الإشارة المرجعية",
+        "title": "الإشارات المرجعية",
+        "uncategorized": "غير مصنف",
+        "create": "+ إنشاء فئة جديدة",
+        "categoryName": "اسم الفئة",
+        "createSave": "إنشاء وحفظ",
+        "save": "حفظ التغييرات",
+        "deleteCategory": "حذف الفئة",
+        "deleteCategoryConfirm": "هل أنت متأكد؟ سيؤدي هذا إلى حذف الفئة وإزالتها من كل لعبة محفوظة.",
+        "confirm": "حذف",
+        "cancel": "إلغاء",
+        "remove": "إزالة الإشارة المرجعية",
+        "error": "تعذر حفظ الإشارة المرجعية. يرجى المحاولة مجددًا.",
+        "loading": "جارٍ تحميل اللعبة…",
+        "all": "الكل",
+        "topic": "الألعاب المحفوظة",
+        "empty": "لا توجد ألعاب محفوظة في هذه الفئة."
+    },
+    "homeLayout": {
+        "untitled": "بدون عنوان",
+        "empty": "تعذر على RoValra العثور على التخطيط، حدّث الصفحة وحاول مرة أخرى.",
+        "reset": "إعادة تعيين",
+        "save": "حفظ",
+        "overlayTitle": "تخطيط الصفحة الرئيسية",
+        "button": "تخصيص التخطيط",
+        "edit": "تعديل",
+        "settingsTitle": "إعدادات الفئة",
+        "visibility": "الظهور",
+        "visibilityDescription": "اختر ما إذا كانت هذه الفئة ستظهر في الصفحة الرئيسية.",
+        "accurateContinue": "متابعة دقيقة",
+        "accurateContinueDescription": "رتّب «متابعة» حسب آخر مرة لعبت فيها كل لعبة.",
+        "enable": "تمكين",
+        "disable": "تعطيل",
+        "show": "إظهار",
+        "hide": "إخفاء"
+    },
+    "sidebarLayout": {
+        "untitled": "بدون عنوان",
+        "empty": "تعذر على RoValra العثور على أي أزرار في الشريط الجانبي.",
+        "reset": "إعادة تعيين",
+        "save": "حفظ",
+        "overlayTitle": "تخطيط الشريط الجانبي",
+        "button": "تخصيص التخطيط",
+        "myProfile": "ملفي الشخصي",
+        "disabled": "معطّل",
+        "show": "إظهار",
+        "hide": "إخفاء"
+    },
+    "topbarLayout": {
+        "empty": "تعذر على RoValra العثور على أي عناصر مدعومة في الشريط العلوي.",
+        "reset": "إعادة تعيين",
+        "save": "حفظ",
+        "overlayTitle": "تخطيط الشريط العلوي",
+        "button": "تخطيط الشريط العلوي",
+        "disabled": "مطلوب",
+        "show": "إظهار",
+        "hide": "إخفاء",
+        "labels": {
+            "logo": "شعار Roblox",
+            "charts": "المخططات",
+            "marketplace": "السوق",
+            "create": "إنشاء",
+            "robux": "Robux",
+            "search": "بحث",
+            "profile": "الملف الشخصي",
+            "qol": "الحالة",
+            "topbarLayout": "تخطيط الشريط العلوي",
+            "notifications": "الإشعارات",
+            "robuxBalance": "رصيد Robux",
+            "settings": "الإعدادات"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "الأصدقاء السابقون",
+        "nextFriends": "المزيد من الأصدقاء",
+        "isPlaying": "{{name}} يلعب",
+        "online": "متصل",
+        "inStudio": "في Studio",
+        "offline": "غير متصل",
+        "friendFallback": "صديق",
+        "join": "انضمام",
+        "chat": "دردشة",
+        "viewProfile": "عرض الملف الشخصي"
+    },
+    "friendLabels": {
+        "menuAction": "تعيين تسمية للصديق",
+        "dialogTitle": "تسمية {{displayName}}",
+        "inputLabel": "تسمية الصديق",
+        "inputPlaceholder": "الأصدقاء المقربون، المدرسة،",
+        "existingLabels": "التسميات الحالية",
+        "friendFallback": "صديق",
+        "save": "حفظ",
+        "remove": "إزالة",
+        "cancel": "إلغاء"
+    },
+    "underratedGames": {
+        "topic": "ألعاب غير مقدّرة بما يكفي",
+        "subtitle": "ألعاب غير مقدّرة بما يكفي اختارها مجتمع RoValra بعناية.",
+        "rotates": "تتغير دوريًا",
+        "suggestOnDiscord": "اقترح ألعابًا غير مقدّرة بما يكفي على {{discord}}",
+        "ageRestrictionWarning": "قد تكون بعض هذه الألعاب مقفلة لمن هم بعمر 16+ بسبب متطلب Roblox البالغ 250 HEP."
+    },
+    "playtime": {
+        "topic": "وقت اللعب",
+        "period": "فترة وقت اللعب",
+        "today": "اليوم",
+        "thisWeek": "هذا الأسبوع",
+        "thisMonth": "هذا الشهر",
+        "thisYear": "هذا العام",
+        "allTime": "كل الوقت",
+        "hours": "{{value}} ساعة",
+        "minutes": "{{value}} دقيقة"
+    },
+    "trustedFriends": {
+        "pendingConnection": "صديق موثوق قيد الانتظار",
+        "pendingRequest": "طلب صديق موثوق قيد الانتظار",
+        "addConnection": "إضافة صديق موثوق",
+        "addConfirmation": "هل أنت متأكد أنك تريد إرسال طلب صديق موثوق؟",
+        "sendRequest": "إرسال الطلب",
+        "sending": "جارٍ الإرسال...",
+        "requestSent": "تم إرسال طلب الصديق الموثوق!",
+        "requestFailed": "فشل إرسال طلب الصديق الموثوق.",
+        "errorSending": "خطأ في الإرسال",
+        "acceptConnection": "قبول صديق موثوق",
+        "acceptConfirmation": "هل أنت متأكد أنك تريد قبول طلب هذا الصديق الموثوق؟",
+        "accept": "قبول",
+        "accepting": "جارٍ القبول...",
+        "requestAccepted": "تم قبول طلب الصديق الموثوق!",
+        "acceptFailed": "فشل قبول طلب الصديق الموثوق.",
+        "errorAccepting": "خطأ في القبول",
+        "removeConnection": "إزالة صديق موثوق",
+        "removeConfirmation": "هل أنت متأكد أنك تريد إزالة هذا الصديق الموثوق؟",
+        "remove": "إزالة",
+        "removing": "جارٍ الإزالة...",
+        "connectionRemoved": "تمت إزالة الصديق الموثوق!",
+        "removeFailed": "فشل إزالة الصديق الموثوق.",
+        "errorRemoving": "خطأ في الإزالة"
+    },
+    "chatEligibility": {
+        "canChat": "يمكنك الدردشة مع هذا المستخدم.",
+        "cannotChat": "هذا المستخدم خارج النطاق العمري للدردشة الخاص بك.",
+        "ageCheckRequired": "هذا المستخدم لم يُكمل التحقق من العمر."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "يرتدي حاليًا",
+        "items": "العناصر",
+        "cosmetics": "مستحضرات التجميل",
+        "bodyParts": "أجزاء الجسم",
+        "animations": "الرسوم المتحركة",
+        "emotes": "الإيماءات"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "ليس لدى المستخدم تجارب عامة",
+        "overlayText": "التجارب المخفية",
+        "noHiddenGames": "ليس لدى هذا المستخدم تجارب مخفية.",
+        "buttonText": "التجارب المخفية",
+        "labels": {
+            "sort": "ترتيب",
+            "order": "الاتجاه",
+            "showAll": "عرض جميع الألعاب"
+        },
+        "sort": {
+            "default": "افتراضي",
+            "likeRatio": "نسبة الإعجاب",
+            "likes": "الإعجابات",
+            "dislikes": "عدم الإعجاب",
+            "players": "اللاعبون",
+            "name": "الاسم (Z-A)"
+        },
+        "order": {
+            "descending": "تنازلي",
+            "ascending": "تصاعدي"
+        },
+        "noMatches": "لا توجد تجارب تطابق عوامل التصفية.",
+        "loading": "جارٍ التحميل..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "تجارب المجموعة المخفية (الإجمالي {{count}})",
+        "noHiddenGames": "ليس لدى هذه المجموعة تجارب مخفية.",
+        "buttonText": "التجارب المخفية",
+        "labels": {
+            "sort": "ترتيب",
+            "order": "الاتجاه",
+            "showAll": "عرض جميع الألعاب"
+        },
+        "sort": {
+            "recentlyUpdated": "تم تحديثها مؤخرًا",
+            "likeRatio": "نسبة الإعجاب",
+            "likes": "الإعجابات",
+            "dislikes": "عدم الإعجاب",
+            "players": "اللاعبون",
+            "name": "الاسم (Z-A)"
+        },
+        "order": {
+            "descending": "تنازلي",
+            "ascending": "تصاعدي"
+        },
+        "noMatches": "لا توجد تجارب مخفية تطابق عوامل التصفية الحالية.",
+        "loadingMore": "جارٍ تحميل المزيد من الألعاب..."
+    },
+    "userOutfits": {
+        "loading": "جارٍ تحميل الأزياء...",
+        "back": "رجوع",
+        "totalPrice": "السعر الإجمالي:",
+        "loadingItems": "جارٍ تحميل العناصر...",
+        "noItems": "هذا الزي لا يحتوي على عناصر.",
+        "errorLoadingItems": "تعذر تحميل العناصر.",
+        "buttonText": "عرض الأزياء",
+        "overlayTitle": "أزياء المستخدم",
+        "overlayTitleUser": "أزياء {{displayName}}",
+        "noOutfits": "هذا المستخدم ليس لديه أزياء.",
+        "inventoryPrivate": "مخزون المستخدم خاص.",
+        "errorNoUserId": "تعذر تحديد معرّف المستخدم من الصفحة.",
+        "errorFetch": "تعذر جلب الأزياء."
+    },
+    "donationLink": {
+        "donate": "تبرع",
+        "overlayTitle": "Pls Donate",
+        "description": "سيؤدي هذا إلى تشغيل \"PLS DONATE\" حيث يمكنك تقديم تبرع دون اتصال.\n\nبسبب رسوم Roblox (30%) واللعبة (10%)، يحصل المستخدم على 60% من مبلغ التبرع.\n\nعند الانضمام، ستظهر واجهة \"Offline Donations\" مع اسم المستخدم مُعبأ مسبقًا. ما عليك سوى النقر على زر الهدية لفتح منصته وشراء gamepass للتبرع.",
+        "joinButton": "انضم إلى Pls Donate",
+        "goBackButton": "رجوع",
+        "loadingGamePasses": "جارٍ تحميل تصاريح اللعبة...",
+        "priceLowToHigh": "السعر (من الأقل إلى الأعلى)",
+        "priceHighToLow": "السعر (من الأعلى إلى الأقل)",
+        "userGamePasses": "تصاريح ألعاب {{username}}",
+        "copyDonationLink": "نسخ رابط التبرع",
+        "copyLinkDescription": "يؤدي هذا إلى نسخ رابط خاص لهذا الملف الشخصي. عندما يفتحه مستخدم RoValra، ستظهر قائمة التبرع هذه تلقائيًا.<br><br><strong>ملاحظة:</strong> مستخدمو RoValra فقط سيرون نافذة التبرع، بينما سيرى الآخرون الملف الشخصي العادي.",
+        "copyLinkButton": "نسخ الرابط",
+        "copySuccess": "تم نسخ رابط التبرع بنجاح!",
+        "noGamePassesFound": "لم يتم العثور على تصاريح ألعاب لألعاب {{username}}.",
+        "errorLoading": "خطأ في تحميل تصاريح الألعاب: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "انضمام فوري",
+        "stopJoining": "إيقاف الانضمام",
+        "description": "سيحاول هذا تلقائيًا الانضمام إلى المستخدم بمجرد دخوله تجربة.<br><br>يتطلب ذلك أن يكون المستخدم قد فعّل الانضمام للجميع أو أن تكونا صديقين.",
+        "searchPlaceholder": "ابحث عن تجربة أو أدخل معرّف Place (اختياري)",
+        "continue": "متابعة",
+        "cancel": "إلغاء",
+        "confirmTitle": "تأكيد الإجراء"
+    },
+    "rap": {
+        "error": "خطأ",
+        "private": "خاص",
+        "openInRolimons": "فتح في Rolimon's",
+        "thisUser": "هذا المستخدم",
+        "rolimonsRedirect": "أنت على وشك إعادة التوجيه إلى ملف {{username}} على Rolimon's، وهو موقع خارجي للتداول وقيم العناصر.<br><br>هل تريد المتابعة؟",
+        "continueToRolimons": "المتابعة إلى Rolimon's",
+        "user": "المستخدم",
+        "loadingItems": "جارٍ تحميل المزيد من العناصر...",
+        "noItemsMatch": "لا توجد عناصر تطابق بحثك.",
+        "collectiblesTitle": "مقتنيات {{displayName}} ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "مقتنيات {{displayName}} (القيمة {{totalRapString}})",
+        "inventoryPrivateOrNoLimiteds": "مخزون هذا المستخدم خاص أو لا يحتوي على عناصر محدودة.",
+        "searchByName": "البحث باسم العنصر",
+        "itemAmount": "الكمية المملوكة من هذا العنصر: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "إرسال"
+    },
+    "privateServer": {
+        "processingTitle": "جارٍ معالجة الخوادم",
+        "starting": "جارٍ البدء...",
+        "cancel": "إلغاء",
+        "cancelling": "جارٍ الإلغاء...",
+        "activating": "جارٍ التفعيل",
+        "inactivating": "جارٍ إلغاء التفعيل",
+        "progressText": "{{actionText}} الخادم {{current}} من {{total}}...",
+        "unknownApiError": "حدث خطأ غير معروف في API.",
+        "processCancelled": "تم إلغاء العملية. <span class=\"success-text\">تمت معالجة {{count}} خادم.</span>",
+        "completed": "اكتمل: <span class=\"success-text\">نجح {{successCount}}</span>، <span class=\"error-text\">فشل {{errorCount}}</span>.",
+        "processingComplete": "اكتملت المعالجة",
+        "confirmationTitle": "تأكيد الإجراء",
+        "confirmationMessage": "أنت على وشك تعيين {{count}} خادم خاص على الحالة {{action}}.",
+        "confirmationJoinable": "سيجعل هذا الخادم الخاص قابلًا للانضمام.",
+        "confirmationUnjoinable": "سيجعل هذا الخادم الخاص غير قابل للانضمام.",
+        "confirmationReversible": "يمكنك دائمًا تغيير هذا لاحقًا.",
+        "confirm": "تأكيد",
+        "deselectAll": "إلغاء تحديد الكل",
+        "selectAll": "تحديد الكل",
+        "bulkInactivate": "إلغاء تفعيل جماعي",
+        "bulkActivate": "تفعيل جماعي",
+        "setInactive": "تعيين كغير نشط",
+        "setActive": "تعيين كنشط",
+        "noServersFound": "لم يتم العثور على خوادم خاصة بالحالة {{status}}.",
+        "byCreator": "بواسطة ",
+        "allowJoining": "السماح بالانضمام"
+    },
+    "firstAccount": {
+        "label": "الحساب الأول",
+        "yes": "نعم",
+        "no": "لا",
+        "tooltip": "يوضح هذا ما إذا كانت Roblox تعتقد أن حسابك هو حسابك الأول. <br>تأتي هذه المعلومات مباشرةً من Roblox لكنها قد لا تكون دقيقة.",
+        "createdDate": "تاريخ إنشاء الحساب الأول: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "ضمن برنامج المنشئ الموثوق",
+        "yes": "نعم",
+        "no": "لا",
+        "tooltip": "وجدت طريقة للتحقق من هذا وظننت أنها رائعة :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "السمة",
+        "light": "فاتح",
+        "dark": "داكن"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "تخصيص إعدادات الصورة",
+            "source": "مصدر الصورة",
+            "opacity": "شفافية الصورة",
+            "customSize": "مقياس مخصص",
+            "blur": "تمويه",
+            "overrideTopbarSidebar": "الوضع الشفاف",
+            "size": {
+                "label": "حجم الخلفية",
+                "cover": "تغطية",
+                "contain": "احتواء",
+                "auto": "تلقائي",
+                "custom": "مخصص"
+            },
+            "position": {
+                "label": "موضع الخلفية",
+                "center": "الوسط",
+                "top": "أعلى",
+                "bottom": "أسفل",
+                "left": "يسار",
+                "right": "يمين",
+                "topleft": "أعلى اليسار",
+                "topright": "أعلى اليمين",
+                "bottomleft": "أسفل اليسار",
+                "bottomright": "أسفل اليمين"
+            },
+            "overlay": {
+                "color": "لون التراكب",
+                "opacity": "شفافية التراكب"
+            },
+            "errors": {
+                "invalidUrl": "أدخل رابط صورة https صالحًا."
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "غير معروض للبيع",
+        "text": "السعر السابق:",
+        "lastOnSale": "آخر مرة كان فيها معروضًا للبيع",
+        "for": "مقابل"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "مفتوح"
+    },
+    "lastEquipped": {
+        "label": "آخر تجهيز"
+    },
+    "pendingRobux": {
+        "tooltip": "هذا تقدير لعدد Robux من رصيدك المعلّق الذي سيصبح متاحًا غدًا استنادًا إلى بيانات معاملاتك. قد يختلف المبلغ الفعلي، وقد يكون هذا التقدير غير دقيق.",
+        "loading": "جارٍ التحميل...",
+        "error": "خطأ: {{message}}",
+        "insufficientData": "بيانات غير كافية",
+        "insufficientDataTooltip": "لا توجد معاملات سابقة كافية لإجراء تقدير دقيق. يرجى الانتظار حتى تكتمل المزيد من المعاملات.",
+        "label": "Robux الذي سيخرج من التعليق غدًا"
+    },
+    "totalEarned": {
+        "calculateEarnings": "حساب الأرباح",
+        "calculateEarned": "حساب المكتسب",
+        "pausedMessage": "تم إيقاف الحساب مؤقتًا. استأنف للمتابعة.",
+        "resumeCalculation": "استئناف الحساب",
+        "startNewCalculation": "بدء حساب جديد",
+        "description": "احسب إجمالي Robux المكتسب من المبيعات ومدفوعات المجموعة.",
+        "startCalculation": "بدء الحساب",
+        "transactionsScanned": "المعاملات التي تم فحصها",
+        "totalRobuxEarned": "إجمالي Robux المكتسب",
+        "breakdownLabel": "تفصيل مصادر الأرباح",
+        "calculatingTitle": "جارٍ حساب إجمالي Robux المكتسب",
+        "scanningHistory": "جارٍ حساب إجمالي Robux المكتسب...",
+        "rateLimited": "تم تقييد معدل API. ما زال العد مستمرًا...",
+        "calculationComplete": "اكتمل الحساب",
+        "allScanned": "انتهى فحص إجمالي Robux المكتسب.",
+        "newCalculation": "حساب جديد",
+        "errorTitle": "حدث خطأ",
+        "retry": "إعادة المحاولة",
+        "robloxLimitError": "أعادت Roblox خطأ داخليًا في الخادم. على الأرجح لن تتمكن من فحص المزيد من المعاملات بسبب قيود Roblox.",
+        "noEarnings": "لم يتم العثور على أرباح بعد.",
+        "other": "أخرى",
+        "groupPayout": "دفع من المجموعة"
+    },
+    "totalSpent": {
+        "other": "أخرى",
+        "na": "غير متاح",
+        "calculatingTitle": "جارٍ الحساب",
+        "calculatingRobuxTitle": "جارٍ حساب إجمالي Robux المنفق",
+        "calculatingMoneyTitle": "جارٍ حساب إجمالي المال المنفق",
+        "calculatingText": "جارٍ الحساب...",
+        "calculatingRobuxText": "جارٍ حساب إجمالي Robux المنفق...",
+        "calculatingMoneyText": "جارٍ حساب إجمالي المال المنفق...",
+        "rateLimited": "تم تقييد معدل API. ما زال العد مستمرًا...",
+        "calculationComplete": "اكتمل الحساب",
+        "allScanned": "تم فحص جميع المعاملات ذات الصلة.",
+        "robuxAllScanned": "انتهى فحص إجمالي Robux المنفق.",
+        "moneyAllScanned": "انتهى فحص إجمالي المال المنفق.",
+        "newCalculation": "حساب جديد",
+        "errorTitle": "حدث خطأ",
+        "retry": "إعادة المحاولة",
+        "calculateSpend": "حساب الإنفاق",
+        "pausedMessage": "تم إيقاف الحساب مؤقتًا. استأنف للمتابعة.",
+        "resumeCalculation": "استئناف الحساب",
+        "startNewCalculation": "بدء حساب جديد",
+        "description": "اختر وضعًا لحساب سجل معاملاتك.",
+        "calculateRobux": "حساب Robux المنفق",
+        "calculateMoney": "حساب المال المنفق",
+        "transactionsScanned": "المعاملات التي تم فحصها",
+        "totalRobuxSpent": "إجمالي Robux المنفق",
+        "totalMoneySpent": "إجمالي الإنفاق (تقريبي)",
+        "itemTypeBreakdown": "تفصيل أنواع العناصر",
+        "premiumBreakdown": "تفصيل اشتراكات Premium",
+        "purchaseBreakdown": "تفصيل مشتريات Robux",
+        "noItems": "لم يتم العثور على عناصر بعد.",
+        "pack": "حزمة",
+        "stipend": "مخصص",
+        "errorUserId": "تعذر استرداد معرّف المستخدم.",
+        "robloxLimitError": "أعادت Roblox خطأ داخليًا في الخادم. على الأرجح لن تتمكن من فحص المزيد من المعاملات بسبب قيود Roblox.",
+        "errorRetries": "فشل بعد عدة محاولات. آخر خطأ: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "إجمالي الإنفاق",
+        "loading": "جارٍ التحميل...",
+        "failedToLoad": "فشل التحميل",
+        "singlePurchase": "عملية شراء واحدة",
+        "multiplePurchases": "{{count}} عملية شراء",
+        "stillCalculating": "إجمالي الإنفاق ما زال قيد الحساب."
+    },
+    "spentPerGame": {
+        "title": "إجمالي الإنفاق لكل لعبة",
+        "disclaimer": "قد يكون هذا غير دقيق بسبب قيود Roblox",
+        "mostSpent": "الأكثر إنفاقًا",
+        "mostPurchases": "أكبر عدد من المشتريات",
+        "noPurchases": "لم يتم العثور على مشتريات ألعاب.",
+        "singlePurchase": "عملية شراء واحدة",
+        "multiplePurchases": "{{count}} عملية شراء",
+        "loadMore": "تحميل المزيد (متبقي {{remaining}})",
+        "searchPlaceholder": "البحث عن ألعاب",
+        "loading": "جارٍ تحميل إنفاق الألعاب…",
+        "scanInProgress": "فحص المعاملات قيد التنفيذ. قد يستغرق ذلك بعض الوقت.",
+        "loadError": "تعذر تحميل إنفاق الألعاب."
+    },
+    "spentPerCreator": {
+        "title": "إجمالي الإنفاق لكل منشئ",
+        "disclaimer": "قد يكون هذا غير دقيق بسبب قيود Roblox",
+        "mostSpent": "الأكثر إنفاقًا",
+        "mostPurchases": "أكبر عدد من المشتريات",
+        "noPurchases": "لم يتم العثور على مشتريات من منشئين.",
+        "unknownCreator": "منشئ غير معروف",
+        "includeGameCreators": "تضمين منشئي الألعاب",
+        "singlePurchase": "عملية شراء واحدة",
+        "multiplePurchases": "{{count}} عملية شراء",
+        "loadMore": "تحميل المزيد (متبقي {{remaining}})",
+        "searchPlaceholder": "البحث عن منشئين",
+        "loading": "جارٍ تحميل إنفاق المنشئين…",
+        "scanInProgress": "فحص المعاملات قيد التنفيذ. قد يستغرق ذلك بعض الوقت.",
+        "loadError": "تعذر تحميل إنفاق المنشئين."
+    },
+    "settings": {
+        "tabs": {
+            "info": "معلومات",
+            "credits": "المساهمون",
+            "donatorPerks": "مزايا المتبرعين",
+            "settings": "الإعدادات",
+            "accountStanding": "حالة الحساب",
+            "store": "المتجر"
+        },
+        "info": {
+            "title": "معلومات RoValra!",
+            "desc1": "RoValra إضافة تحاول جعل ميزات تحسين الاستخدام الأساسية مجانية ومتاحة للجميع من خلال جعل كل شيء مفتوح المصدر بالكامل.",
+            "desc2": "بعض الميزات المجانية ما زالت تعتمد على خوادم RoValra وتكلف مالًا لتشغيلها.",
+            "desc3": "تساعد تبرعات الداعمين في تغطية هذه التكاليف، مما يتيح لـ RoValra إبقاء المزيد من الميزات مجانية للجميع مع الاستمرار في التحسن بمرور الوقت. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra مشروع شغف، وكان كذلك دائمًا.",
+            "suggestions": "إذا كانت لديك اقتراحات لميزات، فأخبرني في خادم Discord الخاص بي أو عبر GitHub",
+            "bugs": "إذا وجدت أي أخطاء، فأخبرني في خادم Discord الخاص بي أو عبر GitHub",
+            "review": "إذا أعجبتك هذه الإضافة، فيرجى التفكير في <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">ترك مراجعة</a>، فهذا يساعد كثيرًا <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "خادم Discord",
+            "github": "مستودع GitHub",
+            "support": "دعم RoValra",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "المساهمون",
+            "translatorsTitle": "المترجمون",
+            "featureCount_one": "{{count}} ميزة",
+            "featureCount_other": "{{count}} ميزات",
+            "contributorTooltips": {
+                "146089324": "أنشأ WoozyNate لعبة fisch، ومنها جاء شعار RoValra القديم. يجب أن تجرّب fisch!",
+                "1337447242": "أنشأ الشعار الجديد وجميع صور صفحة المتجر.",
+                "795922138": "ابتكر اسم 'RoValra' على سبيل المزاح، وكان مضحكًا جدًا لدرجة أننا استخدمناه.",
+                "2974594300": "تحسينات الواجهة وإصلاحات الأخطاء ومساهمات أخرى.",
+                "170038374": "أنشأ أفكارًا تستند إليها بعض ميزات RoValra."
+            },
+            "sortLabel": "ترتيب المساهمين",
+            "sortMost": "الأكثر",
+            "sortLeast": "الأقل",
+            "contributionCount_one": "ساهم في {{count}} ميزة",
+            "contributionCount_other": "ساهم في {{count}} ميزات",
+            "backendContributorsNote": "ساعد هؤلاء الأشخاص في أمور غير مرتبطة بالميزات.",
+            "loadingContributors": "جارٍ التحميل...",
+            "failedToLoadContributors": "فشل تحميل المساهمين.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "تمت إضافة شارة المترجم وشارة WoozyNate",
+                    "nateGilbertFix": "إصلاح شارة Nate لتصبح Gilbert مرة أخرى"
+                },
+                "caching": {
+                    "hashmap": "تمت إضافة hashmap إلى معالج الذاكرة المؤقتة"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "تم إصلاح الشريط الجانبي لتحديث Roblox"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "تم إصلاح عدم تزامن محلل RBXM وتنسيق CFRAME"
+                },
+                "markdown": {
+                    "untrustedMd": "تمت إضافة محلل markdown محدود للمستخدمين غير الموثوقين"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "تمت إضافة واجهة إعدادات موحدة API"
+                },
+                "contributorList": {
+                    "creditsImprovement": "تم تحسين الاعتمادات في قائمة المساهمين",
+                    "nonSettingCredits": "إضافة اعتمادات للميزات والتحسينات التي لا تملك إعداداتها الخاصة"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "تمت إضافة مؤشرات جديدة لمستويات المتبرعين"
+                },
+                "iconElement": {
+                    "addIcons": "تمت إضافة عنصر `<icon>` الذي يسمح باستخدام Builder Icons وMaterial Icons وRoValra Icons.",
+                    "addElement": "تمت إضافة عنصر `<icon>` الأساسي الذي يسمح باستخدام Builder Icons. سابقًا، كان سيتم استخدام عنصر `<i>` المدمج مع الفئات.",
+                    "makeRoValraIcons": "تمت إضافة خط لأيقونات RoValra + طريقة بناء جديدة للموقع.",
+                    "addBuilderIconsWOFF": "تمت إضافة استضافة Builder Icons على موقع RoValra، بالإضافة إلى ملفات خطوط مختلفة أصغر حجمًا."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "تمت إضافة فهرس سمات Plus إلى الموقع بحيث لا يستطيع المستخدمون استخدام سوى السمات الصحيحة والمحددة."
+                },
+                "locales": {
+                    "madeRo": "ساعد في إنشاء الترجمة الرومانية",
+                    "madeEs": "ساعد في إنشاء الترجمة الإسبانية"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "مساهمات {{user}}",
+                    "contributor": "مساهم",
+                    "featureName": "ميزة",
+                    "featureKey": "مفتاح الميزة (للمطور)"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "مزايا المتبرعين!",
+            "subtitle": "ادعم تطوير RoValra واحصل على مزايا حصرية!",
+            "howToGet": "كيفية الحصول على المزايا",
+            "howToGetDesc": "يمكنك التبرع عن طريق شراء gamepass في لعبة الدعم.",
+            "goToGame": "الانتقال إلى لعبة التبرع",
+            "perkTiers": "مستويات المزايا",
+            "perk": "الميزة",
+            "currentTier": "المستوى الحالي",
+            "tier1": "المستوى 1: داعم",
+            "tier1Desc": "تبرع <strong>بأي مبلغ</strong>",
+            "tier1Reward": "شارة المتبرع 1",
+            "tier1DiscordRole": "دور Donator 1 في Discord + مزايا إضافية في Discord.",
+            "tier1Feature": "عيّن الحالة والبيئات دون إضافة نص إلى قسم «نبذة عني».",
+            "tier2": "المستوى 2: داعم",
+            "tier2Desc": "تبرع <strong>بـ 200+ Robux</strong>",
+            "tier2Reward": "شارة المتبرع 2",
+            "tier2DiscordRole": "دور Donator 2 في Discord + مزايا Discord مطوّرة.",
+            "tier3": "المستوى 3: داعم",
+            "tier3Desc": "تبرع <strong>بـ 500+ Robux</strong>",
+            "tier3Reward": "شارة المتبرع 3",
+            "tier3DiscordRole": "دور Donator 3 في Discord + أفضل مزايا Discord.",
+            "previousRewards": "+ جميع مكافآت المستويات السابقة",
+            "moreComingSoon": "المزيد قريبًا.",
+            "note": "ملاحظة:\n- قد تستغرق الشارات بضع دقائق للظهور بعد التبرع.\n- لإدارة ظهور الشارات، انتقل إلى علامة تبويب إعدادات «الملف الشخصي».\n- للأسف، التبرع عبر العمولات لن يمنح مزايا المتبرعين، وهذا قيد من Roblox.\n- عند التبرع فإنك توافق على [شروط استخدام RoValra](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "يرجى إدخال حرفين على الأقل للبحث.",
+            "noResults": "لم يتم العثور على إعدادات لـ \"{{query}}\"."
+        },
+        "ui": {
+            "common": {
+                "cancel": "إلغاء",
+                "okay": "حسنًا",
+                "ok": "موافق",
+                "pleaseWait": "يرجى الانتظار...",
+                "loading": "جارٍ التحميل...",
+                "unknown": "غير معروف",
+                "user": "المستخدم",
+                "unavailable": "غير متاح",
+                "notAvailable": "غير متاح"
+            },
+            "levels": {
+                "allGood": "كل شيء جيد",
+                "limited": "محدود",
+                "veryLimited": "محدود جدًا",
+                "atRisk": "معرّض للخطر",
+                "suspended": "معلّق"
+            },
+            "search": {
+                "placeholder": "البحث في الإعدادات..."
+            },
+            "controls": {
+                "clearStorage": "مسح التخزين",
+                "preview": "معاينة",
+                "fadeStrength": "قوة التلاشي",
+                "clickMe": "انقر عليّ",
+                "enterValue": "أدخل قيمة",
+                "remove": "إزالة",
+                "add": "إضافة",
+                "experimental": "تجريبي",
+                "beta": "بيتا",
+                "deprecated": "مهجور",
+                "invalidImageUrl": "أدخل رابط صورة صالحًا يبدأ بـ http:// أو https://.",
+                "enablePermission": "تمكين إذن {{permission}}"
+            },
+            "badges": {
+                "visibility": "تبديل ظهور شارات التبرع الخاصة بك."
+            },
+            "locks": {
+                "donatorTierRequired": "مطلوب مستوى متبرع RoValra رقم {{tier}}",
+                "donatorPerk": "ميزة متبرع RoValra (المستوى {{tier}})",
+                "featureDisabled": "تم تعطيل هذه الميزة {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "قبل تمكين هذه الميزة",
+                "message": "قد تكون الميزات التي تحمل هذه التصنيفات غير مستقرة أو قد تتغير مع الوقت. وقد تسبب أوقات تحميل أطول أو واجهة غير متسقة أو مشكلات متعلقة بالموقع أو سلوكًا آخر غير متوقع.<br><br>فعّل هذا فقط إذا كنت تفهم أنه قد لا يعمل بشكل مثالي.",
+                "acknowledge": "أقر بذلك"
+            },
+            "environment": {
+                "exported": "تمت طباعة JSON الخاص بالبيئة في وحدة التحكم (F12).",
+                "imported": "تم استيراد إعدادات البيئة بنجاح. ستتم إعادة تحميل الصفحة لتطبيق التغييرات.",
+                "parseFailed": "فشل تحليل ملف JSON.",
+                "storageUsed": "إجمالي التخزين المحلي المستخدم: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "يجب ألا تتجاوز الضمائر 15 حرفًا.",
+                "filterRejected": "رفض فلتر Roblox هذه الضمائر. جرّب قيمة مختلفة.",
+                "checkFailed": "تعذر على Roblox التحقق من الضمائر. يرجى المحاولة مرة أخرى.",
+                "filterBusy": "فلتر الضمائر في Roblox مشغول. يرجى المحاولة بعد قليل."
+            },
+            "port": {
+                "enableProfileNotes": "فعّل ملاحظات الملف الشخصي قبل استيراد الملاحظات أو تصديرها.",
+                "exportedOne": "تم تصدير {{count}} ملاحظة ملف شخصي.",
+                "exportedMany": "تم تصدير {{count}} ملاحظات ملف شخصي.",
+                "exportFailed": "تعذر تصدير ملاحظات الملف الشخصي.",
+                "notesTooLarge": "النسخة الاحتياطية لملاحظات الملف الشخصي كبيرة جدًا.",
+                "invalidNotesBackup": "هذه ليست نسخة احتياطية صالحة لملاحظات ملف RoValra الشخصي.",
+                "importedOne": "تم استيراد {{count}} ملاحظة ملف شخصي.",
+                "importedMany": "تم استيراد {{count}} ملاحظات ملف شخصي.",
+                "notesReadFailed": "تعذر قراءة النسخة الاحتياطية لملاحظات الملف الشخصي.",
+                "importFailed": "تعذر استيراد ملاحظات الملف الشخصي.",
+                "exportUnexpectedError": "حدث خطأ غير متوقع أثناء التصدير.",
+                "exportError": "خطأ في تصدير الإعدادات. راجع وحدة التحكم للتفاصيل.",
+                "sanitizeError": "خطأ في تنظيف الإعدادات للتصدير. راجع وحدة التحكم للتفاصيل.",
+                "invalidSettingsFile": "لا يبدو أن هذا ملف إعدادات RoValra صالحًا.",
+                "invalidSettingsData": "خطأ: يحتوي ملف الإعدادات المستورد على بيانات غير صالحة أو قد تكون خطرة.",
+                "settingsTooLarge": "خطأ: ملف الإعدادات كبير جدًا. الحد الأقصى للحجم هو 1MB.",
+                "importError": "خطأ في استيراد الإعدادات. راجع وحدة التحكم للتفاصيل.",
+                "malformedSettings": "ملف الإعدادات تالف البنية.",
+                "readFailed": "تعذر قراءة ملف الإعدادات. قد يكون تالفًا أو بتنسيق خاطئ.",
+                "importUnexpectedError": "حدث خطأ غير متوقع أثناء الاستيراد.",
+                "exportSettings": "تصدير الإعدادات",
+                "importSettings": "استيراد الإعدادات"
+            },
+            "changelogs": {
+                "title": "سجل التغييرات",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "إصدار بدون عنوان",
+                "noNotes": "لم يتم تقديم ملاحظات لسجل التغييرات لهذا الإصدار.",
+                "loading": "جارٍ تحميل سجلات التغييرات...",
+                "empty": "لا توجد سجلات تغييرات متاحة حاليًا.",
+                "loadFailed": "فشل تحميل سجلات التغييرات. يرجى المحاولة لاحقًا."
+            },
+            "parentRequest": {
+                "sendingTitle": "جارٍ إرسال الطلب",
+                "sentTitle": "تم إرسال الطلب!",
+                "sentBody": "تم إرسال طلبك إلى والديك وأولياء أمرك عبر البريد الإلكتروني.",
+                "experienceName": "اسم التجربة هو",
+                "sendFailedTitle": "فشل إرسال الطلب",
+                "sendFailedBody": "فشل إرسال طلبك لسبب غير معروف. ربما تم تقييد معدلك. راجع وحدة التحكم لمزيد من التفاصيل.",
+                "cancelingTitle": "جارٍ إلغاء الطلب",
+                "canceledTitle": "تم إلغاء الطلب",
+                "canceledBody": "تم إلغاء طلبك المرسل إلى والديك وأولياء أمرك.",
+                "cancelFailedTitle": "فشل إلغاء الطلب",
+                "cancelFailedBody": "فشل إلغاء طلب رفع الحظر. ربما تم تقييد معدلك. راجع وحدة التحكم لمزيد من التفاصيل.",
+                "sendUnblock": "إرسال طلب رفع الحظر",
+                "alreadyRequestedTitle": "تم الطلب بالفعل",
+                "alreadyRequestedBody": "لقد طلبت هذه التجربة بالفعل!"
+            },
+            "donation": {
+                "donateUsd": "تبرع (الحد الأدنى 1 دولار أمريكي)",
+                "donateRobux": "تبرع (الحد الأدنى 5 Robux)",
+                "parentApprovalTitle": "ساعد في دعم RoValra أكثر!",
+                "parentApprovalMessage": "تحصل RoValra على حصة أكبر من التبرع عند استخدام gamepasses. نرى أن لديك حساب ولي أمر واحدًا على الأقل مرتبطًا. يمكنك طلب رفع الحظر عن التجربة حتى تحصل RoValra على حصة أفضل مقارنة باستخدام الملابس ثنائية الأبعاد (وثلاثية الأبعاد).",
+                "useMarketplace": "استخدام السوق",
+                "currencyLabel": "عملة التبرع",
+                "donateWith": "تبرع باستخدام",
+                "supportTitle": "ساعد في دعم RoValra",
+                "supportDescription": "احصل على مزايا تجميلية حصرية من خلال التبرع",
+                "githubSponsors": "رعاة GitHub",
+                "included": "مشمول",
+                "notIncluded": "غير مشمول",
+                "totalDonated": "إجمالي تبرعاتك إلى RoValra: {{amount}}",
+                "tierTooltip": "مستوى المتبرع الخاص بك",
+                "topDonators": "أكبر المتبرعين (Robux)"
+            },
+            "profileBadge": {
+                "title": "شارة ملف RoValra شخصية مخصصة",
+                "description": "احصل على شارة مخصصة لملفك الشخصي",
+                "iconLabel": "أيقونة شارة الملف الشخصي المخصصة",
+                "getUsd": "احصل عليها (5 دولارات أمريكية)",
+                "getRobux": "احصل عليها (4,000 Robux)",
+                "purchaseIntro": "هذا الشراء مخصص لمن يريد دعم RoValra بشكل كبير.",
+                "createTicket": "بعد شراء هذا العنصر، ادخل إلى Discord الخاص بـ RoValra وأنشئ تذكرة.",
+                "provideDetails": "أعطِ فريق العمل الصورة والاسم اللذين تريدهما لشارة ملفك الشخصي المخصصة.",
+                "countsTowardTier": "سيُحتسب شراء هذا العنصر ضمن مستويات متبرعي RoValra.",
+                "visibility": "هذه الشارات المخصصة مرئية فقط لمستخدمي RoValra.",
+                "imageRequirements": "متطلبات الصورة",
+                "webpRequirement": "يجب أن تكون الصورة ملف <strong>WEBP</strong> أصغر من <strong>1 MB</strong>.",
+                "noRobloxBadges": "لا يمكن استخدام ملفات SVG أو الشارات الرسمية الخاصة بـ Roblox.",
+                "noOfficialRoValraBadges": "لا يُسمح بشارات RoValra الرسمية مثل شارات المساهم والفنان.",
+                "followTerms": "يجب أن تتبع الصور شروط خدمة Roblox",
+                "joinDiscord": "انضم إلى Discord الخاص بـ RoValra",
+                "agree": "موافق",
+                "agreeCountdown": "موافق ({{count}})"
+            },
+            "githubSponsorBadge": {
+                "title": "شارة ملف GitHub Sponsors",
+                "description": "شارة قلب قوس قزح للملف الشخصي. مخصصة لرعاة GitHub فقط",
+                "get": "احصل عليها (الحد الأدنى 1 دولار أمريكي)"
+            },
+            "store": {
+                "artist": "فنان",
+                "artistTooltip": "أنشأ {{name}} إطار الأفاتار هذا.",
+                "free": "مجاني",
+                "owned": "مملوك",
+                "equipped": "مجهّز",
+                "equip": "تجهيز",
+                "buy": "شراء",
+                "buyFor": "شراء مقابل {{price}}",
+                "viewGamepass": "عرض Gamepass",
+                "all": "الكل",
+                "new": "جديد",
+                "static": "ثابت",
+                "animated": "متحرك",
+                "borderTitle": "متجر إطارات الأفاتار",
+                "borderDescription": "متجر إطارات الأفاتار، اشترِ إطارات الأفاتار لدعم RoValra والفنانين مباشرةً، <strong>يحصل أصحاب مستوى المتبرع 3 على جميع إطارات الأفاتار مجانًا.</strong> شراء إطارات الأفاتار يُحتسب ضمن مستوى المتبرع الخاص بك!",
+                "loadingBorders": "جارٍ تحميل الإطارات..."
+            },
+            "border": {
+                "bundleNotice": "(يشمل النسختين الثابتة والمتحركة)",
+                "freeTier3Tooltip": "مجاني لأن لديك مستوى المتبرع 3!",
+                "ownedTooltip": "أنت تملك هذا الإطار!",
+                "freeTooltip": "يمكن تجهيز هذا الإطار مجانًا.",
+                "supportNotice": "شراء العناصر التجميلية مباشرةً سيدعم الفنان وRoValra",
+                "purchaseDelay": "قد يستغرق ظهور إطار الأفاتار بعد الشراء حتى دقيقة واحدة",
+                "parentApprovalTitle": "مطلوب إجراء من أحد الوالدين",
+                "parentApprovalMessage": "لشراء إطارات الأفاتار، تحتاج إلى إذن أحد الوالدين.",
+                "noParentTitle": "لا يمكنك استخدام إطارات الأفاتار",
+                "noParentBody": "تطلب Roblox الحصول على إذن من أحد الوالدين، لكن لا يوجد أي حساب ولي أمر مرتبط بحسابك. إذا أردت استخدام إطارات الأفاتار، فستحتاج إلى ربط حساب ولي أمر وطلب رفع الحظر عن التجربة.",
+                "noBorders": "لا توجد إطارات متاحة.",
+                "currentPreview": "معاينة الاختيار الحالي",
+                "signInPreview": "سجّل الدخول لمعاينة الإطارات على الأفاتار الخاص بك.",
+                "noBordersInTab": "لم يتم العثور على إطارات في علامة التبويب هذه.",
+                "loadFailed": "فشل تحميل الإطارات. يرجى المحاولة لاحقًا.",
+                "unequipTooltip": "انقر لإلغاء تجهيز هذا الإطار",
+                "equipTooltip": "تجهيز هذا الإطار",
+                "buyTooltip": "شراء هذا الإطار"
+            },
+            "appeal": {
+                "messageLabel": "أدخل رسالة الاستئناف (20-3000 حرف)",
+                "title": "إرسال الاستئناف",
+                "submit": "إرسال الاستئناف",
+                "invalidLength": "يجب أن تكون رسالة الاستئناف بين 20 و3000 حرف.",
+                "submitFailed": "فشل إرسال الاستئناف. يرجى المحاولة مرة أخرى."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "كل شيء جيد",
+                    "none": "لا شيء / لا توجد قيود",
+                    "limited": "محدود",
+                    "veryLimited": "محدود جدًا",
+                    "atRisk": "معرّض للخطر",
+                    "suspended": "معلّق"
+                },
+                "appealStatuses": {
+                    "notAppealed": "لم يتم الاستئناف",
+                    "pending": "الاستئناف قيد الانتظار",
+                    "denied": "تم رفض الاستئناف",
+                    "accepted": "تم قبول الاستئناف"
+                },
+                "goodTitle": "حسابك في وضع جيد.",
+                "goodDescription": "ليس لديك أي مخالفات أو قيود نشطة من فريق أمان RoValra.",
+                "temporaryTitle": "حسابك محدود مؤقتًا.",
+                "violationTitle": "وجدنا مخالفة على حسابك.",
+                "statusDescription": "تم تعيين حالة حسابك إلى: {{status}}",
+                "policyTitle": "سياسة أمان RoValra",
+                "policyDescription": "سيتم تعطيل ميزات محددة للحسابات التي يُثبت أنها انتهكت {{- termsLink}} أو اعتُبرت خطرة عبر اكتشافات جهات خارجية. يرجى ملاحظة أنه رغم إمكانية تقييد بعض القدرات عبر الإنترنت، فإن فريق أمان RoValra <strong>لن</strong> يعطّل الإضافة بالكامل أو الميزات المحلية بالكامل.",
+                "automatedAction": "إجراء تلقائي",
+                "manualReview": "مراجعة يدوية",
+                "disabledFeatures": "الميزات المعطلة",
+                "moderatedContent": "محتوى خاضع للإشراف",
+                "violationDetails": "تفاصيل المخالفة",
+                "unknownReason": "سبب غير معروف",
+                "moderated": "خاضع للإشراف",
+                "temporaryExpires": "ينتهي التقييد المؤقت",
+                "appealCase": "حالة الاستئناف",
+                "status": "الحالة",
+                "yourMessage": "رسالتك",
+                "response": "الرد",
+                "reviewingAppeal": "فريقنا يراجع استئنافك حاليًا.",
+                "appealDecision": "استئناف هذا القرار"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "قد لا تعمل RoValra بشكل صحيح مع تفعيل {{extensions}}.",
+            "description": "لا نضمن دعم {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "إعدادات الخصوصية"
+        },
+        "noTogglesEnabled": "لا توجد أي خيارات مفعلة! انتقل إلى إعدادات RoValra لتمكين خيارات إعدادات الخصوصية.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "الجميع",
+                "friendsFollowingFollowers": "الأصدقاء والمتابَعون والمتابعون",
+                "friendsFollowing": "الأصدقاء والمتابَعون",
+                "friends": "الأصدقاء",
+                "trustedFriends": "الأصدقاء الموثوقون",
+                "noOne": "لا أحد"
+            },
+            "onlineStatus": {
+                "name": "حالة الاتصال"
+            },
+            "joinStatus": {
+                "name": "حالة التجربة"
+            },
+            "privateServerPrivacy": {
+                "name": "خصوصية الخادم الخاص"
+            },
+            "inventoryPrivacy": {
+                "name": "خصوصية المخزون"
+            }
+        }
+    },
+    "qolToggles": {
+        "onlineStatus": "حالة الاتصال",
+        "joinStatus": "حالة التجربة",
+        "privateServerPrivacy": "خصوصية الخادم الخاص",
+        "inventoryVisibility": "ظهور المخزون",
+        "everyone": "الجميع",
+        "friendsFollowingAndFollowers": "الأصدقاء والمتابعون والمتابَعون",
+        "friendsAndFollowing": "الأصدقاء والمتابَعون",
+        "friends": "الأصدقاء",
+        "trustedFriends": "الأصدقاء الموثوقون",
+        "noOne": "لا أحد"
+    },
+    "groupFunds": {
+        "loading": "جارٍ التحميل...",
+        "pending": "قيد الانتظار:",
+        "noPermissions": "لا يوجد إذن"
+    },
+    "navigation": {
+        "transactions": "المعاملات",
+        "apiDocs": "مستندات API",
+        "incidentLearnMore": "انقر هنا لمعرفة المزيد.",
+        "incidentHideNotice": "يمكنك إخفاء هذا التنبيه هنا"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "طي الشريط الجانبي",
+        "expandSidebar": "توسيع الشريط الجانبي"
+    },
+    "voiceBanIndicator": {
+        "title": "محظور صوتيًا",
+        "liftsIn": "يُرفع خلال",
+        "noExpiry": "لم يتم تحديد تاريخ انتهاء"
+    },
+    "ageTheme": {
+        "navbarTooltip": "سمة العمر",
+        "options": {
+            "normal": "Roblox العادي",
+            "kids": "Roblox للأطفال",
+            "select": "Roblox Select",
+            "startmode": "Roblox Select المسرّب (وضع البدء)"
+        },
+        "badge": {
+            "kids": "للأطفال",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "تبديل برامج Beta",
+        "noPrograms": "أنت غير مسجل في أي برامج Beta.",
+        "allowlist": "ضمن قائمة السماح",
+        "previousProgramsTitle": "برامج Beta المسجل فيها سابقًا",
+        "previousProgramTooltip": "برنامج Beta هذا لم يعد متاحًا."
+    },
+    "quickSearch": {
+        "aborted": "تم الإلغاء",
+        "apiRequestFailed": "فشل طلب API بالحالة {{status}}",
+        "friendSearchError": "RoValra: خطأ في البحث عن صديق",
+        "userSearchError": "RoValra: خطأ في البحث عن مستخدم",
+        "gameSearchError": "RoValra: خطأ في البحث عن لعبة",
+        "trustedConnection": "أنتما صديقان موثوقان",
+        "connection": "أنتما صديقان",
+        "playing": "يلعب {{gameName}}",
+        "verifiedBadge": "شارة التحقق",
+        "verified": "موثّق",
+        "permanentlyBanned": "تم إنهاء حساب هذا المستخدم أو قام بإلغاء تنشيطه.",
+        "joinPreferredRegion": "الانضمام إلى المنطقة المفضلة",
+        "bestRegionAuto": "أفضل منطقة (تلقائي)",
+        "searchHistory": "سجل البحث",
+        "noSearchHistory": "ليس لديك أي سجل بحث.",
+        "deleteSearchHistoryTitle": "حذف سجل البحث",
+        "deleteSearchHistoryMessage": "هل أنت متأكد أنك تريد حذف إدخال سجل البحث هذا؟",
+        "delete": "حذف"
+    },
+    "friendOwnership": {
+        "pillLabel": "يمتلكه {{count}} من الأصدقاء",
+        "pillTooltip": "اعرف أي الأصدقاء يمتلكون هذا العنصر",
+        "overlayTitle": "يمتلك هذا العنصر {{count}} من الأصدقاء",
+        "unknownUser": "المستخدم {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "اختر منطقة الخادم المفضلة أو انضم إليها",
+        "tooltip": "الانضمام إلى المنطقة المفضلة",
+        "tooltipWithRegion": "الانضمام إلى المنطقة المفضلة<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "الانضمام إلى المنطقة المفضلة<br><b>أفضل منطقة (تلقائي)</b>"
+    },
+    "quickPlay": {
+        "loading": "جارٍ التحميل...",
+        "rateLimited": "تم تقييد المعدل. جارٍ إعادة المحاولة...",
+        "loadError": "تعذر تحميل الخوادم.",
+        "noPrivateServers": "لم يتم العثور على خوادم خاصة نشطة.",
+        "configure": "إعداد",
+        "copyLink": "نسخ الرابط",
+        "copied": "تم النسخ!",
+        "error": "خطأ!",
+        "generateLink": "إنشاء رابط جديد",
+        "joinClosestServer": "الانضمام إلى أقرب خادم",
+        "selectPreferredRegion": "اختر المنطقة المفضلة",
+        "privateServers": "الخوادم الخاصة"
+    },
+    "privateServerPage": {
+        "regenerateLink": "إنشاء رابط",
+        "regenerated": "تم الإنشاء!"
+    },
+    "devProducts": {
+        "noProducts": "لم يتم العثور على منتجات مطور.",
+        "loadError": "تعذر تحميل منتجات المطور لهذه اللعبة.",
+        "passes": "التصاريح",
+        "developerProducts": "منتجات المطور",
+        "search": "بحث",
+        "sort": {
+            "created": "ترتيب حسب تاريخ الإنشاء",
+            "price": "ترتيب حسب السعر",
+            "updated": "ترتيب حسب التحديث",
+            "name": "ترتيب حسب الاسم"
+        },
+        "order": {
+            "ascending": "ترتيب تصاعدي",
+            "descending": "ترتيب تنازلي"
+        }
+    },
+    "shop": {
+        "tab": "المتجر",
+        "all": "الكل",
+        "category": "الفئة",
+        "product": "المنتج",
+        "gamePass": "Game Pass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "مكافأة: {{item}}",
+        "bonusItemFallback": "يتضمن عنصرًا إضافيًا",
+        "noItems": "لم يتم العثور على عناصر في المتجر.",
+        "failedToLoad": "فشل تحميل عناصر المتجر.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "المنتج",
+            "GamePass": "Game Pass",
+            "Robux": "حزمة Robux"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "الأماكن الفرعية",
+        "searchPlaceholder": "البحث في الأماكن الفرعية",
+        "loadMore": "تحميل المزيد",
+        "rootPlace": "المكان الرئيسي",
+        "noSubplaces": "لم يتم العثور على أماكن فرعية.",
+        "failedToLoad": "فشل تحميل الأماكن الفرعية.",
+        "labels": {
+            "sort": "ترتيب",
+            "order": "الاتجاه"
+        },
+        "sort": {
+            "default": "افتراضي",
+            "updated": "تم تحديثها مؤخرًا",
+            "created": "تم إنشاؤها مؤخرًا",
+            "name": "الاسم (Z-A)"
+        },
+        "order": {
+            "descending": "تنازلي",
+            "ascending": "تصاعدي"
+        },
+        "banner": {
+            "title": "أنت تعرض حاليًا مكانًا فرعيًا من [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "قد تعطل بعض التجارب الانضمام إلى الأماكن الفرعية.",
+            "descriptionRestricted": "لا يمكن الانضمام إلى هذا المكان الفرعي بسبب قيود الانضمام.",
+            "descriptionJoinable": "يمكن الانضمام إلى هذا المكان الفرعي.",
+            "mainExperience": "التجربة الرئيسية"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "التحديثات",
+        "title": "سجل التحديثات",
+        "blocked": {
+            "eighteenPlus": "سجل التحديثات لا يعمل على تجارب 18+",
+            "paidAccess": "سجل التحديثات لا يعمل على التجارب ذات الوصول المدفوع",
+            "subplace": "سجل التحديثات لا يعمل على الأماكن الفرعية التي لديها قيود انضمام",
+            "noDesktopSupport": "سجل التحديثات غير مدعوم في التجارب التي لا تدعم الكمبيوتر"
+        }
+    },
+    "serverList": {
+        "clear": "مسح",
+        "noServersApi": "لم يتم العثور على خوادم عبر RoValra API.",
+        "allServersInactive": "أصبحت جميع الخوادم في هذه المنطقة غير نشطة",
+        "loadErrorApi": "فشل تحميل الخوادم من RoValra API.",
+        "hide": "إخفاء",
+        "join": "انضمام",
+        "peopleMax": "{{playing}} من أصل {{maxPlayers}} شخصًا كحد أقصى",
+        "pinPrivateServer": "تثبيت الخادم الخاص",
+        "unpinPrivateServer": "إلغاء تثبيت الخادم الخاص",
+        "playerCountUnknownTooltip": "عدد اللاعبين غير معروف، وهذا قيد من Roblox. الصور المصغرة لا تمثل الأشخاص الموجودين في اللعبة.",
+        "playerCountUnknownLabel": "عدد اللاعبين غير معروف"
+    },
+    "recentServers": {
+        "title": "الخوادم الأخيرة",
+        "refresh": "تحديث",
+        "noneFound": "لم يتم العثور على خوادم حديثة.",
+        "noActiveFound": "لم يتم العثور على خوادم حديثة نشطة.",
+        "lastJoined": "آخر انضمام: {{time}}",
+        "meAlt": "أنا",
+        "secondsAgo": "قبل {{count}}ث",
+        "minutesAgo": "قبل {{count}}دق",
+        "hoursAgo": "قبل {{count}}س",
+        "daysAgo": "قبل {{count}}ي",
+        "description": "الخوادم الحديثة التي كنت فيها للتو."
+    },
+    "quickOutfits": {
+        "errorFetching": "خطأ في جلب الأزياء",
+        "equipping": "جارٍ التجهيز...",
+        "equipped": "تم التجهيز!",
+        "failed": "فشل",
+        "error": "خطأ:",
+        "noUserId": "لم يتم العثور على معرّف المستخدم المصادق عليه للأزياء السريعة.",
+        "loading": "جارٍ تحميل الأزياء...",
+        "title": "أزياء سريعة",
+        "noneFound": "لم يتم العثور على أزياء.",
+        "success": "تم تجهيز الزي بنجاح."
+    },
+    "btrDonationWarning": {
+        "title": "مهم: عطّل BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">تم اكتشاف BTRoblox. قد يتداخل مع عملية الشراء في Roblox. إذا واجهت مشكلة في الشراء، فحاول تعطيل BTRoblox مؤقتًا وإعادة تحميل الصفحة.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">يرجى تعطيل BTRoblox وإعادة تحميل هذه الصفحة ثم محاولة الشراء مرة أخرى.</p>",
+        "continue": "المتابعة على أي حال"
+    },
+    "botDetector": {
+        "tooltip": "البوتات هي حسابات تشغّل برامج نصية آلية لجمع العناصر. يمكن لمستخدم واحد أحيانًا تشغيل أكثر من 50 بوتًا. تذكّر أن هذا ليس خطأ مطوري اللعبة. قد تكون هذه المعلومات غير دقيقة إذا كانت التجربة يلعبها أساسًا حسابات Roblox جديدة.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> لديها الكثير من البوتات",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> لديها بعض البوتات لكن معظم اللاعبين حقيقيون",
+        "thisGame": "هذه اللعبة"
+    },
+    "events": {
+        "title": "الفعاليات",
+        "tabs": {
+            "upcoming": "القادمة",
+            "past": "السابقة"
+        },
+        "buttons": {
+            "viewEvent": "عرض الفعالية",
+            "joinEvent": "الانضمام إلى الفعالية",
+            "unfollowEvent": "إلغاء متابعة الفعالية",
+            "notifyMe": "أبلغني"
+        },
+        "loadMore": "تحميل المزيد",
+        "releaseDate": "تاريخ إصدار الفعالية",
+        "empty": {
+            "active": "لا توجد فعاليات جارية أو قادمة.",
+            "past": "لا توجد فعاليات سابقة.",
+            "all": "لم يتم العثور على فعاليات."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "الشارات",
+            "hiddenBadges": "الشارات المخفية"
+        },
+        "hiddenOwnedNotice": "تظهر هنا فقط الشارات المخفية التي حصلت عليها.",
+        "unableToDetectPlace": "تعذر اكتشاف هذا المكان.",
+        "unableToDetectUniverse": "تعذر اكتشاف هذا الكون.",
+        "stillScanning": "ما زال فحص شاراتك جاريًا. قد تظهر الشارات المخفية التي تملكها قريبًا.",
+        "noneOwnedFound": "لم يتم العثور على شارات مخفية تملكها لهذه التجربة.",
+        "failedToLoad": "فشل تحميل الشارات المخفية التي تملكها."
+    },
+    "antiBots": {
+        "reviewMembers": "راجع {{count}} عضوًا محددًا:",
+        "botWarning": "<strong>تحذير:</strong> تأكد من أن هؤلاء بوتات قبل اتخاذ أي إجراء.",
+        "banMembers": "حظر الأعضاء",
+        "kickMembers": "طرد الأعضاء",
+        "cancel": "إلغاء",
+        "actionRequired": "الإجراء مطلوب ({{count}})",
+        "noPermission": "ليس لديك إذن لحظر الأعضاء أو طردهم.",
+        "confirmBan": "أنت على وشك <strong>حظر {{count}} عضوًا</strong>. سيتم منعهم نهائيًا.",
+        "confirmKick": "أنت على وشك <strong>طرد {{count}} عضوًا</strong>. يمكنهم الانضمام مرة أخرى في أي وقت.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>تذكير:</strong> تحقق من درجات البوت قبل الحظر.</div>",
+        "yesAction": "نعم، {{action}}",
+        "confirmAction": "تأكيد الإجراء",
+        "processing": "جارٍ معالجة {{current}} من {{total}}: {{displayName}}... الوقت المتوقع: {{time}}ث",
+        "rateLimited": "تم تقييد المعدل. إعادة المحاولة خلال {{delay}}ث...",
+        "apiError": "خطأ API {{status}}",
+        "unknownError": "خطأ غير معروف",
+        "processComplete": "تم {{actionType}} {{successCount}} من أصل {{totalMembers}} عضوًا بنجاح.",
+        "processFailed": "فشل {{failedCount}}.",
+        "close": "إغلاق",
+        "score": "الدرجة: {{score}}/100",
+        "actionCount": "إجراء ({{count}})",
+        "unselectAll": "إلغاء تحديد الكل",
+        "selectAll": "تحديد الكل",
+        "antiBots": "مكافحة البوتات",
+        "banByScore": "الحظر حسب الدرجة",
+        "quickAction": "إجراء سريع",
+        "members": "الأعضاء",
+        "loadingMembers": "جارٍ تحميل الأعضاء...",
+        "selectMembersForAction": "اختر الأعضاء للإجراء (تم تحميل {{count}})",
+        "noMembersFound": "لم يتم العثور على أعضاء.",
+        "initializingScan": "جارٍ بدء الفحص...",
+        "scanStatus": "تم الفحص: {{loaded}} ({{percent}}%) | تم التحليل: {{processed}}",
+        "finalizingAnalysis": "جارٍ إنهاء التحليل...",
+        "botsFound": "تم العثور على {{count}} بوت محتمل",
+        "noBotsFound": "لم يتم العثور على بوتات محتملة",
+        "noBotsDetected": "لم يتم اكتشاف أي بوتات.",
+        "errorRetry": "خطأ - إعادة المحاولة",
+        "errorDuringScan": "حدث خطأ أثناء الفحص.",
+        "minBotScore": "الحد الأدنى لدرجة البوت: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "سيؤدي هذا إلى تحديد نحو <span id=\"rovalra-score-ban-count\">0</span> عضوًا.",
+        "confirm": "تأكيد",
+        "banKickByScore": "حظر/طرد حسب الدرجة",
+        "confirmCount": "تأكيد ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "استمتع!",
+        "close": "إغلاق",
+        "robloxExperience": "تجربة Roblox",
+        "unknownExperience": "تجربة غير معروفة",
+        "serverId": "معرّف الخادم:",
+        "privateServer": "خادم خاص",
+        "owner": "المالك:",
+        "version": "الإصدار:",
+        "uptime": "مدة التشغيل:",
+        "rcc": "RCC:",
+        "serverChannel": "قناة الخادم:",
+        "production": "الإنتاج",
+        "launchingRoblox": "جارٍ تشغيل Roblox",
+        "downloadRoblox": "تنزيل Roblox",
+        "thanksDownloading": "شكرًا لتنزيل Roblox",
+        "downloadInstructions": "ما عليك سوى اتباع الخطوات أدناه لتثبيت Roblox. يجب أن يبدأ التنزيل خلال بضع ثوانٍ. إذا لم يبدأ، <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">أعد بدء التنزيل</a>.",
+        "installInstructions": "تعليمات التثبيت",
+        "step1": "بعد التنزيل، انقر نقرًا مزدوجًا على ملف <b>RobloxPlayerInstaller.exe</b> في مجلد التنزيلات.",
+        "step2": "انقر نقرًا مزدوجًا على <b>RobloxPlayerInstaller</b> لتثبيت التطبيق.",
+        "step3": "اتبع التعليمات لتثبيت Roblox على جهاز الكمبيوتر.",
+        "step4": "بعد تثبيته، <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">انضم إلى التجربة</a>.",
+        "mobileApp": "لا تنس تطبيق الهاتف",
+        "scanCode": "امسح هذا الرمز بكاميرا هاتفك للحصول على Roblox.",
+        "joiningServer": "جارٍ الانضمام إلى الخادم...",
+        "errorParsingUrl": "خطأ في تحليل الرابط",
+        "findingUser": "جارٍ العثور على المستخدم...",
+        "fetchingServerInfo": "جارٍ جلب معلومات الخادم...",
+        "nonRootPlaceRestrictions": "لا يمكن الانضمام: قيود المكان غير الرئيسي.",
+        "waitingForRoblox": "في انتظار Roblox...",
+        "launching": "جارٍ التشغيل..."
+    },
+    "createRoblox": {
+        "download": "تنزيل",
+        "downloadMesh": "تنزيل .mesh",
+        "downloadObj": "تنزيل .obj",
+        "explorer": {
+            "button": "المستكشف",
+            "title": "المستكشف",
+            "loading": "جارٍ التحميل...",
+            "selectInstance": "اختر مثيلًا لعرض خصائصه",
+            "noProperties": "لا توجد خصائص",
+            "viewSource": "عرض المصدر",
+            "closePreview": "إغلاق المعاينة",
+            "defaultDevice": "افتراضي (1280x720)",
+            "fitToWindow": "ملاءمة للنافذة",
+            "actualResolution": "الدقة الفعلية",
+            "physicalSize": "الحجم الفعلي",
+            "rotate": "تدوير",
+            "loadingPreview": "جارٍ تحميل معاينة GUI...",
+            "searchInstances": "البحث عن المثيلات... (حرفان فأكثر)",
+            "searchProperties": "البحث في الخصائص...",
+            "previewGui": "معاينة GUI",
+            "togglePreviewVisibility": "تبديل الظهور في المعاينة",
+            "noMatchingInstances": "لم يتم العثور على مثيلات مطابقة",
+            "loadError": "فشل التحميل."
+        }
+    },
+    "priceFloor": {
+        "label": "أرضية السعر:",
+        "status": "هذا العنصر {{status}} أرضية السعر{{difference}}.",
+        "statusTypes": {
+            "above": "فوق",
+            "below": "تحت",
+            "at": "عند"
+        },
+        "difference": " بمقدار {{diff}}",
+        "description": "أرضية السعر هي الحد الأدنى المتغير ديناميكيًا للسعر الذي يمكن بيع العنصر به."
+    },
+    "parentItem": {
+        "multipleBundles": "هذا العنصر جزء من عدة حزم",
+        "multipleBundlesDescription": "من المحتمل استخدام هذا العنصر كقالب وهو مضمن في عدة حزم.",
+        "partOfBundle": "هذا العنصر جزء من حزمة [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "أنت تعرض حاليًا عنصرًا من حزمة."
+    },
+    "rovalraBadges": {
+        "userVerified": "تم التحقق من هوية المستخدم.",
+        "userNotVerified": "لم يتم التحقق من هوية المستخدم.",
+        "userAgeVerified": "تم التحقق من عمر المستخدم.",
+        "userNotAgeVerified": "لم يتم التحقق من عمر المستخدم.",
+        "userAgeVerificationMayBeInaccurate": "قد يكون هذا غير دقيق"
+    },
+    "friendsSince": {
+        "friended": "تمت إضافته كصديق",
+        "lastSeen": "شوهد",
+        "age": "العمر",
+        "friendedVia": "تمت إضافته كصديق عبر",
+        "originFrom": "من",
+        "originSearch": "بحث",
+        "originInGame": "داخل اللعبة",
+        "originProfile": "الملف الشخصي",
+        "originQQContacts": "جهات اتصال QQ",
+        "originWeChatContacts": "جهات اتصال WeChat",
+        "originQrCode": "رمز QR",
+        "originProfileShare": "مشاركة الملف الشخصي",
+        "originPhoneContacts": "جهات اتصال الهاتف",
+        "originPeopleYouMayKnow": "أشخاص قد تعرفهم",
+        "originschoolmemberlist": "قائمة أعضاء المدرسة",
+        "originFriendLink": "رابط صديق",
+        "originSocialTabsPage": "صفحة علامات التبويب الاجتماعية",
+        "originUnknown": "غير معروف"
+    },
+    "lastPlayed": {
+        "together": "الأكثر لعبًا معًا"
+    },
+    "avatarDownload": {
+        "button": "تنزيل الأفاتار",
+        "title": "تنزيل الأفاتار",
+        "size": "الدقة:",
+        "downloadPortrait": "PNG عمودي",
+        "downloadBust": "PNG للجزء العلوي",
+        "downloadAvatar": "PNG للأفاتار",
+        "downloading": "جارٍ التنزيل...",
+        "failed": "فشل تنزيل الأفاتار. حاول مرة أخرى لاحقًا."
+    },
+    "unfriend": {
+        "confirmUnfriend": "تأكيد إزالة الصديق",
+        "confirmUnfriends": "تأكيد إزالة الأصدقاء",
+        "descriptionSingle": "أنت على وشك إزالة صديق واحد. لا يمكن التراجع عن هذا الإجراء.",
+        "descriptionPlural": "أنت على وشك إزالة {{count}} أصدقاء. لا يمكن التراجع عن هذا الإجراء.",
+        "cancel": "إلغاء",
+        "unfriend": "إزالة الصديق",
+        "unfriendCount": "إزالة الصديق ({{count}})",
+        "unfriendCountAction": "إزالة {{count}} صديق",
+        "unfriendCountActionPlural": "إزالة {{count}} أصدقاء",
+        "unfriending": "جارٍ إزالة الأصدقاء...",
+        "bulkUnfriend": "إزالة أصدقاء جماعيًا",
+        "exitBulkMode": "الخروج من الوضع الجماعي",
+        "successMessage": "تمت إزالة {{successCount}}/{{totalCount}} صديق بنجاح!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "مزيل الشارات الجماعي",
+        "exit": "الخروج من الوضع الجماعي",
+        "delete": "حذف الشارات",
+        "deleteCount": "حذف الشارات ({{count}})",
+        "confirmTitle": "تأكيد حذف الشارات",
+        "finalTitle": "هل أنت متأكد حقًا؟",
+        "finalDescription": "سيؤدي هذا إلى حذف {{count}} شارة نهائيًا من مخزونك.",
+        "descriptionSingle": "أنت على وشك حذف شارة واحدة من مخزونك. لا يمكن التراجع عن هذا الإجراء.",
+        "descriptionPlural": "أنت على وشك حذف {{count}} شارات من مخزونك. لا يمكن التراجع عن هذا الإجراء.",
+        "deletingProgress": "جارٍ حذف الشارات... {{current}}/{{total}}",
+        "cancel": "إلغاء",
+        "success": "تم حذف {{successCount}}/{{totalCount}} شارة."
+    },
+    "blockUser": {
+        "block": "حظر",
+        "unblock": "إلغاء الحظر",
+        "blockTitle": "حظر {{username}}",
+        "unblockTitle": "إلغاء حظر {{username}}",
+        "blockTitleGeneric": "حظر المستخدم",
+        "unblockTitleGeneric": "إلغاء حظر المستخدم",
+        "blockMessage": "لن يتمكن بعد الآن من إرسال صفقات إليك. لا يزال بإمكانك رفض أي صفقة حالية، لكنك لن تتمكن من قبولها أو تقديم عرض مقابل.",
+        "unblockMessage": "سيتمكن من إرسال الصفقات إليك مرة أخرى، وستتمكن من قبول الصفقات الحالية أو تقديم عرض مقابل.",
+        "cancel": "إلغاء"
+    },
+    "unfriendDetector": {
+        "title_one": "تم اكتشاف إزالة صديق",
+        "title_other": "تم اكتشاف إزالة أصدقاء",
+        "description_one": "أزالك هذا الصديق منذ آخر مرة لعبت فيها:",
+        "description_other": "أزالك هؤلاء {{count}} أصدقاء منذ آخر مرة لعبت فيها:",
+        "viewProfile": "عرض ملف {{name}} الشخصي",
+        "dismiss": "تجاهل"
+    },
+    "leaveGroups": {
+        "confirmLeave": "تأكيد المغادرة",
+        "confirmLeaves": "تأكيد المغادرات",
+        "descriptionSingle": "أنت على وشك مغادرة مجتمع واحد. لا يمكن التراجع عن هذا الإجراء.",
+        "descriptionPlural": "أنت على وشك مغادرة {{count}} مجتمعات. لا يمكن التراجع عن هذا الإجراء.",
+        "cancel": "إلغاء",
+        "leave": "مغادرة",
+        "leaveCount": "مغادرة ({{count}})",
+        "leaveCountAction": "مغادرة {{count}} مجتمع",
+        "leaveCountActionPlural": "مغادرة {{count}} مجتمعات",
+        "leaving": "جارٍ المغادرة...",
+        "bulkLeave": "مغادرة جماعية",
+        "exitBulkMode": "الخروج من الوضع الجماعي",
+        "successMessage": "تمت مغادرة {{successCount}}/{{totalCount}} مجتمع بنجاح!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "سيصبح رصيدك بعد هذه المعاملة"
+    },
+    "time": {
+        "justNow": "الآن",
+        "secondsAgo": "قبل {{count}}ث",
+        "minutesAgo": "قبل {{count}}دق",
+        "hoursAgo": "قبل {{count}}س",
+        "daysAgo": "قبل {{count}}ي",
+        "weeksAgo": "قبل {{count}}أ",
+        "monthsAgo": "قبل {{count}}ش",
+        "yearsAgo": "قبل {{count}}سنة",
+        "secondsFromNow": "خلال {{count}}ث",
+        "minutesFromNow": "خلال {{count}}دق",
+        "hoursFromNow": "خلال {{count}}س",
+        "daysFromNow": "خلال {{count}}ي",
+        "weeksFromNow": "خلال {{count}}أ",
+        "monthsFromNow": "خلال {{count}}ش",
+        "yearsFromNow": "خلال {{count}}سنة",
+        "months": {
+            "jan": "يناير",
+            "feb": "فبراير",
+            "mar": "مارس",
+            "apr": "أبريل",
+            "may": "مايو",
+            "jun": "يونيو",
+            "jul": "يوليو",
+            "aug": "أغسطس",
+            "sep": "سبتمبر",
+            "oct": "أكتوبر",
+            "nov": "نوفمبر",
+            "dec": "ديسمبر"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "حول",
+            "store": "المتجر",
+            "servers": "الخوادم"
+        },
+        "servers": {
+            "title": "خوادمك الخاصة",
+            "description": "العب في مساحتك الخاصة، بمفردك أو مع الأشخاص الذين تدعوهم",
+            "friendsTitle": "الخوادم التي يوجد فيها أصدقائي",
+            "publicTitle": "خوادم أخرى",
+            "privateServer": "خادم خاص",
+            "players": "{{playing}} من أصل {{maxPlayers}} شخصًا كحد أقصى",
+            "join": "انضمام",
+            "loadMore": "تحميل المزيد",
+            "loading": "جارٍ تحميل الخوادم...",
+            "noServers": "لم يتم العثور على خوادم.",
+            "loadError": "تعذر تحميل الخوادم.",
+            "ownerAvatar": "مالك الخادم",
+            "playerAvatar": "لاعب",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "تجربة خاصة",
+        "experienceIsPrivate": "هذه التجربة خاصة.",
+        "unknown": "غير معروف",
+        "rovalraNotice": "يمكن لمستخدمي RoValra فقط عرض هذه الصفحة.",
+        "unavailable": "غير متاح",
+        "favorite": {
+            "add": "إضافة إلى المفضلة",
+            "remove": "إزالة من المفضلة",
+            "favorited": "تمت الإضافة إلى المفضلة",
+            "favorite": "المفضلة"
+        },
+        "notify": {
+            "tooltip": "تشغيل الإشعارات",
+            "label": "إشعار"
+        },
+        "description": {
+            "title": "الوصف",
+            "noDescription": "لا يوجد وصف متاح."
+        },
+        "stats": {
+            "active": "نشط",
+            "favorites": "المفضلة",
+            "visits": "الزيارات",
+            "maxPlayers": "الحد الأقصى للاعبين",
+            "genre": "النوع",
+            "subgenre": "النوع الفرعي",
+            "created": "تاريخ الإنشاء",
+            "updated": "آخر تحديث",
+            "voiceChat": "الدردشة الصوتية",
+            "supported": "مدعوم",
+            "unsupported": "غير مدعوم"
+        },
+        "reportAbuse": "الإبلاغ عن إساءة",
+        "badges": {
+            "title": "الشارات",
+            "noBadges": "لا توجد شارات بعد",
+            "rarity": "الندرة",
+            "wonYesterday": "تم الفوز بها أمس",
+            "wonEver": "تم الفوز بها إجمالًا"
+        },
+        "subscriptions": {
+            "title": "الاشتراكات",
+            "subscribe": "اشتراك"
+        },
+        "passes": {
+            "title": "التصاريح",
+            "showOffSale": "عرض غير المعروض للبيع",
+            "noPasses": "لا توجد تصاريح متاحة",
+            "offSale": "غير معروض للبيع",
+            "owned": "مملوك",
+            "buy": "شراء"
+        },
+        "disabled": "ميزة عرض الألعاب الخاصة / الخاضعة للإشراف معطلة",
+        "disabledDescription": "لعرض الألعاب الخاصة والخاضعة للإشراف، تحتاج إلى تمكين الإعداد هنا:",
+        "disabledLinkText": "عرض الألعاب الخاصة / الخاضعة للإشراف",
+        "products": {
+            "title": "المنتجات",
+            "buy": "شراء"
+        },
+        "moderated": "خاضع للإشراف"
+    },
+    "gamePassViewer": {
+        "type": "النوع",
+        "typeValue": "تصريح",
+        "productId": "معرّف المنتج",
+        "price": "السعر",
+        "owned": "مملوك",
+        "ownedItem": "عنصر مملوك",
+        "free": "مجاني",
+        "ownedNotice": "هذا العنصر متاح في مخزونك.",
+        "inventory": "المخزون",
+        "by": "بواسطة",
+        "usePassIn": "استخدم هذا التصريح في:",
+        "rovalraNoticeDescription": "هذا الـ Game Pass غير نشط ولا يمكن شراؤه بسبب قيود Roblox، وربما يكون ذلك متعلقًا بعمر الحساب أو ظهور اللعبة."
+    },
+    "playabilityStatus": {
+        "0": "هذه التجربة غير متاحة",
+        "1": "هذه التجربة قابلة للعب",
+        "2": "لا يمكن للضيوف الانضمام إلى هذه التجربة",
+        "3": "تمت الإشراف على هذه التجربة لأنها خالفت معايير مجتمع Roblox",
+        "4": "هذه التجربة مضبوطة بشكل غير صحيح",
+        "5": "هذه التجربة خاصة",
+        "6": "يمكن للأصدقاء فقط الانضمام إلى هذه التجربة",
+        "7": "يمكن لأعضاء المجتمع فقط الانضمام إلى هذه التجربة",
+        "8": "هذه التجربة مقيدة على جهازك",
+        "9": "هذه التجربة قيد المراجعة لأنها ربما خالفت معايير مجتمع Roblox",
+        "10": "يلزم الشراء للعب",
+        "11": "حسابك مقيّد",
+        "12": "هذه التجربة غير متاحة مؤقتًا",
+        "13": "هذه التجربة لا تحتوي على إصدار منشور",
+        "14": "هذه التجربة محظورة لأسباب تتعلق بالامتثال",
+        "15": "هذه التجربة غير متاحة في منطقتك",
+        "16": "هذه التجربة محظورة لأسباب امتثال إقليمية",
+        "17": "هذه التجربة مقيّدة بواسطة أدوات الرقابة الأبوية",
+        "18": "هذه التجربة محظورة بواسطة أدوات الرقابة الأبوية",
+        "19": "هذه التجربة مقيدة بالعمر",
+        "20": "يلزم التحقق لتجارب 18+",
+        "21": "يلزم الشراء للعب",
+        "22": "الشراء مقيّد على هذا الجهاز",
+        "23": "هذه التجربة غير مصنفة",
+        "24": "هذه التجربة مقيدة بالعمر وفق واصف المحتوى",
+        "25": "تمت الإشراف على هذه التجربة لوجود تصنيف نضج غير دقيق.",
+        "unknown": "هذه التجربة غير متاحة"
+    },
+    "bannedUsers": {
+        "connections": "الأصدقاء",
+        "followers": "المتابعون",
+        "following": "أتابع",
+        "about": "حول",
+        "creations": "الإبداعات",
+        "experiences": "التجارب",
+        "bannedStatus": "محظور",
+        "seeAll": "عرض الكل",
+        "hiddenUser": "مستخدم مخفي",
+        "communities": "المجتمعات",
+        "badges": "الشارات",
+        "noExperiences": "ليس لدى هذا المستخدم تجارب عامة.",
+        "favorites": "المفضلة",
+        "joinedDate": "انضم",
+        "store": "المتجر",
+        "members": "الأعضاء",
+        "accountForgotten": "الحساب منسي"
+    },
+    "copyId": {
+        "copyId": "نسخ معرّف {{type}}",
+        "copyUniverseId": "نسخ معرّف Universe",
+        "types": {
+            "bundle": "حزمة",
+            "asset": "أصل",
+            "gamePass": "GamePass",
+            "badge": "شارة",
+            "community": "مجتمع",
+            "event": "فعالية",
+            "developerProduct": "منتج مطور",
+            "place": "Place",
+            "universe": "Universe",
+            "user": "مستخدم"
+        }
+    },
+    "viewid": {
+        "viewId": "عرض المعرّفات",
+        "popup": {
+            "title": "معرّفات العناصر",
+            "button": {
+                "copy": "نسخ البيانات",
+                "copyMd": "نسخ بيانات Markdown"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "أصدقاء يلعبون {{gameName}}",
+        "join": "انضمام"
+    },
+    "friendUsernames": {
+        "ariaLabel": "اسم المستخدم: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} زيارة للمكان",
+        "tooltip": "إجمالي زيارات أماكن المجتمع"
+    },
+    "groups": {
+        "createdLabel": "تاريخ الإنشاء",
+        "joinedLabel": "تاريخ الانضمام",
+        "unknown": "غير معروف"
+    },
+    "showcase": {
+        "tab": "واجهة العرض",
+        "favoriteGame": "التجربة المفضلة",
+        "favoriteGroup": "المجتمع المفضل",
+        "favoriteDecal": "معرض فني",
+        "chooseGame": "اختر تجربة لعرضها في ملفك الشخصي.",
+        "noFeaturedGame": "لا توجد تجربة مميزة بعد. :C",
+        "chooseGroup": "اختر مجتمعًا لعرضه في ملفك الشخصي.",
+        "noFeaturedGroup": "لا يوجد مجتمع مميز بعد. :,(",
+        "chooseDecal": "أدخل معرّف decal لعرض صورة في ملفك الشخصي.",
+        "noFeaturedDecal": "لا توجد صورة مميزة بعد. :C",
+        "searchGame": "ابحث عن تجربة لعرضها",
+        "searchGroup": "ابحث عن مجتمع لعرضه",
+        "clearGame": "مسح التجربة المفضلة",
+        "clearGroup": "مسح المجتمع المفضل",
+        "gameOptions": "خيارات التجربة المفضلة",
+        "groupOptions": "خيارات المجتمع المفضل",
+        "decalId": "معرّف Decal",
+        "decalImageOptions": "خيارات الصورة",
+        "openImagePage": "فتح صفحة الصورة",
+        "report": "إبلاغ",
+        "clearDecal": "مسح الصورة",
+        "by": "بواسطة",
+        "maturity": "تصنيف النضج",
+        "maturityUnavailable": "تصنيف النضج غير متاح",
+        "members": "{{count}} عضوًا",
+        "noResultsGame": "تعذر العثور على التجربة.",
+        "noResultsGroup": "تعذر العثور على المجتمع.",
+        "unknownExperience": "تجربة غير معروفة",
+        "unknownCommunity": "مجتمع غير معروف",
+        "verifiedBadge": "أيقونة شارة التحقق"
+    },
+    "profileCustomization": {
+        "pill": "التخصيص",
+        "pillTooltip": "بدّل حدود وإطارات الأفاتار.",
+        "title": "تخصيص الملف الشخصي",
+        "tabBorders": "إطارات الأفاتار",
+        "tabFrames": "الإطارات",
+        "currentPreview": "معاينة الاختيار الحالي",
+        "unequip": "إلغاء التجهيز",
+        "unequipTooltip": "انقر لإلغاء تجهيز هذا الإطار",
+        "equip": "تجهيز",
+        "equipTooltip": "تجهيز هذا الإطار",
+        "equipped": "مجهّز",
+        "getMore": "الحصول على المزيد",
+        "owned": "مملوك",
+        "unowned": "غير مملوك",
+        "unownedTooltip": "أنت لا تملك هذا الإطار بعد.",
+        "all": "الكل",
+        "new": "جديد",
+        "static": "ثابت",
+        "animated": "متحرك",
+        "free": "مجاني",
+        "noBorders": "لم يتم العثور على إطارات.",
+        "noBordersInTab": "لم يتم العثور على إطارات في علامة التبويب هذه.",
+        "noFrames": "لم يتم العثور على إطارات للملف.",
+        "noFramesInTab": "لم يتم العثور على إطارات للملف في علامة التبويب هذه.",
+        "none": "لا شيء",
+        "failedToLoad": "فشل تحميل إطاراتك. يرجى المحاولة لاحقًا."
+    },
+    "profileFrame": {
+        "storeTitle": "متجر إطارات الملف الشخصي",
+        "storeDesc": "تلتف إطارات الملف الشخصي حول عرض الأفاتار بالكامل في ملفك الشخصي. شراء الإطارات يدعم RoValra والفنانين مباشرةً ويُحتسب ضمن مستوى المتبرع الخاص بك. الإطارات غير مشمولة في فتح مستوى المتبرع 3، فهذا يشمل إطارات الأفاتار فقط.",
+        "tabBorders": "إطارات الأفاتار",
+        "tabFrames": "إطارات الملف الشخصي",
+        "loading": "جارٍ تحميل الإطارات...",
+        "currentPreview": "معاينة الإطار الحالي",
+        "all": "الكل",
+        "new": "جديد",
+        "static": "ثابت",
+        "animated": "متحرك",
+        "equip": "تجهيز",
+        "equipTooltip": "تجهيز هذا الإطار",
+        "equipped": "مجهّز",
+        "unequipTooltip": "انقر لإلغاء تجهيز هذا الإطار",
+        "unequip": "إلغاء التجهيز",
+        "buy": "شراء",
+        "buyFor": "شراء مقابل {{price}}",
+        "viewItem": "عرض العنصر",
+        "buyTooltip": "شراء هذا الإطار",
+        "owned": "مملوك",
+        "ownedTooltip": "أنت تملك هذا الإطار!",
+        "free": "مجاني",
+        "freeTooltip": "يمكن تجهيز هذا الإطار مجانًا.",
+        "localOnly": "محفوظ محليًا",
+        "localOnlyTooltip": "تعذر على RoValra حفظ هذا الإطار في حسابك بعد، لذا فهو مرئي لك فقط في هذا المتصفح.",
+        "noFrames": "لا توجد إطارات متاحة.",
+        "noFramesInTab": "لم يتم العثور على إطارات في علامة التبويب هذه.",
+        "failedToLoad": "فشل تحميل الإطارات. يرجى المحاولة لاحقًا."
+    },
+    "profileNotes": {
+        "ariaLabel": "ملاحظة خاصة للملف الشخصي",
+        "heading": "ملاحظة (مرئية لك فقط)",
+        "headingTooltip": "يتم تخزين هذه الملاحظة في هذا المتصفح فقط ولا يتم إرسالها أبدًا إلى Roblox أو RoValra.",
+        "addNote": "انقر لإضافة ملاحظة",
+        "editAriaLabel": "تعديل ملاحظة خاصة للملف الشخصي",
+        "addAriaLabel": "إضافة ملاحظة خاصة للملف الشخصي",
+        "displayTooltip": "انقر للتعديل. يتم حفظ الملاحظات في هذا المتصفح فقط.",
+        "inputPlaceholder": "إضافة ملاحظة خاصة",
+        "inputTooltip": "يتم الحفظ عند النقر خارج الحقل. اضغط Escape للإلغاء أو Ctrl+Enter للحفظ."
+    },
+    "profilePronouns": {
+        "label": "الضمائر",
+        "ariaLabel": "الضمائر: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "ميزات RoValra",
+        "profilePronouns": "ضمائر الملف الشخصي",
+        "profileBadges": "شارات الملف الشخصي",
+        "pronounsPlaceholder": "أدخل ضمائرك",
+        "donatorPerks": "مزايا المتبرعين",
+        "usernameCustomizations": "تخصيصات اسم المستخدم"
+    },
+    "profile": {
+        "socialLinks": "روابط اجتماعية",
+        "currencyTransfer": "إرسال Robux",
+        "currencyTransferConfirmation": "سيؤدي هذا إلى فتح عميل Roblox للسماح لك بإرسال Robux.",
+        "openClient": "فتح العميل"
+    },
+    "animations": {
+        "idle": "خمول",
+        "walk": "مشي",
+        "fall": "سقوط",
+        "climb": "تسلق",
+        "run": "ركض",
+        "jump": "قفز",
+        "swim": "سباحة"
+    },
+    "itemRender": {
+        "renderOptions": "خيارات العرض",
+        "darkLighting": "إضاءة داكنة",
+        "baseplate": "Baseplate",
+        "rotatePreview": "تدوير المعاينة"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "افتراضي",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "الأحدث",
+            "oldest": "الأقدم"
+        },
+        "tooltip": "ترتيب حسب وقت انضمام المستخدم إلى المجتمع"
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "الزيارات",
+        "members": "الأعضاء",
+        "ccuTooltip": "اللاعبون الحاليون عبر التجارب العامة التي أنشأها هذا المستخدم.",
+        "visitsTooltip": "إجمالي الزيارات مدى الحياة عبر التجارب العامة التي أنشأها هذا المستخدم.",
+        "membersTooltip": "الأعضاء عبر المجتمعات المملوكة لهذا المستخدم."
+    },
+    "plus": {
+        "stats": {
+            "robux": "لقد وفّرت {{robux}} عندما كان لديك Plus",
+            "percentOffSmall": "عناصر داخل اللعبة، أفاتارات والمزيد",
+            "percentOff": "خصم {{percent}}%",
+            "itemsBoughtSmall": "العناصر المشتراة بخصم Plus",
+            "privateServersCreatedSmall": "خوادم خاصة تم إنشاؤها مجانًا",
+            "robuxSentSmall": "Robux المُرسل إلى الأصدقاء",
+            "delayNotice": "جميع البيانات المعروضة هنا متأخرة بيوم واحد"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "المتبقي من الحد اليومي",
+            "monthlyLimitLeft": "المتبقي من الحد الشهري",
+            "sentToday": "أُرسل اليوم",
+            "sentThisMonth": "أُرسل هذا الشهر",
+            "caption": "الحد اليومي هو {{dailyLimit}}. الحد الشهري هو {{monthlyLimit}}. يتم التحديث كل 5 دقائق. القيم المتبقية تقديرية وقد تكون غير دقيقة."
+        },
+        "referral": {
+            "reward": "احصل على 100 Robux مجانًا وساعد في دعم RoValra!",
+            "details": "فقط مستخدمو Roblox Plus الجدد مؤهلون. ستحصل RoValra أيضًا على 100 Robux عند اشتراكك باستخدام رمز الإحالة الخاص بـ RoValra.",
+            "button": "اشترك باستخدام رمز إحالة RoValra"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "السعر الأصلي: <b>{{originalPrice}} Robux</b><br>يظهر حاليًا كـ <b>مجاني</b> بسبب Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "إرسال Robux",
+                "openInApp": "فتح في التطبيق"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "لا يمكن إرسال Robux",
+                "deletedAccountBody": "تم حذف حساب هذا المستخدم، ولا يمكن إرسال Robux إليه"
+            },
+            "popup": {
+                "shared": {
+                    "title": "إرسال Robux",
+                    "titleSilly": "أرسل bobux :3",
+                    "okBtn": "موافق"
+                },
+                "step1": {
+                    "robuxInputName": "كمية Robux المراد إرسالها",
+                    "mutedNotice": "يتم إرسال Robux فورًا بدون رسوم",
+                    "minRobux": "يجب أن ترسل {{robuxAmount}} Robux على الأقل",
+                    "maxRobux": "يجب ألا ترسل أكثر من {{robuxAmount}} Robux",
+                    "notEnoughRobux": "ليس لديك Robux كافٍ",
+                    "nextBtn": "التالي"
+                },
+                "step2": {
+                    "sendBtn": "إرسال",
+                    "editBtn": "تعديل",
+                    "mutedNotice": "لا يمكن الإلغاء. قد تحتاج إلى التحقق من العمر أو موافقة أحد الوالدين.",
+                    "transferErrorGeneric": "حدث خطأ غير معروف.",
+                    "transferErrorNoMessage": "حدث خطأ غير معروف دون تقديم رسالة",
+                    "transferSuccessBody": "تم التحويل بنجاح!",
+                    "transferSuccessBodySilly": "التحويل تم بشكل جيد! رائع جدًا",
+                    "transferSuccessOkBtnSilly": "رقصة الجزء الثاني",
+                    "userInfoFriendTime": "أصبح صديقًا {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} صديق مشترك",
+                    "userInfoMutualFriends_other": "{{count}} أصدقاء مشتركون",
+                    "userInfoJoin": "انضم في {{year}}",
+                    "paramPassedError": "حدث خطأ غير معروف! تحقق من وحدة التحكم وأبلغ RoValra بالمشكلة."
+                },
+                "parentPerms": {
+                    "askBtn": "طلب",
+                    "sendRobuxBody": "لإرسال Robux، تحتاج إلى إذن أحد الوالدين",
+                    "receiveRobuxBody": "لتلقي Robux، تحتاج إلى إذن أحد الوالدين",
+                    "askTitle": "طلب الإذن",
+                    "askTitleSilly": "اطلب الإذن من والديك",
+                    "errorSending": "حدث خطأ غير معروف، تحقق من وحدة التحكم وأبلغ RoValra به",
+                    "errorReceivingTitle": "حدث خطأ أثناء قبول Robux",
+                    "errorReceivingBody": "حدث خطأ غير معروف، ربما تكون قد قبلت تحويل Robux هذا بالفعل. تحقق من وحدة التحكم للحصول على التفاصيل.",
+                    "errorReceivingOkBtnSilly": "أوه",
+                    "successfulAskTitle": "تم إرسال الطلب",
+                    "successfulAskTitleSilly": "أبلغنا والديك، استعد...",
+                    "successfulAskBody": "لقد أرسلنا الطلب إلى والديك وأولياء أمرك عبر البريد الإلكتروني!",
+                    "successfulAskOkBtnSilly": "حسنًا رائع جدًا، شكرًا"
+                },
+                "plusNeeded": {
+                    "body": "للأسف تحتاج إلى Roblox Plus حتى تتمكن من إرسال Robux، فهذا جزء من اشتراك Roblox Plus.",
+                    "bodySilly": "ليس لديك Roblox Plus :c لذلك لا يمكنك إرسال Robux للناس لأنه مطلوب 3:",
+                    "buyPlusBtn": "شراء Roblox Plus",
+                    "buyPlusBtnSilly": "احصل على Roblox Plus c:",
+                    "okBtnSilly": "آه حسنًا :c"
+                }
+            }
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "أزياء الألعاب",
+            "title": "أزياء للتجارب",
+            "hint": "اختر الزي الذي يتم تجهيزه عند لعب تجربة R6 أو R15.",
+            "r6": "تجارب R6",
+            "r15": "تجارب R15",
+            "none": "لا تغيّر",
+            "gameTitle": "الزي لهذه التجربة",
+            "gameHint": "هذا يتجاوز الزي المحدد لتجارب R6 وR15.",
+            "useGlobal": "استخدام الإعداد الافتراضي"
+        },
+        "bodyColors": {
+            "addCustom": "اختر لونًا مخصصًا",
+            "savedColor": "{{hex}}، انقر بزر الفأرة الأيمن للإزالة",
+            "applyFailed": "تعذر تحديث ألوان جسمك. حاول مرة أخرى بعد قليل."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "تثبيت في الأعلى",
+        "unpin": "إلغاء التثبيت"
+    }
+}
