@@ -2152,5 +2152,9 @@
     "pinnedFriends": {
         "pin": "Pin to top",
         "unpin": "Unpin"
+    },
+    "homeTrailers": {
+        "mute": "Mute trailer",
+        "unmute": "Unmute trailer"
     }
 }
