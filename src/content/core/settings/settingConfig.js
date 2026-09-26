@@ -1448,6 +1448,18 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['3050364170'],
             },
+            homeTrailersEnabled: {
+                label: 'Experience Trailers On Home',
+                description: [
+                    'Automatically plays experience trailers inside the wide experience tiles on the Home page.',
+                    'Trailers only load and play while the tile is visible on your screen, and start muted.',
+                    'This might be laggy or slow on slower PCs and networks.',
+                ],
+                type: 'checkbox',
+                default: false,
+                experimental: 'May use more data and could cause lag on slower devices.',
+                contributors: ['546872490'],
+            },
 
             friendLabelsEnabled: {
                 label: 'Friend Labels',
