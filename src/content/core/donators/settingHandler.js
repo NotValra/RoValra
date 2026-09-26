@@ -330,29 +330,16 @@ async function processBatchQueue() {
         }
     } catch (error) {
         console.warn(
-            'RoValra: Batch settings fetch failed, falling back to individual requests.',
+            'RoValra: Batch settings fetch failed without retrying.',
             error,
         );
 
         for (const batchItem of currentBatch) {
             const cacheKey = String(batchItem.userId);
-            try {
-                const settings = await fetchAndProcessSettings(
-                    batchItem.userId,
-                    batchItem.options,
-                );
-
-                const resolvers = pendingResolvers.get(cacheKey);
-                if (resolvers) {
-                    resolvers.forEach((r) => r.resolve(settings));
-                    pendingResolvers.delete(cacheKey);
-                }
-            } catch (e) {
-                const resolvers = pendingResolvers.get(cacheKey);
-                if (resolvers) {
-                    resolvers.forEach((r) => r.reject(e));
-                    pendingResolvers.delete(cacheKey);
-                }
+            const resolvers = pendingResolvers.get(cacheKey);
+            if (resolvers) {
+                resolvers.forEach((r) => r.reject(error));
+                pendingResolvers.delete(cacheKey);
             }
         }
     } finally {
