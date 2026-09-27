@@ -16,6 +16,9 @@ async function sendToLocalAPI(placeId, serverIds) {
             isRovalraApi: true,
             endpoint: '/process_servers',
             method: 'POST',
+            // The setting promises nothing links these IDs to the user, so the
+            // RoValra auth token is not sent with them.
+            skipAutoAuth: true,
             body: {
                 place_id: placeId,
                 server_ids: serverIds,
