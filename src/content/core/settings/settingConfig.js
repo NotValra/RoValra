@@ -44,6 +44,10 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('Slovak (Slovensky)', 'sk'),
+                        value: 'sk',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
