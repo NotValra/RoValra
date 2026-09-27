@@ -1,0 +1,62 @@
+.rovalra-spending-budget {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--rovalra-container-background-color);
+    color: var(--rovalra-main-text-color);
+
+    --rovalra-budget-accent: #2e7d32;
+
+    &[data-state='warn'] {
+        --rovalra-budget-accent: #ffa500;
+    }
+
+    &[data-state='over'] {
+        --rovalra-budget-accent: #d32f2f;
+    }
+
+    .rovalra-budget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .rovalra-budget-numbers {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .rovalra-budget-bar {
+        display: flex;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        background: var(--rovalra-secondary-text-color);
+        background: color-mix(
+            in srgb,
+            var(--rovalra-secondary-text-color) 25%,
+            transparent
+        );
+    }
+
+    .rovalra-budget-bar-spent {
+        background: var(--rovalra-secondary-text-color);
+    }
+
+    .rovalra-budget-bar-price {
+        background: var(--rovalra-budget-accent);
+    }
+
+    .rovalra-budget-hint {
+        color: var(--rovalra-budget-accent);
+    }
+}
+
+.rovalra-budget-locked {
+    display: none !important;
+}

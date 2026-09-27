@@ -1672,6 +1672,16 @@
     "purchasePrompt": {
         "balanceAfter": "Your balance after this transaction will be"
     },
+    "spendingBudget": {
+        "period": {
+            "week": "Weekly budget",
+            "month": "Monthly budget"
+        },
+        "remainingAfter": "{{value}} Robux left in your budget after this purchase",
+        "overBy": "This purchase puts you {{value}} Robux over your budget",
+        "waitToBuy": "Over budget. Wait {{seconds}}s",
+        "buyAnyway": "Buy anyway"
+    },
     "time": {
         "justNow": "just now",
         "secondsAgo": "{{count}}s ago",
