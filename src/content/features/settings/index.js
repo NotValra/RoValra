@@ -94,7 +94,7 @@ const CREDITS_USER_IDS = [
         CREATOR_USER_ID,
         ...CONTRIBUTOR_USER_IDS,
         ...TRANSLATOR_USER_IDS,
-    ]),
+    ].map((id) => String(id).trim())),
 ];
 let REGIONS = {};
 
