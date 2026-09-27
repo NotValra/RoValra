@@ -1011,7 +1011,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Mutual Friends',
                 description: [
                     'Shows how many friends you have in common with a user on their profile.',
-                    'Click it to see the full list.',
+                    'Click it to see them in a Mutuals tab on their friends page.',
                 ],
                 type: 'checkbox',
                 default: true,

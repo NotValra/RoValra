@@ -450,9 +450,9 @@
         "pill_one": "{{count}} Mutual Friend",
         "pill_other": "{{count}} Mutual Friends",
         "tooltip": "Friends you have in common with this user",
-        "overlayTitle_one": "{{count}} Mutual Friend",
-        "overlayTitle_other": "{{count}} Mutual Friends",
-        "loadFailed": "Failed to load mutual friends."
+        "tab": "Mutuals",
+        "title": "Mutual Friends ({{count}})",
+        "empty": "You have no mutual friends with this user."
     },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",

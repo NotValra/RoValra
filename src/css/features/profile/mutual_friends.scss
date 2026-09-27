@@ -1,0 +1,22 @@
+// Mutuals tab on the friends page. The native panes belong to the friends web
+// app, so they are hidden with a class on its root instead of being touched.
+.rbx-tab-content > .rovalra-mutuals-pane {
+    display: none;
+}
+
+// The native tabs have a min-width of a third of the row; four tabs share it
+// evenly instead.
+.nav-tabs:has(> #mutuals) > li.rbx-tab {
+    width: 25% !important;
+    min-width: 25% !important;
+}
+
+.rovalra-mutuals-tab-active {
+    .rbx-tab-content > .tab-pane:not(.rovalra-mutuals-pane) {
+        display: none !important;
+    }
+
+    .rbx-tab-content > .rovalra-mutuals-pane {
+        display: block;
+    }
+}
