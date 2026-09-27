@@ -71,22 +71,36 @@ async function initProfilePill(userId, ids) {
         t('mutualFriends.tooltip'),
     ]);
 
-    // Sits after Following in the header row of Friends, Followers and
-    // Following, using the same pill as those links.
-    observeElement(
-        '.user-profile-header a[href*="/friends#!/following"]',
-        (following) => {
-            const row = following.parentElement;
-            if (!row || row.querySelector(`.${PILL_CLASS}`)) return;
+    const pill = createPill(createPillContent(thumbnails, label), tooltip, {
+        href: `/users/${userId}/friends${MUTUALS_HASH}`,
+    });
+    pill.classList.add(PILL_CLASS);
 
-            const pill = createPill(
-                createPillContent(thumbnails, label),
-                tooltip,
-                { href: `/users/${userId}/friends${MUTUALS_HASH}` },
-            );
-            pill.classList.add(PILL_CLASS);
-            row.appendChild(pill);
+    // The pill goes after Following in the header row of Friends, Followers
+    // and Following. That row is rendered with a count of 0 and no links, then
+    // gets its href once the counts load, so the header is watched for both
+    // new nodes and href changes.
+    const placePill = (header) => {
+        const friendsLink = header.querySelector(
+            'a[href*="/friends#!/friends"]',
+        );
+        const row = friendsLink?.parentElement;
+        if (!row || pill.parentElement === row) return;
+        row.appendChild(pill);
+    };
+
+    observeElement(
+        '.user-profile-header',
+        (header) => {
+            placePill(header);
+            new MutationObserver(() => placePill(header)).observe(header, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['href'],
+            });
         },
+        { multiple: true },
     );
 }
 
@@ -234,6 +248,8 @@ async function initMutualsTab(mutuals, ids) {
     let suppressedHeading = null;
     let isActive = false;
     let rendered = false;
+    // Only the hash the page was opened with, not later tab rebuilds.
+    let openOnLoad = initialHash === MUTUALS_HASH;
 
     // The friends web app re-renders its own tabs, so while Mutuals is active
     // its headings are kept inactive and the Mutuals tab is kept last.
@@ -284,58 +300,63 @@ async function initMutualsTab(mutuals, ids) {
         }
     };
 
-    observeElement('#friends-web-app ul.nav.nav-tabs', (nav) => {
-        app = nav.closest('#friends-web-app');
-        const tabContent = app?.querySelector('.rbx-tab-content');
-        if (!app || !tabContent) return;
+    observeElement(
+        '#friends-web-app ul.nav.nav-tabs',
+        (nav) => {
+            app = nav.closest('#friends-web-app');
+            const tabContent = app?.querySelector('.rbx-tab-content');
+            if (!app || !tabContent) return;
 
-        if (!nav.querySelector(`.${HEADING_CLASS}`)) {
-            const item = document.createElement('li');
-            item.id = 'mutuals';
-            item.setAttribute('role', 'tab');
-            item.className = 'subtract-item rbx-tab';
+            if (!nav.querySelector(`.${HEADING_CLASS}`)) {
+                const item = document.createElement('li');
+                item.id = 'mutuals';
+                item.setAttribute('role', 'tab');
+                item.className = 'subtract-item rbx-tab';
 
-            heading = document.createElement('a');
-            heading.className = `rbx-tab-heading ${HEADING_CLASS}`;
-            heading.href = MUTUALS_HASH;
-            const lead = document.createElement('span');
-            lead.className = 'text-lead';
-            lead.textContent = tabLabel;
-            const subtitle = document.createElement('span');
-            subtitle.className = 'rbx-tab-subtitle';
-            heading.append(lead, subtitle);
-            item.appendChild(heading);
-            nav.appendChild(item);
+                heading = document.createElement('a');
+                heading.className = `rbx-tab-heading ${HEADING_CLASS}`;
+                heading.href = MUTUALS_HASH;
+                const lead = document.createElement('span');
+                lead.className = 'text-lead';
+                lead.textContent = tabLabel;
+                const subtitle = document.createElement('span');
+                subtitle.className = 'rbx-tab-subtitle';
+                heading.append(lead, subtitle);
+                item.appendChild(heading);
+                nav.appendChild(item);
 
-            heading.addEventListener('click', (event) => {
-                event.preventDefault();
+                heading.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    activate();
+                });
+                // Runs before the app's own handler, which is delegated to its root.
+                nav.addEventListener('click', (event) => {
+                    const clicked = event.target.closest('.rbx-tab-heading');
+                    if (clicked && clicked !== heading) deactivate();
+                });
+                new MutationObserver(() => syncNav(nav)).observe(nav, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class'],
+                });
+            }
+
+            if (!tabContent.querySelector(`:scope > .${PANE_CLASS}`)) {
+                pane = document.createElement('div');
+                pane.className = `subtract-item tab-pane ${PANE_CLASS}`;
+                tabContent.appendChild(pane);
+                rendered = false;
+            }
+
+            if (isActive || openOnLoad) {
+                openOnLoad = false;
+                isActive = false;
                 activate();
-            });
-            // Runs before the app's own handler, which is delegated to its root.
-            nav.addEventListener('click', (event) => {
-                const clicked = event.target.closest('.rbx-tab-heading');
-                if (clicked && clicked !== heading) deactivate();
-            });
-            new MutationObserver(() => syncNav(nav)).observe(nav, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['class'],
-            });
-        }
-
-        if (!tabContent.querySelector(`:scope > .${PANE_CLASS}`)) {
-            pane = document.createElement('div');
-            pane.className = `subtract-item tab-pane ${PANE_CLASS}`;
-            tabContent.appendChild(pane);
-            rendered = false;
-        }
-
-        if (isActive || initialHash === MUTUALS_HASH) {
-            isActive = false;
-            activate();
-        }
-    });
+            }
+        },
+        { multiple: true },
+    );
 
     window.addEventListener('hashchange', () => {
         const hash = window.location.hash;
