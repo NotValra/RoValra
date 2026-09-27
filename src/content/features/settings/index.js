@@ -2790,9 +2790,7 @@ async function loadTopDonators() {
 
         if (authenticatedUserId && userTier >= 1 && toggleContainer) {
             try {
-                const settings = await getUserSettings(authenticatedUserId, {
-                    noCache: true,
-                });
+                const settings = await getUserSettings(authenticatedUserId);
 
                 const userResponse = await callRobloxApi({
                     subdomain: 'users',
@@ -3542,9 +3540,9 @@ async function renderStoreBorders(container) {
 
         let currentBorderValue = 'none';
         if (userId) {
-            const userSettings = await getUserSettings(userId, {
-                noCache: true,
-            }).catch(() => null);
+            const userSettings = await getUserSettings(userId).catch(
+                () => null,
+            );
             if (userSettings?.border && userSettings.border !== 'none') {
                 const apiBorderItem = findInBorders(
                     borderCategories,
@@ -4312,9 +4310,9 @@ async function renderStoreFrames(container) {
 
         let currentFrameLink = null;
         if (userId) {
-            const userSettings = await getUserSettings(userId, {
-                noCache: true,
-            }).catch(() => null);
+            const userSettings = await getUserSettings(userId).catch(
+                () => null,
+            );
             if (userSettings?.berts && userSettings.berts !== 'none') {
                 currentFrameLink = userSettings.berts;
             }
