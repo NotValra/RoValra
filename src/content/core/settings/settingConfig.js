@@ -227,6 +227,19 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            experienceNotesEnabled: {
+                label: 'Experience Notes',
+                description: [
+                    'Adds a private note field to experience pages, under the Play button.',
+                    'One note covers every place of an experience.',
+                    'Notes are stored only locally and are never shared to RoValra or Roblox.',
+                    'Maximum 256 characters.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_experience_notes',
+                contributors: ['2020751790'],
+            },
             PreferredRegionEnabled: {
                 label: 'Preferred Region Play Button',
                 description: [

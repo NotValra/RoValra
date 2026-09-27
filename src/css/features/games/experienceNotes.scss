@@ -1,0 +1,11 @@
+// Experience Notes reuse the inner Profile Notes classes for the heading,
+// display and editor. Only the card differs: it sits in the flow of the
+// right-hand column instead of floating under the profile action button.
+.rovalra-experience-note-card {
+    box-sizing: border-box;
+    width: 300px;
+    max-width: 100%;
+    margin-top: 4px;
+    padding: 8px 8px 0;
+    text-align: left;
+}

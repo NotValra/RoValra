@@ -1981,6 +1981,11 @@
         "noFramesInTab": "No frames found in this tab.",
         "failedToLoad": "Failed to load frames. Please try again later."
     },
+    "experienceNotes": {
+        "ariaLabel": "Private experience note",
+        "editAriaLabel": "Edit private experience note",
+        "addAriaLabel": "Add private experience note"
+    },
     "profileNotes": {
         "ariaLabel": "Private profile note",
         "heading": "Note (only visible to you)",

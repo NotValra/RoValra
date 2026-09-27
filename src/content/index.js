@@ -193,6 +193,7 @@ import { init as initCustomThemeEditor } from './features/home/customThemeEditor
 import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
+import { init as initExperienceNotes } from './features/games/experienceNotes.js';
 import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
 import { init as initPlaytime } from './features/home/playtime.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
@@ -360,6 +361,7 @@ const featureRoutes = [
             initPlusPrivateServerTooltip,
             initCatalogExplorer,
             initUnderReviewPill,
+            initExperienceNotes,
         ],
     },
     // private games and game pages
