@@ -1312,9 +1312,15 @@ function findProfileViewsInHeaderInfo(headerInfo) {
     );
 }
 
+function liftOutOfPillGroup(anchor) {
+    return anchor?.closest('.rovalra-profile-pill-group') || anchor;
+}
+
 function findLegacyChipInsertContainer() {
     for (const headerInfo of getProfileHeaderInfoCandidates()) {
-        const profileViews = findProfileViewsInHeaderInfo(headerInfo);
+        const profileViews = liftOutOfPillGroup(
+            findProfileViewsInHeaderInfo(headerInfo),
+        );
         if (profileViews?.parentElement) {
             return {
                 container: profileViews.parentElement,
@@ -1324,8 +1330,10 @@ function findLegacyChipInsertContainer() {
         }
     }
 
-    const directProfileViews = getProfileViewsAnchor(
-        document.querySelector('.rovalra-profile-views-pill'),
+    const directProfileViews = liftOutOfPillGroup(
+        getProfileViewsAnchor(
+            document.querySelector('.rovalra-profile-views-pill'),
+        ),
     );
 
     if (!directProfileViews?.parentElement) return null;

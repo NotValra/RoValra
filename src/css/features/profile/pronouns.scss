@@ -30,7 +30,7 @@
 }
 
 .rovalra-profile-username-row:has(
-    > .rovalra-profile-views-pill,
+    > .rovalra-profile-pill-group,
     > .rovalra-profile-customization-pill
 ) {
     display: grid !important;
@@ -42,7 +42,7 @@
 }
 
 .rovalra-profile-username-row
-    > :is(.rovalra-profile-views-pill, .rovalra-profile-customization-pill) {
+    > :is(.rovalra-profile-pill-group, .rovalra-profile-customization-pill) {
     grid-column: 1 / -1;
     justify-self: start;
 }

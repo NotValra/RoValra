@@ -38,7 +38,15 @@
     margin-top: 6px;
 }
 
-.rovalra-profile-views-pill {
+.rovalra-profile-pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-profile-views-pill,
+.rovalra-mutual-friends-pill {
     display: flex;
     width: fit-content;
     margin-top: 3px;
@@ -51,4 +59,29 @@
 .rovalra-profile-views-content {
     display: inline-flex;
     align-items: center;
+}
+
+.rovalra-mutual-friends-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rovalra-mutual-friends-avatars {
+    display: inline-flex;
+    align-items: center;
+
+    img {
+        box-sizing: border-box;
+        width: 16px;
+        height: 16px;
+        border: 1.5px solid var(--color-surface-300);
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--rovalra-button-background-color);
+
+        & + img {
+            margin-left: -5px;
+        }
+    }
 }
