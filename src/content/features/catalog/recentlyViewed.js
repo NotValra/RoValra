@@ -144,78 +144,107 @@ function createEntry(entry, onRemove) {
     return wrapper;
 }
 
-async function renderRow(anchor, showPriceChanges) {
-    if (document.querySelector('.rovalra-recently-viewed')) return;
+// init() runs again on every SPA navigation, and a single-match observer re-arms
+// when its element leaves the DOM, so everything below is registered only once.
+let landingObserverRegistered = false;
+let priceTrackingRegistered = false;
+let rendering = false;
+let priceEntries = new Map();
 
-    let { userId, items } = await loadHistory();
-    if (!userId || items.length === 0) return;
+function entrySelector(entry) {
+    return `.rovalra-recently-viewed-item[data-item-id="${entry.id}"][data-item-type="${entry.itemType}"]`;
+}
 
-    const row = document.createElement('div');
-    row.className = 'rovalra-recently-viewed';
-    row.innerHTML = safeHtml`
-        <div class="rovalra-recently-viewed-header">
-            <h2 class="text-heading-small">${ts('recentlyViewed.title')}</h2>
-        </div>
-        <div class="rovalra-recently-viewed-list"></div>
-    `;
-    const header = row.querySelector('.rovalra-recently-viewed-header');
-    const list = row.querySelector('.rovalra-recently-viewed-list');
+function registerPriceTracking() {
+    if (priceTrackingRegistered) return;
+    priceTrackingRegistered = true;
 
-    const remove = async (entry) => {
-        items = items.filter(
-            (item) =>
-                !(item.id === entry.id && item.itemType === entry.itemType),
-        );
-        await saveHistory(userId, items);
-        list.querySelector(
-            `.rovalra-recently-viewed-item[data-item-id="${entry.id}"][data-item-type="${entry.itemType}"]`,
-        )?.remove();
-        if (items.length === 0) row.remove();
-    };
+    window.addEventListener('rovalra-catalog-details', (event) => {
+        const list = document.querySelector('.rovalra-recently-viewed-list');
+        if (!list) return;
 
-    header.appendChild(
-        createButton(ts('recentlyViewed.clear'), 'secondary', {
-            onClick: async () => {
-                items = [];
-                await saveHistory(userId, items);
-                row.remove();
-            },
-        }),
+        for (const details of event.detail?.data || []) {
+            const entry = priceEntries.get(`${details.itemType}:${details.id}`);
+            if (!entry) continue;
+
+            const change = getPriceChange(entry, details);
+            const wrapper = list.querySelector(entrySelector(entry));
+            if (!change || !wrapper) continue;
+
+            wrapper.dataset.priceChange = change.type;
+            wrapper.dataset.priceChangeText = change.text;
+            applyPriceChange(wrapper);
+        }
+    });
+    observeElement(
+        '.rovalra-recently-viewed-item .rovalra-item-card-link .rovalra-item-rap',
+        (price) =>
+            applyPriceChange(price.closest('.rovalra-recently-viewed-item')),
+        { multiple: true },
     );
+}
 
-    if (showPriceChanges) {
-        const entries = new Map(
-            items.map((item) => [`${item.itemType}:${item.id}`, item]),
+function isRowNeeded(anchor) {
+    return (
+        anchor.isConnected &&
+        LANDING_PAGE_REGEX.test(window.location.pathname) &&
+        !document.querySelector('.rovalra-recently-viewed')
+    );
+}
+
+async function renderRow(anchor) {
+    // Claim the render before any await so concurrent calls can't both insert a row.
+    if (rendering || !isRowNeeded(anchor)) return;
+    rendering = true;
+
+    try {
+        const showPriceChanges = await settings.recentlyViewedPriceChanges;
+        let { userId, items } = await loadHistory();
+        if (!userId || items.length === 0 || !isRowNeeded(anchor)) return;
+
+        const row = document.createElement('div');
+        row.className = 'rovalra-recently-viewed';
+        row.innerHTML = safeHtml`
+            <div class="rovalra-recently-viewed-header">
+                <h2 class="text-heading-small">${ts('recentlyViewed.title')}</h2>
+            </div>
+            <div class="rovalra-recently-viewed-list"></div>
+        `;
+        const header = row.querySelector('.rovalra-recently-viewed-header');
+        const list = row.querySelector('.rovalra-recently-viewed-list');
+
+        const remove = async (entry) => {
+            items = items.filter(
+                (item) =>
+                    !(item.id === entry.id && item.itemType === entry.itemType),
+            );
+            await saveHistory(userId, items);
+            list.querySelector(entrySelector(entry))?.remove();
+            if (items.length === 0) row.remove();
+        };
+
+        header.appendChild(
+            createButton(ts('recentlyViewed.clear'), 'secondary', {
+                onClick: async () => {
+                    items = [];
+                    await saveHistory(userId, items);
+                    row.remove();
+                },
+            }),
         );
-        window.addEventListener('rovalra-catalog-details', (event) => {
-            for (const details of event.detail?.data || []) {
-                const key = `${details.itemType}:${details.id}`;
-                const entry = entries.get(key);
-                if (!entry) continue;
 
-                const change = getPriceChange(entry, details);
-                const wrapper = list.querySelector(
-                    `.rovalra-recently-viewed-item[data-item-id="${entry.id}"][data-item-type="${entry.itemType}"]`,
-                );
-                if (!change || !wrapper) continue;
+        priceEntries = showPriceChanges
+            ? new Map(
+                  items.map((item) => [`${item.itemType}:${item.id}`, item]),
+              )
+            : new Map();
+        if (showPriceChanges) registerPriceTracking();
 
-                wrapper.dataset.priceChange = change.type;
-                wrapper.dataset.priceChangeText = change.text;
-                applyPriceChange(wrapper);
-            }
-        });
-        observeElement(
-            '.rovalra-recently-viewed-item .rovalra-item-card-link .rovalra-item-rap',
-            (price) =>
-                applyPriceChange(
-                    price.closest('.rovalra-recently-viewed-item'),
-                ),
-            { multiple: true },
-        );
+        items.forEach((entry) => list.appendChild(createEntry(entry, remove)));
+        anchor.parentElement.insertBefore(row, anchor);
+    } finally {
+        rendering = false;
     }
-
-    items.forEach((entry) => list.appendChild(createEntry(entry, remove)));
-    anchor.parentElement.insertBefore(row, anchor);
 }
 
 export async function init() {
@@ -228,10 +257,8 @@ export async function init() {
         return;
     }
 
-    if (LANDING_PAGE_REGEX.test(path)) {
-        const showPriceChanges = await settings.recentlyViewedPriceChanges;
-        observeElement('.catalog-results', (anchor) =>
-            renderRow(anchor, showPriceChanges),
-        );
+    if (LANDING_PAGE_REGEX.test(path) && !landingObserverRegistered) {
+        landingObserverRegistered = true;
+        observeElement('.catalog-results', renderRow);
     }
 }
