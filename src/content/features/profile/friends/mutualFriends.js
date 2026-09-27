@@ -76,17 +76,25 @@ async function initProfilePill(userId, ids) {
     });
     pill.classList.add(PILL_CLASS);
 
-    // The pill goes after Following in the header row of Friends, Followers
-    // and Following. That row is rendered with a count of 0 and no links, then
-    // gets its href once the counts load, so the header is watched for both
-    // new nodes and href changes.
+    // The pill goes after Following and before Last seen in the header row of
+    // Friends, Followers and Following. That row is rendered with a count of
+    // 0 and no links, then gets its href once the counts load, so the header is
+    // watched for both new nodes and href changes.
     const placePill = (header) => {
         const friendsLink = header.querySelector(
             'a[href*="/friends#!/friends"]',
         );
         const row = friendsLink?.parentElement;
         if (!row || pill.parentElement === row) return;
-        row.appendChild(pill);
+
+        const lastSeenPill = row.querySelector(
+            '.rovalra-last-online-pill, .roseal-user-last-seen-v2',
+        );
+        if (lastSeenPill) {
+            row.insertBefore(pill, lastSeenPill);
+        } else {
+            row.appendChild(pill);
+        }
     };
 
     observeElement(
