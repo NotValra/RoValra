@@ -14,6 +14,7 @@ const STORAGE_KEY = 'rovalra_recently_viewed';
 const MAX_ITEMS = 24;
 const ITEM_PAGE_REGEX =
     /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/(catalog|bundles)\/\d+/i;
+const ROSEAL_VIEW_SELECTOR = '#roseal-main-view';
 const LANDING_PAGE_REGEX = /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/catalog\/?$/i;
 
 async function loadHistory() {
@@ -144,8 +145,6 @@ function createEntry(entry, onRemove) {
     return wrapper;
 }
 
-// init() runs again on every SPA navigation, and a single-match observer re-arms
-// when its element leaves the DOM, so everything below is registered only once.
 let landingObserverRegistered = false;
 let priceTrackingRegistered = false;
 let rendering = false;
@@ -184,23 +183,35 @@ function registerPriceTracking() {
     );
 }
 
-function isRowNeeded(anchor) {
+function getAnchor() {
     return (
-        anchor.isConnected &&
+        document.querySelector(ROSEAL_VIEW_SELECTOR) ||
+        document.querySelector('.catalog-results')
+    );
+}
+
+function placeRow() {
+    const row = document.querySelector('.rovalra-recently-viewed');
+    const anchor = getAnchor();
+    if (row && anchor && row.nextElementSibling !== anchor) anchor.before(row);
+}
+
+function isRowNeeded() {
+    return (
+        Boolean(getAnchor()) &&
         LANDING_PAGE_REGEX.test(window.location.pathname) &&
         !document.querySelector('.rovalra-recently-viewed')
     );
 }
 
-async function renderRow(anchor) {
-    // Claim the render before any await so concurrent calls can't both insert a row.
-    if (rendering || !isRowNeeded(anchor)) return;
+async function renderRow() {
+    if (rendering || !isRowNeeded()) return;
     rendering = true;
 
     try {
         const showPriceChanges = await settings.recentlyViewedPriceChanges;
         let { userId, items } = await loadHistory();
-        if (!userId || items.length === 0 || !isRowNeeded(anchor)) return;
+        if (!userId || items.length === 0 || !isRowNeeded()) return;
 
         const row = document.createElement('div');
         row.className = 'rovalra-recently-viewed';
@@ -241,7 +252,7 @@ async function renderRow(anchor) {
         if (showPriceChanges) registerPriceTracking();
 
         items.forEach((entry) => list.appendChild(createEntry(entry, remove)));
-        anchor.parentElement.insertBefore(row, anchor);
+        getAnchor().before(row);
     } finally {
         rendering = false;
     }
@@ -259,6 +270,13 @@ export async function init() {
 
     if (LANDING_PAGE_REGEX.test(path) && !landingObserverRegistered) {
         landingObserverRegistered = true;
-        observeElement('.catalog-results', renderRow);
+        const onAnchorChange = () => {
+            placeRow();
+            renderRow();
+        };
+        observeElement('.catalog-results', onAnchorChange);
+        observeElement(ROSEAL_VIEW_SELECTOR, onAnchorChange, {
+            onRemove: placeRow,
+        });
     }
 }
