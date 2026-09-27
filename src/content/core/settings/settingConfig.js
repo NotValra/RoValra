@@ -2037,7 +2037,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['650766686', '48255812'],
-                exclusiveWith: ['qolTogglesEnabled'],
                 childSettings: {
                     // Toggles to be in the menu
                     privacyTogglesDropdownOnlineStatusEnabled: {
@@ -2070,6 +2069,15 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    // Keep this one last please
+                    privacyTogglesOldIconEnabled: {
+                        label: 'Old QOL Toggles Icon',
+                        description: [
+                            'Enable the old QOL Toggles icon (<icon>three-bars-horizontal</icon>). <b>Needs a refresh</b>'
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             qolTogglesEnabled: {
@@ -2083,6 +2091,7 @@ export const SETTINGS_CONFIG = {
                 isPermanent: true,
                 locked: 'Replaced by Privacy Toggles in Navigation',
                 deprecated: 'Replaced by Privacy Toggles in Navigation.',
+                hidden: true,
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
