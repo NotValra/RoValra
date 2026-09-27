@@ -609,11 +609,29 @@ body.rovalra-settings-page {
     }
 
     .rovalra-changelog-title {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
         margin: 0 0 4px 0;
         color: var(--rovalra-main-text-color);
         font-size: 18px;
         line-height: 1.25;
         overflow-wrap: anywhere;
+    }
+
+    .rovalra-changelog-current-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 20px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: var(--rovalra-playbutton-color);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1;
+        white-space: nowrap;
     }
 
     .rovalra-changelog-dates {
