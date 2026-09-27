@@ -1007,6 +1007,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            mutualFriendsEnabled: {
+                label: 'Mutual Friends',
+                description: [
+                    'Shows how many friends you have in common with a user on their profile.',
+                    'Click it to see them in a Mutuals tab on their friends page.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2020751790'],
+            },
             groupRoleEnabled: {
                 label: 'Show Community Roles',
                 description:

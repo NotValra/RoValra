@@ -446,6 +446,14 @@
         "hours": "{{value}} hours",
         "minutes": "{{value}} minutes"
     },
+    "mutualFriends": {
+        "pill_one": "{{count}} Mutual Friend",
+        "pill_other": "{{count}} Mutual Friends",
+        "tooltip": "Friends you have in common with this user",
+        "tab": "Mutuals",
+        "title": "Mutual Friends ({{count}})",
+        "empty": "You have no mutual friends with this user."
+    },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
         "pendingRequest": "Trusted Friend Request Pending",
