@@ -89,6 +89,7 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(1564574922, "locales.madeRo", "https://github.com/NotValra/RoValra/pull/215"),  // @BossBoss2021
             new Contribution(10646979010, "locales.madeRo", "https://github.com/NotValra/RoValra/pull/215"),  // @RecreationalActive
             new Contribution(3121706, "locales.madeEs", "https://github.com/NotValra/RoValra/pull/215"),  // @AuroxNova
+            new Contribution(3675145623, "locales.madeSk", "https://github.com/NotValra/RoValra/pull/215"),  // @ov3r
         ]
     }
 };
