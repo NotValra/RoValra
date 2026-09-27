@@ -44,6 +44,10 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('Arabic (عربي)', 'ar'),
+                        value: 'ar',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
@@ -2083,7 +2087,7 @@ export const SETTINGS_CONFIG = {
                     privacyTogglesOldIconEnabled: {
                         label: 'Old QOL Toggles Icon',
                         description: [
-                            'Enable the old QOL Toggles icon (<icon>three-bars-horizontal</icon>). <b>Needs a refresh</b>'
+                            'Enable the old QOL Toggles icon (<icon>three-bars-horizontal</icon>). <b>Needs a refresh</b>',
                         ],
                         type: 'checkbox',
                         default: false,
