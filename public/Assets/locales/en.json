@@ -446,6 +446,14 @@
         "hours": "{{value}} hours",
         "minutes": "{{value}} minutes"
     },
+    "mutualFriends": {
+        "pill_one": "{{count}} Mutual Friend",
+        "pill_other": "{{count}} Mutual Friends",
+        "tooltip": "Friends you have in common with this user",
+        "tab": "Mutuals",
+        "title": "Mutual Friends ({{count}})",
+        "empty": "You have no mutual friends with this user."
+    },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
         "pendingRequest": "Trusted Friend Request Pending",
@@ -1008,6 +1016,7 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "Untitled release",
+                "current": "Your Version",
                 "noNotes": "No changelog notes were provided for this release.",
                 "loading": "Loading changelogs...",
                 "empty": "No changelogs are available right now.",
@@ -1186,18 +1195,6 @@
                 "name": "Inventory Privacy"
             }
         }
-    },
-    "qolToggles": {
-        "onlineStatus": "Online Status",
-        "joinStatus": "Experience Status",
-        "privateServerPrivacy": "Private Server Privacy",
-        "inventoryVisibility": "Inventory Visibility",
-        "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
-        "friendsAndFollowing": "Friends & Following",
-        "friends": "Friends",
-        "trustedFriends": "Trusted Friends",
-        "noOne": "No one"
     },
     "groupFunds": {
         "loading": "Loading...",
