@@ -2250,6 +2250,10 @@ export function initializeSettingsEventListeners() {
             savePromises.push(handleSaveSettings(settingName, value));
         } else if (target.matches('select')) {
             value = target.value;
+            const previousLanguage =
+                settingName === 'rovalraLanguage'
+                    ? (await loadSettings()).rovalraLanguage
+                    : null;
             savePromises.push(handleSaveSettings(settingName, value));
             if (settingName === 'profileRenderEnvironment') {
                 const profileEnvs =
@@ -2271,6 +2275,14 @@ export function initializeSettingsEventListeners() {
                             ),
                     );
                 }
+            }
+            if (
+                settingName === 'rovalraLanguage' &&
+                value !== previousLanguage
+            ) {
+                await Promise.all(savePromises);
+                location.reload();
+                return;
             }
         } else if (
             target.matches(

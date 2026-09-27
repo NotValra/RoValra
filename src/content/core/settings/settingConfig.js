@@ -24,7 +24,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Manually configure a language for RoValra. Some translations may be missing.',
                     // it works on the setting page only once it figures out the language from other pages' URLs
-                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.',
+                    'The page will reload to apply changes. Might not work immediately on the settings page.',
                 ],
                 type: 'select',
                 options: [
@@ -39,6 +39,10 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel('Romanian (Română)', 'ro'),
                         value: 'ro',
+                    },
+                    {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
                     },
                     {
                         label: languageLabel('Spanish (Español)', 'es'),

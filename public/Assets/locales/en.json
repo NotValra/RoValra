@@ -876,7 +876,8 @@
                 },
                 "locales": {
                     "madeRo": "Helped make the Romanian locale",
-                    "madeEs": "Helped make the Spanish locale"
+                    "madeEs": "Helped make the Spanish locale",
+                    "madeRu": "Helped make the Russian locale"
                 }
             },
             "ui": {
