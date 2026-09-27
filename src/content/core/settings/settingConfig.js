@@ -45,6 +45,10 @@ export const SETTINGS_CONFIG = {
                         value: 'ro',
                     },
                     {
+                        label: languageLabel('Indonesian (Bahasa Indonesia)', 'id'),
+                        value: 'id',
+                    },
+                    {
                         label: languageLabel('Russian (Русский)', 'ru'),
                         value: 'ru',
                     },
