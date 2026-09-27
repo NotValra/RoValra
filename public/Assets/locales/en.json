@@ -1016,6 +1016,7 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "Untitled release",
+                "current": "Your Version",
                 "noNotes": "No changelog notes were provided for this release.",
                 "loading": "Loading changelogs...",
                 "empty": "No changelogs are available right now.",
@@ -1194,18 +1195,6 @@
                 "name": "Inventory Privacy"
             }
         }
-    },
-    "qolToggles": {
-        "onlineStatus": "Online Status",
-        "joinStatus": "Experience Status",
-        "privateServerPrivacy": "Private Server Privacy",
-        "inventoryVisibility": "Inventory Visibility",
-        "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
-        "friendsAndFollowing": "Friends & Following",
-        "friends": "Friends",
-        "trustedFriends": "Trusted Friends",
-        "noOne": "No one"
     },
     "groupFunds": {
         "loading": "Loading...",

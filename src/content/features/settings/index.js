@@ -145,7 +145,6 @@ let standingCache = null;
 let topDonatorsCache = null;
 let githubSponsorsCache = null;
 let ownedBordersCache = null;
-let changelogsCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
 const frameAssetDetailsCache = new Map();
@@ -182,6 +181,14 @@ function renderChangelogRelease(release) {
     title.textContent =
         release.name || release.tag_name || ui('changelogs.untitledRelease');
 
+    if (isCurrentChangelogRelease(release)) {
+        const currentPill = document.createElement('span');
+        currentPill.className = 'rovalra-changelog-current-pill';
+        currentPill.textContent = ui('changelogs.current');
+        currentPill.setAttribute('aria-label', ui('changelogs.current'));
+        title.appendChild(currentPill);
+    }
+
     const dates = document.createElement('div');
     dates.className = 'rovalra-changelog-dates';
 
@@ -213,15 +220,29 @@ function renderChangelogRelease(release) {
     return card;
 }
 
-async function getChangelogs() {
-    if (changelogsCache) return changelogsCache;
+function isCurrentChangelogRelease(release) {
+    const currentVersion = chrome.runtime.getManifest()?.version;
+    if (!currentVersion) return false;
 
+    const normalizeVersion = (value) => {
+        const match = String(value || '').match(
+            /\bv?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)\b/,
+        );
+        return match ? match[1] : null;
+    };
+
+    const normalizedCurrentVersion = normalizeVersion(currentVersion);
+    return [release.version, release.tag_name, release.name]
+        .map(normalizeVersion)
+        .some((version) => version && version === normalizedCurrentVersion);
+}
+
+async function getChangelogs() {
     const response = await callRobloxApi({
         subdomain: 'www',
         endpoint: CHANGELOGS_ENDPOINT,
         method: 'GET',
         isRovalraApi: true,
-        noCache: true,
     });
 
     if (!response.ok) {
@@ -229,8 +250,7 @@ async function getChangelogs() {
     }
 
     const data = await response.json();
-    changelogsCache = Array.isArray(data?.releases) ? data.releases : [];
-    return changelogsCache;
+    return Array.isArray(data?.releases) ? data.releases : [];
 }
 
 async function renderChangelogs(container) {
@@ -1935,7 +1955,9 @@ function renderContributors(container, users, thumbMap) {
     if (backendContributors.length > 0) {
         const backendNote = document.createElement('p');
         backendNote.className = 'rovalra-backend-contributors-note';
-        backendNote.textContent = ts('settings.credits.backendContributorsNote');
+        backendNote.textContent = ts(
+            'settings.credits.backendContributorsNote',
+        );
 
         const backendList = document.createElement('div');
         backendList.className = 'rovalra-backend-contributors-list';
@@ -2217,7 +2239,6 @@ async function loadGithubSponsorAvatar(avatar, sponsor, imageSource) {
             subdomain: 'apis',
             endpoint,
             method: 'GET',
-            noCache: true,
         });
 
         if (!response.ok)
@@ -2292,7 +2313,18 @@ function renderGithubSponsors(container, sponsors) {
 
         link.appendChild(avatar);
         grid.appendChild(link);
-        loadGithubSponsorAvatar(avatar, sponsor, imageSource);
+
+        let avatarLoaded = false;
+        const avatarObserver = observeIntersection(
+            avatar,
+            (entry) => {
+                if (!entry.isIntersecting || avatarLoaded) return;
+                avatarLoaded = true;
+                avatarObserver.unobserve();
+                loadGithubSponsorAvatar(avatar, sponsor, imageSource);
+            },
+            { rootMargin: '0px' },
+        );
     });
 
     if (grid.childElementCount > 0) container.appendChild(grid);
@@ -2790,9 +2822,7 @@ async function loadTopDonators() {
 
         if (authenticatedUserId && userTier >= 1 && toggleContainer) {
             try {
-                const settings = await getUserSettings(authenticatedUserId, {
-                    noCache: true,
-                });
+                const settings = await getUserSettings(authenticatedUserId);
 
                 const userResponse = await callRobloxApi({
                     subdomain: 'users',
@@ -3542,9 +3572,9 @@ async function renderStoreBorders(container) {
 
         let currentBorderValue = 'none';
         if (userId) {
-            const userSettings = await getUserSettings(userId, {
-                noCache: true,
-            }).catch(() => null);
+            const userSettings = await getUserSettings(userId).catch(
+                () => null,
+            );
             if (userSettings?.border && userSettings.border !== 'none') {
                 const apiBorderItem = findInBorders(
                     borderCategories,
@@ -4312,9 +4342,9 @@ async function renderStoreFrames(container) {
 
         let currentFrameLink = null;
         if (userId) {
-            const userSettings = await getUserSettings(userId, {
-                noCache: true,
-            }).catch(() => null);
+            const userSettings = await getUserSettings(userId).catch(
+                () => null,
+            );
             if (userSettings?.berts && userSettings.berts !== 'none') {
                 currentFrameLink = userSettings.berts;
             }

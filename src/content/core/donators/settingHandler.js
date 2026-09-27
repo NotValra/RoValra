@@ -497,9 +497,7 @@ export async function getUserSettings(userId, options = {}) {
             return memCached.data;
         }
 
-        const cached = !isOwnProfile
-            ? await cache.get('user_settings', cacheKey, 'local')
-            : null;
+        const cached = await cache.get('user_settings', cacheKey, 'local');
         if (cached) {
             memoryCache.set(cacheKey, cached);
             const staleThreshold = isOwnProfile ? 60000 : 300000;
@@ -540,9 +538,7 @@ export async function getUserSettings(userId, options = {}) {
 
     if (options.disableBatch) {
         const settings = await fetchAndProcessSettings(userId, options);
-        await saveToCache(cacheKey, settings, {
-            memoryOnly: isOwnProfile,
-        });
+        await saveToCache(cacheKey, settings);
 
         return settings;
     }
