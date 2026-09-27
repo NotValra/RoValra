@@ -26,7 +26,6 @@ import { initAuthenticatedUserLanguageTracking } from './core/utils/trackers/lan
 import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
-import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initViewIds } from './features/sitewide/viewid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
@@ -159,6 +158,7 @@ import { init as initCurrentlyPlayingSubplace } from './features/profile/header/
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
 import { init as initAgeVerificationBadge } from './features/profile/header/ageVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initMutualFriends } from './features/profile/friends/mutualFriends.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
 import { init as initBulkBadgeRemover } from './features/profile/badges/bulkRemover.js';
@@ -242,7 +242,6 @@ const featureRoutes = [
             initUserCurrencyTracking,
             initAuthenticatedUserLanguageTracking,
             initPlaytimeTracker,
-            initQoLToggles,
             initCopyId,
             initViewIds,
             initBetaPrograms,
@@ -429,6 +428,7 @@ const featureRoutes = [
             initIdVerificationBadge,
             initAgeVerificationBadge,
             initFriendsSince,
+            initMutualFriends,
             initUnfriend,
             initBulkBadgeRemover,
             initLastPlayed,
