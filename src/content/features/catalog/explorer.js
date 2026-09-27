@@ -4451,7 +4451,6 @@ function addCreateStoreButton(buttonContainer) {
     const targetContainer =
         buttonContainer.firstElementChild || buttonContainer;
     targetContainer.prepend(button);
-    console.log('%cRoValra Explorer: button added (create)', 'color:#FF4500');
 }
 
 export async function init() {
