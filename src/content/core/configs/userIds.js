@@ -37,6 +37,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '3050364170', // Eli_Cauver :3
     '315646839', // imderlord :3
     '231260921', // textuired
+    '2020751790', // Orellius
 ];
 
 export const TESTER_USER_IDS = [

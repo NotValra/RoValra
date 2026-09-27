@@ -1015,6 +1015,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['2020751790'],
             },
             groupRoleEnabled: {
                 label: 'Show Community Roles',
