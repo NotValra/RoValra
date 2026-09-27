@@ -1023,7 +1023,7 @@ function keepPillAfterUsernameDetails(targetContainer, pill) {
         if (!pill.isConnected || pill.parentElement !== targetContainer) return;
 
         const profileViewsPill = targetContainer.querySelector(
-            ':scope > .rovalra-profile-pill-group',
+            ':scope > .rovalra-profile-views-pill',
         );
         const roproLikeCount = targetContainer.querySelector(
             ':scope > #reputationDiv',

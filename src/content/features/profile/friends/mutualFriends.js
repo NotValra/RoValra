@@ -9,7 +9,6 @@ import { getMutualFriends } from '../../../core/apis/users.js';
 import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { createPill } from '../../../core/ui/general/pill.js';
 import { batchFetchPresence } from '../../../core/ui/profile/userCard.js';
-import { getProfileHeaderPillGroup } from '../../../core/ui/profile/headerPills.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 
 const PILL_CLASS = 'rovalra-mutual-friends-pill';
@@ -72,24 +71,21 @@ async function initProfilePill(userId, ids) {
         t('mutualFriends.tooltip'),
     ]);
 
+    // Sits after Following in the header row of Friends, Followers and
+    // Following, using the same pill as those links.
     observeElement(
-        '.user-profile-header-info .stylistic-alts-username',
-        (username) => {
-            const targetContainer = username.parentElement;
-            if (!targetContainer) return;
-            if (targetContainer.querySelector(`.${PILL_CLASS}`)) return;
+        '.user-profile-header a[href*="/friends#!/following"]',
+        (following) => {
+            const row = following.parentElement;
+            if (!row || row.querySelector(`.${PILL_CLASS}`)) return;
 
             const pill = createPill(
                 createPillContent(thumbnails, label),
                 tooltip,
-                {
-                    size: 'small',
-                    href: `/users/${userId}/friends${MUTUALS_HASH}`,
-                },
+                { href: `/users/${userId}/friends${MUTUALS_HASH}` },
             );
             pill.classList.add(PILL_CLASS);
-
-            getProfileHeaderPillGroup(targetContainer).appendChild(pill);
+            row.appendChild(pill);
         },
     );
 }
