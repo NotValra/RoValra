@@ -499,7 +499,7 @@ const featureRoutes = [
     // create
     {
         paths: ['/store/asset'],
-        features: [initCreateDownload],
+        features: [initCreateDownload, initCatalogExplorer],
     },
     {
         paths: ['/home'],
