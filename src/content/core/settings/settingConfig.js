@@ -44,6 +44,14 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('Traditional Chinese (繁體中文)', 'zh-CHT'),
+                        value: 'zh-CHT',
+                    },
+                    {
+                        label: languageLabel('Simplified Chinese (简体中文)', 'zh-CHS'),
+                        value: 'zh-CHS',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
