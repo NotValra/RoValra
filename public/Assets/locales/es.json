@@ -637,18 +637,6 @@
             "description": "No prometemos soporte para {{extensions}}."
         }
     },
-    "qolToggles": {
-        "onlineStatus": "Estado en línea",
-        "joinStatus": "Estado de experiencia",
-        "privateServerPrivacy": "Privacidad del servidor privado",
-        "inventoryVisibility": "Visibilidad del inventario",
-        "everyone": "Todos",
-        "friendsFollowingAndFollowers": "Amigos, seguidores y seguidos",
-        "friendsAndFollowing": "Amigos y seguidos",
-        "friends": "Amigos",
-        "noOne": "Nadie",
-        "trustedFriends": "Amigos de confianza"
-    },
     "groupFunds": {
         "loading": "Cargando...",
         "pending": "Pendiente:",

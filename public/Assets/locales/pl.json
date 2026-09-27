@@ -1190,18 +1190,6 @@
             }
         }
     },
-    "qolToggles": {
-        "onlineStatus": "Status online",
-        "joinStatus": "Status gry",
-        "privateServerPrivacy": "Prywatność serwera prywatnego",
-        "inventoryVisibility": "Widoczność ekwipunku",
-        "everyone": "Wszyscy",
-        "friendsFollowingAndFollowers": "Znajomi, obserwujący i obserwowani",
-        "friendsAndFollowing": "Znajomi i obserwowani",
-        "friends": "Znajomi",
-        "trustedFriends": "Zaufani znajomi",
-        "noOne": "Nikt"
-    },
     "groupFunds": {
         "loading": "Ładowanie...",
         "pending": "Oczekujące:",

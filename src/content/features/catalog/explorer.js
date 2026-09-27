@@ -1,4 +1,7 @@
-import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import {
+    getPlaceIdFromUrl,
+    getAssetIdFromUrl,
+} from '../../core/idExtractor.js';
 import {
     loadAssetTree,
     canAccessAsset,
@@ -4407,13 +4410,57 @@ function addGameButton(contextMenu) {
     });
 }
 
+function addCreateStoreButton(buttonContainer) {
+    const assetId = getAssetIdFromUrl();
+    const pageKey = `create:${assetId || ''}`;
+    if (
+        !assetId ||
+        (buttonContainer.dataset.rovalraExplorerPageKey === pageKey &&
+            buttonContainer.querySelector('.rovalra-explorer-create-btn'))
+    )
+        return;
+
+    buttonContainer.querySelector('.rovalra-explorer-create-btn')?.remove();
+    buttonContainer.dataset.rovalraExplorerPageKey = pageKey;
+
+    const assets = getAssets();
+
+    const button = document.createElement('button');
+    button.id = 'rovalra-explorer-btn';
+    button.type = 'button';
+    button.className = 'rovalra-explorer-create-btn';
+    button.setAttribute('aria-label', ts('createRoblox.explorer.button'));
+
+    const icon = document.createElement('span');
+    icon.className = 'rovalra-explorer-create-icon';
+    applyMaskIcon(icon, assets.explorerTreeIcon);
+    button.appendChild(icon);
+
+    const text = document.createElement('span');
+    text.textContent = ts('createRoblox.explorer.button');
+    button.appendChild(text);
+
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const name = document
+            .querySelector('[data-testid="assetHeadingDetailsTestId"] h1')
+            ?.textContent?.trim();
+        openExplorer(assetId, name, true);
+    });
+
+    const targetContainer =
+        buttonContainer.firstElementChild || buttonContainer;
+    targetContainer.prepend(button);
+}
+
 export async function init() {
     const path = window.location.pathname;
     const onCatalog = /\/catalog\//.test(path);
     const onBundle = /\/bundles\//.test(path);
     const onGame = /\/games\//.test(path);
+    const onCreateStore = /\/store\/asset\//.test(path);
 
-    if (!onCatalog && !onBundle && !onGame) return;
+    if (!onCatalog && !onBundle && !onGame && !onCreateStore) return;
     if (!(await settings.ExplorerEnabled)) return;
 
     if (onCatalog) {
@@ -4428,5 +4475,13 @@ export async function init() {
     }
     if (onGame) {
         observeElement('#game-context-menu', (el) => addGameButton(el));
+    }
+    if (onCreateStore) {
+        observeElement('[data-testid="assetButtonsTestId"]', (el) =>
+            addCreateStoreButton(el),
+        );
+        observeElement('[data-testid="assetButtonsDeprecatedTestId"]', (el) =>
+            addCreateStoreButton(el),
+        );
     }
 }
