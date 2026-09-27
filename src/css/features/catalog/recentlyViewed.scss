@@ -1,0 +1,85 @@
+.rovalra-recently-viewed {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .rovalra-recently-viewed-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--rovalra-main-text-color);
+
+        h2 {
+            margin: 0;
+        }
+    }
+
+    .rovalra-recently-viewed-list {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .rovalra-recently-viewed-item {
+        position: relative;
+        flex: 0 0 150px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        &:hover .rovalra-recently-viewed-remove {
+            opacity: 1;
+        }
+    }
+
+    .rovalra-recently-viewed-remove {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 20;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+        background: rgba(20, 20, 24, 0.9);
+        color: #fff;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.15s;
+
+        icon {
+            --icon-size: 20px;
+        }
+    }
+
+    @media (hover: none) {
+        .rovalra-recently-viewed-remove {
+            opacity: 1;
+        }
+    }
+
+    .rovalra-recently-viewed-price {
+        cursor: help;
+
+        &.cheaper,
+        &.backOnSale {
+            color: #2e7d32;
+        }
+
+        &.pricier,
+        &.offSale {
+            color: #d32f2f;
+        }
+    }
+
+    .rovalra-recently-viewed-arrow {
+        margin-right: 2px;
+        font-weight: 700;
+    }
+}
