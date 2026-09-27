@@ -1,4 +1,4 @@
-import { observeElement, observeAttributes } from '../../core/observer.js';
+import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
@@ -167,17 +167,20 @@ async function processDialog(dialog) {
     }
 }
 
-export async function init() {
-    if (!(await settings.spendingBudgetEnabled)) return;
+let initialized = false;
 
-    observeElement(
-        '.unified-purchase-dialog-content',
-        (el) => {
-            processDialog(el);
-            observeAttributes(el, () => processDialog(el), [
-                'data-rovalra-expected-price',
-            ]);
-        },
-        { multiple: true },
-    );
+export async function init() {
+    if (initialized || !(await settings.spendingBudgetEnabled)) return;
+    if (initialized) return;
+    initialized = true;
+
+    observeElement('.unified-purchase-dialog-content', processDialog, {
+        multiple: true,
+    });
+    document.addEventListener('rovalraPurchasePromptReady', (event) => {
+        const dialog = event.target.closest?.(
+            '.unified-purchase-dialog-content',
+        );
+        if (dialog) processDialog(dialog);
+    });
 }
