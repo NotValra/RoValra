@@ -322,6 +322,33 @@ export async function getUniversesVotes(universeIds) {
     }
 }
 
+export async function getUniverseMedia(universeId) {
+    const cacheKey = String(universeId);
+
+    const cached = await CacheHandler.get('universe_media', cacheKey, 'session');
+    if (cached) {
+        return cached;
+    }
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v2/games/${universeId}/media`,
+            method: 'GET',
+        });
+
+        const media = data?.data || [];
+        await CacheHandler.set('universe_media', cacheKey, media, 'session');
+        return media;
+    } catch (error) {
+        console.error(
+            `RoValra: Failed to fetch media for universeId ${universeId}`,
+            error,
+        );
+        return [];
+    }
+}
+
 // RIP didnt know this was not intentional, #ShouldHaveReportedToHackerone
 export async function getUniverseEligibilities(universeIds) {
     if (!Array.isArray(universeIds) || universeIds.length === 0) return {};
@@ -400,6 +427,7 @@ export default {
     getPlacesDetails,
     getUniversesDetails,
     getUniversesVotes,
+    getUniverseMedia,
     getUniverseEligibilities,
     getUniverseEligibility,
     REASON_PROHIBITED_TYPES,

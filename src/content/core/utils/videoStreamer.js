@@ -1,11 +1,29 @@
 // Turns Robloxs videos into watchable videos!!!
-import { callRobloxApi } from '../api.js';
+import { callRobloxApi, callRobloxApiJson } from '../api.js';
 const MIME_TYPE = 'video/webm; codecs="vp9,opus"';
-const BUFFER_AHEAD_SECONDS = 30; 
+const BUFFER_AHEAD_SECONDS = 30;
+const HLS_REPRESENTATION = btoa(JSON.stringify([{ format: 'hls', majorVersion: '1', fidelity: 'main' }]));
 
-export function streamRobloxVideo(requestJson, videoElement, onProgress = () => {}) {
+// Asks assetdelivery for the HLS version of a video asset, the same way Roblox's own player does.
+// The response ({ locations: [...] }) can be passed straight into streamRobloxVideo.
+export async function getHlsVideoAsset(assetId) {
+    return await callRobloxApiJson({
+        subdomain: 'assetdelivery',
+        endpoint: `/v2/asset?Id=${assetId}&ContentRepresentationPriorityList=${encodeURIComponent(HLS_REPRESENTATION)}`,
+        method: 'GET',
+    });
+}
+
+// Accepts either the /v1/assets/batch array or the /v2/asset response ({ locations: [...] }).
+// Options:
+//  - targetHeight: picks the smallest stream at least this tall instead of the highest quality one.
+//  - keepChunks: keeps every segment in memory so the promise resolves with the full video as a Blob.
+export function streamRobloxVideo(requestJson, videoElement, onProgress = () => {}, options = {}) {
+    const { targetHeight = null, keepChunks = true } = options;
+    const locations = Array.isArray(requestJson) ? requestJson : requestJson?.locations;
+
     return new Promise((resolve, reject) => {
-        if (!requestJson || !Array.isArray(requestJson) || !requestJson[0]?.location) {
+        if (!locations?.[0]?.location) {
             return reject(new Error("Invalid video data: Asset is likely not a video."));
         }
 
@@ -36,21 +54,20 @@ export function streamRobloxVideo(requestJson, videoElement, onProgress = () => 
             const fullFileChunks = []; 
 
             try {
-                const masterUrl = requestJson[0].location;
+                const masterUrl = locations[0].location;
                 onProgress("Fetching master playlist...");
-                
+
                 const masterText = await fetchText(masterUrl);
                 if (isClosed()) return;
 
-                const streamUrl = getBestStreamUrl(masterText, masterUrl);
+                const streamUrl = getBestStreamUrl(masterText, masterUrl, targetHeight);
                 if (!streamUrl) throw new Error("Could not determine stream URL");
 
                 onProgress("Fetching segment list...");
                 const segmentText = await fetchText(streamUrl);
                 if (isClosed()) return;
 
-                const baseUrl = streamUrl.substring(0, streamUrl.lastIndexOf('/') + 1);
-                const { initUrl, segments } = parseSegmentUrls(segmentText, baseUrl);
+                const { initUrl, segments } = parseSegmentUrls(segmentText, streamUrl);
 
                 if (segments.length === 0) throw new Error("No video segments found");
 
@@ -59,7 +76,7 @@ export function streamRobloxVideo(requestJson, videoElement, onProgress = () => 
                     const initChunk = await fetchBuffer(initUrl);
                     if (isClosed()) return;
                     
-                    fullFileChunks.push(initChunk);
+                    if (keepChunks) fullFileChunks.push(initChunk);
                     await appendChunk(sourceBuffer, initChunk);
                 }
 
@@ -95,7 +112,7 @@ export function streamRobloxVideo(requestJson, videoElement, onProgress = () => 
                     
                     if (isClosed()) break;
 
-                    fullFileChunks.push(chunk);
+                    if (keepChunks) fullFileChunks.push(chunk);
                     await appendChunk(sourceBuffer, chunk);
                     
                     currentSegment++;
@@ -104,7 +121,7 @@ export function streamRobloxVideo(requestJson, videoElement, onProgress = () => 
                 if (!isClosed()) {
                     mediaSource.endOfStream();
                     onProgress("Complete");
-                    resolve(new Blob(fullFileChunks, { type: 'video/webm' }));
+                    resolve(keepChunks ? new Blob(fullFileChunks, { type: 'video/webm' }) : null);
                 }
 
             } catch (err) {
@@ -148,7 +165,17 @@ async function fetchText(url) {
 async function fetchBuffer(url) {
     const resp = await callRobloxApi({ fullUrl: url, credentials: 'omit' });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    return await resp.arrayBuffer();
+    return await gunzipIfNeeded(await resp.arrayBuffer());
+}
+
+
+// Roblox stores some segments gzipped without a Content-Encoding header, so the browser hands us the raw gzip.
+async function gunzipIfNeeded(buffer) {
+    const header = new Uint8Array(buffer, 0, Math.min(2, buffer.byteLength));
+    if (header[0] !== 0x1f || header[1] !== 0x8b) return buffer;
+
+    const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return await new Response(stream).arrayBuffer();
 }
 
 
@@ -188,42 +215,79 @@ function appendChunk(sourceBuffer, data) {
 }
 
 
-function getBestStreamUrl(m3u8Content, masterUrl) {
-    const baseUriMatch = m3u8Content.match(/NAME="RBX-BASE-URI",\s*VALUE="(.*?)"/);
-    const rbxBaseUri = baseUriMatch ? baseUriMatch[1] : "";
+// Reads #EXT-X-DEFINE tags, both NAME/VALUE pairs (e.g. RBX-BASE-URI) and QUERYPARAM ones,
+// which take their value from the query string of the playlist's own URL (the signed CDN token).
+function getPlaylistVariables(m3u8Content, playlistUrl) {
+    const queryParams = {};
+    const rawQuery = playlistUrl.split('#')[0].split('?')[1] || '';
+    for (const pair of rawQuery.split('&')) {
+        const separator = pair.indexOf('=');
+        if (separator > 0) queryParams[pair.slice(0, separator)] = pair.slice(separator + 1);
+    }
+
+    const variables = {};
+    for (const line of m3u8Content.split(/\r?\n/)) {
+        if (!line.startsWith('#EXT-X-DEFINE:')) continue;
+
+        const queryParam = line.match(/QUERYPARAM="(.*?)"/)?.[1];
+        const name = line.match(/(?:^|[:,])NAME="(.*?)"/)?.[1];
+        const value = line.match(/VALUE="(.*?)"/)?.[1];
+
+        if (queryParam && queryParam in queryParams) {
+            variables[queryParam] = queryParams[queryParam];
+        } else if (name && value !== undefined) {
+            variables[name] = value;
+        }
+    }
+    return variables;
+}
+
+function resolvePlaylistUri(uri, playlistUrl, variables) {
+    const resolved = uri.replace(/\{\$([^}]+)\}/g, (match, name) =>
+        name in variables ? variables[name] : match,
+    );
+    if (resolved.startsWith('http')) return resolved;
+    const playlistBase = playlistUrl.split('?')[0];
+    return playlistBase.substring(0, playlistBase.lastIndexOf('/') + 1) + resolved;
+}
+
+function getBestStreamUrl(m3u8Content, masterUrl, targetHeight = null) {
+    const variables = getPlaylistVariables(m3u8Content, masterUrl);
     const lines = m3u8Content.split(/\r?\n/);
-    
-    let bestBandwidth = -1;
-    let bestPath = null;
-    let pendingBandwidth = null;
+    const variants = [];
+    let pendingVariant = null;
 
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
         if (line.startsWith('#EXT-X-STREAM-INF')) {
-            const bwMatch = line.match(/BANDWIDTH=(\d+)/);
-            if (bwMatch) pendingBandwidth = parseInt(bwMatch[1], 10);
-        } else if (!line.startsWith('#')) {
-            if (pendingBandwidth !== null) {
-                if (pendingBandwidth > bestBandwidth) {
-                    bestBandwidth = pendingBandwidth;
-                    bestPath = line;
-                }
-                pendingBandwidth = null; 
-            }
+            pendingVariant = {
+                bandwidth: Number(line.match(/[:,]BANDWIDTH=(\d+)/)?.[1] || 0),
+                height: Number(line.match(/RESOLUTION=\d+x(\d+)/)?.[1] || 0),
+            };
+        } else if (!line.startsWith('#') && pendingVariant) {
+            variants.push({ ...pendingVariant, path: line });
+            pendingVariant = null;
         }
     }
 
-    if (!bestPath) return null;
-    if (bestPath.includes('{$RBX-BASE-URI}')) {
-        bestPath = bestPath.replace('{$RBX-BASE-URI}', rbxBaseUri);
+    if (variants.length === 0) return null;
+
+    const byBandwidth = (a, b) => b.bandwidth - a.bandwidth;
+    let best = [...variants].sort(byBandwidth)[0];
+
+    if (targetHeight) {
+        const tallEnough = variants
+            .filter((variant) => variant.height >= targetHeight)
+            .sort((a, b) => a.height - b.height || byBandwidth(a, b));
+        if (tallEnough.length > 0) best = tallEnough[0];
     }
-    if (bestPath.startsWith('http')) return bestPath;
-    const masterBase = masterUrl.substring(0, masterUrl.lastIndexOf('/') + 1);
-    return masterBase + bestPath;
+
+    return resolvePlaylistUri(best.path, masterUrl, variables);
 }
 
-function parseSegmentUrls(m3u8Content, baseUrl) {
+function parseSegmentUrls(m3u8Content, playlistUrl) {
+    const variables = getPlaylistVariables(m3u8Content, playlistUrl);
     const lines = m3u8Content.split(/\r?\n/);
     const segments = [];
     let initUrl = null;
@@ -234,9 +298,9 @@ function parseSegmentUrls(m3u8Content, baseUrl) {
         if (clean.startsWith('#EXT-X-MAP:URI=')) {
             let uri = clean.substring(15);
             if (uri.startsWith('"') && uri.endsWith('"')) uri = uri.slice(1, -1);
-            initUrl = uri.startsWith('http') ? uri : baseUrl + uri;
+            initUrl = resolvePlaylistUri(uri, playlistUrl, variables);
         } else if (!clean.startsWith('#') && !clean.startsWith('<')) {
-            segments.push(clean.startsWith('http') ? clean : baseUrl + clean);
+            segments.push(resolvePlaylistUri(clean, playlistUrl, variables));
         }
     }
     return { initUrl, segments };
