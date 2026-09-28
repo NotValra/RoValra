@@ -150,7 +150,7 @@
         "purchaseError": "购买错误",
         "purchaseFailed": "购买失败",
         "unknownError": "未知错误",
-        "errorLoadingTitle": "载入道具时发生错误",
+        "errorLoadingTitle": "加载道具时发生错误",
         "errorLoadingMessage": "我们无法获取该道具的信息。详情：{{errorMessage}}。请稍后再试。"
     },
     "avatarRotator": {
@@ -160,7 +160,7 @@
         "setRotators": "设置为轮换器 ({{count}})",
         "selectedStatus": "选择要轮换显示的虚拟形象。（已选择 {{count}} 个虚拟形象）",
         "loading": "加载中...",
-        "loadMore": "载入更多",
+        "loadMore": "加载更多",
         "interval": "刷新率（秒）",
         "loadingDetails": "正在加载形象详情...",
         "active": "轮换器已启用！",
@@ -241,7 +241,7 @@
         "donateSavedRobux": "将已节省的 Robux 捐赠给 RoValra",
         "estimatedSavings": "下文所示的预计节省金额为近似值，可能不准确。",
         "importantInformation": "重要信息",
-        "acknowledge": "我已确认",
+        "acknowledge": "我已阅读并同意",
         "groupRequired": "需要群组",
         "goBack": "返回",
         "ownershipDetected": "检测到所有权",
@@ -827,191 +827,193 @@
                 "146089324": "WoozyNate 是《Fisch》的创作者，RoValra 的旧标志也是来自《Fisch》。你应该去看一下《Fisch》！",
                 "1337447242": "设计了新的标志和所有商店页面的图片。",
                 "795922138": "「RoValra」这个名字是开玩笑想出来的，结果发现太好笑了，所以就用了。",
-                "2974594300": "用户介面改进、错误修复及其他贡献。",
+                "2974594300": "用户界面改进、错误修复及其他贡献。",
                 "170038374": "构思了一些概念，RoValra 的部分功能就是基于这些概念设计的。"
             },
-            "sortLabel": "Sort contributors",
-            "sortMost": "Most",
-            "sortLeast": "Least",
-            "contributionCount_one": "Contributed to {{count}} feature",
-            "contributionCount_other": "Contributed to {{count}} features",
-            "backendContributorsNote": "These people helped with non feature related things.",
-            "loadingContributors": "Loading...",
-            "failedToLoadContributors": "Failed to load contributors.",
+            "sortLabel": "排序贡献者列表",
+            "sortMost": "最多",
+            "sortLeast": "最少",
+            "contributionCount_one": "对 {{count}} 个功能做出贡献",
+            "contributionCount_other": "对 {{count}} 个功能做出贡献",
+            "backendContributorsNote": "这些人协助处理与功能无关的工作。",
+            "loadingContributors": "加载中...",
+            "failedToLoadContributors": "加载贡献者失败。",
             "otherContributions": {
                 "badges": {
-                    "translatorAndNate": "Added translator badge and WoozyNate badge",
-                    "nateGilbertFix": "Fix nates badge to be gilbert again"
+                    "translatorAndNate": "添加了翻译者徽章和 WoozyNate 徽章",
+                    "nateGilbertFix": "将 Nate 的徽章修复为 Gilbert。"
                 },
                 "caching": {
-                    "hashmap": "Added hashmap to the cache handler"
+                    "hashmap": "已将散列表添加到缓存处理程序"
                 },
                 "sidebar": {
-                    "rblxUpdateFix": "Fixed the sidebar for a Roblox update"
+                    "rblxUpdateFix": "修复了 Roblox 更新的侧边栏"
                 },
                 "rbxm": {
-                    "fixDesyncCframe": "Fixed RBXM parser desync and CFRAME format"
+                    "fixDesyncCframe": "修复了 RBXM 解析器不同步和 CFRAME 格式问题"
                 },
                 "markdown": {
-                    "untrustedMd": "Added limited markdown parser for untrusted users"
+                    "untrustedMd": "为不受信任的用户添加了有限的 Markdown 解析器"
                 },
                 "settingsHandler": {
-                    "unifiedApi": "Added unified settings API"
+                    "unifiedApi": "添加了统一设置 API"
                 },
                 "contributorList": {
-                    "creditsImprovement": "Improved credits in the contributor list",
-                    "nonSettingCredits": "Add credits for features and improvements that don't have their own settings"
+                    "creditsImprovement": "改进贡献者列表中的贡献者信息",
+                    "nonSettingCredits": "为没有独立设置的功能和改进添加贡献者信息"
                 },
                 "donatorTierPage": {
-                    "newIndicators": "Added new indicators for donator tiers"
+                    "newIndicators": "添加了捐赠者等级指标"
                 },
                 "iconElement": {
-                    "addIcons": "Added the `<icon>` element that allows using Builder Icons, Material Icons, and RoValra Icons.",
-                    "addElement": "Added the base `<icon>` element that allows using Builder Icons. Prev, going to use the built-in `<i>` element with classes.",
-                    "makeRoValraIcons": "Added a font for RoValra Icons + a new building method for the website.",
-                    "addBuilderIconsWOFF": "Added hosting for Builder Icons on the RoValra Website, as well as different font files that are less in size."
+                    "addIcons": "添加了 `<icon>` 元素，允许使用 Builder 图标、Material 图标和 RoValra 图标。",
+                    "addElement": "添加了基础的 `<icon>` 元素，允许使用 Builder Icons。之前将使用内置的 `<i>` 元素及其类名。",
+                    "makeRoValraIcons": "为 RoValra 图标添加了字体 + 为网站添加了新的构建方法。",
+                    "addBuilderIconsWOFF": "在 RoValra 网站上添加了 Builder 图标的托管，以及体积更小的不同字体文件。"
                 },
                 "displayAppThemeUserProfile": {
-                    "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
+                    "addedToWebsite": "在网站上添加了主题索引，以便用户只能使用正确且指定的主题。"
                 },
                 "locales": {
-                    "madeRo": "Helped make the Romanian locale",
-                    "madeEs": "Helped make the Spanish locale"
+                    "madeRo": "协助进行罗马尼亚语本地化",
+                    "madeEs": "协助进行西班牙语本地化",
+                    "madeRu": "协助进行俄语本地化",
+                    "madeFr": "协助进行法语本地化"
                 }
             },
             "ui": {
                 "popup": {
-                    "title": "{{user}}'s Contributions",
-                    "contributor": "Contributor",
-                    "featureName": "Feature",
-                    "featureKey": "(Dev) Feature Key"
+                    "title": "{{user}} 的贡献",
+                    "contributor": "贡献者",
+                    "featureName": "功能",
+                    "featureKey": "（开发者）功能键"
                 }
             }
         },
         "donatorPerks": {
-            "title": "Donator Perks!",
-            "subtitle": "Support RoValra's development and get exclusive perks!",
-            "howToGet": "How to Get Perks",
-            "howToGetDesc": "You can donate by purchasing a gamepasses in the support game.",
-            "goToGame": "Go to Donation Game",
-            "perkTiers": "Perk Tiers",
-            "perk": "Perk",
-            "currentTier": "Current Tier",
-            "tier1": "Tier 1: Supporter",
-            "tier1Desc": "Donate <strong>any amount</strong>",
-            "tier1Reward": "Donator 1 Badge",
-            "tier1DiscordRole": "Donator 1 Discord role + extra Discord perks.",
-            "tier1Feature": "Set Status and environments without adding a string to your about me.",
-            "tier2": "Tier 2: Supporter",
-            "tier2Desc": "Donate <strong>200+ Robux</strong>",
-            "tier2Reward": "Donator 2 Badge",
-            "tier2DiscordRole": "Donator 2 Discord role + upgraded Discord perks.",
-            "tier3": "Tier 3: Supporter",
-            "tier3Desc": "Donate <strong>500+ Robux</strong>",
-            "tier3Reward": "Donator 3 Badge",
-            "tier3DiscordRole": "Donator 3 Discord role + best Discord perks.",
-            "previousRewards": "+ All previous tier rewards",
-            "moreComingSoon": "More coming soon.",
-            "note": "Note:\n- Badges may take a few minutes to appear after donation.\n- To manage badge visibility, go to the 'Profile' settings tab. \n- Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.\n- When donating you agree to [RoValra's Terms of Use](https://www.rovalra.com/tou/)"
+            "title": "捐赠者福利！",
+            "subtitle": "支持 RoValra 的开发，可以获取专属福利！",
+            "howToGet": "如何获得福利",
+            "howToGetDesc": "您可以通过在支持游戏中购买游戏通行证进行捐赠。",
+            "goToGame": "前往捐赠游戏",
+            "perkTiers": "福利等级",
+            "perk": "福利",
+            "currentTier": "当前等级",
+            "tier1": "等级 1：支持者",
+            "tier1Desc": "捐赠<strong>任何金额</strong>",
+            "tier1Reward": "等级 1 捐赠者徽章",
+            "tier1DiscordRole": "等级 1 捐赠者 Discord 身份 + 额外 Discord 福利。",
+            "tier1Feature": "无需在「关于我」中添加字符串即可设置状态和环境。",
+            "tier2": "等级 2：支持者",
+            "tier2Desc": "捐赠 <strong>200+ Robux</strong>",
+            "tier2Reward": "等级 2 捐赠者徽章",
+            "tier2DiscordRole": "等级 2 捐赠者 Discord 身份 + 升级版 Discord 福利。",
+            "tier3": "等级 3：支持者",
+            "tier3Desc": "捐赠 <strong>500+ Robux</strong>",
+            "tier3Reward": "等级 3 捐赠者徽章",
+            "tier3DiscordRole": "等级 3 捐赠者 Discord 身份 + 最佳 Discord 福利。",
+            "previousRewards": "+ 所有先前级别的奖励",
+            "moreComingSoon": "更多内容即将推出。",
+            "note": "备注：\n- 徽章可能需要几分钟才能在捐赠后显示。\n- 若要管理徽章的可见性，请转到「个人资料」设置选项卡。\n- 通过委托捐赠很遗憾不会给予捐赠者福利，这是 Roblox 的限制。\n- 捐赠时，您同时也同意 [RoValra 的使用条款](https://www.rovalra.com/tou/)"
         },
         "search": {
-            "minLength": "Please enter at least 2 characters to search.",
-            "noResults": "No settings found for \"{{query}}\"."
+            "minLength": "请输入至少 2 个字符进行搜索。",
+            "noResults": "未找到\"{{query}}\"的设置。"
         },
         "ui": {
             "common": {
-                "cancel": "Cancel",
-                "okay": "Okay",
-                "ok": "OK",
-                "pleaseWait": "Please wait...",
-                "loading": "Loading...",
-                "unknown": "Unknown",
-                "user": "User",
-                "unavailable": "Unavailable",
+                "cancel": "取消",
+                "okay": "确定",
+                "ok": "确定",
+                "pleaseWait": "请稍后...",
+                "loading": "加载中...",
+                "unknown": "未知",
+                "user": "用户",
+                "unavailable": "无法使用",
                 "notAvailable": "N/A"
             },
             "levels": {
-                "allGood": "All Good",
-                "limited": "Limited",
-                "veryLimited": "Very Limited",
-                "atRisk": "At Risk",
-                "suspended": "Suspended"
+                "allGood": "一切正常",
+                "limited": "受限制",
+                "veryLimited": "受严重限制",
+                "atRisk": "存在风险",
+                "suspended": "已封禁"
             },
             "search": {
-                "placeholder": "Search Settings..."
+                "placeholder": "搜索设置..."
             },
             "controls": {
-                "clearStorage": "Clear Storage",
-                "preview": "Preview",
-                "fadeStrength": "Fade Strength",
-                "clickMe": "Click Me",
-                "enterValue": "Enter value",
-                "remove": "Remove",
-                "add": "Add",
-                "experimental": "Experimental",
-                "beta": "Beta",
-                "deprecated": "Deprecated",
-                "invalidImageUrl": "Enter a valid http:// or https:// image URL.",
-                "enablePermission": "Enable {{permission}} permission"
+                "clearStorage": "清除存储空间",
+                "preview": "预览",
+                "fadeStrength": "淡入淡出强度",
+                "clickMe": "点击我",
+                "enterValue": "输入值",
+                "remove": "移除",
+                "add": "添加",
+                "experimental": "实验性功能",
+                "beta": "测试版",
+                "deprecated": "已弃用",
+                "invalidImageUrl": "输入有效的 http:// 或 https:// 图像 URL。",
+                "enablePermission": "启用{{permission}}权限"
             },
             "badges": {
-                "visibility": "Toggle your donation badges visibility."
+                "visibility": "切换捐赠徽章的可见性。"
             },
             "locks": {
-                "donatorTierRequired": "RoValra Donator Tier {{tier}} Required",
-                "donatorPerk": "RoValra Donator Perk (Tier {{tier}})",
-                "featureDisabled": "This feature has been disabled {{lockType}}"
+                "donatorTierRequired": "必需要 RoValra 捐赠者等级 {{tier}}",
+                "donatorPerk": "RoValra 捐赠者福利（等级 {{tier}}）",
+                "featureDisabled": "该功能已被禁用 {{lockType}}"
             },
             "featureStatus": {
-                "title": "Before Enabling This Feature",
-                "message": "Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.",
-                "acknowledge": "I Acknowledge"
+                "title": "启用此功能前",
+                "message": "带有这些标签的功能可能不稳定，或会随时间变化。它们可能会导致加载时间延长、用户界面不一致、网站相关问题或其他意外行为。<br><br>仅当您了解此功能可能无法完美运行时才启用它。",
+                "acknowledge": "我已阅读并同意"
             },
             "environment": {
-                "exported": "Environment JSON has been printed to the console (F12).",
-                "imported": "Environment config imported successfully. The page will reload to apply changes.",
-                "parseFailed": "Failed to parse the JSON file.",
-                "storageUsed": "Total Local Storage Used: {{size}}"
+                "exported": "环境 JSON 已打印到控制台 (F12)。",
+                "imported": "环境配置导入成功。页面将重新加载以应用更改。",
+                "parseFailed": "解析 JSON 文件失败。",
+                "storageUsed": "本地存储空间已用：{{size}}"
             },
             "pronouns": {
-                "tooLong": "Pronouns must be 15 characters or fewer.",
-                "filterRejected": "Roblox's filter rejected these pronouns. Try a different value.",
-                "checkFailed": "Pronouns could not be checked by Roblox. Please try again.",
-                "filterBusy": "The Roblox pronoun filter is busy. Please try again shortly."
+                "tooLong": "代词必须少于或等于 15 个字符。",
+                "filterRejected": "Roblox 的过滤器拒绝了这些代词。请尝试其他值。",
+                "checkFailed": "Roblox 无法检查代词。请重试。",
+                "filterBusy": "Roblox 代词过滤器繁忙。请稍后再试。"
             },
             "port": {
-                "enableProfileNotes": "Enable Profile Notes before importing or exporting notes.",
-                "exportedOne": "Exported {{count}} profile note.",
-                "exportedMany": "Exported {{count}} profile notes.",
-                "exportFailed": "Profile notes could not be exported.",
-                "notesTooLarge": "The profile notes backup is too large.",
-                "invalidNotesBackup": "This is not a valid RoValra profile notes backup.",
-                "importedOne": "Imported {{count}} profile note.",
-                "importedMany": "Imported {{count}} profile notes.",
-                "notesReadFailed": "The profile notes backup could not be read.",
-                "importFailed": "Profile notes could not be imported.",
-                "exportUnexpectedError": "An unexpected error occurred during export.",
-                "exportError": "Error exporting settings. Check the console for details.",
-                "sanitizeError": "Error sanitizing settings for export. Check the console for details.",
-                "invalidSettingsFile": "This does not appear to be a valid RoValra settings file.",
-                "invalidSettingsData": "Error: The imported settings file contains invalid or potentially dangerous data.",
-                "settingsTooLarge": "Error: Settings file is too large. Maximum size is 1MB.",
-                "importError": "Error importing settings. Check the console for details.",
-                "malformedSettings": "The settings file is malformed.",
-                "readFailed": "Could not read the settings file. It might be corrupted or in the wrong format.",
-                "importUnexpectedError": "An unexpected error occurred during import.",
-                "exportSettings": "Export Settings",
-                "importSettings": "Import Settings"
+                "enableProfileNotes": "导入或导出备注前启用个人资料备注。",
+                "exportedOne": "已导出 {{count}} 条个人资料备注。",
+                "exportedMany": "已导出 {{count}} 条个人资料备注。",
+                "exportFailed": "个人资料备注导出失败。",
+                "notesTooLarge": "个人资料备注备份过大。",
+                "invalidNotesBackup": "这不是有效的 RoValra 个人资料备注备份。",
+                "importedOne": "已导入 {{count}} 条个人资料备注。",
+                "importedMany": "已导入 {{count}} 条个人资料备注。",
+                "notesReadFailed": "无法读取个人资料备注备份。",
+                "importFailed": "无法导入个人资料备注。",
+                "exportUnexpectedError": "导出过程中发生意外错误。",
+                "exportError": "导出设置时出错。请查看控制台了解详情。",
+                "sanitizeError": "清理设置时出错。导出设置时出错。请查看控制台了解详情。",
+                "invalidSettingsFile": "此文件似乎不是有效的 RoValra 设置文件。",
+                "invalidSettingsData": "错误：导入的设置文件包含无效或潜在危险的数据。",
+                "settingsTooLarge": "错误：设置文件过大。最大大小为 1MB。",
+                "importError": "导入设置时出错。请查看控制台了解详情。",
+                "malformedSettings": "设置文件格式错误。",
+                "readFailed": "无法读取设置文件。文件可能已损坏或格式错误。",
+                "importUnexpectedError": "导入过程中发生意外错误。",
+                "exportSettings": "导出设置",
+                "importSettings": "导入设置"
             },
             "changelogs": {
-                "title": "Changelogs",
+                "title": "更新日志",
                 "github": "GitHub",
                 "chrome": "Chrome",
-                "untitledRelease": "Untitled release",
-                "noNotes": "No changelog notes were provided for this release.",
-                "loading": "Loading changelogs...",
-                "empty": "No changelogs are available right now.",
-                "loadFailed": "Failed to load changelogs. Please try again later."
+                "untitledRelease": "无名更新",
+                "noNotes": "本次更新未提供变更日志。",
+                "loading": "正在加载更新日志...",
+                "empty": "目前暂无更新日志。",
+                "loadFailed": "无法加载更新日志，请稍后再试。"
             },
             "parentRequest": {
                 "sendingTitle": "Sending Request",

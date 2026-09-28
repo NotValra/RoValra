@@ -241,7 +241,7 @@
         "donateSavedRobux": "將已節省的 Robux 捐贈給 RoValra",
         "estimatedSavings": "之後顯示的預計節省金額為近似值，可能不準確。",
         "importantInformation": "重要資訊",
-        "acknowledge": "我承認",
+        "acknowledge": "我已閱讀並同意",
         "groupRequired": "需要群組",
         "goBack": "返回",
         "ownershipDetected": "偵測到擁有權",
@@ -798,7 +798,7 @@
         "tabs": {
             "info": "資訊",
             "credits": "貢獻者",
-            "donatorPerks": "捐贈者福利",
+            "donatorPerks": "捐贈者特權",
             "settings": "設定",
             "accountStanding": "帳號狀態",
             "store": "商店"
@@ -830,188 +830,190 @@
                 "2974594300": "使用者介面改進、錯誤修復及其他貢獻。",
                 "170038374": "構思了一些概念，RoValra 的部分功能就是基於這些概念設計的。"
             },
-            "sortLabel": "Sort contributors",
-            "sortMost": "Most",
-            "sortLeast": "Least",
-            "contributionCount_one": "Contributed to {{count}} feature",
-            "contributionCount_other": "Contributed to {{count}} features",
-            "backendContributorsNote": "These people helped with non feature related things.",
-            "loadingContributors": "Loading...",
-            "failedToLoadContributors": "Failed to load contributors.",
+            "sortLabel": "整理貢獻者名單",
+            "sortMost": "最多",
+            "sortLeast": "最少",
+            "contributionCount_one": "對 {{count}} 則功能做出貢獻",
+            "contributionCount_other": "對 {{count}} 則功能做出貢獻",
+            "backendContributorsNote": "這些人協助處理與功能無關的工作。",
+            "loadingContributors": "正在載入...",
+            "failedToLoadContributors": "無法載入貢獻者。",
             "otherContributions": {
                 "badges": {
-                    "translatorAndNate": "Added translator badge and WoozyNate badge",
-                    "nateGilbertFix": "Fix nates badge to be gilbert again"
+                    "translatorAndNate": "新增了翻譯者徽章和 WoozyNate 徽章",
+                    "nateGilbertFix": "將 Nate 的徽章修復為 Gilbert。"
                 },
                 "caching": {
-                    "hashmap": "Added hashmap to the cache handler"
+                    "hashmap": "已將雜湊表新增至快取處理程序"
                 },
                 "sidebar": {
-                    "rblxUpdateFix": "Fixed the sidebar for a Roblox update"
+                    "rblxUpdateFix": "修復了 Roblox 更新的側邊欄"
                 },
                 "rbxm": {
-                    "fixDesyncCframe": "Fixed RBXM parser desync and CFRAME format"
+                    "fixDesyncCframe": "修正了 RBXM 解析器不同步和 CFRAME 格式問題"
                 },
                 "markdown": {
-                    "untrustedMd": "Added limited markdown parser for untrusted users"
+                    "untrustedMd": "為不受信任的使用者新增了有限的 Markdown 解析器"
                 },
                 "settingsHandler": {
-                    "unifiedApi": "Added unified settings API"
+                    "unifiedApi": "新增了統一設定 API"
                 },
                 "contributorList": {
-                    "creditsImprovement": "Improved credits in the contributor list",
-                    "nonSettingCredits": "Add credits for features and improvements that don't have their own settings"
+                    "creditsImprovement": "改進貢獻者名單中的貢獻者資訊",
+                    "nonSettingCredits": "為沒有獨立設定的功能和改進新增了貢獻者資訊"
                 },
                 "donatorTierPage": {
-                    "newIndicators": "Added new indicators for donator tiers"
+                    "newIndicators": "新增了捐贈者等級指標"
                 },
                 "iconElement": {
-                    "addIcons": "Added the `<icon>` element that allows using Builder Icons, Material Icons, and RoValra Icons.",
-                    "addElement": "Added the base `<icon>` element that allows using Builder Icons. Prev, going to use the built-in `<i>` element with classes.",
-                    "makeRoValraIcons": "Added a font for RoValra Icons + a new building method for the website.",
-                    "addBuilderIconsWOFF": "Added hosting for Builder Icons on the RoValra Website, as well as different font files that are less in size."
+                    "addIcons": "新增了 `<icon>` 元素，允許使用 Builder 圖示、Material 圖示和 RoValra 圖示。",
+                    "addElement": "新增了基礎的 `<icon>` 元素，允許使用 Builder Icons。之前將使用內建的 `<i>` 元素及其類別名稱。",
+                    "makeRoValraIcons": "為 RoValra 圖示新增了字體 + 為網站新增了新的建置方法。",
+                    "addBuilderIconsWOFF": "在 RoValra 網站上新增了 Builder 圖示的託管，以及體積更小的不同字體檔案。"
                 },
                 "displayAppThemeUserProfile": {
-                    "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
+                    "addedToWebsite": "在網站上新增了主題索引，以便使用者只能使用正確且指定的主題。"
                 },
                 "locales": {
-                    "madeRo": "Helped make the Romanian locale",
-                    "madeEs": "Helped make the Spanish locale"
+                    "madeRo": "協助進行羅馬尼亞文在地化",
+                    "madeEs": "協助進行西班牙文在地化",
+                    "madeRu": "協助進行俄文在地化",
+                    "madeFr": "協助進行法文在地化"
                 }
             },
             "ui": {
                 "popup": {
-                    "title": "{{user}}'s Contributions",
-                    "contributor": "Contributor",
-                    "featureName": "Feature",
-                    "featureKey": "(Dev) Feature Key"
+                    "title": "{{user}} 的貢獻",
+                    "contributor": "貢獻者",
+                    "featureName": "功能",
+                    "featureKey": "（開發者）功能鍵"
                 }
             }
         },
         "donatorPerks": {
-            "title": "Donator Perks!",
-            "subtitle": "Support RoValra's development and get exclusive perks!",
-            "howToGet": "How to Get Perks",
-            "howToGetDesc": "You can donate by purchasing a gamepasses in the support game.",
-            "goToGame": "Go to Donation Game",
-            "perkTiers": "Perk Tiers",
-            "perk": "Perk",
-            "currentTier": "Current Tier",
-            "tier1": "Tier 1: Supporter",
-            "tier1Desc": "Donate <strong>any amount</strong>",
-            "tier1Reward": "Donator 1 Badge",
-            "tier1DiscordRole": "Donator 1 Discord role + extra Discord perks.",
-            "tier1Feature": "Set Status and environments without adding a string to your about me.",
-            "tier2": "Tier 2: Supporter",
-            "tier2Desc": "Donate <strong>200+ Robux</strong>",
-            "tier2Reward": "Donator 2 Badge",
-            "tier2DiscordRole": "Donator 2 Discord role + upgraded Discord perks.",
-            "tier3": "Tier 3: Supporter",
-            "tier3Desc": "Donate <strong>500+ Robux</strong>",
-            "tier3Reward": "Donator 3 Badge",
-            "tier3DiscordRole": "Donator 3 Discord role + best Discord perks.",
-            "previousRewards": "+ All previous tier rewards",
-            "moreComingSoon": "More coming soon.",
-            "note": "Note:\n- Badges may take a few minutes to appear after donation.\n- To manage badge visibility, go to the 'Profile' settings tab. \n- Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.\n- When donating you agree to [RoValra's Terms of Use](https://www.rovalra.com/tou/)"
+            "title": "捐贈者特權！",
+            "subtitle": "支援 RoValra 的開發，即可獲取專屬特權！",
+            "howToGet": "如何獲取特權",
+            "howToGetDesc": "您可以透過在支援遊戲中購買遊戲通行證進行捐贈。",
+            "goToGame": "前往捐贈遊戲",
+            "perkTiers": "特權等級",
+            "perk": "特權",
+            "currentTier": "目前等級",
+            "tier1": "等級 1：支援者",
+            "tier1Desc": "捐贈<strong>任何金額</strong>",
+            "tier1Reward": "等級 1 捐贈者徽章",
+            "tier1DiscordRole": "等級 1 捐贈者 Discord 身份 + 額外 Discord 特權。",
+            "tier1Feature": "無需在「關於我」中新增字串即可設定狀態和環境。",
+            "tier2": "等級 2：支援者",
+            "tier2Desc": "捐贈 <strong>200+ Robux</strong>",
+            "tier2Reward": "等級 2 捐贈者徽章",
+            "tier2DiscordRole": "等級 2 捐贈者 Discord 身份 + 升級版 Discord 特權。",
+            "tier3": "等級 3：支援者",
+            "tier3Desc": "捐贈 <strong>500+ Robux</strong>",
+            "tier3Reward": "等級 2 捐贈者徽章",
+            "tier3DiscordRole": "等級 3 捐贈者 Discord 身份 + 最佳 Discord 特權。",
+            "previousRewards": "+ 所有先前等級的獎勵",
+            "moreComingSoon": "更多內容即將推出。",
+            "note": "備註：\n- 徽章可能需要幾分鐘才能在捐贈後顯示。\n- 若要管理徽章的可見性，請前往「個人檔案」設定標籤。\n- 透過抽成捐贈很遺憾不會給予捐贈者特權，這是 Roblox 的限制。\n- 捐贈時，您同時也同意 [RoValra 的使用條款](https://www.rovalra.com/tou/)"
         },
         "search": {
-            "minLength": "Please enter at least 2 characters to search.",
-            "noResults": "No settings found for \"{{query}}\"."
+            "minLength": "請輸入至少 2 個字元進行搜尋。",
+            "noResults": "未找到\"{{query}}\"的設定。"
         },
         "ui": {
             "common": {
-                "cancel": "Cancel",
-                "okay": "Okay",
-                "ok": "OK",
-                "pleaseWait": "Please wait...",
-                "loading": "Loading...",
-                "unknown": "Unknown",
-                "user": "User",
-                "unavailable": "Unavailable",
+                "cancel": "取消",
+                "okay": "確定",
+                "ok": "確定",
+                "pleaseWait": "請稍後...",
+                "loading": "正在載入...",
+                "unknown": "未知",
+                "user": "使用者",
+                "unavailable": "無法使用",
                 "notAvailable": "N/A"
             },
             "levels": {
-                "allGood": "All Good",
-                "limited": "Limited",
-                "veryLimited": "Very Limited",
-                "atRisk": "At Risk",
-                "suspended": "Suspended"
+                "allGood": "一切正常",
+                "limited": "受限制",
+                "veryLimited": "受嚴格限制",
+                "atRisk": "存在風險",
+                "suspended": "已停權"
             },
             "search": {
-                "placeholder": "Search Settings..."
+                "placeholder": "搜尋設定..."
             },
             "controls": {
-                "clearStorage": "Clear Storage",
-                "preview": "Preview",
-                "fadeStrength": "Fade Strength",
-                "clickMe": "Click Me",
-                "enterValue": "Enter value",
-                "remove": "Remove",
-                "add": "Add",
-                "experimental": "Experimental",
-                "beta": "Beta",
-                "deprecated": "Deprecated",
-                "invalidImageUrl": "Enter a valid http:// or https:// image URL.",
-                "enablePermission": "Enable {{permission}} permission"
+                "clearStorage": "清除儲存空間",
+                "preview": "預覽",
+                "fadeStrength": "淡入淡出強度",
+                "clickMe": "點觸我",
+                "enterValue": "輸入值",
+                "remove": "移除",
+                "add": "新增",
+                "experimental": "實驗性功能",
+                "beta": "測試版",
+                "deprecated": "已淘汰",
+                "invalidImageUrl": "輸入有效的 http:// 或 https:// 圖片 URL。",
+                "enablePermission": "啟用{{permission}}權限"
             },
             "badges": {
-                "visibility": "Toggle your donation badges visibility."
+                "visibility": "切換捐贈徽章的可見性。"
             },
             "locks": {
-                "donatorTierRequired": "RoValra Donator Tier {{tier}} Required",
-                "donatorPerk": "RoValra Donator Perk (Tier {{tier}})",
-                "featureDisabled": "This feature has been disabled {{lockType}}"
+                "donatorTierRequired": "必須要 RoValra 捐贈者等級 {{tier}}",
+                "donatorPerk": "RoValra 捐贈者特權（等級 {{tier}}）",
+                "featureDisabled": "此功能已停用 {{lockType}}"
             },
             "featureStatus": {
-                "title": "Before Enabling This Feature",
-                "message": "Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.",
-                "acknowledge": "I Acknowledge"
+                "title": "啟用此功能前",
+                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導致加載時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您瞭解此功能可能無法完美執行時才啟用它。",
+                "acknowledge": "我已閱讀並同意"
             },
             "environment": {
-                "exported": "Environment JSON has been printed to the console (F12).",
-                "imported": "Environment config imported successfully. The page will reload to apply changes.",
-                "parseFailed": "Failed to parse the JSON file.",
-                "storageUsed": "Total Local Storage Used: {{size}}"
+                "exported": "環境 JSON 已列印到控制台 (F12)。",
+                "imported": "環境配置匯入成功。頁面將重新載入以套用變更。",
+                "parseFailed": "無法解析 JSON 檔案。",
+                "storageUsed": "本地儲存空​​間已使用：{{size}}"
             },
             "pronouns": {
-                "tooLong": "Pronouns must be 15 characters or fewer.",
-                "filterRejected": "Roblox's filter rejected these pronouns. Try a different value.",
-                "checkFailed": "Pronouns could not be checked by Roblox. Please try again.",
-                "filterBusy": "The Roblox pronoun filter is busy. Please try again shortly."
+                "tooLong": "代名詞必須少於或等於 15 個字元。",
+                "filterRejected": "Roblox 的過濾器拒絕了這些代名詞。請嘗試其他值。",
+                "checkFailed": "Roblox 無法檢查代名詞。請重試。",
+                "filterBusy": "Roblox 代名詞過濾器繁忙。請稍後再試。"
             },
             "port": {
-                "enableProfileNotes": "Enable Profile Notes before importing or exporting notes.",
-                "exportedOne": "Exported {{count}} profile note.",
-                "exportedMany": "Exported {{count}} profile notes.",
-                "exportFailed": "Profile notes could not be exported.",
-                "notesTooLarge": "The profile notes backup is too large.",
-                "invalidNotesBackup": "This is not a valid RoValra profile notes backup.",
-                "importedOne": "Imported {{count}} profile note.",
-                "importedMany": "Imported {{count}} profile notes.",
-                "notesReadFailed": "The profile notes backup could not be read.",
-                "importFailed": "Profile notes could not be imported.",
-                "exportUnexpectedError": "An unexpected error occurred during export.",
-                "exportError": "Error exporting settings. Check the console for details.",
-                "sanitizeError": "Error sanitizing settings for export. Check the console for details.",
-                "invalidSettingsFile": "This does not appear to be a valid RoValra settings file.",
-                "invalidSettingsData": "Error: The imported settings file contains invalid or potentially dangerous data.",
-                "settingsTooLarge": "Error: Settings file is too large. Maximum size is 1MB.",
-                "importError": "Error importing settings. Check the console for details.",
-                "malformedSettings": "The settings file is malformed.",
-                "readFailed": "Could not read the settings file. It might be corrupted or in the wrong format.",
-                "importUnexpectedError": "An unexpected error occurred during import.",
-                "exportSettings": "Export Settings",
-                "importSettings": "Import Settings"
+                "enableProfileNotes": "匯入或匯出備註前啟用個人檔案備註。",
+                "exportedOne": "已匯出 {{count}} 個人檔案備註。",
+                "exportedMany": "已匯出 {{count}} 個人檔案備註。",
+                "exportFailed": "無法匯出個人檔案備註。",
+                "notesTooLarge": "個人檔案備註備份過大。",
+                "invalidNotesBackup": "這不是有效的 RoValra 個人檔案備註備份。",
+                "importedOne": "已匯入 {{count}} 個人檔案備註。",
+                "importedMany": "已匯入 {{count}} 個人檔案備註。",
+                "notesReadFailed": "無法讀取個人檔案備註備份。",
+                "importFailed": "無法匯入個人檔案備註。",
+                "exportUnexpectedError": "匯出過程中發生意外錯誤。",
+                "exportError": "匯出設定時發生錯誤。請查看控制台以瞭解詳情。",
+                "sanitizeError": "清理設定時發生錯誤。匯出設定時發生錯誤。請查看控制台以瞭解詳情。",
+                "invalidSettingsFile": "此檔案似乎不是有效的 RoValra 設定檔案。",
+                "invalidSettingsData": "錯誤：匯入的設定檔包含無效或潛在危險的資料。",
+                "settingsTooLarge": "錯誤：設定檔案過大。最大大小為 1MB。",
+                "importError": "匯入設定時發生錯誤。請查看控制台以瞭解詳情。",
+                "malformedSettings": "設定檔案格式錯誤。",
+                "readFailed": "無法讀取設定檔案。檔案可能已損壞或格式錯誤。",
+                "importUnexpectedError": "匯入過程中發生意外錯誤。",
+                "exportSettings": "匯出設定",
+                "importSettings": "匯入設定"
             },
             "changelogs": {
-                "title": "Changelogs",
+                "title": "更新日誌",
                 "github": "GitHub",
                 "chrome": "Chrome",
-                "untitledRelease": "Untitled release",
-                "noNotes": "No changelog notes were provided for this release.",
-                "loading": "Loading changelogs...",
-                "empty": "No changelogs are available right now.",
-                "loadFailed": "Failed to load changelogs. Please try again later."
+                "untitledRelease": "未命名更新",
+                "noNotes": "本次更新未提供變更日誌。",
+                "loading": "正在載入更新日誌...",
+                "empty": "目前暫無更新日誌。",
+                "loadFailed": "無法載入更新日誌，請稍後再試。"
             },
             "parentRequest": {
                 "sendingTitle": "Sending Request",
