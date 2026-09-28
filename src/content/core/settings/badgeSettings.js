@@ -21,7 +21,7 @@ export async function setBadgeVisibility(badgeName, isVisible) {
 }
 
 export async function getBadgeVisibilitySettings() {
-    const response = await syncDonatorTier();
+    const response = await syncDonatorTier({ force: true });
     if (!response || response.status !== 'success' || !response.badges) {
         return [];
     }

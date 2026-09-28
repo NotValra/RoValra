@@ -274,7 +274,7 @@ export const getCurrentUserTier = async () => {
     return currentUserTier;
 };
 
-export const syncDonatorTier = async () => {
+export const syncDonatorTier = async ({ force = false } = {}) => {
     if (donatorTierPromise) return donatorTierPromise;
 
     const now = Date.now();
@@ -328,7 +328,7 @@ export const syncDonatorTier = async () => {
         state.priorityActive && isUrlChange && state.checksLeft > 0;
     const isExpired = now - state.lastSync > 5 * 60 * 1000;
 
-    if (!isPriorityCheck && !isExpired) {
+    if (!force && !isPriorityCheck && !isExpired) {
         const cachedResponse =
             inMemoryDonatorResponse || state.cachedResponse || null;
         if (cachedResponse) {
