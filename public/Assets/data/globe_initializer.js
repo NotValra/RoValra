@@ -399,7 +399,7 @@
             } else {
                 ctx.beginPath();
                 ctx.arc(px, py, (isHover ? 6 : 4) * sScale, 0, CONSTANTS.PI_2);
-                ctx.fillStyle = active ? '#335fff' : '#666';
+                ctx.fillStyle = active ? '#137f1f' : '#666';
                 ctx.strokeStyle = 'rgba(255,255,255,0.9)';
                 ctx.lineWidth = 1.5 * sScale;
                 ctx.fill();
