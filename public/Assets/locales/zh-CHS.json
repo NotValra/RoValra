@@ -588,7 +588,7 @@
         "collectiblesTitleValue": "{{displayName}} 的收藏品 (价值：{{totalRapString}})",
         "inventoryPrivateOrNoLimiteds": "该用户的道具库已隐藏或没有限量道具。",
         "searchByName": "按道具名称搜索",
-        "itemAmount": "拥有该物品的数量：{{quantity}}"
+        "itemAmount": "拥有该道具的数量：{{quantity}}"
     },
     "sendTrade": {
         "send": "发送"
@@ -1075,160 +1075,160 @@
                 "get": "获取（最低 $1 美元）"
             },
             "store": {
-                "artist": "Artist",
-                "artistTooltip": "{{name}} created this avatar border.",
-                "free": "Free",
-                "owned": "Owned",
-                "equipped": "Equipped",
-                "equip": "Equip",
-                "buy": "Buy",
-                "buyFor": "Buy for {{price}}",
-                "viewGamepass": "View Gamepass",
-                "all": "All",
-                "new": "New",
-                "static": "STATIC",
-                "animated": "ANIMATED",
-                "borderTitle": "Avatar Border Store",
-                "borderDescription": "Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free.</strong> Buying Avatar Borders counts towards your Donator Tier!",
-                "loadingBorders": "Loading borders..."
+                "artist": "艺术家",
+                "artistTooltip": "{{name}} 创建了此虚拟形象边框。",
+                "free": "免费",
+                "owned": "已拥有",
+                "equipped": "装备中",
+                "equip": "装备",
+                "buy": "购买",
+                "buyFor": "以 {{price}} 购买",
+                "viewGamepass": "查看游戏通行证",
+                "all": "全部",
+                "new": "新",
+                "static": "静态",
+                "animated": "动态",
+                "borderTitle": "虚拟形象边框商店",
+                "borderDescription": "虚拟形象边框商店，购买虚拟形象边框即可直接支持 RoValra 和艺术家们，<strong>捐赠者等级 3 可以免费获得所有虚拟形象边框。</strong>购买虚拟形象边框计入您的捐赠等级！",
+                "loadingBorders": "正在加载边框..."
             },
             "border": {
-                "bundleNotice": "(Includes both Static and Animated variants)",
-                "freeTier3Tooltip": "Free because you have Donator Tier 3!",
-                "ownedTooltip": "You own this border!",
-                "freeTooltip": "This border is free to equip.",
-                "supportNotice": "Buying the cosmetics directly will support the artist and RoValra",
-                "purchaseDelay": "It may take up to a minute for the avatar border to show up after buying",
-                "parentApprovalTitle": "Parent Action Needed",
-                "parentApprovalMessage": "In order to buy avatar borders, you need parent permission.",
-                "noParentTitle": "You cannot use Avatar Borders",
-                "noParentBody": "Roblox requires you to get permission from a parent but you do not have any parent linked to your account. If you want to use avatar borders you will need to link a parent account and request to unblock the experience.",
-                "noBorders": "No borders available.",
-                "currentPreview": "Current Selection Preview",
-                "signInPreview": "Sign in to preview borders on your avatar.",
-                "noBordersInTab": "No borders found in this tab.",
-                "loadFailed": "Failed to load borders. Please try again later.",
-                "unequipTooltip": "Click to unequip this border",
-                "equipTooltip": "Equip this border",
-                "buyTooltip": "Buy this border"
+                "bundleNotice": "（包含静态和动态两种版本）",
+                "freeTier3Tooltip": "免费，因为您是捐赠者等级 3！",
+                "ownedTooltip": "您拥有此边框！",
+                "freeTooltip": "此边框可免费装备。",
+                "supportNotice": "直接购买这些装饰品将支持艺术家和 RoValra。",
+                "purchaseDelay": "购买后，虚拟形象边框可能需要最多一分钟才会显示。",
+                "parentApprovalTitle": "需要家长操作。",
+                "parentApprovalMessage": "要购买虚拟形象边框，您需要获得家长的许可。",
+                "noParentTitle": "您无法使用虚拟形象边框。",
+                "noParentBody": "Roblox 要求您获得家长的许可，但您的账号未绑定任何家长。如果您想使用虚拟形象边框，您需要绑定一个家长账号并申请解锁。",
+                "noBorders": "无可用边框。",
+                "currentPreview": "当前选择预览",
+                "signInPreview": "登录后预览虚拟形象边框。",
+                "noBordersInTab": "此标签页中未找到边框。",
+                "loadFailed": "边框加载失败。请稍后再试。",
+                "unequipTooltip": "点击可卸下此边框",
+                "equipTooltip": "装备此边框",
+                "buyTooltip": "购买此边框"
             },
             "appeal": {
-                "messageLabel": "Enter your appeal message (20-3000 characters)",
-                "title": "Submit Appeal",
-                "submit": "Submit Appeal",
-                "invalidLength": "Appeal message must be between 20 and 3000 characters.",
-                "submitFailed": "Failed to submit appeal. Please try again."
+                "messageLabel": "请输入您的申诉信息（20-3000个字符）",
+                "title": "提交申诉",
+                "submit": "提交申诉",
+                "invalidLength": "申诉信息长度必须在 20 到 3000 个字符之间。",
+                "submitFailed": "申诉提交失败，请重试。"
             },
             "standing": {
                 "levels": {
-                    "allGood": "All Good",
-                    "none": "None / No restrictions",
-                    "limited": "Limited",
-                    "veryLimited": "Very Limited",
-                    "atRisk": "At Risk",
-                    "suspended": "Suspended"
+                    "allGood": "一切正常",
+                    "none": "无限制",
+                    "limited": "受限制",
+                    "veryLimited": "受严重限制",
+                    "atRisk": "存在风险",
+                    "suspended": "已封禁"
                 },
                 "appealStatuses": {
-                    "notAppealed": "Not appealed",
-                    "pending": "Appeal Pending",
-                    "denied": "Appeal Denied",
-                    "accepted": "Appeal Accepted"
+                    "notAppealed": "未申诉",
+                    "pending": "申诉待审核",
+                    "denied": "申诉已拒绝",
+                    "accepted": "申诉已接受"
                 },
-                "goodTitle": "Your account is in good standing.",
-                "goodDescription": "You do not have any active violations or restrictions from the RoValra safety team.",
-                "temporaryTitle": "Your account is temporarily limited.",
-                "violationTitle": "We found a violation on your account.",
-                "statusDescription": "Your account status has been set to: {{status}}",
-                "policyTitle": "RoValra Safety Policy",
-                "policyDescription": "Accounts found in violation of the {{- termsLink}} or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.",
-                "automatedAction": "Automated Action",
-                "manualReview": "Manual Review",
-                "disabledFeatures": "Disabled Features",
-                "moderatedContent": "Moderated Content",
-                "violationDetails": "Violation Details",
-                "unknownReason": "Unknown Reason",
-                "moderated": "Moderated",
-                "temporaryExpires": "Temporary restriction expires",
-                "appealCase": "Appeal Case",
-                "status": "Status",
-                "yourMessage": "Your Message",
-                "response": "Response",
-                "reviewingAppeal": "Our team is currently reviewing your appeal.",
-                "appealDecision": "Appeal this decision"
+                "goodTitle": "您的账号状态良好。",
+                "goodDescription": "您没有任何来自 RoValra 安全团队的有效违规或限制。",
+                "temporaryTitle": "您的账号已被暂时限制。",
+                "violationTitle": "我们发现您的账号存在违规行为。",
+                "statusDescription": "您的账号状态已设置为：{{status}}",
+                "policyTitle": "RoValra 安全政策",
+                "policyDescription": "违反 {{- termsLink}} 或被第三方检测认定为存在风险的账号，其特定功能将被禁用。请注意，虽然某些在线功能可能会受到限制，但 RoValra 安全团队<strong>绝对不会</strong>禁用整个扩展程序或完全本地化的功能。",
+                "automatedAction": "自动操作",
+                "manualReview": "人工审核",
+                "disabledFeatures": "已禁用功能",
+                "moderatedContent": "已审核内容",
+                "violationDetails": "违规行为详情",
+                "unknownReason": "未知原因",
+                "moderated": "已审核",
+                "temporaryExpires": "临时限制到期",
+                "appealCase": "申诉案件",
+                "status": "状态",
+                "yourMessage": "您的信息",
+                "response": "回复",
+                "reviewingAppeal": "我们的团队正在审核您的申诉。",
+                "appealDecision": "对此决定提出申诉"
             }
         },
         "compatibilityWarning": {
-            "title": "RoValra may not work properly with {{extensions}} enabled.",
-            "description": "We do not promise support for {{extensions}}."
+            "title": "启用 {{extensions}} 扩展程序后，RoValra 可能无法正常工作。",
+            "description": "我们不承诺为 {{extensions}} 扩展程序提供支持。"
         }
     },
     "privacyToggles": {
         "nav": {
-            "tooltip": "Privacy Settings"
+            "tooltip": "隐私权设置"
         },
-        "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
+        "noTogglesEnabled": "未启用任何开关！请前往 RoValra 设置启用隐私权设置开关。",
         "dropdowns": {
             "shared": {
-                "allUsers": "Everyone",
-                "friendsFollowingFollowers": "Friends, Following, and Followers",
-                "friendsFollowing": "Friends and Following",
-                "friends": "Friends",
-                "trustedFriends": "Trusted Friends",
-                "noOne": "No one"
+                "allUsers": "每个人",
+                "friendsFollowingFollowers": "好友、粉丝与我关注的人",
+                "friendsFollowing": "好友与我关注的人",
+                "friends": "好友",
+                "trustedFriends": "可信赖好友",
+                "noOne": "没有人"
             },
             "onlineStatus": {
-                "name": "Online Status"
+                "name": "在线状态"
             },
             "joinStatus": {
-                "name": "Experience Status"
+                "name": "体验状态"
             },
             "privateServerPrivacy": {
-                "name": "Private Server Privacy"
+                "name": "私人服务器隐私权"
             },
             "inventoryPrivacy": {
-                "name": "Inventory Privacy"
+                "name": "道具库隐私权"
             }
         }
     },
     "qolToggles": {
-        "onlineStatus": "Online Status",
-        "joinStatus": "Experience Status",
-        "privateServerPrivacy": "Private Server Privacy",
-        "inventoryVisibility": "Inventory Visibility",
-        "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
-        "friendsAndFollowing": "Friends & Following",
-        "friends": "Friends",
-        "trustedFriends": "Trusted Friends",
-        "noOne": "No one"
+        "onlineStatus": "在线状态",
+        "joinStatus": "体验状态",
+        "privateServerPrivacy": "私人服务器隐私权",
+        "inventoryVisibility": "道具库可见性",
+        "everyone": "每个人",
+        "friendsFollowingAndFollowers": "好友、粉丝与我关注的人",
+        "friendsAndFollowing": "好友与我关注的人",
+        "friends": "好友",
+        "trustedFriends": "可信赖好友",
+        "noOne": "没有人"
     },
     "groupFunds": {
-        "loading": "Loading...",
-        "pending": "Pending:",
-        "noPermissions": "No Permission"
+        "loading": "加载中...",
+        "pending": "待处理：",
+        "noPermissions": "没有权限"
     },
     "navigation": {
-        "transactions": "Transactions",
-        "apiDocs": "API Docs",
-        "incidentLearnMore": "Click here to learn more.",
-        "incidentHideNotice": "You can hide this notice here"
+        "transactions": "交易",
+        "apiDocs": "API 文档",
+        "incidentLearnMore": "点击此处了解更多信息。",
+        "incidentHideNotice": "您可以在此处隐藏此通知。"
     },
     "sidebarCollapse": {
-        "collapseSidebar": "Collapse sidebar",
-        "expandSidebar": "Expand sidebar"
+        "collapseSidebar": "折叠侧边栏",
+        "expandSidebar": "展开侧边栏"
     },
     "voiceBanIndicator": {
-        "title": "Voice Banned",
-        "liftsIn": "Lifts in",
-        "noExpiry": "No expiry provided"
+        "title": "语音聊天已被禁止",
+        "liftsIn": "解除禁止于",
+        "noExpiry": "未提供有效期限"
     },
     "ageTheme": {
-        "navbarTooltip": "Age Theme",
+        "navbarTooltip": "年龄主题",
         "options": {
-            "normal": "Normal Roblox",
+            "normal": "普通 Roblox",
             "kids": "Roblox Kids",
             "select": "Roblox Select",
-            "startmode": "Roblox Leaked Select (Start Mode)"
+            "startmode": "Roblox 已泄露的 Select（开始模式）"
         },
         "badge": {
             "kids": "KIDS",
@@ -1236,37 +1236,37 @@
         }
     },
     "betaPrograms": {
-        "toggleTooltip": "Toggle Beta Programs",
-        "noPrograms": "You are not enrolled into any beta programs.",
-        "allowlist": "In an allowlist",
-        "previousProgramsTitle": "Previously enrolled beta programs",
-        "previousProgramTooltip": "This beta program is no longer available."
+        "toggleTooltip": "切换测试版计划",
+        "noPrograms": "您未参与任何测试版计划。",
+        "allowlist": "在允许列表中",
+        "previousProgramsTitle": "之前参与过的测试版计划",
+        "previousProgramTooltip": "此测试版计划已停止提供。"
     },
     "quickSearch": {
-        "aborted": "Aborted",
-        "apiRequestFailed": "API request failed with status {{status}}",
-        "friendSearchError": "RoValra: Friend Search Error",
-        "userSearchError": "RoValra: User Search Error",
-        "gameSearchError": "RoValra: Game Search Error",
-        "trustedConnection": "You are trusted friends",
-        "connection": "You are friends",
-        "playing": "Playing {{gameName}}",
-        "verifiedBadge": "Verified Badge",
-        "verified": "Verified",
-        "permanentlyBanned": "This user is terminated or deactived their account.",
-        "joinPreferredRegion": "Join Preferred Region",
-        "bestRegionAuto": "Best Region (Auto)",
-        "searchHistory": "Search History",
-        "noSearchHistory": "You don't have any search history.",
-        "deleteSearchHistoryTitle": "Delete Search History",
-        "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
-        "delete": "Delete"
+        "aborted": "已中止",
+        "apiRequestFailed": "API 请求失败，状态为 {{status}}",
+        "friendSearchError": "RoValra：好友搜索错误",
+        "userSearchError": "RoValra：用户搜索错误",
+        "gameSearchError": "RoValra：游戏搜索错误",
+        "trustedConnection": "您是可信赖的好友",
+        "connection": "您是好友",
+        "playing": "正在游玩 {{gameName}}",
+        "verifiedBadge": "已验证徽章",
+        "verified": "已验证",
+        "permanentlyBanned": "此用户已被永久终止或停用了账号。",
+        "joinPreferredRegion": "加入首选地区",
+        "bestRegionAuto": "最佳地区（自动）",
+        "searchHistory": "搜索历史记录",
+        "noSearchHistory": "您没有任何搜索历史记录。",
+        "deleteSearchHistoryTitle": "删除搜索历史记录",
+        "deleteSearchHistoryMessage": "您确定要删除此搜索历史记录吗？",
+        "delete": "删除"
     },
     "friendOwnership": {
-        "pillLabel": "{{count}} Friends own",
-        "pillTooltip": "See which friends own this item",
-        "overlayTitle": "{{count}} Friends own this item",
-        "unknownUser": "User {{id}}"
+        "pillLabel": "{{count}} 位好友拥有",
+        "pillTooltip": "查看哪些好友拥有此道具",
+        "overlayTitle": "{{count}} 位好友拥有此道具",
+        "unknownUser": "用户 {{id}}"
     },
     "regionPlayButton": {
         "ariaLabel": "Select or Join Preferred Server Region",
