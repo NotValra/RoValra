@@ -446,6 +446,14 @@
         "hours": "{{value}} 小時",
         "minutes": "{{value}} 分鐘"
     },
+    "mutualFriends": {
+        "pill_one": "{{count}} 位共同好友",
+        "pill_other": "{{count}} 位共同好友",
+        "tooltip": "你與這位使用者有哪些共同好友。",
+        "tab": "共同好友",
+        "title": "共同好友 ({{count}})",
+        "empty": "你與這位使用者沒有共同好友。"
+    },
     "trustedFriends": {
         "pendingConnection": "待處理信任好友",
         "pendingRequest": "待處理信任好友請求",
@@ -1011,6 +1019,7 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "未命名更新",
+                "current": "你的版本",
                 "noNotes": "本次更新未提供變更日誌。",
                 "loading": "正在載入更新日誌...",
                 "empty": "目前暫無更新日誌。",
@@ -1412,10 +1421,10 @@
         "continue": "仍然繼續"
     },
     "botDetector": {
-        "tooltip": "Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots. Keep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.",
-        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has a lot of bots",
-        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
-        "thisGame": "This game"
+        "tooltip": "機器人是指執行自動指令碼來研磨道具的帳號。單一使用者有時可以執行 50 多個機器人。請注意，這並非遊戲開發者的過錯。如果某個遊戲主要由新 Roblox 帳號遊玩，則此資訊可能不準確。",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> 有許多機器人。",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> 有一些機器人，但大部分是真人玩家。",
+        "thisGame": "此遊戲"
     },
     "events": {
         "title": "Events",

@@ -818,6 +818,14 @@
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
         },
+        "mutualFriends": {
+            "pill_one": "{{count}} 位共同好友",
+            "pill_other": "{{count}} 位共同好友",
+            "tooltip": "你与这位用户有哪些共同好友。",
+            "tab": "共同好友",
+            "title": "共同好友 ({{count}})",
+            "empty": "你与这位用户没有共同好友。"
+        },
         "credits": {
             "contributorsTitle": "贡献者",
             "translatorsTitle": "翻译者",
@@ -1011,6 +1019,7 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "无名更新",
+                "current": "你的版本",
                 "noNotes": "本次更新未提供变更日志。",
                 "loading": "正在加载更新日志...",
                 "empty": "目前暂无更新日志。",
@@ -1412,10 +1421,10 @@
         "continue": "仍然继续"
     },
     "botDetector": {
-        "tooltip": "Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots. Keep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.",
-        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has a lot of bots",
-        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
-        "thisGame": "This game"
+        "tooltip": "机器人是指运行自动脚本来研磨道具的账号。单个用户有时可以运行 50 多个机器人。请注意，这并非游戏开发者的过错。如果某个游戏主要由新 Roblox 账号游玩，则此信息可能不准确。",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> 有很多机器人",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> 有一些机器人，但大部分是真人玩家。",
+        "thisGame": "该游戏"
     },
     "events": {
         "title": "Events",
