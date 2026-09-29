@@ -1395,7 +1395,7 @@
         "description": "您最近加入过的服务器。"
     },
     "quickOutfits": {
-        "errorFetching": "获取服装时发生错误",
+        "errorFetching": "获取形象时发生错误",
         "equipping": "装备中...",
         "equipped": "已装备！",
         "failed": "失败",
