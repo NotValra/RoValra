@@ -617,7 +617,7 @@
         "bulkActivate": "批次啟用",
         "setInactive": "設定為非活躍",
         "setActive": "設定為活躍",
-        "noServersFound": "未找到 {{status}} 個私有伺服器。",
+        "noServersFound": "未找到 {{status}} 個人伺服器。",
         "byCreator": "創作者：",
         "allowJoining": "允許加入"
     },
@@ -1269,147 +1269,147 @@
         "unknownUser": "使用者 {{id}}"
     },
     "regionPlayButton": {
-        "ariaLabel": "Select or Join Preferred Server Region",
-        "tooltip": "Join Preferred Region",
-        "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
+        "ariaLabel": "選擇或加入首選伺服器地區",
+        "tooltip": "加入首選地區",
+        "tooltipWithRegion": "加入首選地區<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "加入首選地區<br><b>最佳區域（自動）</b>"
     },
     "quickPlay": {
-        "loading": "Loading...",
-        "rateLimited": "Rate limited. Retrying...",
-        "loadError": "Could not load servers.",
-        "noPrivateServers": "No active private servers found.",
-        "configure": "Configure",
-        "copyLink": "Copy Link",
-        "copied": "Copied!",
-        "error": "Error!",
-        "generateLink": "Generate New Link",
-        "joinClosestServer": "Join Closest Server",
-        "selectPreferredRegion": "Select Preferred Region",
-        "privateServers": "Private Servers"
+        "loading": "正在載入...",
+        "rateLimited": "速率受限，正在重試...",
+        "loadError": "無法載入伺服器。",
+        "noPrivateServers": "未找到活動的私人伺服器。",
+        "configure": "配置",
+        "copyLink": "複製連結",
+        "copied": "已複製！",
+        "error": "錯誤！",
+        "generateLink": "生成新連結",
+        "joinClosestServer": "加入最接近的伺服器",
+        "selectPreferredRegion": "選擇首選地區",
+        "privateServers": "私人伺服器"
     },
     "privateServerPage": {
-        "regenerateLink": "Generate Link",
-        "regenerated": "Generated!"
+        "regenerateLink": "生成連結",
+        "regenerated": "已生成！"
     },
     "devProducts": {
-        "noProducts": "No developer products found.",
-        "loadError": "Unable to load developer products for this game.",
-        "passes": "Passes",
-        "developerProducts": "Developer Products",
-        "search": "Search",
+        "noProducts": "未找到開發者產品。",
+        "loadError": "無法載入此遊戲的開發者產品。",
+        "passes": "通行證",
+        "developerProducts": "開發者產品",
+        "search": "搜尋",
         "sort": {
-            "created": "Sort by Created",
-            "price": "Sort by Price",
-            "updated": "Sort by Updated",
-            "name": "Sort by Name"
+            "created": "按建立時間整理",
+            "price": "按價格整理",
+            "updated": "按更新時間整理",
+            "name": "按名稱整理"
         },
         "order": {
-            "ascending": "Sort Ascending",
-            "descending": "Sort Descending"
+            "ascending": "升序整理",
+            "descending": "降序整理"
         }
     },
     "shop": {
-        "tab": "Shop",
-        "all": "All",
-        "category": "Category",
-        "product": "Product",
-        "gamePass": "Game Pass",
+        "tab": "商店",
+        "all": "全部",
+        "category": "類別",
+        "product": "產品",
+        "gamePass": "遊戲通行證",
         "robuxAmount": "{{amount}} Robux",
-        "bonusItem": "Bonus: {{item}}",
-        "bonusItemFallback": "Includes a bonus item",
-        "noItems": "No shop items found.",
-        "failedToLoad": "Failed to load shop items.",
+        "bonusItem": "獎勵道具：{{item}}",
+        "bonusItemFallback": "包含獎勵道具",
+        "noItems": "未找到商店道具。",
+        "failedToLoad": "無法載入商店道具",
         "sections": {
             "robux": "Robux"
         },
         "types": {
-            "Product": "Product",
-            "GamePass": "Game Pass",
-            "Robux": "Robux bundle"
+            "Product": "產品",
+            "GamePass": "遊戲通行證",
+            "Robux": "Robux 禮包"
         }
     },
     "subplaces": {
-        "tabTitle": "Subplaces",
-        "searchPlaceholder": "Search subplaces",
-        "loadMore": "Load More",
-        "rootPlace": "Root Place",
-        "noSubplaces": "No subplaces found.",
-        "failedToLoad": "Failed to load subplaces.",
+        "tabTitle": "子地點",
+        "searchPlaceholder": "搜尋子地點",
+        "loadMore": "載入更多",
+        "rootPlace": "根地點",
+        "noSubplaces": "未找到子地點。",
+        "failedToLoad": "無法載入子地點。",
         "labels": {
-            "sort": "Sort",
-            "order": "Order"
+            "sort": "整理",
+            "order": "順序"
         },
         "sort": {
-            "default": "Default",
-            "updated": "Recently Updated",
-            "created": "Recently Created",
-            "name": "Name (Z-A)"
+            "default": "預設",
+            "updated": "最近更新",
+            "created": "最近建立",
+            "name": "名稱 (Z-A)"
         },
         "order": {
-            "descending": "Descending",
-            "ascending": "Ascending"
+            "descending": "降序",
+            "ascending": "升序"
         },
         "banner": {
-            "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
-            "descriptionDefault": "Some experiences may disable joining subplaces.",
-            "descriptionRestricted": "This subplace cannot be joined due to join restrictions.",
-            "descriptionJoinable": "This subplace can be joined.",
-            "mainExperience": "the main experience"
+            "title": "您目前正在查看 [{{rootPlaceName}}]({{rootPlaceUrl}}) 的子地點。",
+            "descriptionDefault": "某些體驗可能會停用加入子地點。",
+            "descriptionRestricted": "由於加入限制，此子地點無法加入。",
+            "descriptionJoinable": "此子地點可以加入。",
+            "mainExperience": "主要體驗"
         }
     },
     "updateHistory": {
-        "tabTitle": "Updates",
-        "title": "Update History",
+        "tabTitle": "更新",
+        "title": "更新歷史記錄",
         "blocked": {
-            "eighteenPlus": "Update History doesn't work on 18+ experiences",
-            "paidAccess": "Update History doesn't work on paid access experiences",
-            "subplace": "Update History doesn't work on subplaces with join restrictions",
-            "noDesktopSupport": "Update History isn't supported on experiences without PC support"
+            "eighteenPlus": "更新歷史記錄不適用於 18 歲以上體驗",
+            "paidAccess": "更新歷史記錄不適用於付費體驗",
+            "subplace": "更新歷史記錄不適用於有加入限制的子地點",
+            "noDesktopSupport": "更新歷史記錄不適用於不支援電腦的體驗"
         }
     },
     "serverList": {
-        "clear": "Clear",
-        "noServersApi": "No servers found via the RoValra API.",
-        "allServersInactive": "All servers in this region went inactive",
-        "loadErrorApi": "Failed to load servers from RoValra API.",
-        "hide": "Hide",
-        "join": "Join",
-        "peopleMax": "{{playing}} of {{maxPlayers}} people max",
-        "pinPrivateServer": "Pin private server",
-        "unpinPrivateServer": "Unpin private server",
-        "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
-        "playerCountUnknownLabel": "Player count unknown"
+        "clear": "清除",
+        "noServersApi": "未透過 RoValra 的 API 找到伺服器。",
+        "allServersInactive": "此地區的所有伺服器均已失效。",
+        "loadErrorApi": "無法從 RoValra API 載入伺服器。",
+        "hide": "隱藏",
+        "join": "加入",
+        "peopleMax": "目前玩家人數為 {{maxPlayers}} 人，上限為 {{maxPlayers}} 人。",
+        "pinPrivateServer": "釘選私人伺服器",
+        "unpinPrivateServer": "解除釘選私人伺服器",
+        "playerCountUnknownTooltip": "玩家人數未知，這是 Roblox 的限制。縮圖無法代表遊戲中的玩家人數。",
+        "playerCountUnknownLabel": "玩家人數未知。"
     },
     "recentServers": {
-        "title": "Recent Servers",
-        "refresh": "Refresh",
-        "noneFound": "No Recent Servers Found.",
-        "noActiveFound": "No active recent servers found.",
-        "lastJoined": "Last Joined: {{time}}",
-        "meAlt": "Me",
-        "secondsAgo": "{{count}}s ago",
-        "minutesAgo": "{{count}}m ago",
-        "hoursAgo": "{{count}}h ago",
-        "daysAgo": "{{count}}d ago",
-        "description": "Recent Servers you were just in."
+        "title": "最近的伺服器",
+        "refresh": "重新整理",
+        "noneFound": "未找到最近的伺服器。",
+        "noActiveFound": "未找到任何活躍的近期伺服器。",
+        "lastJoined": "上次加入：{{time}}",
+        "meAlt": "我",
+        "secondsAgo": "{{count}} 秒前",
+        "minutesAgo": "{{count}} 分鐘前",
+        "hoursAgo": "{{count}} 小時前",
+        "daysAgo": "{{count}} 天前",
+        "description": "您最近加入過的伺服器。"
     },
     "quickOutfits": {
-        "errorFetching": "Error fetching outfits",
-        "equipping": "Equipping...",
-        "equipped": "Equipped!",
-        "failed": "Failed",
-        "error": "Error:",
-        "noUserId": "Authenticated user ID not found for quick outfits.",
-        "loading": "Loading outfits...",
-        "title": "Quick Outfits",
-        "noneFound": "No outfits found.",
-        "success": "Successfully equipped outfit."
+        "errorFetching": "取得外觀時發生錯誤",
+        "equipping": "正在裝備...",
+        "equipped": "已裝備！",
+        "failed": "失敗",
+        "error": "錯誤：",
+        "noUserId": "快速外觀未找到已驗證的使用者 ID。",
+        "loading": "正在載入外觀...",
+        "title": "快速外觀",
+        "noneFound": "未找到外觀。",
+        "success": "已成功裝備外觀。"
     },
     "btrDonationWarning": {
-        "title": "IMPORTANT: disable BTRoblox",
-        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox was detected. It may interfere with Roblox’s purchase flow. If you have trouble purchasing, try disabling BTRoblox temporarily and reload the page.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Please disable BTRoblox, reload this page, and then try your purchase again.</p>",
-        "continue": "Continue anyway"
+        "title": "重要提示：立即停用 BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">我們偵測到 BTRoblox 擴充功能。它可能會幹擾 Roblox 的購買流程。如果您遇到購買問題，請嘗試暫時停用 BTRoblox 並重新載入頁面。</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">請停用 BTRoblox 並重新載入頁面，然後再次嘗試購買。</p>",
+        "continue": "仍然繼續"
     },
     "botDetector": {
         "tooltip": "Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots. Keep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.",
