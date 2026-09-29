@@ -147,14 +147,14 @@
             background: var(--color-surface-200, rgba(0, 0, 0, 0.04));
         }
         &:has(input:focus-visible) {
-            outline: 2px solid var(--rovalra-playbutton-color, #335fff);
+            outline: 2px solid var(--rovalra-playbutton-color, #137f1f);
             outline-offset: -2px;
         }
         input {
             width: 16px;
             height: 16px;
             flex: 0 0 auto;
-            accent-color: var(--rovalra-playbutton-color, #335fff);
+            accent-color: var(--rovalra-playbutton-color, #137f1f);
         }
         span {
             flex: 1;
