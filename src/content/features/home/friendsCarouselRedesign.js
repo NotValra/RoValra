@@ -653,7 +653,11 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
 
         for (const friend of chunk) {
             const id = friend.id;
-            const displayName = friend.displayName || friend.username || '';
+            const displayName =
+                (!friend.isDeleted && friend.combinedName) ||
+                friend.displayName ||
+                friend.username ||
+                '';
             const tile = createFriendTile(
                 friend,
                 thumbs.get(id) || { state: 'Error' },
