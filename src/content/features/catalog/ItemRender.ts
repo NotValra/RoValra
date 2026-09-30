@@ -1784,6 +1784,54 @@ async function asyncInit() {
         { multiple: true },
     );
 
+    //recently viewed item cards
+    observeElement(
+        '.rovalra-recently-viewed-item .rovalra-item-card',
+        (element: HTMLElement) => {
+            const itemLinkElement = element.querySelector(
+                'a.rovalra-item-card-link',
+            ) as HTMLAnchorElement;
+            const itemThumbContainer = element.querySelector(
+                '.rovalra-item-thumb-container',
+            ) as HTMLElement;
+            if (!itemLinkElement || !itemThumbContainer) return;
+
+            itemThumbContainer.addEventListener('mouseenter', () => {
+                if (!hoverPreviewEnabled) return;
+
+                if (!startedRenderer) {
+                    void startRenderer().then(async (success) => {
+                        if (!success) return;
+                        await loadOgAvatar();
+                        if (!animationLoopStarted) {
+                            animationLoopStarted = true;
+                            customAnimate();
+                        }
+                    });
+                }
+
+                currentHoveredItemElement = element;
+                currentHoveredItemThumbElement = itemThumbContainer;
+                currentHoveredItemLink = itemLinkElement.href;
+                currentHoveredItemType = undefined;
+
+                setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainer))
+
+                updateHoveredItemTypeFromThumbnail(itemThumbContainer);
+            });
+            itemThumbContainer.addEventListener('mouseleave', (e) => {
+                if (itemHoverRotateButton?.contains(e.relatedTarget as HTMLElement)) {
+                    return;
+                }
+
+                if (currentHoveredItemElement === element) {
+                    removeCurrentHoveredItemData();
+                }
+            });
+        },
+        { multiple: true },
+    );
+
     if (mainRendererEnabled) {
         const success = await startRenderer();
         if (success) {

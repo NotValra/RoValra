@@ -1672,6 +1672,15 @@
     "purchasePrompt": {
         "balanceAfter": "Your balance after this transaction will be"
     },
+    "recentlyViewed": {
+        "title": "Recently Viewed",
+        "clear": "Clear",
+        "remove": "Remove",
+        "cheaper": "{{value}} Robux cheaper than when you viewed it",
+        "pricier": "{{value}} Robux more than when you viewed it",
+        "offSale": "Went off sale",
+        "backOnSale": "Back on sale"
+    },
     "time": {
         "justNow": "just now",
         "secondsAgo": "{{count}}s ago",
