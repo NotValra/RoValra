@@ -140,3 +140,8 @@
         overflow: visible !important;
     }
 }
+
+#rovalra-banned-avatar-container img.avatar-card-image {
+    background-color: var(--rovalra-container-background-color);
+    border-radius: 50%;
+}
