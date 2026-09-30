@@ -1,3 +1,5 @@
+import "./core/logging.js";
+
 import { initializeObserver, startObserving } from './core/observer.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
 import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
