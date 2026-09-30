@@ -651,7 +651,9 @@ export function displayRegion(server, regionName, serverLocations = {}) {
             visible = false;
         } else {
             if (countryCode) {
-                countryName = getCountryName(countryCode);
+                countryCode === 'us'
+                    ? text.split(',').pop().trim()
+                    : getCountryName(countryCode);
                 icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="16" height="12" alt="${countryCode}" style="display: block; border-radius: 2px;">`;
             }
             visible = true;
