@@ -1681,6 +1681,25 @@
         "offSale": "Went off sale",
         "backOnSale": "Back on sale"
     },
+    "tradeRecentItems": {
+        "offer": "Recently offered",
+        "request": "Recently requested",
+        "clear": "Clear"
+    },
+    "tradeQuickActions": {
+        "minValue": "Min value they give",
+        "hideLosses": "Hide losses",
+        "declineLosses": "Decline losing received trades",
+        "loadingTrades": "Loading received trades...",
+        "checking": "Checking trades {{done}}/{{total}}...",
+        "noLosses": "No losing received trades found",
+        "confirmTitle": "Decline losing trades",
+        "confirmMessage": "{{count}} of your {{total}} received trades are a loss by value ({{value}} total). Decline all of them? This can't be undone.",
+        "declineConfirm": "Decline",
+        "declining": "Declining {{done}}/{{total}}...",
+        "declined": "Declined {{count}} trades",
+        "declinedWithFailures": "Declined {{count}} trades, {{failed}} failed"
+    },
     "time": {
         "justNow": "just now",
         "secondsAgo": "{{count}}s ago",
