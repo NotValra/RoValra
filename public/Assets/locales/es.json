@@ -1267,7 +1267,6 @@
         "versionUnknown": "Versión desconocida",
         "version": "Versión {{version}}",
         "versionLabel": "Versión",
-        "languageMatchCount": "~{{count}} hablantes de {{language}}",
         "latest": " (Más reciente)",
         "oldest": " (Más antigua)",
         "serverFull": "El servidor está lleno",

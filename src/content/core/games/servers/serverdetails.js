@@ -14,8 +14,7 @@ import {
     formatUptime,
 } from '../../apis/serverApi.js';
 import { ts } from '../../locale/i18n.js';
-import { getAuthenticatedUserLanguageName } from '../../utils/trackers/language.js';
-import { IconText } from '../../ui/buildericon.js';
+import { addTooltip } from '../../ui/tooltip.js';
 
 const CLASSES = {
     CONTAINER: 'rovalra-details-container',
@@ -24,7 +23,6 @@ const CLASSES = {
     Uptime: 'rovalra-uptime-info',
     Performance: 'rovalra-performance-info',
     Version: 'rovalra-version-info',
-    LanguageMatch: 'rovalra-language-match-info',
     Full: 'rovalra-server-full-info',
     Private: 'rovalra-private-server-info',
     Purchase: 'rovalra-purchase-game-info',
@@ -35,7 +33,6 @@ const ORDERS = {
     Performance: 1,
     Uptime: 2,
     Version: 3,
-    LanguageMatch: 4,
     Region: 5,
     Purchase: 6,
     Status: 7,
@@ -43,9 +40,9 @@ const ORDERS = {
 
 const STYLES = {
     container:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 112px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 44px;',
     containerFriends:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 116px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 48px;',
     row: 'display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 400;',
     icon: 'display: flex; align-items: center; flex-shrink: 0; height: 20px;',
     text: 'line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 100%; flex: 1;',
@@ -56,11 +53,6 @@ const ICONS = {
     performanceLow: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m16 18 2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     uptime: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m22 5.7-4.6-3.9-1.3 1.5 4.6 3.9zM7.9 3.4 6.6 1.9 2 5.7l1.3 1.5zM12.5 8H11v6l4.7 2.9.8-1.2-4-2.4zM12 4c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9m0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7" fill="currentColor"/></svg>`,
     version: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3zM12.5 8v4.25l3.5 2.08-.72 1.21L11 13V8z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
-    language: IconText({
-        icon: 'globe-simplified',
-        filled: false,
-        size: '20px',
-    }),
     regionDefault: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     full: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     private: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
@@ -72,7 +64,6 @@ let isShareLinkEnabled = true;
 let isServerUptimeEnabled = true;
 let isServerRegionEnabled = true;
 let isPlaceVersionEnabled = true;
-let isServerLanguageMatchEnabled = true;
 let isFullServerIDEnabled = true;
 let isFullServerIndicatorsEnabled = true;
 let isServerPerformanceEnabled = true;
@@ -94,7 +85,6 @@ const cacheReadyPromise = new Promise((resolve) => {
             'EnableServerUptime',
             'EnableServerRegion',
             'EnablePlaceVersion',
-            'EnableServerLanguageMatch',
             'EnableFullServerID',
             'EnableFullServerIndicators',
             'EnableServerPerformance',
@@ -113,9 +103,6 @@ const cacheReadyPromise = new Promise((resolve) => {
                 isServerRegionEnabled = res.EnableServerRegion;
             if (res?.EnablePlaceVersion !== undefined)
                 isPlaceVersionEnabled = res.EnablePlaceVersion;
-            if (res?.EnableServerLanguageMatch !== undefined)
-                isServerLanguageMatchEnabled =
-                    res.EnableServerLanguageMatch;
             if (res?.EnableFullServerID !== undefined)
                 isFullServerIDEnabled = res.EnableFullServerID;
             if (res?.EnableFullServerIndicators !== undefined)
@@ -139,7 +126,7 @@ const cacheReadyPromise = new Promise((resolve) => {
                 if (!isServerListModificationsEnabled) {
                     document
                         .querySelectorAll(
-                            '.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link',
+                            '.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link, .rovalra-meta-pill',
                         )
                         .forEach((el) => el.remove());
                 } else {
@@ -153,26 +140,6 @@ const cacheReadyPromise = new Promise((resolve) => {
                 isServerRegionEnabled = changes.EnableServerRegion.newValue;
             if (changes.EnablePlaceVersion)
                 isPlaceVersionEnabled = changes.EnablePlaceVersion.newValue;
-            if (changes.EnableServerLanguageMatch) {
-                isServerLanguageMatchEnabled =
-                    changes.EnableServerLanguageMatch.newValue;
-
-                if (!isServerLanguageMatchEnabled) {
-                    document
-                        .querySelectorAll(`.${CLASSES.LanguageMatch}`)
-                        .forEach((row) => (row.style.display = 'none'));
-                } else {
-                    document
-                        .querySelectorAll('[data-rovalra-serverid]')
-                        .forEach((server) => {
-                            const apiData = server._rovalraApiData;
-                            displayLanguageMatch(
-                                server,
-                                apiData?.languageMatchCount,
-                            ).catch(() => {});
-                        });
-                }
-            }
             if (changes.EnableFullServerID)
                 isFullServerIDEnabled = changes.EnableFullServerID.newValue;
             if (changes.EnableFullServerIndicators)
@@ -265,6 +232,25 @@ function extractCountryCode(regionName) {
         }
     }
     return null;
+}
+
+let regionDisplayNames = null;
+
+function getCountryName(countryCode) {
+    try {
+        regionDisplayNames ??= new Intl.DisplayNames(
+            [document.documentElement.lang || navigator.language, 'en'],
+            { type: 'region' },
+        );
+        const name = regionDisplayNames.of(countryCode.toUpperCase());
+        if (name && name.toUpperCase() !== countryCode.toUpperCase())
+            return name;
+    } catch {}
+
+    const entry = datacenterList?.find(
+        (e) => (e.location || e).country?.toLowerCase() === countryCode,
+    );
+    return (entry?.location || entry)?.country_name || null;
 }
 
 function removeCountryFromRegion(regionName) {
@@ -406,7 +392,52 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     return element;
 }
 
-function clearExclusiveStatuses(container) {
+function getOrCreateMetaIcons(server) {
+    let meta = server.querySelector('.server-meta-icons');
+    if (meta) return meta;
+
+    const gauge = server.querySelector('.server-player-count-gauge');
+    if (!gauge) return null;
+
+    meta = document.createElement('div');
+    meta.className = 'server-meta-icons rovalra-meta-icons';
+    gauge.after(meta);
+    return meta;
+}
+
+function updateMetaPill(server, type, iconHTML, text, isVisible, tooltip = '') {
+    const className = CLASSES[type];
+    const meta = isVisible ? getOrCreateMetaIcons(server) : null;
+    let pill = server.querySelector(`.rovalra-meta-pill.${className}`);
+
+    if (!meta && !pill) {
+        const container = getOrCreateDetailsContainer(server);
+        return updateInfoElement(container, type, iconHTML, text, isVisible);
+    }
+
+    if (!pill) {
+        pill = document.createElement('span');
+        pill.className = `server-meta-badge-tip rovalra-meta-pill ${className}`;
+        pill.style.order = ORDERS[type] || ORDERS.Status;
+        pill.innerHTML = `<div class="foundation-web-badge flex items-center select-none gap-[var(--size-150)] radius-circle height-600 width-[fit-content] padding-x-small bg-shift-200 content-emphasis stroke-none"><span class="rovalra-icon-wrapper"></span><span class="rovalra-pill-text text-no-wrap text-truncate-split text-label-small padding-y-xsmall padding-right-xxsmall content-emphasis"></span></div>`;
+        addTooltip(pill, () => pill.dataset.rovalraTooltip || '', {
+            position: 'top',
+            shouldShow: () => !!pill.dataset.rovalraTooltip,
+        });
+        meta.appendChild(pill);
+    }
+
+    pill.dataset.rovalraTooltip = tooltip;
+    pill.querySelector('.rovalra-icon-wrapper').innerHTML = iconHTML;
+    pill.querySelector('.rovalra-pill-text').textContent = text;
+    pill.style.display = isVisible ? '' : 'none';
+
+    server.querySelector(`.${CLASSES.CONTAINER} > .${className}`)?.remove();
+
+    return pill;
+}
+
+function clearExclusiveStatuses(server, container) {
     [
         CLASSES.Uptime,
         CLASSES.Version,
@@ -416,6 +447,7 @@ function clearExclusiveStatuses(container) {
         CLASSES.Purchase,
         CLASSES.Inactive,
     ].forEach((cls) => container.querySelector(`.${cls}`)?.remove());
+    server.querySelector(`.rovalra-meta-pill.${CLASSES.Region}`)?.remove();
 }
 
 function injectStyles() {
@@ -435,6 +467,37 @@ function injectStyles() {
         .server-id-text:hover span.show-on-hover {
             background-color: transparent;
             color: inherit;
+        }
+        .rovalra-meta-icons {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .server-meta-icons:has(.rovalra-meta-pill) {
+            flex-wrap: wrap;
+            row-gap: 4px;
+        }
+        .rovalra-meta-pill {
+            display: inline-flex;
+            min-width: 0;
+            max-width: 100%;
+            cursor: default;
+        }
+        .rovalra-meta-pill .foundation-web-badge {
+            max-width: 100%;
+        }
+        .rovalra-meta-pill .rovalra-icon-wrapper {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .rovalra-meta-pill .rovalra-icon-wrapper svg {
+            width: 14px;
+            height: 14px;
+        }
+        .rovalra-meta-pill .rovalra-pill-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     `;
     document.head.appendChild(style);
@@ -462,27 +525,32 @@ function enableAvatarLinks(server) {
 
 export function displayPerformance(server, fps, serverLocations = {}) {
     if (!isServerPerformanceEnabled || !isServerListModificationsEnabled) {
-        const container = getOrCreateDetailsContainer(server);
-        updateInfoElement(container, 'Performance', '', '', false);
+        updateMetaPill(server, 'Performance', '', '', false);
         return;
     }
 
-    const container = getOrCreateDetailsContainer(server);
-    let text = 'Server Performance Unknown';
+    let text = 'Unknown';
     let icon = ICONS.performanceHigh;
     let visible = false;
 
     if (fps === 'fetching') {
-        text = 'Server Performance Loading...';
+        text = ts('serverInfo.loading');
         visible = true;
     } else if (typeof fps === 'number') {
         const percent = Math.min(100, Math.round((fps / 60) * 100));
-        text = `Server Performance ${percent}%`;
+        text = `${percent}%`;
         icon = percent < 50 ? ICONS.performanceLow : ICONS.performanceHigh;
         visible = true;
     }
 
-    updateInfoElement(container, 'Performance', icon, text, visible);
+    updateMetaPill(
+        server,
+        'Performance',
+        icon,
+        text,
+        visible,
+        ts('serverInfo.performanceTooltip'),
+    );
 }
 
 export function displayUptime(
@@ -552,59 +620,9 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     updateInfoElement(container, 'Version', ICONS.version, text, visible);
 }
 
-export async function displayLanguageMatch(server, languageMatchCount) {
-    await cacheReadyPromise;
-    if (
-        !isServerListModificationsEnabled ||
-        !isServerLanguageMatchEnabled
-    ) {
-        return;
-    }
-
-    const container = getOrCreateDetailsContainer(server);
-    if (!container) return;
-
-    let row = container.querySelector(`.${CLASSES.LanguageMatch}`);
-    if (!row) {
-        row = updateInfoElement(
-            container,
-            'LanguageMatch',
-            ICONS.language,
-            '',
-        );
-        row.style.display = 'none';
-    }
-
-    if (!Number.isFinite(languageMatchCount) || languageMatchCount < 0) {
-        row.style.display = 'none';
-        return;
-    }
-
-    const languageName = await getAuthenticatedUserLanguageName();
-    if (
-        !languageName ||
-        !isServerListModificationsEnabled ||
-        !isServerLanguageMatchEnabled
-    ) {
-        return;
-    }
-
-    row = updateInfoElement(
-        container,
-        'LanguageMatch',
-        ICONS.language,
-        ts('serverInfo.languageMatchCount', {
-            language: languageName,
-            count: languageMatchCount,
-        }),
-    );
-    row.style.visibility = 'visible';
-}
-
 export function displayRegion(server, regionName, serverLocations = {}) {
     if (!isServerRegionEnabled || !isServerListModificationsEnabled) {
-        const container = getOrCreateDetailsContainer(server);
-        updateInfoElement(container, 'Region', '', '', false);
+        updateMetaPill(server, 'Region', '', '', false);
         return;
     }
 
@@ -616,6 +634,7 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     }
 
     let text = 'Unknown';
+    let countryName = null;
     let icon = ICONS.regionDefault;
     let visible = false;
 
@@ -632,13 +651,21 @@ export function displayRegion(server, regionName, serverLocations = {}) {
             visible = false;
         } else {
             if (countryCode) {
-                icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="20" height="14" alt="${countryCode}" style="display: block;">`;
+                countryName = getCountryName(countryCode);
+                icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="16" height="12" alt="${countryCode}" style="display: block; border-radius: 2px;">`;
             }
             visible = true;
         }
     }
 
-    updateInfoElement(container, 'Region', icon, text, visible);
+    updateMetaPill(
+        server,
+        'Region',
+        icon,
+        countryName || text,
+        visible,
+        ts('serverInfo.regionTooltip', { region: text }),
+    );
 }
 
 function displayRegionForServerId(serverId, regionName, serverLocations) {
@@ -700,7 +727,7 @@ export function displayServerFullStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    const regionElement = container.querySelector(`.${CLASSES.Region}`);
+    const regionElement = server.querySelector(`.${CLASSES.Region}`);
     const hasRegion =
         regionElement &&
         regionElement.style.display !== 'none' &&
@@ -730,7 +757,7 @@ export function displayPrivateServerStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    clearExclusiveStatuses(container);
+    clearExclusiveStatuses(server, container);
     updateInfoElement(
         container,
         'Private',
@@ -748,7 +775,7 @@ export function displayPurchaseGameStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    clearExclusiveStatuses(container);
+    clearExclusiveStatuses(server, container);
     updateInfoElement(
         container,
         'Purchase',
@@ -1180,22 +1207,16 @@ export async function enhanceServer(server, context) {
 
     const cachedApiData = context.serverDataCache?.get(String(serverId));
     const attachedApiData = server._rovalraApiData;
-    const attachedApiDataId =
-        attachedApiData?.server_id || attachedApiData?.id;
+    const attachedApiDataId = attachedApiData?.server_id || attachedApiData?.id;
     const apiData =
         cachedApiData &&
-        String(cachedApiData.server_id || cachedApiData.id) ===
-            String(serverId)
+        String(cachedApiData.server_id || cachedApiData.id) === String(serverId)
             ? cachedApiData
-            : attachedApiData &&
-                String(attachedApiDataId) === String(serverId)
+            : attachedApiData && String(attachedApiDataId) === String(serverId)
               ? attachedApiData
               : null;
     if (apiData) server._rovalraApiData = apiData;
     if (apiData) {
-        displayLanguageMatch(server, apiData.languageMatchCount).catch(
-            () => {},
-        );
         if (apiData.place_version && !getServerVersion(serverId)) {
             displayPlaceVersion(server, apiData.place_version, serverLocations);
         }
@@ -1219,8 +1240,6 @@ export async function enhanceServer(server, context) {
             serverLocations[serverId] = locStr;
             displayRegion(server, locStr, serverLocations);
         }
-    } else {
-        displayLanguageMatch(server, undefined).catch(() => {});
     }
 
     if (
@@ -1273,7 +1292,7 @@ export async function enhanceServer(server, context) {
         idDiv.innerHTML = '';
 
         const prefixSpan = document.createElement('span');
-    prefixSpan.textContent = ts('common.id');
+        prefixSpan.textContent = ts('common.id');
         prefixSpan.style.userSelect = 'none';
 
         const uuidSpan = document.createElement('span');

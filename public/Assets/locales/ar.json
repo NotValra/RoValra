@@ -99,7 +99,6 @@
         "versionUnknown": "الإصدار غير معروف",
         "version": "الإصدار {{version}}",
         "versionLabel": "الإصدار",
-        "languageMatchCount": "حوالي {{count}} متحدث باللغة {{language}}",
         "latest": " (الأحدث)",
         "oldest": " (الأقدم)",
         "serverFull": "الخادم ممتلئ",

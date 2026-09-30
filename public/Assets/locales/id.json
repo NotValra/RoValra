@@ -99,7 +99,6 @@
         "versionUnknown": "Versi Tidak Diketahui",
         "version": "Versi {{version}}",
         "versionLabel": "Versi",
-        "languageMatchCount": "~{{count}} penutur {{language}}",
         "latest": " (Terbaru)",
         "oldest": " (Terlama)",
         "serverFull": "Server Penuh",
