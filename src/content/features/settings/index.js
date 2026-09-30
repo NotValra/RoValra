@@ -23,6 +23,8 @@ import {
 import {
     addCustomButton,
     addPopoverButton,
+    getSettingsPopoverMenu,
+    SETTINGS_POPOVER_MENU_SELECTOR,
 } from '../../core/settings/ui/settingsbutton.js';
 import { checkRoValraPage } from '../../core/settings/ui/page.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
@@ -4706,7 +4708,7 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
 }
 
 function handleGlobalDomChange(event) {
-    if (document.getElementById('settings-popover-menu')) {
+    if (getSettingsPopoverMenu()) {
         addPopoverButton();
     } else if (window.rovalraPopoverButtonAdded) {
         window.rovalraPopoverButtonAdded = false;
@@ -5151,7 +5153,8 @@ async function initializeExtension() {
 
     document.addEventListener('roblox-dom-changed', handleGlobalDomChange);
 
-    observeElement('#settings-popover-menu', addPopoverButton, {
+    observeElement(SETTINGS_POPOVER_MENU_SELECTOR, () => addPopoverButton(), {
+        multiple: true,
         onRemove: onPopoverRemoved,
     });
     observeElement('ul.menu-vertical[role="tablist"]', () =>
