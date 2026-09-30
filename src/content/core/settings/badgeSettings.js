@@ -2,6 +2,7 @@ import { callRobloxApiJson } from '../api.js';
 import { generateSettingInput } from './generateSettings.js';
 import { initSettings, syncDonatorTier } from './handlesettings.js';
 import { ts } from '../locale/i18n.js';
+import { invalidateAuthenticatedUserSettingsCache } from '../donators/settingHandler.js';
 
 export async function setBadgeVisibility(badgeName, isVisible) {
     try {
@@ -12,6 +13,7 @@ export async function setBadgeVisibility(badgeName, isVisible) {
             method: 'POST',
             body: { badge: badgeName, visible: isVisible },
         });
+        await invalidateAuthenticatedUserSettingsCache();
     } catch (error) {
         console.error(
             `RoValra: Failed to set badge visibility for ${badgeName}`,

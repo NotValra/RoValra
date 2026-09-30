@@ -46,7 +46,7 @@ function extractProfilePronouns(apiSettings) {
 async function normalizeBertLink(value) {
     const candidate =
         value && typeof value === 'object'
-            ? value.link ?? value.value
+            ? (value.link ?? value.value)
             : value;
     if (!candidate || candidate === 'none') return null;
 
@@ -75,18 +75,19 @@ function assertValidUserId(userId) {
     }
 }
 
-async function saveToCache(cacheKey, settings, { memoryOnly = false } = {}) {
+const OWN_SETTINGS_STALE_MS = 300000;
+const OTHER_SETTINGS_STALE_MS = 300000;
+
+async function saveToCache(cacheKey, settings) {
     const cacheData = {
         data: settings,
         timestamp: Date.now(),
     };
     memoryCache.set(cacheKey, cacheData);
-    if (!memoryOnly) {
-        await cache.set('user_settings', cacheKey, cacheData, 'local');
-    }
+    await cache.set('user_settings', cacheKey, cacheData, 'local');
 }
 
-async function invalidateAuthenticatedUserSettingsCache() {
+export async function invalidateAuthenticatedUserSettingsCache() {
     const authenticatedUserId = await getAuthenticatedUserId();
     if (!authenticatedUserId) return;
 
@@ -233,7 +234,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
         badges: extractBadgeLinks(apiSettings),
-        theme: apiSettings.theme || "",
+        theme: apiSettings.theme || '',
     };
 }
 
@@ -293,9 +294,7 @@ async function processBatchQueue() {
                             item.options,
                         );
 
-                        await saveToCache(cacheKey, settings, {
-                            memoryOnly: cacheKey === authenticatedUserId,
-                        });
+                        await saveToCache(cacheKey, settings);
                         processedKeys.add(cacheKey);
 
                         const resolvers = pendingResolvers.get(cacheKey);
@@ -316,9 +315,7 @@ async function processBatchQueue() {
                     batchItem.options,
                 );
 
-                await saveToCache(cacheKey, settings, {
-                    memoryOnly: cacheKey === authenticatedUserId,
-                });
+                await saveToCache(cacheKey, settings);
                 processedKeys.add(cacheKey);
 
                 const resolvers = pendingResolvers.get(cacheKey);
@@ -450,7 +447,7 @@ async function processApiSettings(userId, apiSettings, options) {
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
         badges: extractBadgeLinks(apiSettings),
-        theme: apiSettings.theme || "",
+        theme: apiSettings.theme || '',
     };
 }
 
@@ -468,15 +465,15 @@ export async function getUserSettings(userId, options = {}) {
     if (!options.noCache) {
         const memCached = memoryCache.get(cacheKey);
         if (memCached) {
-            const staleThreshold = isOwnProfile ? 60000 : 300000;
+            const staleThreshold = isOwnProfile
+                ? OWN_SETTINGS_STALE_MS
+                : OTHER_SETTINGS_STALE_MS;
             const isStale =
                 Date.now() - (memCached.timestamp || 0) > staleThreshold;
             if (isStale && !pendingResolvers.has(cacheKey)) {
                 if (options.disableBatch) {
                     fetchAndProcessSettings(userId, options).then((settings) =>
-                        saveToCache(cacheKey, settings, {
-                            memoryOnly: true,
-                        }),
+                        saveToCache(cacheKey, settings),
                     );
                 } else {
                     batchQueue.push({ userId, options });
@@ -500,15 +497,15 @@ export async function getUserSettings(userId, options = {}) {
         const cached = await cache.get('user_settings', cacheKey, 'local');
         if (cached) {
             memoryCache.set(cacheKey, cached);
-            const staleThreshold = isOwnProfile ? 60000 : 300000;
+            const staleThreshold = isOwnProfile
+                ? OWN_SETTINGS_STALE_MS
+                : OTHER_SETTINGS_STALE_MS;
             const isStale =
                 Date.now() - (cached.timestamp || 0) > staleThreshold;
             if (isStale && !pendingResolvers.has(cacheKey)) {
                 if (options.disableBatch) {
                     fetchAndProcessSettings(userId, options).then((settings) =>
-                        saveToCache(cacheKey, settings, {
-                            memoryOnly: false,
-                        }),
+                        saveToCache(cacheKey, settings),
                     );
                 } else {
                     batchQueue.push({ userId, options });
