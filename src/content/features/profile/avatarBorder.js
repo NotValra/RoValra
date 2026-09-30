@@ -214,7 +214,6 @@ function removeBorderFromContainer(container) {
     )) {
         border.remove();
     }
-
 }
 
 function ensureBorderStructure(container) {
@@ -433,8 +432,8 @@ export async function init() {
                 '.avatar-card.profile-avatar .thumbnail-2d-container',
             ].join(', '),
             (element) => {
-                if (element.closest('#rovalra-banned-avatar-container'))
-                    return;
+                if (element.closest('.rovalra-user-card')) return;
+                if (element.closest('[data-rovalra-banned-profile]')) return;
 
                 const target = element.parentElement || element;
                 applyBorderToContainer(target, borderUrl, true);
