@@ -19,6 +19,16 @@
         --rovalra-budget-accent: #d32f2f;
     }
 
+    .rovalra-budget-meter {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .rovalra-budget-unlock {
+        width: 100%;
+    }
+
     .rovalra-budget-header {
         display: flex;
         justify-content: space-between;
@@ -58,5 +68,6 @@
 }
 
 .rovalra-budget-locked {
-    display: none !important;
+    opacity: 0.5;
+    cursor: not-allowed !important;
 }

@@ -63,7 +63,6 @@ function renderMeter(container, { spent, price, budget, period, state }) {
     );
     const remaining = budget - spent - price;
 
-    container.dataset.state = state;
     container.innerHTML = safeHtml`
         <div class="rovalra-budget-header">
             <span class="text-body-medium">${ts(`spendingBudget.period.${period}`)}</span>
@@ -93,20 +92,47 @@ function renderMeter(container, { spent, price, budget, period, state }) {
         `${pricePct}%`;
 }
 
-function applyCooldown(dialog, buyButton, delaySeconds) {
-    if (dialog.querySelector('.rovalra-budget-unlock')) return;
+const dialogLocks = new WeakMap();
+const BLOCKED_EVENTS = [
+    'pointerdown',
+    'mousedown',
+    'pointerup',
+    'mouseup',
+    'click',
+];
 
-    buyButton.classList.add('rovalra-budget-locked');
+function blockLockedBuy(event) {
+    const dialog = event.target?.closest?.('.unified-purchase-dialog-content');
+    if (!dialog || !dialogLocks.get(dialog)) return;
+
+    const buyButton = findBuyButton(dialog);
+    if (!buyButton || !buyButton.contains(event.target)) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+}
+
+function setLocked(dialog, locked) {
+    dialogLocks.set(dialog, locked);
+    findBuyButton(dialog)?.classList.toggle('rovalra-budget-locked', locked);
+}
+
+function applyCooldown(dialog, container, delaySeconds) {
+    setLocked(dialog, true);
 
     const unlock = document.createElement('button');
     unlock.type = 'button';
-    unlock.className = `${buyButton.className} rovalra-budget-unlock`;
-    unlock.classList.remove('rovalra-budget-locked');
+    unlock.className =
+        'foundation-web-button relative clip flex items-center justify-center radius-medium text-label-large height-1000 padding-x-large bg-action-standard content-action-standard rovalra-budget-unlock';
     unlock.disabled = true;
-    buyButton.insertAdjacentElement('afterend', unlock);
+    container.appendChild(unlock);
 
     let remaining = delaySeconds;
     const tick = () => {
+        if (!unlock.isConnected) {
+            clearInterval(timer);
+            return;
+        }
         if (remaining > 0) {
             unlock.textContent = ts('spendingBudget.waitToBuy', {
                 seconds: remaining,
@@ -122,8 +148,8 @@ function applyCooldown(dialog, buyButton, delaySeconds) {
     const timer = setInterval(tick, 1000);
 
     unlock.addEventListener('click', () => {
-        buyButton.classList.remove('rovalra-budget-locked');
-        unlock.remove();
+        setLocked(dialog, false);
+        unlock.hidden = true;
     });
 }
 
@@ -133,36 +159,49 @@ async function processDialog(dialog) {
         10,
     );
     if (!Number.isFinite(price) || price <= 0) return;
+    if (dialog.querySelector('.rovalra-budget-unlock')) return;
 
-    const budget = Number(await settings.spendingBudgetAmount);
-    if (!Number.isFinite(budget) || budget <= 0) return;
+    const pending = !dialogLocks.has(dialog);
+    if (pending) setLocked(dialog, true);
 
-    const period = (await settings.spendingBudgetPeriod) || 'month';
-    const spent = await getSpentInPeriod(period);
-    if (spent === null || !dialog.isConnected) return;
+    try {
+        const budget = Number(await settings.spendingBudgetAmount);
+        if (!Number.isFinite(budget) || budget <= 0) return;
 
-    const state = getState(spent, price, budget);
+        const period = (await settings.spendingBudgetPeriod) || 'month';
+        const spent = await getSpentInPeriod(period);
+        if (spent === null || !dialog.isConnected) return;
+        if (dialog.querySelector('.rovalra-budget-unlock')) return;
 
-    let container = dialog.querySelector('.rovalra-spending-budget');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'rovalra-spending-budget';
-        const heading = dialog.querySelector('#rbx-unified-purchase-heading');
-        (heading?.parentElement || dialog).appendChild(container);
-    }
+        const state = getState(spent, price, budget);
 
-    renderMeter(container, {
-        spent,
-        price,
-        budget,
-        period,
-        state,
-    });
+        let container = dialog.querySelector('.rovalra-spending-budget');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'rovalra-spending-budget';
+            container.appendChild(document.createElement('div')).className =
+                'rovalra-budget-meter';
+            const heading = dialog.querySelector(
+                '#rbx-unified-purchase-heading',
+            );
+            (heading?.parentElement || dialog).appendChild(container);
+        }
 
-    if (state === 'over') {
-        const buyButton = findBuyButton(dialog);
-        if (buyButton) {
-            applyCooldown(dialog, buyButton, COOLDOWN_SECONDS);
+        container.dataset.state = state;
+        renderMeter(container.querySelector('.rovalra-budget-meter'), {
+            spent,
+            price,
+            budget,
+            period,
+            state,
+        });
+
+        if (state === 'over') {
+            applyCooldown(dialog, container, COOLDOWN_SECONDS);
+        }
+    } finally {
+        if (pending && !dialog.querySelector('.rovalra-budget-unlock')) {
+            setLocked(dialog, false);
         }
     }
 }
@@ -173,6 +212,10 @@ export async function init() {
     if (initialized || !(await settings.spendingBudgetEnabled)) return;
     if (initialized) return;
     initialized = true;
+
+    for (const type of BLOCKED_EVENTS) {
+        window.addEventListener(type, blockLockedBuy, true);
+    }
 
     observeElement('.unified-purchase-dialog-content', processDialog, {
         multiple: true,
