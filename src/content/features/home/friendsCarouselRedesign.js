@@ -2,7 +2,10 @@ import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { callRobloxApiJson } from '../../core/api.js';
-import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import {
+    createThumbnailElement,
+    getBatchThumbnails,
+} from '../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../core/assets.js';
 import { ts } from '../../core/locale/i18n.js';
 import { getFriendsList } from '../../core/utils/trackers/friendslist.js';
@@ -30,6 +33,7 @@ const RENDER_CHUNK = 40;
 const PRESENCE_REFRESH_MS = 10_000;
 const PRESENCE_BATCH_SIZE = 100;
 const HOVER_SHOW_DELAY = 0;
+const THUMBNAIL_BATCH_DELAY_MS = 50;
 
 let enabled = false;
 let observersRegistered = false;
@@ -519,13 +523,58 @@ async function loadFriends() {
     };
 }
 
-async function fetchChunkData(ids, onlinePresence) {
-    const thumbs = await getBatchThumbnails(
-        ids,
-        'AvatarHeadshot',
-        '150x150',
-    ).catch(() => []);
+function createLazyThumbnailLoader() {
+    const pending = new Set();
+    let flushScheduled = false;
 
+    const flush = async () => {
+        flushScheduled = false;
+        const tiles = [...pending];
+        pending.clear();
+        const ids = tiles.map((tile) => Number(tile.dataset.rovalraUserId));
+        if (!ids.length) return;
+
+        const thumbs = await getBatchThumbnails(
+            ids,
+            'AvatarHeadshot',
+            '150x150',
+        ).catch(() => []);
+        const byId = new Map((thumbs || []).map((t) => [Number(t.targetId), t]));
+
+        for (const tile of tiles) {
+            if (!tile.isConnected) continue;
+            const container = tile.querySelector('.avatar-card-image');
+            if (!container) continue;
+            const thumbData = byId.get(Number(tile.dataset.rovalraUserId)) || {
+                state: 'Error',
+            };
+            container.replaceChildren(
+                createThumbnailElement(
+                    thumbData,
+                    tile.rovalraHoverData?.displayName || '',
+                    '',
+                    { width: '90px', height: '90px' },
+                ),
+            );
+        }
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            observer.unobserve(entry.target);
+            pending.add(entry.target);
+        }
+        if (pending.size && !flushScheduled) {
+            flushScheduled = true;
+            setTimeout(flush, THUMBNAIL_BATCH_DELAY_MS);
+        }
+    });
+
+    return observer;
+}
+
+async function fetchChunkData(ids, onlinePresence) {
     const presence = new Map(
         ids.map((id) => [id, onlinePresence.get(id) || null]),
     );
@@ -556,7 +605,6 @@ async function fetchChunkData(ids, onlinePresence) {
     }
 
     return {
-        thumbs: new Map((thumbs || []).map((t) => [t.targetId, t])),
         presence,
         placeThumbs,
     };
@@ -642,10 +690,13 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
     const { friends, onlinePresence } = await loadFriends();
     if (token !== populateToken || !scrollEl.isConnected) return;
 
+    const thumbnailObserver = createLazyThumbnailLoader();
+    scrollEl.rovalraThumbnailObserver = thumbnailObserver;
+
     for (let i = 0; i < friends.length; i += RENDER_CHUNK) {
         const chunk = friends.slice(i, i + RENDER_CHUNK);
         const ids = chunk.map((friend) => friend.id);
-        const { thumbs, presence, placeThumbs } = await fetchChunkData(
+        const { presence, placeThumbs } = await fetchChunkData(
             ids,
             onlinePresence,
         );
@@ -660,7 +711,7 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                 '';
             const tile = createFriendTile(
                 friend,
-                thumbs.get(id) || { state: 'Error' },
+                { state: 'Pending' },
                 {
                     displayName,
                     username: friend.username ? `@${friend.username}` : '',
@@ -689,6 +740,7 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                 }
             });
             scrollEl.appendChild(tile);
+            thumbnailObserver.observe(tile);
         }
 
         refresh?.();
@@ -732,6 +784,7 @@ function teardown() {
     document.querySelectorAll(`.${WRAPPER_CLASS}`).forEach((node) => {
         const scrollEl = node.querySelector(`.${SCROLL_CLASS}`);
         clearInterval(scrollEl?.rovalraPresenceInterval);
+        scrollEl?.rovalraThumbnailObserver?.disconnect();
         node.remove();
     });
     document.querySelectorAll(`[${HIDDEN_ATTR}]`).forEach((node) => {
