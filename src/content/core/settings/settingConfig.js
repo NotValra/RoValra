@@ -171,6 +171,37 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            spendingBudgetEnabled: {
+                label: 'Spending Budget',
+                description: [
+                    'Set a weekly or monthly Robux budget and see how much of it a purchase uses in the purchase prompt.',
+                    'Going over your budget adds a 5 second wait before you can buy.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
+                childSettings: {
+                    spendingBudgetAmount: {
+                        label: 'Budget',
+                        description: 'The most Robux you want to spend.',
+                        type: 'number',
+                        min: 1,
+                        max: 1000000,
+                        step: 100,
+                        default: 1000,
+                    },
+                    spendingBudgetPeriod: {
+                        label: 'Per',
+                        description: 'Whether the budget is weekly or monthly.',
+                        type: 'select',
+                        options: [
+                            { label: 'Week', value: 'week' },
+                            { label: 'Month', value: 'month' },
+                        ],
+                        default: 'month',
+                    },
+                },
+            },
             bonusItemEnabled: {
                 label: 'Robux Purchase Bonus Item Selector',
                 description:
