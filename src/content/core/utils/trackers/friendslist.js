@@ -558,9 +558,24 @@ async function detectUnfriendEvents(userId, currentFriendRecords) {
     if (!(await settings.unfriendDetectorEnabled)) return;
     if (!currentFriendRecords?.length) return;
 
+    const actualUserId = await getAuthenticatedUserId(true);
+    if (!actualUserId || String(actualUserId) !== String(userId)) return;
+
     const result = await new Promise((resolve) =>
-        chrome.storage.local.get([UNFRIEND_SNAPSHOT_KEY], resolve),
+        chrome.storage.local.get(
+            [UNFRIEND_SNAPSHOT_KEY, FRIENDS_DATA_KEY],
+            resolve,
+        ),
     );
+
+    const expectedCount = result[FRIENDS_DATA_KEY]?.[userId]?.friendsCount;
+    if (
+        typeof expectedCount === 'number' &&
+        currentFriendRecords.length < expectedCount
+    ) {
+        return;
+    }
+
     const allSnapshots = result[UNFRIEND_SNAPSHOT_KEY] || {};
     const previousSnapshot = allSnapshots[userId] || null;
     const currentIds = new Set(currentFriendRecords.map((friend) => friend.id));
@@ -678,7 +693,7 @@ let initialFriendsRefreshPromise = null;
 export function initFriendsListTracking() {
     if (!initialFriendsRefreshPromise) {
         initialFriendsRefreshPromise = (async () => {
-            const userId = await getAuthenticatedUserId();
+            const userId = await getAuthenticatedUserId(true);
             if (!userId) return;
 
             const friendsList = await updateFriendsList(userId);
