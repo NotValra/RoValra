@@ -25,6 +25,7 @@ export const SETTINGS_CONFIG = {
                     'Manually configure a language for RoValra. Some translations may be missing.',
                     // it works on the setting page only once it figures out the language from other pages' URLs
                     'The page will reload to apply changes. Might not work immediately on the settings page.',
+                    'We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy ',
                 ],
                 type: 'select',
                 options: [
@@ -57,11 +58,17 @@ export const SETTINGS_CONFIG = {
                         value: 'es',
                     },
                     {
-                        label: languageLabel('Traditional Chinese (繁體中文)', 'zh-CHT'),
+                        label: languageLabel(
+                            'Traditional Chinese (繁體中文)',
+                            'zh-CHT',
+                        ),
                         value: 'zh-CHT',
                     },
                     {
-                        label: languageLabel('Simplified Chinese (简体中文)', 'zh-CHS'),
+                        label: languageLabel(
+                            'Simplified Chinese (简体中文)',
+                            'zh-CHS',
+                        ),
                         value: 'zh-CHS',
                     },
                     {
