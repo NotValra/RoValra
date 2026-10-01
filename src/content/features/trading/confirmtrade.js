@@ -90,20 +90,26 @@ function applyThumbnail(thumbContainer, thumbnailData, itemName) {
     thumbContainer.appendChild(thumb);
 }
 
+function isMakeOfferButton(button) {
+    if (!button.matches('.foundation-web-button')) return false;
+    if (button.closest('[role="dialog"], .trade-request-item')) return false;
+    return Boolean(
+        button.closest(
+            '.trade-request-window-offers-parent, .trade-request-window-offers, .trade-request-window',
+        ),
+    );
+}
+
 function getTradeRequestOffersFromButton(button) {
-    const directOffers = button.closest('.trade-request-window-offers');
-    if (directOffers) return directOffers;
+    let element = button.parentElement;
+    while (element && element !== document.body) {
+        const offers = element.querySelectorAll('.trade-request-window-offer');
+        if (offers.length >= 2) return offers;
+        element = element.parentElement;
+    }
 
-    const siblingOffers = button.previousElementSibling?.matches(
-        '.trade-request-window-offers',
-    )
-        ? button.previousElementSibling
-        : null;
-    if (siblingOffers) return siblingOffers;
-
-    return button
-        .closest('.trade-request-window')
-        ?.querySelector('.trade-request-window-offers');
+    const offers = document.querySelectorAll('.trade-request-window-offer');
+    return offers.length >= 2 ? offers : null;
 }
 
 function getTradeDetailContext(button) {
@@ -146,6 +152,8 @@ function handleTradeRequestAction(event) {
         }, 5000);
         return;
     }
+
+    if (!isMakeOfferButton(button)) return;
 
     const offers = getTradeRequestOffersFromButton(button);
     if (!offers) return;
@@ -270,10 +278,10 @@ export function init() {
 
         if (!isTradePage) {
             if (observerRequest) {
-                observerRequest.active = false;
+                observerRequest.disconnect();
                 observerRequest = null;
             }
-            prefetchRequests.forEach((req) => (req.active = false));
+            prefetchRequests.forEach((req) => req.disconnect());
             prefetchRequests = [];
             return;
         }
@@ -311,10 +319,12 @@ export function init() {
                     return;
                 }
 
-                let tradeOffers = pendingRequestOffers?.querySelectorAll(
-                    '.trade-request-window-offer',
-                );
-                if (!tradeOffers?.length) {
+                let tradeOffers = pendingRequestOffers;
+                if (
+                    !tradeOffers ||
+                    tradeOffers.length < 2 ||
+                    !Array.from(tradeOffers).every((offer) => offer.isConnected)
+                ) {
                     tradeOffers = document.querySelectorAll(
                         '.trade-request-window-offer',
                     );
@@ -370,7 +380,7 @@ export function init() {
 }
 
 function startPrefetching() {
-    prefetchRequests.forEach((req) => (req.active = false));
+    prefetchRequests.forEach((req) => req.disconnect());
     prefetchRequests = [];
 
     const handleLink = (el) => {
