@@ -39,6 +39,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '231260921', // textuired
     '2020751790', // Orellius
     '200565345', // krampuszc
+    '2239549101', // TimorousShadow
 ];
 
 export const TESTER_USER_IDS = [
