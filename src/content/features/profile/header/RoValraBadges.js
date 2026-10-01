@@ -94,6 +94,36 @@ function applyBadgeIconStyle(icon, badge) {
     Object.assign(icon.style, badge.style || {});
 }
 
+function ensureBadgeRowStyle() {
+    if (document.getElementById('rovalra-badge-row-style')) return;
+    const style = document.createElement('style');
+    style.id = 'rovalra-badge-row-style';
+    style.textContent = `
+        .rovalra-header-badges {
+            --rovalra-badge-row-h: 28px;
+            display: inline-flex;
+            align-items: center;
+            align-self: center;
+            flex: 0 0 auto;
+            gap: 2px;
+            height: var(--rovalra-badge-row-h);
+            margin-left: 4px;
+            vertical-align: middle;
+            overflow: visible;
+        }
+        .rovalra-header-badges .rovalra-header-badge > img,
+        .rovalra-header-badges .rovalra-header-badge > span {
+            max-width: var(--rovalra-badge-row-h);
+            max-height: var(--rovalra-badge-row-h);
+        }
+        .rovalra-header-badges .rovalra-text-badge {
+            margin-left: 4px !important;
+            line-height: 1.4;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 function ensureShineStyle() {
     if (document.getElementById('rovalra-badge-shine-style')) return;
     const style = document.createElement('style'); //Verified
@@ -391,7 +421,9 @@ async function addHeaderBadges(container) {
         });
 
         container
-            .querySelectorAll('.rovalra-header-badge, .rovalra-text-badge')
+            .querySelectorAll(
+                '.rovalra-header-badges, .rovalra-header-badge, .rovalra-text-badge',
+            )
             .forEach((b) => b.remove());
 
         const badgesToRender = [];
@@ -432,21 +464,30 @@ async function addHeaderBadges(container) {
             '#profile-header-title-container-name',
         );
 
-        [...badgesToRender].reverse().forEach((item) => {
+        ensureBadgeRowStyle();
+        const row = document.createElement('span');
+        row.className = 'rovalra-header-badges';
+        const lineHeight = nameEl
+            ? parseFloat(getComputedStyle(nameEl).lineHeight)
+            : NaN;
+        if (lineHeight > 0) {
+            row.style.setProperty('--rovalra-badge-row-h', `${lineHeight}px`);
+        }
+
+        badgesToRender.forEach((item) => {
             const badgeEl = document.createElement('div');
             if (item.isIcon) {
                 createHeaderBadge(badgeEl, item.config);
             } else {
                 createTextHeaderBadge(badgeEl, item.name);
             }
-
-            const finalBadge = badgeEl.firstChild;
-            if (nameEl) {
-                nameEl.after(finalBadge);
-            } else {
-                container.prepend(finalBadge);
-            }
+            row.appendChild(badgeEl.firstChild);
         });
+
+        if (badgesToRender.length) {
+            if (nameEl) nameEl.after(row);
+            else container.prepend(row);
+        }
 
         container.dataset.rovalraUserId = currentUserId;
     } finally {

@@ -1,0 +1,13 @@
+.user-profile-header-info .flex-col:has(> * > #profile-header-title-container-name) {
+    padding-top: 32px !important;
+}
+
+:has(> #profile-header-title-container-name) {
+    flex-wrap: wrap !important;
+    row-gap: 4px;
+}
+
+#profile-header-title-container-name {
+    flex-shrink: 0 !important;
+    max-width: 100%;
+}

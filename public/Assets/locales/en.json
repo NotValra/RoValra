@@ -1689,7 +1689,9 @@
     "tradeQuickActions": {
         "minValue": "Min value they give",
         "hideLosses": "Hide losses",
-        "declineLosses": "Decline losing received trades",
+        "bulkTitle": "Bulk action",
+        "bulkHint": "Declines every received trade where you lose value. You confirm first.",
+        "declineLosses": "Decline losing trades",
         "loadingTrades": "Loading received trades...",
         "checking": "Checking trades {{done}}/{{total}}...",
         "noLosses": "No losing received trades found",

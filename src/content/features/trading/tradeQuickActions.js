@@ -4,7 +4,7 @@ import { getAuthenticatedUserId } from '../../core/user.js';
 import { getTradeAnalysis } from '../../core/trade/tradeDetailsHandler.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { createButton } from '../../core/ui/buttons.js';
-import { createPill } from '../../core/ui/general/pill.js';
+import { createToggle } from '../../core/ui/general/toggle.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
@@ -116,7 +116,7 @@ function markDeclined(tradeIds) {
     const declined = new Set(tradeIds);
     document.querySelectorAll('.trade-row').forEach((row) => {
         if (declined.has(row.dataset.tradeId)) {
-            row.dataset.rovalraQuickHidden = 'true';
+            row.dataset.rovalraDeclined = 'true';
         }
     });
 }
@@ -166,7 +166,10 @@ async function declineLosses(button, status) {
                 onCancel: () => resolve(false),
             });
         });
-        if (!confirmed) return;
+        if (!confirmed) {
+            status.textContent = ts('tradeQuickActions.bulkHint');
+            return;
+        }
 
         const declined = [];
         for (const [index, analysis] of losses.entries()) {
@@ -217,33 +220,49 @@ function createPanel() {
     });
     controls.appendChild(minValueContainer);
 
-    const hideLosses = createPill(ts('tradeQuickActions.hideLosses'), null, {
-        isButton: true,
+    const hideLossesLabel = document.createElement('label');
+    hideLossesLabel.className =
+        'text-label-medium rovalra-trade-quick-switch';
+    hideLossesLabel.htmlFor = 'rovalra-trade-hide-losses';
+    hideLossesLabel.textContent = ts('tradeQuickActions.hideLosses');
+    const hideLosses = createToggle({
+        id: 'rovalra-trade-hide-losses',
+        checked: filters.hideLosses,
+        onChange: (checked) => {
+            filters.hideLosses = checked;
+            scheduleFilters();
+        },
     });
-    hideLosses.classList.add('rovalra-trade-quick-toggle');
-    hideLosses.setAttribute('aria-pressed', 'false');
-    hideLosses.addEventListener('click', () => {
-        filters.hideLosses = !filters.hideLosses;
-        hideLosses.setAttribute('aria-pressed', String(filters.hideLosses));
-        scheduleFilters();
-    });
-    controls.appendChild(hideLosses);
+    hideLosses.setAttribute('role', 'switch');
+    hideLossesLabel.appendChild(hideLosses);
+    controls.appendChild(hideLossesLabel);
 
     panel.appendChild(controls);
 
+    const bulk = document.createElement('div');
+    bulk.className = 'rovalra-trade-quick-bulk';
+
+    const bulkText = document.createElement('div');
+    bulkText.className = 'rovalra-trade-quick-bulk-text';
+    const bulkTitle = document.createElement('span');
+    bulkTitle.className = 'text-label-medium';
+    bulkTitle.textContent = ts('tradeQuickActions.bulkTitle');
     const status = document.createElement('span');
     status.className = 'text-caption-medium rovalra-trade-quick-status';
+    status.textContent = ts('tradeQuickActions.bulkHint');
+    bulkText.append(bulkTitle, status);
 
     const declineButton = createButton(
         ts('tradeQuickActions.declineLosses'),
-        'secondary',
+        'alert',
     );
     declineButton.classList.add('rovalra-trade-quick-decline');
     declineButton.addEventListener('click', () =>
         declineLosses(declineButton, status),
     );
 
-    panel.append(declineButton, status);
+    bulk.append(bulkText, declineButton);
+    panel.appendChild(bulk);
     return panel;
 }
 
