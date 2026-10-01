@@ -1978,6 +1978,27 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['1960518316'],
             },
+            tradeRecentItemsEnabled: {
+                label: 'Recent Trade Items',
+                description: [
+                    'Remembers the items you recently offered and requested, and shows them above each inventory when making a trade.',
+                    'Clicking one finds and selects it for you. Your history is only stored on this device.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_trade_recent_items',
+                contributors: ['2239549101'],
+            },
+            tradeQuickActionsEnabled: {
+                label: 'Trade Quick Actions',
+                description: [
+                    'Adds quick actions to the trades page, letting you only show trades above a certain value or hide trades that are a loss for you.',
+                    'Also adds a button to decline every received trade that is a loss by value, after asking you to confirm.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
+            },
         },
     },
     Plus: {

@@ -1,0 +1,59 @@
+.rovalra-trade-quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 12px 12px;
+
+    .rovalra-trade-quick-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .rovalra-catalog-input-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    .rovalra-trade-quick-switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        margin: 0;
+        cursor: pointer;
+        white-space: nowrap;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-trade-quick-bulk {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.25));
+    }
+
+    .rovalra-trade-quick-bulk-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-trade-quick-decline {
+        flex-shrink: 0;
+        width: auto;
+    }
+
+    .rovalra-trade-quick-status {
+        color: var(--rovalra-secondary-text-color);
+    }
+}
+
+.trade-row[data-rovalra-quick-hidden],
+.trade-row[data-rovalra-declined] {
+    display: none !important;
+}
