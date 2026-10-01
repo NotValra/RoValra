@@ -2172,5 +2172,14 @@
     "pinnedFriends": {
         "pin": "Pin to top",
         "unpin": "Unpin"
+    },
+    "richLinks": {
+        "by": "By {{name}}",
+        "members": "{{count}} Members",
+        "playing": "{{count}} Playing",
+        "visits": "{{count}} Visits",
+        "loading": "Loading...",
+        "free": "Free",
+        "offSale": "Off sale"
     }
 }

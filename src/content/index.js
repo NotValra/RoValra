@@ -27,6 +27,7 @@ import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
+import { init as initRichRobloxLinks } from './features/sitewide/richRobloxLinks.js';
 import { init as initViewIds } from './features/sitewide/viewid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 import { init as initRenderTest } from './features/developer/rendertest.js';
@@ -244,6 +245,7 @@ const featureRoutes = [
             initAuthenticatedUserLanguageTracking,
             initPlaytimeTracker,
             initCopyId,
+            initRichRobloxLinks,
             initViewIds,
             initBetaPrograms,
             initPreviousPrice,

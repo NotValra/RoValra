@@ -2427,6 +2427,16 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            richRobloxLinksEnabled: {
+                label: 'Rich Roblox Links',
+                description: [
+                    'Turns Roblox links in descriptions into pills with their icon, name and verified badge.',
+                    'Hover a pill to preview the community, user, experience or item.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
             disableThumbnailBackground: {
                 label: 'Disable Thumbnail Backgrounds',
                 description: [
