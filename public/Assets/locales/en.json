@@ -1258,7 +1258,9 @@
         "noSearchHistory": "You don't have any search history.",
         "deleteSearchHistoryTitle": "Delete Search History",
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
-        "delete": "Delete"
+        "delete": "Delete",
+        "itemValue": "Value",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "{{count}} Friends own",
