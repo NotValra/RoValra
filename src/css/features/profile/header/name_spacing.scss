@@ -11,3 +11,11 @@
     flex-shrink: 0 !important;
     max-width: 100%;
 }
+
+#profile-header-title-container-name {
+    order: -2;
+}
+
+:has(> #profile-header-title-container-name) > :has(> [data-testid='foundation-web-icon']) {
+    order: -1;
+}
