@@ -6,7 +6,7 @@ import { addTooltip } from '../tooltip.js';
 import { createSerialIcon } from './serials.js';
 import { callRobloxApi } from '../../api.js';
 import { getAssets } from '../../assets.js';
-import { t } from '../../locale/i18n.js';
+import { t, ts } from '../../locale/i18n.js';
 
 let batchQueue = [];
 let batchTimeout = null;
@@ -453,7 +453,7 @@ async function processBatch() {
                         }
                     } else {
                         request.placeholder.innerHTML =
-                            '<div style="padding: 10px;">Not Found</div>';
+                            `<div style="padding: 10px;">${ts('items.notFound')}</div>`;
                     }
                 }
             }),
@@ -462,7 +462,7 @@ async function processBatch() {
         console.warn('RoValra: Batch request failed', e);
         currentBatch.forEach((request) => {
             request.placeholder.innerHTML =
-                '<div style="padding: 10px;">Failed to load</div>';
+                `<div style="padding: 10px;">${ts('items.failedToLoad')}</div>`;
         });
     }
 }
@@ -596,7 +596,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
             zIndex: '2',
         });
         t('items.hiddenFromMarketplace')
-            .catch(() => 'This item is hidden from the marketplace')
+            .catch(() => ts('items.hiddenFromMarketplace'))
             .then((tooltipText) => {
                 if (hiddenIconElement.isConnected) {
                     addTooltip(hiddenIconElement, tooltipText, {
@@ -615,7 +615,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2m4.2 14.2L11 13V7h1.5v5.2l4.5 2.7z"></path>
             </svg>
         `;
-        addTooltip(onHoldIconElement, 'On Hold', { position: 'top' });
+        addTooltip(onHoldIconElement, ts('items.onHold'), { position: 'top' });
         thumbContainer.appendChild(onHoldIconElement);
     }
 
@@ -631,7 +631,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     if (isFAEItem(item)) {
         const faeIconElement = document.createElement('div');
         faeIconElement.className = 'rovalra-fae-icon';
-        faeIconElement.setAttribute('aria-label', 'FAE item');
+        faeIconElement.setAttribute('aria-label', ts('items.faeItem'));
         faeIconElement.innerHTML =
             '<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-lock-closed size-[var(--icon-size-medium)]"></span>';
         Object.assign(faeIconElement.style, {

@@ -298,9 +298,17 @@ export const set = async (section, key, value, area = 'session') => {
  * @param {string} area - The storage area ('session' or 'local').
  * @returns {any} The cached value, or undefined if not found.
  */
-export const get = async (section, key, area = 'session') => {
+export const get = async (
+    section,
+    key,
+    area = 'session',
+    maxAgeMs = TWENTY_FOUR_HOURS_MS,
+) => {
     const ram = getramcache(section, key, area);
-    if (ram.x != cachevaluemissing) {
+    if (
+        maxAgeMs === TWENTY_FOUR_HOURS_MS &&
+        ram.x != cachevaluemissing
+    ) {
         return ram.x;
     }
     const cache = await getCache(area);
@@ -317,7 +325,7 @@ export const get = async (section, key, area = 'session') => {
 
     if (entry && entry.ResetTimestamp) {
         const age = Date.now() - entry.ResetTimestamp;
-        if (age > TWENTY_FOUR_HOURS_MS) {
+        if (age > maxAgeMs) {
             await remove(section, key, area);
             return undefined;
         }

@@ -4,6 +4,7 @@ import {
     getCurrentUserTierSync,
     syncDonatorTier,
 } from '../settings/handlesettings.js';
+import { ts } from '../locale/i18n.js';
 
 const REVIEW_URL =
     'https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews';
@@ -156,8 +157,7 @@ export function showReviewPopup(source = 'unknown') {
                     bodyContent.style.gap = '10px';
 
                     const text = document.createElement('p');
-                    text.textContent =
-                        "It looks like you've been getting value from RoValra!\n Would you mind leaving a review?\n It helps keep RoValra free for everyone without paywalls.";
+                    text.textContent = ts('review.requestMessage');
                     text.style.fontSize = '16px';
                     text.style.lineHeight = '1.5';
                     text.style.whiteSpace = 'pre-line';
@@ -166,7 +166,7 @@ export function showReviewPopup(source = 'unknown') {
                     let actionTaken = false;
 
                     const reviewBtn = createButton(
-                        'Leave a Review',
+                        ts('review.leaveReview'),
                         'btn-primary-md',
                         () => {
                             actionTaken = true;
@@ -179,7 +179,7 @@ export function showReviewPopup(source = 'unknown') {
                     );
 
                     const notNowBtn = createButton(
-                        'Not right now',
+                        ts('review.notNow'),
                         'btn-control-md',
                         () => {
                             actionTaken = true;
@@ -194,7 +194,7 @@ export function showReviewPopup(source = 'unknown') {
 
                     if (stats.dismissCount > 0) {
                         const dontShowBtn = createButton(
-                            'Do not show again',
+                            ts('review.doNotShowAgain'),
                             'btn-control-md',
                             () => {
                                 actionTaken = true;
@@ -209,7 +209,7 @@ export function showReviewPopup(source = 'unknown') {
                     actions.push(notNowBtn, reviewBtn);
 
                     const { close } = createOverlay({
-                        title: 'Rate RoValra',
+                        title: ts('review.rateTitle'),
                         bodyContent: bodyContent,
                         actions: actions,
                         showLogo: true,
@@ -328,8 +328,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                     bodyContent.style.gap = '10px';
 
                     const text = document.createElement('p');
-                    text.textContent =
-                        "Running features such as the region selector isn't free, and RoValra completely relies on donations to cover those costs.\n\nDonating helps us keep the servers running so features like this can stay free for everyone.";
+                    text.textContent = ts('review.donationMessage');
                     text.style.fontSize = '16px';
                     text.style.lineHeight = '1.5';
                     text.style.whiteSpace = 'pre-line';
@@ -338,7 +337,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                     let actionTaken = false;
 
                     const donateBtn = createButton(
-                        'Donate',
+                        ts('review.donate'),
                         'btn-primary-md',
                         () => {
                             actionTaken = true;
@@ -351,7 +350,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                     );
 
                     const notNowBtn = createButton(
-                        'Not right now',
+                        ts('review.notNow'),
                         'btn-control-md',
                         () => {
                             actionTaken = true;
@@ -365,7 +364,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                     );
 
                     const dontShowBtn = createButton(
-                        "Don't show again",
+                        ts('review.doNotShowAgain'),
                         'btn-control-md',
                         () => {
                             actionTaken = true;
@@ -377,7 +376,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                     );
 
                     const { close } = createOverlay({
-                        title: 'Wanna help support RoValra?',
+                        title: ts('review.donationTitle'),
                         bodyContent: bodyContent,
                         actions: [dontShowBtn, notNowBtn, donateBtn],
                         showLogo: true,

@@ -13,6 +13,8 @@ import {
     getServerVersion,
     formatUptime,
 } from '../../apis/serverApi.js';
+import { ts } from '../../locale/i18n.js';
+import { addTooltip } from '../../ui/tooltip.js';
 
 const CLASSES = {
     CONTAINER: 'rovalra-details-container',
@@ -31,16 +33,16 @@ const ORDERS = {
     Performance: 1,
     Uptime: 2,
     Version: 3,
-    Region: 4,
-    Purchase: 5,
-    Status: 6,
+    Region: 5,
+    Purchase: 6,
+    Status: 7,
 };
 
 const STYLES = {
     container:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 88px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 44px;',
     containerFriends:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 88px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 48px;',
     row: 'display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 400;',
     icon: 'display: flex; align-items: center; flex-shrink: 0; height: 20px;',
     text: 'line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 100%; flex: 1;',
@@ -124,7 +126,7 @@ const cacheReadyPromise = new Promise((resolve) => {
                 if (!isServerListModificationsEnabled) {
                     document
                         .querySelectorAll(
-                            '.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link',
+                            '.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link, .rovalra-meta-pill',
                         )
                         .forEach((el) => el.remove());
                 } else {
@@ -230,6 +232,25 @@ function extractCountryCode(regionName) {
         }
     }
     return null;
+}
+
+let regionDisplayNames = null;
+
+function getCountryName(countryCode) {
+    try {
+        regionDisplayNames ??= new Intl.DisplayNames(
+            [document.documentElement.lang || navigator.language, 'en'],
+            { type: 'region' },
+        );
+        const name = regionDisplayNames.of(countryCode.toUpperCase());
+        if (name && name.toUpperCase() !== countryCode.toUpperCase())
+            return name;
+    } catch {}
+
+    const entry = datacenterList?.find(
+        (e) => (e.location || e).country?.toLowerCase() === countryCode,
+    );
+    return (entry?.location || entry)?.country_name || null;
 }
 
 function removeCountryFromRegion(regionName) {
@@ -371,7 +392,52 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     return element;
 }
 
-function clearExclusiveStatuses(container) {
+function getOrCreateMetaIcons(server) {
+    let meta = server.querySelector('.server-meta-icons');
+    if (meta) return meta;
+
+    const gauge = server.querySelector('.server-player-count-gauge');
+    if (!gauge) return null;
+
+    meta = document.createElement('div');
+    meta.className = 'server-meta-icons rovalra-meta-icons';
+    gauge.after(meta);
+    return meta;
+}
+
+function updateMetaPill(server, type, iconHTML, text, isVisible, tooltip = '') {
+    const className = CLASSES[type];
+    const meta = isVisible ? getOrCreateMetaIcons(server) : null;
+    let pill = server.querySelector(`.rovalra-meta-pill.${className}`);
+
+    if (!meta && !pill) {
+        const container = getOrCreateDetailsContainer(server);
+        return updateInfoElement(container, type, iconHTML, text, isVisible);
+    }
+
+    if (!pill) {
+        pill = document.createElement('span');
+        pill.className = `server-meta-badge-tip rovalra-meta-pill ${className}`;
+        pill.style.order = ORDERS[type] || ORDERS.Status;
+        pill.innerHTML = `<div class="foundation-web-badge flex items-center select-none gap-[var(--size-150)] radius-circle height-600 width-[fit-content] padding-x-small bg-shift-200 content-emphasis stroke-none"><span class="rovalra-icon-wrapper"></span><span class="rovalra-pill-text text-no-wrap text-truncate-split text-label-small padding-y-xsmall padding-right-xxsmall content-emphasis"></span></div>`;
+        addTooltip(pill, () => pill.dataset.rovalraTooltip || '', {
+            position: 'top',
+            shouldShow: () => !!pill.dataset.rovalraTooltip,
+        });
+        meta.appendChild(pill);
+    }
+
+    pill.dataset.rovalraTooltip = tooltip;
+    pill.querySelector('.rovalra-icon-wrapper').innerHTML = iconHTML;
+    pill.querySelector('.rovalra-pill-text').textContent = text;
+    pill.style.display = isVisible ? '' : 'none';
+
+    server.querySelector(`.${CLASSES.CONTAINER} > .${className}`)?.remove();
+
+    return pill;
+}
+
+function clearExclusiveStatuses(server, container) {
     [
         CLASSES.Uptime,
         CLASSES.Version,
@@ -381,6 +447,7 @@ function clearExclusiveStatuses(container) {
         CLASSES.Purchase,
         CLASSES.Inactive,
     ].forEach((cls) => container.querySelector(`.${cls}`)?.remove());
+    server.querySelector(`.rovalra-meta-pill.${CLASSES.Region}`)?.remove();
 }
 
 function injectStyles() {
@@ -401,14 +468,45 @@ function injectStyles() {
             background-color: transparent;
             color: inherit;
         }
+        .rovalra-meta-icons {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .server-meta-icons:has(.rovalra-meta-pill) {
+            flex-wrap: wrap;
+            row-gap: 4px;
+        }
+        .rovalra-meta-pill {
+            display: inline-flex;
+            min-width: 0;
+            max-width: 100%;
+            cursor: default;
+        }
+        .rovalra-meta-pill .foundation-web-badge {
+            max-width: 100%;
+        }
+        .rovalra-meta-pill .rovalra-icon-wrapper {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .rovalra-meta-pill .rovalra-icon-wrapper svg {
+            width: 14px;
+            height: 14px;
+        }
+        .rovalra-meta-pill .rovalra-pill-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     `;
     document.head.appendChild(style);
 }
 
 function shouldSpoilerServerId(server) {
     return (
-        server.hasAttribute('data-rovalra-is-friend-server') ||
-        server.hasAttribute('data-rovalra-is-recent-server') ||
+        server.dataset.rovalraIsFriendServer === 'true' ||
+        server.dataset.rovalraIsRecentServer === 'true' ||
         server.classList.contains('rbx-friends-game-server-item') ||
         !!server.querySelector(
             '.player-thumbnails-container .avatar-card-link[href*="/users/"]',
@@ -427,27 +525,32 @@ function enableAvatarLinks(server) {
 
 export function displayPerformance(server, fps, serverLocations = {}) {
     if (!isServerPerformanceEnabled || !isServerListModificationsEnabled) {
-        const container = getOrCreateDetailsContainer(server);
-        updateInfoElement(container, 'Performance', '', '', false);
+        updateMetaPill(server, 'Performance', '', '', false);
         return;
     }
 
-    const container = getOrCreateDetailsContainer(server);
-    let text = 'Server Performance Unknown';
+    let text = 'Unknown';
     let icon = ICONS.performanceHigh;
     let visible = false;
 
     if (fps === 'fetching') {
-        text = 'Server Performance Loading...';
+        text = ts('serverInfo.loading');
         visible = true;
     } else if (typeof fps === 'number') {
         const percent = Math.min(100, Math.round((fps / 60) * 100));
-        text = `Server Performance ${percent}%`;
+        text = `${percent}%`;
         icon = percent < 50 ? ICONS.performanceLow : ICONS.performanceHigh;
         visible = true;
     }
 
-    updateInfoElement(container, 'Performance', icon, text, visible);
+    updateMetaPill(
+        server,
+        'Performance',
+        icon,
+        text,
+        visible,
+        ts('serverInfo.performanceTooltip'),
+    );
 }
 
 export function displayUptime(
@@ -467,7 +570,7 @@ export function displayUptime(
     let visible = true;
 
     if (uptime === 'fetching') {
-        text = 'Loading...';
+        text = ts('serverInfo.loading');
     } else if (typeof uptime === 'number') {
         text = formatUptime(uptime, isEstimate);
     } else if (uptime === 'N/A') {
@@ -487,7 +590,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    let text = 'Version Unknown';
+    let text = ts('serverInfo.versionUnknown');
     let visible = false;
 
     const existingVersion = container.querySelector(`.${CLASSES.Version}`);
@@ -501,15 +604,15 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     if (version && version !== 'Unknown') {
-        text = `Version ${version}`;
+        text = ts('serverInfo.version', { version });
         const containerList = document.getElementById(
             'rbx-public-game-server-item-container',
         );
         if (containerList) {
             if (String(version) === containerList.dataset.newestVersion)
-                text += ' (Latest)';
+                text += ts('serverInfo.latest');
             else if (String(version) === containerList.dataset.oldestVersion)
-                text += ' (Oldest)';
+                text += ts('serverInfo.oldest');
         }
         visible = true;
     }
@@ -519,8 +622,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
 
 export function displayRegion(server, regionName, serverLocations = {}) {
     if (!isServerRegionEnabled || !isServerListModificationsEnabled) {
-        const container = getOrCreateDetailsContainer(server);
-        updateInfoElement(container, 'Region', '', '', false);
+        updateMetaPill(server, 'Region', '', '', false);
         return;
     }
 
@@ -532,6 +634,7 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     }
 
     let text = 'Unknown';
+    let countryName = null;
     let icon = ICONS.regionDefault;
     let visible = false;
 
@@ -548,13 +651,24 @@ export function displayRegion(server, regionName, serverLocations = {}) {
             visible = false;
         } else {
             if (countryCode) {
-                icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="20" height="14" alt="${countryCode}" style="display: block;">`;
+                countryName =
+                    countryCode === 'us'
+                        ? text.split(',').pop().trim()
+                        : getCountryName(countryCode);
+                icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="16" height="12" alt="${countryCode}" style="display: block; border-radius: 2px;">`;
             }
             visible = true;
         }
     }
 
-    updateInfoElement(container, 'Region', icon, text, visible);
+    updateMetaPill(
+        server,
+        'Region',
+        icon,
+        countryName || text,
+        visible,
+        ts('serverInfo.regionTooltip', { region: text }),
+    );
 }
 
 function displayRegionForServerId(serverId, regionName, serverLocations) {
@@ -616,7 +730,7 @@ export function displayServerFullStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    const regionElement = container.querySelector(`.${CLASSES.Region}`);
+    const regionElement = server.querySelector(`.${CLASSES.Region}`);
     const hasRegion =
         regionElement &&
         regionElement.style.display !== 'none' &&
@@ -629,7 +743,13 @@ export function displayServerFullStatus(server) {
         return;
     }
 
-    updateInfoElement(container, 'Full', ICONS.full, 'Server is Full', true);
+    updateInfoElement(
+        container,
+        'Full',
+        ICONS.full,
+        ts('serverInfo.serverFull'),
+        true,
+    );
 }
 
 export function displayPrivateServerStatus(server) {
@@ -640,12 +760,12 @@ export function displayPrivateServerStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    clearExclusiveStatuses(container);
+    clearExclusiveStatuses(server, container);
     updateInfoElement(
         container,
         'Private',
         ICONS.private,
-        'Playing in a private server',
+        ts('serverInfo.privateServer'),
         true,
     );
 }
@@ -658,18 +778,18 @@ export function displayPurchaseGameStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    clearExclusiveStatuses(container);
+    clearExclusiveStatuses(server, container);
     updateInfoElement(
         container,
         'Purchase',
         ICONS.purchase,
-        'Buy game to see regions.',
+        ts('serverInfo.purchaseGame'),
         true,
     );
 }
 
 export function displayInactivePlaceStatus(server) {
-    if (server) {
+    if (server?.dataset.rovalraAddedByFilter === 'true') {
         server.remove();
     }
 }
@@ -860,7 +980,7 @@ export async function fetchAndDisplayRegion(
                 if (joinBtn) {
                     const joinLabel =
                         joinBtn.querySelector('.text-no-wrap') || joinBtn;
-                    joinLabel.textContent = 'Join (Server Full)';
+                    joinLabel.textContent = ts('common.joinServerFull');
                     joinBtn.classList.replace(
                         'btn-primary-md',
                         'btn-secondary-md',
@@ -966,7 +1086,7 @@ export async function addCopyJoinLinkButton(server, serverId) {
     const btn = document.createElement('button');
     btn.className =
         'btn-full-width btn-control-xs btn-primary-md btn-min-width rovalra-copy-join-link';
-    btn.textContent = 'Share';
+    btn.textContent = ts('common.share');
     btn.style.cssText = 'margin-top: 5px; width: 100%;';
 
     btn.onclick = (e) => {
@@ -974,8 +1094,8 @@ export async function addCopyJoinLinkButton(server, serverId) {
         e.stopPropagation();
         const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
         navigator.clipboard.writeText(link).then(() => {
-            btn.textContent = 'Copied!';
-            setTimeout(() => (btn.textContent = 'Share'), 2000);
+            btn.textContent = ts('common.copied');
+            setTimeout(() => (btn.textContent = ts('common.share')), 2000);
         });
     };
 
@@ -1040,7 +1160,11 @@ export async function enhanceServer(server, context) {
 
     if (!server._rovalraUptimeListener) {
         server._rovalraUptimeListener = (e) => {
-            if (e.detail.serverId === serverId) {
+            const currentServerId = server.dataset.rovalraServerid;
+            if (
+                currentServerId &&
+                String(e.detail.serverId) === String(currentServerId)
+            ) {
                 displayUptime(
                     server,
                     e.detail.uptime,
@@ -1084,8 +1208,18 @@ export async function enhanceServer(server, context) {
     const cachedLocation = serverLocations[serverId];
     displayRegion(server, cachedLocation || 'Unknown', serverLocations);
 
-    const apiData = server._rovalraApiData;
-    if (apiData && (apiData.server_id || apiData.id) === serverId) {
+    const cachedApiData = context.serverDataCache?.get(String(serverId));
+    const attachedApiData = server._rovalraApiData;
+    const attachedApiDataId = attachedApiData?.server_id || attachedApiData?.id;
+    const apiData =
+        cachedApiData &&
+        String(cachedApiData.server_id || cachedApiData.id) === String(serverId)
+            ? cachedApiData
+            : attachedApiData && String(attachedApiDataId) === String(serverId)
+              ? attachedApiData
+              : null;
+    if (apiData) server._rovalraApiData = apiData;
+    if (apiData) {
         if (apiData.place_version && !getServerVersion(serverId)) {
             displayPlaceVersion(server, apiData.place_version, serverLocations);
         }
@@ -1161,7 +1295,7 @@ export async function enhanceServer(server, context) {
         idDiv.innerHTML = '';
 
         const prefixSpan = document.createElement('span');
-        prefixSpan.textContent = 'ID: ';
+        prefixSpan.textContent = ts('common.id');
         prefixSpan.style.userSelect = 'none';
 
         const uuidSpan = document.createElement('span');

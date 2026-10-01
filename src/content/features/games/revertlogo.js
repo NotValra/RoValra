@@ -3,7 +3,11 @@ import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
-import { launchGame } from '../../core/utils/launcher.js';
+import {
+    launchGame,
+    observeGameLaunch,
+    resolveGameLaunchPlaceId,
+} from '../../core/utils/launcher.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import {
     fetchServerDetails,
@@ -183,27 +187,6 @@ function attachLiveUptimeListener() {
             getServerUptimeIsEstimate(serverId),
         );
     }, 1000);
-}
-
-async function fetchUserPresence(userId) {
-    if (!userId) return null;
-    try {
-        const response = await callRobloxApi({
-            subdomain: 'presence',
-            endpoint: '/v1/presence/users',
-            method: 'POST',
-            body: { userIds: [parseInt(userId, 10)] },
-        });
-        if (!response.ok) return null;
-        const data = await response.json();
-        return (
-            data?.userPresences?.[0]?.rootPlaceId ||
-            data?.userPresences?.[0]?.placeId ||
-            null
-        );
-    } catch (e) {
-        return null;
-    }
 }
 
 const buildInfoList = (
@@ -549,7 +532,7 @@ function initializeJoinDialogEnhancer() {
             closeUiByClickingTheBackground: true,
         },
         (settings) => {
-            const processGameLaunchData = async (gameLaunchFrame) => {
+            const processGameLaunchData = async (gameLaunchFrame, launch) => {
                 gameLaunchElementExists = true;
                 const gameLaunchSrc = gameLaunchFrame?.src;
 
@@ -575,20 +558,7 @@ function initializeJoinDialogEnhancer() {
                     settings.closeUiByClickingTheBackground,
                 );
 
-                let urlParams;
-                let placeId;
-                try {
-                    const urlString = gameLaunchSrc.substring(
-                        gameLaunchSrc.indexOf('placelauncherurl:'),
-                    );
-                    const decodedUrlString = decodeURIComponent(
-                        urlString.split('+')[0].substring(17),
-                    );
-                    urlParams = new URLSearchParams(
-                        new URL(decodedUrlString).search,
-                    );
-                    placeId = urlParams.get('placeId');
-                } catch (e) {
+                if (!launch) {
                     showLoadingOverlayResult(
                         await t('revertLogo.errorParsingUrl'),
                         {
@@ -599,16 +569,18 @@ function initializeJoinDialogEnhancer() {
                     return;
                 }
 
+                const { params: urlParams } = launch;
+                let placeId = launch.placeId;
                 if (
                     !placeId &&
                     urlParams.get('request') === 'RequestFollowUser'
                 ) {
-                    const userId = urlParams.get('userId');
+                    const userId = launch.userId;
                     if (userId) {
                         updateLoadingOverlayText(
                             await t('revertLogo.findingUser'),
                         );
-                        placeId = await fetchUserPresence(userId);
+                        placeId = await resolveGameLaunchPlaceId(launch);
                     }
                 }
 
@@ -878,12 +850,7 @@ function initializeJoinDialogEnhancer() {
 
             if (!settings.whatamIJoiningEnabled) return;
 
-            observeElement('#gamelaunch', processGameLaunchData, {
-                observeAttributes: true,
-                onRemove: () => {
-                    gameLaunchElementExists = false;
-                },
-            });
+            observeGameLaunch(processGameLaunchData);
         },
     );
 }

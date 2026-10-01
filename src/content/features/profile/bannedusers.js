@@ -294,7 +294,7 @@ async function renderBannedUserProfile(user, settings) {
 
     content.innerHTML = '';
     content.innerHTML = DOMPurify.sanitize(`
-        <div class="profile-platform-container" data-profile-type="User" data-profile-id="${user.id}" style="width: 970px; margin: 0 auto;">
+        <div class="profile-platform-container" data-profile-type="User" data-profile-id="${user.id}" data-rovalra-banned-profile="true" style="width: 970px; margin: 0 auto;">
             <div class="sg-system-feedback">
                 <div class="alert-system-feedback"><div class="alert"><span class="alert-content"></span></div></div>
             </div>
@@ -825,7 +825,7 @@ async function loadFriends(userId) {
                         <a href="https://www.roblox.com/users/${userId}/friends#!/friends" class="btn-secondary-xs btn-more see-all-link-icon">${ts('bannedUsers.seeAll')}</a>
                     </div>
                     <div class="friends-carousel-container">
-                        <div class="friends-carousel-list-container rovalra-banned-friends-scroll">
+                        <div class="rovalra-banned-friends-scroll">
                             <div id="rovalra-banned-friends-list" class="rovalra-banned-friends-list"></div>
                         </div>
                     </div>

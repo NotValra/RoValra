@@ -13,6 +13,8 @@ import inventoryPrivacy from "./privacyToggles/inventoryPrivacy.js";
 
 const SETTING_NAME = 'privacyTogglesEnabled';
 
+const OLD_ICON_SETTING_NAME = 'privacyTogglesOldIconEnabled';
+
 let abortController = new AbortController();
 let togglesEnabled = 0;
 let currentNavItem;
@@ -35,7 +37,7 @@ async function addNavBtn() {
     console.log("add nav called!")
     currentNavItem = await createNavbarButton({
         id: 'rovalra-privacy-toggle-navbtn',
-        iconData: '<icon size="x-large" style="color: var(--rovalra-main-text-color)" filled>lock-closed</icon>',
+        iconData: '<icon size="x-large" style="color: var(--rovalra-main-text-color)"' + (await settings[OLD_ICON_SETTING_NAME] ? '>three-bars-horizontal' : ' filled>lock-closed') + '</icon>',
         tooltipText: await t('privacyToggles.nav.tooltip'),
     });
     addDropdown(currentNavItem);
@@ -83,7 +85,7 @@ async function checkNoToggles(noTogglesEl, togglesEnabledCount = togglesEnabled)
 async function changeToggleElements(dropdown = createDropdown(), currentItems) {
     const dropdownElement = dropdown.panel.querySelector('div.flex-dropdown-menu');
 
-    for (item of dropdownElement.children) {
+    for (const item of dropdownElement.children) {
         const connectedItemInfo = currentItems.filter(a => a.value == item.getAttribute('data-value'))[0];
 
         item.disabled = connectedItemInfo.disabled

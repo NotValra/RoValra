@@ -8,7 +8,11 @@ import {
     getUserOutfits,
 } from '../../core/apis/avatar.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
-import { setPreLaunchHook } from '../../core/utils/launcher.js';
+import {
+    setFollowUserHook,
+    setPrivateServerLaunchHook,
+    setPreLaunchHook,
+} from '../../core/utils/launcher.js';
 import {
     getPlacesDetails,
     getUniversesDetails,
@@ -566,7 +570,7 @@ function buildCardWarmUp(userId, register) {
 // Every launch RoValra starts goes through the launcher: experience cards,
 // quick search and the rest. The site's play button is handled above.
 function buildLauncherHook(userId) {
-    setPreLaunchHook(async (placeId) => {
+    const prepareOutfit = async (placeId) => {
         if (!placeId) return;
 
         await Promise.race([
@@ -576,7 +580,11 @@ function buildLauncherHook(userId) {
             })(),
             new Promise((resolve) => setTimeout(resolve, LAUNCH_TIMEOUT_MS)),
         ]);
-    });
+    };
+
+    setPreLaunchHook(prepareOutfit);
+    setFollowUserHook(prepareOutfit);
+    setPrivateServerLaunchHook(prepareOutfit);
 }
 
 // Read ahead so a launch only pays for the writes.
@@ -610,6 +618,8 @@ export function init() {
         generation += 1;
 
         setPreLaunchHook(null);
+        setFollowUserHook(null);
+        setPrivateServerLaunchHook(null);
         disposers.forEach((disposer) => disposer.disconnect?.());
         disposers = [];
 

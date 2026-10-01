@@ -111,7 +111,10 @@ async function showStep1Popup(userId, robuxAmount = 0, easterEgg = false) {
     const userFullData = await getUserFullData(userId);
     const userProfileData = (await getUserProfileData([userId])).profileDetails[0];
     const userCard = createUserCard({
-        displayName: userFullData.displayName || userFullData.name,
+        displayName:
+            userProfileData?.names?.combinedName ||
+            userFullData.displayName ||
+            userFullData.name,
         username: userFullData.name,
         thumbData: userThumbnailData,
         hidePresence: true,
@@ -285,7 +288,8 @@ async function showStep2Popup(userId, robuxAmount, easterEgg = false, error = nu
     const userFullData = await getUserFullData(userId);
     const userProfileData = (await getUserProfileData([userId])).profileDetails[0];
     const userCard = createUserCard({
-        displayName: userFullData.displayName,
+        displayName:
+            userProfileData?.names?.combinedName || userFullData.displayName,
         username: `@${userFullData.name}`,
         thumbData: userThumbnailData,
         hidePresence: true,

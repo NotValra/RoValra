@@ -17,7 +17,7 @@ const BUTTON_ITEM_ID = 'rovalra-topbar-layout-button-item';
 const TOPBAR_ROOT_SELECTOR = '#header > .container-fluid';
 const DESKTOP_PRIMARY_NAV_SELECTOR = 'ul.nav.rbx-navbar.hidden-xs.hidden-sm';
 const RIGHT_NAV_GROUP_SELECTOR =
-    '#right-navigation-header .navbar-right.rbx-navbar-right > ul.nav.navbar-right.rbx-navbar-icon-group';
+    '#right-navigation-header .navbar-right.rbx-navbar-right > ul.navbar-right.rbx-navbar-icon-group';
 const SEARCH_MOVED_CLASS = 'rovalra-topbar-layout-search-moved';
 const DROPDOWN_ITEM_KEYS = new Set([
     'search',

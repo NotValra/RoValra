@@ -1,6 +1,7 @@
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement, observeAttributes } from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
+import { ts } from '../../core/locale/i18n.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -236,10 +237,10 @@ export function init() {
                                 isValid: false, 
                                 isLimited: false, 
                                 isOffsale: false,
-                                name: 'Loading...', 
+                                name: ts('avatarFilters.loading'),
                                 searchName: '',
                                 price: null, 
-                                creatorName: 'Loading...',
+                                creatorName: ts('avatarFilters.loading'),
                                 creatorSearchName: ''
                             };
                             itemDataCache.set(id, entry);
@@ -453,7 +454,7 @@ export function init() {
                 const btn = document.getElementById('rovalra-fx-toggle-btn');
                 if (!btn) return;
                 const count = selectedFilters.size + (priceFilter.min.active ? 1 : 0) + (priceFilter.max.active ? 1 : 0) + (availabilityFilter !== 'all' ? 1 : 0) + (creatorFilter.active ? 1 : 0);
-                btn.querySelector('span').textContent = 'Filter Items';
+                btn.querySelector('span').textContent = ts('avatarFilters.filterItems');
                 btn.classList.toggle('filter-applied', count > 0);
             }
 
@@ -492,12 +493,12 @@ export function init() {
                     container.dataset.category = currentCategoryKey;
 
                     const filterConfig = [
-                        { id: 'rovalra-creator-name', type: 'text', label: 'Creator Name' },
-                        { id: 'rovalra-min-price-value', type: 'number', label: 'Min Price', min: 0 },
-                        { id: 'rovalra-max-price-value', type: 'number', label: 'Max Price', min: 0 },
-                        { id: 'rovalra-availability-filter', type: 'dropdown', label: 'Availability', initialValue: 'all', options: [{value:'all',label:'Show All'},{value:'onsale',label:'Onsale Only'},{value:'offsale',label:'Offsale Only'}] },
-                        { id: 'rovalra-filter-itemsWithEffects', type: 'toggle', label: 'Effects' },
-                        { id: 'rovalra-filter-limited', type: 'toggle', label: 'Limiteds' }
+                        { id: 'rovalra-creator-name', type: 'text', label: ts('avatarFilters.creatorName') },
+                        { id: 'rovalra-min-price-value', type: 'number', label: ts('avatarFilters.minPrice'), min: 0 },
+                        { id: 'rovalra-max-price-value', type: 'number', label: ts('avatarFilters.maxPrice'), min: 0 },
+                        { id: 'rovalra-availability-filter', type: 'dropdown', label: ts('avatarFilters.availability'), initialValue: 'all', options: [{value:'all',label:ts('avatarFilters.showAll')},{value:'onsale',label:ts('avatarFilters.onsaleOnly')},{value:'offsale',label:ts('avatarFilters.offsaleOnly')}] },
+                        { id: 'rovalra-filter-itemsWithEffects', type: 'toggle', label: ts('avatarFilters.effects') },
+                        { id: 'rovalra-filter-limited', type: 'toggle', label: ts('avatarFilters.limiteds') }
                     ];
 
                     const filterUI = createAvatarFilterUI({
@@ -613,7 +614,7 @@ export function init() {
                 if (!spinner) {
                     spinner = document.createElement('div');
                     spinner.id = 'rovalra-filter-loading';
-                    spinner.textContent = 'Filtering...';
+                    spinner.textContent = ts('avatarFilters.filtering');
                     spinner.style.cssText = 'position:absolute; top: 60px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 4px; z-index: 2000; font-size: 12px; pointer-events: none;';
                     getActiveAvatarPane()?.prepend(spinner);
                 } else {

@@ -380,6 +380,32 @@
     background-color: currentColor;
 }
 
+.rovalra-explorer-create-btn {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-right: 10px;
+    color: inherit;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: inherit;
+
+    &:hover span:last-child {
+        text-decoration: underline;
+    }
+}
+
+.rovalra-explorer-create-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 4px;
+    flex-shrink: 0;
+    background-color: currentColor;
+}
+
 /* Experience pages icon-only context menu button. */
 .rovalra-explorer-game-btn {
     display: inline-flex !important;

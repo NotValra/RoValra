@@ -9,6 +9,7 @@ import {
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import DOMPurify from 'dompurify';
+import { ts } from '../../core/locale/i18n.js';
 
 const THUMBNAIL_SIZE = '150x150';
 
@@ -84,7 +85,7 @@ async function fetchAssetDetails(assetIds) {
         if (data && data.AssetId) {
             detailsMap.set(data.AssetId.toString(), {
                 name: data.Name,
-                creatorName: data.Creator?.Name || 'Unknown',
+                creatorName: data.Creator?.Name || ts('catalogDependencies.unknown'),
                 creatorId: data.Creator?.CreatorTargetId || data.Creator?.Id,
                 creatorType: data.Creator?.CreatorType || 'User',
                 isVerified: data.Creator?.HasVerifiedBadge || false,
@@ -149,7 +150,7 @@ async function mountDependencyScanner(favButton) {
 
         const dropdown = createDropdown({
             items: [],
-            placeholder: 'Scan Dependencies',
+            placeholder: ts('catalogDependencies.scan'),
             onValueChange: () => {},
         });
         dropdown.trigger.style.width = '100%';
@@ -158,7 +159,7 @@ async function mountDependencyScanner(favButton) {
         uiContainer.appendChild(dropdown.element);
 
         dropdown.trigger.querySelector('span').textContent =
-            `Loading Info (${deps.length})...`;
+            ts('catalogDependencies.loading', { count: deps.length });
 
         const thumbnailItems = deps.map((d) => ({ id: d.assetId }));
         const rawIds = deps.map((d) => d.assetId);
@@ -168,7 +169,9 @@ async function mountDependencyScanner(favButton) {
             fetchAssetDetails(rawIds),
         ]);
 
-        dropdown.trigger.querySelector('span').textContent = `Dependencies`;
+        dropdown.trigger.querySelector('span').textContent = ts(
+            'catalogDependencies.title',
+        );
 
         const panel = dropdown.panel;
 
@@ -190,8 +193,10 @@ async function mountDependencyScanner(favButton) {
 
         deps.forEach((dep) => {
             const details = detailsMap.get(dep.assetId) || {
-                name: `Asset ${dep.assetId}`,
-                creatorName: 'Unknown',
+                name: ts('catalogDependencies.assetFallback', {
+                    id: dep.assetId,
+                }),
+                creatorName: ts('catalogDependencies.unknown'),
                 isVerified: false,
             };
             const assetLinkUrl = `https://create.roblox.com/store/asset/${dep.assetId}`;
@@ -262,11 +267,11 @@ async function mountDependencyScanner(favButton) {
 
             let badgeHtml = '';
             if (details.isVerified) {
-                badgeHtml = `<img src="${assets.verifiedBadge}" title="Verified Badge" alt="Verified Badge" class="verified-badge-container">`;
+                badgeHtml = `<img src="${assets.verifiedBadge}" title="${ts('catalogDependencies.verifiedBadge')}" alt="${ts('catalogDependencies.verifiedBadge')}" class="verified-badge-container">`;
             }
 
             creatorText.innerHTML = DOMPurify.sanitize(
-                `By <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`,
+                `${ts('catalogDependencies.by')} <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`,
             );
 
             const creatorLink = creatorText.querySelector('.creator-name');

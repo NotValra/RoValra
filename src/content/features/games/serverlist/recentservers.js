@@ -129,7 +129,7 @@ function createModernServerItem(serverData, userThumbnailUrl, userId) {
                 <button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard width-full rovalra-share-btn">
                     <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
                     <span class="flex items-center min-width-0 gap-xsmall">
-                        <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('serverList.share', { defaultValue: 'Share' })}</span>
+                        <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('localizationFallbacks.serverShare')}</span>
                     </span>
                 </button>
             </div>
@@ -150,9 +150,7 @@ function createModernServerItem(serverData, userThumbnailUrl, userId) {
             navigator.clipboard.writeText(joinLink).then(() => {
                 const span = shareBtn.querySelector('.text-no-wrap');
                 const originalText = span.textContent;
-                span.textContent = ts('serverList.copied', {
-                    defaultValue: 'Copied!',
-                });
+                span.textContent = ts('localizationFallbacks.serverCopied');
                 setTimeout(() => {
                     span.textContent = originalText;
                 }, 1000);

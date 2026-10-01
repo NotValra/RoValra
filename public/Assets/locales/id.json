@@ -1,0 +1,2155 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Bagikan",
+        "serverCopied": "Disalin!",
+        "recentServerTitle": "Server",
+        "decalOptions": "Opsi gambar"
+    },
+    "common": {
+        "select": "Pilih...",
+        "search": "Cari",
+        "rovalraSettings": "Pengaturan RoValra",
+        "filterItems": "Filter Item",
+        "applyFilter": "Terapkan Filter",
+        "uploadFile": "Unggah File",
+        "change": "Ubah",
+        "invalidFileFormat": "Format file tidak valid.",
+        "invalidImageFile": "Format file tidak valid. Silakan unggah gambar yang valid.",
+        "fileProcessingFailed": "Pemrosesan file gagal. Silakan coba file lain.",
+        "errorProcessingFile": "Terjadi kesalahan saat memproses file. Silakan coba file lain.",
+        "less": "Lebih Sedikit",
+        "more": "Selengkapnya",
+        "pastYear": "Setahun Terakhir",
+        "past6Months": "6 Bulan Terakhir",
+        "past3Months": "3 Bulan Terakhir",
+        "pastMonth": "Sebulan Terakhir",
+        "pastWeek": "Seminggu Terakhir",
+        "unnamedProduct": "Produk Tanpa Nama",
+        "offSale": "Tidak Dijual",
+        "robloxExperience": "Pengalaman Roblox",
+        "subplace": "Subplace",
+        "subplaceUpper": "SUBPLACE",
+        "offline": "Offline",
+        "website": "Situs Web",
+        "playing": "Sedang Bermain",
+        "playingGame": "Sedang bermain {{gameName}}",
+        "studio": "Studio",
+        "share": "Bagikan",
+        "copied": "Disalin!",
+        "free": "Gratis",
+        "unknown": "Tidak Diketahui",
+        "somethingWentWrong": "Terjadi kesalahan",
+        "robloxPlusSubscriber": "Pelanggan Roblox Plus",
+        "joinServerFull": "Gabung (Server Penuh)",
+        "id": "ID: ",
+        "profile": "Profil",
+        "error": "Error",
+        "rovalraDeveloper": "Developer RoValra",
+        "close": "Tutup",
+        "confirmAction": "Konfirmasi Tindakan",
+        "areYouSure": "Apakah Anda yakin ingin melanjutkan?",
+        "confirm": "Konfirmasi",
+        "cancel": "Batal"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Gilbert di Sekitar Anda",
+        "title": "Pemilih Wilayah RoValra",
+        "automatic": "Otomatis",
+        "servers": "Server: ",
+        "datacenters": "Datacenter: ",
+        "filterByRegion": "Filter server berdasarkan wilayah",
+        "filterByRegionItem": "Filter berdasarkan {{region}} ({{count}} server)",
+        "filterByUptime": "Filter server berdasarkan uptime (terbaru/terlama)",
+        "filterByVersion": "Filter server berdasarkan versi game"
+    },
+    "guidelines": {
+        "title": "Panduan RoValra",
+        "message": "Dengan menggunakan RoValra, Anda setuju untuk mengikuti Ketentuan Penggunaan kami. Kegagalan mengikuti aturan ini dapat mengakibatkan penangguhan akses ke fitur tertentu, termasuk gelembung status dan kata ganti.<br><br><b>Poin Penting:</b><br>• Anda tidak boleh mengarahkan pengguna keluar platform.<br>• Anda tidak boleh melakukan hal yang tidak pantas.<br>• Anda tidak boleh melanggar Ketentuan Layanan Roblox.<br><br>Baca selengkapnya di <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "Saya Mengerti"
+    },
+    "review": {
+        "requestMessage": "Sepertinya RoValra sudah cukup bermanfaat untuk Anda!\n Boleh minta tolong tinggalkan ulasan?\n Ini membantu RoValra tetap gratis untuk semua orang tanpa paywall.",
+        "leaveReview": "Tinggalkan Ulasan",
+        "notNow": "Nanti saja",
+        "doNotShowAgain": "Jangan tampilkan lagi",
+        "rateTitle": "Beri Nilai RoValra",
+        "donationMessage": "Menjalankan fitur seperti pemilih wilayah tidak gratis, dan RoValra sepenuhnya mengandalkan donasi untuk menutupi biaya tersebut.\n\nBerdonasi membantu kami menjaga server tetap berjalan sehingga fitur seperti ini bisa tetap gratis untuk semua orang.",
+        "donate": "Donasi",
+        "donationTitle": "Mau bantu mendukung RoValra?"
+    },
+    "heatmap": {
+        "updatesBetween": "Update antara {{start}} - {{end}} pada {{date}}",
+        "updatesOn": "Update pada {{date}}",
+        "trackingSince": "Riwayat update baru mulai dilacak sejak 15 Februari 2026"
+    },
+    "profileFeatures": {
+        "title": "Fitur RoValra"
+    },
+    "serverFilters": {
+        "newest": "Server Terbaru",
+        "oldest": "Server Terlama",
+        "uptime": "Uptime Server",
+        "version": "Versi",
+        "enterVersion": "Masukkan Versi",
+        "region": "Wilayah",
+        "versionPlaceholder": "Versi"
+    },
+    "serverInfo": {
+        "loading": "Memuat...",
+        "versionUnknown": "Versi Tidak Diketahui",
+        "version": "Versi {{version}}",
+        "versionLabel": "Versi",
+        "latest": " (Terbaru)",
+        "oldest": " (Terlama)",
+        "serverFull": "Server Penuh",
+        "privateServer": "Sedang bermain di server pribadi",
+        "purchaseGame": "Beli game untuk melihat wilayah.",
+        "currentVersionTooltip": "Versi yang saat ini dipublikasikan."
+    },
+    "serverStats": {
+        "totalServers": "Total Server",
+        "totalServersTooltip": "Total server yang dilacak RoValra pada pengalaman ini",
+        "oldest": "Terlama",
+        "oldestTooltip": "Versi terlama yang sedang dijalankan oleh sebuah server."
+    },
+    "preferredRegion": {
+        "criticalError": "Roblox Join API gagal merespons. Anda mungkin harus menunggu sebentar.\nIni biasanya disebabkan oleh masalah jaringan atau masalah pada server Roblox. Jika ini terus terjadi, coba nonaktifkan [Wilayah Pilihan.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) atau bersihkan cache browser.\nJika masalah masih terjadi, silakan laporkan di server Discord RoValra.\n\n---\n**Detail Error:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Roblox mungkin sedang beralih dari API gamejoin. Ini di luar kendali RoValra dan akan memengaruhi pemilih wilayah untuk sementara waktu; kami sedang mengerjakan perbaikannya secepat mungkin.\n\n---\n**Detail Error:**\n{{detailMsg}}",
+        "detectingLocation": "Mendeteksi lokasi Anda...",
+        "closestRegion": "wilayah terdekat",
+        "inactiveRegion": "{{region}} tidak lagi digunakan sebagai lokasi server oleh Roblox.",
+        "scanningLocally": "Memindai secara lokal untuk {{region}}...",
+        "regionApiUnavailable": "API wilayah tidak tersedia. Memindai untuk {{region}}...",
+        "findingLowestLatency": "Mencari server dengan latensi terendah...",
+        "searchingInRegion": "Mencari di {{region}}...",
+        "fallbackInactive": "Server terbaik selanjutnya via API tidak aktif. Memindai secara lokal untuk {{region}}...",
+        "noServersApi": "Tidak ada server ditemukan di {{region}} via API. Memindai secara lokal...",
+        "loadBalancing": "{{region}} digunakan untuk load balancing dan kemungkinan hanya aktif saat beban tinggi. Memindai...",
+        "foundJoining": "Ditemukan {{region}}! Bergabung...",
+        "foundContinuing": "Ditemukan: {{region}}. Melanjutkan pencarian untuk {{targetRegion}}...",
+        "foundVerifying": "Ditemukan {{region}}! Memverifikasi...",
+        "verifyingStatus": "Memverifikasi status server...",
+        "searchingClosest": "Mencari wilayah terdekat dengan {{region}}...",
+        "noServersRunning": "Tidak ada server {{region}} yang berjalan.",
+        "joinRegion": "Gabung {{region}}",
+        "couldNotFindServers": "Tidak dapat menemukan server apa pun."
+    },
+    "purchaseModal": {
+        "title": "Beli Item",
+        "buy": "Beli",
+        "savingWithPlus": "Menghemat <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> dengan Plus",
+        "subtotal": "Subtotal",
+        "plusBenefit": "Manfaat Plus (diskon {{percent}}%)",
+        "total": "Total",
+        "insufficientRobux": "Robux Tidak Cukup",
+        "purchasing": "Membeli...",
+        "purchaseComplete": "Pembelian Selesai",
+        "successMessage": "Anda berhasil membeli <b>{{itemName}}</b>",
+        "ok": "OK",
+        "purchaseError": "Kesalahan Pembelian",
+        "purchaseFailed": "Pembelian gagal",
+        "unknownError": "Kesalahan tidak diketahui",
+        "errorLoadingTitle": "Gagal Memuat Item",
+        "errorLoadingMessage": "Kami tidak dapat mengambil informasi untuk item ini. Detail: {{errorMessage}}. Silakan coba lagi nanti."
+    },
+    "avatarRotator": {
+        "stop": "Hentikan Rotator",
+        "button": "Rotator Avatar",
+        "selectMinimum": "Pilih setidaknya 2 avatar",
+        "setRotators": "Jadikan sebagai rotator ({{count}})",
+        "selectedStatus": "Pilih avatar untuk dirotasi. ({{count}} dipilih)",
+        "loading": "Memuat...",
+        "loadMore": "Muat Lebih Banyak",
+        "interval": "Interval (detik)",
+        "loadingDetails": "Memuat detail outfit...",
+        "active": "Rotator Aktif!",
+        "disable": "Nonaktifkan",
+        "clearSelection": "Hapus Pilihan",
+        "title": "Rotator Avatar"
+    },
+    "avatarFilters": {
+        "filterItems": "Filter Item",
+        "filtering": "Memfilter...",
+        "loading": "Memuat...",
+        "creatorName": "Nama Kreator",
+        "minPrice": "Harga Min",
+        "maxPrice": "Harga Maks",
+        "availability": "Ketersediaan",
+        "showAll": "Tampilkan Semua",
+        "onsaleOnly": "Hanya Dijual",
+        "offsaleOnly": "Hanya Tidak Dijual",
+        "effects": "Efek",
+        "limiteds": "Limited"
+    },
+    "trading": {
+        "searchInventory": "Cari Inventaris",
+        "continueSearch": "Lanjutkan Pencarian",
+        "filterTrades": "Filter Trade",
+        "noResults": "Tidak ada hasil ditemukan",
+        "copyProof": "Salin Bukti",
+        "copied": "Disalin!",
+        "value": "Nilai:",
+        "demand": "Permintaan:",
+        "includeRobux": "Sertakan Robux",
+        "openUserOnRolimons": "Buka pengguna di Rolimon's",
+        "openOnRolimons": "Buka {{type}} di Rolimon's",
+        "projectedItem": "Item Projected",
+        "projected": "Projected",
+        "rareItem": "Item Langka",
+        "rap": "RAP",
+        "valueLabel": "Nilai",
+        "demandLabel": "Permintaan",
+        "bundle": "bundle",
+        "item": "item",
+        "serial": "Serial",
+        "afterTax": "Setelah Pajak",
+        "beforeTax": "Sebelum Pajak",
+        "youGive": "Anda Beri",
+        "youGet": "Anda Dapat"
+    },
+    "onboarding": {
+        "title": "Selamat Datang di RoValra!",
+        "thankYou": "Terima kasih telah menginstal <strong>RoValra</strong>!",
+        "exploreFeatures": "Untuk mengubah pengaturan dan menjelajahi semua fitur, Anda dapat:",
+        "settingsInstruction": "Klik <strong>ikon roda gigi</strong> di header Roblox, lalu klik \"Pengaturan RoValra\".",
+        "imageAlt": "Panduan yang menunjukkan lokasi tombol pengaturan RoValra di situs web Roblox.",
+        "description": "RoValra adalah ekstensi Roblox yang selamanya gratis, berusaha memberikan kenyamanan hidup untuk semua orang!",
+        "gotIt": "Mengerti!"
+    },
+    "catalogDependencies": {
+        "scan": "Pindai Dependensi",
+        "loading": "Memuat Info ({{count}})...",
+        "title": "Dependensi",
+        "unknown": "Tidak Diketahui",
+        "assetFallback": "Aset {{id}}",
+        "verifiedBadge": "Badge Terverifikasi",
+        "by": "Oleh"
+    },
+    "catalogItemSales": {
+        "sales": "Penjualan",
+        "revenue": "Pendapatan",
+        "statsTooltip": "Statistik penjualan dan pendapatan berasal dari kebocoran data dan kemungkinan tidak akurat."
+    },
+    "fortyMethod": {
+        "loginRequired": "Tidak dapat mengidentifikasi User ID Anda. Pastikan Anda sudah login.",
+        "setupExperience": "Siapkan Pengalaman",
+        "specificTemplate": "Hanya template tertentu yang berfungsi",
+        "selectGroup": "Pilih grup yang Anda dapat kelola pengalamannya. <br>Ekstensi akan membuat pengalaman untuk Anda.",
+        "or": "ATAU",
+        "manualPlaceId": "Masukkan Place ID secara manual <br> (Lakukan ini hanya jika Anda tahu apa yang Anda lakukan.)",
+        "donateSavedRobux": "Donasikan Robux yang Dihemat ke RoValra",
+        "estimatedSavings": "Perkiraan penghematan yang ditampilkan nanti adalah perkiraan dan mungkin tidak akurat.",
+        "importantInformation": "Informasi Penting",
+        "acknowledge": "Saya Mengerti",
+        "groupRequired": "Grup Diperlukan",
+        "goBack": "Kembali",
+        "ownershipDetected": "Kepemilikan Terdeteksi",
+        "understandContinue": "Saya Mengerti & Lanjutkan",
+        "createExperience": "Buat Pengalaman",
+        "createNewExperience": "Buat Pengalaman Baru",
+        "findingExperience": "Mencari Pengalaman Anda",
+        "findingExperienceWait": "Harap tunggu selagi kami mencari pengalaman Anda yang baru dipublikasikan...",
+        "donateToRoValra": "Donasi ke RoValra",
+        "back": "Kembali",
+        "validationWarning": "Peringatan Validasi",
+        "updateExperience": "Perbarui Pengalaman",
+        "useAnyway": "Tetap Gunakan",
+        "permissionRequired": "Izin Diperlukan",
+        "backToGroupSelection": "Kembali ke Pemilihan Grup",
+        "experience": "Pengalaman",
+        "loading": "Memuat...",
+        "setupGame": "Siapkan Game Anda",
+        "saveContinue": "Simpan & Lanjutkan",
+        "creating": "Membuat...",
+        "uploadingTemplate": "Mengunggah Template...",
+        "configuring": "Mengonfigurasi...",
+        "done": "Selesai!",
+        "updating": "Memperbarui...",
+        "purchaseFailed": "Pembelian Gagal",
+        "gotIt": "Mengerti",
+        "confirmMethodPurchase": "Konfirmasi Pembelian Metode 40%",
+        "confirmCartPurchase": "Konfirmasi Pembelian Keranjang",
+        "cancel": "Batal",
+        "alreadyOwned": "Sudah Dimiliki",
+        "joinToPurchase": "Gabung game untuk membeli",
+        "confirmPurchase": "Konfirmasi Pembelian",
+        "purchaseError": "Kesalahan Pembelian",
+        "ownerAccount": "<strong>Akun Pemilik:</strong> Pemilik grup TIDAK BOLEH sama dengan akun yang Anda gunakan untuk membeli item. Pemilik harus berupa akun alt yang aman dengan 2FA aktif dan kata sandi yang kuat dan unik.",
+        "payouts": "<strong>Pencairan:</strong> Hanya akun pemilik grup yang dapat mencairkan Robux yang dihemat dari dana grup.",
+        "pendingRobux": "<strong>Robux Pending:</strong> Perhatikan bahwa setelah menggunakan fitur ini, Robux akan berstatus pending selama kurang lebih satu bulan sebelum dapat dicairkan.",
+        "groupRequiredBody": "Untuk menggunakan metode 40% dengan grup Anda sendiri, Anda memerlukan grup yang dapat Anda kelola pengalamannya.",
+        "groupRequiredImportant": "<strong>Penting:</strong> Agar berfungsi dengan benar, grup harus dimiliki oleh akun alt yang aman. Akun utama Anda (yang Anda gunakan untuk membeli item) harus memiliki peran dengan izin untuk membuat dan mengelola pengalaman grup.",
+        "groupRequiredDonate": "Jika Anda tidak memiliki grup yang sesuai, Anda dapat mendukung RoValra dengan menggunakan pengalaman kami untuk memproses pembelian, yang akan memberikan RoValra Robux yang dihemat ❤️",
+        "ownershipBody": "Metode 40% tidak akan berfungsi jika Anda adalah pemilik grup ini. Silakan pilih grup lain atau alihkan kepemilikan ke akun alt yang aman.",
+        "experienceAccepted": "Pengalaman Diterima",
+        "experienceAcceptedSpecific": "<strong>Hanya pengalaman tertentu yang berfungsi.</strong> Pastikan pengalaman ini sudah disiapkan dengan skrip yang diperlukan untuk menangani pembelian dalam game.",
+        "experienceAcceptedGroup": "Pastikan pengalaman ini milik grup <strong>yang Anda kendalikan, tetapi tidak dimiliki oleh akun ini</strong>. Sebaiknya grup dimiliki oleh akun alt. Jika Anda memiliki grup tersebut, metode 40% tidak akan berfungsi.",
+        "experienceAcceptedPending": "Robux yang dihemat akan berstatus pending selama kurang lebih satu bulan sebelum dicairkan. Gunakan akun alt yang aman sebagai pemilik grup untuk pencairan.",
+        "createExperienceBody": "Buat pengalaman baru untuk grup ini agar dapat menggunakan metode 40%.",
+        "createNewExperienceBody": "Untuk membuat pengalaman baru untuk metode ini:",
+        "createStepOne": "Buka pengalaman uncopylocked di Studio:",
+        "openStudio": "Buka Studio",
+        "createStepTwo": "Di Studio, buka <strong>File > Game Settings > Security > Aktifkan \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>",
+        "createStepThree": "Pilih grup ini dari daftar Creator.",
+        "createStepFour": "Klik <strong>Create</strong> dan pengalaman akan dipublikasikan",
+        "createPublishedBody": "Setelah dipublikasikan, klik tombol di bawah dan kami akan otomatis menemukan dan memilihnya untuk Anda.",
+        "publishedGame": "Saya Sudah Mempublikasikan Game",
+        "saveSettingsUnavailable": "Gagal menyimpan pengaturan. Storage API tidak tersedia.",
+        "groupsLoadFailed": "Gagal memuat grup. Silakan muat ulang dan coba lagi.",
+        "noGroupSelected": "Tidak ada grup yang dipilih. Silakan coba lagi."
+    },
+    "risk": {
+        "projected": "Item ditandai sebagai projected.",
+        "rapMuchHigher": "RAP jauh lebih tinggi dari Nilai, nilai mungkin akan naik.",
+        "rapHigher": "RAP lebih tinggi dari Nilai, nilai mungkin akan naik.",
+        "rapMuchLower": "RAP jauh lebih rendah dari Nilai, nilai mungkin akan turun.",
+        "rapHigherSales": "RAP lebih tinggi dari penjualan, tetapi Harga Terbaik memvalidasinya.",
+        "rapUnusuallyHigh": "RAP tidak biasa tinggi dibandingkan harga penjualan stabil terbaru.",
+        "rapHigherStable": "RAP lebih tinggi dari harga stabil (Meningkat secara bertahap).",
+        "bestPriceMuchLower": "Harga Terbaik jauh lebih rendah dari RAP.",
+        "bestPriceLower": "Harga Terbaik lebih rendah dari RAP.",
+        "bestPriceHigher": "Harga Terbaik lebih tinggi dari RAP.",
+        "bestPriceSlightlyHigher": "Harga Terbaik sedikit lebih tinggi dari RAP.",
+        "sufferingProjection": "Item ini terkena dampak projection.",
+        "stableTrend": "Tren harga stabil."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Pilih dan gunakan tema apa pun tanpa Roblox Plus."
+    },
+    "items": {
+        "hiddenFromMarketplace": "Item ini disembunyikan dari marketplace",
+        "notFound": "Tidak Ditemukan",
+        "failedToLoad": "Gagal memuat",
+        "onHold": "Ditahan",
+        "faeItem": "Item FAE"
+    },
+    "inventory": {
+        "openRolimons": "Buka di Rolimon's",
+        "searchPlaceholder": "Cari berdasarkan nama item..."
+    },
+    "games": {
+        "failedToLoad": "Gagal memuat game"
+    },
+    "gameBookmarks": {
+        "bookmark": "Bookmark",
+        "saved": "Di-bookmark",
+        "title": "Bookmark",
+        "uncategorized": "Tanpa Kategori",
+        "create": "+ Buat Kategori Baru",
+        "categoryName": "Nama kategori",
+        "createSave": "Buat dan Simpan",
+        "save": "Simpan Perubahan",
+        "deleteCategory": "Hapus kategori",
+        "deleteCategoryConfirm": "Apakah Anda yakin? Ini akan menghapus kategori dan menghapusnya dari setiap game yang di-bookmark.",
+        "confirm": "Hapus",
+        "cancel": "Batal",
+        "remove": "Hapus Bookmark",
+        "error": "Tidak dapat menyimpan bookmark. Silakan coba lagi.",
+        "loading": "Memuat game…",
+        "all": "Semua",
+        "topic": "Game yang Di-bookmark",
+        "empty": "Tidak ada game yang di-bookmark dalam kategori ini."
+    },
+    "homeLayout": {
+        "untitled": "Tanpa Judul",
+        "empty": "RoValra tidak dapat menemukan layout, muat ulang dan coba lagi.",
+        "reset": "Atur Ulang",
+        "save": "Simpan",
+        "overlayTitle": "Layout Beranda",
+        "button": "Sesuaikan Layout",
+        "edit": "Edit",
+        "settingsTitle": "Pengaturan Kategori",
+        "visibility": "Visibilitas",
+        "visibilityDescription": "Pilih apakah kategori ini muncul di Beranda.",
+        "accurateContinue": "Lanjutkan Akurat",
+        "accurateContinueDescription": "Urutkan Lanjutkan berdasarkan kapan terakhir Anda memainkan setiap game.",
+        "enable": "Aktifkan",
+        "disable": "Nonaktifkan",
+        "show": "Tampilkan",
+        "hide": "Sembunyikan"
+    },
+    "sidebarLayout": {
+        "untitled": "Tanpa Judul",
+        "empty": "RoValra tidak dapat menemukan tombol sidebar apa pun.",
+        "reset": "Atur Ulang",
+        "save": "Simpan",
+        "overlayTitle": "Layout Sidebar",
+        "button": "Sesuaikan Layout",
+        "myProfile": "Profil Saya",
+        "disabled": "Nonaktif",
+        "show": "Tampilkan",
+        "hide": "Sembunyikan"
+    },
+    "topbarLayout": {
+        "empty": "RoValra tidak dapat menemukan item topbar yang didukung.",
+        "reset": "Atur Ulang",
+        "save": "Simpan",
+        "overlayTitle": "Layout Topbar",
+        "button": "Layout Topbar",
+        "disabled": "Diperlukan",
+        "show": "Tampilkan",
+        "hide": "Sembunyikan",
+        "labels": {
+            "logo": "Logo Roblox",
+            "charts": "Charts",
+            "marketplace": "Marketplace",
+            "create": "Create",
+            "robux": "Robux",
+            "search": "Cari",
+            "profile": "Profil",
+            "qol": "Status",
+            "topbarLayout": "Layout Topbar",
+            "notifications": "Notifikasi",
+            "robuxBalance": "Saldo Robux",
+            "settings": "Pengaturan"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Teman sebelumnya",
+        "nextFriends": "Lebih banyak teman",
+        "isPlaying": "{{name}} sedang bermain",
+        "online": "Online",
+        "inStudio": "Di Studio",
+        "offline": "Offline",
+        "friendFallback": "Teman",
+        "join": "Gabung",
+        "chat": "Chat",
+        "viewProfile": "Lihat Profil"
+    },
+    "friendLabels": {
+        "menuAction": "Tetapkan Label Teman",
+        "dialogTitle": "Beri Label {{displayName}}",
+        "inputLabel": "Label Teman",
+        "inputPlaceholder": "Teman Dekat, Sekolah,",
+        "existingLabels": "Label yang sudah ada",
+        "friendFallback": "Teman",
+        "save": "Simpan",
+        "remove": "Hapus",
+        "cancel": "Batal"
+    },
+    "underratedGames": {
+        "topic": "Game Underrated",
+        "subtitle": "Game underrated yang dipilih langsung oleh komunitas RoValra.",
+        "rotates": "Berganti",
+        "suggestOnDiscord": "Sarankan game underrated di {{discord}}",
+        "ageRestrictionWarning": "Beberapa game ini mungkin dikunci untuk usia 16+ karena persyaratan HEP 250 milik Roblox."
+    },
+    "playtime": {
+        "topic": "Waktu Bermain",
+        "period": "Periode waktu bermain",
+        "today": "Hari ini",
+        "thisWeek": "Minggu ini",
+        "thisMonth": "Bulan ini",
+        "thisYear": "Tahun ini",
+        "allTime": "Sepanjang waktu",
+        "hours": "{{value}} jam",
+        "minutes": "{{value}} menit"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} Teman Bersama",
+        "pill_other": "{{count}} Teman Bersama",
+        "tooltip": "Teman yang Anda miliki bersama dengan pengguna ini",
+        "tab": "Bersama",
+        "title": "Teman Bersama ({{count}})",
+        "empty": "Anda tidak memiliki teman bersama dengan pengguna ini."
+    },
+    "trustedFriends": {
+        "pendingConnection": "Teman Terpercaya Tertunda",
+        "pendingRequest": "Permintaan Teman Terpercaya Tertunda",
+        "addConnection": "Tambah Teman Terpercaya",
+        "addConfirmation": "Apakah Anda yakin ingin mengirim permintaan Teman Terpercaya?",
+        "sendRequest": "Kirim Permintaan",
+        "sending": "Mengirim...",
+        "requestSent": "Permintaan Teman Terpercaya terkirim!",
+        "requestFailed": "Gagal mengirim permintaan Teman Terpercaya.",
+        "errorSending": "Kesalahan Mengirim",
+        "acceptConnection": "Terima Teman Terpercaya",
+        "acceptConfirmation": "Apakah Anda yakin ingin menerima permintaan Teman Terpercaya ini?",
+        "accept": "Terima",
+        "accepting": "Menerima...",
+        "requestAccepted": "Permintaan Teman Terpercaya diterima!",
+        "acceptFailed": "Gagal menerima permintaan Teman Terpercaya.",
+        "errorAccepting": "Kesalahan Menerima",
+        "removeConnection": "Hapus Teman Terpercaya",
+        "removeConfirmation": "Apakah Anda yakin ingin menghapus Teman Terpercaya ini?",
+        "remove": "Hapus",
+        "removing": "Menghapus...",
+        "connectionRemoved": "Teman Terpercaya dihapus!",
+        "removeFailed": "Gagal menghapus Teman Terpercaya.",
+        "errorRemoving": "Kesalahan Menghapus"
+    },
+    "chatEligibility": {
+        "canChat": "Anda dapat chat dengan pengguna ini.",
+        "cannotChat": "Pengguna ini di luar rentang usia chat Anda.",
+        "ageCheckRequired": "Pengguna ini belum menyelesaikan pemeriksaan usia."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Sedang Dipakai",
+        "items": "Item",
+        "cosmetics": "Kosmetik",
+        "bodyParts": "Bagian Tubuh",
+        "animations": "Animasi",
+        "emotes": "Emote"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Pengguna tidak memiliki pengalaman publik",
+        "overlayText": "Pengalaman Tersembunyi",
+        "noHiddenGames": "Pengguna ini tidak memiliki pengalaman tersembunyi.",
+        "buttonText": "Pengalaman Tersembunyi",
+        "labels": {
+            "sort": "Urutkan",
+            "order": "Urutan",
+            "showAll": "Tampilkan Semua Game"
+        },
+        "sort": {
+            "default": "Default",
+            "likeRatio": "Rasio Suka",
+            "likes": "Suka",
+            "dislikes": "Tidak Suka",
+            "players": "Pemain",
+            "name": "Nama (Z-A)"
+        },
+        "order": {
+            "descending": "Menurun",
+            "ascending": "Menaik"
+        },
+        "noMatches": "Tidak ada pengalaman yang cocok dengan filter.",
+        "loading": "Memuat..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Pengalaman Grup Tersembunyi ({{count}} Total)",
+        "noHiddenGames": "Grup ini tidak memiliki pengalaman tersembunyi.",
+        "buttonText": "Pengalaman Tersembunyi",
+        "labels": {
+            "sort": "Urutkan",
+            "order": "Urutan",
+            "showAll": "Tampilkan Semua Game"
+        },
+        "sort": {
+            "recentlyUpdated": "Baru Diperbarui",
+            "likeRatio": "Rasio Suka",
+            "likes": "Suka",
+            "dislikes": "Tidak Suka",
+            "players": "Pemain",
+            "name": "Nama (Z-A)"
+        },
+        "order": {
+            "descending": "Menurun",
+            "ascending": "Menaik"
+        },
+        "noMatches": "Tidak ada pengalaman tersembunyi yang cocok dengan filter saat ini.",
+        "loadingMore": "Memuat lebih banyak game..."
+    },
+    "userOutfits": {
+        "loading": "Memuat outfit...",
+        "back": "Kembali",
+        "totalPrice": "Harga Total:",
+        "loadingItems": "Memuat item...",
+        "noItems": "Outfit ini tidak memiliki item.",
+        "errorLoadingItems": "Tidak dapat memuat item.",
+        "buttonText": "Tampilkan Outfit",
+        "overlayTitle": "Outfit Pengguna",
+        "overlayTitleUser": "Outfit milik {{displayName}}",
+        "noOutfits": "Pengguna ini tidak memiliki outfit.",
+        "inventoryPrivate": "Inventaris pengguna bersifat privat.",
+        "errorNoUserId": "Tidak dapat menentukan User ID dari halaman ini.",
+        "errorFetch": "Tidak dapat mengambil outfit."
+    },
+    "donationLink": {
+        "donate": "Donasi",
+        "overlayTitle": "Silakan Donasi",
+        "description": "Ini akan membuka \"PLS DONATE\" tempat Anda dapat memberikan donasi secara offline.\n\nKarena biaya dari Roblox (30%) dan game (10%), pengguna menerima 60% dari jumlah yang didonasikan.\n\nSetelah bergabung, UI \"Offline Donations\" akan muncul dengan nama pengguna mereka yang sudah terisi otomatis. Cukup klik tombol hadiah untuk membuka stand mereka dan membeli gamepass untuk berdonasi.",
+        "joinButton": "Gabung Pls Donate",
+        "goBackButton": "Kembali",
+        "loadingGamePasses": "Memuat game pass...",
+        "priceLowToHigh": "Harga (Rendah ke Tinggi)",
+        "priceHighToLow": "Harga (Tinggi ke Rendah)",
+        "userGamePasses": "Game Pass milik {{username}}",
+        "copyDonationLink": "Salin Tautan Donasi",
+        "copyLinkDescription": "Ini akan menyalin tautan khusus ke profil ini. Saat pengguna RoValra membukanya, menu donasi ini akan otomatis muncul.<br><br><strong>Catatan:</strong> Hanya pengguna RoValra yang akan melihat jendela donasi, yang lain akan melihat profil standar.",
+        "copyLinkButton": "Salin Tautan",
+        "copySuccess": "Tautan donasi berhasil disalin!",
+        "noGamePassesFound": "Tidak ada game pass ditemukan untuk game milik {{username}}.",
+        "errorLoading": "Kesalahan memuat game pass: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Gabung Instan",
+        "stopJoining": "Berhenti Gabung",
+        "description": "Ini akan otomatis mencoba menggabungkan pengguna segera setelah mereka masuk ke sebuah pengalaman.<br><br>Ini memerlukan pengguna untuk mengaktifkan join untuk semua orang atau Anda harus berteman dengan mereka.",
+        "searchPlaceholder": "Cari pengalaman atau masukkan Place ID (Opsional)",
+        "continue": "Lanjutkan",
+        "cancel": "Batal",
+        "confirmTitle": "Konfirmasi Tindakan"
+    },
+    "rap": {
+        "error": "Error",
+        "private": "Privat",
+        "openInRolimons": "Buka di Rolimon's",
+        "thisUser": "pengguna ini",
+        "rolimonsRedirect": "Anda akan diarahkan ke profil {{username}} di Rolimon's, situs eksternal untuk trading dan nilai item.<br><br>Apakah Anda ingin melanjutkan?",
+        "continueToRolimons": "Lanjutkan ke Rolimon's",
+        "user": "Pengguna",
+        "loadingItems": "Memuat lebih banyak item...",
+        "noItemsMatch": "Tidak ada item yang cocok dengan pencarian Anda.",
+        "collectiblesTitle": "Koleksi milik {{displayName}} ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "Koleksi milik {{displayName}} ({{totalRapString}} Nilai)",
+        "inventoryPrivateOrNoLimiteds": "Inventaris pengguna ini bersifat privat atau tidak memiliki limited.",
+        "searchByName": "Cari berdasarkan nama item",
+        "itemAmount": "Jumlah item ini yang dimiliki: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Kirim"
+    },
+    "privateServer": {
+        "processingTitle": "Memproses Server",
+        "starting": "Memulai...",
+        "cancel": "Batal",
+        "cancelling": "Membatalkan...",
+        "activating": "Mengaktifkan",
+        "inactivating": "Menonaktifkan",
+        "progressText": "{{actionText}} server {{current}} dari {{total}}...",
+        "unknownApiError": "Terjadi kesalahan API yang tidak diketahui.",
+        "processCancelled": "Proses Dibatalkan. <span class=\"success-text\">{{count}} server diproses.</span>",
+        "completed": "Selesai: <span class=\"success-text\">{{successCount}} berhasil</span>, <span class=\"error-text\">{{errorCount}} gagal</span>.",
+        "processingComplete": "Pemrosesan Selesai",
+        "confirmationTitle": "Konfirmasi Tindakan",
+        "confirmationMessage": "Anda akan menjadikan {{count}} server pribadi sebagai {{action}}.",
+        "confirmationJoinable": "Ini akan membuat server pribadi dapat dimasuki.",
+        "confirmationUnjoinable": "Ini akan membuat server pribadi tidak dapat dimasuki.",
+        "confirmationReversible": "Anda selalu dapat mengubahnya kembali nanti.",
+        "confirm": "Konfirmasi",
+        "deselectAll": "Batalkan Semua Pilihan",
+        "selectAll": "Pilih Semua",
+        "bulkInactivate": "Nonaktifkan Massal",
+        "bulkActivate": "Aktifkan Massal",
+        "setInactive": "Jadikan Nonaktif",
+        "setActive": "Jadikan Aktif",
+        "noServersFound": "Tidak ada server pribadi {{status}} yang ditemukan.",
+        "byCreator": "Oleh ",
+        "allowJoining": "Izinkan Bergabung"
+    },
+    "firstAccount": {
+        "label": "Akun Pertama",
+        "yes": "Ya",
+        "no": "Tidak",
+        "tooltip": "Ini menunjukkan apakah Roblox menganggap akun Anda sebagai akun pertama Anda. <br>Informasi ini berasal langsung dari Roblox tetapi mungkin tidak akurat.",
+        "createdDate": "Akun pertama dibuat: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "Dalam Program Trusted Creator",
+        "yes": "Ya",
+        "no": "Tidak",
+        "tooltip": "Menemukan cara untuk memeriksa ini dan menurut kami keren :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Tema",
+        "light": "Terang",
+        "dark": "Gelap"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Sesuaikan Pengaturan Gambar",
+            "source": "Sumber Gambar",
+            "opacity": "Opasitas Gambar",
+            "customSize": "Skala Kustom",
+            "blur": "Blur",
+            "overrideTopbarSidebar": "Mode Transparan",
+            "size": {
+                "label": "Ukuran Latar Belakang",
+                "cover": "Cover",
+                "contain": "Contain",
+                "auto": "Auto",
+                "custom": "Kustom"
+            },
+            "position": {
+                "label": "Posisi Latar Belakang",
+                "center": "Tengah",
+                "top": "Atas",
+                "bottom": "Bawah",
+                "left": "Kiri",
+                "right": "Kanan",
+                "topleft": "Kiri Atas",
+                "topright": "Kanan Atas",
+                "bottomleft": "Kiri Bawah",
+                "bottomright": "Kanan Bawah"
+            },
+            "overlay": {
+                "color": "Warna Overlay",
+                "opacity": "Opasitas Overlay"
+            },
+            "errors": {
+                "invalidUrl": "Masukkan URL gambar https yang valid."
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Tidak Dijual",
+        "text": "Harga Sebelumnya:",
+        "lastOnSale": "Terakhir dijual",
+        "for": "seharga"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Terbuka"
+    },
+    "lastEquipped": {
+        "label": "Terakhir Dipakai"
+    },
+    "pendingRobux": {
+        "tooltip": "Ini adalah perkiraan berapa banyak Robux dari saldo pending Anda yang akan tersedia besok, berdasarkan data transaksi Anda. Jumlah sebenarnya dapat berbeda. Dan ini mungkin tidak akurat.",
+        "loading": "Memuat...",
+        "error": "Error: {{message}}",
+        "insufficientData": "Data tidak cukup",
+        "insufficientDataTooltip": "Riwayat transaksi tidak cukup untuk membuat perkiraan yang akurat. Silakan tunggu lebih banyak transaksi selesai.",
+        "label": "Robux tidak pending besok"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Hitung Pendapatan",
+        "calculateEarned": "Hitung yang Diperoleh",
+        "pausedMessage": "Penghitungan dijeda. Lanjutkan untuk terus menghitung.",
+        "resumeCalculation": "Lanjutkan Penghitungan",
+        "startNewCalculation": "Mulai Penghitungan Baru",
+        "description": "Hitung total Robux yang Anda peroleh dari Penjualan dan Pembayaran Grup.",
+        "startCalculation": "Mulai Penghitungan",
+        "transactionsScanned": "Transaksi Dipindai",
+        "totalRobuxEarned": "Total Robux Diperoleh",
+        "breakdownLabel": "Rincian Sumber Pendapatan",
+        "calculatingTitle": "Menghitung Total Robux Diperoleh",
+        "scanningHistory": "Menghitung total Robux yang diperoleh...",
+        "rateLimited": "API dibatasi. Masih menghitung...",
+        "calculationComplete": "Penghitungan Selesai",
+        "allScanned": "Selesai memindai total Robux yang diperoleh.",
+        "newCalculation": "Penghitungan Baru",
+        "errorTitle": "Terjadi Kesalahan",
+        "retry": "Coba Lagi",
+        "robloxLimitError": "Roblox mengembalikan kesalahan server internal. Kemungkinan tidak akan dapat memindai transaksi lebih lanjut karena batasan Roblox.",
+        "noEarnings": "Belum ada pendapatan ditemukan.",
+        "other": "Lainnya",
+        "groupPayout": "Pembayaran Grup"
+    },
+    "totalSpent": {
+        "other": "Lainnya",
+        "na": "T/A",
+        "calculatingTitle": "Menghitung",
+        "calculatingRobuxTitle": "Menghitung Total Robux yang Dihabiskan",
+        "calculatingMoneyTitle": "Menghitung Total Uang yang Dihabiskan",
+        "calculatingText": "Menghitung...",
+        "calculatingRobuxText": "Menghitung total Robux yang dihabiskan...",
+        "calculatingMoneyText": "Menghitung total uang yang dihabiskan...",
+        "rateLimited": "API dibatasi. Masih menghitung...",
+        "calculationComplete": "Penghitungan Selesai",
+        "allScanned": "Semua transaksi yang relevan telah dipindai.",
+        "robuxAllScanned": "Selesai memindai total Robux yang dihabiskan.",
+        "moneyAllScanned": "Selesai memindai total uang yang dihabiskan.",
+        "newCalculation": "Penghitungan Baru",
+        "errorTitle": "Terjadi Kesalahan",
+        "retry": "Coba Lagi",
+        "calculateSpend": "Hitung Pengeluaran",
+        "pausedMessage": "Penghitungan dijeda. Lanjutkan untuk terus menghitung.",
+        "resumeCalculation": "Lanjutkan Penghitungan",
+        "startNewCalculation": "Mulai Penghitungan Baru",
+        "description": "Pilih mode untuk menghitung riwayat transaksi Anda.",
+        "calculateRobux": "Hitung Robux yang Dihabiskan",
+        "calculateMoney": "Hitung Uang yang Dihabiskan",
+        "transactionsScanned": "Transaksi Dipindai",
+        "totalRobuxSpent": "Total Robux Dihabiskan",
+        "totalMoneySpent": "Total Dihabiskan (Perkiraan)",
+        "itemTypeBreakdown": "Rincian Jenis Item",
+        "premiumBreakdown": "Rincian Langganan Premium",
+        "purchaseBreakdown": "Rincian Pembelian Robux",
+        "noItems": "Belum ada item ditemukan.",
+        "pack": "Paket",
+        "stipend": "Stipend",
+        "errorUserId": "Tidak dapat mengambil User ID.",
+        "robloxLimitError": "Roblox mengembalikan kesalahan server internal. Kemungkinan tidak akan dapat memindai transaksi lebih lanjut karena batasan Roblox.",
+        "errorRetries": "Gagal setelah beberapa kali mencoba. Kesalahan terakhir: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Total Dihabiskan",
+        "loading": "Memuat...",
+        "failedToLoad": "Gagal memuat",
+        "singlePurchase": "1 pembelian",
+        "multiplePurchases": "{{count}} pembelian",
+        "stillCalculating": "Total Dihabiskan masih dihitung."
+    },
+    "spentPerGame": {
+        "title": "Total Dihabiskan per Game",
+        "disclaimer": "Ini bisa tidak akurat karena batasan Roblox",
+        "mostSpent": "Paling banyak dihabiskan",
+        "mostPurchases": "Pembelian terbanyak",
+        "noPurchases": "Tidak ada pembelian game ditemukan.",
+        "singlePurchase": "1 pembelian",
+        "multiplePurchases": "{{count}} pembelian",
+        "loadMore": "Muat lebih banyak ({{remaining}} tersisa)",
+        "searchPlaceholder": "Cari game",
+        "loading": "Memuat pengeluaran game…",
+        "scanInProgress": "Pemindaian transaksi sedang berlangsung. Ini mungkin memerlukan waktu.",
+        "loadError": "Tidak dapat memuat pengeluaran game."
+    },
+    "spentPerCreator": {
+        "title": "Total Dihabiskan per Kreator",
+        "disclaimer": "Ini bisa tidak akurat karena batasan Roblox",
+        "mostSpent": "Paling banyak dihabiskan",
+        "mostPurchases": "Pembelian terbanyak",
+        "noPurchases": "Tidak ada pembelian kreator ditemukan.",
+        "unknownCreator": "Kreator tidak diketahui",
+        "includeGameCreators": "Sertakan kreator game",
+        "singlePurchase": "1 pembelian",
+        "multiplePurchases": "{{count}} pembelian",
+        "loadMore": "Muat lebih banyak ({{remaining}} tersisa)",
+        "searchPlaceholder": "Cari kreator",
+        "loading": "Memuat pengeluaran kreator…",
+        "scanInProgress": "Pemindaian transaksi sedang berlangsung. Ini mungkin memerlukan waktu.",
+        "loadError": "Tidak dapat memuat pengeluaran kreator."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Info",
+            "credits": "Kontributor",
+            "donatorPerks": "Perk Donatur",
+            "settings": "Pengaturan",
+            "accountStanding": "Status Akun",
+            "store": "Toko"
+        },
+        "info": {
+            "title": "Informasi RoValra!",
+            "desc1": "RoValra adalah ekstensi yang berusaha membuat fitur quality-of-life dasar gratis dan dapat diakses oleh semua orang dengan membuat semuanya benar-benar open-source.",
+            "desc2": "Beberapa fitur gratis masih mengandalkan server RoValra dan membutuhkan biaya untuk dijalankan.",
+            "desc3": "Donasi dari pendukung membantu menutupi biaya tersebut, sehingga RoValra dapat mempertahankan lebih banyak fitur gratis untuk semua orang sambil terus berkembang dari waktu ke waktu. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra adalah proyek yang dibuat dengan cinta dan selalu begitu.",
+            "suggestions": "Jika Anda memiliki saran fitur, silakan beri tahu saya di server Discord saya atau lewat GitHub",
+            "bugs": "Jika Anda menemukan bug, beri tahu saya di server Discord saya atau lewat GitHub",
+            "review": "Jika Anda suka ekstensi ini, mohon pertimbangkan untuk <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">meninggalkan ulasan</a>, ini sangat membantu <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Server Discord",
+            "github": "Repositori Github",
+            "support": "Dukung RoValra",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Kontributor",
+            "translatorsTitle": "Penerjemah",
+            "featureCount_one": "{{count}} fitur",
+            "featureCount_other": "{{count}} fitur",
+            "contributorTooltips": {
+                "146089324": "WoozyNate membuat fisch, tempat asal logo RoValra yang lama. Kamu harus coba fisch!",
+                "1337447242": "Membuat logo baru dan semua gambar halaman toko.",
+                "795922138": "Mengusulkan nama 'RoValra' sebagai lelucon, yang terlalu lucu untuk tidak digunakan.",
+                "2974594300": "Peningkatan UI, perbaikan bug, dan kontribusi lainnya.",
+                "170038374": "Membuat konsep yang menjadi dasar beberapa fitur RoValra."
+            },
+            "sortLabel": "Urutkan kontributor",
+            "sortMost": "Terbanyak",
+            "sortLeast": "Tersedikit",
+            "contributionCount_one": "Berkontribusi pada {{count}} fitur",
+            "contributionCount_other": "Berkontribusi pada {{count}} fitur",
+            "backendContributorsNote": "Orang-orang ini membantu hal-hal yang tidak terkait fitur.",
+            "loadingContributors": "Memuat...",
+            "failedToLoadContributors": "Gagal memuat kontributor.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Menambahkan badge translator dan badge WoozyNate",
+                    "nateGilbertFix": "Memperbaiki badge nate agar menjadi gilbert lagi"
+                },
+                "caching": {
+                    "hashmap": "Menambahkan hashmap ke cache handler"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Memperbaiki sidebar untuk sebuah update Roblox"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "Memperbaiki desync parser RBXM dan format CFRAME"
+                },
+                "markdown": {
+                    "untrustedMd": "Menambahkan parser markdown terbatas untuk pengguna tidak terpercaya"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Menambahkan API pengaturan terpadu"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Meningkatkan kredit dalam daftar kontributor",
+                    "nonSettingCredits": "Menambahkan kredit untuk fitur dan peningkatan yang tidak memiliki pengaturannya sendiri"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Menambahkan indikator baru untuk tier donatur"
+                },
+                "iconElement": {
+                    "addIcons": "Menambahkan elemen `<icon>` yang memungkinkan penggunaan Builder Icons, Material Icons, dan RoValra Icons.",
+                    "addElement": "Menambahkan elemen dasar `<icon>` yang memungkinkan penggunaan Builder Icons. Sebelumnya, menggunakan elemen bawaan `<i>` dengan class.",
+                    "makeRoValraIcons": "Menambahkan font untuk RoValra Icons + metode build baru untuk situs web.",
+                    "addBuilderIconsWOFF": "Menambahkan hosting untuk Builder Icons di Website RoValra, serta file font berbeda yang ukurannya lebih kecil."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Menambahkan index tema plus ke website sehingga pengguna hanya dapat menggunakan tema yang benar dan ditentukan."
+                },
+                "locales": {
+                    "madeRo": "Membantu membuat lokal bahasa Rumania",
+                    "madeEs": "Membantu membuat lokal bahasa Spanyol",
+                    "madeRu": "Membantu membuat lokal bahasa Rusia",
+                    "madeFr": "Membantu membuat lokal bahasa Prancis",
+                    "madeId": "Membantu membuat lokal bahasa Indonesia"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "Kontribusi milik {{user}}",
+                    "contributor": "Kontributor",
+                    "featureName": "Fitur",
+                    "featureKey": "(Dev) Feature Key"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "Perk Donatur!",
+            "subtitle": "Dukung pengembangan RoValra dan dapatkan perk eksklusif!",
+            "howToGet": "Cara Mendapatkan Perk",
+            "howToGetDesc": "Anda dapat berdonasi dengan membeli gamepass di game pendukung.",
+            "goToGame": "Buka Game Donasi",
+            "perkTiers": "Tier Perk",
+            "perk": "Perk",
+            "currentTier": "Tier Saat Ini",
+            "tier1": "Tier 1: Pendukung",
+            "tier1Desc": "Donasi <strong>berapa pun jumlahnya</strong>",
+            "tier1Reward": "Badge Donator 1",
+            "tier1DiscordRole": "Role Discord Donator 1 + perk Discord tambahan.",
+            "tier1Feature": "Atur Status dan environment tanpa menambahkan string ke about me Anda.",
+            "tier2": "Tier 2: Pendukung",
+            "tier2Desc": "Donasi <strong>200+ Robux</strong>",
+            "tier2Reward": "Badge Donator 2",
+            "tier2DiscordRole": "Role Discord Donator 2 + perk Discord yang ditingkatkan.",
+            "tier3": "Tier 3: Pendukung",
+            "tier3Desc": "Donasi <strong>500+ Robux</strong>",
+            "tier3Reward": "Badge Donator 3",
+            "tier3DiscordRole": "Role Discord Donator 3 + perk Discord terbaik.",
+            "previousRewards": "+ Semua reward tier sebelumnya",
+            "moreComingSoon": "Lebih banyak akan datang.",
+            "note": "Catatan:\n- Badge mungkin memerlukan beberapa menit untuk muncul setelah donasi.\n- Untuk mengatur visibilitas badge, buka tab pengaturan 'Profil'. \n- Berdonasi melalui komisi sayangnya tidak akan memberikan perk donatur, ini adalah batasan Roblox.\n- Dengan berdonasi Anda setuju dengan [Ketentuan Penggunaan RoValra](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "Silakan masukkan setidaknya 2 karakter untuk mencari.",
+            "noResults": "Tidak ada pengaturan ditemukan untuk \"{{query}}\"."
+        },
+        "ui": {
+            "common": {
+                "cancel": "Batal",
+                "okay": "Oke",
+                "ok": "OK",
+                "pleaseWait": "Harap tunggu...",
+                "loading": "Memuat...",
+                "unknown": "Tidak diketahui",
+                "user": "Pengguna",
+                "unavailable": "Tidak tersedia",
+                "notAvailable": "T/A"
+            },
+            "levels": {
+                "allGood": "Semua Baik",
+                "limited": "Terbatas",
+                "veryLimited": "Sangat Terbatas",
+                "atRisk": "Berisiko",
+                "suspended": "Ditangguhkan"
+            },
+            "search": {
+                "placeholder": "Cari Pengaturan..."
+            },
+            "controls": {
+                "clearStorage": "Bersihkan Storage",
+                "preview": "Pratinjau",
+                "fadeStrength": "Kekuatan Fade",
+                "clickMe": "Klik Saya",
+                "enterValue": "Masukkan nilai",
+                "remove": "Hapus",
+                "add": "Tambah",
+                "experimental": "Eksperimental",
+                "beta": "Beta",
+                "deprecated": "Usang",
+                "invalidImageUrl": "Masukkan URL gambar http:// atau https:// yang valid.",
+                "enablePermission": "Aktifkan izin {{permission}}"
+            },
+            "badges": {
+                "visibility": "Alihkan visibilitas badge donasi Anda."
+            },
+            "locks": {
+                "donatorTierRequired": "Diperlukan Tier Donatur RoValra {{tier}}",
+                "donatorPerk": "Perk Donatur RoValra (Tier {{tier}})",
+                "featureDisabled": "Fitur ini telah dinonaktifkan {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "Sebelum Mengaktifkan Fitur Ini",
+                "message": "Fitur dengan label ini mungkin tidak stabil, atau dapat berubah dari waktu ke waktu. Fitur ini dapat menyebabkan waktu muat yang lebih lama, UI yang tidak konsisten, masalah terkait situs, atau perilaku tak terduga lainnya.<br><br>Aktifkan ini hanya jika Anda memahami bahwa fitur ini mungkin tidak berfungsi dengan sempurna.",
+                "acknowledge": "Saya Mengerti"
+            },
+            "environment": {
+                "exported": "Environment JSON telah dicetak ke console (F12).",
+                "imported": "Konfigurasi environment berhasil diimpor. Halaman akan dimuat ulang untuk menerapkan perubahan.",
+                "parseFailed": "Gagal mem-parsing file JSON.",
+                "storageUsed": "Total Local Storage Digunakan: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Kata ganti harus 15 karakter atau kurang.",
+                "filterRejected": "Filter Roblox menolak kata ganti ini. Coba nilai yang berbeda.",
+                "checkFailed": "Kata ganti tidak dapat diperiksa oleh Roblox. Silakan coba lagi.",
+                "filterBusy": "Filter kata ganti Roblox sedang sibuk. Silakan coba lagi sebentar."
+            },
+            "port": {
+                "enableProfileNotes": "Aktifkan Catatan Profil sebelum mengimpor atau mengekspor catatan.",
+                "exportedOne": "Mengekspor {{count}} catatan profil.",
+                "exportedMany": "Mengekspor {{count}} catatan profil.",
+                "exportFailed": "Catatan profil tidak dapat diekspor.",
+                "notesTooLarge": "Backup catatan profil terlalu besar.",
+                "invalidNotesBackup": "Ini bukan backup catatan profil RoValra yang valid.",
+                "importedOne": "Mengimpor {{count}} catatan profil.",
+                "importedMany": "Mengimpor {{count}} catatan profil.",
+                "notesReadFailed": "Backup catatan profil tidak dapat dibaca.",
+                "importFailed": "Catatan profil tidak dapat diimpor.",
+                "exportUnexpectedError": "Terjadi kesalahan tak terduga saat mengekspor.",
+                "exportError": "Kesalahan mengekspor pengaturan. Periksa console untuk detailnya.",
+                "sanitizeError": "Kesalahan membersihkan pengaturan untuk ekspor. Periksa console untuk detailnya.",
+                "invalidSettingsFile": "Ini sepertinya bukan file pengaturan RoValra yang valid.",
+                "invalidSettingsData": "Error: File pengaturan yang diimpor berisi data yang tidak valid atau berpotensi berbahaya.",
+                "settingsTooLarge": "Error: File pengaturan terlalu besar. Ukuran maksimum adalah 1MB.",
+                "importError": "Kesalahan mengimpor pengaturan. Periksa console untuk detailnya.",
+                "malformedSettings": "File pengaturan tidak valid.",
+                "readFailed": "Tidak dapat membaca file pengaturan. File mungkin rusak atau format salah.",
+                "importUnexpectedError": "Terjadi kesalahan tak terduga saat mengimpor.",
+                "exportSettings": "Ekspor Pengaturan",
+                "importSettings": "Impor Pengaturan"
+            },
+            "changelogs": {
+                "title": "Changelog",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Rilis tanpa judul",
+                "current": "Versi Anda",
+                "noNotes": "Tidak ada catatan changelog yang disediakan untuk rilis ini.",
+                "loading": "Memuat changelog...",
+                "empty": "Tidak ada changelog yang tersedia saat ini.",
+                "loadFailed": "Gagal memuat changelog. Silakan coba lagi nanti."
+            },
+            "parentRequest": {
+                "sendingTitle": "Mengirim Permintaan",
+                "sentTitle": "Permintaan Terkirim!",
+                "sentBody": "Permintaan Anda telah dikirim ke orang tua dan wali Anda melalui email.",
+                "experienceName": "Nama pengalaman adalah",
+                "sendFailedTitle": "Permintaan Gagal Dikirim",
+                "sendFailedBody": "Permintaan Anda gagal terkirim karena alasan yang tidak diketahui. Mungkin Anda terkena rate limit. Periksa console untuk detail lebih lanjut.",
+                "cancelingTitle": "Membatalkan Permintaan",
+                "canceledTitle": "Permintaan Dibatalkan",
+                "canceledBody": "Permintaan Anda kepada orang tua dan wali Anda telah dibatalkan.",
+                "cancelFailedTitle": "Pembatalan Permintaan Gagal",
+                "cancelFailedBody": "Pembatalan untuk permintaan unblock Anda gagal. Mungkin Anda terkena rate limit. Periksa console untuk detail lebih lanjut.",
+                "sendUnblock": "Kirim Permintaan Unblock",
+                "alreadyRequestedTitle": "Sudah Diminta",
+                "alreadyRequestedBody": "Anda sudah meminta pengalaman ini, silly!"
+            },
+            "donation": {
+                "donateUsd": "Donasi (min $1 USD)",
+                "donateRobux": "Donasi (min 5 Robux)",
+                "parentApprovalTitle": "Bantu Dukung RoValra Lebih Banyak!",
+                "parentApprovalMessage": "RoValra mendapatkan bagian donasi yang lebih besar saat menggunakan gamepass. Kami melihat Anda memiliki setidaknya 1 akun orang tua yang terhubung. Anda dapat meminta untuk unblock pengalaman ini sehingga RoValra mendapatkan bagian yang lebih baik dibandingkan menggunakan pakaian 2D (dan 3D).",
+                "useMarketplace": "Gunakan Marketplace",
+                "currencyLabel": "Mata uang donasi",
+                "donateWith": "Donasi dengan",
+                "supportTitle": "Bantu Dukung RoValra",
+                "supportDescription": "Dapatkan perk kosmetik eksklusif dengan berdonasi",
+                "githubSponsors": "GitHub Sponsors",
+                "included": "Termasuk",
+                "notIncluded": "Tidak termasuk",
+                "totalDonated": "Total donasi Anda ke RoValra: {{amount}}",
+                "tierTooltip": "Tier donatur Anda",
+                "topDonators": "Donatur Teratas (Robux)"
+            },
+            "profileBadge": {
+                "title": "Badge Profil Kustom RoValra",
+                "description": "Dapatkan badge kustom untuk profil Anda",
+                "iconLabel": "Ikon badge profil kustom",
+                "getUsd": "Dapatkan ($5 USD)",
+                "getRobux": "Dapatkan (4.000 Robux)",
+                "purchaseIntro": "Pembelian ini untuk orang-orang yang benar-benar ingin mendukung RoValra.",
+                "createTicket": "Setelah membeli item ini, masuk ke Discord RoValra dan buat tiket.",
+                "provideDetails": "Berikan staff gambar dan nama yang Anda inginkan untuk badge profil kustom Anda.",
+                "countsTowardTier": "Membeli item ini akan dihitung ke tier donatur RoValra.",
+                "visibility": "Badge kustom ini hanya terlihat oleh pengguna RoValra.",
+                "imageRequirements": "Persyaratan gambar",
+                "webpRequirement": "Gambar harus berupa file <strong>WEBP</strong> yang lebih kecil dari <strong>1 MB</strong>.",
+                "noRobloxBadges": "SVG atau badge resmi Roblox tidak dapat digunakan.",
+                "noOfficialRoValraBadges": "Badge resmi RoValra seperti badge kontributor dan artist tidak diizinkan.",
+                "followTerms": "Gambar harus mengikuti ToS Roblox",
+                "joinDiscord": "Gabung Discord RoValra",
+                "agree": "Setuju",
+                "agreeCountdown": "Setuju ({{count}})"
+            },
+            "githubSponsorBadge": {
+                "title": "Badge Profil GitHub Sponsors",
+                "description": "Badge profil hati pelangi. Hanya untuk GitHub Sponsors",
+                "get": "Dapatkan (min $1 USD)"
+            },
+            "store": {
+                "artist": "Artist",
+                "artistTooltip": "{{name}} membuat border avatar ini.",
+                "free": "Gratis",
+                "owned": "Dimiliki",
+                "equipped": "Dipakai",
+                "equip": "Pakai",
+                "buy": "Beli",
+                "buyFor": "Beli seharga {{price}}",
+                "viewGamepass": "Lihat Gamepass",
+                "all": "Semua",
+                "new": "Baru",
+                "static": "STATIS",
+                "animated": "ANIMASI",
+                "borderTitle": "Toko Border Avatar",
+                "borderDescription": "Toko border avatar, beli border avatar untuk langsung mendukung RoValra dan para artist, <strong>Donator tier 3 mendapatkan semua border avatar secara gratis.</strong> Membeli Border Avatar dihitung ke Tier Donatur Anda!",
+                "loadingBorders": "Memuat border..."
+            },
+            "border": {
+                "bundleNotice": "(Termasuk varian Statis dan Animasi)",
+                "freeTier3Tooltip": "Gratis karena Anda memiliki Donator Tier 3!",
+                "ownedTooltip": "Anda memiliki border ini!",
+                "freeTooltip": "Border ini gratis untuk dipakai.",
+                "supportNotice": "Membeli kosmetik secara langsung akan mendukung artist dan RoValra",
+                "purchaseDelay": "Mungkin memerlukan waktu hingga satu menit agar border avatar muncul setelah pembelian",
+                "parentApprovalTitle": "Tindakan Orang Tua Diperlukan",
+                "parentApprovalMessage": "Untuk membeli border avatar, Anda memerlukan izin orang tua.",
+                "noParentTitle": "Anda Tidak Dapat Menggunakan Border Avatar",
+                "noParentBody": "Roblox mengharuskan Anda mendapatkan izin dari orang tua tetapi Anda tidak memiliki akun orang tua yang terhubung. Jika Anda ingin menggunakan border avatar, Anda perlu menghubungkan akun orang tua dan meminta untuk unblock pengalaman ini.",
+                "noBorders": "Tidak ada border yang tersedia.",
+                "currentPreview": "Pratinjau Pilihan Saat Ini",
+                "signInPreview": "Masuk untuk mempratinjau border pada avatar Anda.",
+                "noBordersInTab": "Tidak ada border ditemukan di tab ini.",
+                "loadFailed": "Gagal memuat border. Silakan coba lagi nanti.",
+                "unequipTooltip": "Klik untuk melepas border ini",
+                "equipTooltip": "Pakai border ini",
+                "buyTooltip": "Beli border ini"
+            },
+            "appeal": {
+                "messageLabel": "Masukkan pesan banding Anda (20-3000 karakter)",
+                "title": "Kirim Banding",
+                "submit": "Kirim Banding",
+                "invalidLength": "Pesan banding harus antara 20 dan 3000 karakter.",
+                "submitFailed": "Gagal mengirim banding. Silakan coba lagi."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Semua Baik",
+                    "none": "Tidak Ada / Tanpa batasan",
+                    "limited": "Terbatas",
+                    "veryLimited": "Sangat Terbatas",
+                    "atRisk": "Berisiko",
+                    "suspended": "Ditangguhkan"
+                },
+                "appealStatuses": {
+                    "notAppealed": "Belum diajukan banding",
+                    "pending": "Banding Tertunda",
+                    "denied": "Banding Ditolak",
+                    "accepted": "Banding Diterima"
+                },
+                "goodTitle": "Akun Anda dalam status baik.",
+                "goodDescription": "Anda tidak memiliki pelanggaran atau batasan aktif dari tim keamanan RoValra.",
+                "temporaryTitle": "Akun Anda dibatasi sementara.",
+                "violationTitle": "Kami menemukan pelanggaran pada akun Anda.",
+                "statusDescription": "Status akun Anda telah diatur menjadi: {{status}}",
+                "policyTitle": "Kebijakan Keamanan RoValra",
+                "policyDescription": "Akun yang ditemukan melanggar {{- termsLink}} atau dianggap berisiko melalui deteksi pihak ketiga akan memiliki fitur tertentu yang dinonaktifkan. Perhatikan bahwa meskipun kemampuan online tertentu dapat dibatasi, tim keamanan RoValra <strong>tidak akan pernah</strong> menonaktifkan seluruh ekstensi atau fitur yang sepenuhnya lokal.",
+                "automatedAction": "Tindakan Otomatis",
+                "manualReview": "Tinjauan Manual",
+                "disabledFeatures": "Fitur yang Dinonaktifkan",
+                "moderatedContent": "Konten yang Dimoderasi",
+                "violationDetails": "Detail Pelanggaran",
+                "unknownReason": "Alasan Tidak Diketahui",
+                "moderated": "Dimoderasi",
+                "temporaryExpires": "Batasan sementara berakhir",
+                "appealCase": "Kasus Banding",
+                "status": "Status",
+                "yourMessage": "Pesan Anda",
+                "response": "Respons",
+                "reviewingAppeal": "Tim kami sedang meninjau banding Anda.",
+                "appealDecision": "Ajukan banding atas keputusan ini"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "RoValra mungkin tidak berfungsi dengan baik saat {{extensions}} diaktifkan.",
+            "description": "Kami tidak menjamin dukungan untuk {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Pengaturan Privasi"
+        },
+        "noTogglesEnabled": "Tidak ada toggle yang diaktifkan! Buka Pengaturan RoValra untuk mengaktifkan toggle pengaturan privasi.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Semua Orang",
+                "friendsFollowingFollowers": "Teman, Following, dan Follower",
+                "friendsFollowing": "Teman dan Following",
+                "friends": "Teman",
+                "trustedFriends": "Teman Terpercaya",
+                "noOne": "Tidak seorang pun"
+            },
+            "onlineStatus": {
+                "name": "Status Online"
+            },
+            "joinStatus": {
+                "name": "Status Pengalaman"
+            },
+            "privateServerPrivacy": {
+                "name": "Privasi Server Pribadi"
+            },
+            "inventoryPrivacy": {
+                "name": "Privasi Inventaris"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "Memuat...",
+        "pending": "Pending:",
+        "noPermissions": "Tidak Ada Izin"
+    },
+    "navigation": {
+        "transactions": "Transaksi",
+        "apiDocs": "Dokumentasi API",
+        "incidentLearnMore": "Klik di sini untuk mempelajari lebih lanjut.",
+        "incidentHideNotice": "Anda dapat menyembunyikan pemberitahuan ini di sini"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Lipat sidebar",
+        "expandSidebar": "Perluas sidebar"
+    },
+    "voiceBanIndicator": {
+        "title": "Voice Chat Diblokir",
+        "liftsIn": "Berakhir dalam",
+        "noExpiry": "Tidak ada masa berakhir yang disediakan"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Tema Usia",
+        "options": {
+            "normal": "Roblox Normal",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Roblox Leaked Select (Start Mode)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Alihkan Program Beta",
+        "noPrograms": "Anda tidak terdaftar di program beta apa pun.",
+        "allowlist": "Dalam allowlist",
+        "previousProgramsTitle": "Program beta yang pernah didaftarkan",
+        "previousProgramTooltip": "Program beta ini tidak lagi tersedia."
+    },
+    "quickSearch": {
+        "aborted": "Dibatalkan",
+        "apiRequestFailed": "Permintaan API gagal dengan status {{status}}",
+        "friendSearchError": "RoValra: Kesalahan Pencarian Teman",
+        "userSearchError": "RoValra: Kesalahan Pencarian Pengguna",
+        "gameSearchError": "RoValra: Kesalahan Pencarian Game",
+        "trustedConnection": "Anda berteman terpercaya",
+        "connection": "Anda berteman",
+        "playing": "Sedang bermain {{gameName}}",
+        "verifiedBadge": "Badge Terverifikasi",
+        "verified": "Terverifikasi",
+        "permanentlyBanned": "Pengguna ini telah diberhentikan atau menonaktifkan akunnya.",
+        "joinPreferredRegion": "Gabung Wilayah Pilihan",
+        "bestRegionAuto": "Wilayah Terbaik (Otomatis)",
+        "searchHistory": "Riwayat Pencarian",
+        "noSearchHistory": "Anda tidak memiliki riwayat pencarian.",
+        "deleteSearchHistoryTitle": "Hapus Riwayat Pencarian",
+        "deleteSearchHistoryMessage": "Apakah Anda yakin ingin menghapus entri riwayat pencarian ini?",
+        "delete": "Hapus"
+    },
+    "friendOwnership": {
+        "pillLabel": "{{count}} Teman memiliki",
+        "pillTooltip": "Lihat teman mana yang memiliki item ini",
+        "overlayTitle": "{{count}} Teman memiliki item ini",
+        "unknownUser": "Pengguna {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Pilih atau Gabung Wilayah Server Pilihan",
+        "tooltip": "Gabung Wilayah Pilihan",
+        "tooltipWithRegion": "Gabung Wilayah Pilihan<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Gabung Wilayah Pilihan<br><b>Wilayah Terbaik (Otomatis)</b>"
+    },
+    "quickPlay": {
+        "loading": "Memuat...",
+        "rateLimited": "Dibatasi rate. Mencoba lagi...",
+        "loadError": "Tidak dapat memuat server.",
+        "noPrivateServers": "Tidak ada server pribadi aktif ditemukan.",
+        "configure": "Konfigurasi",
+        "copyLink": "Salin Tautan",
+        "copied": "Disalin!",
+        "error": "Error!",
+        "generateLink": "Buat Tautan Baru",
+        "joinClosestServer": "Gabung Server Terdekat",
+        "selectPreferredRegion": "Pilih Wilayah Pilihan",
+        "privateServers": "Server Pribadi"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Buat Tautan",
+        "regenerated": "Dibuat!"
+    },
+    "devProducts": {
+        "noProducts": "Tidak ada developer product ditemukan.",
+        "loadError": "Tidak dapat memuat developer product untuk game ini.",
+        "passes": "Pass",
+        "developerProducts": "Developer Product",
+        "search": "Cari",
+        "sort": {
+            "created": "Urutkan berdasarkan Dibuat",
+            "price": "Urutkan berdasarkan Harga",
+            "updated": "Urutkan berdasarkan Diperbarui",
+            "name": "Urutkan berdasarkan Nama"
+        },
+        "order": {
+            "ascending": "Urutkan Menaik",
+            "descending": "Urutkan Menurun"
+        }
+    },
+    "shop": {
+        "tab": "Toko",
+        "all": "Semua",
+        "category": "Kategori",
+        "product": "Produk",
+        "gamePass": "Game Pass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bonus: {{item}}",
+        "bonusItemFallback": "Termasuk item bonus",
+        "noItems": "Tidak ada item toko ditemukan.",
+        "failedToLoad": "Gagal memuat item toko.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Produk",
+            "GamePass": "Game Pass",
+            "Robux": "Bundle Robux"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Subplace",
+        "searchPlaceholder": "Cari subplace",
+        "loadMore": "Muat Lebih Banyak",
+        "rootPlace": "Root Place",
+        "noSubplaces": "Tidak ada subplace ditemukan.",
+        "failedToLoad": "Gagal memuat subplace.",
+        "labels": {
+            "sort": "Urutkan",
+            "order": "Urutan"
+        },
+        "sort": {
+            "default": "Default",
+            "updated": "Baru Diperbarui",
+            "created": "Baru Dibuat",
+            "name": "Nama (Z-A)"
+        },
+        "order": {
+            "descending": "Menurun",
+            "ascending": "Menaik"
+        },
+        "banner": {
+            "title": "Anda sedang melihat subplace dari [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Beberapa pengalaman mungkin menonaktifkan bergabung ke subplace.",
+            "descriptionRestricted": "Subplace ini tidak dapat digabung karena batasan bergabung.",
+            "descriptionJoinable": "Subplace ini dapat digabung.",
+            "mainExperience": "pengalaman utama"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Update",
+        "title": "Riwayat Update",
+        "blocked": {
+            "eighteenPlus": "Riwayat Update tidak berfungsi pada pengalaman 18+",
+            "paidAccess": "Riwayat Update tidak berfungsi pada pengalaman berbayar",
+            "subplace": "Riwayat Update tidak berfungsi pada subplace dengan batasan bergabung",
+            "noDesktopSupport": "Riwayat Update tidak didukung pada pengalaman tanpa dukungan PC"
+        }
+    },
+    "serverList": {
+        "clear": "Bersihkan",
+        "noServersApi": "Tidak ada server ditemukan melalui API RoValra.",
+        "allServersInactive": "Semua server di wilayah ini menjadi tidak aktif",
+        "loadErrorApi": "Gagal memuat server dari API RoValra.",
+        "hide": "Sembunyikan",
+        "join": "Gabung",
+        "peopleMax": "{{playing}} dari {{maxPlayers}} orang maks",
+        "pinPrivateServer": "Sematkan server pribadi",
+        "unpinPrivateServer": "Batalkan sematan server pribadi",
+        "playerCountUnknownTooltip": "Jumlah pemain tidak diketahui, ini adalah batasan Roblox. Thumbnail tidak mewakili orang-orang yang ada dalam game.",
+        "playerCountUnknownLabel": "Jumlah pemain tidak diketahui"
+    },
+    "recentServers": {
+        "title": "Server Terbaru",
+        "refresh": "Segarkan",
+        "noneFound": "Tidak Ada Server Terbaru Ditemukan.",
+        "noActiveFound": "Tidak ada server terbaru yang aktif ditemukan.",
+        "lastJoined": "Terakhir Gabung: {{time}}",
+        "meAlt": "Saya",
+        "secondsAgo": "{{count}}d lalu",
+        "minutesAgo": "{{count}}m lalu",
+        "hoursAgo": "{{count}}j lalu",
+        "daysAgo": "{{count}}h lalu",
+        "description": "Server Terbaru yang baru saja Anda masuki."
+    },
+    "quickOutfits": {
+        "errorFetching": "Kesalahan mengambil outfit",
+        "equipping": "Memakai...",
+        "equipped": "Dipakai!",
+        "failed": "Gagal",
+        "error": "Error:",
+        "noUserId": "User ID terautentikasi tidak ditemukan untuk quick outfits.",
+        "loading": "Memuat outfit...",
+        "title": "Outfit Cepat",
+        "noneFound": "Tidak ada outfit ditemukan.",
+        "success": "Berhasil memakai outfit."
+    },
+    "btrDonationWarning": {
+        "title": "PENTING: nonaktifkan BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox terdeteksi. Ini dapat mengganggu proses pembelian Roblox. Jika Anda mengalami kesulitan saat membeli, coba nonaktifkan BTRoblox sementara dan muat ulang halaman.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Silakan nonaktifkan BTRoblox, muat ulang halaman ini, lalu coba pembelian Anda lagi.</p>",
+        "continue": "Tetap lanjutkan"
+    },
+    "botDetector": {
+        "tooltip": "Bot adalah akun yang menjalankan skrip otomatis untuk farming item. Satu pengguna terkadang dapat menjalankan 50+ bot. Ingatlah bahwa ini bukan kesalahan developer game. Informasi ini dapat tidak akurat jika sebuah pengalaman terutama dimainkan oleh akun Roblox baru.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> memiliki banyak bot",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> memiliki beberapa bot tetapi sebagian besar pemain asli",
+        "thisGame": "Game ini"
+    },
+    "events": {
+        "title": "Event",
+        "tabs": {
+            "upcoming": "Mendatang",
+            "past": "Lalu"
+        },
+        "buttons": {
+            "viewEvent": "Lihat Event",
+            "joinEvent": "Gabung Event",
+            "unfollowEvent": "Berhenti Mengikuti Event",
+            "notifyMe": "Beri Tahu Saya"
+        },
+        "loadMore": "Muat Lebih Banyak",
+        "releaseDate": "Tanggal rilis event",
+        "empty": {
+            "active": "Tidak ada event yang berlangsung atau mendatang.",
+            "past": "Tidak ada event lalu.",
+            "all": "Tidak ada event ditemukan."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Badge",
+            "hiddenBadges": "Badge Tersembunyi"
+        },
+        "hiddenOwnedNotice": "Hanya badge tersembunyi yang telah Anda peroleh yang ditampilkan di sini.",
+        "unableToDetectPlace": "Tidak dapat mendeteksi place ini.",
+        "unableToDetectUniverse": "Tidak dapat mendeteksi universe ini.",
+        "stillScanning": "Masih memindai badge Anda. Badge tersembunyi yang Anda miliki mungkin akan muncul segera.",
+        "noneOwnedFound": "Tidak ada badge tersembunyi yang Anda miliki ditemukan untuk pengalaman ini.",
+        "failedToLoad": "Gagal memuat badge tersembunyi yang Anda miliki."
+    },
+    "antiBots": {
+        "reviewMembers": "Tinjau {{count}} anggota terpilih:",
+        "botWarning": "<strong>Peringatan:</strong> Pastikan ini adalah bot sebelum mengambil tindakan.",
+        "banMembers": "Ban Anggota",
+        "kickMembers": "Kick Anggota",
+        "cancel": "Batal",
+        "actionRequired": "Tindakan Diperlukan ({{count}})",
+        "noPermission": "Anda tidak memiliki izin untuk mem-ban atau mengeluarkan anggota.",
+        "confirmBan": "Anda akan <strong>mem-ban {{count}} anggota</strong>. Mereka akan diblokir secara permanen.",
+        "confirmKick": "Anda akan <strong>mengeluarkan {{count}} anggota</strong>. Mereka dapat bergabung kembali kapan saja.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Pengingat:</strong> Verifikasi skor bot sebelum mem-ban.</div>",
+        "yesAction": "Ya, {{action}}",
+        "confirmAction": "Konfirmasi Tindakan",
+        "processing": "Memproses {{current}} dari {{total}}: {{displayName}}... Perkiraan: {{time}}d",
+        "rateLimited": "Dibatasi rate. Mencoba lagi dalam {{delay}}d...",
+        "apiError": "Kesalahan API {{status}}",
+        "unknownError": "Kesalahan Tidak Diketahui",
+        "processComplete": "{{successCount}} dari {{totalMembers}} anggota berhasil di-{{actionType}}.",
+        "processFailed": "{{failedCount}} gagal.",
+        "close": "Tutup",
+        "score": "Skor: {{score}}/100",
+        "actionCount": "Tindakan ({{count}})",
+        "unselectAll": "Batalkan Semua Pilihan",
+        "selectAll": "Pilih Semua",
+        "antiBots": "Anti Bot",
+        "banByScore": "Ban berdasarkan Skor",
+        "quickAction": "Tindakan Cepat",
+        "members": "Anggota",
+        "loadingMembers": "Memuat Anggota...",
+        "selectMembersForAction": "Pilih Anggota untuk Tindakan ({{count}} Dimuat)",
+        "noMembersFound": "Tidak ada anggota ditemukan.",
+        "initializingScan": "Memulai Pemindaian...",
+        "scanStatus": "Dipindai: {{loaded}} ({{percent}}%) | Dianalisis: {{processed}}",
+        "finalizingAnalysis": "Menyelesaikan analisis...",
+        "botsFound": "{{count}} Kemungkinan Bot Ditemukan",
+        "noBotsFound": "Tidak Ada Kemungkinan Bot Ditemukan",
+        "noBotsDetected": "Tidak ada bot terdeteksi.",
+        "errorRetry": "Kesalahan - Coba Lagi",
+        "errorDuringScan": "Terjadi kesalahan saat pemindaian.",
+        "minBotScore": "Skor Bot Minimum: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Ini akan memilih sekitar <span id=\"rovalra-score-ban-count\">0</span> anggota.",
+        "confirm": "Konfirmasi",
+        "banKickByScore": "Ban/Kick berdasarkan Skor",
+        "confirmCount": "Konfirmasi ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Selamat Bermain!",
+        "close": "Tutup",
+        "robloxExperience": "Pengalaman Roblox",
+        "unknownExperience": "Pengalaman Tidak Diketahui",
+        "serverId": "ServerID:",
+        "privateServer": "Server Pribadi",
+        "owner": "Pemilik:",
+        "version": "Versi:",
+        "uptime": "Uptime:",
+        "rcc": "RCC:",
+        "serverChannel": "Server Channel:",
+        "production": "Production",
+        "launchingRoblox": "Meluncurkan Roblox",
+        "downloadRoblox": "Unduh Roblox",
+        "thanksDownloading": "Terima kasih telah mengunduh Roblox",
+        "downloadInstructions": "Cukup ikuti langkah-langkah di bawah untuk menginstal Roblox. Unduhan akan dimulai dalam beberapa detik. Jika tidak, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">mulai ulang unduhan</a>.",
+        "installInstructions": "Instruksi Instalasi",
+        "step1": "Setelah selesai diunduh, klik dua kali file <b>RobloxPlayerInstaller.exe</b> di folder Downloads Anda.",
+        "step2": "Klik dua kali <b>RobloxPlayerInstaller</b> untuk menginstal aplikasi.",
+        "step3": "Ikuti instruksi untuk menginstal Roblox ke komputer Anda.",
+        "step4": "Sekarang setelah terinstal, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">gabung pengalaman ini</a>.",
+        "mobileApp": "Jangan lupa aplikasi mobile",
+        "scanCode": "Pindai kode ini dengan kamera ponsel Anda untuk mendapatkan Roblox.",
+        "joiningServer": "Menggabungkan Server...",
+        "errorParsingUrl": "Kesalahan mem-parsing URL",
+        "findingUser": "Mencari pengguna...",
+        "fetchingServerInfo": "Mengambil info server...",
+        "nonRootPlaceRestrictions": "Tidak dapat bergabung: Batasan non-root place.",
+        "waitingForRoblox": "Menunggu Roblox...",
+        "launching": "Meluncurkan..."
+    },
+    "createRoblox": {
+        "download": "Unduh",
+        "downloadMesh": "Unduh .mesh",
+        "downloadObj": "Unduh .obj",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Memuat...",
+            "selectInstance": "Pilih instance untuk melihat propertinya",
+            "noProperties": "Tidak ada properti",
+            "viewSource": "Lihat Sumber",
+            "closePreview": "Tutup Pratinjau",
+            "defaultDevice": "Default (1280x720)",
+            "fitToWindow": "Sesuaikan dengan Jendela",
+            "actualResolution": "Resolusi Asli",
+            "physicalSize": "Ukuran Fisik",
+            "rotate": "Putar",
+            "loadingPreview": "Memuat pratinjau GUI...",
+            "searchInstances": "Cari instance... (2+ karakter)",
+            "searchProperties": "Cari properti...",
+            "previewGui": "Pratinjau GUI",
+            "togglePreviewVisibility": "Alihkan visibilitas dalam pratinjau",
+            "noMatchingInstances": "Tidak ada instance yang cocok ditemukan",
+            "loadError": "Gagal memuat."
+        }
+    },
+    "priceFloor": {
+        "label": "Harga Minimum:",
+        "status": "Item ini {{status}} harga minimum{{difference}}.",
+        "statusTypes": {
+            "above": "di atas",
+            "below": "di bawah",
+            "at": "sama dengan"
+        },
+        "difference": " sebesar {{diff}}",
+        "description": "Harga minimum adalah harga terendah yang terus diperbarui secara dinamis untuk sebuah item dapat dijual."
+    },
+    "parentItem": {
+        "multipleBundles": "Item ini merupakan bagian dari beberapa bundle",
+        "multipleBundlesDescription": "Item ini kemungkinan digunakan sebagai template dan disertakan dalam beberapa bundle.",
+        "partOfBundle": "Item ini merupakan bagian dari bundle [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Anda sedang melihat item dari sebuah bundle."
+    },
+    "rovalraBadges": {
+        "userVerified": "Pengguna terverifikasi ID.",
+        "userNotVerified": "Pengguna belum terverifikasi ID.",
+        "userAgeVerified": "Pengguna telah diperiksa usianya.",
+        "userNotAgeVerified": "Pengguna belum diperiksa usianya.",
+        "userAgeVerificationMayBeInaccurate": "Ini mungkin tidak akurat"
+    },
+    "friendsSince": {
+        "friended": "Berteman",
+        "lastSeen": "Terlihat",
+        "age": "Usia",
+        "friendedVia": "Berteman melalui",
+        "originFrom": "Dari",
+        "originSearch": "Pencarian",
+        "originInGame": "Dalam Game",
+        "originProfile": "Profil",
+        "originQQContacts": "Kontak QQ",
+        "originWeChatContacts": "Kontak WeChat",
+        "originQrCode": "Kode QR",
+        "originProfileShare": "Berbagi Profil",
+        "originPhoneContacts": "Kontak Ponsel",
+        "originPeopleYouMayKnow": "Orang yang Mungkin Anda Kenal",
+        "originschoolmemberlist": "Daftar Anggota Sekolah",
+        "originFriendLink": "Tautan Teman",
+        "originSocialTabsPage": "Halaman Tab Sosial",
+        "originUnknown": "Tidak Diketahui"
+    },
+    "lastPlayed": {
+        "together": "Paling Sering Bermain Bersama"
+    },
+    "avatarDownload": {
+        "button": "Unduh Avatar",
+        "title": "Unduh Avatar",
+        "size": "Resolusi:",
+        "downloadPortrait": "PNG Portrait",
+        "downloadBust": "PNG Bust",
+        "downloadAvatar": "PNG Avatar",
+        "downloading": "Mengunduh...",
+        "failed": "Gagal mengunduh avatar. Coba lagi nanti."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Konfirmasi Berhenti Berteman",
+        "confirmUnfriends": "Konfirmasi Berhenti Berteman",
+        "descriptionSingle": "Anda akan berhenti berteman dengan 1 teman. Tindakan ini tidak dapat dibatalkan.",
+        "descriptionPlural": "Anda akan berhenti berteman dengan {{count}} teman. Tindakan ini tidak dapat dibatalkan.",
+        "cancel": "Batal",
+        "unfriend": "Berhenti Berteman",
+        "unfriendCount": "Berhenti Berteman ({{count}})",
+        "unfriendCountAction": "Berhenti berteman dengan {{count}} teman",
+        "unfriendCountActionPlural": "Berhenti berteman dengan {{count}} teman",
+        "unfriending": "Menghapus pertemanan...",
+        "bulkUnfriend": "Hapus Pertemanan Massal",
+        "exitBulkMode": "Keluar dari Mode Massal",
+        "successMessage": "Berhasil menghapus pertemanan {{successCount}}/{{totalCount}} teman!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Penghapus Badge Massal",
+        "exit": "Keluar dari Mode Massal",
+        "delete": "Hapus Badge",
+        "deleteCount": "Hapus Badge ({{count}})",
+        "confirmTitle": "Konfirmasi Penghapusan Badge",
+        "finalTitle": "Apakah Anda Benar-benar Yakin?",
+        "finalDescription": "Ini akan menghapus secara permanen {{count}} badge dari inventaris Anda.",
+        "descriptionSingle": "Anda akan menghapus 1 badge dari inventaris Anda. Tindakan ini tidak dapat dibatalkan.",
+        "descriptionPlural": "Anda akan menghapus {{count}} badge dari inventaris Anda. Tindakan ini tidak dapat dibatalkan.",
+        "deletingProgress": "Menghapus badge... {{current}}/{{total}}",
+        "cancel": "Batal",
+        "success": "Menghapus {{successCount}}/{{totalCount}} badge."
+    },
+    "blockUser": {
+        "block": "Blokir",
+        "unblock": "Batalkan Blokir",
+        "blockTitle": "Blokir {{username}}",
+        "unblockTitle": "Batalkan Blokir {{username}}",
+        "blockTitleGeneric": "Blokir Pengguna",
+        "unblockTitleGeneric": "Batalkan Blokir Pengguna",
+        "blockMessage": "Mereka tidak akan dapat mengirimi Anda trade lagi. Anda masih dapat menolak trade yang ada, tetapi Anda tidak akan dapat menerima atau melakukan counter.",
+        "unblockMessage": "Mereka akan dapat mengirimi Anda trade lagi, dan Anda akan dapat menerima atau melakukan counter pada trade yang ada.",
+        "cancel": "Batal"
+    },
+    "unfriendDetector": {
+        "title_one": "Penghapusan Teman Terdeteksi",
+        "title_other": "Penghapusan Teman Terdeteksi",
+        "description_one": "Teman ini menghapus Anda sejak terakhir Anda bermain:",
+        "description_other": "{{count}} teman ini menghapus Anda sejak terakhir Anda bermain:",
+        "viewProfile": "Lihat profil {{name}}",
+        "dismiss": "Tutup"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Konfirmasi Keluar",
+        "confirmLeaves": "Konfirmasi Keluar",
+        "descriptionSingle": "Anda akan keluar dari 1 komunitas. Tindakan ini tidak dapat dibatalkan.",
+        "descriptionPlural": "Anda akan keluar dari {{count}} komunitas. Tindakan ini tidak dapat dibatalkan.",
+        "cancel": "Batal",
+        "leave": "Keluar",
+        "leaveCount": "Keluar ({{count}})",
+        "leaveCountAction": "Keluar dari {{count}} komunitas",
+        "leaveCountActionPlural": "Keluar dari {{count}} komunitas",
+        "leaving": "Keluar...",
+        "bulkLeave": "Keluar Massal",
+        "exitBulkMode": "Keluar dari Mode Massal",
+        "successMessage": "Berhasil keluar dari {{successCount}}/{{totalCount}} komunitas!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Saldo Anda setelah transaksi ini akan menjadi"
+    },
+    "time": {
+        "justNow": "baru saja",
+        "secondsAgo": "{{count}}d lalu",
+        "minutesAgo": "{{count}}m lalu",
+        "hoursAgo": "{{count}}j lalu",
+        "daysAgo": "{{count}}h lalu",
+        "weeksAgo": "{{count}}mg lalu",
+        "monthsAgo": "{{count}}bln lalu",
+        "yearsAgo": "{{count}}th lalu",
+        "secondsFromNow": "dalam {{count}}d",
+        "minutesFromNow": "dalam {{count}}m",
+        "hoursFromNow": "dalam {{count}}j",
+        "daysFromNow": "dalam {{count}}h",
+        "weeksFromNow": "dalam {{count}}mg",
+        "monthsFromNow": "dalam {{count}}bln",
+        "yearsFromNow": "dalam {{count}}th",
+        "months": {
+            "jan": "Jan",
+            "feb": "Feb",
+            "mar": "Mar",
+            "apr": "Apr",
+            "may": "Mei",
+            "jun": "Jun",
+            "jul": "Jul",
+            "aug": "Agu",
+            "sep": "Sep",
+            "oct": "Okt",
+            "nov": "Nov",
+            "dec": "Des"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Tentang",
+            "store": "Toko",
+            "servers": "Server"
+        },
+        "servers": {
+            "title": "Server Pribadi Anda",
+            "description": "Bermain di ruang Anda sendiri, sendirian atau dengan orang yang Anda undang",
+            "friendsTitle": "Server Tempat Teman Anda Berada",
+            "publicTitle": "Server Lainnya",
+            "privateServer": "Server pribadi",
+            "players": "{{playing}} dari {{maxPlayers}} orang maks",
+            "join": "Gabung",
+            "loadMore": "Muat Lebih Banyak",
+            "loading": "Memuat server...",
+            "noServers": "Tidak Ada Server Ditemukan.",
+            "loadError": "Tidak dapat memuat server.",
+            "ownerAvatar": "Pemilik server",
+            "playerAvatar": "Pemain",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Pengalaman Pribadi",
+        "experienceIsPrivate": "Pengalaman ini bersifat privat.",
+        "unknown": "Tidak Diketahui",
+        "rovalraNotice": "Hanya pengguna RoValra yang dapat melihat halaman ini.",
+        "unavailable": "Tidak Tersedia",
+        "favorite": {
+            "add": "Tambah ke Favorit",
+            "remove": "Hapus dari Favorit",
+            "favorited": "Difavoritkan",
+            "favorite": "Favorit"
+        },
+        "notify": {
+            "tooltip": "Aktifkan Notifikasi",
+            "label": "Beri Tahu"
+        },
+        "description": {
+            "title": "Deskripsi",
+            "noDescription": "Tidak ada deskripsi yang tersedia."
+        },
+        "stats": {
+            "active": "Aktif",
+            "favorites": "Favorit",
+            "visits": "Kunjungan",
+            "maxPlayers": "Pemain Maks",
+            "genre": "Genre",
+            "subgenre": "Subgenre",
+            "created": "Dibuat",
+            "updated": "Diperbarui",
+            "voiceChat": "Voice Chat",
+            "supported": "Didukung",
+            "unsupported": "Tidak Didukung"
+        },
+        "reportAbuse": "Laporkan Penyalahgunaan",
+        "badges": {
+            "title": "Badge",
+            "noBadges": "Belum ada badge",
+            "rarity": "Kelangkaan",
+            "wonYesterday": "Diperoleh Kemarin",
+            "wonEver": "Diperoleh Sepanjang Waktu"
+        },
+        "subscriptions": {
+            "title": "Subscription",
+            "subscribe": "Subscribe"
+        },
+        "passes": {
+            "title": "Pass",
+            "showOffSale": "Tampilkan Tidak Dijual",
+            "noPasses": "Tidak ada pass yang tersedia",
+            "offSale": "Tidak Dijual",
+            "owned": "Dimiliki",
+            "buy": "Beli"
+        },
+        "disabled": "Melihat Game Pribadi / Dimoderasi Dinonaktifkan",
+        "disabledDescription": "Untuk melihat game pribadi dan yang dimoderasi, Anda perlu mengaktifkan pengaturan di sini:",
+        "disabledLinkText": "Lihat Game Pribadi / Dimoderasi",
+        "products": {
+            "title": "Produk",
+            "buy": "Beli"
+        },
+        "moderated": "Dimoderasi"
+    },
+    "gamePassViewer": {
+        "type": "Tipe",
+        "typeValue": "Pass",
+        "productId": "Product ID",
+        "price": "Harga",
+        "owned": "Dimiliki",
+        "ownedItem": "Item Dimiliki",
+        "free": "Gratis",
+        "ownedNotice": "Item ini tersedia di inventaris Anda.",
+        "inventory": "Inventaris",
+        "by": "Oleh",
+        "usePassIn": "Gunakan Pass ini di:",
+        "rovalraNoticeDescription": "Game pass ini tidak aktif dan tidak dapat dibeli karena batasan Roblox, kemungkinan terkait usia akun atau visibilitas game."
+    },
+    "playabilityStatus": {
+        "0": "Pengalaman ini tidak tersedia",
+        "1": "Pengalaman ini dapat dimainkan",
+        "2": "Tamu tidak dapat bergabung dengan pengalaman ini",
+        "3": "Pengalaman ini telah dimoderasi karena melanggar Standar Komunitas Roblox",
+        "4": "Pengalaman ini salah dikonfigurasi",
+        "5": "Pengalaman ini bersifat privat",
+        "6": "Hanya teman yang dapat bergabung dengan pengalaman ini",
+        "7": "Hanya anggota komunitas yang dapat bergabung dengan pengalaman ini",
+        "8": "Pengalaman ini dibatasi pada perangkat Anda",
+        "9": "Pengalaman ini sedang ditinjau karena mungkin melanggar Standar Komunitas Roblox",
+        "10": "Pembelian diperlukan untuk bermain",
+        "11": "Akun Anda dibatasi",
+        "12": "Pengalaman ini sementara tidak tersedia",
+        "13": "Pengalaman ini tidak memiliki versi yang dipublikasikan",
+        "14": "Pengalaman ini diblokir karena alasan kepatuhan",
+        "15": "Pengalaman ini tidak tersedia di wilayah Anda",
+        "16": "Pengalaman ini diblokir karena alasan kepatuhan regional",
+        "17": "Pengalaman ini dibatasi oleh kontrol orang tua",
+        "18": "Pengalaman ini diblokir oleh kontrol orang tua",
+        "19": "Pengalaman ini memiliki batasan usia",
+        "20": "Verifikasi diperlukan untuk pengalaman 18+",
+        "21": "Pembelian diperlukan untuk bermain",
+        "22": "Pembelian dibatasi pada perangkat ini",
+        "23": "Pengalaman ini belum memiliki rating",
+        "24": "Pengalaman ini memiliki batasan usia berdasarkan deskriptor konten",
+        "25": "Pengalaman ini telah dimoderasi karena memiliki rating usia yang tidak akurat.",
+        "unknown": "Pengalaman ini tidak tersedia"
+    },
+    "bannedUsers": {
+        "connections": "Teman",
+        "followers": "Follower",
+        "following": "Following",
+        "about": "Tentang",
+        "creations": "Kreasi",
+        "experiences": "Pengalaman",
+        "bannedStatus": "Dibanned",
+        "seeAll": "Lihat Semua",
+        "hiddenUser": "Pengguna Tersembunyi",
+        "communities": "Komunitas",
+        "badges": "Badge",
+        "noExperiences": "Pengguna ini tidak memiliki pengalaman publik.",
+        "favorites": "Favorit",
+        "joinedDate": "Bergabung",
+        "store": "Toko",
+        "members": "Anggota",
+        "accountForgotten": "Akun Dilupakan"
+    },
+    "copyId": {
+        "copyId": "Salin ID {{type}}",
+        "copyUniverseId": "Salin Universe ID",
+        "types": {
+            "bundle": "Bundle",
+            "asset": "Aset",
+            "gamePass": "GamePass",
+            "badge": "Badge",
+            "community": "Komunitas",
+            "event": "Event",
+            "developerProduct": "Developer Product",
+            "place": "Place",
+            "universe": "Universe",
+            "user": "Pengguna"
+        }
+    },
+    "viewid": {
+        "viewId": "Lihat ID",
+        "popup": {
+            "title": "ID Item",
+            "button": {
+                "copy": "Salin Data",
+                "copyMd": "Salin Data Markdown"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Teman yang bermain {{gameName}}",
+        "join": "Gabung"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Nama pengguna: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} Kunjungan Place",
+        "tooltip": "Total Kunjungan Place Komunitas"
+    },
+    "groups": {
+        "createdLabel": "Dibuat",
+        "joinedLabel": "Bergabung",
+        "unknown": "Tidak Diketahui"
+    },
+    "showcase": {
+        "tab": "Showcase",
+        "favoriteGame": "Pengalaman favorit",
+        "favoriteGroup": "Komunitas favorit",
+        "favoriteDecal": "Showcase Seni",
+        "chooseGame": "Pilih pengalaman untuk ditampilkan di profil Anda.",
+        "noFeaturedGame": "Belum ada pengalaman unggulan. :C",
+        "chooseGroup": "Pilih komunitas untuk ditampilkan di profil Anda.",
+        "noFeaturedGroup": "Belum ada komunitas unggulan. :,(",
+        "chooseDecal": "Masukkan ID decal untuk menampilkan gambar di profil Anda.",
+        "noFeaturedDecal": "Belum ada gambar unggulan. :C",
+        "searchGame": "Cari pengalaman untuk ditampilkan",
+        "searchGroup": "Cari komunitas untuk ditampilkan",
+        "clearGame": "Hapus pengalaman favorit",
+        "clearGroup": "Hapus komunitas favorit",
+        "gameOptions": "Opsi pengalaman favorit",
+        "groupOptions": "Opsi komunitas favorit",
+        "decalId": "ID Decal",
+        "decalImageOptions": "Opsi gambar",
+        "openImagePage": "Buka halaman gambar",
+        "report": "Laporkan",
+        "clearDecal": "Hapus Gambar",
+        "by": "Oleh",
+        "maturity": "Rating Usia",
+        "maturityUnavailable": "Rating usia tidak tersedia",
+        "members": "{{count}} anggota",
+        "noResultsGame": "Tidak dapat menemukan pengalaman.",
+        "noResultsGroup": "Tidak dapat menemukan komunitas.",
+        "unknownExperience": "Pengalaman tidak diketahui",
+        "unknownCommunity": "Komunitas tidak diketahui",
+        "verifiedBadge": "Ikon Badge Terverifikasi"
+    },
+    "profileCustomization": {
+        "pill": "Kustomisasi",
+        "pillTooltip": "Ganti border avatar dan frame Anda.",
+        "title": "Kustomisasi Profil",
+        "tabBorders": "Border Avatar",
+        "tabFrames": "Frame",
+        "currentPreview": "Pratinjau Pilihan Saat Ini",
+        "unequip": "Lepas",
+        "unequipTooltip": "Klik untuk melepas border ini",
+        "equip": "Pakai",
+        "equipTooltip": "Pakai border ini",
+        "equipped": "Dipakai",
+        "getMore": "Dapatkan Lebih Banyak",
+        "owned": "Dimiliki",
+        "unowned": "Tidak Dimiliki",
+        "unownedTooltip": "Anda belum memiliki border ini.",
+        "all": "Semua",
+        "new": "Baru",
+        "static": "STATIS",
+        "animated": "ANIMASI",
+        "free": "Gratis",
+        "noBorders": "Tidak ada border ditemukan.",
+        "noBordersInTab": "Tidak ada border ditemukan di tab ini.",
+        "noFrames": "Tidak ada frame ditemukan.",
+        "noFramesInTab": "Tidak ada frame ditemukan di tab ini.",
+        "none": "Tidak Ada",
+        "failedToLoad": "Gagal memuat border Anda. Silakan coba lagi nanti."
+    },
+    "profileFrame": {
+        "storeTitle": "Toko Frame Profil",
+        "storeDesc": "Frame profil membungkus seluruh tampilan avatar di profil Anda. Membeli frame secara langsung mendukung RoValra dan para artist, serta dihitung ke Tier Donatur Anda. Frame tidak termasuk dalam unlock Donator Tier 3, yang hanya mencakup border avatar.",
+        "tabBorders": "Border Avatar",
+        "tabFrames": "Frame",
+        "loading": "Memuat frame...",
+        "currentPreview": "Pratinjau Frame Saat Ini",
+        "all": "Semua",
+        "new": "Baru",
+        "static": "STATIS",
+        "animated": "ANIMASI",
+        "equip": "Pakai",
+        "equipTooltip": "Pakai frame ini",
+        "equipped": "Dipakai",
+        "unequipTooltip": "Klik untuk melepas frame ini",
+        "unequip": "Lepas",
+        "buy": "Beli",
+        "buyFor": "Beli seharga {{price}}",
+        "viewItem": "Lihat item",
+        "buyTooltip": "Beli frame ini",
+        "owned": "Dimiliki",
+        "ownedTooltip": "Anda memiliki frame ini!",
+        "free": "Gratis",
+        "freeTooltip": "Frame ini gratis untuk dipakai.",
+        "localOnly": "Disimpan secara lokal",
+        "localOnlyTooltip": "RoValra belum dapat menyimpan frame ini ke akun Anda, sehingga hanya terlihat oleh Anda di browser ini.",
+        "noFrames": "Tidak ada frame yang tersedia.",
+        "noFramesInTab": "Tidak ada frame ditemukan di tab ini.",
+        "failedToLoad": "Gagal memuat frame. Silakan coba lagi nanti."
+    },
+    "profileNotes": {
+        "ariaLabel": "Catatan profil pribadi",
+        "heading": "Catatan (hanya terlihat oleh Anda)",
+        "headingTooltip": "Catatan ini hanya disimpan di browser ini dan tidak pernah dikirim ke Roblox atau RoValra.",
+        "addNote": "Klik untuk menambahkan catatan",
+        "editAriaLabel": "Edit catatan profil pribadi",
+        "addAriaLabel": "Tambah catatan profil pribadi",
+        "displayTooltip": "Klik untuk mengedit. Catatan hanya disimpan di browser ini.",
+        "inputPlaceholder": "Tambahkan catatan pribadi",
+        "inputTooltip": "Disimpan saat Anda klik di luar area. Tekan Escape untuk batal atau Ctrl+Enter untuk simpan."
+    },
+    "profilePronouns": {
+        "label": "Kata Ganti",
+        "ariaLabel": "Kata Ganti: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "Fitur RoValra",
+        "profilePronouns": "Kata Ganti Profil",
+        "profileBadges": "Badge Profil",
+        "pronounsPlaceholder": "Masukkan kata ganti Anda",
+        "donatorPerks": "Perk Donatur",
+        "usernameCustomizations": "Kustomisasi Nama Pengguna"
+    },
+    "profile": {
+        "socialLinks": "Tautan sosial",
+        "currencyTransfer": "Kirim Robux",
+        "currencyTransferConfirmation": "Ini akan membuka klien Roblox yang memungkinkan Anda mengirim robux.",
+        "openClient": "Buka Klien"
+    },
+    "animations": {
+        "idle": "Idle",
+        "walk": "Berjalan",
+        "fall": "Jatuh",
+        "climb": "Memanjat",
+        "run": "Berlari",
+        "jump": "Melompat",
+        "swim": "Berenang"
+    },
+    "itemRender": {
+        "renderOptions": "Opsi Render",
+        "darkLighting": "Pencahayaan Gelap",
+        "baseplate": "Baseplate",
+        "rotatePreview": "Putar pratinjau"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Default",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Terbaru",
+            "oldest": "Terlama"
+        },
+        "tooltip": "Urutkan berdasarkan kapan pengguna bergabung dengan komunitas"
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Kunjungan",
+        "members": "Anggota",
+        "ccuTooltip": "Pemain saat ini di seluruh pengalaman publik yang dibuat oleh pengguna ini.",
+        "visitsTooltip": "Total kunjungan sepanjang waktu di seluruh pengalaman publik yang dibuat oleh pengguna ini.",
+        "membersTooltip": "Anggota di seluruh komunitas yang dimiliki oleh pengguna ini."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Anda telah menghemat {{robux}} saat memiliki Plus",
+            "percentOffSmall": "Item dalam game, avatar, dan lainnya",
+            "percentOff": "diskon {{percent}}",
+            "itemsBoughtSmall": "Item dibeli dengan diskon Plus",
+            "privateServersCreatedSmall": "Server pribadi dibuat secara gratis",
+            "robuxSentSmall": "Robux dikirim ke teman",
+            "delayNotice": "Semua data yang ditampilkan di sini tertunda 1 hari"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Sisa batas harian",
+            "monthlyLimitLeft": "Sisa batas bulanan",
+            "sentToday": "Dikirim hari ini",
+            "sentThisMonth": "Dikirim bulan ini",
+            "caption": "Batas harian adalah {{dailyLimit}}. Batas bulanan adalah {{monthlyLimit}}. Diperbarui setiap 5 menit. Sisa yang ditampilkan adalah perkiraan dan mungkin tidak akurat."
+        },
+        "referral": {
+            "reward": "Dapatkan 100 Robux gratis dan bantu dukung RoValra!",
+            "details": "Hanya pengguna Roblox Plus baru yang memenuhi syarat. RoValra juga akan menerima 100 Robux saat Anda berlangganan menggunakan kode referral RoValra.",
+            "button": "Berlangganan menggunakan kode referral RoValra"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Harga Asli: <b>{{originalPrice}} Robux</b><br>Saat ini ditampilkan sebagai <b>Gratis</b> karena Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Kirim Robux",
+                "openInApp": "Buka Di Aplikasi"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Tidak Dapat Mengirim Robux",
+                "deletedAccountBody": "Akun pengguna ini telah dihapus, Robux tidak dapat dikirim ke akun ini"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Kirim Robux",
+                    "titleSilly": "kirim bobux :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "Jumlah Robux yang Dikirim",
+                    "mutedNotice": "Robux dikirim secara instan tanpa biaya",
+                    "minRobux": "Anda harus mengirim setidaknya {{robuxAmount}} Robux",
+                    "maxRobux": "Anda tidak boleh mengirim lebih dari {{robuxAmount}} Robux",
+                    "notEnoughRobux": "Anda tidak memiliki cukup Robux",
+                    "nextBtn": "Lanjut"
+                },
+                "step2": {
+                    "sendBtn": "Kirim",
+                    "editBtn": "Edit",
+                    "mutedNotice": "Tidak ada pembatalan. Anda mungkin memerlukan pemeriksaan usia atau izin orang tua.",
+                    "transferErrorGeneric": "Terjadi kesalahan yang tidak diketahui.",
+                    "transferErrorNoMessage": "Terjadi kesalahan tidak diketahui tanpa pesan yang diberikan",
+                    "transferSuccessBody": "Transfer berhasil!",
+                    "transferSuccessBodySilly": "transfernya lumayan! keren banget",
+                    "transferSuccessOkBtnSilly": "electric boogaloo",
+                    "userInfoFriendTime": "Berteman {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} teman bersama",
+                    "userInfoMutualFriends_other": "{{count}} teman bersama",
+                    "userInfoJoin": "Bergabung pada {{year}}",
+                    "paramPassedError": "Terjadi kesalahan tidak diketahui! Periksa console dan laporkan masalah ini ke RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Minta",
+                    "sendRobuxBody": "Untuk mengirim Robux, Anda memerlukan izin orang tua",
+                    "receiveRobuxBody": "Untuk menerima Robux, Anda memerlukan izin orang tua",
+                    "askTitle": "Minta Izin",
+                    "askTitleSilly": "minta izin ke ortu",
+                    "errorSending": "Terjadi kesalahan tidak diketahui, periksa console dan laporkan ke RoValra",
+                    "errorReceivingTitle": "Terjadi kesalahan saat menerima Robux",
+                    "errorReceivingBody": "Terjadi kesalahan tidak diketahui, Anda mungkin sudah menerima transfer Robux ini sebelumnya. Periksa console untuk detailnya.",
+                    "errorReceivingOkBtnSilly": "yah",
+                    "successfulAskTitle": "Permintaan Terkirim",
+                    "successfulAskTitleSilly": "kami sudah kasih tau ortu lo, siap-siap...",
+                    "successfulAskBody": "Kami telah mengirim permintaan ke orang tua dan wali Anda melalui email!",
+                    "successfulAskOkBtnSilly": "oke keren banget, makasih"
+                },
+                "plusNeeded": {
+                    "body": "Sayangnya Anda memerlukan Roblox Plus untuk dapat mengirim Robux, ini merupakan bagian dari langganan Roblox Plus.",
+                    "bodySilly": "lo ga punya roblax plus :c makanya ga bisa kirim bobux ke org krn itu diperluin 3:",
+                    "buyPlusBtn": "Beli Roblox Plus",
+                    "buyPlusBtnSilly": "beli le roblax plus c:",
+                    "okBtnSilly": "aduh yaelah oke :c"
+                }
+            }
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Outfit Game",
+            "title": "Outfit untuk pengalaman",
+            "hint": "Pilih outfit yang akan dipakai saat Anda bermain pengalaman R6 atau R15.",
+            "r6": "Pengalaman R6",
+            "r15": "Pengalaman R15",
+            "none": "Jangan ubah",
+            "gameTitle": "Outfit untuk pengalaman ini",
+            "gameHint": "Ini akan menggantikan outfit yang diatur untuk pengalaman R6 dan R15.",
+            "useGlobal": "Gunakan default saya"
+        },
+        "bodyColors": {
+            "addCustom": "Pilih warna kustom",
+            "savedColor": "{{hex}}, klik kanan untuk menghapus",
+            "applyFailed": "Tidak dapat memperbarui warna tubuh Anda. Coba lagi sebentar."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "Sematkan ke atas",
+        "unpin": "Batalkan sematan"
+    }
+}

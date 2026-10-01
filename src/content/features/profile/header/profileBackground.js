@@ -209,6 +209,8 @@ function observeProfileGradient(gradient) {
                     thumbnailHolder.style.background = 'transparent';
                 }
             } else if (element.classList.contains('avatar-card-image')) {
+                if (element.closest('.rovalra-user-card')) return;
+                if (element.closest('[data-rovalra-banned-profile]')) return;
                 applyToAvatarContainer(element, gradient, false);
             } else if (element.classList.contains('avatar-toggle-button')) {
                 const updateButtons = () => {

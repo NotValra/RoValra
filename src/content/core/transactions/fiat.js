@@ -1,4 +1,5 @@
 import { callRobloxApiJson } from '../api.js';
+import { get as getCache, set as setCache } from '../storage/cacheHandler.js';
 export {
     DEVEX_USD_RATE,
     ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
@@ -21,8 +22,10 @@ import {
 
 let fiatSettingsPromise = null;
 let currencyRatesPromise = null;
-let currencyRatesCache = null;
 const conversionRateCache = new Map();
+
+const CURRENCY_RATES_CACHE_SECTION = 'currency_rates';
+const CURRENCY_RATES_CACHE_KEY = 'latest';
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') return;
@@ -73,17 +76,32 @@ export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
 
     try {
         if (!currencyRatesPromise) {
-            currencyRatesPromise =
-                currencyRatesCache ||
-                callRobloxApiJson({
+            currencyRatesPromise = (async () => {
+                const cachedRates = await getCache(
+                    CURRENCY_RATES_CACHE_SECTION,
+                    CURRENCY_RATES_CACHE_KEY,
+                    'local',
+                );
+                if (cachedRates) return cachedRates;
+
+                const data = await callRobloxApiJson({
                     isRovalraApi: true,
                     subdomain: 'apis',
                     endpoint: '/v1/currency/rates',
                 });
+
+                await setCache(
+                    CURRENCY_RATES_CACHE_SECTION,
+                    CURRENCY_RATES_CACHE_KEY,
+                    data,
+                    'local',
+                );
+
+                return data;
+            })();
         }
 
         const data = await currencyRatesPromise;
-        currencyRatesCache = data;
 
         const usdRates = data?.usd;
         if (!usdRates) {
@@ -110,7 +128,6 @@ export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
 
         return rate;
     } catch (error) {
-        currencyRatesCache = null;
         currencyRatesPromise = null;
         console.error('RoValra: Currency rate fetch failed', error);
         throw error;

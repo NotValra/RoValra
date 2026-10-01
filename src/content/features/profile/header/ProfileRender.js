@@ -397,7 +397,7 @@ function customAnimate() {
     RBXRenderer.camera.updateProjectionMatrix();
 
     RBXRenderer.renderer.setRenderTarget(null);
-    keyBlackFromEffectMaterials();
+    //keyBlackFromEffectMaterials(); RoAvatar-Renderer now uses premultiplied alpha blending so this is no longer needed
     if (RBXRenderer.firstScene.effectComposer) {
         RBXRenderer.firstScene.effectComposer.render();
     } else {

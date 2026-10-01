@@ -7,6 +7,7 @@ import {
     queueRolimonsFetch,
 } from '../../core/trade/itemHandler.js';
 import * as CacheHandler from '../../core/storage/cacheHandler.js';
+import { ts } from '../../core/locale/i18n.js';
 
 let myUserId = null;
 let currentQuery = '';
@@ -44,7 +45,7 @@ export async function init() {
 
         const { container, input } = createStyledInput({
             id: 'rovalra-trade-filter-input',
-            label: 'Filter Trades',
+            label: ts('trading.filterTrades'),
         });
 
         container.style.width = '100%';
@@ -62,7 +63,7 @@ export async function init() {
 
         const noResults = document.createElement('div');
         noResults.id = 'rovalra-trade-filter-no-results';
-        noResults.innerText = 'No results found';
+        noResults.innerText = ts('trading.noResults');
         noResults.className = 'text-secondary';
         noResults.style.display = 'none';
         noResults.style.textAlign = 'center';
