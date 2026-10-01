@@ -30,6 +30,12 @@ import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { applyBorderToContainer } from '../../profile/avatarBorder.js';
 import { applyDisplayNameGradientToElement } from '../../profile/header/displayNameGradient.js';
+import {
+    fetchRolimonsItems,
+    getCachedRolimonsItems,
+} from '../../../core/trade/itemHandler.js';
+import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
+import { createRobuxIcon } from '../../../core/ui/robuxIcon.js';
 
 let lastSearchedQuery = '';
 let userSearchAbortController = null;
@@ -67,6 +73,7 @@ function createQuickSearchRequest(query) {
         userResult: null,
         gameResult: null,
         friendResults: [],
+        itemResults: [],
         userDone: false,
         gameDone: !searchSettings.gameSearchEnabled || query.length < 2,
         committed: false,
@@ -89,6 +96,7 @@ function setSearchResult(request, key, value) {
         if (key === 'userResult') window._lastRoValraUserResult = value;
         if (key === 'gameResult') window._lastRoValraGameResult = value;
         if (key === 'friendResults') window._lastRoValraFriendResults = value;
+        if (key === 'itemResults') window._lastRoValraItemResults = value;
         return;
     }
 
@@ -102,6 +110,7 @@ function getSearchResult(request, key) {
         if (key === 'userResult') return window._lastRoValraUserResult;
         if (key === 'gameResult') return window._lastRoValraGameResult;
         if (key === 'friendResults') return window._lastRoValraFriendResults;
+        if (key === 'itemResults') return window._lastRoValraItemResults;
     }
 
     return request[key];
@@ -141,6 +150,7 @@ function commitQuickSearchRequest(request) {
     window._lastRoValraUserResult = request.userResult;
     window._lastRoValraGameResult = request.gameResult;
     window._lastRoValraFriendResults = request.friendResults;
+    window._lastRoValraItemResults = request.itemResults;
 
     selectedIndex = 0;
     injectIntoMenu(true);
@@ -201,6 +211,7 @@ let searchSettings = {
     userSearchEnabled: true,
     gameSearchEnabled: true,
     friendSearchEnabled: true,
+    itemSearchEnabled: true,
     searchHistoryEnabled: true,
     profileBackgroundGradientEnabled: true,
     applyGradientToAvatarTile: true,
@@ -215,6 +226,7 @@ function updateSearchSettings() {
             'userSearchEnabled',
             'gameSearchEnabled',
             'friendSearchEnabled',
+            'itemSearchEnabled',
             'searchHistoryEnabled',
             'profileBackgroundGradientEnabled',
             'applyGradientToAvatarTile',
@@ -1237,6 +1249,161 @@ function createResultHtml(
     return li;
 }
 
+const ITEM_SEARCH_LIMIT = 3;
+const ITEM_PREFIX_MIN_LENGTH = 3;
+
+function findItemsByAcronym(query) {
+    if (query.length < 2 || /\s/.test(query)) return [];
+    const needle = query.toUpperCase();
+
+    const exact = [];
+    const prefix = [];
+    for (const [id, item] of getCachedRolimonsItems()) {
+        const acronym = item?.acronym?.toUpperCase();
+        if (!acronym) continue;
+        if (acronym === needle) exact.push({ id, ...item });
+        else if (
+            needle.length >= ITEM_PREFIX_MIN_LENGTH &&
+            acronym.startsWith(needle)
+        ) {
+            prefix.push({ id, ...item });
+        }
+    }
+
+    const byValue = (a, b) => (b.default_price || 0) - (a.default_price || 0);
+    return (exact.length ? exact : prefix)
+        .sort(byValue)
+        .slice(0, ITEM_SEARCH_LIMIT);
+}
+
+function loadRolimonsItems() {
+    const refresh = fetchRolimonsItems([]);
+    return getCachedRolimonsItems().size ? null : refresh;
+}
+
+async function performItemSearch(query, request) {
+    if (!searchSettings.itemSearchEnabled) return;
+
+    try {
+        await loadRolimonsItems();
+        if (!isCurrentSearchRequest(request)) return;
+
+        const items = findItemsByAcronym(query);
+        const thumbnails = items.length
+            ? await getBatchThumbnails(
+                  items.map((item) => item.id),
+                  'Asset',
+                  '150x150',
+              ).catch(() => [])
+            : [];
+        if (!isCurrentSearchRequest(request)) return;
+
+        setSearchResult(
+            request,
+            'itemResults',
+            items.map((item, index) =>
+                createItemResult(item, thumbnails[index]?.imageUrl),
+            ),
+        );
+    } catch {
+        setSearchResult(request, 'itemResults', []);
+    }
+
+    commitQuickSearchRequest(request);
+}
+
+function formatRobux(value) {
+    return new Intl.NumberFormat(undefined, {
+        notation: 'compact',
+        maximumFractionDigits: 1,
+    }).format(value || 0);
+}
+
+function createItemStat(label, value) {
+    const stat = document.createElement('span');
+    stat.className = 'rovalra-item-search-stat';
+    const labelEl = document.createElement('span');
+    labelEl.textContent = label;
+    const amount = document.createElement('span');
+    amount.className = 'rovalra-item-search-amount';
+    amount.textContent = formatRobux(value);
+    stat.append(labelEl, createRobuxIcon({ size: '14px' }), amount);
+    return stat;
+}
+
+function createItemResult(item, thumbnailUrl) {
+    const li = document.createElement('li');
+    li.className =
+        'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result rovalra-item-search-result';
+
+    const container = document.createElement('div');
+    Object.assign(container.style, {
+        display: 'flex',
+        alignItems: 'center',
+        padding: '6px 0px',
+        gap: '12px',
+        maxHeight: '56px',
+    });
+
+    const link = document.createElement('a');
+    link.className = 'new-navbar-search-anchor';
+    link.href = `https://www.roblox.com/catalog/${item.id}/`;
+    Object.assign(link.style, {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        flex: '1',
+        minWidth: '0',
+        textDecoration: 'none',
+        color: 'inherit',
+    });
+
+    const thumb = document.createElement('span');
+    thumb.className = 'thumbnail-2d-container rovalra-item-search-thumb';
+    if (thumbnailUrl) {
+        const img = document.createElement('img');
+        img.src = thumbnailUrl;
+        img.alt = '';
+        thumb.append(img);
+    } else {
+        thumb.classList.add('shimmer');
+    }
+
+    const text = document.createElement('div');
+    text.className = 'rovalra-item-search-text';
+
+    const name = document.createElement('div');
+    name.className = 'game-card-name rovalra-item-search-name';
+    name.title = item.name;
+    name.textContent = item.name;
+
+    const info = document.createElement('div');
+    info.className = 'game-card-info rovalra-item-search-info';
+    const acronym = document.createElement('span');
+    acronym.className = 'rovalra-item-search-acronym';
+    acronym.textContent = item.acronym;
+    info.append(
+        acronym,
+        createItemStat(ts('quickSearch.itemValue'), item.default_price),
+        createItemStat(ts('quickSearch.itemRap'), item.rap),
+    );
+
+    text.append(name, info);
+    link.append(thumb, text);
+    container.append(link);
+    li.append(container);
+    return li;
+}
+
+function prependItemResults(menu) {
+    const items = window._lastRoValraItemResults;
+    if (!items?.length) return;
+    items
+        .slice()
+        .reverse()
+        .forEach((item) => menu.prepend(item));
+}
+
 function injectIntoMenu(resetSelection = false) {
     const menu = document.querySelector('ul.new-dropdown-menu');
     if (!menu) return;
@@ -1262,6 +1429,7 @@ function injectIntoMenu(resetSelection = false) {
     if (window._lastRoValraUserResult) {
         menu.prepend(window._lastRoValraUserResult);
     }
+    prependItemResults(menu);
 
     if (resetSelection) {
         selectedIndex = 0;
@@ -1289,6 +1457,7 @@ function injectExistingResult() {
         if (window._lastRoValraUserResult) {
             menu.prepend(window._lastRoValraUserResult);
         }
+        prependItemResults(menu);
     }
     syncSelection();
 }
@@ -1734,6 +1903,7 @@ export function init() {
                 changes.userSearchEnabled ||
                 changes.gameSearchEnabled ||
                 changes.friendSearchEnabled ||
+                changes.itemSearchEnabled ||
                 changes.searchHistoryEnabled ||
                 changes.profileBackgroundGradientEnabled ||
                 changes.applyGradientToAvatarTile ||
@@ -1764,7 +1934,8 @@ export function init() {
                     if (
                         window._lastRoValraUserResult ||
                         window._lastRoValraGameResult ||
-                        window._lastRoValraFriendResults?.length
+                        window._lastRoValraFriendResults?.length ||
+                        window._lastRoValraItemResults?.length
                     )
                         return;
                 }
@@ -1783,6 +1954,7 @@ export function init() {
                     window._lastRoValraUserResult = null;
                     window._lastRoValraGameResult = null;
                     window._lastRoValraFriendResults = [];
+                    window._lastRoValraItemResults = [];
                     injectIntoMenu(true);
                     return;
                 }
@@ -1791,13 +1963,17 @@ export function init() {
                 activeQuickSearchRequest = request;
 
                 debouncedUserSearch(currentVal, request);
+                performItemSearch(currentVal, request);
                 if (currentVal.length >= 2) {
                     debouncedGameSearch(currentVal, request);
                 }
             };
 
             input.addEventListener('input', () => triggerSearch());
-            input.addEventListener('focus', () => triggerSearch(true));
+            input.addEventListener('focus', () => {
+                if (searchSettings.itemSearchEnabled) loadRolimonsItems();
+                triggerSearch(true);
+            });
 
             input.addEventListener('keydown', (e) => {
                 if (!searchSettings.quickSearchEnabled) return;

@@ -2376,6 +2376,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    itemSearchEnabled: {
+                        label: 'Quick Item Search',
+                        description:
+                            'Shows limited items whose Rolimons acronym matches what you searched, like 8BRC for the 8-Bit Royal Crown.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             searchHistoryEnabled: {
