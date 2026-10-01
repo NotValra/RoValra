@@ -2033,7 +2033,8 @@
         "renderOptions": "Render Options",
         "darkLighting": "Dark Lighting",
         "baseplate": "Baseplate",
-        "rotatePreview": "Rotate preview"
+        "rotatePreview": "Rotate preview",
+        "itemOnly": "Show item only"
     },
     "groupFilters": {
         "sort": {

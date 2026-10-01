@@ -14,18 +14,26 @@ import {
     RBXRendererScene,
     Vector3,
     Vec2,
+    AccessoryAssetTypes,
+    LayeredAssetTypes,
     CACHE as RENDERER_CACHE,
 } from 'roavatar-renderer';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
+import { Icon, ChangeIcon } from '../../core/ui/buildericon.js';
 import { getAssets } from '../../core/assets.js';
 import { isDarkMode } from '../../core/theme.js';
 import { ts } from '../../core/locale/i18n.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
-import { backgroundRendererRequests, getItemCardColor, getMainColor, setSceneColor } from '../../core/utils/renderer.js';
+import {
+    backgroundRendererRequests,
+    getItemCardColor,
+    getMainColor,
+    setSceneColor,
+} from '../../core/utils/renderer.js';
 
 const assets = getAssets();
 
@@ -33,7 +41,7 @@ const assets = getAssets();
 FLAGS.ONLINE_ASSETS = true;
 FLAGS.AUDIO_ENABLED = false;
 
-let postProcessingEnabled = false
+let postProcessingEnabled = false;
 
 backgroundRendererRequests();
 
@@ -49,7 +57,15 @@ const renderEnvironmentModeValues = new Set([
     'dark-baseplate',
 ]);
 const R6_ANIMATION_NAMES = ['idle', 'walk', 'jump', 'fall', 'climb'];
-const R15_ANIMATION_NAMES = ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
+const R15_ANIMATION_NAMES = [
+    'idle',
+    'walk',
+    'run',
+    'jump',
+    'fall',
+    'climb',
+    'swim',
+];
 
 //outfit data
 let ogAvatarDataLoaded = false;
@@ -77,17 +93,23 @@ let hoverPreviewEnabled = true;
 
 let selectedAnimName = 'idle';
 let accessoriesEnabled = true;
+let itemOnlyEnabled = false;
+let hideMainRigBody = false;
+let mainRigAnimationsStopped = false;
+let needsItemCameraFocus = false;
+let savedMainCamera:
+    { position: THREE.Vector3; target: THREE.Vector3 } | undefined = undefined;
 let selectedRenderEnvironmentMode = 'default';
 
 type RendererEnviromentMenu = {
-    wrapper: HTMLButtonElement,
-    button: HTMLButtonElement,
-    panel: HTMLDivElement,
-}
+    wrapper: HTMLButtonElement;
+    button: HTMLButtonElement;
+    panel: HTMLDivElement;
+};
 
 type RadioElement = HTMLButtonElement & {
-    setChecked: (isChecked: boolean) => {}
-}
+    setChecked: (isChecked: boolean) => {};
+};
 
 let renderEnvironmentMenu: RendererEnviromentMenu | undefined = undefined;
 let renderEnvironmentDarkToggle: RadioElement | undefined = undefined;
@@ -97,34 +119,34 @@ let itemRenderEnvironmentModel: THREE.Group | undefined = undefined;
 let itemRenderEnvironmentModelUrl: string | undefined = undefined;
 
 type SceneLightState = {
-    light: THREE.AmbientLight | THREE.DirectionalLight,
-    intensity: number,
-    visible: boolean,
-}
+    light: THREE.AmbientLight | THREE.DirectionalLight;
+    intensity: number;
+    visible: boolean;
+};
 
 type ScenePlaneState = {
-    plane: boolean,
-    shadowPlane: boolean
-}
+    plane: boolean;
+    shadowPlane: boolean;
+};
 
 type ModelConfig = {
-    url: string,
-    position: Vec3,
-    scale: Vec3,
-    castShadow?: boolean,
-    receiveShadow?: boolean
-}
+    url: string;
+    position: Vec3;
+    scale: Vec3;
+    castShadow?: boolean;
+    receiveShadow?: boolean;
+};
 
 type AtmosphereConfig = {
-    showFloor: boolean,
+    showFloor: boolean;
     lights: {
-        type: string,
-        color: string,
-        intensity: number,
-        position?: Vec3,
-        castShadow?: boolean,
-    }[]
-}
+        type: string;
+        color: string;
+        intensity: number;
+        position?: Vec3;
+        castShadow?: boolean;
+    }[];
+};
 
 let defaultMainSceneLightState: SceneLightState[] | undefined = undefined;
 let defaultMainScenePlaneState: ScenePlaneState | undefined = undefined;
@@ -144,6 +166,7 @@ let buttonFor3d: HTMLElement | undefined = undefined;
 let animationDropdown: HTMLElement | undefined = undefined;
 let toggleAccessories: HTMLElement | undefined = undefined;
 let buttonForRig: HTMLElement | undefined = undefined;
+let buttonForItemOnly: HTMLElement | undefined = undefined;
 let selectedRigType: AvatarType | undefined = undefined;
 
 let lastUrl = window.location.href;
@@ -170,14 +193,18 @@ const toggleDefaultButtons = (enabled: boolean) => {
     }
 
     //make size of left button container small so it doesnt affect button placement in the right container
-    const leftAlignContainer = document.body.querySelector(".thumbnail-ui-container > .bottom-align-container > .left-align-container") as HTMLElement;
+    const leftAlignContainer = document.body.querySelector(
+        '.thumbnail-ui-container > .bottom-align-container > .left-align-container',
+    ) as HTMLElement;
     if (leftAlignContainer) {
-        leftAlignContainer.style = enabled ? "width: 0;" : "";
+        leftAlignContainer.style = enabled ? 'width: 0;' : '';
     }
 
     //stop animations from playing in robloxs animation preview since its super laggy
     if (enabled) {
-        const bigstop = document.body.querySelector(".enable-three-dee.btn-control > .icon-bigstop") as HTMLElement;
+        const bigstop = document.body.querySelector(
+            '.enable-three-dee.btn-control > .icon-bigstop',
+        ) as HTMLElement;
         if (bigstop) {
             bigstop.click();
         }
@@ -199,6 +226,7 @@ const updateAnimationDropdown = () => {
 
     if (
         !mainRendererEnabled ||
+        hideMainRigBody ||
         mainOutfit.outfit.containsAssetType('EmoteAnimation')
     ) {
         return;
@@ -208,27 +236,25 @@ const updateAnimationDropdown = () => {
     const currentType =
         selectedRigType || ogAvatarData.outfit.playerAvatarType || 'R15';
     const isR6 = currentType === 'R6';
-    const items = isR6
-        ? R6_ANIMATION_NAMES
-        : R15_ANIMATION_NAMES;
+    const items = isR6 ? R6_ANIMATION_NAMES : R15_ANIMATION_NAMES;
 
     const trueItems = items.map((v) => {
         return { label: ts(`animations.${v}`), value: v };
     });
 
-    
     const { element: dropdownElement } = createDropdown({
         // @ts-ignore
         items: trueItems,
         initialValue: 'idle',
         onValueChange: (value: string) => {
             selectedAnimName = value;
-            if (mainOutfitRenderer) mainOutfitRenderer.setMainAnimation(selectedAnimName);
+            if (mainOutfitRenderer)
+                mainOutfitRenderer.setMainAnimation(selectedAnimName);
         },
     });
     animationDropdown = dropdownElement;
     animationDropdown.dataset.rovalraItemRendererControl = 'true';
-    animationDropdown.style.zIndex = "2";
+    animationDropdown.style.zIndex = '2';
     animationDropdown.style.width = '110px';
 
     mainButtonContainer.prepend(animationDropdown);
@@ -240,7 +266,9 @@ function getMainSceneDefaultLights() {
         mainScene.ambientLight,
         mainScene.directionalLight,
         mainScene.directionalLight2,
-    ].filter((v => {return !!v}));
+    ].filter((v) => {
+        return !!v;
+    });
 }
 
 function captureMainSceneDefaults() {
@@ -324,14 +352,21 @@ function resetItemRenderEnvironmentLighting() {
     setMainSceneDefaultLightsEnabled(true);
 }
 
-function getRenderEnvironmentTogglesFromMode(mode: string): {[key: string]: boolean} {
+function getRenderEnvironmentTogglesFromMode(mode: string): {
+    [key: string]: boolean;
+} {
     return {
         dark: mode === 'dark' || mode === 'dark-baseplate',
         baseplate: mode === 'baseplate' || mode === 'dark-baseplate',
     };
 }
 
-function getRenderEnvironmentModeFromToggles({ dark, baseplate }: {[key: string]: boolean}) {
+function getRenderEnvironmentModeFromToggles({
+    dark,
+    baseplate,
+}: {
+    [key: string]: boolean;
+}) {
     if (dark && baseplate) return 'dark-baseplate';
     if (dark) return 'dark';
     if (baseplate) return 'baseplate';
@@ -373,7 +408,7 @@ function resolveRenderEnvironmentUrl(url: string) {
 }
 
 function sortSkyboxUrls(skyboxUrls: string[]) {
-    const mapping: {[key: string]: number} = {
+    const mapping: { [key: string]: number } = {
         _rt: 0,
         _lf: 1,
         _up: 2,
@@ -414,7 +449,7 @@ function transformSkyboxImage(url: string, { angle = 0, darken = false } = {}) {
                 canvas.width = isRotated ? img.height : img.width;
                 canvas.height = isRotated ? img.width : img.height;
                 const ctx = canvas.getContext('2d');
-                if (!ctx) throw "no context"
+                if (!ctx) throw 'no context';
                 ctx.translate(canvas.width / 2, canvas.height / 2);
                 if (angle) ctx.rotate((angle * Math.PI) / 180);
                 ctx.drawImage(img, -img.width / 2, -img.height / 2);
@@ -652,7 +687,13 @@ function positionRenderEnvironmentPanel() {
     renderEnvironmentMenu.panel.style.right = 'auto';
 }
 
-function createRenderEnvironmentToggleRow({ label, toggleName }: {label: string, toggleName: string}) {
+function createRenderEnvironmentToggleRow({
+    label,
+    toggleName,
+}: {
+    label: string;
+    toggleName: string;
+}) {
     const row = document.createElement('div');
     row.className = 'flex items-center justify-between';
 
@@ -691,7 +732,7 @@ function updateRenderEnvironmentDropdown() {
         button.dataset.rovalraItemRendererControl = 'true';
         button.setAttribute('aria-label', ts('itemRender.renderOptions'));
         button.title = ts('itemRender.renderOptions');
-        button.style.zIndex = "2";
+        button.style.zIndex = '2';
         button.style.display = mainRendererEnabled ? '' : 'none';
         button.style.alignItems = 'center';
         button.style.justifyContent = 'center';
@@ -828,6 +869,11 @@ function getSettingsIcon() {
     return `data:image/svg+xml,${encodeURIComponent(
         `<svg xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path fill="${iconColor}" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6"></path></svg>`,
     )}`;
+}
+
+//filled when only the item is shown, outlined when the avatar is shown
+function updateItemOnlyIcon(iconElement: HTMLElement) {
+    ChangeIcon(iconElement, { filled: itemOnlyEnabled });
 }
 
 function getApparelIcon() {
@@ -1010,16 +1056,22 @@ async function loadOgAvatar() {
     if (!ogAvatarDataLoaded) {
         const avatarData = await API.Avatar.GetAvatarModel();
         if (!(avatarData instanceof Response)) {
-            ogAvatarData = avatarData
-            ogAvatarData.outfit.playerAvatarType = avatarData.outfit.playerAvatarType;
+            ogAvatarData = avatarData;
+            ogAvatarData.outfit.playerAvatarType =
+                avatarData.outfit.playerAvatarType;
         }
     }
     ogAvatarDataLoaded = true;
 }
 
 //adds item to outfit
-async function addItem(outfitModel: OutfitModel, itemId: any, itemType: string, typee: any) {
-    const outfit = outfitModel.outfit
+async function addItem(
+    outfitModel: OutfitModel,
+    itemId: any,
+    itemType: string,
+    typee: any,
+) {
+    const outfit = outfitModel.outfit;
 
     if (itemType === 'Bundle') {
         if (!(await outfit.addBundleId(itemId))) return;
@@ -1033,8 +1085,8 @@ async function addItem(outfitModel: OutfitModel, itemId: any, itemType: string, 
         }
 
         for (const asset of outfit.assets) {
-            if (asset.assetType.name == "AvatarBackground") {
-                outfitModel.background = asset
+            if (asset.assetType.name == 'AvatarBackground') {
+                outfitModel.background = asset;
             }
         }
     } else if (itemType === 'Look') {
@@ -1059,7 +1111,11 @@ async function addItem(outfitModel: OutfitModel, itemId: any, itemType: string, 
 }
 
 //adds item to outfit based on item link
-async function addItemFromLink(outfit: OutfitModel, itemLink: string, typee?: any) {
+async function addItemFromLink(
+    outfit: OutfitModel,
+    itemLink: string,
+    typee?: any,
+) {
     const itemId = getPlaceIdFromUrl(itemLink);
     let itemType = itemLink.includes('bundles/') ? 'Bundle' : 'Asset';
     if (itemLink.includes('looks/')) {
@@ -1082,7 +1138,9 @@ function loadCurrentHoveredItem() {
 
     currentHoveredItemLoading = true;
 
-    const originalIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
+    const originalIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {
+        return v.assetType.name === 'IdleAnimation';
+    })[0]?.id;
     itemHoverShouldAutoSwitchAnim = false;
     itemHoverAutoSwitchAnimTimePassed = 0;
 
@@ -1092,8 +1150,11 @@ function loadCurrentHoveredItem() {
             currentHoveredItemLink !== targetLink
         )
             return;
-        const newIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {return v.assetType.name === "IdleAnimation"})[0]?.id
-        if (originalIdleAnimation !== newIdleAnimation) itemHoverShouldAutoSwitchAnim = true;
+        const newIdleAnimation = buildHoverOutfit.outfit.assets.filter((v) => {
+            return v.assetType.name === 'IdleAnimation';
+        })[0]?.id;
+        if (originalIdleAnimation !== newIdleAnimation)
+            itemHoverShouldAutoSwitchAnim = true;
 
         currentHoveredItemLoading = false;
         itemHoverOutfit = buildHoverOutfit;
@@ -1104,8 +1165,118 @@ function loadCurrentHoveredItem() {
     });
 }
 
-//plays emote if outfit contains emote, otherwise default
-function playAppropriateAnim(outfitModel: OutfitModel, outfitRenderer: OutfitRenderer) {
+function canHideBodyForOutfit(outfitModel: OutfitModel) {
+    const assets = outfitModel.outfit.assets;
+    return (
+        assets.length > 0 &&
+        assets.every(
+            (asset) =>
+                AccessoryAssetTypes.includes(asset.assetType.name) ||
+                LayeredAssetTypes.includes(asset.assetType.name),
+        )
+    );
+}
+
+function updateMainRigBodyVisibility() {
+    const rig = mainOutfitRenderer?.currentRig;
+    if (!rig) return;
+
+    for (const child of rig.GetChildren()) {
+        if (!child.IsA('BasePart') || child.Prop('Name') === 'HumanoidRootPart')
+            continue;
+
+        const transparency = hideMainRigBody ? 1 : 0;
+        if (child.Prop('Transparency') !== transparency) {
+            child.setProperty('Transparency', transparency);
+        }
+    }
+}
+
+function updateMainRigAnimationState() {
+    if (!mainOutfitRenderer) return;
+    const controls = mainScene.controls;
+
+    if (hideMainRigBody && !mainRigAnimationsStopped) {
+        mainOutfitRenderer.stopAnimating();
+        mainRigAnimationsStopped = true;
+
+        if (controls) {
+            savedMainCamera = {
+                position: mainScene.camera.position.clone(),
+                target: controls.target.clone(),
+            };
+        }
+    } else if (!hideMainRigBody && mainRigAnimationsStopped) {
+        mainOutfitRenderer.startAnimating();
+        mainRigAnimationsStopped = false;
+
+        if (controls && savedMainCamera) {
+            mainScene.camera.position.copy(savedMainCamera.position);
+            controls.target.copy(savedMainCamera.target);
+            controls.update();
+        }
+        savedMainCamera = undefined;
+    }
+
+    if (!mainRigAnimationsStopped) return;
+
+    const rig = mainOutfitRenderer.currentRig;
+    if (!rig) return;
+    mainOutfitRenderer.animatorW?.restPose();
+    rig.preRender();
+    RBXRenderer.addInstance(rig, mainOutfitRenderer.auth, mainScene);
+}
+
+function focusCameraOnWornItem() {
+    const rig = mainOutfitRenderer?.currentRig;
+    const controls = mainScene.controls;
+    if (!rig || !controls) return false;
+
+    const min = [Infinity, Infinity, Infinity];
+    const max = [-Infinity, -Infinity, -Infinity];
+    let foundItem = false;
+
+    for (const accessory of rig.GetChildren()) {
+        if (accessory.className !== 'Accessory') continue;
+        const handle = accessory.FindFirstChild('Handle');
+        if (!handle || !handle.IsA('BasePart')) continue;
+
+        const position = (handle.Prop('CFrame') as CFrame).Position;
+        const size = handle.Prop('Size') as Vector3;
+        const halfSize = Math.max(size.X, size.Y, size.Z) / 2;
+
+        for (let i = 0; i < 3; i++) {
+            min[i] = Math.min(min[i], position[i] - halfSize);
+            max[i] = Math.max(max[i], position[i] + halfSize);
+        }
+        foundItem = true;
+    }
+
+    if (!foundItem) return false;
+
+    const center: Vec3 = [
+        (min[0] + max[0]) / 2,
+        (min[1] + max[1]) / 2,
+        (min[2] + max[2]) / 2,
+    ];
+    const extent = Math.max(max[0] - min[0], max[1] - min[1], max[2] - min[2]);
+    const distance = Math.max(extent * 1.75, 1.5);
+
+    controls.target.set(...center);
+    mainScene.camera.position.set(
+        center[0],
+        center[1] + distance * 0.15,
+        center[2] - distance,
+    );
+    controls.update();
+
+    return true;
+}
+
+function playAppropriateAnim(
+    outfitModel: OutfitModel,
+    outfitRenderer: OutfitRenderer,
+) {
     const outfit = outfitModel.outfit;
 
     if (outfit.containsAssetType('EmoteAnimation')) {
@@ -1123,7 +1294,6 @@ function playAppropriateAnim(outfitModel: OutfitModel, outfitRenderer: OutfitRen
     }
 }
 
-//setup roavater renderer
 async function startRenderer() {
     if (startedRenderer) return true;
 
@@ -1146,7 +1316,7 @@ async function startRenderer() {
 
     if (postProcessingEnabled) RBXRenderer.createEffectComposer(mainScene);
 
-    if (RBXRenderer.loadingIcon) RBXRenderer.loadingIcon.style.zIndex = "2";
+    if (RBXRenderer.loadingIcon) RBXRenderer.loadingIcon.style.zIndex = '2';
     noLoadingIconPos();
 
     //main
@@ -1157,7 +1327,7 @@ async function startRenderer() {
         mainOutfit,
         mainScene,
     );
-    mainOutfitRenderer.backgroundRenderer.affectSceneAppearance = false
+    mainOutfitRenderer.backgroundRenderer.affectSceneAppearance = false;
     mainOutfitRenderer.startAnimating();
     mainOutfitRenderer.setMainAnimation(selectedAnimName);
 
@@ -1168,7 +1338,7 @@ async function startRenderer() {
         itemHoverOutfit,
         itemHoverScene,
     );
-    itemHoverOutfitRenderer.backgroundRenderer.affectSceneAppearance = false
+    itemHoverOutfitRenderer.backgroundRenderer.affectSceneAppearance = false;
     itemHoverOutfitRenderer.startAnimating();
     itemHoverOutfitRenderer.setMainAnimation('idle');
 
@@ -1177,7 +1347,7 @@ async function startRenderer() {
     rendererElement.style.position = 'fixed';
     rendererElement.style.left = '0px';
     rendererElement.style.top = '0px';
-    rendererElement.style.zIndex = "1";
+    rendererElement.style.zIndex = '1';
     document.body.appendChild(rendererElement);
     createHoverRotateButton();
     document.body.addEventListener('mousemove', updateMousePos);
@@ -1215,10 +1385,12 @@ async function updateMainRenderer() {
     if (window.location.href !== targetUrl) return;
 
     if (needsMainOutfitRenderer) {
-        const buildOutfit = ogAvatarData.clone();
-        if (selectedRigType) {
-            buildOutfit.outfit.playerAvatarType = selectedRigType;
-        }
+        //item only uses a blank character (no user items or background) with the same rig type
+        const buildOutfit = itemOnlyEnabled
+            ? new OutfitModel()
+            : ogAvatarData.clone();
+        buildOutfit.outfit.playerAvatarType =
+            selectedRigType || ogAvatarData.outfit.playerAvatarType;
 
         //remove accessories if theyre disabled
         if (accessoriesEnabled === false) {
@@ -1245,7 +1417,13 @@ async function updateMainRenderer() {
 
         mainOutfit = buildOutfit;
 
+        //only hide the body for items that dont need one (clothing, body parts etc still show the body)
+        hideMainRigBody = itemOnlyEnabled && canHideBodyForOutfit(mainOutfit);
+        needsItemCameraFocus = hideMainRigBody;
+
         if (mainOutfitRenderer) {
+            //camera is centered on the item instead of the rig while previewing only the item
+            mainOutfitRenderer.doCameraUpdateOnLoad = !hideMainRigBody;
             mainOutfitRenderer.setOutfitModel(mainOutfit);
             playAppropriateAnim(mainOutfit, mainOutfitRenderer);
             pendingAnimationUpdate = true;
@@ -1302,7 +1480,8 @@ function customAnimate() {
             if (RBXRenderer.loadingIcon) {
                 RBXRenderer.loadingIcon.style.left =
                     mainSceneBounds.left + 12 + 'px';
-                RBXRenderer.loadingIcon.style.top = mainSceneBounds.top + 12 + 'px';
+                RBXRenderer.loadingIcon.style.top =
+                    mainSceneBounds.top + 12 + 'px';
             }
         }
 
@@ -1319,10 +1498,10 @@ function customAnimate() {
     rendererElement.style.pointerEvents = mouseWithin ? 'auto' : 'none';
 
     //plane position to avoid z fighting with background
-    mainScene.plane?.position.set(0,-0.1,0)
-    mainScene.shadowPlane?.position.set(0,-0.1,0)
-    itemHoverScene.plane?.position.set(0,-0.1,0)
-    itemHoverScene.shadowPlane?.position.set(0,-0.1,0)
+    mainScene.plane?.position.set(0, -0.1, 0);
+    mainScene.shadowPlane?.position.set(0, -0.1, 0);
+    itemHoverScene.plane?.position.set(0, -0.1, 0);
+    itemHoverScene.shadowPlane?.position.set(0, -0.1, 0);
 
     //disable main renderer
     if (!mainRendererEnabled) {
@@ -1367,28 +1546,40 @@ function customAnimate() {
 
     if (itemHoverCameraRotating) {
         itemHoverCameraRotation =
-            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED * deltaTime) % 360;
+            (itemHoverCameraRotation +
+                HOVER_CAMERA_ROTATION_SPEED * deltaTime) %
+            360;
     }
 
     //update item hover camera
     if (itemHoverOutfitRenderer)
-    assetTypeToCamera(
-        itemHoverScene,
-        itemHoverOutfitRenderer,
-        currentHoveredItemType!,
-        itemHoverCameraRotation,
-    );
+        assetTypeToCamera(
+            itemHoverScene,
+            itemHoverOutfitRenderer,
+            currentHoveredItemType!,
+            itemHoverCameraRotation,
+        );
 
     //update item hover animation (for animation packs)
     itemHoverAutoSwitchAnimTimePassed += deltaTime;
-    if (itemHoverAutoSwitchAnimTimePassed >= HOVER_AUTO_SWITCH_ANIM_TIME && itemHoverShouldAutoSwitchAnim) {
+    if (
+        itemHoverAutoSwitchAnimTimePassed >= HOVER_AUTO_SWITCH_ANIM_TIME &&
+        itemHoverShouldAutoSwitchAnim
+    ) {
         itemHoverAutoSwitchAnimTimePassed = 0;
 
-        const animationNames = itemHoverOutfit.outfit.playerAvatarType === "R15" ? R15_ANIMATION_NAMES : R6_ANIMATION_NAMES;
-        const currentIndex = animationNames.indexOf(itemHoverOutfitRenderer?.animatorW?.data?.currentAnimation || "");
+        const animationNames =
+            itemHoverOutfit.outfit.playerAvatarType === 'R15'
+                ? R15_ANIMATION_NAMES
+                : R6_ANIMATION_NAMES;
+        const currentIndex = animationNames.indexOf(
+            itemHoverOutfitRenderer?.animatorW?.data?.currentAnimation || '',
+        );
         if (currentIndex > -1) {
             const nextIndex = (currentIndex + 1) % animationNames.length;
-            itemHoverOutfitRenderer?.setMainAnimation(animationNames[nextIndex]);
+            itemHoverOutfitRenderer?.setMainAnimation(
+                animationNames[nextIndex],
+            );
         }
     }
 
@@ -1403,9 +1594,25 @@ function customAnimate() {
             const itemHoverBounds =
                 currentHoveredItemThumbElement.getBoundingClientRect();
             resetLoadingIconPos();
-            RBXRenderer.loadingIcon.style.left = itemHoverBounds.left + 12 + 'px';
+            RBXRenderer.loadingIcon.style.left =
+                itemHoverBounds.left + 12 + 'px';
             RBXRenderer.loadingIcon.style.top = itemHoverBounds.top + 12 + 'px';
         }
+    }
+
+    //rig body parts get replaced when the outfit changes, so keep their visibility up to date
+    updateMainRigBodyVisibility();
+    updateMainRigAnimationState();
+
+    //focus camera on the item once it has loaded
+    if (
+        needsItemCameraFocus &&
+        mainOutfitRenderer &&
+        !mainOutfitRenderer.currentlyUpdating &&
+        !mainOutfitRenderer.currentlyChangingRig &&
+        !currentlyLoadingAssets
+    ) {
+        if (focusCameraOnWornItem()) needsItemCameraFocus = false;
     }
 
     //render
@@ -1434,7 +1641,7 @@ function createHoverRotateButton() {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'rovalra-hover-rotate-button';
-                button.setAttribute('aria-label', ts('itemRender.rotatePreview'));
+    button.setAttribute('aria-label', ts('itemRender.rotatePreview'));
     button.innerHTML = `
         <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24">
             <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26"></path>
@@ -1468,10 +1675,16 @@ function createHoverRotateButton() {
     document.body.appendChild(button);
 }
 
-function updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer: HTMLElement) {
+function updateHoveredItemTypeFromThumbnail(
+    itemThumbnailImageContainer: HTMLElement,
+) {
     if (itemThumbnailImageContainer) {
         const itemThumbnailImage = itemThumbnailImageContainer.children[0];
-        if (itemThumbnailImage && itemThumbnailImage instanceof HTMLImageElement && itemThumbnailImage.src) {
+        if (
+            itemThumbnailImage &&
+            itemThumbnailImage instanceof HTMLImageElement &&
+            itemThumbnailImage.src
+        ) {
             const potentialAssetType = itemThumbnailImage.src.split('/')[6];
             if (AssetTypes.includes(potentialAssetType)) {
                 currentHoveredItemType = potentialAssetType;
@@ -1486,8 +1699,10 @@ async function asyncInit() {
             {
                 marketplace3DRenderEnvironment: selectedRenderEnvironmentMode,
                 marketplace3DRenderHoverPreviewDisabled: false,
+                marketplace3DRenderItemOnly: false,
             },
             (data) => {
+                itemOnlyEnabled = data.marketplace3DRenderItemOnly === true;
                 const modeExists = renderEnvironmentModeValues.has(
                     data.marketplace3DRenderEnvironment,
                 );
@@ -1536,7 +1751,7 @@ async function asyncInit() {
             buttonFor3d.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
             buttonFor3d.dataset.rovalraItemRendererControl = 'true';
-            buttonFor3d.style.zIndex = "2";
+            buttonFor3d.style.zIndex = '2';
 
             const buttonFor3dIcon = document.createElement('img');
             buttonFor3dIcon.src = applyIconTheme(
@@ -1579,6 +1794,10 @@ async function asyncInit() {
                     buttonForRig.style.display = mainRendererEnabled
                         ? ''
                         : 'none';
+                if (buttonForItemOnly)
+                    buttonForItemOnly.style.display = mainRendererEnabled
+                        ? ''
+                        : 'none';
                 toggleDefaultButtons(mainRendererEnabled);
             });
         }
@@ -1595,7 +1814,7 @@ async function asyncInit() {
             toggleAccessories.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
             toggleAccessories.dataset.rovalraItemRendererControl = 'true';
-            toggleAccessories.style.zIndex = "2";
+            toggleAccessories.style.zIndex = '2';
             toggleAccessories.style.display = mainRendererEnabled ? '' : 'none';
 
             const toggleAccessoriesIcon = document.createElement('img');
@@ -1618,7 +1837,7 @@ async function asyncInit() {
             buttonForRig.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
             buttonForRig.dataset.rovalraItemRendererControl = 'true';
-            buttonForRig.style.zIndex = "2";
+            buttonForRig.style.zIndex = '2';
             buttonForRig.style.display = mainRendererEnabled ? '' : 'none';
             buttonForRig.style.color = 'var(--rovalra-main-text-color)';
             buttonForRig.style.fontSize = '12px';
@@ -1636,10 +1855,52 @@ async function asyncInit() {
         buttonForRig.style.display = mainRendererEnabled ? '' : 'none';
         updateRigButtonText();
 
+        //create item only toggle button (renders the item without the users avatar)
+        if (!buttonForItemOnly) {
+            buttonForItemOnly = document.createElement('button');
+            buttonForItemOnly.className =
+                'enable-three-dee btn-control button-placement btn-control-md btn--width';
+            buttonForItemOnly.dataset.rovalraItemRendererControl = 'true';
+            buttonForItemOnly.setAttribute(
+                'aria-label',
+                ts('itemRender.itemOnly'),
+            );
+            buttonForItemOnly.title = ts('itemRender.itemOnly');
+            buttonForItemOnly.style.zIndex = '2';
+            buttonForItemOnly.style.color = 'var(--rovalra-main-text-color)';
+
+            const itemOnlyIcon = Icon({
+                icon: 'dot-frame-tshirt',
+                filled: itemOnlyEnabled,
+                size: '20px',
+                material: false,
+                rovalra: false,
+            });
+            itemOnlyIcon.setAttribute('aria-hidden', 'true');
+
+            buttonForItemOnly.appendChild(itemOnlyIcon);
+
+            buttonForItemOnly.addEventListener('click', () => {
+                itemOnlyEnabled = !itemOnlyEnabled;
+                chrome.storage.local.set({
+                    marketplace3DRenderItemOnly: itemOnlyEnabled,
+                });
+                updateItemOnlyIcon(itemOnlyIcon);
+                updateMainRenderer();
+            });
+        }
+        buttonForItemOnly.style.display = mainRendererEnabled ? '' : 'none';
+        const itemOnlyIcon = buttonForItemOnly.querySelector(
+            'icon',
+        ) as HTMLElement | null;
+        if (itemOnlyIcon) updateItemOnlyIcon(itemOnlyIcon);
+
         updateAnimationDropdown();
         updateRenderEnvironmentDropdown();
 
-        if (renderEnvironmentMenu) element.appendChild(renderEnvironmentMenu.wrapper);
+        if (renderEnvironmentMenu)
+            element.appendChild(renderEnvironmentMenu.wrapper);
+        element.appendChild(buttonForItemOnly);
         element.appendChild(buttonForRig);
         element.appendChild(toggleAccessories);
         element.appendChild(buttonFor3d);
@@ -1653,7 +1914,9 @@ async function asyncInit() {
     observeElement(
         'div.item-card-container',
         (element: HTMLElement) => {
-            const itemLinkElement = element.querySelector('a.item-card-link') as HTMLAnchorElement;
+            const itemLinkElement = element.querySelector(
+                'a.item-card-link',
+            ) as HTMLAnchorElement;
             if (!itemLinkElement) return;
             if (
                 !itemLinkElement.href.includes('/catalog') &&
@@ -1689,14 +1952,21 @@ async function asyncInit() {
                     currentHoveredItemLink = itemLinkElement.href;
                     currentHoveredItemType = undefined;
 
-                    setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainer))
+                    setSceneColor(
+                        itemHoverScene,
+                        getItemCardColor(itemThumbContainer),
+                    );
 
                     updateHoveredItemTypeFromThumbnail(
                         itemThumbnailImageContainer,
                     );
                 });
                 itemThumbContainer.addEventListener('mouseleave', (e) => {
-                    if (itemHoverRotateButton?.contains(e.relatedTarget as HTMLElement)) {
+                    if (
+                        itemHoverRotateButton?.contains(
+                            e.relatedTarget as HTMLElement,
+                        )
+                    ) {
                         return;
                     }
 
@@ -1727,8 +1997,9 @@ async function asyncInit() {
             const itemThumbContainerContainer = element.querySelector(
                 '.item-card-thumb-container',
             ) as HTMLElement;
-            const itemThumbContainer =
-                element.querySelector('.item-card-thumb') as HTMLElement;
+            const itemThumbContainer = element.querySelector(
+                '.item-card-thumb',
+            ) as HTMLElement;
             const itemThumbnailImageContainer = element.querySelector(
                 '.thumbnail-2d-container',
             ) as HTMLElement;
@@ -1738,7 +2009,7 @@ async function asyncInit() {
                 itemLinkElement &&
                 itemThumbContainer
             ) {
-                    itemThumbContainerContainer.addEventListener(
+                itemThumbContainerContainer.addEventListener(
                     'mouseenter',
                     () => {
                         if (!hoverPreviewEnabled) return;
@@ -1760,7 +2031,10 @@ async function asyncInit() {
                         currentHoveredItemLink = itemLinkElement.href;
                         currentHoveredItemType = undefined;
 
-                        setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainerContainer))
+                        setSceneColor(
+                            itemHoverScene,
+                            getItemCardColor(itemThumbContainerContainer),
+                        );
 
                         updateHoveredItemTypeFromThumbnail(
                             itemThumbnailImageContainer,
@@ -1770,7 +2044,11 @@ async function asyncInit() {
                 itemThumbContainerContainer.addEventListener(
                     'mouseleave',
                     (e) => {
-                        if (itemHoverRotateButton?.contains(e.relatedTarget as HTMLElement)) {
+                        if (
+                            itemHoverRotateButton?.contains(
+                                e.relatedTarget as HTMLElement,
+                            )
+                        ) {
                             return;
                         }
 
@@ -1815,12 +2093,19 @@ async function asyncInit() {
                 currentHoveredItemLink = itemLinkElement.href;
                 currentHoveredItemType = undefined;
 
-                setSceneColor(itemHoverScene, getItemCardColor(itemThumbContainer))
+                setSceneColor(
+                    itemHoverScene,
+                    getItemCardColor(itemThumbContainer),
+                );
 
                 updateHoveredItemTypeFromThumbnail(itemThumbContainer);
             });
             itemThumbContainer.addEventListener('mouseleave', (e) => {
-                if (itemHoverRotateButton?.contains(e.relatedTarget as HTMLElement)) {
+                if (
+                    itemHoverRotateButton?.contains(
+                        e.relatedTarget as HTMLElement,
+                    )
+                ) {
                     return;
                 }
 
@@ -1840,7 +2125,6 @@ async function asyncInit() {
             customAnimate();
         }
     }
-
 }
 
 let animationLoopStarted = false;
@@ -1880,7 +2164,8 @@ export function init() {
                 marketplace3DPostProcessing: false,
             },
             (result) => {
-                if (result.marketplace3DPostProcessing) postProcessingEnabled = true;
+                if (result.marketplace3DPostProcessing)
+                    postProcessingEnabled = true;
 
                 if (result.marketplace3DRenderEnabledV2) {
                     mainRendererEnabled = result.marketplace3DRenderActive;
