@@ -3355,6 +3355,24 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            privateApiDocsEnabled: {
+                label: ['Private RoValra API docs'],
+                description: [
+                    'Adds RoValra API documentation at https://www.roblox.com/rovalra-api-docs.',
+                    'The documentation is loaded from RoValra and is only available to accounts with access to it.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    privateApiDocsSidebarLinkEnabled: {
+                        label: 'RoValra API sidebar link',
+                        description:
+                            'Adds a RoValra API link below Communities in the Roblox sidebar.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             onboardingShown: {
                 label: ['Show onboarding'],
                 description: [
