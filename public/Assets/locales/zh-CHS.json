@@ -359,7 +359,7 @@
         "button": "自定义布局",
         "edit": "编辑",
         "settingsTitle": "类别设置",
-        "visibility": "可见性",
+        "visibility": "可见度",
         "visibilityDescription": "选择此类别是否显示在主页上。",
         "accurateContinue": "准确继续名单",
         "accurateContinueDescription": "按您上次玩每个游戏的时间对继续进行排序。",
@@ -922,7 +922,7 @@
             "tier3DiscordRole": "等级 3 捐赠者 Discord 身份 + 最佳 Discord 福利。",
             "previousRewards": "+ 所有先前级别的奖励",
             "moreComingSoon": "更多内容即将推出。",
-            "note": "备注：\n- 徽章可能需要几分钟才能在捐赠后显示。\n- 若要管理徽章的可见性，请转到「个人资料」设置选项卡。\n- 通过委托捐赠很遗憾不会给予捐赠者福利，这是 Roblox 的限制。\n- 捐赠时，您同时也同意 [RoValra 的使用条款](https://www.rovalra.com/tou/)"
+            "note": "备注：\n- 徽章可能需要几分钟才能在捐赠后显示。\n- 若要管理徽章的可见度，请转到「个人资料」设置选项卡。\n- 通过委托捐赠很遗憾不会给予捐赠者福利，这是 Roblox 的限制。\n- 捐赠时，您同时也同意 [RoValra 的使用条款](https://www.rovalra.com/tou/)"
         },
         "search": {
             "minLength": "请输入至少 2 个字符进行搜索。",
@@ -965,7 +965,7 @@
                 "enablePermission": "启用{{permission}}权限"
             },
             "badges": {
-                "visibility": "切换捐赠徽章的可见性。"
+                "visibility": "切换捐赠徽章的可见度。"
             },
             "locks": {
                 "donatorTierRequired": "必需要 RoValra 捐赠者等级 {{tier}}",
@@ -1202,7 +1202,7 @@
         "onlineStatus": "在线状态",
         "joinStatus": "体验状态",
         "privateServerPrivacy": "私人服务器隐私权",
-        "inventoryVisibility": "道具库可见性",
+        "inventoryVisibility": "道具库可见度",
         "everyone": "每个人",
         "friendsFollowingAndFollowers": "好友、粉丝与我关注的人",
         "friendsAndFollowing": "好友与我关注的人",
@@ -1556,7 +1556,7 @@
             "searchInstances": "搜索实例... (2 个以上字符)",
             "searchProperties": "搜索属性...",
             "previewGui": "预览用户介面",
-            "togglePreviewVisibility": "切换预览可见性",
+            "togglePreviewVisibility": "切换预览可见度",
             "noMatchingInstances": "未找到匹配的实例",
             "loadError": "加载失败。"
         }
@@ -1694,8 +1694,8 @@
         "backOnSale": "重新上架"
     },
     "tradeRecentItems": {
-        "offer": "最近提供的",
-        "request": "最近请求的",
+        "offer": "最近提供",
+        "request": "最近请求",
         "clear": "清除"
     },
     "tradeQuickActions": {
@@ -1840,7 +1840,7 @@
         "inventory": "道具库",
         "by": "创作者：",
         "usePassIn": "在此游戏使用此通行证：",
-        "rovalraNoticeDescription": "此游戏通行证已失效，无法购买，原因可能是 Roblox 的限制，也可能与账号年龄或游戏可见性有关。"
+        "rovalraNoticeDescription": "此游戏通行证已失效，无法购买，原因可能是 Roblox 的限制，也可能与账号年龄或游戏可见度有关。"
     },
     "playabilityStatus": {
         "0": "此体验不可用",

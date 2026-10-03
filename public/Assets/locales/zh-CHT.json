@@ -359,7 +359,7 @@
         "button": "自訂版面",
         "edit": "編輯",
         "settingsTitle": "類別設定",
-        "visibility": "可見性",
+        "visibility": "可見度",
         "visibilityDescription": "選擇是否在首頁顯示此類別。",
         "accurateContinue": "準確繼續名單",
         "accurateContinueDescription": "按您上次玩每個遊戲的時間排序繼續。",
@@ -922,7 +922,7 @@
             "tier3DiscordRole": "等級 3 捐贈者 Discord 身份 + 最佳 Discord 特權。",
             "previousRewards": "+ 所有先前等級的獎勵",
             "moreComingSoon": "更多內容即將推出。",
-            "note": "備註：\n- 徽章可能需要幾分鐘才能在捐贈後顯示。\n- 若要管理徽章的可見性，請前往「個人檔案」設定標籤。\n- 透過抽成捐贈很遺憾不會給予捐贈者特權，這是 Roblox 的限制。\n- 捐贈時，您同時也同意 [RoValra 的使用條款](https://www.rovalra.com/tou/)"
+            "note": "備註：\n- 徽章可能需要幾分鐘才能在捐贈後顯示。\n- 若要管理徽章的可見度，請前往「個人檔案」設定標籤。\n- 透過抽成捐贈很遺憾不會給予捐贈者特權，這是 Roblox 的限制。\n- 捐贈時，您同時也同意 [RoValra 的使用條款](https://www.rovalra.com/tou/)"
         },
         "search": {
             "minLength": "請輸入至少 2 個字元進行搜尋。",
@@ -965,7 +965,7 @@
                 "enablePermission": "啟用{{permission}}權限"
             },
             "badges": {
-                "visibility": "切換捐贈徽章的可見性。"
+                "visibility": "切換捐贈徽章的可見度。"
             },
             "locks": {
                 "donatorTierRequired": "必須要 RoValra 捐贈者等級 {{tier}}",
@@ -1202,7 +1202,7 @@
         "onlineStatus": "線上狀態",
         "joinStatus": "體驗狀態",
         "privateServerPrivacy": "私人伺服器隱私權",
-        "inventoryVisibility": "道具欄可見性",
+        "inventoryVisibility": "道具欄可見度",
         "everyone": "所有人",
         "friendsFollowingAndFollowers": "好友、追蹤者和我追蹤的人",
         "friendsAndFollowing": "好友和我追蹤的人",
@@ -1694,8 +1694,8 @@
         "backOnSale": "重新上架"
     },
     "tradeRecentItems": {
-        "offer": "最近提供的",
-        "request": "最近請求的",
+        "offer": "最近提供",
+        "request": "最近請求",
         "clear": "清除"
     },
     "tradeQuickActions": {
