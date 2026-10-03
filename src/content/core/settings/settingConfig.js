@@ -75,6 +75,134 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('Arabic (عربي)', 'ar'),
                         value: 'ar',
                     },
+                    {
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
+                    },
+                    {
+                        label: languageLabel('Italian (Italiano)', 'it'),
+                        value: 'it',
+                    },
+                    {
+                        label: languageLabel('Portuguese (Português)', 'pt'),
+                        value: 'pt',
+                    },
+                    {
+                        label: languageLabel('Dutch (Nederlands)', 'nl'),
+                        value: 'nl',
+                    },
+                    {
+                        label: languageLabel('Swedish (Svenska)', 'sv'),
+                        value: 'sv',
+                    },
+                    {
+                        label: languageLabel('Danish (Dansk)', 'da'),
+                        value: 'da',
+                    },
+                    {
+                        label: languageLabel('Norwegian (Norsk)', 'no'),
+                        value: 'no',
+                    },
+                    {
+                        label: languageLabel('Finnish (Suomi)', 'fi'),
+                        value: 'fi',
+                    },
+                    {
+                        label: languageLabel('Czech (Čeština)', 'cs'),
+                        value: 'cs',
+                    },
+                    {
+                        label: languageLabel('Slovak (Slovenčina)', 'sk'),
+                        value: 'sk',
+                    },
+                    {
+                        label: languageLabel('Hungarian (Magyar)', 'hu'),
+                        value: 'hu',
+                    },
+                    {
+                        label: languageLabel('Greek (Ελληνικά)', 'el'),
+                        value: 'el',
+                    },
+                    {
+                        label: languageLabel('Bulgarian (Български)', 'bg'),
+                        value: 'bg',
+                    },
+                    {
+                        label: languageLabel('Ukrainian (Українська)', 'uk'),
+                        value: 'uk',
+                    },
+                    {
+                        label: languageLabel('Croatian (Hrvatski)', 'hr'),
+                        value: 'hr',
+                    },
+                    {
+                        label: languageLabel('Serbian (Srpski)', 'sr'),
+                        value: 'sr',
+                    },
+                    {
+                        label: languageLabel('Slovenian (Slovenščina)', 'sl'),
+                        value: 'sl',
+                    },
+                    {
+                        label: languageLabel('Lithuanian (Lietuvių)', 'lt'),
+                        value: 'lt',
+                    },
+                    {
+                        label: languageLabel('Latvian (Latviešu)', 'lv'),
+                        value: 'lv',
+                    },
+                    {
+                        label: languageLabel('Estonian (Eesti)', 'et'),
+                        value: 'et',
+                    },
+                    {
+                        label: languageLabel('Turkish (Türkçe)', 'tr'),
+                        value: 'tr',
+                    },
+                    {
+                        label: languageLabel('Japanese (日本語)', 'ja'),
+                        value: 'ja',
+                    },
+                    {
+                        label: languageLabel('Korean (한국어)', 'ko'),
+                        value: 'ko',
+                    },
+                    {
+                        label: languageLabel('Thai (ไทย)', 'th'),
+                        value: 'th',
+                    },
+                    {
+                        label: languageLabel('Vietnamese (Tiếng Việt)', 'vi'),
+                        value: 'vi',
+                    },
+                    {
+                        label: languageLabel('Hindi (हिन्दी)', 'hi'),
+                        value: 'hi',
+                    },
+                    {
+                        label: languageLabel('Bengali (বাংলা)', 'bn'),
+                        value: 'bn',
+                    },
+                    {
+                        label: languageLabel('Malay (Bahasa Melayu)', 'ms'),
+                        value: 'ms',
+                    },
+                    {
+                        label: languageLabel('Filipino (Filipino)', 'fil'),
+                        value: 'fil',
+                    },
+                    {
+                        label: languageLabel('Hebrew (עברית)', 'he'),
+                        value: 'he',
+                    },
+                    {
+                        label: languageLabel('Persian (فارسی)', 'fa'),
+                        value: 'fa',
+                    },
+                    {
+                        label: languageLabel('Swahili (Kiswahili)', 'sw'),
+                        value: 'sw',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
