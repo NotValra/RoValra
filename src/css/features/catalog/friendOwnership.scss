@@ -1,0 +1,35 @@
+.rovalra-friend-ownership-container {
+    position: absolute;
+    top: calc(100% + 18px);
+    right: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+}
+
+.rovalra-friend-ownership-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-friend-ownership-avatars {
+    display: flex;
+    align-items: center;
+
+    img {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--color-surface-200);
+        box-shadow:
+            0 0 0 1.5px var(--color-shift-300),
+            0 0 0 1.5px var(--color-surface-0);
+
+        & + img {
+            margin-left: -5px;
+        }
+    }
+}
