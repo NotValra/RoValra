@@ -12,6 +12,7 @@ import { init as initBetaPrograms } from './features/navigation/betaprograms.js'
 import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js';
+import { init as initPrivateApiDocs } from './features/developer/privateApiDocs.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
@@ -234,6 +235,7 @@ const featureRoutes = [
             initVideoTest,
             initStreamerMode,
             initMarkDownTest,
+            initPrivateApiDocs,
             initTests,
             initBirthdayTracker,
             initServerTracker,
