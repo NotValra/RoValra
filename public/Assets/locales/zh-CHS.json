@@ -1383,7 +1383,7 @@
         "loadErrorApi": "无法从 RoValra API 加载服务器。",
         "hide": "隐藏",
         "join": "加入",
-        "peopleMax": "当前玩家人数为 {{maxPlayers}} 人，上限为 {{maxPlayers}} 人。",
+        "peopleMax": "{{playing}} 人，最多 {{maxPlayers}} 人",
         "pinPrivateServer": "置顶私人服务器。",
         "unpinPrivateServer": "取消置顶私人服务器。",
         "playerCountUnknownTooltip": "玩家人数未知，这是 Roblox 的限制。缩略图无法代表游戏中的玩家人数。",
