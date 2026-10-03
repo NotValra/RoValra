@@ -362,7 +362,7 @@
         "visibility": "可見性",
         "visibilityDescription": "選擇是否在首頁顯示此類別。",
         "accurateContinue": "準確繼續名單",
-        "accurateContinueDescription": "按您上次玩每個遊戲的時間整理繼續。",
+        "accurateContinueDescription": "按您上次玩每個遊戲的時間排序繼續。",
         "enable": "啟用",
         "disable": "停用",
         "show": "顯示",
@@ -497,7 +497,7 @@
         "noHiddenGames": "此使用者沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
         "labels": {
-            "sort": "整理",
+            "sort": "排序",
             "order": "順序",
             "showAll": "顯示全部遊戲"
         },
@@ -521,7 +521,7 @@
         "noHiddenGames": "此群組沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
         "labels": {
-            "sort": "整理",
+            "sort": "排序",
             "order": "順序",
             "showAll": "顯示全部遊戲"
         },
@@ -837,7 +837,7 @@
                 "2974594300": "使用者介面改進、錯誤修復及其他貢獻。",
                 "170038374": "構思了一些概念，RoValra 的部分功能就是基於這些概念設計的。"
             },
-            "sortLabel": "整理貢獻者名單",
+            "sortLabel": "排序貢獻者名單",
             "sortMost": "最多",
             "sortLeast": "最少",
             "contributionCount_one": "對 {{count}} 則功能做出貢獻",
@@ -1307,14 +1307,14 @@
         "developerProducts": "開發者產品",
         "search": "搜尋",
         "sort": {
-            "created": "按建立時間整理",
-            "price": "按價格整理",
-            "updated": "按更新時間整理",
-            "name": "按名稱整理"
+            "created": "按建立時間排序",
+            "price": "按價格排序",
+            "updated": "按更新時間排序",
+            "name": "按名稱排序"
         },
         "order": {
-            "ascending": "升序整理",
-            "descending": "降序整理"
+            "ascending": "升序排序",
+            "descending": "降序排序"
         }
     },
     "shop": {
@@ -1345,7 +1345,7 @@
         "noSubplaces": "找不到子地點。",
         "failedToLoad": "無法載入子地點。",
         "labels": {
-            "sort": "整理",
+            "sort": "排序",
             "order": "順序"
         },
         "sort": {
