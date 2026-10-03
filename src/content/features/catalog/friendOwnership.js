@@ -11,9 +11,10 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import { getCachedFriendsList } from '../../core/utils/trackers/friendslist.js';
 
-const CONTAINER_SELECTOR = '#item-report-button-frontend';
+const CONTAINER_SELECTOR = '.item-details-thumbnail-container';
 const assets = getAssets();
 const pillCache = new Map();
+const MAX_PREVIEW_AVATARS = 3;
 let initialized = false;
 
 function getCatalogItemType() {
@@ -49,54 +50,27 @@ async function fetchOwners(itemId, itemType) {
     };
 }
 
-function createAvatar(thumbnail, name, size = '16px') {
-    const image = document.createElement('img');
-    image.src = thumbnail?.imageUrl || '';
-    image.alt = name;
-    image.title = name;
-    Object.assign(image.style, {
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        objectFit: 'cover',
-        flexShrink: '0',
-    });
-    return image;
-}
-
-function createPillContent(owners, friendMap, thumbnailMap, totalCount) {
+function createPillContent(owners, thumbnailMap, totalCount) {
     const content = document.createElement('span');
-    content.className = 'rovalra-friend-ownership-pill-content';
-    Object.assign(content.style, {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '4px',
-        lineHeight: '16px',
-        whiteSpace: 'nowrap',
-    });
+    content.className = 'rovalra-friend-ownership-content';
 
-    owners.slice(0, 2).forEach((owner) => {
-        const friend = friendMap.get(Number(owner.id));
-        const name =
-            friend?.displayName ||
-            friend?.username ||
-            ts('friendOwnership.unknownUser', { id: owner.id });
-        content.appendChild(
-            createAvatar(thumbnailMap.get(Number(owner.id)), name),
-        );
+    const avatars = document.createElement('span');
+    avatars.className = 'rovalra-friend-ownership-avatars';
+    owners.slice(0, MAX_PREVIEW_AVATARS).forEach((owner) => {
+        const thumb = thumbnailMap.get(Number(owner.id));
+        if (thumb?.state !== 'Completed' || !thumb.imageUrl) return;
+        const img = document.createElement('img');
+        img.src = thumb.imageUrl;
+        img.alt = '';
+        avatars.appendChild(img);
     });
 
     const text = document.createElement('span');
     text.textContent = ts('friendOwnership.pillLabel', {
         count: totalCount.toLocaleString(),
     });
-    Object.assign(text.style, {
-        display: 'inline-flex',
-        alignItems: 'center',
-        height: '16px',
-        lineHeight: '16px',
-    });
-    content.appendChild(text);
+
+    content.append(avatars, text);
     return content;
 }
 
@@ -165,31 +139,27 @@ async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
     });
 }
 
-async function addOwnershipPill(reportButton) {
-    if (reportButton.dataset.rovalraFriendOwnershipInjected) return;
+async function addOwnershipPill(thumbnail) {
+    if (thumbnail.dataset.rovalraFriendOwnershipInjected) return;
 
     const itemId = Number(getPlaceIdFromUrl());
     if (!itemId) return;
 
-    const clearfix = reportButton.closest('.clearfix');
-    const parent = reportButton.parentNode;
-    if (!clearfix || !parent || !clearfix.contains(parent)) return;
-
     const container = document.createElement('div');
     container.className = 'rovalra-friend-ownership-container';
-    parent.insertBefore(container, reportButton.nextSibling);
+    thumbnail.appendChild(container);
 
     const itemType = getCatalogItemType();
     const cacheKey = `${itemType}:${itemId}`;
 
-    reportButton.dataset.rovalraFriendOwnershipInjected = 'loading';
+    thumbnail.dataset.rovalraFriendOwnershipInjected = 'loading';
 
     try {
         let ownerData = pillCache.get(cacheKey);
         if (!ownerData) {
             ownerData = await fetchOwners(itemId, itemType);
             if (ownerData.totalCount === 0) {
-                reportButton.dataset.rovalraFriendOwnershipInjected = 'empty';
+                thumbnail.dataset.rovalraFriendOwnershipInjected = 'empty';
                 container.remove();
                 return;
             }
@@ -200,7 +170,6 @@ async function addOwnershipPill(reportButton) {
                     ownerData.connections.map((owner) => ({ id: owner.id })),
                     'AvatarHeadshot',
                     '150x150',
-                    true,
                 ),
             ]);
 
@@ -214,7 +183,6 @@ async function addOwnershipPill(reportButton) {
         const pill = createPill(
             createPillContent(
                 ownerData.connections,
-                ownerData.friendMap,
                 ownerData.thumbnailMap,
                 ownerData.totalCount,
             ),
@@ -231,38 +199,12 @@ async function addOwnershipPill(reportButton) {
             ),
         );
 
-        Object.assign(container.style, {
-            display: 'inline-flex',
-            alignItems: 'center',
-            width: 'fit-content',
-            maxWidth: '100%',
-            verticalAlign: 'middle',
-            marginTop: '20px',
-            marginLeft: '12px',
-        });
-        Object.assign(pill.style, {
-            display: 'inline-flex',
-            width: 'fit-content',
-            minWidth: '0',
-            flex: '0 0 auto',
-            marginLeft: '0',
-            marginRight: '0',
-            alignItems: 'center',
-        });
-        const pillText = pill.querySelector('.text-no-wrap');
-        if (pillText) {
-            Object.assign(pillText.style, {
-                display: 'inline-flex',
-                alignItems: 'center',
-                lineHeight: '16px',
-            });
-        }
         container.appendChild(pill);
 
-        reportButton.dataset.rovalraFriendOwnershipInjected = String(itemId);
+        thumbnail.dataset.rovalraFriendOwnershipInjected = String(itemId);
     } catch (error) {
         container.remove();
-        delete reportButton.dataset.rovalraFriendOwnershipInjected;
+        delete thumbnail.dataset.rovalraFriendOwnershipInjected;
         console.warn('RoValra: Failed to load friend ownership', error);
     }
 }

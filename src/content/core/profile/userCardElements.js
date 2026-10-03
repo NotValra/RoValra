@@ -1,4 +1,8 @@
-import { observeElement, startObserving } from '../observer.js';
+import {
+    observeElement,
+    observeIntersection,
+    startObserving,
+} from '../observer.js';
 import { getUserIdFromUrl } from '../idExtractor.js';
 
 export const USER_CARD_DEFINITIONS = [
@@ -63,6 +67,7 @@ export const USER_CARD_SELECTORS = USER_CARD_DEFINITIONS.map(
 
 const subscriptions = new Set();
 const observedElements = new Set();
+const visibilityObservers = new Map();
 let active = false;
 
 const DISPLAY_NAME_FALLBACK_SELECTOR = [
@@ -188,7 +193,21 @@ function getContextKey(context) {
     ].join('|');
 }
 
+function isElementOnScreen(element) {
+    if (!element.isConnected || !element.getClientRects().length) return false;
+
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.bottom > 0 &&
+        rect.right > 0 &&
+        rect.top < window.innerHeight &&
+        rect.left < window.innerWidth
+    );
+}
+
 function notifySubscribers(element, context) {
+    if (!isElementOnScreen(element)) return;
+
     const currentContext = context || getUserCardContext(element);
     if (!currentContext.userId) return;
 
@@ -209,6 +228,8 @@ function notifySubscribers(element, context) {
 }
 
 function refreshElement(element) {
+    if (!isElementOnScreen(element)) return;
+
     const context = getUserCardContext(element);
     const contextKey = getContextKey(context);
 
@@ -236,6 +257,20 @@ function setupRefreshObserver(element) {
     });
 }
 
+function setupVisibilityObserver(element) {
+    if (
+        visibilityObservers.has(element) ||
+        typeof IntersectionObserver !== 'function'
+    ) {
+        return;
+    }
+
+    const observer = observeIntersection(element, (entry) => {
+        if (entry.isIntersecting) refreshElement(element);
+    });
+    visibilityObservers.set(element, observer);
+}
+
 function handleElement(element) {
     if (!observedElements.has(element)) {
         observedElements.add(element);
@@ -243,6 +278,7 @@ function handleElement(element) {
 
     element.dataset.rovalraUserCardObserved = 'true';
     setupRefreshObserver(element);
+    setupVisibilityObserver(element);
     refreshElement(element);
 }
 
@@ -266,6 +302,8 @@ export function onUserCardElement(callback, options = {}) {
 
     for (const element of observedElements) {
         try {
+            if (!isElementOnScreen(element)) continue;
+
             if (
                 options.exclude?.some((selector) => element.matches(selector))
             ) {
@@ -289,5 +327,9 @@ export function getUserCardElements() {
 export function reset() {
     subscriptions.clear();
     observedElements.clear();
+    for (const observer of visibilityObservers.values()) {
+        observer.unobserve();
+    }
+    visibilityObservers.clear();
     active = false;
 }

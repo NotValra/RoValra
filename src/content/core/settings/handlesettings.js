@@ -274,7 +274,7 @@ export const getCurrentUserTier = async () => {
     return currentUserTier;
 };
 
-export const syncDonatorTier = async () => {
+export const syncDonatorTier = async ({ force = false } = {}) => {
     if (donatorTierPromise) return donatorTierPromise;
 
     const now = Date.now();
@@ -306,8 +306,6 @@ export const syncDonatorTier = async () => {
         userId: null,
     };
 
-    state.cachedResponse = null;
-
     if (state.userId !== currentUserId) {
         state.lastSync = 0;
         state.cachedResponse = null;
@@ -330,8 +328,14 @@ export const syncDonatorTier = async () => {
         state.priorityActive && isUrlChange && state.checksLeft > 0;
     const isExpired = now - state.lastSync > 5 * 60 * 1000;
 
-    if (inMemoryDonatorResponse && !isPriorityCheck && !isExpired) {
-        return inMemoryDonatorResponse;
+    if (!force && !isPriorityCheck && !isExpired) {
+        const cachedResponse =
+            inMemoryDonatorResponse || state.cachedResponse || null;
+        if (cachedResponse) {
+            inMemoryDonatorResponse = cachedResponse;
+            currentUserTierLoaded = true;
+            return cachedResponse;
+        }
     }
 
     donatorTierPromise = (async () => {
@@ -375,7 +379,7 @@ export const syncDonatorTier = async () => {
             state.lastPath = currentPath;
             inMemoryDonatorResponse = response;
             state.userId = currentUserId;
-            state.cachedResponse = null;
+            state.cachedResponse = response;
 
             await CacheHandler.set(
                 'donator_info',
@@ -511,8 +515,6 @@ export const enforceSettingOverrides = async () => {
         if (is3DLocked && settings.profile3DRenderEnabled === true) {
             overrides.profile3DRenderEnabled = false;
         }
-
-        await syncDonatorTier(); // Sync status
 
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, config] of Object.entries(
@@ -2258,6 +2260,10 @@ export function initializeSettingsEventListeners() {
             savePromises.push(handleSaveSettings(settingName, value));
         } else if (target.matches('select')) {
             value = target.value;
+            const previousLanguage =
+                settingName === 'rovalraLanguage'
+                    ? (await loadSettings()).rovalraLanguage
+                    : null;
             savePromises.push(handleSaveSettings(settingName, value));
             if (settingName === 'profileRenderEnvironment') {
                 const profileEnvs =
@@ -2279,6 +2285,14 @@ export function initializeSettingsEventListeners() {
                             ),
                     );
                 }
+            }
+            if (
+                settingName === 'rovalraLanguage' &&
+                value !== previousLanguage
+            ) {
+                await Promise.all(savePromises);
+                location.reload();
+                return;
             }
         } else if (
             target.matches(

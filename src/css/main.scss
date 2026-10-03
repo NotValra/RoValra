@@ -5,6 +5,7 @@
 @use 'features/profile/private_server.scss';
 @use 'features/profile/hidden_games.scss';
 @use 'features/profile/pronouns.scss';
+@use 'features/profile/mutual_friends.scss';
 @use 'features/profile/profile_notes.scss';
 @use 'features/profile/showcase.scss';
 @use 'features/transactions/totalx.scss';
@@ -19,6 +20,7 @@
 @use 'components/gamelaunchmodal.scss';
 @use 'components/markdown.scss';
 @use 'components/selects.scss';
+@use 'components/overlayButton.scss';
 @use 'components/builder_icons.scss';
 @use 'features/profile/header/rap.scss';
 @use 'features/profile/header/subplace_card.scss';
@@ -27,6 +29,7 @@
 @use 'features/settings/bulkUnblock.scss';
 @use 'features/games/servers/serverstats.scss';
 @use 'features/games/servers/privateServerGrid.scss';
+@use 'features/games/servers/pinPrivateServers.scss';
 @use 'features/games/quickplay.scss';
 @use 'features/games/gameBookmarks.scss';
 @use 'features/games/events.scss';
@@ -45,6 +48,10 @@
 @use 'components/region_filters.scss';
 @use 'features/catalog/depenencies.scss';
 @use 'features/catalog/explorer.scss';
+@use 'features/catalog/recentlyViewed.scss';
+@use 'features/catalog/friendOwnership.scss';
+@use 'features/trading/recentTradeItems.scss';
+@use 'features/trading/tradeQuickActions.scss';
 @use 'components/robuxIcon.scss';
 @use 'features/sitewide/sidebar_collapse.scss';
 @use 'features/sitewide/sidebar_layout.scss';
@@ -52,6 +59,7 @@
 @use 'features/sitewide/kids_theme_text.scss';
 @use 'features/plus/sendRobux.scss';
 @use 'features/sitewide/viewid.scss';
+@use 'features/sitewide/rich_links.scss';
 @use 'features/avatar/body_colors.scss';
 @use 'features/avatar/game_outfits.scss';
 @use 'components/dropdown.scss'

@@ -172,14 +172,15 @@ export function createUserCard({
             ? safeHtml`${gameName}`
             : presence.title;
     const assets = getAssets();
+    const nameLabel = `<span class="rovalra-user-card-display-name" style="display: block; flex: 0 1 auto; min-width: 0; width: auto !important; max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis; white-space: nowrap;">${displayName}</span>`;
     const verifiedBadge = isVerified
-        ? `<span class="relative flex items-center justify-center">
+        ? `<span class="relative flex items-center justify-center" style="flex-shrink: 0;">
             <icon filled size="x-small" class="grow-0 shrink-0 basis-auto content-system-emphasis">verified-backplate</icon>
             <icon filled size="x-small" class="grow-0 shrink-0 basis-auto absolute" style="color: white;">verified-check</icon>
         </span>`
         : '';
     const plusBadge = isSubscribed
-        ? `<icon class="grow-0 shrink-0 basis-auto content-system-contrast" size-xsmall aria-label="${ts('common.robloxPlusSubscriber')}">roblox-plus</icon>`
+        ? `<icon class="grow-0 shrink-0 basis-auto content-system-contrast" style="flex-shrink: 0;" size-xsmall aria-label="${ts('common.robloxPlusSubscriber')}">roblox-plus</icon>`
         : '';
 
     const tileContainer = document.createElement('div');
@@ -199,7 +200,7 @@ export function createUserCard({
             ? `
             <div class="user-card-labels" style="display: block; margin-top: 8px; width: 90px;">
                 <div class="user-card-name" style="line-height: 1.2;">
-                    <span style="white-space: nowrap; font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color);transition: text-decoration 0.2s ease; display: flex;" class="flex flex-row items-center gap-xsmall justify-center">${displayName}${verifiedBadge}${plusBadge}</span>
+                    <span style="white-space: nowrap; font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color);transition: text-decoration 0.2s ease; display: flex; gap: 2px; max-width: 100%; min-width: 0;" class="flex flex-row items-center justify-center">${nameLabel}${verifiedBadge}${plusBadge}</span>
                 </div>
                 <div class="user-card-subname" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: ${sublabelFontSize}; color: var(--rovalra-secondary-text-color); max-width: 90px; display: block; text-align: center; transition: text-decoration 0.2s ease;">${sublabelText}</div>
             </div>
@@ -207,7 +208,7 @@ export function createUserCard({
             : `
             <div class="user-card-labels-no-username" style="margin-top: 8px; width: 90px; text-align: center;">
                 <div class="user-card-name" style="line-height: 1.2;">
-                    <span style="white-space: nowrap; font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color);transition: text-decoration 0.2s ease; display: flex;" class="flex flex-row items-center gap-xsmall justify-center">${displayName}${verifiedBadge}${plusBadge}</span>
+                    <span style="white-space: nowrap; font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color);transition: text-decoration 0.2s ease; display: flex; gap: 2px; max-width: 100%; min-width: 0;" class="flex flex-row items-center justify-center">${nameLabel}${verifiedBadge}${plusBadge}</span>
                 </div>
             </div>
             `
@@ -301,14 +302,11 @@ export function createFriendTile(
         })
             .then((user) => {
                 if (user && user.name) {
-                    const nameSpan = card.querySelector('.user-card-name span');
+                    const nameSpan = card.querySelector(
+                        '.rovalra-user-card-display-name',
+                    );
                     const subname = card.querySelector('.user-card-subname');
-                    if (nameSpan) {
-                        const textNode = Array.from(nameSpan.childNodes).find(
-                            (n) => n.nodeType === Node.TEXT_NODE,
-                        );
-                        if (textNode) textNode.textContent = user.displayName;
-                    }
+                    if (nameSpan) nameSpan.textContent = user.displayName;
                     if (subname) {
                         subname.textContent = `@${user.name}`;
                     }

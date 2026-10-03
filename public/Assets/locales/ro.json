@@ -286,15 +286,6 @@
             "noResults": "Nicio setare nu a fost găsită pentru „{{query}}”."
         }
     },
-    "qolToggles": {
-        "onlineStatus": "Status Online",
-        "joinStatus": "Status Experieță",
-        "everyone": "Toți",
-        "friendsFollowingAndFollowers": "Prieteni, Urmăriri, & Urmași",
-        "friendsAndFollowing": "Prieteni & Urmași",
-        "friends": "Prieteni",
-        "noOne": "Nimeni"
-    },
     "groupFunds": {
         "loading": "Se încarcă...",
         "pending": "În așteptare:",

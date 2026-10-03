@@ -6,6 +6,7 @@ import { createSquareButton } from '../../../core/ui/profile/header/squarebutton
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
+import { Icon } from '../../../core/ui/buildericon.js';
 const badgeCache = new Map();
 const groupRuntimeBadgeCache = new Map();
 const VIDEO_STAR_GROUP_ID = 4199740;
@@ -14,6 +15,8 @@ const COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID = 12051064;
 const COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME = 'community_feedback_program';
 const CREATOR_EVENTS_GROUP_ID = 9420522;
 const CREATOR_EVENTS_BADGE_NAME = 'creator_events';
+const QA_TESTER_GROUP_ID = 3055661;
+const QA_TESTER_BADGE_NAME = 'qa_tester';
 const DONATOR_BADGE_KEYS = [
     'donator_1',
     'donator_2',
@@ -34,6 +37,10 @@ function isCommunityFeedbackProgramGroupMember(item) {
 
 function isCreatorEventsGroupMember(item) {
     return item?.group?.id === CREATOR_EVENTS_GROUP_ID;
+}
+
+function isQaTesterGroupMember(item) {
+    return item?.group?.id === QA_TESTER_GROUP_ID;
 }
 
 function getRuntimeGroupBadges(userId) {
@@ -200,6 +207,27 @@ function createHeaderBadge(parentContainer, badge) {
 
     if (badge.id === 'contributor') {
         iconContainer.style.paddingLeft = '5px';
+    }
+
+    if (badge.builderIcon) {
+        const builderIcon = Icon({
+            icon: badge.builderIcon,
+            filled: badge.builderIconFilled,
+            size: badge.size || 'var(--icon-size-large)',
+        });
+        builderIcon.style.cursor = 'pointer';
+        if (badge.confetti) {
+            builderIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                createConfetti(builderIcon, badge.confetti);
+            });
+        }
+        if (badge.tooltip) {
+            addTooltip(iconContainer, badge.tooltip, { position: 'bottom' });
+        }
+        iconContainer.appendChild(builderIcon);
+        parentContainer.appendChild(iconContainer);
+        return;
     }
 
     const icon = document.createElement(badge.themeColorIcon ? 'span' : 'img');
@@ -528,6 +556,9 @@ export function init() {
                 }
                 if (groups.some(isCreatorEventsGroupMember)) {
                     runtimeBadges.push(CREATOR_EVENTS_BADGE_NAME);
+                }
+                if (groups.some(isQaTesterGroupMember)) {
+                    runtimeBadges.push(QA_TESTER_BADGE_NAME);
                 }
             }
             groupRuntimeBadgeCache.set(userId, runtimeBadges);

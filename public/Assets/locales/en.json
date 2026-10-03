@@ -99,7 +99,8 @@
         "versionUnknown": "Version Unknown",
         "version": "Version {{version}}",
         "versionLabel": "Version",
-        "languageMatchCount": "~{{count}} {{language}} speakers",
+        "regionTooltip": "Server region: {{region}}",
+        "performanceTooltip": "Server performance",
         "latest": " (Latest)",
         "oldest": " (Oldest)",
         "serverFull": "Server is Full",
@@ -445,6 +446,14 @@
         "allTime": "All time",
         "hours": "{{value}} hours",
         "minutes": "{{value}} minutes"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} Mutual Friend",
+        "pill_other": "{{count}} Mutual Friends",
+        "tooltip": "Friends you have in common with this user",
+        "tab": "Mutuals",
+        "title": "Mutual Friends ({{count}})",
+        "empty": "You have no mutual friends with this user."
     },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
@@ -820,6 +829,7 @@
         },
         "credits": {
             "contributorsTitle": "Contributors",
+            "translatorsTitle": "Translators",
             "featureCount_one": "{{count}} feature",
             "featureCount_other": "{{count}} features",
             "contributorTooltips": {
@@ -875,7 +885,10 @@
                 },
                 "locales": {
                     "madeRo": "Helped make the Romanian locale",
-                    "madeEs": "Helped make the Spanish locale"
+                    "madeEs": "Helped make the Spanish locale",
+                    "madeRu": "Helped make the Russian locale",
+                    "madeFr": "Helped make the French locale",
+                    "madeZh": "Helped make the Chinese locale"
                 }
             },
             "ui": {
@@ -928,6 +941,13 @@
                 "user": "User",
                 "unavailable": "Unavailable",
                 "notAvailable": "N/A"
+            },
+            "levels": {
+                "allGood": "All Good",
+                "limited": "Limited",
+                "veryLimited": "Very Limited",
+                "atRisk": "At Risk",
+                "suspended": "Suspended"
             },
             "search": {
                 "placeholder": "Search Settings..."
@@ -1002,6 +1022,7 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "Untitled release",
+                "current": "Your Version",
                 "noNotes": "No changelog notes were provided for this release.",
                 "loading": "Loading changelogs...",
                 "empty": "No changelogs are available right now.",
@@ -1047,7 +1068,7 @@
                 "getUsd": "Get ($5 USD)",
                 "getRobux": "Get (4,000 Robux)",
                 "purchaseIntro": "This purchase is for people who really want to support RoValra.",
-                "createTicket": "After buying this item, go into the RoValra Discord and create a ticket.",
+                "createTicket": "After buying this item, go into the RoValra Discord and create a ticket. YOUR DISCORD ACCOUNT MUST BE AT LEAST 30 DAYS OLD TO CLAIM",
                 "provideDetails": "Give staff the image and name you want your custom profile badge to have.",
                 "countsTowardTier": "Buying this item will count towards RoValra donator tiers.",
                 "visibility": "These custom badges are only visible to RoValra users.",
@@ -1181,18 +1202,6 @@
             }
         }
     },
-    "qolToggles": {
-        "onlineStatus": "Online Status",
-        "joinStatus": "Experience Status",
-        "privateServerPrivacy": "Private Server Privacy",
-        "inventoryVisibility": "Inventory Visibility",
-        "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
-        "friendsAndFollowing": "Friends & Following",
-        "friends": "Friends",
-        "trustedFriends": "Trusted Friends",
-        "noOne": "No one"
-    },
     "groupFunds": {
         "loading": "Loading...",
         "pending": "Pending:",
@@ -1202,7 +1211,8 @@
         "transactions": "Transactions",
         "apiDocs": "API Docs",
         "incidentLearnMore": "Click here to learn more.",
-        "incidentHideNotice": "You can hide this notice here"
+        "incidentHideNotice": "You can hide this notice here",
+        "rovalraApi": "RoValra API"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
@@ -1367,6 +1377,8 @@
         "hide": "Hide",
         "join": "Join",
         "peopleMax": "{{playing}} of {{maxPlayers}} people max",
+        "pinPrivateServer": "Pin private server",
+        "unpinPrivateServer": "Unpin private server",
         "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
         "playerCountUnknownLabel": "Player count unknown"
     },
@@ -1663,6 +1675,36 @@
     },
     "purchasePrompt": {
         "balanceAfter": "Your balance after this transaction will be"
+    },
+    "recentlyViewed": {
+        "title": "Recently Viewed",
+        "clear": "Clear",
+        "remove": "Remove",
+        "cheaper": "{{value}} Robux cheaper than when you viewed it",
+        "pricier": "{{value}} Robux more than when you viewed it",
+        "offSale": "Went off sale",
+        "backOnSale": "Back on sale"
+    },
+    "tradeRecentItems": {
+        "offer": "Recently offered",
+        "request": "Recently requested",
+        "clear": "Clear"
+    },
+    "tradeQuickActions": {
+        "minValue": "Min value they give",
+        "hideLosses": "Hide losses",
+        "bulkTitle": "Bulk action",
+        "bulkHint": "Declines every received trade where you lose value. You confirm first.",
+        "declineLosses": "Decline losing trades",
+        "loadingTrades": "Loading received trades...",
+        "checking": "Checking trades {{done}}/{{total}}...",
+        "noLosses": "No losing received trades found",
+        "confirmTitle": "Decline losing trades",
+        "confirmMessage": "{{count}} of your {{total}} received trades are a loss by value ({{value}} total). Decline all of them? This can't be undone.",
+        "declineConfirm": "Decline",
+        "declining": "Declining {{done}}/{{total}}...",
+        "declined": "Declined {{count}} trades",
+        "declinedWithFailures": "Declined {{count}} trades, {{failed}} failed"
     },
     "time": {
         "justNow": "just now",
@@ -2015,7 +2057,8 @@
         "renderOptions": "Render Options",
         "darkLighting": "Dark Lighting",
         "baseplate": "Baseplate",
-        "rotatePreview": "Rotate preview"
+        "rotatePreview": "Rotate preview",
+        "itemOnly": "Show item only"
     },
     "groupFilters": {
         "sort": {
@@ -2050,7 +2093,15 @@
             "monthlyLimitLeft": "Monthly limit left",
             "sentToday": "Sent today",
             "sentThisMonth": "Sent this month",
+            "nextRefill": "Next refill",
+            "leftAfter": "{{amount}} left",
+            "refillNote": "Each transfer counts toward the monthly limit for 30 days, then those Robux become available again.",
             "caption": "Daily limit is {{dailyLimit}}. Monthly limit is {{monthlyLimit}}. Updates every 5 minutes. The remaining are estimates and may be inaccurate."
+        },
+        "referral": {
+            "reward": "Get 100 Robux for free and help support RoValra!",
+            "details": "Only new Roblox Plus users qualify. RoValra will also receive 100 Robux when you subscribe using RoValra's referral code.",
+            "button": "Subscribe using RoValra's referral code"
         },
         "privateServerTooltip": {
             "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
@@ -2118,6 +2169,15 @@
             }
         }
     },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Some settings were removed/replaced"
+            },
+            "deleted": "The following settings have been recently deleted, locked or deprecated:",
+            "replaced": "The following settings have been recently replaced or changed:"
+        }
+    },
     "avatar": {
         "gameOutfits": {
             "button": "Game Outfits",
@@ -2139,5 +2199,77 @@
     "pinnedFriends": {
         "pin": "Pin to top",
         "unpin": "Unpin"
+    },
+    "richLinks": {
+        "by": "By {{name}}",
+        "members": "{{count}} Members",
+        "playing": "{{count}} Playing",
+        "visits": "{{count}} Visits",
+        "loading": "Loading...",
+        "free": "Free",
+        "offSale": "Off sale"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "Loading API documentation...",
+        "loadFailed": "Failed to load API documentation: {{error}}",
+        "noAccess": "You don't have access to these docs.",
+        "serverError": "The server responded with {{status}}.",
+        "invalidSpec": "The server returned an invalid OpenAPI document.",
+        "baseUrl": "Base URL: {{url}}",
+        "apiVersion": "API version",
+        "openApiVersion": "OpenAPI version",
+        "server": "Server",
+        "sendToken": "Send my RoValra access token",
+        "filterLabel": "Filter endpoints",
+        "filterPlaceholder": "Path, summary or tag",
+        "hideDeprecated": "Hide deprecated",
+        "noEndpoints": "No endpoints found.",
+        "deprecated": "Deprecated",
+        "deprecatedTooltip": "This endpoint is deprecated.",
+        "authRequired": "Authentication required",
+        "authOptional": "Authentication optional",
+        "schemeNotSent": "Requires {{name}}, which this page doesn't send.",
+        "operationId": "Operation ID",
+        "security": "Auth: {{schemes}}",
+        "securityOptional": "Auth: {{schemes}} (optional)",
+        "securityTooltip": "Security requirements",
+        "parameters": "Parameters",
+        "noParameters": "No parameters",
+        "tryItOut": "Try it out",
+        "name": "Name",
+        "description": "Description",
+        "required": "required",
+        "availableValues": "Available values: {{values}}",
+        "requestBody": "Request body",
+        "requestContentType": "Request content type",
+        "exampleValue": "Example Value",
+        "schema": "Schema",
+        "responses": "Responses",
+        "noResponses": "No documented responses",
+        "code": "Code",
+        "details": "Details",
+        "execute": "Execute",
+        "clear": "Clear",
+        "missingParams": "Missing required parameters: {{params}}",
+        "invalidJson": "Request body is not valid JSON: {{error}}",
+        "bodyRequired": "A request body is required.",
+        "confirmTitle": "Send request?",
+        "confirmMessage": "This will send a {{method}} request to {{path}}. Only continue if you understand what it does.",
+        "send": "Send",
+        "sending": "Sending request...",
+        "requestFailed": "Request failed: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "Request URL",
+        "serverResponse": "Server response",
+        "responseBody": "Response body",
+        "responseHeaders": "Response headers",
+        "emptyResponse": "(empty response)",
+        "responseImage": "Response image",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Request duration",
+        "contentType": "Content type",
+        "redirected": "Redirected",
+        "copy": "Copy"
     }
 }

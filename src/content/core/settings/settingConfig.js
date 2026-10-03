@@ -4,6 +4,12 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
+import { getTranslationProgress } from '../locale/translationProgress.js';
+
+function languageLabel(label, language) {
+    const progress = getTranslationProgress(language);
+    return progress === null ? label : `${label} (${progress}%)`;
+}
 
 // Settings config (not developer settings)
 
@@ -18,13 +24,57 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Manually configure a language for RoValra. Some translations may be missing.',
                     // it works on the setting page only once it figures out the language from other pages' URLs
-                    'Requires a refresh for changes to apply. Might not work immediately on the settings page.',
+                    'The page will reload to apply changes. Might not work immediately on the settings page.',
+                    'We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy ',
                 ],
                 type: 'select',
                 options: [
-                    { label: 'English', value: 'en' },
-                    { label: 'Romanian (Română)', value: 'ro' },
-                    { label: 'Spanish (Español)', value: 'es' },
+                    {
+                        label: languageLabel('English', 'en'),
+                        value: 'en',
+                    },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+                    {
+                        label: languageLabel('Polish (Polski)', 'pl'),
+                        value: 'pl',
+                    },
+                    {
+                        label: languageLabel('Romanian (Română)', 'ro'),
+                        value: 'ro',
+                    },
+                    {
+                        label: languageLabel('Indonesian (Bahasa Indonesia)', 'id'),
+                        value: 'id',
+                    },
+                    {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
+                    },
+                    {
+                        label: languageLabel('Spanish (Español)', 'es'),
+                        value: 'es',
+                    },
+                    {
+                        label: languageLabel(
+                            'Traditional Chinese (繁體中文)',
+                            'zh-CHT',
+                        ),
+                        value: 'zh-CHT',
+                    },
+                    {
+                        label: languageLabel(
+                            'Simplified Chinese (简体中文)',
+                            'zh-CHS',
+                        ),
+                        value: 'zh-CHS',
+                    },
+                    {
+                        label: languageLabel('Arabic (عربي)', 'ar'),
+                        value: 'ar',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
@@ -120,6 +170,26 @@ export const SETTINGS_CONFIG = {
                     "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
                 type: 'checkbox',
                 default: true,
+            },
+            recentlyViewedEnabled: {
+                label: 'Recently Viewed Items',
+                description: [
+                    'Adds a Recently Viewed row to the top of the Marketplace with the last items and bundles you opened.',
+                    'Items can be removed one by one or all at once. Your history is only stored on this device.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_recently_viewed',
+                contributors: ['2239549101'],
+                childSettings: {
+                    recentlyViewedPriceChanges: {
+                        label: 'Show Price Changes',
+                        description:
+                            'Shows if an item got cheaper, more expensive, went off sale or came back on sale since you viewed it.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             bonusItemEnabled: {
                 label: 'Robux Purchase Bonus Item Selector',
@@ -585,7 +655,17 @@ export const SETTINGS_CONFIG = {
                         default: false,
                         contributors: ['4632962611'],
                     },
-
+                    PinPrivateServersEnabled: {
+                        label: 'Pin Private Servers',
+                        description: [
+                            'Allows private/VIP servers to be pinned to the top of the list.',
+                            'Pinned servers stay above normal private servers.',
+                            'Missing a bit of quality of life.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['4632962611'],
+                    },
                     enableShareLink: {
                         label: 'Share link button',
                         description: [
@@ -616,14 +696,6 @@ export const SETTINGS_CONFIG = {
                         label: 'Server Version',
                         description: [
                             'This shows the version of the experience that a specific server is running.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    EnableServerLanguageMatch: {
-                        label: 'Server Language Match',
-                        description: [
-                            'Shows how many players in each server speak your language.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -977,6 +1049,16 @@ export const SETTINGS_CONFIG = {
                     'This feature shows how long you have been friends with someone on their profile and in your friends list.',
                 type: 'checkbox',
                 default: true,
+            },
+            mutualFriendsEnabled: {
+                label: 'Mutual Friends',
+                description: [
+                    'Shows how many friends you have in common with a user on their profile.',
+                    'Click it to see them in a Mutuals tab on their friends page.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2020751790'],
             },
             groupRoleEnabled: {
                 label: 'Show Community Roles',
@@ -1896,6 +1978,27 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['1960518316'],
             },
+            tradeRecentItemsEnabled: {
+                label: 'Recent Trade Items',
+                description: [
+                    'Remembers the items you recently offered and requested, and shows them above each inventory when making a trade.',
+                    'Clicking one finds and selects it for you. Your history is only stored on this device.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_trade_recent_items',
+                contributors: ['2239549101'],
+            },
+            tradeQuickActionsEnabled: {
+                label: 'Trade Quick Actions',
+                description: [
+                    'Adds quick actions to the trades page, letting you only show trades above a certain value or hide trades that are a loss for you.',
+                    'Also adds a button to decline every received trade that is a loss by value, after asking you to confirm.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
+            },
         },
     },
     Plus: {
@@ -1985,6 +2088,16 @@ export const SETTINGS_CONFIG = {
                     'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_robux_transfer_limits_v1',
+                contributors: ['48255812', '447170745'],
+            },
+            plusReferralEnabled: {
+                label: 'Show RoValra Plus Referral',
+                description:
+                    'Shows RoValra’s referral offer on the [Plus](https://www.roblox.com/plus) page. Only new Roblox Plus users qualify for the reward.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['231260921', '447170745'],
             },
         },
     },
@@ -1999,8 +2112,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['650766686'],
-                exclusiveWith: ['qolTogglesEnabled'],
+                contributors: ['650766686', '48255812'],
                 childSettings: {
                     // Toggles to be in the menu
                     privacyTogglesDropdownOnlineStatusEnabled: {
@@ -2033,6 +2145,15 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    // Keep this one last please
+                    privacyTogglesOldIconEnabled: {
+                        label: 'Old QOL Toggles Icon',
+                        description: [
+                            'Enable the old QOL Toggles icon (<icon>three-bars-horizontal</icon>). <b>Needs a refresh</b>',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             qolTogglesEnabled: {
@@ -2046,6 +2167,7 @@ export const SETTINGS_CONFIG = {
                 isPermanent: true,
                 locked: 'Replaced by Privacy Toggles in Navigation',
                 deprecated: 'Replaced by Privacy Toggles in Navigation.',
+                hidden: true,
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
@@ -2229,6 +2351,7 @@ export const SETTINGS_CONFIG = {
                     "This allows you to toggle beta programs you're enrolled in easily.",
                 type: 'checkbox',
                 default: false,
+                contributors: ['447170745', '48255812'],
                 childSettings: {
                     previousBetaProgramsEnabled: {
                         label: 'Show Previous Beta Programs',
@@ -2328,6 +2451,16 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            richRobloxLinksEnabled: {
+                label: 'Rich Roblox Links',
+                description: [
+                    'Turns Roblox links in descriptions into pills with their icon, name and verified badge.',
+                    'Hover a pill to preview the community, user, experience or item.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
             disableThumbnailBackground: {
                 label: 'Disable Thumbnail Backgrounds',
                 description: [
@@ -3224,6 +3357,24 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            privateApiDocsEnabled: {
+                label: ['Private RoValra API docs'],
+                description: [
+                    'Adds RoValra API documentation at https://www.roblox.com/rovalra-api-docs.',
+                    'The documentation is loaded from RoValra and is only available to accounts with access to it.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    privateApiDocsSidebarLinkEnabled: {
+                        label: 'RoValra API sidebar link',
+                        description:
+                            'Adds a RoValra API link below Communities in the Roblox sidebar.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             onboardingShown: {
                 label: ['Show onboarding'],

@@ -44,6 +44,7 @@ function shouldShowPreviousPrice(price, deadline, isOffSale) {
     return (
         isOffSale &&
         hasValidPreviousPrice(price) &&
+        price !== 1 &&
         (!deadline || isValidOffSaleDeadline(deadline))
     );
 }
@@ -55,7 +56,7 @@ function addPriceIconToCard(card, assetId) {
     const shouldShow = shouldShowPreviousPrice(price, deadline, isOffSale);
 
     if (!shouldShow) {
-        if (deadline && !isValidOffSaleDeadline(deadline)) {
+        if (price === 1 || (deadline && !isValidOffSaleDeadline(deadline))) {
             card.querySelectorAll(
                 '.rovalra-offsale-price-icon, .rovalra-previous-price-text',
             ).forEach((element) => element.remove());

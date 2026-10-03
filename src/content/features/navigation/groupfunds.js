@@ -19,6 +19,15 @@ const NAVBAR_SELECTORS = '#nav-robux-amount, #nav-robux-balance';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 const STREAMER_ROBUX_VISIBILITY_EVENT = 'rovalra-streamer-robux-visibility';
 const STREAMER_ROBUX_VALUE_CLASS = 'rovalra-streamer-robux-value';
+const LEGACY_POPOVER_SELECTOR = '#buy-robux-popover';
+const FOUNDATION_MENU_SELECTOR =
+    '.foundation-web-menu.nav-foundation-menu[role="menu"]';
+const FOUNDATION_ROBUX_MENU_MARKER =
+    '#nav-robux, [role="menuitem"][href*="/upgrades/robux"]';
+const FOUNDATION_MENU_ITEM_CLASS =
+    'relative clip group/interactable focus-visible:outline-focus disabled:outline-none foundation-web-menu-item flex items-center content-default text-truncate-split focus-visible:hover:outline-none cursor-pointer stroke-none bg-none text-align-x-left width-full text-body-large padding-x-large padding-y-medium gap-x-large radius-medium';
+const FOUNDATION_STATE_LAYER_CLASS =
+    'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
 
 const state = {
     initialized: false,
@@ -260,11 +269,122 @@ async function warmPersonalRowData() {
     return personalRowDataPromise;
 }
 
-function upsertPersonalRow(section, divider, data) {
+function isFoundationRobuxMenu(element) {
+    return (
+        element instanceof HTMLElement &&
+        element.matches(FOUNDATION_MENU_SELECTOR) &&
+        !!element.querySelector(FOUNDATION_ROBUX_MENU_MARKER)
+    );
+}
+
+function getOpenRobuxPopover() {
+    return (
+        document.querySelector(LEGACY_POPOVER_SELECTOR) ||
+        [...document.querySelectorAll(FOUNDATION_MENU_SELECTOR)].find(
+            isFoundationRobuxMenu,
+        ) ||
+        null
+    );
+}
+
+function createFoundationMenuItem(href) {
+    const item = document.createElement('a');
+    item.setAttribute('role', 'menuitem');
+    item.tabIndex = -1;
+    item.className = FOUNDATION_MENU_ITEM_CLASS;
+    item.style.columnGap = '8px';
+    item.style.textDecoration = 'none';
+    if (href) item.href = href;
+
+    const stateLayer = document.createElement('div');
+    stateLayer.setAttribute('aria-hidden', 'true');
+    stateLayer.className = FOUNDATION_STATE_LAYER_CLASS;
+    item.appendChild(stateLayer);
+
+    return item;
+}
+
+function createFoundationTextWrapper() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'grow-1 text-truncate-split flex flex-col gap-y-xsmall';
+
+    const title = document.createElement('span');
+    title.className =
+        'foundation-web-menu-item-title text-no-wrap text-truncate-split content-emphasis';
+
+    wrapper.appendChild(title);
+    return { wrapper, title };
+}
+
+function createMenuIconContainer(isFoundation) {
+    const iconContainer = document.createElement('span');
+    iconContainer.style.width = '28px';
+    iconContainer.style.height = '28px';
+    iconContainer.style.display = 'inline-block';
+    if (isFoundation) {
+        iconContainer.style.flexShrink = '0';
+    } else {
+        iconContainer.style.marginRight = '8px';
+    }
+    return iconContainer;
+}
+
+function upsertFoundationPersonalRow(container, data, personalBalance) {
+    let userLink = container.querySelector('.rovalra-personal-robux-row');
+    if (!(userLink instanceof HTMLElement)) {
+        userLink = createFoundationMenuItem();
+        userLink.classList.add('rovalra-personal-robux-row');
+        container.prepend(userLink);
+    }
+
+    if (data.userId) {
+        userLink.href = `https://www.roblox.com/users/${data.userId}/profile`;
+    }
+
+    const iconContainer = createMenuIconContainer(true);
+    if (data.thumbnailData) {
+        iconContainer.appendChild(
+            createThumbnailElement(data.thumbnailData, 'User', '', {
+                borderRadius: '999px',
+                width: '28px',
+                height: '28px',
+            }),
+        );
+    }
+
+    const { wrapper, title } = createFoundationTextWrapper();
+    title.textContent = data.username || 'User';
+
+    const amountSpan = document.createElement('span');
+    amountSpan.className = 'shrink-0 text-no-wrap content-emphasis';
+    const rbxIcon = document.createElement('span');
+    rbxIcon.className = 'icon-robux-16x16';
+    rbxIcon.style.verticalAlign = 'text-bottom';
+    rbxIcon.style.marginRight = '3px';
+
+    const amountValue = document.createElement('span');
+    amountValue.className = STREAMER_ROBUX_VALUE_CLASS;
+    amountValue.textContent = personalBalance.toLocaleString();
+    amountSpan.append(rbxIcon, amountValue);
+
+    userLink.replaceChildren(
+        userLink.firstElementChild,
+        iconContainer,
+        wrapper,
+        amountSpan,
+    );
+}
+
+function upsertPersonalRow(section, divider, data, isFoundation = false) {
     if (!data) return;
 
     const personalBalance = Number(data.personalBalance);
     if (!Number.isFinite(personalBalance)) return;
+
+    if (isFoundation) {
+        upsertFoundationPersonalRow(section, data, personalBalance);
+        return;
+    }
 
     let userLi = section.querySelector('.rovalra-personal-robux-row');
     if (!(userLi instanceof HTMLElement)) {
@@ -438,7 +558,10 @@ export function init() {
     injectPendingRowStyle();
 
     const renderSection = (popover) => {
-        const menu = popover.querySelector('.dropdown-menu');
+        const isFoundation = popover.matches(FOUNDATION_MENU_SELECTOR);
+        const menu = isFoundation
+            ? popover
+            : popover.querySelector('.dropdown-menu');
         if (!menu) return;
 
         state.renderVersion++;
@@ -455,20 +578,61 @@ export function init() {
         const section = document.createElement('div');
         section.className = 'rovalra-group-funds-section';
 
-        const divider = document.createElement('li');
-        divider.className = 'rbx-divider';
-        section.appendChild(divider);
+        let divider;
+        let rowContainer = section;
+        if (isFoundation) {
+            divider = document.createElement('div');
+            divider.setAttribute('role', 'separator');
+            divider.className = 'foundation-web-menu-separator';
+
+            rowContainer = document.createElement('div');
+            rowContainer.setAttribute('role', 'group');
+            rowContainer.className = 'padding-small';
+            section.append(divider, rowContainer);
+        } else {
+            divider = document.createElement('li');
+            divider.className = 'rbx-divider';
+            section.appendChild(divider);
+        }
 
         if (state.navbarTotalEnabled) {
-            upsertPersonalRow(section, divider, personalRowData);
+            upsertPersonalRow(
+                rowContainer,
+                divider,
+                personalRowData,
+                isFoundation,
+            );
 
             warmPersonalRowData().then((data) => {
                 if (state.renderVersion !== myVersion) return;
-                upsertPersonalRow(section, divider, data);
+                upsertPersonalRow(rowContainer, divider, data, isFoundation);
             });
         }
 
-        const renderGroup = (groupId) => {
+        const createFoundationGroupRow = (groupId) => {
+            const revenueUrl = `https://www.roblox.com/groups/configure?id=${groupId}#!/revenue/summary`;
+
+            const createRow = (iconContainer) => {
+                const link = createFoundationMenuItem(revenueUrl);
+                const { wrapper, title } = createFoundationTextWrapper();
+                if (iconContainer) link.appendChild(iconContainer);
+                link.appendChild(wrapper);
+                rowContainer.appendChild(link);
+                return title;
+            };
+
+            const iconContainer = createMenuIconContainer(true);
+            const amountSpan = createRow(iconContainer);
+            const pendingLink = createRow();
+            pendingLink.classList.replace(
+                'content-emphasis',
+                'content-default',
+            );
+
+            return { iconContainer, amountSpan, pendingLink };
+        };
+
+        const createLegacyGroupRow = (groupId) => {
             const fundsLi = document.createElement('li');
             const fundsLink = document.createElement('a');
             fundsLink.className = 'rbx-menu-item';
@@ -480,11 +644,7 @@ export function init() {
             leftContainer.style.display = 'flex';
             leftContainer.style.alignItems = 'center';
 
-            const iconContainer = document.createElement('span');
-            iconContainer.style.width = '28px';
-            iconContainer.style.height = '28px';
-            iconContainer.style.marginRight = '8px';
-            iconContainer.style.display = 'inline-block';
+            const iconContainer = createMenuIconContainer(false);
 
             leftContainer.appendChild(iconContainer);
 
@@ -509,6 +669,14 @@ export function init() {
             pendingLink.textContent = '';
             pendingLi.appendChild(pendingLink);
             section.appendChild(pendingLi);
+
+            return { iconContainer, amountSpan, pendingLink };
+        };
+
+        const renderGroup = (groupId) => {
+            const { iconContainer, amountSpan, pendingLink } = isFoundation
+                ? createFoundationGroupRow(groupId)
+                : createLegacyGroupRow(groupId);
 
             const renderIcon = (data) => {
                 if (data) {
@@ -613,7 +781,24 @@ export function init() {
     };
 
     observeElement(
-        '#buy-robux-popover',
+        FOUNDATION_MENU_SELECTOR,
+        (menu) => {
+            if (!isFoundationRobuxMenu(menu)) return;
+            menu.dataset.rovalraGroupFundsMenu = 'true';
+            renderSection(menu);
+        },
+        {
+            multiple: true,
+            onRemove: (menu) => {
+                if (menu?.dataset.rovalraGroupFundsMenu === 'true') {
+                    state.renderVersion++;
+                }
+            },
+        },
+    );
+
+    observeElement(
+        LEGACY_POPOVER_SELECTOR,
         (popover) => {
             handlePopoverState(popover);
             observeAttributes(popover, () => handlePopoverState(popover), [
@@ -639,7 +824,7 @@ export function init() {
     chrome.storage.onChanged.addListener((changes, namespace) => {
         if (namespace !== 'local') return;
 
-        const openPopover = document.querySelector('#buy-robux-popover');
+        const openPopover = getOpenRobuxPopover();
 
         if (changes[CACHE_KEY]) {
             renderNavbarTotal().catch(() => {});

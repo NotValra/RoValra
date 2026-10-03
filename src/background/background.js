@@ -23,6 +23,7 @@ const state = {
     badgeFullScanInterval: null,
     avatarInventoryInterval: null,
 };
+const rateLimitCooldowns = new Map();
 
 // --- Session Storage Configuration ---
 if (chrome.storage.session && chrome.storage.session.setAccessLevel) {
@@ -434,7 +435,28 @@ async function callRobloxApiBackground(options) {
         fetchOptions.headers['X-CSRF-TOKEN'] = state.csrfTokenCache;
     }
 
+    const rateLimitKey = new URL(url).origin;
+    const cooldownUntil = rateLimitCooldowns.get(rateLimitKey) || 0;
+    if (cooldownUntil > Date.now()) {
+        await sleep(cooldownUntil - Date.now());
+    } else {
+        rateLimitCooldowns.delete(rateLimitKey);
+    }
+
     let response = await fetch(url, fetchOptions); //Verified
+
+    if (response.status === 429) {
+        const cooldown = getRateLimitDelay(response);
+        if (cooldown > 0) {
+            rateLimitCooldowns.set(
+                rateLimitKey,
+                Math.max(
+                    rateLimitCooldowns.get(rateLimitKey) || 0,
+                    Date.now() + cooldown,
+                ),
+            );
+        }
+    }
 
     if (response.status === 403 && method !== 'GET' && method !== 'HEAD') {
         const newCsrf = response.headers.get('x-csrf-token');
@@ -759,9 +781,17 @@ function sleep(ms) {
 }
 
 function getRateLimitDelay(response) {
-    const retryAfterSeconds = Number(response.headers.get('retry-after'));
-    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
-        return retryAfterSeconds * 1000 + 1000;
+    const retryAfter = response.headers.get('retry-after');
+    if (retryAfter) {
+        const retryAfterSeconds = Number(retryAfter);
+        if (Number.isFinite(retryAfterSeconds)) {
+            return Math.max(0, retryAfterSeconds * 1000) + 1000;
+        }
+
+        const retryAt = Date.parse(retryAfter);
+        if (Number.isFinite(retryAt)) {
+            return Math.max(0, retryAt - Date.now()) + 1000;
+        }
     }
 
     const remaining = Number(response.headers.get('x-ratelimit-remaining'));

@@ -1,4 +1,7 @@
-import { updateUserSettingViaApi, getUserSettings } from '../../core/donators/settingHandler'
+import {
+    updateUserSettingViaApi,
+    getUserSettings,
+} from '../../core/donators/settingHandler';
 import { getCurrentUserTierSync } from '../../core/settings/handlesettings';
 import { getAuthenticatedUserId } from '../../core/user';
 import { settings } from '../../core/settings/getSettings.js';
@@ -10,29 +13,42 @@ const SETTING_NAME_2 = 'displayAppThemeOwnProfile';
 let isSetInProgress = false;
 let isProfilePage = false;
 
-export async function freePlusThemeCallback() { // Called by freeRobloxPlusThemes.js
-    if (!isProfilePage || !await settings[SETTING_NAME]) return;
+export async function freePlusThemeCallback() {
+    // Called by freeRobloxPlusThemes.js
+    if (!isProfilePage || !(await settings[SETTING_NAME])) return;
+    if (
+        /\/banned-users\/\d+\/profile/.test(window.location.pathname) ||
+        document.querySelector('[data-rovalra-banned-profile]')
+    )
+        return;
 
     const body = document.body;
     const profileUserId = getUserIdFromUrl();
-    const profileUserSettings = await getUserSettings(profileUserId)
+    const profileUserSettings = await getUserSettings(profileUserId);
 
-    const appThemes = (await callRobloxApiJson({
-        subdomain: 'www',
-        endpoint: '/global-settings/roblox-themes.json',
-        isRovalraApi: true,
-    })).themes;
+    const appThemes = (
+        await callRobloxApiJson({
+            subdomain: 'www',
+            endpoint: '/global-settings/roblox-themes.json',
+            isRovalraApi: true,
+        })
+    ).themes;
 
     if (
         profileUserSettings.theme === '' ||
-        appThemes.filter(i => i.setting === profileUserSettings.theme).length < 1
-    ) return;
+        appThemes.filter((i) => i.setting === profileUserSettings.theme)
+            .length < 1
+    )
+        return;
 
-    body.classList.remove(...appThemes.map(i => i.class));
+    body.classList.remove(...appThemes.map((i) => i.class));
 
     if (profileUserSettings.theme === 'Default') return;
 
-    body.classList.add(appThemes.filter(i => i.setting === profileUserSettings.theme)[0].class)
+    body.classList.add(
+        appThemes.filter((i) => i.setting === profileUserSettings.theme)[0]
+            .class,
+    );
 }
 
 export async function initProfile() {
@@ -40,31 +56,52 @@ export async function initProfile() {
 }
 
 export async function initSitewide() {
-    document.addEventListener('rovalra:user-settings-response', async ({detail}) => {
-        if (isSetInProgress || getCurrentUserTierSync() < 1 || !await settings[SETTING_NAME_2] || !detail.accountTheme) return;
-        isSetInProgress = true;
-        const userSettings = await getUserSettings(await getAuthenticatedUserId());
-        if ((userSettings.theme && detail.accountTheme !== userSettings.theme) || !userSettings.theme) {
-            updateUserSettingViaApi('theme', detail.accountTheme);
-        }
-        isSetInProgress = false;
-    })
+    document.addEventListener(
+        'rovalra:user-settings-response',
+        async ({ detail }) => {
+            if (
+                isSetInProgress ||
+                getCurrentUserTierSync() < 1 ||
+                !(await settings[SETTING_NAME_2]) ||
+                !detail.accountTheme
+            )
+                return;
+            isSetInProgress = true;
+            const userSettings = await getUserSettings(
+                await getAuthenticatedUserId(),
+            );
+            if (
+                (userSettings.theme &&
+                    detail.accountTheme !== userSettings.theme) ||
+                !userSettings.theme
+            ) {
+                updateUserSettingViaApi('theme', detail.accountTheme);
+            }
+            isSetInProgress = false;
+        },
+    );
     document.addEventListener('rovalra:settingSaved', async (event) => {
         if (event.detail?.name !== SETTING_NAME_2) return;
-        event.detail.value
+        event.detail.value;
         if (event.detail.value === true && getCurrentUserTierSync() >= 1) {
             try {
                 const robloxUserSettings = await callRobloxApiJson({
                     subdomain: 'apis',
-                    endpoint: '/user-settings-api/v1/user-settings'
+                    endpoint: '/user-settings-api/v1/user-settings',
                 });
-                updateUserSettingViaApi('theme', robloxUserSettings.accountTheme || "");
+                updateUserSettingViaApi(
+                    'theme',
+                    robloxUserSettings.accountTheme || '',
+                );
             } catch (e) {
-                console.error('RoValra App Themes On Profile: Uh oh! Something went wrong! Setting theme to none. Details:', e);
-                updateUserSettingViaApi('theme', "");
+                console.error(
+                    'RoValra App Themes On Profile: Uh oh! Something went wrong! Setting theme to none. Details:',
+                    e,
+                );
+                updateUserSettingViaApi('theme', '');
             }
         } else if (event.detail.value === false) {
-            updateUserSettingViaApi('theme', "");
+            updateUserSettingViaApi('theme', '');
         }
     });
 }

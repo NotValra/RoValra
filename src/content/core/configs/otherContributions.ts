@@ -89,6 +89,10 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(1564574922, "locales.madeRo", "https://github.com/NotValra/RoValra/pull/215"),  // @BossBoss2021
             new Contribution(10646979010, "locales.madeRo", "https://github.com/NotValra/RoValra/pull/215"),  // @RecreationalActive
             new Contribution(3121706, "locales.madeEs", "https://github.com/NotValra/RoValra/pull/215"),  // @AuroxNova
+            new Contribution(9502859424, "locales.madeRu"),  // @moowi1337
+            new Contribution(2239549101, "locales.madeFr"),  // @TimorousShadow
+            new Contribution(519742979, "locales.madeZh", "https://github.com/NotValra/RoValra/pull/276"),  // @BBasilio2001
+            new Contribution(16147087, "locales.madeId"),  // @Edward667
         ]
     }
 };
