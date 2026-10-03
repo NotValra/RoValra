@@ -1219,7 +1219,8 @@
         "transactions": "交易",
         "apiDocs": "API 文件",
         "incidentLearnMore": "點觸此處瞭解更多。",
-        "incidentHideNotice": "您可以在此處隱藏此通知。"
+        "incidentHideNotice": "您可以在此處隱藏此通知。",
+        "rovalraApi": "RoValra API"
     },
     "sidebarCollapse": {
         "collapseSidebar": "摺疊側邊欄",
@@ -1683,6 +1684,36 @@
     "purchasePrompt": {
         "balanceAfter": "您在此交易後的餘額將為"
     },
+    "recentlyViewed": {
+        "title": "最近瀏覽",
+        "clear": "清除",
+        "remove": "移除",
+        "cheaper": "比您瀏覽時便宜 {{value}} Robux",
+        "pricier": "比您瀏覽時貴 {{value}} Robux",
+        "offSale": "已下架",
+        "backOnSale": "重新上架"
+    },
+    "tradeRecentItems": {
+        "offer": "最近提供的",
+        "request": "最近請求的",
+        "clear": "清除"
+    },
+    "tradeQuickActions": {
+        "minValue": "他們給的最小值",
+        "hideLosses": "隱藏虧損",
+        "bulkTitle": "批量操作",
+        "bulkHint": "拒絕所有虧損的交易。請先確認。",
+        "declineLosses": "拒絕虧損的交易",
+        "loadingTrades": "正在載入已收到的交易...",
+        "checking": "正在檢查 {{done}}/{{total}} 個交易...",
+        "noLosses": "未發現虧損的交易",
+        "confirmTitle": "拒絕虧損的交易",
+        "confirmMessage": "您收到的 {{total}} 個交易中有 {{count}} 個虧損（總虧損額為 {{value}}）。全部拒絕？此操作無法復原。",
+        "declineConfirm": "拒絕",
+        "declining": "正在拒絕 {{done}}/{{total}}...",
+        "declined": "已拒絕 {{count}} 個交易",
+        "declinedWithFailures": "已拒絕 {{count}} 個交易，{{failed}} 個交易無法拒絕"
+    },
     "time": {
         "justNow": "剛剛",
         "secondsAgo": "{{count}} 秒前",
@@ -2034,7 +2065,8 @@
         "renderOptions": "渲染選項",
         "darkLighting": "黑暗照明",
         "baseplate": "底板",
-        "rotatePreview": "旋轉預覽"
+        "rotatePreview": "旋轉預覽",
+        "itemOnly": "僅顯示道具"
     },
     "groupFilters": {
         "sort": {
@@ -2163,5 +2195,77 @@
     "pinnedFriends": {
         "pin": "釘選至頂部",
         "unpin": "解除釘選"
+    },
+    "richLinks": {
+        "by": "創作者：{{name}}",
+        "members": "{{count}} 成員",
+        "playing": "{{count}} 正在遊玩",
+        "visits": "{{count}} 參訪次數",
+        "loading": "正在載入...",
+        "free": "免費",
+        "offSale": "已下架"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "正在載入 API 文件...",
+        "loadFailed": "無法載入 API 文件：{{error}}",
+        "noAccess": "您無法存取這些文件。",
+        "serverError": "伺服器回應為 {{status}}。",
+        "invalidSpec": "伺服器傳回了無效的 OpenAPI 文件。",
+        "baseUrl": "基本 URL：{{url}}",
+        "apiVersion": "API 版本",
+        "openApiVersion": "OpenAPI 版本",
+        "server": "伺服器",
+        "sendToken": "傳送我的 RoValra 存取權杖",
+        "filterLabel": "篩選端點",
+        "filterPlaceholder": "路徑、摘要或標籤",
+        "hideDeprecated": "隱藏已淘汰的端點",
+        "noEndpoints": "未找到端點。",
+        "deprecated": "已淘汰",
+        "deprecatedTooltip": "此端點已淘汰。",
+        "authRequired": "需要授權",
+        "authOptional": "授權可略",
+        "schemeNotSent": "需要 {{name}}，但此頁面不會傳送。",
+        "operationId": "操作 ID",
+        "security": "授權：{{schemes}}",
+        "securityOptional": "授權：{{schemes}}（可略）",
+        "securityTooltip": "安全需求",
+        "parameters": "參數",
+        "noParameters": "無參數",
+        "tryItOut": "試一下",
+        "name": "名稱",
+        "description": "說明",
+        "required": "必填",
+        "availableValues": "可用值：{{values}}",
+        "requestBody": "請求主體",
+        "requestContentType": "請求內容類型",
+        "exampleValue": "範例值",
+        "schema": "架構",
+        "responses": "回應",
+        "noResponses": "無文件化的回應",
+        "code": "代碼",
+        "details": "詳細資料",
+        "execute": "執行",
+        "clear": "清除",
+        "missingParams": "缺少必要參數：{{params}}",
+        "invalidJson": "請求主體不是有效的 JSON：{{error}}",
+        "bodyRequired": "請求體是必要的。",
+        "confirmTitle": "傳送請求？",
+        "confirmMessage": "這將向 {{path}} 傳送一個 {{method}} 請求。請僅在您了解其作用的情況下繼續。",
+        "send": "傳送",
+        "sending": "正在傳送請求...",
+        "requestFailed": "請求失敗：{{error}}",
+        "curl": "Curl",
+        "requestUrl": "請求 URL",
+        "serverResponse": "伺服器回應",
+        "responseBody": "回應主體",
+        "responseHeaders": "回應頭",
+        "emptyResponse": "（空回應）",
+        "responseImage": "回應圖片",
+        "duration": "{{ms}} 毫秒",
+        "durationTooltip": "請求持續時間",
+        "contentType": "內容類型",
+        "redirected": "已重新導向",
+        "copy": "複製"
     }
 }

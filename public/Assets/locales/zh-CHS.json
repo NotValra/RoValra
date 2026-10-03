@@ -1219,7 +1219,8 @@
         "transactions": "交易",
         "apiDocs": "API 文档",
         "incidentLearnMore": "点击此处了解更多信息。",
-        "incidentHideNotice": "您可以在此处隐藏此通知。"
+        "incidentHideNotice": "您可以在此处隐藏此通知。",
+        "rovalraApi": "RoValra API"
     },
     "sidebarCollapse": {
         "collapseSidebar": "折叠侧边栏",
@@ -1683,6 +1684,36 @@
     "purchasePrompt": {
         "balanceAfter": "你在此次交易后的余额将为"
     },
+    "recentlyViewed": {
+        "title": "最近浏览",
+        "clear": "清除",
+        "remove": "移除",
+        "cheaper": "比您浏览时便宜 {{value}} Robux",
+        "pricier": "比您浏览时贵 {{value}} Robux",
+        "offSale": "已下架",
+        "backOnSale": "重新上架"
+    },
+    "tradeRecentItems": {
+        "offer": "最近提供的",
+        "request": "最近请求的",
+        "clear": "清除"
+    },
+    "tradeQuickActions": {
+        "minValue": "他们给出的最小值",
+        "hideLosses": "隐藏亏损",
+        "bulkTitle": "批量操作",
+        "bulkHint": "拒绝所有亏损的交易。请先确认。",
+        "declineLosses": "拒绝亏损的交易",
+        "loadingTrades": "正在加载已接收的交易...",
+        "checking": "正在检查 {{done}}/{{total}} 个交易...",
+        "noLosses": "未发现亏损的交易",
+        "confirmTitle": "拒绝亏损的交易",
+        "confirmMessage": "您收到的 {{total}} 个交易中有 {{count}} 个亏损（总亏损额为 {{value}}）。全部拒绝？此操作无法撤销。",
+        "declineConfirm": "拒绝",
+        "declining": "正在拒绝 {{done}}/{{total}}...",
+        "declined": "已拒绝 {{count}} 个交易",
+        "declinedWithFailures": "已拒绝 {{count}} 个交易，{{failed}} 个交易拒绝失败"
+    },
     "time": {
         "justNow": "刚刚",
         "secondsAgo": "{{count}} 秒前",
@@ -2034,7 +2065,8 @@
         "renderOptions": "渲染选项",
         "darkLighting": "黑暗照明",
         "baseplate": "底板",
-        "rotatePreview": "旋转预览"
+        "rotatePreview": "旋转预览",
+        "itemOnly": "仅显示道具"
     },
     "groupFilters": {
         "sort": {
@@ -2163,5 +2195,75 @@
     "pinnedFriends": {
         "pin": "置顶至顶部",
         "unpin": "取消置顶"
+    },
+    "richLinks": {
+        "by": "创作者：{{name}}",
+        "members": "{{count}} 成员",
+        "playing": "{{count}} 游戏中",
+        "visits": "{{count}} 访问次数",
+        "loading": "加载中...",
+        "free": "免费",
+        "offSale": "已下架"
+    },
+    "privateApiDocs": {
+        "loadFailed": "API 文档加载失败：{{error}}",
+        "noAccess": "您无权访问这些文档。",
+        "serverError": "服务器响应为 {{status}}。",
+        "invalidSpec": "服务器返回了无效的 OpenAPI 文档。",
+        "baseUrl": "基本 URL：{{url}}",
+        "apiVersion": "API 版本",
+        "openApiVersion": "OpenAPI 版本",
+        "server": "服务器",
+        "sendToken": "发送我的 RoValra 访问令牌",
+        "filterLabel": "筛选端点",
+        "filterPlaceholder": "路径、摘要或标签",
+        "hideDeprecated": "隐藏已弃用的端点",
+        "noEndpoints": "未找到端点。",
+        "deprecated": "已弃用",
+        "deprecatedTooltip": "此端点已弃用。",
+        "authRequired": "需要授权",
+        "authOptional": "授权可选",
+        "schemeNotSent": "需要 {{name}}，但此页面不会发送。",
+        "operationId": "操作 ID",
+        "security": "授权：{{schemes}}",
+        "securityOptional": "授权：{{schemes}}（可选）",
+        "securityTooltip": "安全要求",
+        "parameters": "参数",
+        "noParameters": "无参数",
+        "tryItOut": "试用",
+        "name": "名称",
+        "description": "描述",
+        "required": "必填",
+        "availableValues": "可用值：{{values}}",
+        "requestBody": "请求正文",
+        "requestContentType": "请求内容类型",
+        "exampleValue": "示例值",
+        "schema": "架构",
+        "responses": "响应",
+        "noResponses": "无文档化的响应",
+        "code": "代码",
+        "details": "详细信息",
+        "execute": "执行",
+        "clear": "清除",
+        "missingParams": "缺少必需参数：{{params}}",
+        "invalidJson": "请求体不是有效的 JSON：{{error}}",
+        "bodyRequired": "请求体是必需的。",
+        "confirmTitle": "发送请求？",
+        "confirmMessage": "这将向 {{path}} 发送一个 {{method}} 请求。请仅在您了解其作用的情况下继续。",
+        "send": "发送",
+        "sending": "正在发送请求...",
+        "requestFailed": "请求失败：{{error}}",
+        "curl": "Curl",
+        "requestUrl": "请求 URL",
+        "serverResponse": "服务器响应",
+        "responseBody": "响应体",
+        "responseHeaders": "响应头",
+        "emptyResponse": "(空响应)",
+        "responseImage": "响应图像",
+        "duration": "{{ms}} 毫秒",
+        "durationTooltip": "请求持续时间",
+        "contentType": "内容类型",
+        "redirected": "已重定向",
+        "copy": "复制"
     }
 }
