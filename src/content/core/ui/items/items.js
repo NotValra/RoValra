@@ -51,6 +51,97 @@ async function fetchDevelopAssetDetails(assetIds) {
     return assetMap;
 }
 
+const assetBundlesCache = new Map();
+
+async function fetchAssetBundles(assetId) {
+    if (assetBundlesCache.has(assetId)) {
+        return assetBundlesCache.get(assetId);
+    }
+
+    const fetchPromise = (async () => {
+        try {
+            const res = await callRobloxApi({
+                subdomain: 'catalog',
+                endpoint: `/v1/assets/${assetId}/bundles`,
+                method: 'GET',
+            });
+            if (!res.ok) return null;
+            const json = await res.json();
+            const bundles = json.data || [];
+            const bundle =
+                bundles.find(
+                    (b) =>
+                        (b.product?.priceInRobux != null &&
+                            b.product.priceInRobux > 0) ||
+                        (b.collectibleItemDetail?.price != null &&
+                            b.collectibleItemDetail.price > 0),
+                ) ||
+                bundles.find((b) => b.product?.priceInRobux != null) ||
+                bundles[0] ||
+                null;
+            if (!bundle) return null;
+            const price =
+                bundle.product?.priceInRobux ??
+                bundle.collectibleItemDetail?.price ??
+                bundle.collectibleItemDetail?.lowestPrice ??
+                (bundle.product?.isFree ? 0 : null);
+            return {
+                id: bundle.id,
+                name: bundle.name,
+                price: typeof price === 'number' ? price : null,
+                isForSale: bundle.product?.isForSale ?? false,
+            };
+        } catch (e) {
+            console.warn(`RoValra: Failed to fetch bundles for asset ${assetId}`, e);
+            return null;
+        }
+    })();
+
+    assetBundlesCache.set(assetId, fetchPromise);
+    return fetchPromise;
+}
+
+const bundleDetailsCache = new Map();
+
+async function fetchBundleDetails(bundleId) {
+    if (!bundleId) return null;
+    if (bundleDetailsCache.has(bundleId)) {
+        return bundleDetailsCache.get(bundleId);
+    }
+
+    const fetchPromise = (async () => {
+        try {
+            const res = await callRobloxApi({
+                subdomain: 'catalog',
+                endpoint: `/v1/bundles/${bundleId}/details`,
+                method: 'GET',
+            });
+            if (!res.ok) return null;
+            const bundle = await res.json();
+            const price =
+                bundle.product?.priceInRobux ??
+                bundle.collectibleItemDetail?.price ??
+                bundle.collectibleItemDetail?.lowestPrice ??
+                (bundle.product?.isFree ? 0 : null);
+            return {
+                id: bundle.id,
+                name: bundle.name,
+                price: typeof price === 'number' ? price : null,
+                isForSale: bundle.product?.isForSale ?? false,
+            };
+        } catch (e) {
+            console.warn(
+                `RoValra: Failed to fetch bundle details for bundle ${bundleId}`,
+                e,
+            );
+            return null;
+        }
+    })();
+
+    bundleDetailsCache.set(bundleId, fetchPromise);
+    return fetchPromise;
+}
+
 function getCollectibleLowestResalePrice(data) {
     const resalePrice =
         data?.CollectiblesItemDetails?.CollectibleLowestResalePrice ??
@@ -68,7 +159,8 @@ function getItemRawPrice(...sources) {
             source?.lowestPrice ??
             source?.priceInRobux ??
             source?.price ??
-            source?.PriceInRobux;
+            source?.PriceInRobux ??
+            source?.offsalePrice;
 
         if (typeof price === 'number') return price;
     }
@@ -151,6 +243,7 @@ async function fetchEconomyItemDetails(
             itemType: catalogItemData?.itemType || 'Asset',
             isOnHold: false,
             bundleId: null,
+            bundleName: null,
         };
 
         if (
@@ -158,6 +251,49 @@ async function fetchEconomyItemDetails(
             looksItemData.id !== assetId
         ) {
             item.bundleId = looksItemData.id;
+            item.bundleName = looksItemData.name;
+        }
+
+        if (
+            looksItemData?.itemType === 'Bundle' ||
+            isBundleAssetProxy(looksItemData, assetId)
+        ) {
+            const bundlePrice = getItemRawPrice(looksItemData);
+            if (bundlePrice != null && bundlePrice > 0) {
+                item.bundlePrice = bundlePrice;
+            }
+            if (looksItemData.isPurchasable !== undefined) {
+                item.bundleIsForSale = looksItemData.isPurchasable === true;
+            } else if (looksItemData.product?.isForSale !== undefined) {
+                item.bundleIsForSale = looksItemData.product.isForSale === true;
+            }
+        }
+
+        if (item.bundleId != null && item.bundlePrice == null) {
+            const bundleDetails = await fetchBundleDetails(item.bundleId);
+            if (bundleDetails?.price != null) {
+                item.bundlePrice = bundleDetails.price;
+                if (!item.bundleName && bundleDetails.name) {
+                    item.bundleName = bundleDetails.name;
+                }
+            }
+            if (bundleDetails?.isForSale !== undefined) {
+                item.bundleIsForSale = bundleDetails.isForSale;
+            }
+        }
+
+        if (item.bundleId == null || item.bundlePrice == null) {
+            const bundleInfo = await fetchAssetBundles(assetId);
+            if (bundleInfo?.id) {
+                item.bundleId = bundleInfo.id;
+                item.bundleName = bundleInfo.name;
+                if (bundleInfo.price != null) {
+                    item.bundlePrice = bundleInfo.price;
+                }
+                if (bundleInfo.isForSale !== undefined) {
+                    item.bundleIsForSale = bundleInfo.isForSale;
+                }
+            }
         }
 
         const saleSource = isBundleAssetProxy(looksItemData, assetId)
@@ -169,6 +305,14 @@ async function fetchEconomyItemDetails(
 
         if (!isForSale && resalePrice == null) {
             item.priceText = 'Off Sale';
+            if (
+                !isBundleAssetProxy(looksItemData, assetId) &&
+                !item.bundleId &&
+                rawPrice != null &&
+                rawPrice > 1
+            ) {
+                item.offsalePrice = rawPrice;
+            }
         } else {
             item.price = rawPrice;
             if (rawPrice === 0) item.priceText = 'Free';
@@ -380,6 +524,67 @@ async function processBatch() {
                         looksItemData.id !== request.id
                     ) {
                         item.bundleId = looksItemData.id;
+                        item.bundleName = looksItemData.name;
+                    }
+
+                    if (
+                        looksItemData?.itemType === 'Bundle' ||
+                        isLooksBundleProxy
+                    ) {
+                        const bundlePrice = getItemRawPrice(looksItemData);
+                        if (bundlePrice != null && bundlePrice > 0) {
+                            item.bundlePrice = bundlePrice;
+                        }
+                        if (looksItemData.isPurchasable !== undefined) {
+                            item.bundleIsForSale = looksItemData.isPurchasable === true;
+                        } else if (looksItemData.product?.isForSale !== undefined) {
+                            item.bundleIsForSale = looksItemData.product.isForSale === true;
+                        }
+                    }
+
+                    if (item.bundleId != null && item.bundlePrice == null) {
+                        const bundleDetails = await fetchBundleDetails(item.bundleId);
+                        if (bundleDetails?.price != null) {
+                            item.bundlePrice = bundleDetails.price;
+                            if (!item.bundleName && bundleDetails.name) {
+                                item.bundleName = bundleDetails.name;
+                            }
+                        }
+                        if (bundleDetails?.isForSale !== undefined) {
+                            item.bundleIsForSale = bundleDetails.isForSale;
+                        }
+                    }
+
+                    if (item.bundleId == null || item.bundlePrice == null) {
+                        const bundleInfo = await fetchAssetBundles(request.id);
+                        if (bundleInfo?.id) {
+                            item.bundleId = bundleInfo.id;
+                            item.bundleName = bundleInfo.name;
+                            if (bundleInfo.price != null) {
+                                item.bundlePrice = bundleInfo.price;
+                            }
+                            if (bundleInfo.isForSale !== undefined) {
+                                item.bundleIsForSale = bundleInfo.isForSale;
+                            }
+                        }
+                    }
+
+                    if (
+                        isOffSale &&
+                        !item.bundleId &&
+                        (item.offsalePrice == null || rawPrice == null)
+                    ) {
+                        const economyDetails = await fetchEconomyItemDetails(
+                            request.id,
+                            looksItemData,
+                            catalogItemData,
+                        );
+                        if (economyDetails?.offsalePrice != null && economyDetails.offsalePrice > 1) {
+                            item.offsalePrice = economyDetails.offsalePrice;
+                            rawPrice = economyDetails.offsalePrice;
+                        } else if (economyDetails?.price != null && economyDetails.price > 1) {
+                            rawPrice = economyDetails.price;
+                        }
                     }
 
                     if (isOffSale) {
@@ -388,6 +593,19 @@ async function processBatch() {
                             item.recentAveragePrice = rawPrice;
                         } else {
                             item.priceText = 'Off Sale';
+                            if (!isLimited) {
+                                if (rawPrice == null) {
+                                    rawPrice = getItemRawPrice(
+                                        catalogItemData,
+                                        ...(isLooksBundleProxy
+                                            ? []
+                                            : [looksItemData]),
+                                    );
+                                }
+                                if (rawPrice != null && rawPrice > 1) {
+                                    item.offsalePrice = rawPrice;
+                                }
+                            }
                         }
                     } else {
                         item.price = rawPrice;
@@ -424,12 +642,79 @@ async function processBatch() {
                                 itemType: 'Asset',
                                 isOnHold: false,
                                 bundleId: null,
+                                bundleName: null,
                                 priceText: 'Off Sale',
                             };
+                            const bundleInfo = await fetchAssetBundles(request.id);
+                            if (bundleInfo?.id) {
+                                item.bundleId = bundleInfo.id;
+                                item.bundleName = bundleInfo.name;
+                                if (bundleInfo.price != null) {
+                                    item.bundlePrice = bundleInfo.price;
+                                }
+                                if (bundleInfo.isForSale !== undefined) {
+                                    item.bundleIsForSale = bundleInfo.isForSale;
+                                }
+                            }
                         }
                     }
 
                     if (item) {
+                        if (
+                            (looksItemData?.itemType === 'Bundle' ||
+                                isBundleAssetProxy(
+                                    looksItemData,
+                                    request.id,
+                                )) &&
+                            item.bundlePrice == null
+                        ) {
+                            const bundlePrice = getItemRawPrice(looksItemData);
+                            if (bundlePrice != null && bundlePrice > 0) {
+                                item.bundlePrice = bundlePrice;
+                            }
+                            if (looksItemData.isPurchasable !== undefined) {
+                                item.bundleIsForSale = looksItemData.isPurchasable === true;
+                            } else if (looksItemData.product?.isForSale !== undefined) {
+                                item.bundleIsForSale = looksItemData.product.isForSale === true;
+                            }
+                        }
+
+                        if (item.bundleId != null && item.bundlePrice == null) {
+                            const bundleDetails = await fetchBundleDetails(item.bundleId);
+                            if (bundleDetails?.price != null) {
+                                item.bundlePrice = bundleDetails.price;
+                                if (!item.bundleName && bundleDetails.name) {
+                                    item.bundleName = bundleDetails.name;
+                                }
+                            }
+                            if (bundleDetails?.isForSale !== undefined) {
+                                item.bundleIsForSale = bundleDetails.isForSale;
+                            }
+                        }
+
+                        if (
+                            (item.priceText === 'Off Sale' ||
+                                isItemOffSale(looksItemData) ||
+                                isItemOffSale(catalogItemData)) &&
+                            item.offsalePrice == null
+                        ) {
+                            const isProxy = isBundleAssetProxy(
+                                looksItemData,
+                                request.id,
+                            );
+                            const rawPrice =
+                                (item.recentAveragePrice > 0
+                                    ? item.recentAveragePrice
+                                    : null) ??
+                                getItemRawPrice(
+                                    catalogItemData,
+                                    ...(isProxy ? [] : [looksItemData]),
+                                );
+                            if (rawPrice != null && rawPrice > 1) {
+                                item.offsalePrice = rawPrice;
+                            }
+                        }
+
                         item.isHiddenFromMarketplace = true;
                         const realCard = createItemCard(
                             item,
@@ -524,8 +809,34 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         card.dataset.rovalraBundleId = item.bundleId;
     }
 
+    if (item.bundleName) {
+        card.dataset.rovalraBundleName = item.bundleName;
+    }
+
     if (item.price !== undefined && item.price !== null) {
         card.dataset.rovalraPrice = item.price;
+    }
+
+    if (item.bundlePrice !== undefined && item.bundlePrice !== null) {
+        card.dataset.rovalraBundlePrice = item.bundlePrice;
+    }
+
+    if (item.bundleIsForSale !== undefined) {
+        card.dataset.rovalraBundleIsForSale = item.bundleIsForSale
+            ? 'true'
+            : 'false';
+    }
+
+    if (item.offsalePrice !== undefined && item.offsalePrice !== null) {
+        card.dataset.rovalraOffsalePrice = item.offsalePrice;
+    }
+
+    if (item.priceText) {
+        card.dataset.rovalraPriceText = item.priceText;
+    }
+
+    if (typeof item.recentAveragePrice === 'number') {
+        card.dataset.rovalraRap = item.recentAveragePrice;
     }
 
     const thumbData = thumbnailCache?.get
@@ -537,8 +848,19 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
             ? `https://www.roblox.com/bundles/${item.assetId}/unnamed`
             : `https://www.roblox.com/catalog/${item.assetId}/unnamed`;
 
+    const showOffsaleBundleValue =
+        config.showOffsaleBundleValue !== undefined
+            ? config.showOffsaleBundleValue
+            : true;
     let priceHtml;
-    if (item.priceText) {
+
+    if (item.price !== undefined && item.price !== null) {
+        if (item.price === 0) {
+            priceHtml = `<span>${item.priceText || ts('common.free') || 'Free'}</span>`;
+        } else {
+            priceHtml = `<span class="icon-robux-16x16"></span><span>${item.price.toLocaleString()}</span>`;
+        }
+    } else if (item.priceText) {
         priceHtml = `<span>${item.priceText}</span>`;
     } else {
         const rap =

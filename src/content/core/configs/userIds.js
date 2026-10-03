@@ -23,6 +23,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '146089324', // WoozyNate
     '2974594300', // AGENT700PRODS (im not spending 1k robux to change it, ok?)
     '476449201', //IYoLsa
+    '417758197', // Just3itx
     '2963377564', // radwl_radu
     '2333236354', // AandA510
     '170038374', // syra (concept artist)
