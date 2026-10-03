@@ -57,6 +57,7 @@ export const TRANSLATOR_USER_IDS = [
     '519742979', // BBasilio2001
     '3733653415 ', // kurdo3660
     '16147087', // Edward667
+    '587930109', // hnguyen1910
 ];
 
 export const ARTIST_USER_IDS = [
