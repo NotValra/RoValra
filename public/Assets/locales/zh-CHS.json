@@ -2206,6 +2206,8 @@
         "offSale": "已下架"
     },
     "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "正在加载 API 文档...",
         "loadFailed": "API 文档加载失败：{{error}}",
         "noAccess": "您无权访问这些文档。",
         "serverError": "服务器响应为 {{status}}。",
