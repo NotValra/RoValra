@@ -1322,8 +1322,11 @@ export const applyLockedState = (
     const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
     if (existingNotice) existingNotice.remove();
 
-    if (![ 'default', 'donator', 'remote', ].includes(lockType))
-        lockType = 'default';
+    if (![ 'default', 'donator', 'remote', ].includes(lockType)) {
+        const lockTypeDefault = 'default';
+        console.warn(`[RoValra] Handle Settings: lock type "${String(lockType)}" falling back to default type (${String(lockTypeDefault)})`)
+        lockType = lockTypeDefault;
+    }
 
     if (isLocked || lockType === 'donator') {
         const config = findSettingConfig(settingName);
