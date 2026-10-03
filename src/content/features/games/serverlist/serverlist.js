@@ -3,7 +3,10 @@ import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { getPlaceDetails } from '../../../core/apis/games.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
-import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
+import {
+    initServerIdExtraction,
+    syncServerId,
+} from '../../../core/games/servers/serverids.js';
 import { loadDatacenterMap, serverIpMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
 import { observeElement, startObserving } from '../../../core/observer.js';
@@ -299,13 +302,13 @@ export function init() {
                 return;
             }
             if (settings) {
-            _state.filterSettings = {
-                serverFilter: settings.ServerFilterEnabled !== false,
-                region: settings.RegionFiltersEnabled !== false,
-                uptime: settings.UptimeFiltersEnabled !== false,
-                version: settings.VersionFiltersEnabled !== false,
-            };
-        }
+                _state.filterSettings = {
+                    serverFilter: settings.ServerFilterEnabled !== false,
+                    region: settings.RegionFiltersEnabled !== false,
+                    uptime: settings.UptimeFiltersEnabled !== false,
+                    version: settings.VersionFiltersEnabled !== false,
+                };
+            }
             safeInitAll();
         },
     );
@@ -631,24 +634,16 @@ function startController() {
     if (_started.value) return;
     _started.value = true;
 
-    document.addEventListener(
-        'rovalra:settingSaved',
-        (event) => {
-            const settingName =
-                event.detail?.name;
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        const settingName = event.detail?.name;
 
-            if (
-                settingName ===
-                    'PrivateServerGridEnabled' ||
-                settingName ===
-                    'ServerlistmodificationsEnabled'
-            ) {
-                refreshPrivateServerGrid().catch(
-                    () => {},
-                );
-            }
-        },
-    );
+        if (
+            settingName === 'PrivateServerGridEnabled' ||
+            settingName === 'ServerlistmodificationsEnabled'
+        ) {
+            refreshPrivateServerGrid().catch(() => {});
+        }
+    });
 
     try {
         if (typeof startObserving === 'function') startObserving();
@@ -727,15 +722,15 @@ function startController() {
     );
 }
 
-let currentPageIsSubplacePromise = null;
+const subplaceCache = new Map();
+const subplacePromises = new Map();
 
 function isCurrentPageSubplace() {
-    if (currentPageIsSubplacePromise) return currentPageIsSubplacePromise;
-
     const placeId = getPlaceIdFromUrl();
     if (!placeId) return Promise.resolve(false);
+    if (subplacePromises.has(placeId)) return subplacePromises.get(placeId);
 
-    currentPageIsSubplacePromise = getPlaceDetails(placeId)
+    const promise = getPlaceDetails(placeId)
         .then((details) => {
             const rootPlaceId =
                 details?.universeRootPlaceId || details?.rootPlaceId;
@@ -744,33 +739,60 @@ function isCurrentPageSubplace() {
                 String(rootPlaceId) !== String(placeId)
             );
         })
-        .catch(() => false);
+        .catch(() => false)
+        .then((isSubplace) => {
+            subplaceCache.set(placeId, isSubplace);
+            return isSubplace;
+        });
 
-    return currentPageIsSubplacePromise;
+    subplacePromises.set(placeId, promise);
+    return promise;
 }
 
-async function replaceSubplaceJoinButton(serverElement) {
-    if (!(await isCurrentPageSubplace())) return;
+const SUBPLACE_JOIN_BUTTON_SELECTOR =
+    '[data-rovalra-join-button="true"], .game-server-join-btn, .rbx-public-game-server-join, .rovalra-join-btn';
 
-    const serverId = serverElement.getAttribute('data-rovalra-serverid');
+function getSubplaceJoinTarget(event) {
     const placeId = getPlaceIdFromUrl();
-    if (!serverId || !placeId) return;
+    if (!placeId || subplaceCache.get(placeId) !== true) return null;
 
-    const joinButton = serverElement.querySelector(
-        '[data-rovalra-join-button="true"], .game-server-join-btn, .rovalra-join-btn',
-    );
-    if (!joinButton || joinButton.dataset.rovalraSubplaceJoin === 'true') {
-        return;
-    }
+    const target = event.target;
+    if (!(target instanceof Element)) return null;
 
-    const rovalraJoinButton = joinButton.cloneNode(true);
-    rovalraJoinButton.dataset.rovalraSubplaceJoin = 'true';
-    rovalraJoinButton.onclick = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        launchGame(placeId, serverId);
+    const joinButton = target.closest(SUBPLACE_JOIN_BUTTON_SELECTOR);
+    if (!joinButton) return null;
+
+    const serverId = joinButton
+        .closest('[data-rovalra-serverid]')
+        ?.getAttribute('data-rovalra-serverid');
+    if (!serverId) return null;
+
+    return { placeId, serverId };
+}
+
+let subplaceJoinInterceptorInstalled = false;
+
+function installSubplaceJoinInterceptor() {
+    if (subplaceJoinInterceptorInstalled) return;
+    subplaceJoinInterceptorInstalled = true;
+
+    const swallow = (event) => {
+        if (!getSubplaceJoinTarget(event)) return;
+        event.stopImmediatePropagation();
     };
-    joinButton.replaceWith(rovalraJoinButton);
+
+    const onClick = (event) => {
+        const joinTarget = getSubplaceJoinTarget(event);
+        if (!joinTarget) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        launchGame(joinTarget.placeId, joinTarget.serverId);
+    };
+
+    for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup']) {
+        window.addEventListener(type, swallow, true);
+    }
+    window.addEventListener('click', onClick, true);
 }
 
 async function loadServerIpMap() {
@@ -783,7 +805,9 @@ async function loadServerIpMap() {
 
 export function processUptimeBatch() {
     if (_state.uptimeBatch.size === 0) return;
-    const placeId = window.location.pathname.match(/\/games\/(\d+)(?:\/|$)/)?.[1];
+    const placeId = window.location.pathname.match(
+        /\/games\/(\d+)(?:\/|$)/,
+    )?.[1];
     if (!placeId) return;
 
     const batch = Array.from(_state.uptimeBatch);
@@ -798,62 +822,6 @@ export function processUptimeBatch() {
         ).catch(() => {});
     } catch (e) {}
 }
-async function getReactServerId(element) {
-    return new Promise((resolve) => {
-        const extractionId = Math.random().toString(36).substring(2, 15);
-        element.setAttribute('data-rovalra-extraction-id', extractionId);
-
-        const listener = (event) => {
-            if (event.detail.extractionId === extractionId) {
-                window.removeEventListener(
-                    'rovalra-serverid-extracted',
-                    listener,
-                );
-                const {
-                    serverId,
-                    privateServerId,
-                    accessCode,
-                    isFriendServer,
-                    isOwner,
-                } = event.detail;
-
-                if (serverId)
-                    element.setAttribute('data-rovalra-serverid', serverId);
-                if (privateServerId)
-                    element.setAttribute(
-                        'data-private-server-id',
-                        privateServerId,
-                    );
-                if (accessCode)
-                    element.setAttribute('data-access-code', accessCode);
-                element.setAttribute(
-                    'data-rovalra-is-friend-server',
-                    String(Boolean(isFriendServer)),
-                );
-                element.setAttribute(
-                    'data-rovalra-is-owner',
-                    String(Boolean(isOwner)),
-                );
-
-                resolve(event.detail);
-            }
-        };
-
-        window.addEventListener('rovalra-serverid-extracted', listener);
-
-        window.dispatchEvent(
-            new CustomEvent('rovalra-extract-serverid-request', {
-                detail: { extractionId },
-            }),
-        );
-
-        setTimeout(() => {
-            window.removeEventListener('rovalra-serverid-extracted', listener);
-            resolve(null);
-        }, 1000);
-    });
-}
-
 function addModernShareButton(el) {
     const btnContainer = el.querySelector(
         '.flex.items-center.gap-small.grow-0.shrink-0.basis-auto',
@@ -866,11 +834,15 @@ function addModernShareButton(el) {
         nativeJoinBtn.setAttribute('data-rovalra-join-button', 'true');
     }
 
-    const serverId = el.getAttribute('data-rovalra-serverid');
     const privateServerId = el.getAttribute('data-private-server-id');
     const placeId = getPlaceIdFromUrl();
 
-    if (!placeId || !serverId || privateServerId) return;
+    if (
+        !placeId ||
+        !el.getAttribute('data-rovalra-serverid') ||
+        privateServerId
+    )
+        return;
 
     btnContainer.className =
         'flex flex-col items-center gap-xsmall grow-0 shrink-0 basis-auto';
@@ -890,6 +862,7 @@ function addModernShareButton(el) {
     const shareBtn = shareBtnWrapper.querySelector('button');
     shareBtn.onclick = async (e) => {
         e.stopPropagation();
+        const serverId = el.getAttribute('data-rovalra-serverid');
         const joinLink = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
 
         if (!joinLink) return;
@@ -911,31 +884,20 @@ async function refreshPrivateServerGrid() {
     const serverListEnabled =
         await sharedSettings.ServerlistmodificationsEnabled;
 
-    const gridEnabled =
-        await sharedSettings.PrivateServerGridEnabled;
+    const gridEnabled = await sharedSettings.PrivateServerGridEnabled;
 
-    const enabled =
-        serverListEnabled !== false &&
-        gridEnabled === true;
+    const enabled = serverListEnabled !== false && gridEnabled === true;
 
     document
-        .querySelectorAll(
-            '.rovalra-private-server-grid',
-        )
+        .querySelectorAll('.rovalra-private-server-grid')
         .forEach((container) => {
-            container.classList.remove(
-                'rovalra-private-server-grid',
-            );
+            container.classList.remove('rovalra-private-server-grid');
         });
 
     document
-        .querySelectorAll(
-            '.rovalra-private-server-grid-card',
-        )
+        .querySelectorAll('.rovalra-private-server-grid-card')
         .forEach((card) => {
-            card.classList.remove(
-                'rovalra-private-server-grid-card',
-            );
+            card.classList.remove('rovalra-private-server-grid-card');
         });
 
     if (!enabled) {
@@ -961,25 +923,16 @@ async function refreshPrivateServerGrid() {
         }
 
         if (!containers.has(container)) {
-            containers.set(
-                container,
-                [],
-            );
+            containers.set(container, []);
         }
 
-        containers
-            .get(container)
-            .push(card);
+        containers.get(container).push(card);
     }
 
     for (const [container] of containers) {
-        container.classList.add(
-            'rovalra-private-server-grid',
-        );
+        container.classList.add('rovalra-private-server-grid');
 
-        const gridItems = Array.from(
-            container.children,
-        ).filter((child) =>
+        const gridItems = Array.from(container.children).filter((child) =>
             child.matches(
                 [
                     '.flex.items-center.justify-between.padding-y-medium.width-full',
@@ -989,9 +942,7 @@ async function refreshPrivateServerGrid() {
         );
 
         for (const item of gridItems) {
-            item.classList.add(
-                'rovalra-private-server-grid-card',
-            );
+            item.classList.add('rovalra-private-server-grid-card');
         }
     }
 }
@@ -1005,65 +956,32 @@ function initializeEnhancementObserver() {
     const scheduleUptime = () => {
         clearTimeout(uptimeDebounce);
 
-        uptimeDebounce = setTimeout(
-            () => processUptimeBatch(),
-            120,
-        );
+        uptimeDebounce = setTimeout(() => processUptimeBatch(), 120);
     };
 
     observeElement(
         serverSelector,
         async (el) => {
-            const hasId =
-                el.hasAttribute(
-                    'data-rovalra-serverid',
-                );
+            await syncServerId(el);
 
-            const hasAccess =
-                el.hasAttribute(
-                    'data-access-code',
-                );
-
-            const hasPrivateId =
-                el.hasAttribute(
-                    'data-private-server-id',
-                );
-
-            if (
-                !hasId &&
-                !hasAccess &&
-                !hasPrivateId
-            ) {
-                await getReactServerId(el);
-            }
-
-            if (
-                el.hasAttribute(
-                    'data-private-server-id',
-                )
-            ) {
+            if (el.hasAttribute('data-private-server-id')) {
                 await refreshPrivateServerGrid();
             }
 
             if (
-                el.classList.contains(
-                    'width-full',
-                ) &&
+                el.classList.contains('width-full') &&
                 el.classList.contains('flex')
             ) {
                 addModernShareButton(el);
             }
 
-            await replaceSubplaceJoinButton(el);
+            installSubplaceJoinInterceptor();
+            isCurrentPageSubplace();
 
-            const section = el.closest(
-                '.flex.flex-col.gap-large.width-full',
-            );
+            const section = el.closest('.flex.flex-col.gap-large.width-full');
 
             if (section) {
-                section.classList.add(
-                    'rovalra-modern-ui',
-                );
+                section.classList.add('rovalra-modern-ui');
 
                 const mainWrapper =
                     section.closest(
@@ -1071,29 +989,20 @@ function initializeEnhancementObserver() {
                     ) || section.parentElement;
 
                 if (mainWrapper) {
-                    mainWrapper.classList.add(
-                        'rovalra-modern-container',
-                    );
+                    mainWrapper.classList.add('rovalra-modern-container');
                 }
             }
 
             try {
                 enhanceServer(el, {
                     serverDataCache: _state.serverDataCache,
-                    serverLocations:
-                        _state.serverLocations,
-                    serverStatuses:
-                        _state.serverStatuses,
-                    serverUptimes:
-                        _state.serverUptimes,
-                    serverPerformanceCache:
-                        _state.serverPerformanceCache,
-                    vipStatusCache:
-                        _state.vipStatusCache,
-                    uptimeBatch:
-                        _state.uptimeBatch,
-                    serverIpMap:
-                        _state.serverIpMap,
+                    serverLocations: _state.serverLocations,
+                    serverStatuses: _state.serverStatuses,
+                    serverUptimes: _state.serverUptimes,
+                    serverPerformanceCache: _state.serverPerformanceCache,
+                    vipStatusCache: _state.vipStatusCache,
+                    uptimeBatch: _state.uptimeBatch,
+                    serverIpMap: _state.serverIpMap,
                     processUptimeBatch,
                 }).catch(() => {});
             } catch (e) {}
@@ -1223,8 +1132,7 @@ export async function createServerCardFromRobloxApi(
         const isModern =
             !document.getElementById('rbx-public-game-server-item-container') &&
             !!document.querySelector('.rovalra-modern-ui');
-        if (isModern)
-            return createModernServerCard(server, placeId, options);
+        if (isModern) return createModernServerCard(server, placeId, options);
 
         const listItemClass =
             'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
@@ -1311,8 +1219,7 @@ export async function createServerCardFromApi(
         const isModern =
             !document.getElementById('rbx-public-game-server-item-container') &&
             !!document.querySelector('.rovalra-modern-ui');
-        if (isModern)
-            return createModernServerCard(server, placeId, options);
+        if (isModern) return createModernServerCard(server, placeId, options);
 
         const listItemClass =
             'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
@@ -1733,7 +1640,9 @@ async function createModernServerCard(server, placeId, options = {}) {
             navigator.clipboard.writeText(joinLink).then(async () => {
                 const span = shareBtn.querySelector('.text-no-wrap');
                 const originalText = span.textContent;
-                span.textContent = await t('localizationFallbacks.serverCopied');
+                span.textContent = await t(
+                    'localizationFallbacks.serverCopied',
+                );
                 setTimeout(() => {
                     span.textContent = originalText;
                 }, 1000);
