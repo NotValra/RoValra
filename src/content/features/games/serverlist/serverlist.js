@@ -3,7 +3,10 @@ import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { getPlaceDetails } from '../../../core/apis/games.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
-import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
+import {
+    initServerIdExtraction,
+    syncServerId,
+} from '../../../core/games/servers/serverids.js';
 import { loadDatacenterMap, serverIpMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
 import { observeElement, startObserving } from '../../../core/observer.js';
@@ -819,62 +822,6 @@ export function processUptimeBatch() {
         ).catch(() => {});
     } catch (e) {}
 }
-async function getReactServerId(element) {
-    return new Promise((resolve) => {
-        const extractionId = Math.random().toString(36).substring(2, 15);
-        element.setAttribute('data-rovalra-extraction-id', extractionId);
-
-        const listener = (event) => {
-            if (event.detail.extractionId === extractionId) {
-                window.removeEventListener(
-                    'rovalra-serverid-extracted',
-                    listener,
-                );
-                const {
-                    serverId,
-                    privateServerId,
-                    accessCode,
-                    isFriendServer,
-                    isOwner,
-                } = event.detail;
-
-                if (serverId)
-                    element.setAttribute('data-rovalra-serverid', serverId);
-                if (privateServerId)
-                    element.setAttribute(
-                        'data-private-server-id',
-                        privateServerId,
-                    );
-                if (accessCode)
-                    element.setAttribute('data-access-code', accessCode);
-                element.setAttribute(
-                    'data-rovalra-is-friend-server',
-                    String(Boolean(isFriendServer)),
-                );
-                element.setAttribute(
-                    'data-rovalra-is-owner',
-                    String(Boolean(isOwner)),
-                );
-
-                resolve(event.detail);
-            }
-        };
-
-        window.addEventListener('rovalra-serverid-extracted', listener);
-
-        window.dispatchEvent(
-            new CustomEvent('rovalra-extract-serverid-request', {
-                detail: { extractionId },
-            }),
-        );
-
-        setTimeout(() => {
-            window.removeEventListener('rovalra-serverid-extracted', listener);
-            resolve(null);
-        }, 1000);
-    });
-}
-
 function addModernShareButton(el) {
     const btnContainer = el.querySelector(
         '.flex.items-center.gap-small.grow-0.shrink-0.basis-auto',
@@ -887,11 +834,15 @@ function addModernShareButton(el) {
         nativeJoinBtn.setAttribute('data-rovalra-join-button', 'true');
     }
 
-    const serverId = el.getAttribute('data-rovalra-serverid');
     const privateServerId = el.getAttribute('data-private-server-id');
     const placeId = getPlaceIdFromUrl();
 
-    if (!placeId || !serverId || privateServerId) return;
+    if (
+        !placeId ||
+        !el.getAttribute('data-rovalra-serverid') ||
+        privateServerId
+    )
+        return;
 
     btnContainer.className =
         'flex flex-col items-center gap-xsmall grow-0 shrink-0 basis-auto';
@@ -911,6 +862,7 @@ function addModernShareButton(el) {
     const shareBtn = shareBtnWrapper.querySelector('button');
     shareBtn.onclick = async (e) => {
         e.stopPropagation();
+        const serverId = el.getAttribute('data-rovalra-serverid');
         const joinLink = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
 
         if (!joinLink) return;
@@ -1010,15 +962,7 @@ function initializeEnhancementObserver() {
     observeElement(
         serverSelector,
         async (el) => {
-            const hasId = el.hasAttribute('data-rovalra-serverid');
-
-            const hasAccess = el.hasAttribute('data-access-code');
-
-            const hasPrivateId = el.hasAttribute('data-private-server-id');
-
-            if (!hasId && !hasAccess && !hasPrivateId) {
-                await getReactServerId(el);
-            }
+            await syncServerId(el);
 
             if (el.hasAttribute('data-private-server-id')) {
                 await refreshPrivateServerGrid();

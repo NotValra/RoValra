@@ -60,6 +60,8 @@ const ICONS = {
     inactive: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"/> stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
 };
 
+const serverNetworkInfo = new Map();
+
 let isShareLinkEnabled = true;
 let isServerUptimeEnabled = true;
 let isServerRegionEnabled = true;
@@ -162,6 +164,84 @@ const cacheReadyPromise = new Promise((resolve) => {
         }
     });
 });
+
+export function getRowServerId(server) {
+    if (!server) return null;
+    const serverId = server.getAttribute('data-rovalra-serverid');
+    if (serverId) return serverId;
+    if (server.classList.contains('rbx-private-game-server-item')) {
+        return server.dataset.accessCode || null;
+    }
+    return null;
+}
+
+function getServerRows(serverId) {
+    if (!serverId) return [];
+    const id = CSS.escape(String(serverId));
+    return Array.from(
+        document.querySelectorAll(
+            `[data-rovalra-serverid="${id}"], .rbx-private-game-server-item[data-access-code="${id}"]`,
+        ),
+    ).filter((server) => getRowServerId(server) === String(serverId));
+}
+
+function setServerNetworkInfo(serverId, ip, dcId) {
+    if (!serverId) return;
+    const existing = serverNetworkInfo.get(serverId) || {};
+    serverNetworkInfo.set(serverId, {
+        ip: ip ?? existing.ip ?? null,
+        dcId: dcId ?? existing.dcId ?? null,
+    });
+}
+
+function restoreJoinButton(server) {
+    const joinBtn = server.querySelector(
+        '.game-server-join-btn, .rovalra-join-btn',
+    );
+    if (!joinBtn || joinBtn.dataset.rovalraOriginalLabel === undefined) return;
+
+    const joinLabel = joinBtn.querySelector('.text-no-wrap') || joinBtn;
+    joinLabel.textContent = joinBtn.dataset.rovalraOriginalLabel;
+    joinBtn.classList.replace('btn-secondary-md', 'btn-primary-md');
+    delete joinBtn.dataset.rovalraOriginalLabel;
+}
+
+function markJoinButtonFull(server) {
+    const joinBtn = server.querySelector(
+        '.game-server-join-btn, .rovalra-join-btn',
+    );
+    if (!joinBtn) return;
+
+    const joinLabel = joinBtn.querySelector('.text-no-wrap') || joinBtn;
+    if (joinBtn.dataset.rovalraOriginalLabel === undefined) {
+        joinBtn.dataset.rovalraOriginalLabel = joinLabel.textContent;
+    }
+    joinLabel.textContent = ts('common.joinServerFull');
+    joinBtn.classList.replace('btn-primary-md', 'btn-secondary-md');
+}
+
+function resetServerRow(server) {
+    server
+        .querySelectorAll(
+            `.${CLASSES.CONTAINER}, .rovalra-meta-pill, .rovalra-meta-icons, .rovalra-server-extra-details`,
+        )
+        .forEach((el) => el.remove());
+    restoreJoinButton(server);
+    server._rovalraApiData = null;
+    server.removeAttribute('data-rovalra-api');
+}
+
+function displayServerStatus(server, status) {
+    if (status === 'full') {
+        if (!isFullServerIndicatorsEnabled) return;
+        markJoinButtonFull(server);
+        displayServerFullStatus(server);
+    } else if (status === 'purchase') {
+        displayPurchaseGameStatus(server);
+    } else if (status === 'inactive') {
+        displayInactivePlaceStatus(server);
+    }
+}
 
 export function createUUID() {
     return crypto.randomUUID
@@ -596,9 +676,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     const existingVersion = container.querySelector(`.${CLASSES.Version}`);
     if (
         (!version || version === 'Unknown') &&
-        existingVersion &&
-        existingVersion.style.display !== 'none' &&
-        existingVersion.textContent.includes('Version ')
+        existingVersion?.dataset.rovalraVersion
     ) {
         return existingVersion;
     }
@@ -617,7 +695,17 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
         visible = true;
     }
 
-    updateInfoElement(container, 'Version', ICONS.version, text, visible);
+    const element = updateInfoElement(
+        container,
+        'Version',
+        ICONS.version,
+        text,
+        visible,
+    );
+    if (element) {
+        if (visible) element.dataset.rovalraVersion = String(version);
+        else delete element.dataset.rovalraVersion;
+    }
 }
 
 export function displayRegion(server, regionName, serverLocations = {}) {
@@ -672,13 +760,9 @@ export function displayRegion(server, regionName, serverLocations = {}) {
 }
 
 function displayRegionForServerId(serverId, regionName, serverLocations) {
-    if (!serverId) return;
-
-    document
-        .querySelectorAll(`[data-rovalra-serverid="${serverId}"]`)
-        .forEach((server) =>
-            displayRegion(server, regionName, serverLocations),
-        );
+    getServerRows(serverId).forEach((server) =>
+        displayRegion(server, regionName, serverLocations),
+    );
 }
 
 export function displayIpAndDcId(server) {
@@ -705,8 +789,7 @@ export function displayIpAndDcId(server) {
 
     extraDiv.className = 'rovalra-server-extra-details text-info xsmall';
 
-    const ip = server.dataset.rovalraIp;
-    const dcId = server.dataset.rovalraDcId;
+    const { ip, dcId } = serverNetworkInfo.get(getRowServerId(server)) || {};
 
     extraDiv.style.cssText = `font-size: 9px; margin-top: 2px; display: flex; justify-content: space-between; min-height: 12px; padding: 0 8px; box-sizing: border-box;`;
     extraDiv.innerHTML = '';
@@ -838,15 +921,9 @@ export async function fetchServerUptime(
                 serverLocations[serverId] = normalizedRegion;
             }
 
-            const serverEls = document.querySelectorAll(
-                `[data-rovalra-serverid="${serverId}"]`,
-            );
+            setServerNetworkInfo(serverId, ipAddress, datacenterId);
 
-            serverEls.forEach((serverEl) => {
-                if (ipAddress != null) serverEl.dataset.rovalraIp = ipAddress;
-                if (datacenterId != null)
-                    serverEl.dataset.rovalraDcId = datacenterId;
-
+            getServerRows(serverId).forEach((serverEl) => {
                 displayPlaceVersion(
                     serverEl,
                     versionToDisplay,
@@ -863,10 +940,7 @@ export async function fetchServerUptime(
         validIds
             .filter((id) => !foundIds.has(id))
             .forEach((id) => {
-                const matchingEls = document.querySelectorAll(
-                    `[data-rovalra-serverid="${id}"]`,
-                );
-                matchingEls.forEach((el) => {
+                getServerRows(id).forEach((el) => {
                     displayUptime(
                         el,
                         getServerUptime(id),
@@ -880,10 +954,7 @@ export async function fetchServerUptime(
     } catch (e) {
         console.error('Failed to fetch server details:', e);
         validIds.forEach((id) => {
-            const matchingEls = document.querySelectorAll(
-                `[data-rovalra-serverid="${id}"]`,
-            );
-            matchingEls.forEach((el) => {
+            getServerRows(id).forEach((el) => {
                 displayUptime(
                     el,
                     getServerUptime(id),
@@ -902,56 +973,38 @@ export async function fetchAndDisplayRegion(
     options = {},
 ) {
     const serverStatuses = options.serverStatuses || {};
+    const showFullIfUnknown = () => {
+        if (serverLocations[serverId] || serverStatuses[serverId]) return;
+        getServerRows(serverId).forEach((row) => displayServerFullStatus(row));
+    };
+
     let placeId = server.dataset.placeid || getPlaceIdFromUrl();
     if (!placeId) {
-        if (!serverLocations[serverId] && !serverStatuses[serverId])
-            displayServerFullStatus(server);
+        showFullIfUnknown();
         return;
     }
 
     try {
         const info = await fetchServerRegion(placeId, serverId, options);
-
-        if (server.dataset.rovalraServerid !== serverId) return;
-
-        const joinBtn = server.querySelector(
-            '.game-server-join-btn, .rovalra-join-btn',
-        );
         const status = Number(info.status);
+        const joinScript = info.joinScript;
 
-        if (info.joinScript) {
-            const joinScript = info.joinScript;
-            let changed = false;
+        if (
+            joinScript?.GameId &&
+            !options.isPrivate &&
+            String(joinScript.GameId).toLowerCase() !==
+                String(serverId).toLowerCase()
+        ) {
+            return;
+        }
 
-            if (
-                joinScript.DataCenterId != null &&
-                !server.dataset.rovalraDcId
-            ) {
-                server.dataset.rovalraDcId = joinScript.DataCenterId;
-                changed = true;
-            }
-
-            if (!server.dataset.rovalraIp) {
-                let ip = null;
-                if (
-                    joinScript.UdmuxEndpoints &&
-                    joinScript.UdmuxEndpoints.length > 0 &&
-                    joinScript.UdmuxEndpoints[0].Address
-                ) {
-                    ip = joinScript.UdmuxEndpoints[0].Address;
-                } else if (joinScript.MachineAddress) {
-                    ip = joinScript.MachineAddress;
-                }
-
-                if (ip) {
-                    server.dataset.rovalraIp = ip;
-                    changed = true;
-                }
-            }
-
-            if (changed) {
-                displayIpAndDcId(server);
-            }
+        if (joinScript) {
+            const ip =
+                joinScript.UdmuxEndpoints?.[0]?.Address ||
+                joinScript.MachineAddress ||
+                null;
+            setServerNetworkInfo(serverId, ip, joinScript.DataCenterId);
+            getServerRows(serverId).forEach((row) => displayIpAndDcId(row));
         }
 
         if (status === 12) {
@@ -961,7 +1014,9 @@ export async function fetchAndDisplayRegion(
             ) {
                 if (!serverStatuses[serverId]) {
                     serverStatuses[serverId] = 'purchase';
-                    displayPurchaseGameStatus(server);
+                    getServerRows(serverId).forEach((row) =>
+                        displayServerStatus(row, 'purchase'),
+                    );
                 }
                 return;
             }
@@ -970,38 +1025,33 @@ export async function fetchAndDisplayRegion(
         if (status === 5) {
             if (!serverStatuses[serverId]) {
                 serverStatuses[serverId] = 'inactive';
-                displayInactivePlaceStatus(server);
+                getServerRows(serverId).forEach((row) =>
+                    displayServerStatus(row, 'inactive'),
+                );
             }
             return;
         }
 
         if (status === 22) {
-            if (isFullServerIndicatorsEnabled) {
-                if (joinBtn) {
-                    const joinLabel =
-                        joinBtn.querySelector('.text-no-wrap') || joinBtn;
-                    joinLabel.textContent = ts('common.joinServerFull');
-                    joinBtn.classList.replace(
-                        'btn-primary-md',
-                        'btn-secondary-md',
-                    );
-                }
-                serverStatuses[serverId] = 'full';
-                displayServerFullStatus(server);
-            }
+            serverStatuses[serverId] = 'full';
+            getServerRows(serverId).forEach((row) =>
+                displayServerStatus(row, 'full'),
+            );
             return;
         }
 
-        if (info.joinScript?.PlaceVersion && !getServerVersion(serverId)) {
-            displayPlaceVersion(
-                server,
-                info.joinScript.PlaceVersion,
-                serverLocations,
+        if (joinScript?.PlaceVersion && !getServerVersion(serverId)) {
+            getServerRows(serverId).forEach((row) =>
+                displayPlaceVersion(
+                    row,
+                    joinScript.PlaceVersion,
+                    serverLocations,
+                ),
             );
         }
 
         if (!serverLocations[serverId]) {
-            const dcId = info.joinScript?.DataCenterId;
+            const dcId = joinScript?.DataCenterId;
             let locInfo =
                 dcId && serverIpMap?.[dcId] ? serverIpMap[dcId] : null;
 
@@ -1014,7 +1064,7 @@ export async function fetchAndDisplayRegion(
                 const fullName = normalizeRegionName(
                     getFullLocationName(locInfo),
                 );
-                if (fullName) {
+                if (fullName && !serverLocations[serverId]) {
                     serverLocations[serverId] = fullName;
 
                     displayRegionForServerId(
@@ -1026,8 +1076,7 @@ export async function fetchAndDisplayRegion(
             }
         }
     } catch (err) {
-        if (!serverLocations[serverId] && !serverStatuses[serverId])
-            displayServerFullStatus(server);
+        showFullIfUnknown();
     }
 }
 
@@ -1092,7 +1141,8 @@ export async function addCopyJoinLinkButton(server, serverId) {
     btn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
+        const currentServerId = getRowServerId(server) || serverId;
+        const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${currentServerId}`;
         navigator.clipboard.writeText(link).then(() => {
             btn.textContent = ts('common.copied');
             setTimeout(() => (btn.textContent = ts('common.share')), 2000);
@@ -1133,18 +1183,15 @@ export async function enhanceServer(server, context) {
         );
     }
 
-    let serverId = server.getAttribute('data-rovalra-serverid');
+    const serverId = getRowServerId(server);
     const isPrivate = server.classList.contains('rbx-private-game-server-item');
-
-    if (!serverId && isPrivate) {
-        serverId = server.dataset.accessCode;
-    }
 
     if (!serverId) return;
 
     const lastId = server._rovalraLastProcessedId;
     if (lastId && lastId !== serverId) {
         server.dataset.rovalraEnhanced = 'false';
+        resetServerRow(server);
         cleanupServerUI(server);
     } else if (
         server.dataset.rovalraEnhanced === 'true' &&
@@ -1160,7 +1207,7 @@ export async function enhanceServer(server, context) {
 
     if (!server._rovalraUptimeListener) {
         server._rovalraUptimeListener = (e) => {
-            const currentServerId = server.dataset.rovalraServerid;
+            const currentServerId = getRowServerId(server);
             if (
                 currentServerId &&
                 String(e.detail.serverId) === String(currentServerId)
@@ -1207,6 +1254,9 @@ export async function enhanceServer(server, context) {
 
     const cachedLocation = serverLocations[serverId];
     displayRegion(server, cachedLocation || 'Unknown', serverLocations);
+    if (serverStatuses[serverId]) {
+        displayServerStatus(server, serverStatuses[serverId]);
+    }
 
     const cachedApiData = context.serverDataCache?.get(String(serverId));
     const attachedApiData = server._rovalraApiData;
