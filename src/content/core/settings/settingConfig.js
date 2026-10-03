@@ -2088,6 +2088,8 @@ export const SETTINGS_CONFIG = {
                     'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_robux_transfer_limits_v1',
+                contributors: ['48255812', '447170745'],
             },
             plusReferralEnabled: {
                 label: 'Show RoValra Plus Referral',
