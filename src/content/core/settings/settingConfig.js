@@ -2443,6 +2443,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                forceEnabled: true,
                 contributors: ['650766686'],
             },
         },

@@ -23,7 +23,7 @@ import {
 } from '../profile/pronouns.js';
 import {
     REMOTE_SETTING_LOCKS_KEY,
-    REMOTE_SETTING_LOCK_REASON,
+    REMOTE_SETTING_LOCK_DEFAULT_REASON,
     REMOTE_SETTING_OVERRIDE_KEY,
     getRemoteSettingLocks,
     refreshRemoteSettingLocks,
@@ -1299,12 +1299,15 @@ export const initSettings = async (settingsContent) => {
     });
 };
 
+/**
+ * @param lockType {'default' | 'donator' | 'remote'}
+ */
 export const applyLockedState = (
     settingName,
     parentElement,
     isLocked,
     reason = '',
-    isDonatorLock = false,
+    lockType = 'default',
 ) => {
     const inputElement = parentElement.querySelector(
         `[data-setting-name="${settingName}"]`,
@@ -1319,9 +1322,18 @@ export const applyLockedState = (
     const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
     if (existingNotice) existingNotice.remove();
 
-    if (isLocked || isDonatorLock) {
+    if (![ 'default', 'donator', 'remote', ].includes(lockType)) {
+        const lockTypeDefault = 'default';
+        console.warn(`[RoValra] Handle Settings: lock type "${String(lockType)}" falling back to default type (${String(lockTypeDefault)})`)
+        lockType = lockTypeDefault;
+    }
+
+    if (isLocked || lockType === 'donator') {
         const config = findSettingConfig(settingName);
-        const lockType = config?.isPermanent ? 'permanently' : 'temporarily';
+        const lockLength =
+            (config?.isPermanent && 'permanent')
+            || (lockType === 'remote' && 'remote')
+            || 'temporary';
 
         if (isLocked) {
             wrapper.classList.add('setting-locked');
@@ -1335,27 +1347,27 @@ export const applyLockedState = (
             }
         }
 
-        if (isDonatorLock) {
+        if (lockType === 'donator') {
             wrapper.classList.add('donator-locked');
         }
 
         const notice = document.createElement('div');
         notice.className = 'rovalra-lock-notice';
-        if (isDonatorLock) {
+        if (lockType === 'donator') {
             notice.classList.add('donator-notice');
             if (!isLocked) notice.classList.add('unlocked-donator-notice');
         }
 
         const statusLine = document.createElement('div');
         statusLine.className = 'lock-status-text';
-        if (isDonatorLock) {
+        if (lockType === 'donator') {
             const tier = config?.donatorTier || '';
             statusLine.textContent = isLocked
                 ? ts('settings.ui.locks.donatorTierRequired', { tier })
                 : ts('settings.ui.locks.donatorPerk', { tier });
         } else {
             statusLine.textContent = ts('settings.ui.locks.featureDisabled', {
-                lockType,
+                context: lockLength,
             });
         }
 
@@ -1452,7 +1464,8 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         name,
                         settingsContent,
                         true,
-                        remoteLocks[name].reason || REMOTE_SETTING_LOCK_REASON,
+                        remoteLocks[name].reason || REMOTE_SETTING_LOCK_DEFAULT_REASON,
+                        'remote',
                     );
                     return true;
                 }
@@ -1465,7 +1478,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         isLocked,
                         conf.donatorReason ||
                             'This is a donator-exclusive feature.',
-                        true,
+                        'donator'
                     );
                     if (isLocked) return true;
                     handledLockState = true;
