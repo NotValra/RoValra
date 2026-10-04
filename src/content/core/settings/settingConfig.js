@@ -60,16 +60,16 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
-                            'zh-CHT',
+                            'zh_TW',
                         ),
-                        value: 'zh-CHT',
+                        value: 'zh_TW',
                     },
                     {
                         label: languageLabel(
                             'Simplified Chinese (简体中文)',
-                            'zh-CHS',
+                            'zh_CN',
                         ),
-                        value: 'zh-CHS',
+                        value: 'zh_CN',
                     },
                     {
                         label: languageLabel('Arabic (عربي)', 'ar'),
