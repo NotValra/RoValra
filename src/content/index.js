@@ -35,6 +35,7 @@ import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
+import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
@@ -261,6 +262,7 @@ const featureRoutes = [
             initTransactionsLink,
             initStatus,
             initCustomFont,
+            initCyrillicFont,
             initCustomFavicon,
             initRobuxIcons,
             initMoreRobuxDigits,
