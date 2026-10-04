@@ -2101,6 +2101,9 @@
             "monthlyLimitLeft": "每月剩余限额",
             "sentToday": "今天已发送",
             "sentThisMonth": "本月已发送",
+            "nextRefill": "下次充值",
+            "leftAfter": "剩余 {{amount}}",
+            "refillNote": "每次转账计入每月限额，有效期为 30 天，之后这些 Robux 将再次可用。",
             "caption": "每日限额为 {{dailyLimit}}。每月限额为 {{monthlyLimit}}。每 5 分钟更新一次。其余数值为预估值，可能不准确。"
         },
         "referral": {
