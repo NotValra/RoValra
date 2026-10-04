@@ -36,7 +36,7 @@
 ## Support the Project
 
 If you find RoValra useful, consider giving the repository a **star⭐**.\
-Or [donate robux](https://www.roblox.com/games/store-section/9452973012) or [sponor the project :3](https://github.com/sponsors/NotValra)\
+Or [donate robux](https://www.roblox.com/games/store-section/9452973012) or [sponsor the project :3](https://github.com/sponsors/NotValra)\
 It helps a lot and supports continued development.
 
 ---
