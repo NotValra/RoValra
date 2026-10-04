@@ -1151,26 +1151,26 @@
                 "violationTitle": "Chúng tôi tìm thấy một vi phạm trên tài khoản của bạn.",
                 "statusDescription": "Tình trạng tài khoản của bạn đã được đặt thành: {{status}}",
                 "policyTitle": "Quy định an toàn RoValra",
-                "policyDescription": "Accounts found in violation of the {{- termsLink}} or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.",
-                "automatedAction": "Automated Action",
-                "manualReview": "Manual Review",
-                "disabledFeatures": "Disabled Features",
-                "moderatedContent": "Moderated Content",
-                "violationDetails": "Violation Details",
-                "unknownReason": "Unknown Reason",
-                "moderated": "Moderated",
-                "temporaryExpires": "Temporary restriction expires",
-                "appealCase": "Appeal Case",
-                "status": "Status",
-                "yourMessage": "Your Message",
-                "response": "Response",
-                "reviewingAppeal": "Our team is currently reviewing your appeal.",
-                "appealDecision": "Appeal this decision"
+                "policyDescription": "Các tài khoản bị phát hiện vi phạm {{- termsLink}} hoặc bị xác định có rủi ro qua hệ thống phát hiện của bên thứ ba sẽ bị vô hiệu hóa một số tính năng nhất định. Xin lưu ý rằng mặc dù một số tính năng trực tuyến có thể bị giới hạn, đội ngũ an toàn RoValra sẽ không bao giờ vô hiệu hóa toàn bộ tiện ích hay các tính năng hoàn toàn cục bộ.",
+                "automatedAction": "Xử lý tự động",
+                "manualReview": "Kiểm duyệt thủ công",
+                "disabledFeatures": "Tính năng bị tắt",
+                "moderatedContent": "Nội dung bị kiểm duyệt",
+                "violationDetails": "Thông tin vi phạm",
+                "unknownReason": "Không rõ lý do",
+                "moderated": "Bị kiểm duyệt",
+                "temporaryExpires": "Hạn chế tạm thời hết hạn vào",
+                "appealCase": "Trường hợp kháng cáo",
+                "status": "Tình trạng",
+                "yourMessage": "Lời nhắn của bạn",
+                "response": "Câu trả lời",
+                "reviewingAppeal": "Đội ngũ của chúng tôi đang xem xét đơn kháng cáo của bạn.",
+                "appealDecision": "Kháng cáo quyết định này"
             }
         },
         "compatibilityWarning": {
-            "title": "RoValra may not work properly with {{extensions}} enabled.",
-            "description": "We do not promise support for {{extensions}}."
+            "title": "RoValra có thể không hoạt động đúng cách khi bật {{extensions}}.",
+            "description": "Chúng tôi không đảm bảo hỗ trợ {{extensions}}."
         }
     },
     "privacyToggles": {
