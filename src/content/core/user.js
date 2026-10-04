@@ -1,4 +1,6 @@
 // Gets the user id of the authed user
+import { callRobloxApiJson } from './api.js';
+import { get as getCache, set as setCache } from './storage/cacheHandler.js';
 
 function waitForDom() {
     return new Promise((resolve) => {
@@ -102,4 +104,53 @@ export async function getAuthenticatedUsername() {
         }
     }
     return null;
+}
+
+const VERIFIED_CACHE_SECTION = 'authed_user_verified';
+
+let verifiedPromise = null;
+
+async function fetchAndCacheVerified(userId) {
+    const result = await callRobloxApiJson({
+        subdomain: 'users',
+        endpoint: '/v1/users',
+        method: 'POST',
+        body: { userIds: [userId] },
+    });
+    const user = result?.data?.find((u) => u.id === userId);
+    const isVerified = user?.hasVerifiedBadge === true;
+
+    await setCache(
+        VERIFIED_CACHE_SECTION,
+        userId.toString(),
+        isVerified,
+        'local',
+    );
+    return isVerified;
+}
+
+export async function getAuthenticatedUserVerified(refresh = false) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return false;
+
+    if (!refresh) {
+        const cached = await getCache(
+            VERIFIED_CACHE_SECTION,
+            userId.toString(),
+            'local',
+        );
+        if (typeof cached === 'boolean') return cached;
+    }
+
+    if (!verifiedPromise) {
+        verifiedPromise = fetchAndCacheVerified(userId)
+            .catch((error) => {
+                console.warn('RoValra: Failed to fetch verified status', error);
+                return false;
+            })
+            .finally(() => {
+                verifiedPromise = null;
+            });
+    }
+    return verifiedPromise;
 }

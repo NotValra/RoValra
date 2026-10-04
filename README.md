@@ -29,14 +29,14 @@
 - **FAQ & Support:** https://www.rovalra.com/support/
 
 > [!WARNING]
-> RoValra is only distributed through the official [website](https://rovalra.com), [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli) and unofficially through [Firefox](https://github.com/rav4toy/RoValra-Firefox)
+> RoValra is only distributed through the official [website](https://rovalra.com), [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
 
 ---
 
 ## Support the Project
 
 If you find RoValra useful, consider giving the repository a **star⭐**.\
-Or [donate robux.](https://www.roblox.com/games/store-section/9452973012) \
+Or [donate robux](https://www.roblox.com/games/store-section/9452973012) or [sponsor the project :3](https://github.com/sponsors/NotValra)\
 It helps a lot and supports continued development.
 
 ---
@@ -45,13 +45,7 @@ It helps a lot and supports continued development.
 
 ### Option 1: Chrome Web Store and Firefox Web Store (Recommended)
 
-Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli) Or [FireFox (Unofficial port)](https://addons.mozilla.org/en-US/firefox/addon/rovalra-rav4/)
-
-> [!WARNING]
-> Firefox port of RoValra is **unofficial and not controlled by us.**\
-> Please verify what you are downloading is trustworthy before you download it by reading the [source code](https://github.com/rav4toy/RoValra-Firefox)\
-> The FireFox port is use at your own risk
-
+Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
 ---
 
 ### Option 2: Manual Installation (Developer Mode)
@@ -95,36 +89,16 @@ These images, including the RoValra logo and related logo/icon artwork, are full
 
 ---
 
-## Credits
+## API Information
 
-- **Contributors:**
-  [https://github.com/NotValra/RoValra/graphs/contributors](https://github.com/NotValra/RoValra/graphs/contributors)
+If you plan on using apis.rovalra.com in your projects, make sure they follow the [Terms of Use](https://www.rovalra.com/tou/)
 
-- **Sales / Revenue Data:**
-  [https://github.com/workframes/roblox-owner-counts](https://github.com/workframes/roblox-owner-counts)
+Important take aways of the terms:
 
-- **UI & Chrome Store Graphics:**
-  mmfw
+- Your project cannot violate Roblox's Terms of Service.
+- Your project cannot be an Extension or use the API in anyway that might make users feel your Project is a worthy replacement for RoValra.
+- You need to add proper credits to https://www.rovalra.com in your project.
+- You cannot expect our services to stay online at all time, downtime causing issues with your project is not our responsibility
+- We may block you from using our API at any point without prior notice.
 
-- **Development:**
-  Gemini, Valra and [the contributors](https://github.com/NotValra/RoValra/graphs/contributors)
-
-- **Region Searcher:**
-  Originally a Python script by l5se (used with permission, improved and rewritten for the extension)
-
-- **Additional Development Help:**
-  [Aspect](https://github.com/Aspectise)
-
-- **Extension Logo:**
-  _Gilbert_, a fish caught in
-  [Fisch](https://www.roblox.com/games/16732694052/Fisch)
-
-- **Early help with locating Servers:**
-  7_lz (Discord)
-
-- **Roblox Datacenter IP Research:**
-  Julia -
-  [Datacenter IP Research](https://github.com/RoSeal-Extension/Top-Secret-Thing)
-
-- **Project Name:**
-  coweggs (Discord)
+Please make sure to read the Terms of Use fully before using our API.
