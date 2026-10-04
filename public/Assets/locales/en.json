@@ -342,6 +342,16 @@
         "disable8h": "Disable for 8 hours",
         "back": "Back"
     },
+    "playGuard": {
+        "title": "Already In-Game",
+        "body": "You are currently playing a Roblox game. Joining a new game will disconnect your active session.",
+        "launch": "Launch Game Anyway",
+        "cancel": "Cancel",
+        "disable": "Disable temporarily",
+        "disable1h": "Disable for 1 hour",
+        "disable8h": "Disable for 8 hours",
+        "back": "Back"
+    },
     "gameBookmarks": {
         "bookmark": "Bookmark",
         "saved": "Bookmarked",
