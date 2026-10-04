@@ -606,8 +606,8 @@
         "processingComplete": "处理已完成",
         "confirmationTitle": "确认进行操作",
         "confirmationMessage": "您即将把 {{count}} 个私人服务器设置为{{action}}。",
-        "confirmationJoinable": "这将允许使用者加入私人服务器。",
-        "confirmationUnjoinable": "这将不允许使用者加入私人服务器。",
+        "confirmationJoinable": "这将允许用户有加入私人服务器。",
+        "confirmationUnjoinable": "这将不允许用户加入私人服务器。",
         "confirmationReversible": "你之后随时可以改回来。",
         "confirm": "确定",
         "deselectAll": "取消全选",
@@ -803,7 +803,7 @@
             "store": "商店"
         },
         "info": {
-            "title": "RoValra 信息!",
+            "title": "RoValra 信息！",
             "desc1": "《RoValra》是一款永久免费的 Roblox 扩展程序，致力于提升所有玩家的游戏体验！并且完全开源。",
             "desc2": "部分免费功能仍然依赖于 RoValra 服务器，运行需要付费。",
             "desc3": "支持者的捐赠有助于支付这些费用，使 RoValra 能够为所有人提供更多免费功能，并不断改进。<icon style=\"color:#c13ad9\" filled>heart</icon>",
