@@ -40,9 +40,9 @@ const ORDERS = {
 
 const STYLES = {
     container:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 44px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px;',
     containerFriends:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 48px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%;',
     row: 'display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 400;',
     icon: 'display: flex; align-items: center; flex-shrink: 0; height: 20px;',
     text: 'line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 100%; flex: 1;',
@@ -142,6 +142,8 @@ const cacheReadyPromise = new Promise((resolve) => {
                 isServerRegionEnabled = changes.EnableServerRegion.newValue;
             if (changes.EnablePlaceVersion)
                 isPlaceVersionEnabled = changes.EnablePlaceVersion.newValue;
+            if (changes.EnableServerUptime || changes.EnablePlaceVersion)
+                refreshContainerMinHeights();
             if (changes.EnableFullServerID)
                 isFullServerIDEnabled = changes.EnableFullServerID.newValue;
             if (changes.EnableFullServerIndicators)
@@ -365,6 +367,24 @@ function normalizeRegionName(...values) {
     return [...new Set(parts)].join(', ') || null;
 }
 
+function applyContainerMinHeight(container, isFriends) {
+    const rows =
+        (isServerUptimeEnabled ? 1 : 0) + (isPlaceVersionEnabled ? 1 : 0);
+    if (rows === 2) container.style.minHeight = isFriends ? '48px' : '44px';
+    else if (rows === 1) container.style.minHeight = '20px';
+    else container.style.minHeight = '';
+}
+
+function refreshContainerMinHeights() {
+    document.querySelectorAll(`.${CLASSES.CONTAINER}`).forEach((container) => {
+        if (container.closest('.rbx-private-game-server-item')) return;
+        applyContainerMinHeight(
+            container,
+            !!container.closest('.rbx-friends-game-server-item'),
+        );
+    });
+}
+
 export function getOrCreateDetailsContainer(server) {
     if (!isServerListModificationsEnabled) {
         return server.querySelector(`.${CLASSES.CONTAINER}`);
@@ -385,6 +405,7 @@ export function getOrCreateDetailsContainer(server) {
         container.style.cssText = isFriends
             ? STYLES.containerFriends
             : STYLES.container;
+        applyContainerMinHeight(container, isFriends);
     }
 
     const statusNode = server.querySelector('.text-info.rbx-game-status');
@@ -547,6 +568,9 @@ function injectStyles() {
         .server-id-text:hover span.show-on-hover {
             background-color: transparent;
             color: inherit;
+        }
+        .${CLASSES.CONTAINER}:not(:has(> :not([style*="display: none"]))) {
+            margin: 0 !important;
         }
         .rovalra-meta-icons {
             display: flex;
