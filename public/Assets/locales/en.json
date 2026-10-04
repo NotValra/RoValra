@@ -2091,6 +2091,9 @@
             "monthlyLimitLeft": "Monthly limit left",
             "sentToday": "Sent today",
             "sentThisMonth": "Sent this month",
+            "nextRefill": "Next refill",
+            "leftAfter": "{{amount}} left",
+            "refillNote": "Each transfer counts toward the monthly limit for 30 days, then those Robux become available again.",
             "caption": "Daily limit is {{dailyLimit}}. Monthly limit is {{monthlyLimit}}. Updates every 5 minutes. The remaining are estimates and may be inaccurate."
         },
         "referral": {
