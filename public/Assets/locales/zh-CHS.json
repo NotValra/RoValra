@@ -2134,7 +2134,7 @@
                     "mutedNotice": "Robux 即时发送，无手续费",
                     "minRobux": "您必须发送至少 {{robuxAmount}} Robux",
                     "maxRobux": "您发送的 Robux 不得超过 {{robuxAmount}} Robux",
-                    "notEnoughRobux": "您的 Robux 不足",
+                    "notEnoughRobux": "您的 Robux 余额不足",
                     "nextBtn": "下一步"
                 },
                 "step2": {
