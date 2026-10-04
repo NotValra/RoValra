@@ -1929,8 +1929,8 @@
         "tooltip": "总社区场景访问次数"
     },
     "groups": {
-        "createdLabel": "创建日期",
-        "joinedLabel": "加入日期",
+        "createdLabel": "创建日期：",
+        "joinedLabel": "加入日期：",
         "unknown": "未知"
     },
     "showcase": {

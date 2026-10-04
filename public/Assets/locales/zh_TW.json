@@ -1929,8 +1929,8 @@
         "tooltip": "總社群地點參訪次數"
     },
     "groups": {
-        "createdLabel": "建立日期",
-        "joinedLabel": "加入日期",
+        "createdLabel": "建立日期：",
+        "joinedLabel": "加入日期：",
         "unknown": "未知"
     },
     "showcase": {
