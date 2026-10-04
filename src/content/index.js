@@ -81,6 +81,7 @@ import { init as initItemRender } from './features/catalog/ItemRender.js';
 import { init as initFriendOwnership } from './features/catalog/friendOwnership.js';
 
 // Games
+import { init as initPlayGuard } from './features/games/playGuard/playGuard.js';
 import { init as initBotDetector } from './features/games/about/botDetector.js';
 import { init as initQuickPlay } from './features/games/quickplay.js';
 import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
@@ -228,6 +229,7 @@ const featureRoutes = [
             initSettingsPage,
             initGameBookmarks,
             initQuickPlay,
+            initPlayGuard,
             initEasterEggLinks,
             initCssFixes,
             initWhatAmIJoining,

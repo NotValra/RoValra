@@ -362,6 +362,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            PlayGuard: {
+                label: 'Play Guard',
+                description: [
+                    'Prevents you from launching a second game while you’re already in one by adding a lock icon to the Play buttons whenever your account is currently in a game.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['1256003470'],
+            },
             wideGameTileStatsEnabled: {
                 label: 'Player Counts on Wide Tiles',
                 description: [
