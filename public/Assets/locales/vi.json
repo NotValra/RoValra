@@ -1175,60 +1175,60 @@
     },
     "privacyToggles": {
         "nav": {
-            "tooltip": "Privacy Settings"
+            "tooltip": "Cài đặt quyền riêng tư"
         },
-        "noTogglesEnabled": "No toggles are enabled! Go to RoValra Settings to enable privacy setting toggles.",
+        "noTogglesEnabled": "Không có nút nào được bật! Hãy vào Cài đặt RoValra để bật các nút cài đặt quyền riêng tư.",
         "dropdowns": {
             "shared": {
-                "allUsers": "Everyone",
-                "friendsFollowingFollowers": "Friends, Following, and Followers",
-                "friendsFollowing": "Friends and Following",
-                "friends": "Friends",
-                "trustedFriends": "Trusted Friends",
-                "noOne": "No one"
+                "allUsers": "Mọi người",
+                "friendsFollowingFollowers": "Bạn bè, Đang theo dõi và Người theo dõi",
+                "friendsFollowing": "Bạn bè và Đang theo dõi",
+                "friends": "Bạn bè",
+                "trustedFriends": "Bạn bè tin cậy",
+                "noOne": "Không ai cả"
             },
             "onlineStatus": {
-                "name": "Online Status"
+                "name": "Tình trạng trực tuyến"
             },
             "joinStatus": {
-                "name": "Experience Status"
+                "name": "Tình trạng trải nghiệm"
             },
             "privateServerPrivacy": {
-                "name": "Private Server Privacy"
+                "name": "Quyền riêng tư trong máy chủ riêng tư"
             },
             "inventoryPrivacy": {
-                "name": "Inventory Privacy"
+                "name": "Quyền riêng tư kho vật phẩm"
             }
         }
     },
     "groupFunds": {
         "loading": "Đang tải...",
-        "pending": "Pending:",
-        "noPermissions": "No Permission"
+        "pending": "Đang xử lý:",
+        "noPermissions": "Không có quyền hạn"
     },
     "navigation": {
-        "transactions": "Transactions",
-        "apiDocs": "API Docs",
-        "incidentLearnMore": "Click here to learn more.",
-        "incidentHideNotice": "You can hide this notice here",
-        "rovalraApi": "RoValra API"
+        "transactions": "Giao dịch",
+        "apiDocs": "Tài liệu API",
+        "incidentLearnMore": "Bấm vào đây để tìm hiểu thêm.",
+        "incidentHideNotice": "Bạn có thể ẩn thông báo này ở đây",
+        "rovalraApi": "API RoValra"
     },
     "sidebarCollapse": {
-        "collapseSidebar": "Collapse sidebar",
-        "expandSidebar": "Expand sidebar"
+        "collapseSidebar": "Thu gọn thanh bên",
+        "expandSidebar": "Mở rộng thanh bên"
     },
     "voiceBanIndicator": {
-        "title": "Voice Banned",
-        "liftsIn": "Lifts in",
-        "noExpiry": "No expiry provided"
+        "title": "Trò chuyện giọng nói bị cấm",
+        "liftsIn": "Gỡ chặn vào",
+        "noExpiry": "Không có thời hạn"
     },
     "ageTheme": {
-        "navbarTooltip": "Age Theme",
+        "navbarTooltip": "Chủ đề tuổi",
         "options": {
-            "normal": "Normal Roblox",
+            "normal": "Roblox bình thường",
             "kids": "Roblox Kids",
             "select": "Roblox Select",
-            "startmode": "Roblox Leaked Select (Start Mode)"
+            "startmode": "Roblox Select bị rò rỉ (Start Mode)"
         },
         "badge": {
             "kids": "KIDS",
@@ -1236,458 +1236,458 @@
         }
     },
     "betaPrograms": {
-        "toggleTooltip": "Toggle Beta Programs",
-        "noPrograms": "You are not enrolled into any beta programs.",
-        "allowlist": "In an allowlist",
-        "previousProgramsTitle": "Previously enrolled beta programs",
-        "previousProgramTooltip": "This beta program is no longer available."
+        "toggleTooltip": "Bật/tắt chương trình Beta",
+        "noPrograms": "Bạn không có trong bất kì chương trình beta nào.",
+        "allowlist": "Trong danh sách cho phép",
+        "previousProgramsTitle": "Đã tham gia chương trình beta trước đó",
+        "previousProgramTooltip": "Chương trình beta này không còn khả dụng."
     },
     "quickSearch": {
-        "aborted": "Aborted",
-        "apiRequestFailed": "API request failed with status {{status}}",
-        "friendSearchError": "RoValra: Friend Search Error",
-        "userSearchError": "RoValra: User Search Error",
-        "gameSearchError": "RoValra: Game Search Error",
-        "trustedConnection": "You are trusted friends",
-        "connection": "You are friends",
-        "playing": "Playing {{gameName}}",
-        "verifiedBadge": "Verified Badge",
-        "verified": "Verified",
-        "permanentlyBanned": "This user is terminated or deactived their account.",
-        "joinPreferredRegion": "Join Preferred Region",
-        "bestRegionAuto": "Best Region (Auto)",
-        "searchHistory": "Search History",
-        "noSearchHistory": "You don't have any search history.",
-        "deleteSearchHistoryTitle": "Delete Search History",
-        "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
-        "delete": "Delete"
+        "aborted": "Đã huỷ",
+        "apiRequestFailed": "Yêu cầu API thất bại với mã {{status}}",
+        "friendSearchError": "RoValra: Lỗi tìm bạn",
+        "userSearchError": "RoValra: Lỗi tìm người dùng",
+        "gameSearchError": "RoValra: Lỗi tìm game",
+        "trustedConnection": "Hai người là Bạn tin cậy",
+        "connection": "Hai bạn là bạn bè",
+        "playing": "Đang chơi {{gameName}}",
+        "verifiedBadge": "Huy hiệu Đã xác nhận",
+        "verified": "Đã xác nhận",
+        "permanentlyBanned": "Người này đã bị đình chỉ hoặc đã vô hiệu hoá tài khoản.",
+        "joinPreferredRegion": "Tham gia khu vực yêu thích",
+        "bestRegionAuto": "Khu vực tốt nhất (Tự động)",
+        "searchHistory": "Lịch sử tìm kiếm",
+        "noSearchHistory": "Bạn không có lịch sử tìm kiếm nào.",
+        "deleteSearchHistoryTitle": "Xoá lịch sử tìm kiếm",
+        "deleteSearchHistoryMessage": "Bạn có chắc muốn xoá mục lịch sử tìm kiếm này?",
+        "delete": "Xoá"
     },
     "friendOwnership": {
-        "pillLabel": "{{count}} Friends own",
-        "pillTooltip": "See which friends own this item",
-        "overlayTitle": "{{count}} Friends own this item",
-        "unknownUser": "User {{id}}"
+        "pillLabel": "{{count}} Bạn sở hữu",
+        "pillTooltip": "Xem những người bạn nào sở hữu vật phẩm này",
+        "overlayTitle": "{{count}} Bạn sở hữu vật phẩm này",
+        "unknownUser": "Người dùng {{id}}"
     },
     "regionPlayButton": {
-        "ariaLabel": "Select or Join Preferred Server Region",
-        "tooltip": "Join Preferred Region",
-        "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
+        "ariaLabel": "Chọn hoặc tham gia khu vực yêu thích",
+        "tooltip": "Tham gia khu vực yêu thích",
+        "tooltipWithRegion": "Tham gia khu vực yêu thích<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Tham gia khu vực yêu thích<br><b>Khu vực tốt nhất (Tự động)</b>"
     },
     "quickPlay": {
         "loading": "Đang tải...",
-        "rateLimited": "Rate limited. Retrying...",
-        "loadError": "Could not load servers.",
-        "noPrivateServers": "No active private servers found.",
-        "configure": "Configure",
-        "copyLink": "Copy Link",
-        "copied": "Copied!",
-        "error": "Error!",
-        "generateLink": "Generate New Link",
-        "joinClosestServer": "Join Closest Server",
-        "selectPreferredRegion": "Select Preferred Region",
-        "privateServers": "Private Servers"
+        "rateLimited": "Đã bị giới hạn. Đang thử lại...",
+        "loadError": "Không thể tải máy chủ.",
+        "noPrivateServers": "Không tìm thấy máy chủ riêng tư nào đang chạy.",
+        "configure": "Chỉnh sửa",
+        "copyLink": "Sao chép liên kết",
+        "copied": "Đã liên kết!",
+        "error": "Lỗi!",
+        "generateLink": "Tạo liên kết mới",
+        "joinClosestServer": "Tham gia máy chủ gần nhất",
+        "selectPreferredRegion": "Chọn khu vực yêu thích",
+        "privateServers": "Máy chủ riêng tư"
     },
     "privateServerPage": {
-        "regenerateLink": "Generate Link",
-        "regenerated": "Generated!"
+        "regenerateLink": "Tạo liên kết khác",
+        "regenerated": "Đã tạo!"
     },
     "devProducts": {
-        "noProducts": "No developer products found.",
-        "loadError": "Unable to load developer products for this game.",
-        "passes": "Passes",
-        "developerProducts": "Developer Products",
-        "search": "Search",
+        "noProducts": "Không tìm thấy sản phẩm nhà phát triển nào.",
+        "loadError": "Không thể tải sản phẩm nhà phát triển từ game này",
+        "passes": "Gamepass",
+        "developerProducts": "Sản phẩm nhà phát triển",
+        "search": "Tìm kiếm",
         "sort": {
-            "created": "Sort by Created",
-            "price": "Sort by Price",
-            "updated": "Sort by Updated",
-            "name": "Sort by Name"
+            "created": "Sắp xếp theo Ngày tạo",
+            "price": "Sắp xếp theo Giá",
+            "updated": "Sắp xếp theo Ngày cập nhật",
+            "name": "Sắp xếp theo Tên"
         },
         "order": {
-            "ascending": "Sort Ascending",
-            "descending": "Sort Descending"
+            "ascending": "Sắp xếp tăng dần",
+            "descending": "Sắp xếp giảm dần"
         }
     },
     "shop": {
-        "tab": "Shop",
-        "all": "All",
-        "category": "Category",
-        "product": "Product",
-        "gamePass": "Game Pass",
+        "tab": "Cửa hàng",
+        "all": "Tất cả",
+        "category": "Phân loại",
+        "product": "Sản phẩm",
+        "gamePass": "Gamepass",
         "robuxAmount": "{{amount}} Robux",
         "bonusItem": "Bonus: {{item}}",
-        "bonusItemFallback": "Includes a bonus item",
-        "noItems": "No shop items found.",
-        "failedToLoad": "Failed to load shop items.",
+        "bonusItemFallback": "Có vật phẩm tặng kèm",
+        "noItems": "Không tìm thấy vật phẩm cửa hàng nào",
+        "failedToLoad": "Không thể tải vật phẩm shop.",
         "sections": {
             "robux": "Robux"
         },
         "types": {
-            "Product": "Product",
+            "Product": "Sản phẩm",
             "GamePass": "Game Pass",
-            "Robux": "Robux bundle"
+            "Robux": "Gói Robux"
         }
     },
     "subplaces": {
-        "tabTitle": "Subplaces",
-        "searchPlaceholder": "Search subplaces",
-        "loadMore": "Load More",
-        "rootPlace": "Root Place",
-        "noSubplaces": "No subplaces found.",
-        "failedToLoad": "Failed to load subplaces.",
+        "tabTitle": "Bản đồ phụ",
+        "searchPlaceholder": "Tìm kiếm bản đồ phụ",
+        "loadMore": "Tải thêm",
+        "rootPlace": "Bản đồ gốc",
+        "noSubplaces": "Không tìm thấy bản đồ phụ nào.",
+        "failedToLoad": "Không thể tải bản đồ phụ.",
         "labels": {
-            "sort": "Sort",
-            "order": "Order"
+            "sort": "Sắp xếp",
+            "order": "Thứ tự"
         },
         "sort": {
-            "default": "Default",
-            "updated": "Recently Updated",
-            "created": "Recently Created",
-            "name": "Name (Z-A)"
+            "default": "Mặc định",
+            "updated": "Cập nhật gần đây",
+            "created": "Tạo gần đây",
+            "name": "Tên (Z-A)"
         },
         "order": {
-            "descending": "Descending",
-            "ascending": "Ascending"
+            "descending": "Giảm dần",
+            "ascending": "Tăng dần"
         },
         "banner": {
-            "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
-            "descriptionDefault": "Some experiences may disable joining subplaces.",
-            "descriptionRestricted": "This subplace cannot be joined due to join restrictions.",
-            "descriptionJoinable": "This subplace can be joined.",
-            "mainExperience": "the main experience"
+            "title": "Bạn đang một bản đồ phụ của [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Một vài trải nghiệm có thể không cho phép tham gia bản đồ phụ.",
+            "descriptionRestricted": "Bản đồ phụ này không thể được tham gia do một vài giới hạn tham gia.",
+            "descriptionJoinable": "Bản đồ phụ này có thể được tham gia.",
+            "mainExperience": "trải nghiệm chính"
         }
     },
     "updateHistory": {
-        "tabTitle": "Updates",
-        "title": "Update History",
+        "tabTitle": "Cập nhật",
+        "title": "Lịch sử cập nhật",
         "blocked": {
-            "eighteenPlus": "Update History doesn't work on 18+ experiences",
-            "paidAccess": "Update History doesn't work on paid access experiences",
-            "subplace": "Update History doesn't work on subplaces with join restrictions",
-            "noDesktopSupport": "Update History isn't supported on experiences without PC support"
+            "eighteenPlus": "Lịch sử hoạt động không hoạt động với trải nghiệm 18+",
+            "paidAccess": "Lịch sử cập nhật không hoạt động với trải nghiệm có trả phí",
+            "subplace": "Lịch sử cập nhật không hoạt động với bản đồ phụ có giới hạn tham gia",
+            "noDesktopSupport": "Lịch sử cập nhật không hỗ trợ trải nghiệm không hỗ trợ PC"
         }
     },
     "serverList": {
-        "clear": "Clear",
-        "noServersApi": "No servers found via the RoValra API.",
-        "allServersInactive": "All servers in this region went inactive",
-        "loadErrorApi": "Failed to load servers from RoValra API.",
-        "hide": "Hide",
-        "join": "Join",
-        "peopleMax": "{{playing}} of {{maxPlayers}} people max",
-        "pinPrivateServer": "Pin private server",
-        "unpinPrivateServer": "Unpin private server",
-        "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
-        "playerCountUnknownLabel": "Player count unknown"
+        "clear": "Xoá ",
+        "noServersApi": "Không tìm thấy máy chủ nào qua RoValra API.",
+        "allServersInactive": "Mọi máy chủ trong khu vực này đều không hoạt động",        
+        "loadErrorApi": "Tải máy chủ từ RoValra API thất bại.",
+        "hide": "Ẩn",
+        "join": "Tham gia",
+        "peopleMax": "{{playing}} trên {{maxPlayers}} người tối đa",
+        "pinPrivateServer": "Ghim máy chủ riêng tư",
+        "unpinPrivateServer": "Bỏ ghim máy chủ riêng tư",
+        "playerCountUnknownTooltip": "Không rõ số người chơi, đây là giới hạn tử Roblox. Hình ảnh không thể hiện người chơi trong game.",
+        "playerCountUnknownLabel": "Không rõ số người chơi"
     },
     "recentServers": {
-        "title": "Recent Servers",
-        "refresh": "Refresh",
-        "noneFound": "No Recent Servers Found.",
-        "noActiveFound": "No active recent servers found.",
-        "lastJoined": "Last Joined: {{time}}",
-        "meAlt": "Me",
-        "secondsAgo": "{{count}}s ago",
-        "minutesAgo": "{{count}}m ago",
-        "hoursAgo": "{{count}}h ago",
-        "daysAgo": "{{count}}d ago",
-        "description": "Recent Servers you were just in."
+        "title": "Máy chủ gần đây",
+        "refresh": "Tải lại",
+        "noneFound": "Không tìm thấy máy chủ gần đây nào.",
+        "noActiveFound": "Không có máy chủ gần đây nào đang hoạt động.",
+        "lastJoined": "Tham gia lần cuối: {{time}}",
+        "meAlt": "Tôi",
+        "secondsAgo": "{{count}}s trước",
+        "minutesAgo": "{{count}}m trước",
+        "hoursAgo": "{{count}}h trước",
+        "daysAgo": "{{count}}d trước",
+        "description": "Máy chủ gần đây bạn mới chơi."
     },
     "quickOutfits": {
-        "errorFetching": "Error fetching outfits",
-        "equipping": "Equipping...",
-        "equipped": "Equipped!",
-        "failed": "Failed",
-        "error": "Error:",
-        "noUserId": "Authenticated user ID not found for quick outfits.",
-        "loading": "Loading outfits...",
-        "title": "Quick Outfits",
-        "noneFound": "No outfits found.",
-        "success": "Successfully equipped outfit."
+        "errorFetching": "Lỗi tải trang phục",
+        "equipping": "Đang mặc...",
+        "equipped": "Đã mặc!",
+        "failed": "Thất bại",
+        "error": "Lỗi:",
+        "noUserId": "Không tìm thấy ID người dùng đã xác thực not found cho thay trang phục nhanh.",
+        "loading": "Đang tải trang phục...",
+        "title": "Thay trang phục nhanh",
+        "noneFound": "Không tìm thấy trang phục nào.",
+        "success": "Mặc trang phục thành công."
     },
     "btrDonationWarning": {
-        "title": "IMPORTANT: disable BTRoblox",
-        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox was detected. It may interfere with Roblox’s purchase flow. If you have trouble purchasing, try disabling BTRoblox temporarily and reload the page.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Please disable BTRoblox, reload this page, and then try your purchase again.</p>",
-        "continue": "Continue anyway"
+        "title": "QUAN TRỌNG: tắt BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">Đã nhận diện BTRoblox. Tiện ích này có thể can thiệp vào quá trình mua của Roblox. Nếu bạn có vấn đề trong lúc mua, hãy thử tắt BTRoblox tạm thời và tải lại trang.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Vui lòng tắt BTRoblox, tải lại trang này và thử mua lại.</p>",
+        "continue": "Vẫn tiếp tục"
     },
     "botDetector": {
-        "tooltip": "Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots. Keep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.",
-        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has a lot of bots",
-        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
-        "thisGame": "This game"
+        "tooltip": "Bot là những tài khoản dùng tệp lệnh tự động cày vật phẩm. Một người dùng có thể vận hành đến 50+ bot. Hãy biết rằng đây không phải lỗi của Dev Game. Thông tin này có thể không chính xác nếu phần lớn game được chơi bởi tài khoản mới tạo.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> có rất nhiều bot",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> có vài bot nhưng phần lớn vẫn là người chơi thật",
+        "thisGame": "Game này"
     },
     "events": {
-        "title": "Events",
+        "title": "Sự kiện",
         "tabs": {
-            "upcoming": "Upcoming",
-            "past": "Past"
+            "upcoming": "Sắp tới",
+            "past": "Đã qua"
         },
         "buttons": {
-            "viewEvent": "View Event",
-            "joinEvent": "Join Event",
-            "unfollowEvent": "Unfollow Event",
-            "notifyMe": "Notify Me"
+            "viewEvent": "Xem sự kiện",
+            "joinEvent": "Tham gia sự kiện",
+            "unfollowEvent": "Ngừng theo dõi sự kiện",
+            "notifyMe": "Nhắc tôi"
         },
-        "loadMore": "Load More",
-        "releaseDate": "Event release date",
+        "loadMore": "Xem thêm",
+        "releaseDate": "Ngày diễn ra sự kiện",
         "empty": {
-            "active": "No ongoing or upcoming events.",
-            "past": "No past events.",
-            "all": "No events found."
+            "active": "Không có sự kiện nào đang diễn ra hoặc sắp diễn ra",
+            "past": "Không có sự kiện đã diễn ra.",
+            "all": "Không tìm thấy sự kiện nào."
         }
     },
     "hiddenBadges": {
         "tabs": {
-            "badges": "Badges",
-            "hiddenBadges": "Hidden Badges"
+            "badges": "Huy hiệu",
+            "hiddenBadges": "Huy hiệu ẩn"
         },
-        "hiddenOwnedNotice": "Only hidden badges that you have obtained are shown here.",
-        "unableToDetectPlace": "Unable to detect this place.",
-        "unableToDetectUniverse": "Unable to detect this universe.",
-        "stillScanning": "Still scanning your badges. Hidden badges you own may appear soon.",
-        "noneOwnedFound": "No hidden badges that you own were found for this experience.",
-        "failedToLoad": "Failed to load hidden badges you own."
+        "hiddenOwnedNotice": "Chỉ những huy hiệu ẩn mà bạn có mới hiện ở đây.",
+        "unableToDetectPlace": "Không thể xác định Place này.",
+        "unableToDetectUniverse": "Không thể xác định Universe này.",
+        "stillScanning": "Vẫn đang quét huy hiệu của bạn. Huy hiệu ẩn bạn có sẽ xuất hiện sớm thôi.",
+        "noneOwnedFound": "Không tìm thấy huy hiệu ẩn nào bạn có trong trải nghiệm này.",
+        "failedToLoad": "Lỗi tải huy hiệu ẩn bạn có."
     },
     "antiBots": {
-        "reviewMembers": "Review {{count}} selected members:",
-        "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
-        "banMembers": "Ban Members",
-        "kickMembers": "Kick Members",
-        "cancel": "Cancel",
-        "actionRequired": "Action Required ({{count}})",
-        "noPermission": "You do not have permission to ban or kick members.",
-        "confirmBan": "You are about to <strong>ban {{count}} member(s)</strong>. They will be permanently blocked.",
-        "confirmKick": "You are about to <strong>kick {{count}} member(s)</strong>. They can rejoin anytime.",
-        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reminder:</strong> Verify bot scores before banning.</div>",
-        "yesAction": "Yes, {{action}}",
-        "confirmAction": "Confirm Action",
-        "processing": "Processing {{current}} of {{total}}: {{displayName}}... ETA: {{time}}s",
-        "rateLimited": "Rate limited. Retrying in {{delay}}s...",
-        "apiError": "API Error {{status}}",
-        "unknownError": "Unknown Error",
-        "processComplete": "{{successCount}} of {{totalMembers}} members were successfully {{actionType}}ed.",
-        "processFailed": "{{failedCount}} failed.",
-        "close": "Close",
-        "score": "Score: {{score}}/100",
-        "actionCount": "Action ({{count}})",
-        "unselectAll": "Unselect All",
-        "selectAll": "Select All",
-        "antiBots": "Anti Bots",
-        "banByScore": "Ban by Score",
-        "quickAction": "Quick Action",
-        "members": "Members",
-        "loadingMembers": "Loading Members...",
-        "selectMembersForAction": "Select Members for Action ({{count}} Loaded)",
-        "noMembersFound": "No members found.",
-        "initializingScan": "Initializing Scan...",
-        "scanStatus": "Scanned: {{loaded}} ({{percent}}%) | Analyzed: {{processed}}",
-        "finalizingAnalysis": "Finalizing analysis...",
-        "botsFound": "{{count}} Likely Bots Found",
-        "noBotsFound": "No Likely Bots Found",
-        "noBotsDetected": "No bots detected.",
-        "errorRetry": "Error - Retry",
-        "errorDuringScan": "Error during scan.",
-        "minBotScore": "Minimum Bot Score: <span id=\"rovalra-score-value\">50</span>",
-        "scoreImpact": "This will select approximately <span id=\"rovalra-score-ban-count\">0</span> members.",
-        "confirm": "Confirm",
-        "banKickByScore": "Ban/Kick by Score",
-        "confirmCount": "Confirm ({{count}})"
+        "reviewMembers": "Xem xét {{count}} thành viên đã chọn:",
+        "botWarning": "<strong>Lưu ý:</strong> Hãy chắc chắn họ là bot trước khi tiếp tục.",
+        "banMembers": "Cấm thành viên",
+        "kickMembers": "Đuổi thành viên",
+        "cancel": "Huỷ",
+        "actionRequired": "Cần hành động ({{count}})",
+        "noPermission": "Bạn không có quyền để cấm hay đuổi thành viên.",
+        "confirmBan": "Bạn chuẩn bị <strong>cấm {{count}} thành viên</strong>. Họ sẽ vĩnh viễn bị chặn.",
+        "confirmKick": "Bạn chuẩn bị kick <strong>đuổi {{count}} thành viên</strong>. Họ có thể tham gia lại bất cứ lúc nào.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Nhắc nhở:</strong> Xác nhận điểm bot trước khi cấm.</div>",
+        "yesAction": "Có, {{action}}",
+        "confirmAction": "Xác nhận hành động",
+        "processing": "Đang xử lý {{current}} trên {{total}}: {{displayName}}... ETA: {{time}}s",
+        "rateLimited": "Bị giới hạn. Thử lại trong {{delay}}s...",
+        "apiError": "Lỗi API  {{status}}",
+        "unknownError": "Lỗi không xác định",
+        "processComplete": "{{successCount}} trên {{totalMembers}} thành viên đã thành công bị {{actionType}}.",
+        "processFailed": "{{failedCount}} đã thất bại.",
+        "close": "Đóng",
+        "score": "Điểm: {{score}}/100",
+        "actionCount": "Hành động ({{count}})",
+        "unselectAll": "Bỏ chọn tất cả",
+        "selectAll": "Chọn tất cả",
+        "antiBots": "Anti Bot",
+        "banByScore": "Cấm qua điểm",
+        "quickAction": "Hành động nhanh",
+        "members": "Thành viên",
+        "loadingMembers": "Đang tải thành viên...",
+        "selectMembersForAction": "Chọn thành viên cho hành động (đã tải {{count}})",
+        "noMembersFound": "Không tìm thấy thành viên nào.",
+        "initializingScan": "Bắt đầu quét...",
+        "scanStatus": "Đã quét: {{loaded}} ({{percent}}%) | Đã phân tích: {{processed}}",
+        "finalizingAnalysis": "Hoàn tất phân tích...",
+        "botsFound": "Đã tìm thấy {{count}} nghi vấn bot",
+        "noBotsFound": "Không tìm thấy nghi vấn bot nào",
+        "noBotsDetected": "Không nhận diện được bot nào.",
+        "errorRetry": "Lỗi - Thử lại",
+        "errorDuringScan": "Lỗi trong khi quét.",
+        "minBotScore": "Điểm bot tối thiểu: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Việc này sẽ chọn khoảng <span id=\"rovalra-score-ban-count\">0</span> thành viên.",
+        "confirm": "Xác nhận",
+        "banKickByScore": "Cấm/Đuổi bằng điểm",
+        "confirmCount": "Xác nhận ({{count}})"
     },
     "revertLogo": {
-        "haveFun": "Have Fun!",
-        "close": "Close",
-        "robloxExperience": "Roblox Experience",
-        "unknownExperience": "Unknown Experience",
-        "serverId": "ServerID:",
-        "privateServer": "Private Server",
-        "owner": "Owner:",
-        "version": "Version:",
-        "uptime": "Uptime:",
+        "haveFun": "Vui vẻ nhé!",
+        "close": "Đóng",
+        "robloxExperience": "Trải nghiệm Roblox",
+        "unknownExperience": "Trải nghiệm không xác định",
+        "serverId": "ID máy chủ:",
+        "privateServer": "Máy chủ riêng tư",
+        "owner": "Chủ sở hữu:",
+        "version": "Phiên bản:",
+        "uptime": "Thời gian hoạt động:",
         "rcc": "RCC:",
-        "serverChannel": "Server Channel:",
-        "production": "Production",
-        "launchingRoblox": "Launching Roblox",
-        "downloadRoblox": "Download Roblox",
-        "thanksDownloading": "Thanks for downloading Roblox",
-        "downloadInstructions": "Just follow the steps below to install Roblox. Download should start in a few seconds. If it doesn't, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">restart the download</a>.",
-        "installInstructions": "Install Instructions",
-        "step1": "Once downloaded, double-click the <b>RobloxPlayerInstaller.exe</b> file in your Downloads folder.",
-        "step2": "Double-click the <b>RobloxPlayerInstaller</b> to install the app.",
-        "step3": "Follow the instructions to install Roblox to your computer.",
-        "step4": "Now that it’s installed, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">join the experience</a>.",
-        "mobileApp": "Don't forget the mobile app",
-        "scanCode": "Scan this code with your phone's camera to get Roblox.",
-        "joiningServer": "Joining Server...",
-        "errorParsingUrl": "Error parsing URL",
-        "findingUser": "Finding user...",
-        "fetchingServerInfo": "Fetching server info...",
-        "nonRootPlaceRestrictions": "Cannot join: Non-root place restrictions.",
-        "waitingForRoblox": "Waiting for Roblox...",
-        "launching": "Launching..."
+        "serverChannel": "Kênh máy chủ:",
+        "production": "Chính thức",
+        "launchingRoblox": "Đang khởi chạy Roblox",
+        "downloadRoblox": "Tải xuống Roblox",
+        "thanksDownloading": "Cảm ơn vì đã tải Roblox",
+        "downloadInstructions": "Hãy làm theo những bước dưới để cài đặt Roblox. Quá trình tải xuống sẽ bắt đầu sau vài giây nữa. Nếu không, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">bắt đầu lại quá trình tải</a>.",
+        "installInstructions": "Hướng dẫn cài đặt",
+        "step1": "Sau khi tải xuống, nhấp đúp vào tệp <b>RobloxPlayerInstaller.exe</b> trong thư mục Downloads.",
+        "step2": "Nhấn đúp vào <b>RobloxPlayerInstaller</b> để cài đặt ứng dụng.",
+        "step3": "Làm theo hướng dẫn để cài đặt Roblox trên máy tính của bạn.",
+        "step4": "Và bây giờ khi Roblox đã được cài đặt, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">tham gia trải nghiệm</a>.",
+        "mobileApp": "Đừng quên ứng dụng trên điện thoại",
+        "scanCode": "Quét mã này bằng camera điện thoại của bạn để tải Roblox.",
+        "joiningServer": "Đang tham gia máy chủ...",
+        "errorParsingUrl": "Lỗi phân tích URL",
+        "findingUser": "Đang tìm người dùng...",
+        "fetchingServerInfo": "Đang tải thông tin máy chủ...",
+        "nonRootPlaceRestrictions": "Không thể tham gia: Giới hạn với map không phải gốc.",
+        "waitingForRoblox": "Đang chờ Roblox...",
+        "launching": "Đang khởi chạy..."
     },
     "createRoblox": {
-        "download": "Download",
-        "downloadMesh": "Download .mesh",
-        "downloadObj": "Download .obj",
+        "download": "Tải xuống",
+        "downloadMesh": "Tải xuống .mesh",
+        "downloadObj": "Tải xuống .obj",
         "explorer": {
-            "button": "Explorer",
-            "title": "Explorer",
+            "button": "Mở trình duyệt",
+            "title": "Trình duyệt",
             "loading": "Đang tải...",
-            "selectInstance": "Select an instance to view its properties",
-            "noProperties": "No properties",
-            "viewSource": "View Source",
-            "closePreview": "Close Preview",
-            "defaultDevice": "Default (1280x720)",
-            "fitToWindow": "Fit to Window",
-            "actualResolution": "Actual Resolution",
-            "physicalSize": "Physical Size",
-            "rotate": "Rotate",
-            "loadingPreview": "Loading GUI preview...",
-            "searchInstances": "Search instances... (2+ chars)",
-            "searchProperties": "Search properties...",
-            "previewGui": "Preview GUI",
-            "togglePreviewVisibility": "Toggle visibility in preview",
-            "noMatchingInstances": "No matching instances found",
-            "loadError": "Failed to load."
+            "selectInstance": "Chọn một đối tượng để xem thuộc tính của nó",
+            "noProperties": "Không có thuộc tính",
+            "viewSource": "Xem nguồn",
+            "closePreview": "Đóng bản xem trước",
+            "defaultDevice": "Mặc định (1280x720)",
+            "fitToWindow": "Vừa với cửa sổ",
+            "actualResolution": "Độ phân giải thực",
+            "physicalSize": "Kích cỡ vật lý",
+            "rotate": "Xoay",
+            "loadingPreview": "Đang tải bản xem trước GUI...",
+            "searchInstances": "Tìm đối tượng... (2+ kí tự)",
+            "searchProperties": "Tìm thuộc tính...",
+            "previewGui": "Xem trước GUI",
+            "togglePreviewVisibility": "Tuỳ chỉnh độ hiển thị trong bản xem trước",
+            "noMatchingInstances": "Không tìm thấy đối tượng nào khớp",
+            "loadError": "Tải thất bại."
         }
     },
     "priceFloor": {
-        "label": "Price Floor:",
-        "status": "This item is {{status}} the price floor{{difference}}.",
+        "label": "Giá sàn:",
+        "status": "Vật phẩm này đang {{status}} giá sàn {{difference}}.",
         "statusTypes": {
-            "above": "above",
-            "below": "below",
-            "at": "at"
+            "above": "trên",
+            "below": "dưới",
+            "at": "ở"
         },
-        "difference": " by {{diff}}",
-        "description": "The price floor is a dynamically updating minimum price an item can be sold for."
+        "difference": "{{diff}}",
+        "description": "Giá sàn là mức giá tối thiểu được cập nhật tự động mà một vật phẩm có thể được bán."
     },
     "parentItem": {
-        "multipleBundles": "This item is part of multiple bundles",
-        "multipleBundlesDescription": "This item is likely used as a template and is included in multiple bundles.",
-        "partOfBundle": "This item is part of the [{{bundleName}}]({{bundleUrl}}) bundle",
-        "viewingFromBundle": "You are currently viewing an item from a bundle."
+        "multipleBundles": "Vật phẩm này là một phần của nhiều gói",
+        "multipleBundlesDescription": "Vật phẩm này có nhiều khả năng được dùng làm mẫu và xuất hiện trong nhiều gói.",
+        "partOfBundle": "Vật phẩm này là một phần của gói [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Bạn hiện đang xem một vậy phẩm từ một gói."
     },
     "rovalraBadges": {
-        "userVerified": "User is ID verified.",
-        "userNotVerified": "User is not ID verified.",
-        "userAgeVerified": "User is age checked.",
-        "userNotAgeVerified": "User is not age checked.",
-        "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
+        "userVerified": "Người dùng đã xác thực ID.",
+        "userNotVerified": "Người đung chưa xác thực ID.",
+        "userAgeVerified": "Người dùng đã xác thực tuổi.",
+        "userNotAgeVerified": "Người đung chưa xác thực tuổi.",
+        "userAgeVerificationMayBeInaccurate": "Dữ liệu có thể sai"
     },
     "friendsSince": {
-        "friended": "Friended",
-        "lastSeen": "Seen",
-        "age": "Age",
-        "friendedVia": "Friended via",
-        "originFrom": "From",
-        "originSearch": "Search",
-        "originInGame": "In Game",
-        "originProfile": "Profile",
-        "originQQContacts": "QQ Contacts",
-        "originWeChatContacts": "WeChat Contacts",
-        "originQrCode": "QR Code",
-        "originProfileShare": "Profile Share",
-        "originPhoneContacts": "Phone Contacts",
-        "originPeopleYouMayKnow": "People You May Know",
-        "originschoolmemberlist": "School Member List",
-        "originFriendLink": "Friend Link",
-        "originSocialTabsPage": "Social Tabs Page",
-        "originUnknown": "Unknown"
+        "friended": "Đã kết bạn",
+        "lastSeen": "Lần cuối thấy",
+        "age": "Tuổi",
+        "friendedVia": "Kết bạn qua",
+        "originFrom": "Từ,
+        "originSearch": "Tìm kiếm",
+        "originInGame": "Trong Game",
+        "originProfile": "Hồ sơ",
+        "originQQContacts": "Danh bạ QQ",
+        "originWeChatContacts": "Danh bạ WeChat",
+        "originQrCode": "Mã QR",
+        "originProfileShare": "Chia sẻ hồ sơ",
+        "originPhoneContacts": "Danh bạ sđt",
+        "originPeopleYouMayKnow": "Những người bạn có thể biết",
+        "originschoolmemberlist": "Danh sách thành viên trường",
+        "originFriendLink": "Liên kết bạn",
+        "originSocialTabsPage": "Trang mạng xã hội",
+        "originUnknown": "Không rõ"
     },
     "lastPlayed": {
-        "together": "Most Frequent Played Together"
+        "together": "Chơi cùng nhau nhiều nhất"
     },
     "avatarDownload": {
-        "button": "Download Avatar",
-        "title": "Download Avatar",
-        "size": "Resolution:",
-        "downloadPortrait": "Portrait PNG",
-        "downloadBust": "Bust PNG",
-        "downloadAvatar": "Avatar PNG",
-        "downloading": "Downloading...",
-        "failed": "Failed to download avatar. Try again later."
+        "button": "Tải xuống Avatar",
+        "title": "Tải xuống Ảnh đại diện",
+        "size": "Chất lượng:",
+        "downloadPortrait": "PNG Dọc",
+        "downloadBust": "PNG chân dung",
+        "downloadAvatar": "PNG Avatar",
+        "downloading": "Đang tải...",
+        "failed": "Không thể tải avatar. Xin hãy thử lại sau."
     },
     "unfriend": {
-        "confirmUnfriend": "Confirm Unfriend",
-        "confirmUnfriends": "Confirm Unfriends",
-        "descriptionSingle": "You are about to unfriend 1 friend. This action cannot be undone.",
-        "descriptionPlural": "You are about to unfriend {{count}} friends. This action cannot be undone.",
-        "cancel": "Cancel",
-        "unfriend": "Unfriend",
-        "unfriendCount": "Unfriend ({{count}})",
-        "unfriendCountAction": "Unfriend {{count}} friend",
-        "unfriendCountActionPlural": "Unfriend {{count}} friends",
-        "unfriending": "Unfriending...",
-        "bulkUnfriend": "Bulk Unfriend",
-        "exitBulkMode": "Exit Bulk Mode",
-        "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
+        "confirmUnfriend": "Xác nhận huỷ kết bạn",
+        "confirmUnfriends": "Xác nhận huỷ kết bạn",
+        "descriptionSingle": "Bạn sắp huỷ kết bạn 1 bạn. Hành động này không thể thu hồi.",
+        "descriptionPlural": "Bạn sắp huỷ kết bạn {{count}} bạn. Hành động này không thể thu hồi.",
+        "cancel": "Huỷ",
+        "unfriend": "Huỷ kết bạn",
+        "unfriendCount": "Huỷ kết bạn ({{count}})",
+        "unfriendCountAction": "Huỷ kết bạn {{count}} bạn",
+        "unfriendCountActionPlural": "Huỷ kết bạn {{count}} bạn",
+        "unfriending": "Đang huỷ kết bạn...",
+        "bulkUnfriend": "Huỷ kết bạn hàng loạt",
+        "exitBulkMode": "Thoát chế độ hàng loạt",
+        "successMessage": "Huỷ kết bạn thành công {{successCount}}/{{totalCount}} bạn!"
     },
     "bulkBadgeRemover": {
-        "bulk": "Bulk Badge Remover",
-        "exit": "Exit Bulk Mode",
-        "delete": "Delete Badges",
-        "deleteCount": "Delete Badges ({{count}})",
-        "confirmTitle": "Confirm Badge Deletion",
-        "finalTitle": "Are You Really Sure?",
-        "finalDescription": "This will permanently delete {{count}} badges from your inventory.",
-        "descriptionSingle": "You are about to delete 1 badge from your inventory. This action cannot be undone.",
-        "descriptionPlural": "You are about to delete {{count}} badges from your inventory. This action cannot be undone.",
-        "deletingProgress": "Deleting badges... {{current}}/{{total}}",
-        "cancel": "Cancel",
-        "success": "Deleted {{successCount}}/{{totalCount}} badges."
+        "bulk": "Xoá huy hiệu hàng loạt",
+        "exit": "Thoát chế độ hàng loạt",
+        "delete": "Xoá huy hiệu",
+        "deleteCount": "Xoá huy hiệu ({{count}})",
+        "confirmTitle": "Xác nhận xoá huy hiệu",
+        "finalTitle": "Bạn có chắc không?",
+        "finalDescription": "Việc này sẽ xoá VĨNH VIỄN {{count}} huy hiệu khỏi kho đồ của bạn.",
+        "descriptionSingle": "Bạn sắp xoá 1 huy hiệu khỏi kho đồ của bạn. Hành động này không thể thu hồi.",
+        "descriptionPlural": "Bạn sắp xoá {{count}} huy hiệu khỏi kho đồ của bạn. Hành động này không thể thu hồi.",
+        "deletingProgress": "Đang xoá huy hiệu... {{current}}/{{total}}",
+        "cancel": "Huỷ",
+        "success": "Đã xoá {{successCount}}/{{totalCount}} huy hiệu."
     },
     "blockUser": {
-        "block": "Block",
-        "unblock": "Unblock",
-        "blockTitle": "Block {{username}}",
-        "unblockTitle": "Unblock {{username}}",
-        "blockTitleGeneric": "Block User",
-        "unblockTitleGeneric": "Unblock User",
-        "blockMessage": "They will no longer be able to send you trades. You can still decline any existing trade, but you will not be able to accept or counter it.",
-        "unblockMessage": "They will be able to send you trades again, and you will be able to accept or counter any existing trades.",
-        "cancel": "Cancel"
+        "block": "Chặn",
+        "unblock": "Bỏ chặn",
+        "blockTitle": "Chặn {{username}}",
+        "unblockTitle": "Bỏ chặn {{username}}",
+        "blockTitleGeneric": "Chặn người dùng",
+        "unblockTitleGeneric": "Bỏ chặn người dùng",
+        "blockMessage": "Họ sẽ không còn có thể gửi bạn yêu cầu trao đổi. Bạn vẫn có thể từ chối giao dich hiện có, nhưng bạn sẽ không thể chấp nhận hoặc thương lượng lại.",
+        "unblockMessage": "Họ sẽ lại có thể gửi bạn yêu cầu trao đổi. Và bạn sẽ lại có thể chấp nhận hoặc thương lượng lại giao dịch hiện có",
+        "cancel": "Huỷ"
     },
     "unfriendDetector": {
-        "title_one": "Unfriend Detected",
-        "title_other": "Unfriends Detected",
-        "description_one": "This friend removed you since you last played:",
-        "description_other": "These {{count}} friends removed you since you last played:",
-        "viewProfile": "View {{name}}'s profile",
-        "dismiss": "Dismiss"
+        "title_one": "Đã nhận diện huỷ kết bạn",
+        "title_other": "Đã nhận diện huỷ kết bạn",
+        "description_one": "Người bạn này đã huỷ kết bạn bạn từ lần cuối bain chơi:",
+        "description_other": "{{count}} người bạn này đã huỷ kết bạn bạn từ lần cuối bain chơi:",
+        "viewProfile": "Xem hồ sơ của {{name}}",
+        "dismiss": "Bỏ qua"
     },
     "leaveGroups": {
-        "confirmLeave": "Confirm Leave",
-        "confirmLeaves": "Confirm Leaves",
-        "descriptionSingle": "You are about to leave 1 community. This action cannot be undone.",
-        "descriptionPlural": "You are about to leave {{count}} communities. This action cannot be undone.",
-        "cancel": "Cancel",
-        "leave": "Leave",
-        "leaveCount": "Leave ({{count}})",
-        "leaveCountAction": "Leave {{count}} community",
-        "leaveCountActionPlural": "Leave {{count}} communities",
-        "leaving": "Leaving...",
-        "bulkLeave": "Bulk Leave",
-        "exitBulkMode": "Exit Bulk Mode",
-        "successMessage": "Successfully left {{successCount}}/{{totalCount}} communities!"
+        "confirmLeave": "Xác nhận rời đi",
+        "confirmLeaves": "Xác nhận rời đi",
+        "descriptionSingle": "Bạn sắp rời 1 cộng đồng. Hành động này không thể thu hồi.",
+        "descriptionPlural": "Bạn sắp rời {{count}} cộng đồng. Hành động này không thể thu hồi.",
+        "cancel": "Huỷ bỏ",
+        "leave": "Rời đi",
+        "leaveCount": "Rời đi ({{count}})",
+        "leaveCountAction": "Rời {{count}} cộng đồng",
+        "leaveCountActionPlural": "Rời {{count}} cộng đồng",
+        "leaving": "Đang rời...",
+        "bulkLeave": "Rời hàng loạt",
+        "exitBulkMode": "Thoát chế độ hàng loạt",
+        "successMessage": "Đã rời thành công {{successCount}}/{{totalCount}} cộng đồng!"
     },
     "purchasePrompt": {
-        "balanceAfter": "Your balance after this transaction will be"
+        "balanceAfter": "Số dư của bạn sau giao dịch này sẽ là"
     },
     "recentlyViewed": {
-        "title": "Recently Viewed",
-        "clear": "Clear",
-        "remove": "Remove",
-        "cheaper": "{{value}} Robux cheaper than when you viewed it",
-        "pricier": "{{value}} Robux more than when you viewed it",
-        "offSale": "Went off sale",
-        "backOnSale": "Back on sale"
+        "title": "Xem gần đây",
+        "clear": "Dọn dẹp",
+        "remove": "Xoá",
+        "cheaper": "Rẻ hơn {{value}} Robux so với lần cuối bạn xem nó",
+        "pricier": "Mắc hơn {{value}} Robux so với lần cuối bạn xem nó",
+        "offSale": "Đã ngừng bán",
+        "backOnSale": "Đã bán trở lại"
     },
     "tradeRecentItems": {
-        "offer": "Recently offered",
-        "request": "Recently requested",
-        "clear": "Clear"
+        "offer": "Đề nghị cần đây",
+        "request": "Yêu cầu gần đây",
+        "clear": "Dọn dẹp"
     },
     "tradeQuickActions": {
         "minValue": "Min value they give",
