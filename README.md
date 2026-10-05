@@ -67,6 +67,7 @@ npm run build
    [https://github.com/NotValra/RoValra/releases](https://github.com/NotValra/RoValra/releases)
 3. Import the folder that directly contains:
     - `manifest.json`
+      If compiling yourself this file can be found in "dist" if you wanna get the chrome version or "dist-firefox" for the firefox version.
 
 </details>
 
