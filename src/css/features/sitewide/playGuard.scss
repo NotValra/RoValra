@@ -1,0 +1,125 @@
+.rovalra-play-guard-active {
+    position: relative !important;
+    color: transparent !important;
+}
+
+.rovalra-play-guard-active
+    > :not(
+        .rovalra-play-guard-lock-icon
+    ) {
+    opacity: 0 !important;
+}
+
+.rovalra-play-guard-lock-icon {
+    position: absolute !important;
+
+    top: 50% !important;
+    left: 50% !important;
+
+    z-index: 5 !important;
+
+    transform: translate(
+        -50%,
+        -50%
+    ) !important;
+
+    margin: 0 !important;
+
+    opacity: 1 !important;
+
+    color: var(
+        --color-content-emphasis,
+        #fff
+    ) !important;
+
+    font-size: 20px !important;
+
+    pointer-events: none !important;
+}
+
+.rovalra-play-guard-overlay
+    .rovalra-overlay-content {
+    border-radius: 16px !important;
+}
+
+.rovalra-play-guard-overlay
+    .rovalra-overlay-header {
+    display: none !important;
+}
+
+.rovalra-play-guard-overlay
+    .rovalra-overlay-close {
+    display: none !important;
+}
+
+.rovalra-play-guard-body {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    gap: 10px;
+
+    padding: 8px 4px 4px;
+
+    text-align: center;
+}
+
+.rovalra-play-guard-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 6px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+}
+
+.rovalra-play-guard-icon icon {
+    font-size: 24px;
+}
+
+.rovalra-play-guard-title {
+    margin: 0;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    text-align: center;
+}
+
+.rovalra-play-guard-description {
+    margin:
+        0
+        0
+        10px;
+
+    color: var(
+        --color-content-muted,
+        #bdbebe
+    );
+
+    font-size: 14px;
+    line-height: 1.45;
+
+    text-align: center;
+}
+
+.rovalra-play-guard-button {
+    width: 100% !important;
+
+    min-height: 40px;
+}

@@ -5,6 +5,7 @@ import { t } from './core/locale/i18n.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
+import { init as initPlayGuard } from './features/sitewide/playGuard.js';
 import { init as initEasterEggLinks } from './features/sitewide/easterEggs/links.js';
 import { init as initCssFixes } from './features/sitewide/cssfixes.js';
 import { init as initServerListener } from './features/games/serverlistener.js';
@@ -230,6 +231,7 @@ const featureRoutes = [
             initQuickPlay,
             initEasterEggLinks,
             initCssFixes,
+            initPlayGuard,
             initWhatAmIJoining,
             initServerListener,
             initOnboarding,

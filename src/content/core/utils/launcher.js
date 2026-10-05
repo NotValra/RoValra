@@ -2,6 +2,7 @@
 import { callRobloxApiJson } from '../api.js';
 
 let preLaunchHook = null;
+let launchGuard = null;
 let followUserHook = null;
 let privateServerLaunchHook = null;
 let followLaunchObserver = null;
@@ -16,6 +17,12 @@ export function setPreLaunchHook(hook) {
     preLaunchHook = typeof hook === 'function' ? hook : null;
 }
 
+export function setLaunchGuard(guard) {
+    launchGuard =
+        typeof guard === 'function'
+            ? guard
+            : null;
+}
 export function setFollowUserHook(hook) {
     followUserHook = typeof hook === 'function' ? hook : null;
     if (followUserHook && !followLaunchObserver) {
@@ -152,18 +159,75 @@ export function observeGameLaunch(callback) {
     };
 }
 
-function runLaunch(placeId, codeToInject) {
+function continueLaunch(
+    placeId,
+    codeToInject,
+) {
     if (!preLaunchHook) {
-        executeLaunchScript(codeToInject);
+        executeLaunchScript(
+            codeToInject,
+        );
         return;
     }
 
     Promise.resolve()
-        .then(() => preLaunchHook(placeId))
+        .then(() =>
+            preLaunchHook(placeId),
+        )
         .catch((error) => {
-            console.error('RoValra Launcher: Pre launch hook failed', error);
+            console.error(
+                'RoValra Launcher: Pre launch hook failed',
+                error,
+            );
         })
-        .finally(() => executeLaunchScript(codeToInject));
+        .finally(() =>
+            executeLaunchScript(
+                codeToInject,
+            ),
+        );
+}
+
+function runLaunch(
+    placeId,
+    codeToInject,
+) {
+    if (!launchGuard) {
+        continueLaunch(
+            placeId,
+            codeToInject,
+        );
+        return;
+    }
+
+    Promise.resolve()
+        .then(() =>
+            launchGuard(placeId),
+        )
+        .then((allowed) => {
+            if (allowed === false) {
+                return;
+            }
+
+            continueLaunch(
+                placeId,
+                codeToInject,
+            );
+        })
+        .catch((error) => {
+            console.error(
+                'RoValra Launcher: Launch guard failed',
+                error,
+            );
+
+            /*
+             * make it so play guard bug should
+             * never prevent Roblox from launching.
+             */
+            continueLaunch(
+                placeId,
+                codeToInject,
+            );
+        });
 }
 
 function executeLaunchScript(codeToInject) {

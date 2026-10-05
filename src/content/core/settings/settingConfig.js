@@ -361,6 +361,16 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                 },
+
+            },
+            PlayGuardEnabled: {
+                label: 'Play Guard',
+                description: [
+                    'Warns before launching another Roblox experience while you are already in a game.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
             },
             wideGameTileStatsEnabled: {
                 label: 'Player Counts on Wide Tiles',

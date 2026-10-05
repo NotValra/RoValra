@@ -51,6 +51,13 @@
         "confirm": "Confirm",
         "cancel": "Cancel"
     },
+
+    "playGuard": {
+        "title": "Already In-Game",
+        "description": "You are currently playing a Roblox game. Joining a new game will disconnect your active session.",
+        "launchAnyway": "Launch Game Anyway"
+    },
+
     "regionSelector": {
         "gilbertsInYourArea": "Gilberts In Your Area",
         "title": "RoValra Region Selector",
