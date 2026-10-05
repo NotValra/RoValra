@@ -99,6 +99,8 @@
         "versionUnknown": "Nieznana wersja",
         "version": "Wersja {{version}}",
         "versionLabel": "Wersja",
+        "regionTooltip": "Region serwera: {{region}}",
+        "performanceTooltip": "Wydajność serwera",
         "latest": " (najnowsza)",
         "oldest": " (najstarsza)",
         "serverFull": "Serwer jest pełny",
@@ -444,6 +446,16 @@
         "allTime": "Od początku",
         "hours": "{{value}} godz.",
         "minutes": "{{value}} min"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} wspólny znajomy",
+        "pill_few": "{{count}} wspólnych znajomych",
+        "pill_many": "{{count}} wspólnych znajomych",
+        "pill_other": "{{count}} wspólnych znajomych",
+        "tooltip": "Znajomi, których masz wspólnych z tym użytkownikiem",
+        "tab": "Wspólni",
+        "title": "Wspólni znajomi ({{count}})",
+        "empty": "Nie masz wspólnych znajomych z tym użytkownikiem."
     },
     "trustedFriends": {
         "pendingConnection": "Oczekujący zaufany znajomy",
@@ -819,6 +831,7 @@
         },
         "credits": {
             "contributorsTitle": "Współtwórcy",
+            "translatorsTitle": "Tłumacze",
             "featureCount_one": "{{count}} funkcja",
             "featureCount_few": "{{count}} funkcje",
             "featureCount_many": "{{count}} funkcji",
@@ -878,7 +891,10 @@
                 },
                 "locales": {
                     "madeRo": "Pomoc przy tworzeniu wersji rumuńskiej",
-                    "madeEs": "Pomoc przy tworzeniu wersji hiszpańskiej"
+                    "madeEs": "Pomoc przy tworzeniu wersji hiszpańskiej",
+                    "madeRu": "Pomoc przy tworzeniu wersji rosyjskiej",
+                    "madeFr": "Pomoc przy tworzeniu wersji francuskiej",
+                    "madeZh": "Pomoc przy tworzeniu wersji chińskiej"
                 }
             },
             "ui": {
@@ -1010,6 +1026,7 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "Wydanie bez tytułu",
+                "current": "Twoja wersja",
                 "noNotes": "Dla tego wydania nie podano listy zmian.",
                 "loading": "Ładowanie listy zmian...",
                 "empty": "Obecnie brak dostępnych list zmian.",
@@ -1198,7 +1215,8 @@
         "transactions": "Transakcje",
         "apiDocs": "Dokumentacja API",
         "incidentLearnMore": "Kliknij tutaj, aby dowiedzieć się więcej.",
-        "incidentHideNotice": "Tutaj możesz ukryć to powiadomienie"
+        "incidentHideNotice": "Tutaj możesz ukryć to powiadomienie",
+        "rovalraApi": "API RoValra"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Zwiń pasek boczny",
@@ -1363,6 +1381,8 @@
         "hide": "Ukryj",
         "join": "Dołącz",
         "peopleMax": "{{playing}} z maks. {{maxPlayers}} osób",
+        "pinPrivateServer": "Przypnij serwer prywatny",
+        "unpinPrivateServer": "Odepnij serwer prywatny",
         "playerCountUnknownTooltip": "Liczba graczy jest nieznana, to ograniczenie Roblox. Miniatury nie odzwierciedlają osób w grze.",
         "playerCountUnknownLabel": "Nieznana liczba graczy"
     },
@@ -1663,6 +1683,36 @@
     },
     "purchasePrompt": {
         "balanceAfter": "Twoje saldo po tej transakcji wyniesie"
+    },
+    "recentlyViewed": {
+        "title": "Ostatnio oglądane",
+        "clear": "Wyczyść",
+        "remove": "Usuń",
+        "cheaper": "{{value}} Robux taniej niż podczas oglądania",
+        "pricier": "{{value}} Robux drożej niż podczas oglądania",
+        "offSale": "Wycofany ze sprzedaży",
+        "backOnSale": "Znów w sprzedaży"
+    },
+    "tradeRecentItems": {
+        "offer": "Ostatnio oferowane",
+        "request": "Ostatnio żądane",
+        "clear": "Wyczyść"
+    },
+    "tradeQuickActions": {
+        "minValue": "Min. wartość, którą dają",
+        "hideLosses": "Ukryj straty",
+        "bulkTitle": "Akcja zbiorcza",
+        "bulkHint": "Odrzuca każdą otrzymaną wymianę, na której tracisz wartość. Najpierw musisz to potwierdzić.",
+        "declineLosses": "Odrzuć stratne wymiany",
+        "loadingTrades": "Ładowanie otrzymanych wymian...",
+        "checking": "Sprawdzanie wymian {{done}}/{{total}}...",
+        "noLosses": "Nie znaleziono stratnych otrzymanych wymian",
+        "confirmTitle": "Odrzuć stratne wymiany",
+        "confirmMessage": "{{count}} z {{total}} otrzymanych wymian to strata według wartości (łącznie {{value}}). Odrzucić je wszystkie? Tego nie można cofnąć.",
+        "declineConfirm": "Odrzuć",
+        "declining": "Odrzucanie {{done}}/{{total}}...",
+        "declined": "Odrzucono wymiany: {{count}}",
+        "declinedWithFailures": "Odrzucono wymiany: {{count}}, nieudane: {{failed}}"
     },
     "time": {
         "justNow": "przed chwilą",
@@ -2015,7 +2065,8 @@
         "renderOptions": "Opcje renderowania",
         "darkLighting": "Ciemne oświetlenie",
         "baseplate": "Podłoże",
-        "rotatePreview": "Obracaj podgląd"
+        "rotatePreview": "Obracaj podgląd",
+        "itemOnly": "Pokaż tylko przedmiot"
     },
     "groupFilters": {
         "sort": {
@@ -2050,7 +2101,15 @@
             "monthlyLimitLeft": "Pozostały limit miesięczny",
             "sentToday": "Wysłano dzisiaj",
             "sentThisMonth": "Wysłano w tym miesiącu",
+            "nextRefill": "Następne odnowienie limitu",
+            "leftAfter": "Pozostanie {{amount}}",
+            "refillNote": "Każdy przelew wlicza się do limitu miesięcznego przez 30 dni, potem te Robux znów są dostępne.",
             "caption": "Limit dzienny wynosi {{dailyLimit}}. Limit miesięczny wynosi {{monthlyLimit}}. Aktualizacja co 5 minut. Pozostałe kwoty są szacunkowe i mogą być niedokładne."
+        },
+        "referral": {
+            "reward": "Zdobądź 100 Robux za darmo i wesprzyj RoValra!",
+            "details": "Kwalifikują się tylko nowi użytkownicy Roblox Plus. RoValra również otrzyma 100 Robux, gdy zasubskrybujesz z kodem polecającym RoValra.",
+            "button": "Zasubskrybuj z kodem polecającym RoValra"
         },
         "privateServerTooltip": {
             "tooltipText": "Pierwotna cena: <b>{{originalPrice}} Robux</b><br>Obecnie wyświetlana jako <b>Za darmo</b> dzięki Roblox Plus."
@@ -2120,6 +2179,15 @@
             }
         }
     },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Niektóre ustawienia zostały usunięte lub zastąpione"
+            },
+            "deleted": "Następujące ustawienia zostały niedawno usunięte, zablokowane lub wycofane:",
+            "replaced": "Następujące ustawienia zostały niedawno zastąpione lub zmienione:"
+        }
+    },
     "avatar": {
         "gameOutfits": {
             "button": "Stroje do gier",
@@ -2141,5 +2209,77 @@
     "pinnedFriends": {
         "pin": "Przypnij na górze",
         "unpin": "Odepnij"
+    },
+    "richLinks": {
+        "by": "Autor: {{name}}",
+        "members": "Członkowie: {{count}}",
+        "playing": "Grający: {{count}}",
+        "visits": "Odwiedziny: {{count}}",
+        "loading": "Ładowanie...",
+        "free": "Za darmo",
+        "offSale": "Wycofany ze sprzedaży"
+    },
+    "privateApiDocs": {
+        "title": "API RoValra",
+        "loading": "Ładowanie dokumentacji API...",
+        "loadFailed": "Nie udało się załadować dokumentacji API: {{error}}",
+        "noAccess": "Nie masz dostępu do tej dokumentacji.",
+        "serverError": "Serwer odpowiedział kodem {{status}}.",
+        "invalidSpec": "Serwer zwrócił nieprawidłowy dokument OpenAPI.",
+        "baseUrl": "Bazowy URL: {{url}}",
+        "apiVersion": "Wersja API",
+        "openApiVersion": "Wersja OpenAPI",
+        "server": "Serwer",
+        "sendToken": "Wyślij mój token dostępu RoValra",
+        "filterLabel": "Filtruj endpointy",
+        "filterPlaceholder": "Ścieżka, opis lub tag",
+        "hideDeprecated": "Ukryj przestarzałe",
+        "noEndpoints": "Nie znaleziono endpointów.",
+        "deprecated": "Przestarzały",
+        "deprecatedTooltip": "Ten endpoint jest przestarzały.",
+        "authRequired": "Wymagane uwierzytelnienie",
+        "authOptional": "Uwierzytelnienie opcjonalne",
+        "schemeNotSent": "Wymaga {{name}}, czego ta strona nie wysyła.",
+        "operationId": "ID operacji",
+        "security": "Uwierzytelnianie: {{schemes}}",
+        "securityOptional": "Uwierzytelnianie: {{schemes}} (opcjonalne)",
+        "securityTooltip": "Wymagania bezpieczeństwa",
+        "parameters": "Parametry",
+        "noParameters": "Brak parametrów",
+        "tryItOut": "Wypróbuj",
+        "name": "Nazwa",
+        "description": "Opis",
+        "required": "wymagany",
+        "availableValues": "Dostępne wartości: {{values}}",
+        "requestBody": "Treść żądania",
+        "requestContentType": "Typ zawartości żądania",
+        "exampleValue": "Przykładowa wartość",
+        "schema": "Schemat",
+        "responses": "Odpowiedzi",
+        "noResponses": "Brak udokumentowanych odpowiedzi",
+        "code": "Kod",
+        "details": "Szczegóły",
+        "execute": "Wykonaj",
+        "clear": "Wyczyść",
+        "missingParams": "Brak wymaganych parametrów: {{params}}",
+        "invalidJson": "Treść żądania nie jest prawidłowym JSON-em: {{error}}",
+        "bodyRequired": "Treść żądania jest wymagana.",
+        "confirmTitle": "Wysłać żądanie?",
+        "confirmMessage": "Spowoduje to wysłanie żądania {{method}} do {{path}}. Kontynuuj tylko, jeśli rozumiesz, co ono robi.",
+        "send": "Wyślij",
+        "sending": "Wysyłanie żądania...",
+        "requestFailed": "Żądanie nie powiodło się: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "URL żądania",
+        "serverResponse": "Odpowiedź serwera",
+        "responseBody": "Treść odpowiedzi",
+        "responseHeaders": "Nagłówki odpowiedzi",
+        "emptyResponse": "(pusta odpowiedź)",
+        "responseImage": "Obraz odpowiedzi",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Czas trwania żądania",
+        "contentType": "Typ zawartości",
+        "redirected": "Przekierowano",
+        "copy": "Kopiuj"
     }
 }
