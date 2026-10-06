@@ -27,7 +27,10 @@ import { t, ts } from '../../core/locale/i18n.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 
 const GLOBAL_CONTAINER_ID = 'rovalra-private-servers-global-container';
-const GAME_CARD_LINK_SELECTOR = 'a.game-card-link[href*="/games/"]';
+const GAME_CARD_LINK_SELECTOR =
+    'a.game-card-link[href*="/games/"], a.sdui-game-tile-wrapper[href*="/games/"]';
+const THUMB_CONTAINER_SELECTOR =
+    '.game-card-thumb-container, .featured-game-icon-container, .sdui-tile-image-container';
 const HOVER_CARD_EXIT_DELAY = 100;
 const PRIVATE_SERVER_EXIT_DELAY = 200;
 
@@ -268,7 +271,7 @@ async function flushPaidPlayabilityQueue() {
 function getPaidPriceCardRoot(gameLink) {
     return (
         gameLink.closest(
-            '.game-card-container, .game-card, .list-item, .item-card, li, .game-tile',
+            '.game-card-container, .game-card, .list-item, .item-card, li, .game-tile, [data-testid^="sdui-carousel-item"]',
         ) ||
         gameLink.parentElement ||
         gameLink
@@ -309,9 +312,7 @@ function isLargeSearchCard(gameLink) {
 }
 
 function placePaidPriceBadge(gameLink, badge) {
-    const thumbContainer = gameLink.querySelector(
-        '.game-card-thumb-container, .featured-game-icon-container',
-    );
+    const thumbContainer = gameLink.querySelector(THUMB_CONTAINER_SELECTOR);
     if (!thumbContainer) return;
 
     thumbContainer.style.position = 'relative';
@@ -331,9 +332,7 @@ function addPaidPriceBadge(gameLink, price) {
         return;
     }
 
-    const thumbContainer = gameLink.querySelector(
-        '.game-card-thumb-container, .featured-game-icon-container',
-    );
+    const thumbContainer = gameLink.querySelector(THUMB_CONTAINER_SELECTOR);
     if (!thumbContainer) return;
 
     const badge = document.createElement('span');
@@ -1188,7 +1187,7 @@ function scheduleCardCleanup(gameLink, delay) {
 
 function hideOtherHoverCards(gameLink) {
     document
-        .querySelectorAll(`${GAME_CARD_LINK_SELECTOR}.quick-play-hover-active`)
+        .querySelectorAll('a.quick-play-hover-active[href*="/games/"]')
         .forEach((otherGameLink) => {
             if (otherGameLink === gameLink) return;
 
@@ -1202,6 +1201,43 @@ function lockSpecialLayoutOverlayPosition(overlay) {
     overlay.style.bottom = 'auto';
 }
 
+const SDUI_HOVER_BLEED = 8;
+const SDUI_CAROUSEL_ITEM_SELECTOR = '#collection-carousel-item';
+
+function isClippingOverflow(style) {
+    return style.overflowX !== 'visible' || style.overflowY !== 'visible';
+}
+
+function makeRoomForSduiHover(gameLink) {
+    if (!gameLink.classList.contains('sdui-game-tile-wrapper')) return;
+
+    const carouselItem = gameLink.closest(SDUI_CAROUSEL_ITEM_SELECTOR);
+    let el = gameLink.parentElement;
+
+    while (el && el !== document.body) {
+        if (el.dataset.rovalraHoverRoom) return;
+
+        const style = getComputedStyle(el);
+        if (isClippingOverflow(style)) {
+            if (carouselItem && carouselItem.contains(el)) {
+                el.style.overflow = 'visible';
+            } else {
+                el.dataset.rovalraHoverRoom = 'true';
+                for (const side of ['Top', 'Right', 'Bottom', 'Left']) {
+                    const padding = parseFloat(style[`padding${side}`]) || 0;
+                    const margin = parseFloat(style[`margin${side}`]) || 0;
+                    el.style[`padding${side}`] =
+                        `${padding + SDUI_HOVER_BLEED}px`;
+                    el.style[`margin${side}`] =
+                        `${margin - SDUI_HOVER_BLEED}px`;
+                }
+                return;
+            }
+        }
+        el = el.parentElement;
+    }
+}
+
 function setupHoverCard(gameLink, settings) {
     hideOtherHoverCards(gameLink);
     cancelCardCleanup(gameLink);
@@ -1212,6 +1248,7 @@ function setupHoverCard(gameLink, settings) {
         return;
     }
 
+    makeRoomForSduiHover(gameLink);
     gameLink.classList.add('game-tile-styles');
     const isSpecialLayout = gameLink.closest(
         '.featured-game-container, .featured-grid-item-container',
@@ -1309,7 +1346,9 @@ function setupHoverCard(gameLink, settings) {
 
     if (!isSpecialLayout) {
         gameLink
-            .querySelectorAll('.game-card-info, .game-card-friend-info')
+            .querySelectorAll(
+                '.game-card-info, .game-card-friend-info, [data-testid="sdui-tile-footer-content"]',
+            )
             .forEach((el) => el.classList.add('quick-play-original-stats'));
     }
 }
