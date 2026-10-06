@@ -348,11 +348,12 @@ async function processMembers(actionType) {
             progressBar.style.width = `${((i + 1) / totalMembers) * 100}%`;
     }
 
-    let finalMessage = await t('antiBots.processComplete', {
-        successCount,
-        totalMembers,
-        actionType,
-    });
+    let finalMessage = await t(
+        actionType === 'ban'
+            ? 'antiBots.processCompleteBanned'
+            : 'antiBots.processCompleteKicked',
+        { successCount, totalMembers },
+    );
     if (failedMembers.length > 0)
         finalMessage += `\n${await t('antiBots.processFailed', { failedCount: failedMembers.length })}`;
 
