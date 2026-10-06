@@ -97,6 +97,9 @@ The list of supported languages is generated automatically by `build.js` from th
 
 Please only submit translations for languages you are fluent in, and avoid pure machine translations.
 
+**If you used AI in your translations you need to disclose it. If you didn't make sure you disclose you didn't otherwise the translations will be automatically denied**\
+Using AI to translate is not an automatic denial of the translation, as long as you confirm you read through it all and made sure it was accurate.
+
 ## Adding New Settings
 
 If you are developing a new feature that requires user configuration (like a toggle), you must register it in the settings configuration file.
