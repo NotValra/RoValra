@@ -86,9 +86,7 @@ export async function getAuthenticatedUserId(refresh = false) {
         return cachedId;
     }
 
-    await new Promise((resolve) => {
-        document.addEventListener('DOMContentLoaded', resolve, { once: true });
-    });
+    await waitForDom();
 
     const scrapedId = await scrapeAndCacheId();
 
