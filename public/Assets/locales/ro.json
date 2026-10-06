@@ -1,518 +1,2274 @@
-{   
-    "trustedFriends": {
-        "pendingConnection": "Prieten de încredere în așteptare",
-        "pendingRequest": "Cerere de prieten de încredere în așteptare",
-        "addConnection": "Adaugă prieten de încredere",
-        "addConfirmation": "Ești sigur că vrei să trimiți o cerere de prieten de încredere?",
-        "sendRequest": "Trimite cererea",
-        "sending": "Se trimite...",
-        "requestSent": "Cererea de prieten de încredere a fost trimisă!",
-        "requestFailed": "Trimiterea cererii de prieten de încredere a eșuat.",
-        "errorSending": "Eroare la trimitere",
-        "acceptConnection": "Acceptă prietenul de încredere",
-        "acceptConfirmation": "Ești sigur că dorești să accepți această cerere de prieten de încredere?",
-        "accept": "Acceptă",
-        "accepting": "Se acceptă...",
-        "requestAccepted": "Cererea de prieten de încredere a fost acceptată!",
-        "acceptFailed": "Acceptarea cererii de prieten de încredere a eșuat.",
-        "errorAccepting": "Eroare la acceptare",
-        "removeConnection": "Elimină prietenul de încredere",
-        "removeConfirmation": "Ești sigur că dorești să elimini acest prieten de încredere?",
-        "remove": "Șterge",
-        "removing": "Se șterge...",
-        "connectionRemoved": "Prietenul de încredere a fost eliminat!",
-        "removeFailed": "Eliminarea prietenului de încredere a eșuat.",
-        "errorRemoving": "Eroare la ștergere..."
-    },
-    "categorizeWearing": {
-        "currentlyWearing": "Purtând",
-        "items": "Itemi",
-        "bodyParts": "Părți ale corpului",
-        "animations": "Animații",
-        "emotes": "Emoturi"
-    },
-    "hiddenGamesProfile": {
-        "noPublicGames": "Utilizatorul nu are experiențe publice",
-        "overlayText": "Experiențe ascunse (Poate arăta experiențe neascunse)",
-        "noHiddenGames": "Acest utilizator nu are experiențe ascunse.",
-        "buttonText": "Experiențe Ascunse",
-        "labels": {
-            "sort": "Sortare",
-            "order": "Ordine"
-        },
-        "sort": {
-            "default": "Normal",
-            "likeRatio": "Raport aprecieri",
-            "likes": "Aprecieri",
-            "dislikes": "Dezaprecieri",
-            "players": "Jucători",
-            "name": "Nume (Z-A)"
-        },
-        "order": {
-            "descending": "Descendent",
-            "ascending": "Ascendent"
-        },
-        "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
-        "loading": "Se încarcă..."
-    },
-    "hiddenGroupGames": {
-        "overlayTitle": "Experiențe de grup ascunse ({count} în total)",
-        "noHiddenGames": "Acest grup nu are experiențe ascunse.",
-        "buttonText": "Experiențe Ascunse",
-        "labels": {
-            "sort": "Sortare",
-            "order": "Ordine"
-        },
-        "sort": {
-            "recentlyUpdated": "Recent updatate",
-            "likeRatio": "Procent de like-uri",
-            "likes": "Like-uri",
-            "dislikes": "Dislike-uri",
-            "players": "Jucători",
-            "name": "Nume (Z-A)"
-        },
-        "order": {
-            "descending": "Descendent",
-            "ascending": "Ascendent"
-        },
-        "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
-        "loadingMore": "Se încarcă mai multe jocuri..."
-    },
-    "userOutfits": {
-        "loading": "Se încarcă vestimentația...",
-        "back": "Înapoi",
-        "totalPrice": "Preț Total:",
-        "loadingItems": "Încărcare itemi...",
-        "noItems": "Această vestimentație nu are itemi.",
-        "errorLoadingItems": "Nu s-au putut încărca itemi.",
-        "buttonText": "Afișează Vestimentații",
-        "overlayTitle": "Vestimentațiile Utilizatorului",
-        "overlayTitleUser": "Vestimentațiile lui {{displayName}}",
-        "noOutfits": "Acest utilizator nu are vestimentații.",
-        "inventoryPrivate": "Inventoriul acestui utilizator este privat.",
-        "errorNoUserId": "Nu s-a putut identifica ID-ul utilizatorului.",
-        "errorFetch": "Nu s-au putut descărca ținutele utilizatorului.."
-    },
-    "donationLink": {
-        "donate": "Donează",
-        "overlayTitle": "Te rog donează",
-        "description": "Se va lansa „PLS DONATE”, unde poți da o donație offline.\n\nDin cauza taxelor de la Roblox (30%) și a jocului (10%), utilizatorul primește 60% din suma donată.\n\nLa intrare, interfața „Offline Donations” va apărea cu numele lor deja completat. Doar dă click pe butonul cu pictograma de cadou pentru a le deschinde stand-ul și cumpără un gamepass pentru a dona.",
-        "joinButton": "Intră pe Pls Donate",
-        "goBackButton": "Înapoi"
-    },
-    "instantJoiner": {
-        "instantJoin": "Intare Instantă",
-        "stopJoining": "Oprește Intrare",
-        "description": "Aceasta va încerca să intre pe jucător automat imediat cum intră într-o experiență.<br><br>Este necesar ca utilizatorul să aibă intrările pornite pentru toți sau să vă aibă la lista de prieteni.",
-        "searchPlaceholder": "Caută o experiență sau introdu un ID de loc (Opțional)",
-        "continue": "Continuă",
-        "cancel": "Anulează",
-        "confirmTitle": "Confirmă Acțiune"
-    },
-    "privateServer": {
-        "processingTitle": "Se procesează serverele...",
-        "starting": "Începe...",
-        "cancel": "Anulează",
-        "cancelling": "Se anulează...",
-        "activating": "Se activează",
-        "inactivating": "Se dezactivează",
-        "progressText": "{{actionText}} serverul {{current}} din {{total}}...",
-        "unknownApiError": "O eroare de API necunoscută a apărut.",
-        "processCancelled": "Proces anulat. <span class=\"success-text\">{{count}} server(e) procesate.</span>",
-        "completed": "Completate: <span class=\"success-text\">{{successCount}} cu succes</span>, <span class=\"error-text\">{{errorCount}} au eșuat</span>.",
-        "processingComplete": "Procesare Completată",
-        "confirmationTitle": "Confirmă Acțiune",
-        "confirmationMessage": "Urmează să setezi {{count}} server(e) private ca {{action}}.",
-        "confirmationJoinable": "Aceasta va face serverul private intrabil.",
-        "confirmationUnjoinable": "Aceasta va face serverul private neintrabil",
-        "confirmationReversible": "Poți mereu schimba setarea aceasta înapoi.",
-        "confirm": "Confirmă",
-        "deselectAll": "Deselectează Toate",
-        "selectAll": "Selectează Toate",
-        "bulkInactivate": "Inactivează Mai multe",
-        "bulkActivate": "Activează Mai multe",
-        "setInactive": "Setează Inactiv",
-        "setActive": "Setează Activ",
-        "noServersFound": "Niciun server privat {{status}} găsit.",
-        "byCreator": "De către "
-    },
-    "rap": {
-        "error": "Eroare",
-        "private": "Privat",
-        "openInRolimons": "Deschis în Rolimon's",
-        "thisUser": "acest utilizator",
-        "rolimonsRedirect": "Vei fi direcționat către profilul lui {{username}} pe Rolimon's, un site extern pentru trading și valori ale itemilor.<br><br>Dorești să continui?",
-        "continueToRolimons": "Continuă către Rolimon's",
-        "user": "Utilizator",
-        "loadingItems": "Se încarcă mai mulți itemi...",
-        "noItemsMatch": "Nici-un item nu întâlnește criteriul selectat.",
-        "collectiblesTitle": "Collectibilele lui {{displayName}} ({{totalRapString}} RAP)",
-        "inventoryPrivateOrNoLimiteds": "Inventoriul acestui utilizator este privat sau nu are itemi limitați.",
-        "searchByName": "Caută după numele de item"
-    },
-    "firstAccount": {
-        "label": "Primul Cont",
-        "yes": "Da",
-        "no": "Nu",
-        "tooltip": "Aceasta arată dacă Roblox crede că acesta este primul tău cont. <br>Această informație vine direct de la Roblox, dar se poate să nu fie corectă.",
-        "createdDate": "Primul cont creat: {{date}}"
-    },
-    "previousPrice": {
-        "offSale": "Scos din vânzare",
-        "text": "Prețul trecut:"
-    },
-    "pendingRobux": {
-        "tooltip": "Acesta este un estimat de câți Robuxi din soldul tău restant (pending balance) vor devine disponibili mâine, pe bază de datele tale tranzacționale. Suma reală poate varia, iar acest estimat poate să nu fie corect.",
-        "loading": "Se încarcă...",
-        "error": "Eroare: {{message}}",
-        "insufficientData": "Date insuficiente",
-        "insufficientDataTooltip": "Nu sunt destule date tranzacționale pentru a face un estimat. Vă rugăm așteptați ca mai multe tranzacții să completeze.",
-        "label": "Robuxi în așteptare (unpending) mâine"
-    },
-    "totalEarned": {
-        "calculateEarnings": "Calculează Câștiguri",
-        "calculateEarned": "Calculează Câștigate",
-        "pausedMessage": "Calculare pauzată. Rezumează pentru a continua numărarea.",
-        "resumeCalculation": "Rezumă Calculul",
-        "startNewCalculation": "Începe calcul nou",
-        "description": "Calculează robuxi totali câștigați de tine din Vânzări și Plăți de Grup.",
-        "startCalculation": "Începe Calcul",
-        "transactionsScanned": "Tranzacții Scanate",
-        "totalRobuxEarned": "Robuxi câștigați în total",
-        "breakdownLabel": "Defalcarea surselor de câștiguri",
-        "calculatingTitle": "Se calculează câștigurile",
-        "scanningHistory": "Se scanează istoria tranzacțiilor...",
-        "rateLimited": "API limitat de rată (rate limit). Încă se numără...",
-        "calculationComplete": "Calcul complet",
-        "allScanned": "Toate recordurile de câștiguri au fost scanate.",
-        "newCalculation": "Calcul Nou",
-        "errorTitle": "A apărut o eroare",
-        "retry": "Încearcă din nou",
-        "noEarnings": "Niciun câștig găsit încă.",
-        "other": "Altele",
-        "groupPayout": "Plăți de Grup"
-    },
-    "totalSpent": {
-        "other": "Altele",
-        "na": "N/A",
-        "calculatingTitle": "Se calculează",
-        "calculatingText": "Se calculează...",
-        "rateLimited": "API limitat de rată (rate limit). Încă se numără...",
-        "calculationComplete": "Calcul complet",
-        "allScanned": "Toate tranzacțiile relevante au fost scanate.",
-        "newCalculation": "Calcul Nou",
-        "errorTitle": "A apărut o eroare",
-        "retry": "Încearcă din nou",
-        "calculateSpend": "Calculează Cheltuielile",
-        "pausedMessage": "Calculare pauzată. Rezumează pentru a continua numărarea.",
-        "resumeCalculation": "Rezumă Calculul",
-        "startNewCalculation": "Începe calcul nou",
-        "description": "Selectează un mod pentru a calcula istoria ta de tranzacții.",
-        "calculateRobux": "Calculează Robux Cheltuiți",
-        "calculateMoney": "Calculează Banii Cheltuiți",
-        "transactionsScanned": "Tranzacții Scanate",
-        "totalRobuxSpent": "Robuxi Cheltuit în Total",
-        "totalMoneySpent": "Banii Cheltuit în total (Aprox.)",
-        "itemTypeBreakdown": "Defalcarea Tipurilor de Itemi",
-        "premiumBreakdown": "Detalierea Abonamentelor Premium",
-        "purchaseBreakdown": "Detalierea achizițiilor de Robux",
-        "noItems": "Nici-un item nu a fost încă găsit.",
-        "pack": "Pachet",
-        "stipend": "Stipend",
-        "errorUserId": "Nu s-a putut obtine ID-ul utilizatorului.",
-        "errorRetries": "A eșuat după mai multe reîncercări. Ultima eroare: {{error}}"
-    },
-    "settings": {
-        "tabs": {
-            "info": "Informație",
-            "credits": "Credite",
-            "donatorPerks": "Avantaje de donator",
-            "settings": "Setări"
-        },
-        "info": {
-            "title": "Informații RoValra!",
-            "desc1": "RoValra este o extensie care încearcă să facă opțiuni simple de qualitate de viață accesibile oricui, prin a face totul sursă deschisă (open-source).",
-            "desc2": "Acest lucru este posibil prin a rula aproape totul local.",
-            "desc3": "Și funcționalitățile de pe server nu mă costă nimic, motiv pentru care îmi pot permite să le fac gratuite.",
-            "desc4": "Această extensie este și un proiect pentru a învăța, deci multe lucruri se pot schimba sau reface în timp ce învăț mai multe.",
-            "gilbert": "NOI TOȚI IUBIM GILBERT",
-            "suggestions": "Dacă aveți sugestii, vă rog să mă anunțați pe serverul meu Discord sau prin GitHub.",
-            "bugs": "Dacă aveți probleme / buguri, vă rog să mă anunțați pe serverul meu Discord sau prin GitHub.",
-            "review": "Dacă vă place această extensie, vă rog să considerați <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">lăsând un review</a>, ajută mult ❤️",
-            "discord": "Serverul de Discord",
-            "github": "Repozitoriul de Github",
-            "support": "Suportă RoValra",
-            "tiktok": "TikTok: ValraWantBanana",
-            "x": "X: ValraSwag"
-        },
-        "credits": {
-            "title": "Credite RoValra!",
-            "contributed": "Mulțumiri <b style=\"font-weight: bold;\">tuturor celor care</b> au <a href=\"https://github.com/NotValra/RoValra/graphs/contributors\" target=\"_blank\" class=\"rovalra-github-link\">contribuit</a>",
-            "frames": "Mulțumiri lui <b style=\"font-weight: bold;\">Frames</b> pentru că a reușit cumva să obțină vânzările și veniturile Roblox pentru unele iteme",
-            "julia": "Mulțumiri lui <b style=\"font-weight: bold;\">Julia</b> pentru că a făcut un repo cu toate centrele de date ale serverelor Roblox, pe care îl foloseam ca să obțin regiunile, dar acum am trecut la propriul meu API.",
-            "aspect": "Mulțumiri lui <b style=\"font-weight: bold;\">Aspect</b> pentru că m-a ajutat pe ici, pe colo când aveam o grămadă de întrebări sau probleme stupide.",
-            "l5se": "Mulțumiri lui <b style=\"font-weight: bold;\">l5se</b> pentru că mi-a permis să folosesc selectorul lor open-source de regiuni ca șablon pentru extensia mea.",
-            "lz": "Mulțumiri lui <b style=\"font-weight: bold;\">7_lz</b> pentru că m-a ajutat foarte mult când mă pregăteam pentru lansarea pe Chrome Web Store. M-a ajutat enorm și îi sunt foarte recunoscător.",
-            "mmfw": "Mulțumiri lui <b style=\"font-weight: bold;\">mmfw</b> pentru că a făcut capturile de ecran pentru Chrome Web Store și pentru ajutorul general cu designul UI al extensiei.",
-            "coweggs": "Mulțumiri lui <b style=\"font-weight: bold;\">Coweggs</b> pentru că a venit cu numele foarte amuzant „RoValra” ca o glumă, pe care până la urmă am ajuns să-l folosesc.",
-            "woozynate": "Mulțumiri lui <b style=\"font-weight: bold;\">WoozyNate</b> pentru că a creat jocul minunat numit fisch, de unde provine Gilbert (logo-ul) <3",
-            "contributorsTitle": "Contribuitori",
-            "loadingContributors": "Se încarcă...",
-            "failedToLoadContributors": "Contribuitorii nu au putut fi încărcați."
-        },
-        "donatorPerks": {
-            "title": "Avantaje de Donator!",
-            "subtitle": "Suportă dezvoltarea lui RoValra și obține advantaje exclusive!",
-            "howToGet": "Cum să obți avantajele",
-            "howToGetDesc": "Poți dona cumpărând un gamepass în jocul de suport.",
-            "goToGame": "Du-te la jocul de donații",
-            "perkTiers": "Niveluri de avantaje",
-            "tier1": "Nivelul 1: Suporter",
-            "tier1Desc": "Donează <strong>any amount</strong>",
-            "tier1Reward": "Insignă de Supporter 1",
-            "tier2": "Nivelul 2: Super Suporter",
-            "tier2Desc": "Donează <strong>200+ Robux</strong>",
-            "tier2Reward": "Insignă de Supporter 2",
-            "tier3": "Nivelul 3: Mega Suporter",
-            "tier3Desc": "Donează <strong>500+ Robux</strong>",
-            "tier3Reward": "Insignă de Supporter 3",
-            "previousRewards": "+ Toate avantajele nivelelor mai joase",
-            "moreComingSoon": "Mai multe apar în curând.",
-            "availableBadges": "Insigne disponibile",
-            "note": "Note: Insignele pot lua câteva minute să apară după donație. TPentru a gestiona vizibilitatea insignei, accesați tab-ul de setări „Profil”. Dacă aveți sub 13 ani și donați, nu veți putea activa/dezactiva vizibilitatea insignei voastre de donator. Din păcate, donațiile prin comisioane nu oferă beneficii — aceasta este o limitare de la Roblox."
-        },
-        "search": {
-            "minLength": "Vă rugăm să introduceți măcar două caractere pentru a căuta.",
-            "noResults": "Nicio setare nu a fost găsită pentru „{{query}}”."
-        }
-    },
-    "groupFunds": {
-        "loading": "Se încarcă...",
-        "pending": "În așteptare:",
-        "noPermissions": "Fără Permisiuni"
-    },
-    "betaPrograms": {
-        "toggleTooltip": "Activați/Dezactivați programele Beta",
-        "noPrograms": "Nu ești înscris în niciun program beta."
-    },
-    "quickSearch": {
-        "aborted": "Anulat",
-        "apiRequestFailed": "Cerere de API a eșuat cu statutul: {{status}}",
-        "friendSearchError": "RoValra: Eroare Căutare Prieteni",
-        "userSearchError": "RoValra: Eroare Căutare Utilizatori",
-        "gameSearchError": "RoValra: Eroare Căutare Jocuri",
-        "trustedConnection": "Sunteți conecțiuni de încredere",
-        "connection": "Sunteți conecțiuni",
-        "playing": "Se joacă {{gameName}}",
-        "verifiedBadge": "Insignă de Verificare",
-        "verified": "Verificat",
-        "permanentlyBanned": "Acest utilizator a fost interzis permanent",
-        "joinPreferredRegion": "Intră în Regiunea Preferată",
-        "bestRegionAuto": "Cea mai bună regiune (Auto)",
-        "searchHistory": "Istoricul Căutărilor",
-        "noSearchHistory": "Nu ai niciun istoric de căutări.",
-        "deleteSearchHistoryTitle": "Șterge Istoria Căutorilor",
-        "deleteSearchHistoryMessage": "Sigur dorești să ștergi această intrare din istoricul căutărilor?",
-        "delete": "Șterge"
-    },
-    "regionPlayButton": {
-        "ariaLabel": "Selectează sau intră pe Regiunea de Servere Preferată",
-        "tooltip": "Intră pe Regiunea Preferată",
-        "tooltipWithRegion": "Intră pe Regiunea Preferată<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "Intră pe Regiunea Preferată<br><b>Cea mai Bună Regiune (Auto)</b>"
-    },
-    "quickPlay": {
-        "loading": "Se încarcă...",
-        "rateLimited": "Limitat de rată (rate limit). Se reîncearcă...",
-        "loadError": "Nu s-au putut încărca serverele.",
-        "noPrivateServers": "Nici-un server privat activ nu a fost găsit.",
-        "configure": "Configurează",
-        "copyLink": "Copiază Link",
-        "copied": "Copiat!",
-        "error": "Eroare!",
-        "generateLink": "Generează Link Nou",
-        "joinClosestServer": "Intră în Cel mai Apropriat Server",
-        "selectPreferredRegion": "Selectează Regiunea Preferată",
-        "privateServers": "Servere Private"
-    },
-    "privateServerPage": {
-        "regenerateLink": "Regenerează Link",
-        "regenerated": "Regenerat!"
-    },
-    "devProducts": {
-        "noProducts": "Nici-un produs de developer nu a fost găsit.",
-        "passes": "Passes",
-        "developerProducts": "Produse de developer",
-        "search": "Caută",
-        "sort": {
-            "created": "Sortează după Creat",
-            "price": "Sortează după Preț",
-            "updated": "Sortează după Updatat",
-            "name": "Sortează după Nume"
-        },
-        "order": {
-            "ascending": "Sortează Ascendent",
-            "descending": "Sortează Descendent"
-        }
-    },
-    "subplaces": {
-        "tabTitle": "Locuri secundare",
-        "searchPlaceholder": "Caută locuri secundare",
-        "loadMore": "Încarcă mai multe",
-        "rootPlace": "Loc principal",
-        "noSubplaces": "Nu au fost găsite locuri secundare.",
-        "failedToLoad": "Nu s-a putut încărca locurile secundare.",
-        "banner": {
-            "title": "Vizualizezi în prezent un loc secundar al [{{rootPlaceName}}]({{rootPlaceUrl}}).",
-            "descriptionDefault": "Unele experiențe pot dezactiva alăturarea la locurile secundare.",
-            "descriptionRestricted": "Nu te poți alătura acestui loc secundar din cauza restricțiilor de alăturare.",
-            "descriptionJoinable": "Te poți alătura acestui loc secundar.",
-            "mainExperience": "experiența principală"
-        }
-    },
-    "updateHistory": {
-        "tabTitle": "Actualizări",
-        "title": "Istoricul actualizărilor",
-        "blocked": {
-            "eighteenPlus": "Istoricul actualizărilor nu funcționează pe experiențele 18+",
-            "paidAccess": "Istoricul actualizărilor nu funcționează pe experiențele cu acces plătit",
-            "subplace": "Istoricul actualizărilor nu funcționează pe locurile secundare cu restricții de alăturare"
-        }
-    },
-    "serverList": {
-        "clear": "Șterge",
-        "noServersApi": "Nu au fost găsite servere prin API-ul RoValra.",
-        "loadErrorApi": "Nu s-au putut încărca serverele din API-ul RoValra.",
-        "join": "Intră",
-        "peopleMax": "{{playing}} din maximum {{maxPlayers}} jucători",
-        "playerCountUnknownTooltip": "Numărul de jucători este necunoscut, aceasta este o limitare Roblox. Miniaturile nu sunt reprezentative pentru persoanele din joc.",
-        "playerCountUnknownLabel": "Număr de jucători necunoscut"
-    },
-    "recentServers": {
-        "title": "Servere recente",
-        "refresh": "Reîmprospătează",
-        "noneFound": "Nu au fost găsite servere recente.",
-        "noActiveFound": "Nu au fost găsite servere recente active.",
-        "lastJoined": "Ultima intrare: {{time}}",
-        "meAlt": "Eu",
-        "secondsAgo": "acum {{count}}s",
-        "minutesAgo": "acum {{count}}m",
-        "hoursAgo": "acum {{count}}h",
-        "daysAgo": "acum {{count}}z"
-    },
-    "quickOutfits": {
-        "errorFetching": "Eroare la preluarea ținutelor",
-        "equipping": "Se echipează...",
-        "equipped": "Echipat!",
-        "failed": "Eșuat",
-        "error": "Eroare:",
-        "noUserId": "ID-ul utilizatorului autentificat nu a fost găsit pentru ținutele rapide.",
-        "loading": "Se încarcă ținutele...",
-        "title": "Ținute rapide",
-        "noneFound": "Nu au fost găsite ținute.",
-        "success": "Ținuta a fost echipată cu succes."
-    },
-    "botDetector": {
-        "tooltip": "Boții sunt conturi care rulează scripturi automate pentru a obține iteme. Un singur utilizator poate rula uneori peste 50 de boți. Ține cont că aceasta nu este vina dezvoltatorilor jocului. Aceste informații pot fi inexacte dacă o experiență este jucată în principal de conturi Roblox noi.",
-        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> are foarte mulți boți",
-        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> are câțiva boți, dar în mare parte jucători reali",
-        "thisGame": "Acest joc"
-    },
-    "antiBots": {
-        "reviewMembers": "Revizuiește cei {{count}} membri selectați:",
-        "botWarning": "<strong>Avertisment:</strong> Asigură-te că aceștia sunt boți înainte de a acționa.",
-        "banMembers": "Banează membri",
-        "kickMembers": "Dă afară membri",
-        "cancel": "Anulează",
-        "actionRequired": "Acțiune necesară ({{count}})",
-        "noPermission": "Nu ai permisiunea de a bana sau a da afară membri.",
-        "confirmBan": "Ești pe cale să <strong>banezi {{count}} membru/membri</strong>. Aceștia vor fi blocați permanent.",
-        "confirmKick": "Ești pe cale să <strong>dai afară {{count}} membru/membri</strong>. Se pot alătura din nou oricând.",
-        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reamintire:</strong> Verifică scorurile de bot înainte de a bana.</div>",
-        "yesAction": "Da, {{action}}",
-        "confirmAction": "Confirmă acțiunea",
-        "processing": "Se procesează {{current}} din {{total}}: {{displayName}}... ETA: {{time}}s",
-        "rateLimited": "Limitat de rată. Se reîncearcă în {{delay}}s...",
-        "apiError": "Eroare API {{status}}",
-        "unknownError": "Eroare necunoscută",
-        "processComplete": "{{successCount}} din {{totalMembers}} membri au fost {{actionType}}ați cu succes.",
-        "processFailed": "{{failedCount}} au eșuat.",
-        "close": "Închide",
-        "score": "Scor: {{score}}/100",
-        "actionCount": "Acțiune ({{count}})",
-        "unselectAll": "Deselectează tot",
-        "selectAll": "Selectează tot",
-        "antiBots": "Anti boți",
-        "banByScore": "Banează după scor",
-        "quickAction": "Acțiune rapidă",
-        "members": "Membri",
-        "loadingMembers": "Se încarcă membrii...",
-        "selectMembersForAction": "Selectează membri pentru acțiune ({{count}} încărcați)",
-        "noMembersFound": "Nu au fost găsiți membri.",
-        "initializingScan": "Se inițializează scanarea...",
-        "scanStatus": "Scanat: {{loaded}} ({{percent}}%) | Analizat: {{processed}}",
-        "finalizingAnalysis": "Se finalizează analiza...",
-        "botsFound": "{{count}} boți probabili găsiți",
-        "noBotsFound": "Nu au fost găsiți boți probabili",
-        "noBotsDetected": "Nu au fost detectați boți.",
-        "errorRetry": "Eroare - Reîncearcă",
-        "errorDuringScan": "Eroare în timpul scanării.",
-        "minBotScore": "Scor minim de bot: <span id=\"rovalra-score-value\">50</span>",
-        "scoreImpact": "Acest lucru va selecta aproximativ <span id=\"rovalra-score-ban-count\">0</span> membri.",
-        "confirm": "Confirmă",
-        "banKickByScore": "Banează/Dă afară după scor",
-        "confirmCount": "Confirmă ({{count}})"
-    },
-    "revertLogo": {
-        "haveFun": "Distracție plăcută!",
-        "close": "Închide",
-        "robloxExperience": "Experiență Roblox",
-        "unknownExperience": "Experiență necunoscută",
-        "serverId": "ID server:",
-        "privateServer": "Server privat",
-        "owner": "Proprietar:",
-        "version": "Versiune:",
-        "uptime": "Timp activ:",
-        "rcc": "RCC:",
-        "serverChannel": "Canal server:",
-        "production": "Producție",
-        "launchingRoblox": "Se lansează Roblox",
-        "downloadRoblox": "Descarcă Roblox",
-        "thanksDownloading": "Mulțumim că ai descărcat Roblox",
-        "downloadInstructions": "Doar urmează pașii de mai jos pentru a instala Roblox. Descărcarea ar trebui să înceapă în câteva secunde. Dacă nu, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">repornește descărcarea</a>.",
-        "installInstructions": "Instrucțiuni de instalare",
-        "step1": "După descărcare, fă dublu click pe fișierul <b>RobloxPlayerInstaller.exe</b> din folderul Descărcări.",
-        "step2": "Fă dublu click pe <b>RobloxPlayerInstaller</b> pentru a instala aplicația.",
-        "step3": "Urmează instrucțiunile pentru a instala Roblox pe computerul tău.",
-        "step4": "Acum că este instalat, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">intră în experiență</a>.",
-        "mobileApp": "Nu uita de aplicația mobilă",
-        "scanCode": "Scanează acest cod cu camera telefonului tău pentru a obține Roblox.",
-        "joiningServer": "Te alături serverului...",
-        "errorParsingUrl": "Eroare la analizarea URL-ului",
-        "findingUser": "Se caută utilizatorul...",
-        "fetchingServerInfo": "Se preiau informațiile serverului...",
-        "nonRootPlaceRestrictions": "Nu se poate intra: restricții pentru locuri care nu sunt locul principal.",
-        "waitingForRoblox": "Se așteaptă Roblox...",
-        "launching": "Se lansează..."
-    },
-    "createRoblox": {
-        "download": "Descarcă"
-    },
-    "priceFloor": {
-        "label": "Preț minim:",
-        "status": "Acest item este {{status}} prețul minim{{difference}}.",
-        "statusTypes": {
-            "above": "peste",
-            "below": "sub",
-            "at": "la"
-        },
-        "difference": " cu <span class=\"icon-robux-16x16\"></span>{{diff}}",
-        "description": "Prețul minim este un preț minim actualizat dinamic la care un item poate fi vândut."
-    },
-    "parentItem": {
-        "multipleBundles": "Acest item face parte din mai multe bundle-uri",
-        "multipleBundlesDescription": "Acest item este probabil folosit ca șablon și este inclus în mai multe bundle-uri.",
-        "partOfBundle": "Acest item face parte din bundle-ul [{{bundleName}}]({{bundleUrl}})",
-        "viewingFromBundle": "Vizualizezi în prezent un item dintr-un bundle."
+{
+  "localizationFallbacks": {
+    "serverShare": "Distribuie",
+    "serverCopied": "Copiat!",
+    "recentServerTitle": "Server",
+    "decalOptions": "Opțiuni imagine"
+  },
+  "common": {
+    "select": "Selectează...",
+    "search": "Caută",
+    "rovalraSettings": "Setări RoValra",
+    "filterItems": "Filtrează articolele",
+    "applyFilter": "Aplică filtrul",
+    "uploadFile": "Încarcă fișier",
+    "change": "Schimbă",
+    "invalidFileFormat": "Format de fișier invalid.",
+    "invalidImageFile": "Format de fișier invalid. Te rugăm să încarci o imagine validă.",
+    "fileProcessingFailed": "Procesarea fișierului a eșuat. Încearcă alt fișier.",
+    "errorProcessingFile": "Eroare la procesarea fișierului. Încearcă alt fișier.",
+    "less": "Mai puțin",
+    "more": "Mai mult",
+    "pastYear": "Ultimul an",
+    "past6Months": "Ultimele 6 luni",
+    "past3Months": "Ultimele 3 luni",
+    "pastMonth": "Ultima lună",
+    "pastWeek": "Ultima săptămână",
+    "unnamedProduct": "Produs fără nume",
+    "offSale": "Nu este la vânzare",
+    "robloxExperience": "Experiență Roblox",
+    "subplace": "Sub-loc",
+    "subplaceUpper": "SUB-LOC",
+    "offline": "Offline",
+    "website": "Site web",
+    "playing": "Se joacă",
+    "playingGame": "Se joacă {{gameName}}",
+    "studio": "Studio",
+    "share": "Distribuie",
+    "copied": "Copiat!",
+    "free": "Gratuit",
+    "unknown": "Necunoscut",
+    "somethingWentWrong": "Ceva nu a funcționat",
+    "robloxPlusSubscriber": "Abonat Roblox Plus",
+    "joinServerFull": "Alătură-te (server complet)",
+    "id": "ID: ",
+    "profile": "Profil",
+    "error": "Eroare",
+    "rovalraDeveloper": "Dezvoltator RoValra",
+    "close": "Închide",
+    "confirmAction": "Confirmă acțiunea",
+    "areYouSure": "Sigur vrei să continui?",
+    "confirm": "Confirmă",
+    "cancel": "Anulează"
+  },
+  "regionSelector": {
+    "gilbertsInYourArea": "Gilberts din zona ta",
+    "title": "Selector de regiune RoValra",
+    "automatic": "Automat",
+    "servers": "Servere: ",
+    "datacenters": "Centre de date: ",
+    "filterByRegion": "Filtrează serverele după regiune",
+    "filterByRegionItem": "Filtrează după {{region}} ({{count}} servere)",
+    "filterByUptime": "Filtrează serverele după timpul de funcționare (cele mai noi/vechi)",
+    "filterByVersion": "Filtrează serverele după versiunea jocului"
+  },
+  "guidelines": {
+    "title": "Ghidul RoValra",
+    "message": "Prin utilizarea RoValra, ești de acord să respecți Termenii noștri de utilizare. Nerespectarea acestor reguli poate duce la suspendarea accesului la anumite funcții, inclusiv bulele de status și pronumele.<br><br><b>Idei principale:</b><br>• Nu poți redirecționa utilizatorii în afara platformei.<br>• Nu poți face lucruri nepotrivite.<br>• Nu trebuie să încalci Termenii de utilizare Roblox.<br><br>Citește mai multe la <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+    "confirm": "Am înțeles"
+  },
+  "review": {
+    "requestMessage": "Se pare că RoValra ți-a fost de folos!\n Ai vrea să lași o recenzie?\n Acest lucru ajută la menținerea RoValra gratuită pentru toată lumea, fără paywall-uri.",
+    "leaveReview": "Lasă o recenzie",
+    "notNow": "Nu acum",
+    "doNotShowAgain": "Nu mai afișa",
+    "rateTitle": "Evaluează RoValra",
+    "donationMessage": "Funcționarea unor funcții precum selectorul de regiune nu este gratuită, iar RoValra se bazează complet pe donații pentru a acoperi aceste costuri.\n\nDonațiile ne ajută să menținem serverele în funcțiune, astfel încât funcții precum aceasta să poată rămâne gratuite pentru toată lumea.",
+    "donate": "Donează",
+    "donationTitle": "Vrei să ajuți la susținerea RoValra?"
+  },
+  "heatmap": {
+    "updatesBetween": "Actualizări între {{start}} - {{end}} pe {{date}}",
+    "updatesOn": "Actualizări pe {{date}}",
+    "trackingSince": "Istoricul actualizărilor este urmărit doar începând cu 15 februarie 2026"
+  },
+  "profileFeatures": {
+    "title": "Funcțiile RoValra"
+  },
+  "serverFilters": {
+    "newest": "Servere cele mai noi",
+    "oldest": "Servere cele mai vechi",
+    "uptime": "Timp de funcționare al serverului",
+    "version": "Versiune",
+    "enterVersion": "Introdu versiunea",
+    "region": "Regiune",
+    "versionPlaceholder": "Versiune"
+  },
+  "serverInfo": {
+    "loading": "Se încarcă...",
+    "versionUnknown": "Versiune necunoscută",
+    "version": "Versiunea {{version}}",
+    "versionLabel": "Versiune",
+    "regionTooltip": "Regiunea serverului: {{region}}",
+    "performanceTooltip": "Performanța serverului",
+    "latest": " (Cea mai nouă)",
+    "oldest": " (Cea mai veche)",
+    "serverFull": "Serverul este plin",
+    "privateServer": "Se joacă pe un server privat",
+    "purchaseGame": "Cumpără jocul pentru a vedea regiunile.",
+    "currentVersionTooltip": "Versiunea publicată în prezent."
+  },
+  "serverStats": {
+    "totalServers": "Total servere",
+    "totalServersTooltip": "Totalul serverelor pe care RoValra le urmărește în cadrul acestei experiențe",
+    "oldest": "Cele mai vechi",
+    "oldestTooltip": "Cea mai veche versiune pe care o rulează în prezent un server."
+  },
+  "preferredRegion": {
+    "criticalError": "API-ul de conectare Roblox nu răspunde. Este posibil să trebuiască să aștepți puțin.\nAcest lucru este de obicei cauzat de o problemă de rețea sau de o problemă cu serverele Roblox. Dacă problema persistă, încearcă să dezactivezi [Regiunea preferată.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) sau să ștergi memoria cache a browserului.\nDacă problema continuă să apară, te rugăm să o raportezi pe serverul Discord RoValra.\n\n---\n**Detalii despre eroare:**\n{{detailMsg}}",
+    "criticalErrorApiMoved": "Este posibil ca Roblox să renunțe la API-ul gamejoin. Acest lucru nu depinde de RoValra și va afecta pentru o perioadă selectorii de regiune; lucrăm la o remediere cât mai curând posibil.\n\n---\n**Detalii despre eroare:**\n{{detailMsg}}",
+    "detectingLocation": "Se detectează locația ta...",
+    "closestRegion": "cea mai apropiată regiune",
+    "inactiveRegion": "{{region}} nu mai este utilizată de Roblox ca locație de server.",
+    "scanningLocally": "Se caută local pentru {{region}}...",
+    "regionApiUnavailable": "API-ul regiunii nu este disponibil. Se caută pentru {{region}}...",
+    "findingLowestLatency": "Se caută serverul cu cea mai mică latență...",
+    "searchingInRegion": "Se caută în {{region}}...",
+    "fallbackInactive": "Următoarele servere disponibile prin API sunt inactive. Se caută local pentru {{region}}...",
+    "noServersApi": "Nu au fost găsite servere în {{region}} prin API. Se caută local...",
+    "loadBalancing": "{{region}} este utilizată pentru echilibrarea sarcinii și probabil este activă doar în condiții de încărcare mare. Se caută...",
+    "foundJoining": "S-a găsit {{region}}! Se conectează...",
+    "foundContinuing": "Găsit: {{region}}. Se continuă căutarea pentru {{targetRegion}}...",
+    "foundVerifying": "S-a găsit {{region}}! Se verifică...",
+    "verifyingStatus": "Se verifică starea serverului...",
+    "searchingClosest": "Se caută cea mai apropiată regiune de {{region}}...",
+    "noServersRunning": "Nu rulează niciun server {{region}}.",
+    "joinRegion": "Alătură-te la {{region}}",
+    "couldNotFindServers": "Nu s-au putut găsi servere."
+  },
+  "purchaseModal": {
+    "title": "Cumpără articolul",
+    "buy": "Cumpără",
+    "savingWithPlus": "Economisești <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> cu Plus",
+    "subtotal": "Subtotal",
+    "plusBenefit": "Beneficiu Plus ({{percent}}% reducere)",
+    "total": "Total",
+    "insufficientRobux": "Robux insuficienți",
+    "purchasing": "Se cumpără...",
+    "purchaseComplete": "Achiziție finalizată",
+    "successMessage": "Ai cumpărat cu succes <b>{{itemName}}</b>",
+    "ok": "OK",
+    "purchaseError": "Eroare la achiziție",
+    "purchaseFailed": "Achiziția a eșuat",
+    "unknownError": "Eroare necunoscută",
+    "errorLoadingTitle": "Eroare la încărcarea articolului",
+    "errorLoadingMessage": "Nu am putut obține informațiile pentru acest articol. Detalii: {{errorMessage}}. Încearcă din nou mai târziu."
+  },
+  "avatarRotator": {
+    "stop": "Oprește rotatorul",
+    "button": "Rotator avatar",
+    "selectMinimum": "Selectează cel puțin 2 avatare",
+    "setRotators": "Setează ca rotatoare ({{count}})",
+    "selectedStatus": "Selectează avatarele între care vrei să comuți. ({{count}} selectate)",
+    "loading": "Se încarcă...",
+    "loadMore": "Încarcă mai multe",
+    "interval": "Interval (secunde)",
+    "loadingDetails": "Se încarcă detaliile ținutei...",
+    "active": "Rotatoarele sunt active!",
+    "disable": "Dezactivează",
+    "clearSelection": "Șterge selecția",
+    "title": "Rotator avatar"
+  },
+  "avatarFilters": {
+    "filterItems": "Filtrează articolele",
+    "filtering": "Se filtrează...",
+    "loading": "Se încarcă...",
+    "creatorName": "Numele creatorului",
+    "minPrice": "Preț minim",
+    "maxPrice": "Preț maxim",
+    "availability": "Disponibilitate",
+    "showAll": "Afișează tot",
+    "onsaleOnly": "Doar la vânzare",
+    "offsaleOnly": "Doar scoase de la vânzare",
+    "effects": "Efecte",
+    "limiteds": "Limited"
+  },
+  "trading": {
+    "searchInventory": "Caută în inventar",
+    "continueSearch": "Continuă căutarea",
+    "filterTrades": "Filtrează schimburile",
+    "noResults": "Nu s-au găsit rezultate",
+    "copyProof": "Copiază dovada",
+    "copied": "Copiat!",
+    "value": "Valoare:",
+    "demand": "Cerere:",
+    "includeRobux": "Include Robux",
+    "openUserOnRolimons": "Deschide utilizatorul pe Rolimons",
+    "openOnRolimons": "Deschide {{type}} pe Rolimons",
+    "projectedItem": "Articol proiectat",
+    "projected": "Proiectat",
+    "rareItem": "Articol rar",
+    "rap": "RAP",
+    "valueLabel": "Valoare",
+    "demandLabel": "Cerere",
+    "bundle": "pachet",
+    "item": "articol",
+    "serial": "Număr de serie",
+    "afterTax": "După taxă",
+    "beforeTax": "Înainte de taxă",
+    "youGive": "Tu oferi",
+    "youGet": "Tu primești"
+  },
+  "onboarding": {
+    "title": "Bine ai venit la RoValra!",
+    "thankYou": "Îți mulțumim că ai instalat <strong>RoValra</strong>!",
+    "exploreFeatures": "Pentru a modifica setările și a explora toate funcțiile, poți:",
+    "settingsInstruction": "Apasă pe <strong>pictograma rotiță</strong> din antetul Roblox, apoi apasă pe „Setări RoValra”.",
+    "imageAlt": "Un ghid care arată unde poți găsi butonul de setări RoValra pe site-ul Roblox.",
+    "description": "RoValra este o extensie Roblox gratuită pentru totdeauna, creată pentru a oferi tuturor funcții de îmbunătățire a experienței!",
+    "gotIt": "Am înțeles!"
+  },
+  "catalogDependencies": {
+    "scan": "Scanează dependențele",
+    "loading": "Se încarcă informațiile ({{count}})...",
+    "title": "Dependențe",
+    "unknown": "Necunoscut",
+    "assetFallback": "Resursa {{id}}",
+    "verifiedBadge": "Insignă verificată",
+    "by": "De către"
+  },
+  "catalogItemSales": {
+    "sales": "Vânzări",
+    "revenue": "Venit",
+    "statsTooltip": "Statisticile privind vânzările și veniturile provin dintr-o scurgere de date și sunt probabil inexacte."
+  },
+  "fortyMethod": {
+    "loginRequired": "Nu s-a putut identifica ID-ul tău de utilizator. Asigură-te că ești autentificat.",
+    "setupExperience": "Configurează o experiență",
+    "specificTemplate": "Funcționează doar un anumit șablon",
+    "selectGroup": "Selectează un grup în care poți gestiona experiențe. <br>Iar extensia va crea experiența pentru tine.",
+    "or": "SAU",
+    "manualPlaceId": "Introdu manual un ID de Place <br> (Fă asta doar dacă știi ce faci.)",
+    "donateSavedRobux": "Donează Robux economisiți către RoValra",
+    "estimatedSavings": "Economiile estimate afișate ulterior sunt aproximative și pot fi inexacte.",
+    "importantInformation": "Informații importante",
+    "acknowledge": "Confirm",
+    "groupRequired": "Grup necesar",
+    "goBack": "Înapoi",
+    "ownershipDetected": "Proprietate detectată",
+    "understandContinue": "Am înțeles și continui",
+    "createExperience": "Creează experiența",
+    "createNewExperience": "Creează o experiență nouă",
+    "findingExperience": "Se caută experiența ta",
+    "findingExperienceWait": "Așteaptă în timp ce căutăm experiența publicată recent...",
+    "donateToRoValra": "Donează către RoValra",
+    "back": "Înapoi",
+    "validationWarning": "Avertisment de validare",
+    "updateExperience": "Actualizează experiența",
+    "useAnyway": "Folosește oricum",
+    "permissionRequired": "Permisiune necesară",
+    "backToGroupSelection": "Înapoi la selectarea grupului",
+    "experience": "Experiență",
+    "loading": "Se încarcă...",
+    "setupGame": "Configurează-ți jocul",
+    "saveContinue": "Salvează și continuă",
+    "creating": "Se creează...",
+    "uploadingTemplate": "Se încarcă șablonul...",
+    "configuring": "Se configurează...",
+    "done": "Gata!",
+    "updating": "Se actualizează...",
+    "purchaseFailed": "Achiziția a eșuat",
+    "gotIt": "Am înțeles",
+    "confirmMethodPurchase": "Confirmă achiziția metodei de 40%",
+    "confirmCartPurchase": "Confirmă achiziția din coș",
+    "cancel": "Anulează",
+    "alreadyOwned": "Deja deținut",
+    "joinToPurchase": "Intră în joc pentru a cumpăra",
+    "confirmPurchase": "Confirmă achiziția",
+    "purchaseError": "Eroare la achiziție",
+    "ownerAccount": "<strong>Contul proprietarului:</strong> Contul proprietarului grupului NU POATE fi același cont cu cel cu care cumperi articole. Proprietarul ar trebui să fie un cont alternativ securizat, cu 2FA activat și o parolă puternică și unică.",
+    "payouts": "<strong>Plăți:</strong> Doar contul proprietarului grupului poate plăti Robux economisiți din fondurile grupului.",
+    "pendingRobux": "<strong>Robux în așteptare:</strong> Reține că, după utilizarea acestei funcții, Robux vor rămâne în așteptare aproximativ o lună înainte de a putea fi plătiți.",
+    "groupRequiredBody": "Pentru a folosi metoda de 40% cu propriul grup, ai nevoie de un grup în care poți gestiona experiențe.",
+    "groupRequiredImportant": "<strong>Important:</strong> Pentru ca acest lucru să funcționeze corect, grupul trebuie să fie deținut de un cont alternativ securizat. Contul tău principal (cel pe care îl folosești pentru a cumpăra articole) ar trebui să aibă un rol cu permisiuni pentru a crea și gestiona experiențele grupului.",
+    "groupRequiredDonate": "Dacă nu ai un grup potrivit, poți susține RoValra folosind experiența noastră pentru a procesa achiziția, ceea ce va oferi RoValra Robux economisiți ❤️",
+    "ownershipBody": "Metoda de 40% nu va funcționa dacă ești proprietarul acestui grup. Selectează un alt grup sau transferă proprietatea către un cont alternativ securizat.",
+    "experienceAccepted": "Experiență acceptată",
+    "experienceAcceptedSpecific": "<strong>Funcționează doar anumite experiențe.</strong> Asigură-te că această experiență este configurată cu scripturile necesare pentru a gestiona achizițiile din joc.",
+    "experienceAcceptedGroup": "Asigură-te că experiența aparține unui grup <strong>pe care îl controlezi, dar care nu este deținut de acest cont</strong>. De preferat, grupul ar trebui să fie deținut de un cont alternativ. Dacă deții grupul, metoda de 40% nu va funcționa.",
+    "experienceAcceptedPending": "Robux economisiți vor rămâne în așteptare aproximativ o lună înainte de plată. Folosește un cont alternativ securizat ca proprietar al grupului pentru plăți.",
+    "createExperienceBody": "Creează o experiență nouă pentru acest grup pentru a folosi metoda de 40%.",
+    "createNewExperienceBody": "Pentru a crea o experiență nouă pentru această metodă:",
+    "createStepOne": "Deschide experiența deblocată pentru copiere în Studio:",
+    "openStudio": "Deschide Studio",
+    "createStepTwo": "În Studio, mergi la <strong>File > Game Settings > Security > Activează „Allow Third Party Sales” > File > Publish to Roblox As...</strong>",
+    "createStepThree": "Selectează acest grup din lista Creator.",
+    "createStepFour": "Apasă <strong>Create</strong>, iar experiența va fi publicată",
+    "createPublishedBody": "După publicare, apasă butonul de mai jos și o vom găsi și selecta automat pentru tine.",
+    "publishedGame": "Am publicat jocul",
+    "saveSettingsUnavailable": "Nu s-au putut salva setările. API-ul de stocare nu este disponibil.",
+    "groupsLoadFailed": "Nu s-au putut încărca grupurile. Reîmprospătează pagina și încearcă din nou.",
+    "noGroupSelected": "Niciun grup selectat. Încearcă din nou."
+  },
+  "risk": {
+    "projected": "Articolul este marcat ca proiectat.",
+    "rapMuchHigher": "RAP este mult mai mare decât valoarea, valoarea ar putea crește.",
+    "rapHigher": "RAP este mai mare decât valoarea, valoarea ar putea crește.",
+    "rapMuchLower": "RAP este mult mai mic decât valoarea, valoarea ar putea scădea.",
+    "rapHigherSales": "RAP este mai mare decât vânzările, dar Prețul cel mai bun îl validează.",
+    "rapUnusuallyHigh": "RAP este neobișnuit de mare comparativ cu prețul recent stabil al vânzărilor.",
+    "rapHigherStable": "RAP este mai mare decât prețul stabil (crește treptat).",
+    "bestPriceMuchLower": "Prețul cel mai bun este semnificativ mai mic decât RAP.",
+    "bestPriceLower": "Prețul cel mai bun este mai mic decât RAP.",
+    "bestPriceHigher": "Prețul cel mai bun este mai mare decât RAP.",
+    "bestPriceSlightlyHigher": "Prețul cel mai bun este puțin mai mare decât RAP.",
+    "sufferingProjection": "Articolul este afectat de proiectare.",
+    "stableTrend": "Tendință stabilă a prețului."
+  },
+  "freeRobloxPlusThemes": {
+    "notice": "Selectează și folosește orice temă fără Roblox Plus."
+  },
+  "items": {
+    "hiddenFromMarketplace": "Acest articol este ascuns din marketplace",
+    "notFound": "Nu a fost găsit",
+    "failedToLoad": "Nu s-a putut încărca",
+    "onHold": "În așteptare",
+    "faeItem": "Articol FAE"
+  },
+  "inventory": {
+    "openRolimons": "Deschide în Rolimon's",
+    "searchPlaceholder": "Caută după numele articolului..."
+  },
+  "games": {
+    "failedToLoad": "Nu s-a putut încărca jocul"
+  },
+  "gameBookmarks": {
+    "bookmark": "Marcaj",
+    "saved": "Marcat",
+    "title": "Marcaje",
+    "uncategorized": "Fără categorie",
+    "create": "+ Creează o categorie nouă",
+    "categoryName": "Numele categoriei",
+    "createSave": "Creează și salvează",
+    "save": "Salvează modificările",
+    "deleteCategory": "Șterge categoria",
+    "deleteCategoryConfirm": "Sigur? Aceasta va șterge categoria și o va elimina din fiecare joc marcat.",
+    "confirm": "Șterge",
+    "cancel": "Anulează",
+    "remove": "Elimină marcajul",
+    "error": "Nu s-a putut salva marcajul. Încearcă din nou.",
+    "loading": "Se încarcă jocul…",
+    "all": "Toate",
+    "topic": "Jocuri marcate",
+    "empty": "Nu există jocuri marcate în această categorie."
+  },
+  "homeLayout": {
+    "untitled": "Fără titlu",
+    "empty": "RoValra nu a putut găsi aspectul. Reîmprospătează pagina și încearcă din nou.",
+    "reset": "Resetează",
+    "save": "Salvează",
+    "overlayTitle": "Aspectul paginii principale",
+    "button": "Personalizează aspectul",
+    "edit": "Editează",
+    "settingsTitle": "Setări categorie",
+    "visibility": "Vizibilitate",
+    "visibilityDescription": "Alege dacă această categorie apare pe pagina principală.",
+    "accurateContinue": "Continuare precisă",
+    "accurateContinueDescription": "Sortează secțiunea Continuare în funcție de ultima dată când ai jucat fiecare joc.",
+    "enable": "Activează",
+    "disable": "Dezactivează",
+    "show": "Afișează",
+    "hide": "Ascunde"
+  },
+  "sidebarLayout": {
+    "untitled": "Fără titlu",
+    "empty": "RoValra nu a putut găsi niciun buton în bara laterală.",
+    "reset": "Resetează",
+    "save": "Salvează",
+    "overlayTitle": "Aspectul barei laterale",
+    "button": "Personalizează aspectul",
+    "myProfile": "Profilul meu",
+    "disabled": "Dezactivat",
+    "show": "Afișează",
+    "hide": "Ascunde"
+  },
+  "topbarLayout": {
+    "empty": "RoValra nu a putut găsi niciun element compatibil în bara de sus.",
+    "reset": "Resetează",
+    "save": "Salvează",
+    "overlayTitle": "Aspectul barei de sus",
+    "button": "Aspectul barei de sus",
+    "disabled": "Obligatoriu",
+    "show": "Afișează",
+    "hide": "Ascunde",
+    "labels": {
+      "logo": "Sigla Roblox",
+      "charts": "Grafice",
+      "marketplace": "Marketplace",
+      "create": "Creează",
+      "robux": "Robux",
+      "search": "Caută",
+      "profile": "Profil",
+      "qol": "Status",
+      "topbarLayout": "Aspectul barei de sus",
+      "notifications": "Notificări",
+      "robuxBalance": "Sold Robux",
+      "settings": "Setări"
     }
+  },
+  "friendsCarouselRedesign": {
+    "prevFriends": "Prietenii anteriori",
+    "nextFriends": "Mai mulți prieteni",
+    "isPlaying": "{{name}} se joacă",
+    "online": "Online",
+    "inStudio": "În Studio",
+    "offline": "Offline",
+    "friendFallback": "Prieten",
+    "join": "Alătură-te",
+    "chat": "Chat",
+    "viewProfile": "Vezi profilul"
+  },
+  "friendLabels": {
+    "menuAction": "Setează eticheta prietenului",
+    "dialogTitle": "Etichetează {{displayName}}",
+    "inputLabel": "Eticheta prietenului",
+    "inputPlaceholder": "Prieteni apropiați, Școală,",
+    "existingLabels": "Etichete existente",
+    "friendFallback": "Prieten",
+    "save": "Salvează",
+    "remove": "Elimină",
+    "cancel": "Anulează"
+  },
+  "underratedGames": {
+    "topic": "Jocuri subapreciate",
+    "subtitle": "Jocuri subapreciate alese manual de comunitatea RoValra.",
+    "rotates": "Se rotește",
+    "suggestOnDiscord": "Sugerează jocuri subapreciate pe {{discord}}",
+    "ageRestrictionWarning": "Unele dintre aceste jocuri pot fi blocate pentru 16+ din cauza cerinței Roblox de 250 HEP."
+  },
+  "playtime": {
+    "topic": "Timp de joc",
+    "period": "Perioada de joc",
+    "today": "Astăzi",
+    "thisWeek": "Săptămâna aceasta",
+    "thisMonth": "Luna aceasta",
+    "thisYear": "Anul acesta",
+    "allTime": "Tot timpul",
+    "hours": "{{value}} ore",
+    "minutes": "{{value}} minute"
+  },
+  "mutualFriends": {
+    "pill_one": "{{count}} prieten comun",
+    "pill_other": "{{count}} prieteni comuni",
+    "tooltip": "Prietenii pe care îi aveți în comun cu acest utilizator",
+    "tab": "Comuni",
+    "title": "Prieteni comuni ({{count}})",
+    "empty": "Nu aveți prieteni comuni cu acest utilizator."
+  },
+  "trustedFriends": {
+    "pendingConnection": "Prieten de încredere în așteptare",
+    "pendingRequest": "Cererea de prieten de încredere este în așteptare",
+    "addConnection": "Adaugă prieten de încredere",
+    "addConfirmation": "Sigur vrei să trimiți o cerere de prieten de încredere?",
+    "sendRequest": "Trimite cererea",
+    "sending": "Se trimite...",
+    "requestSent": "Cererea de prieten de încredere a fost trimisă!",
+    "requestFailed": "Trimiterea cererii de prieten de încredere a eșuat.",
+    "errorSending": "Eroare la trimitere",
+    "acceptConnection": "Acceptă prietenul de încredere",
+    "acceptConfirmation": "Sigur vrei să accepți această cerere de prieten de încredere?",
+    "accept": "Acceptă",
+    "accepting": "Se acceptă...",
+    "requestAccepted": "Cererea de prieten de încredere a fost acceptată!",
+    "acceptFailed": "Acceptarea cererii a eșuat.",
+    "errorAccepting": "Eroare la acceptare",
+    "removeConnection": "Elimină prietenul de încredere",
+    "removeConfirmation": "Sigur vrei să elimini acest prieten de încredere?",
+    "remove": "Elimină",
+    "removing": "Se elimină...",
+    "connectionRemoved": "Prietenul de încredere a fost eliminat!",
+    "removeFailed": "Eliminarea prietenului de încredere a eșuat.",
+    "errorRemoving": "Eroare la eliminare"
+  },
+  "chatEligibility": {
+    "canChat": "Poți discuta cu acest utilizator.",
+    "cannotChat": "Acest utilizator este în afara intervalului tău de vârstă pentru chat.",
+    "ageCheckRequired": "Acest utilizator nu a finalizat verificarea vârstei."
+  },
+  "categorizeWearing": {
+    "currentlyWearing": "Poartă în prezent",
+    "items": "Articole",
+    "cosmetics": "Cosmetice",
+    "bodyParts": "Părți ale corpului",
+    "animations": "Animații",
+    "emotes": "Emote-uri"
+  },
+  "hiddenGamesProfile": {
+    "noPublicGames": "Utilizatorul nu are experiențe publice",
+    "overlayText": "Experiențe ascunse",
+    "noHiddenGames": "Acest utilizator nu are experiențe ascunse.",
+    "buttonText": "Experiențe ascunse",
+    "labels": {
+      "sort": "Sortează",
+      "order": "Ordine",
+      "showAll": "Afișează toate jocurile"
+    },
+    "sort": {
+      "default": "Implicit",
+      "likeRatio": "Raport aprecieri",
+      "likes": "Aprecieri",
+      "dislikes": "Dezaprecieri",
+      "players": "Jucători",
+      "name": "Nume (Z-A)"
+    },
+    "order": {
+      "descending": "Descrescător",
+      "ascending": "Crescător"
+    },
+    "noMatches": "Nicio experiență nu corespunde filtrelor.",
+    "loading": "Se încarcă..."
+  },
+  "hiddenGroupGames": {
+    "overlayTitle": "Experiențe de grup ascunse ({{count}} în total)",
+    "noHiddenGames": "Acest grup nu are experiențe ascunse.",
+    "buttonText": "Experiențe ascunse",
+    "labels": {
+      "sort": "Sortează",
+      "order": "Ordine",
+      "showAll": "Afișează toate jocurile"
+    },
+    "sort": {
+      "recentlyUpdated": "Actualizate recent",
+      "likeRatio": "Raport aprecieri",
+      "likes": "Aprecieri",
+      "dislikes": "Dezaprecieri",
+      "players": "Jucători",
+      "name": "Nume (Z-A)"
+    },
+    "order": {
+      "descending": "Descrescător",
+      "ascending": "Crescător"
+    },
+    "noMatches": "Nicio experiență ascunsă nu corespunde filtrelor curente.",
+    "loadingMore": "Se încarcă mai multe jocuri..."
+  },
+  "userOutfits": {
+    "loading": "Se încarcă ținutele...",
+    "back": "Înapoi",
+    "totalPrice": "Preț total:",
+    "loadingItems": "Se încarcă articolele...",
+    "noItems": "Această ținută nu are articole.",
+    "errorLoadingItems": "Nu s-au putut încărca articolele.",
+    "buttonText": "Afișează ținutele",
+    "overlayTitle": "Ținute utilizator",
+    "overlayTitleUser": "Ținutele lui {{displayName}}",
+    "noOutfits": "Acest utilizator nu are ținute.",
+    "inventoryPrivate": "Inventarul utilizatorului este privat.",
+    "errorNoUserId": "Nu s-a putut determina ID-ul utilizatorului din pagină.",
+    "errorFetch": "Nu s-au putut obține ținutele."
+  },
+  "donationLink": {
+    "donate": "Donează",
+    "overlayTitle": "Pls Donate",
+    "description": "Acest lucru va lansa „PLS DONATE”, unde poți face o donație offline.\n\nDin cauza taxelor Roblox (30%) și ale jocului (10%), utilizatorul primește 60% din suma donată.\n\nDupă conectare, interfața „Offline Donations” va apărea cu numele de utilizator completat automat. Apasă pur și simplu pe butonul cadou pentru a-i deschide standul și cumpără un gamepass pentru a dona.",
+    "joinButton": "Intră în Pls Donate",
+    "goBackButton": "Înapoi",
+    "loadingGamePasses": "Se încarcă gamepass-urile...",
+    "priceLowToHigh": "Preț (de la mic la mare)",
+    "priceHighToLow": "Preț (de la mare la mic)",
+    "userGamePasses": "Gamepass-urile lui {{username}}",
+    "copyDonationLink": "Copiază linkul donației",
+    "copyLinkDescription": "Acest lucru copiază un link special către acest profil. Când un utilizator RoValra îl deschide, acest meniu de donații va apărea automat.<br><br><strong>Notă:</strong> Doar utilizatorii RoValra vor vedea fereastra de donații; ceilalți vor vedea profilul standard.",
+    "copyLinkButton": "Copiază linkul",
+    "copySuccess": "Linkul donației a fost copiat cu succes!",
+    "noGamePassesFound": "Nu au fost găsite gamepass-uri pentru jocurile lui {{username}}.",
+    "errorLoading": "Eroare la încărcarea gamepass-urilor: {{message}}"
+  },
+  "instantJoiner": {
+    "instantJoin": "Alăturare instantanee",
+    "stopJoining": "Oprește conectarea",
+    "description": "Aceasta va încerca automat să se alăture utilizatorului imediat ce intră într-o experiență.<br><br>Este necesar ca utilizatorul să permită conectările tuturor sau să fiți prieteni.",
+    "searchPlaceholder": "Caută o experiență sau introdu un ID de Place (Opțional)",
+    "continue": "Continuă",
+    "cancel": "Anulează",
+    "confirmTitle": "Confirmă acțiunea"
+  },
+  "rap": {
+    "error": "Eroare",
+    "private": "Privat",
+    "openInRolimons": "Deschide în Rolimon's",
+    "thisUser": "acest utilizator",
+    "rolimonsRedirect": "Urmează să fii redirecționat către profilul lui {{username}} pe Rolimon's, un site extern pentru schimburi și valori ale articolelor.<br><br>Vrei să continui?",
+    "continueToRolimons": "Continuă către Rolimon's",
+    "user": "Utilizator",
+    "loadingItems": "Se încarcă mai multe articole...",
+    "noItemsMatch": "Niciun articol nu corespunde căutării.",
+    "collectiblesTitle": "Colecțiile lui {{displayName}} ({{totalRapString}} RAP)",
+    "collectiblesTitleValue": "Colecțiile lui {{displayName}} ({{totalRapString}} valoare)",
+    "inventoryPrivateOrNoLimiteds": "Inventarul acestui utilizator este privat sau nu are limiteds.",
+    "searchByName": "Caută după numele articolului",
+    "itemAmount": "Cantitatea acestui articol deținută: {{quantity}}"
+  },
+  "sendTrade": {
+    "send": "Trimite"
+  },
+  "privateServer": {
+    "processingTitle": "Se procesează serverele",
+    "starting": "Se pornește...",
+    "cancel": "Anulează",
+    "cancelling": "Se anulează...",
+    "activating": "Se activează",
+    "inactivating": "Se dezactivează",
+    "progressText": "{{actionText}} server {{current}} din {{total}}...",
+    "unknownApiError": "A apărut o eroare API necunoscută.",
+    "processCancelled": "Proces anulat. <span class=\"success-text\">{{count}} server(e) procesat(e).</span>",
+    "completed": "Finalizat: <span class=\"success-text\">{{successCount}} reușite</span>, <span class=\"error-text\">{{errorCount}} eșuate</span>.",
+    "processingComplete": "Procesare finalizată",
+    "confirmationTitle": "Confirmă acțiunea",
+    "confirmationMessage": "Urmează să setezi {{count}} server(e) privat(e) ca {{action}}.",
+    "confirmationJoinable": "Acest lucru va permite conectarea la serverul privat.",
+    "confirmationUnjoinable": "Acest lucru va împiedica conectarea la serverul privat.",
+    "confirmationReversible": "Poți schimba oricând această setare ulterior.",
+    "confirm": "Confirmă",
+    "deselectAll": "Deselectează tot",
+    "selectAll": "Selectează tot",
+    "bulkInactivate": "Dezactivează în masă",
+    "bulkActivate": "Activează în masă",
+    "setInactive": "Setează ca inactiv",
+    "setActive": "Setează ca activ",
+    "noServersFound": "Nu s-au găsit servere private {{status}}.",
+    "byCreator": "De către ",
+    "allowJoining": "Permite conectarea",
+    "friendsAllowed": "Prietenii au acces"
+  },
+  "firstAccount": {
+    "label": "Primul cont",
+    "yes": "Da",
+    "no": "Nu",
+    "tooltip": "Aceasta arată dacă Roblox consideră că acesta este primul tău cont. <br>Aceste informații provin direct de la Roblox, dar este posibil să nu fie corecte.",
+    "createdDate": "Primul cont creat: {{date}}"
+  },
+  "trustedCreator": {
+    "label": "În programul Creatorilor de încredere",
+    "yes": "Da",
+    "no": "Nu",
+    "tooltip": "Am găsit o modalitate de a verifica acest lucru și mi s-a părut interesant :)"
+  },
+  "legacyThemeSwitcher": {
+    "label": "Temă",
+    "light": "Deschisă",
+    "dark": "Întunecată"
+  },
+  "customThemeEditor": {
+    "background": {
+      "title": "Personalizează setările imaginii",
+      "source": "Sursă imagine",
+      "opacity": "Opacitatea imaginii",
+      "customSize": "Scară personalizată",
+      "blur": "Estompare",
+      "overrideTopbarSidebar": "Mod transparent",
+      "size": {
+        "label": "Dimensiunea fundalului",
+        "cover": "Acoperire",
+        "contain": "Încadrare",
+        "auto": "Automat",
+        "custom": "Personalizat"
+      },
+      "position": {
+        "label": "Poziția fundalului",
+        "center": "Centru",
+        "top": "Sus",
+        "bottom": "Jos",
+        "left": "Stânga",
+        "right": "Dreapta",
+        "topleft": "Stânga sus",
+        "topright": "Dreapta sus",
+        "bottomleft": "Stânga jos",
+        "bottomright": "Dreapta jos"
+      },
+      "overlay": {
+        "color": "Culoarea suprapunerii",
+        "opacity": "Opacitatea suprapunerii"
+      },
+      "errors": {
+        "invalidUrl": "Introdu un URL https valid pentru imagine."
+      }
+    }
+  },
+  "previousPrice": {
+    "offSale": "Nu este la vânzare",
+    "text": "Preț anterior:",
+    "lastOnSale": "Ultima vânzare",
+    "for": "pentru"
+  },
+  "badgeEarnedDate": {
+    "unlocked": "Deblocat"
+  },
+  "lastEquipped": {
+    "label": "Ultima echipare"
+  },
+  "pendingRobux": {
+    "tooltip": "Aceasta este o estimare a numărului de Robux din soldul tău în așteptare care vor deveni disponibili mâine, pe baza datelor tranzacțiilor tale. Suma reală poate varia. De asemenea, este posibil ca estimarea să fie inexactă.",
+    "loading": "Se încarcă...",
+    "error": "Eroare: {{message}}",
+    "insufficientData": "Date insuficiente",
+    "insufficientDataTooltip": "Nu există suficiente date despre istoricul tranzacțiilor pentru a face o estimare exactă. Așteaptă finalizarea mai multor tranzacții.",
+    "label": "Robux disponibili mâine"
+  },
+  "totalEarned": {
+    "calculateEarnings": "Calculează câștigurile",
+    "calculateEarned": "Calculează câștigurile obținute",
+    "pausedMessage": "Calculul a fost pus pe pauză. Reia pentru a continua numărarea.",
+    "resumeCalculation": "Reia calculul",
+    "startNewCalculation": "Începe un calcul nou",
+    "description": "Calculează totalul de Robux câștigați din vânzări și plăți de grup.",
+    "startCalculation": "Începe calculul",
+    "transactionsScanned": "Tranzacții scanate",
+    "totalRobuxEarned": "Total Robux câștigați",
+    "breakdownLabel": "Defalcarea surselor câștigurilor",
+    "calculatingTitle": "Se calculează totalul de Robux câștigați",
+    "scanningHistory": "Se calculează totalul de Robux câștigați...",
+    "rateLimited": "API-ul este limitat. Încă se numără...",
+    "calculationComplete": "Calcul finalizat",
+    "allScanned": "S-a terminat scanarea totalului de Robux câștigați.",
+    "newCalculation": "Calcul nou",
+    "errorTitle": "A apărut o eroare",
+    "retry": "Reîncearcă",
+    "robloxLimitError": "Roblox a returnat o eroare internă de server. Probabil nu va putea scana mai multe tranzacții din cauza limitărilor Roblox.",
+    "noEarnings": "Nu au fost găsite câștiguri încă.",
+    "other": "Altele",
+    "groupPayout": "Plată de grup"
+  },
+  "totalSpent": {
+    "other": "Altele",
+    "na": "N/A",
+    "calculatingTitle": "Se calculează",
+    "calculatingRobuxTitle": "Se calculează totalul de Robux cheltuiți",
+    "calculatingMoneyTitle": "Se calculează totalul de bani cheltuiți",
+    "calculatingText": "Se calculează...",
+    "calculatingRobuxText": "Se calculează totalul de Robux cheltuiți...",
+    "calculatingMoneyText": "Se calculează totalul de bani cheltuiți...",
+    "rateLimited": "API-ul este limitat. Încă se numără...",
+    "calculationComplete": "Calcul finalizat",
+    "allScanned": "Toate tranzacțiile relevante au fost scanate.",
+    "robuxAllScanned": "S-a terminat scanarea totalului de Robux cheltuiți.",
+    "moneyAllScanned": "S-a terminat scanarea totalului de bani cheltuiți.",
+    "newCalculation": "Calcul nou",
+    "errorTitle": "A apărut o eroare",
+    "retry": "Reîncearcă",
+    "calculateSpend": "Calculează cheltuielile",
+    "pausedMessage": "Calculul a fost pus pe pauză. Reia pentru a continua numărarea.",
+    "resumeCalculation": "Reia calculul",
+    "startNewCalculation": "Începe un calcul nou",
+    "description": "Selectează un mod pentru a calcula istoricul tranzacțiilor.",
+    "calculateRobux": "Calculează Robux cheltuiți",
+    "calculateMoney": "Calculează banii cheltuiți",
+    "transactionsScanned": "Tranzacții scanate",
+    "totalRobuxSpent": "Total Robux cheltuiți",
+    "totalMoneySpent": "Total cheltuit (aprox.)",
+    "itemTypeBreakdown": "Defalcarea tipurilor de articole",
+    "premiumBreakdown": "Defalcarea abonamentelor Premium",
+    "purchaseBreakdown": "Defalcarea achizițiilor de Robux",
+    "noItems": "Nu s-au găsit articole încă.",
+    "pack": "Pachet",
+    "stipend": "Alocație",
+    "errorUserId": "Nu s-a putut obține ID-ul utilizatorului.",
+    "robloxLimitError": "Roblox a returnat o eroare internă de server. Probabil nu va putea scana mai multe tranzacții din cauza limitărilor Roblox.",
+    "errorRetries": "A eșuat după mai multe încercări. Ultima eroare: {{error}}"
+  },
+  "totalSpentGames": {
+    "label": "Total cheltuit",
+    "loading": "Se încarcă...",
+    "failedToLoad": "Nu s-a putut încărca",
+    "singlePurchase": "1 achiziție",
+    "multiplePurchases": "{{count}} achiziții",
+    "stillCalculating": "Totalul cheltuit este încă în curs de calculare."
+  },
+  "spentPerGame": {
+    "title": "Total cheltuit per joc",
+    "disclaimer": "Acest lucru poate fi inexact din cauza limitărilor Roblox",
+    "mostSpent": "Cele mai mari cheltuieli",
+    "mostPurchases": "Cele mai multe achiziții",
+    "noPurchases": "Nu s-au găsit achiziții de jocuri.",
+    "singlePurchase": "1 achiziție",
+    "multiplePurchases": "{{count}} achiziții",
+    "loadMore": "Încarcă mai multe ({{remaining}} rămase)",
+    "searchPlaceholder": "Caută jocuri",
+    "loading": "Se încarcă cheltuielile pentru jocuri…",
+    "scanInProgress": "Scanarea tranzacțiilor este în curs. Acest lucru poate dura ceva timp.",
+    "loadError": "Nu s-au putut încărca cheltuielile pentru jocuri."
+  },
+  "spentPerCreator": {
+    "title": "Total cheltuit per creator",
+    "disclaimer": "Acest lucru poate fi inexact din cauza limitărilor Roblox",
+    "mostSpent": "Cele mai mari cheltuieli",
+    "mostPurchases": "Cele mai multe achiziții",
+    "noPurchases": "Nu s-au găsit achiziții de la creatori.",
+    "unknownCreator": "Creator necunoscut",
+    "includeGameCreators": "Include creatorii jocurilor",
+    "singlePurchase": "1 achiziție",
+    "multiplePurchases": "{{count}} achiziții",
+    "loadMore": "Încarcă mai multe ({{remaining}} rămase)",
+    "searchPlaceholder": "Caută creatori",
+    "loading": "Se încarcă cheltuielile pentru creatori…",
+    "scanInProgress": "Scanarea tranzacțiilor este în curs. Acest lucru poate dura ceva timp.",
+    "loadError": "Nu s-au putut încărca cheltuielile pentru creatori."
+  },
+  "settings": {
+    "tabs": {
+      "info": "Informații",
+      "credits": "Contribuitori",
+      "donatorPerks": "Avantaje pentru donatori",
+      "settings": "Setări",
+      "accountStanding": "Starea contului",
+      "store": "Magazin"
+    },
+    "info": {
+      "title": "Informații RoValra!",
+      "desc1": "RoValra este o extensie care încearcă să facă funcțiile de bază pentru îmbunătățirea experienței gratuite și accesibile tuturor, făcând totul complet open-source.",
+      "desc2": "Unele funcții gratuite depind în continuare de serverele RoValra și costă bani pentru a fi rulate.",
+      "desc3": "Donațiile susținătorilor ajută la acoperirea acestor costuri, permițând RoValra să păstreze mai multe funcții gratuite pentru toată lumea, continuând în același timp să se îmbunătățească. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+      "desc4": "RoValra este și a fost întotdeauna un proiect făcut din pasiune.",
+      "suggestions": "Dacă ai sugestii pentru funcții, te rog să-mi spui pe serverul meu Discord sau prin GitHub",
+      "bugs": "Dacă găsești erori, te rog să-mi spui pe serverul meu Discord sau prin GitHub",
+      "review": "Dacă îți place această extensie, te rog să iei în considerare <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">să lași o recenzie</a>, ajută foarte mult <icon style=\"color:#c13ad9\" filled>heart</icon>",
+      "discord": "Server Discord",
+      "github": "Repository Github",
+      "support": "Susține RoValra",
+      "tiktok": "ValraWantBanana",
+      "x": "ValraSwag"
+    },
+    "credits": {
+      "contributorsTitle": "Contribuitori",
+      "translatorsTitle": "Traducători",
+      "featureCount_one": "{{count}} funcție",
+      "featureCount_other": "{{count}} funcții",
+      "contributorTooltips": {
+        "146089324": "WoozyNate a creat fisch, de unde provine vechea siglă RoValra. Ar trebui să verifici fisch!",
+        "1337447242": "A creat noua siglă și toate imaginile paginii magazinului.",
+        "795922138": "A inventat numele „RoValra” ca glumă, care a fost prea amuzantă pentru a nu fi folosită.",
+        "2974594300": "Îmbunătățiri ale interfeței, remedieri de erori și alte contribuții.",
+        "170038374": "A creat concepte pe baza cărora sunt construite unele funcții RoValra."
+      },
+      "sortLabel": "Sortează contribuitorii",
+      "sortMost": "Cei mai mulți",
+      "sortLeast": "Cei mai puțini",
+      "contributionCount_one": "A contribuit la {{count}} funcție",
+      "contributionCount_other": "A contribuit la {{count}} funcții",
+      "backendContributorsNote": "Aceste persoane au ajutat cu lucruri care nu țin de funcții.",
+      "loadingContributors": "Se încarcă...",
+      "failedToLoadContributors": "Nu s-au putut încărca contribuitorii.",
+      "otherContributions": {
+        "badges": {
+          "translatorAndNate": "A adăugat insigna de traducător și insigna WoozyNate",
+          "nateGilbertFix": "A reparat insigna lui Nate pentru a fi din nou Gilbert"
+        },
+        "caching": {
+          "hashmap": "A adăugat hashmap la gestionarul cache-ului"
+        },
+        "sidebar": {
+          "rblxUpdateFix": "A reparat bara laterală pentru o actualizare Roblox"
+        },
+        "rbxm": {
+          "fixDesyncCframe": "A reparat desincronizarea parserului RBXM și formatul CFRAME"
+        },
+        "markdown": {
+          "untrustedMd": "A adăugat un parser Markdown limitat pentru utilizatorii care nu sunt de încredere"
+        },
+        "settingsHandler": {
+          "unifiedApi": "A adăugat un API unificat pentru setări"
+        },
+        "contributorList": {
+          "creditsImprovement": "A îmbunătățit creditele din lista de contribuitori",
+          "nonSettingCredits": "A adăugat credite pentru funcții și îmbunătățiri care nu au propriile setări"
+        },
+        "donatorTierPage": {
+          "newIndicators": "A adăugat indicatori noi pentru nivelurile de donatori"
+        },
+        "iconElement": {
+          "addIcons": "A adăugat elementul `<icon>` care permite utilizarea Builder Icons, Material Icons și RoValra Icons.",
+          "addElement": "A adăugat elementul de bază `<icon>` care permite utilizarea Builder Icons. Anterior urma să fie folosit elementul încorporat `<i>` cu clase.",
+          "makeRoValraIcons": "A adăugat un font pentru RoValra Icons + o nouă metodă de construire pentru site.",
+          "addBuilderIconsWOFF": "A adăugat găzduirea Builder Icons pe site-ul RoValra, precum și diferite fișiere de fonturi care au dimensiuni mai mici."
+        },
+        "displayAppThemeUserProfile": {
+          "addedToWebsite": "A adăugat indexul temelor Plus pe site, astfel încât utilizatorii să poată folosi doar temele corecte și specificate."
+        },
+        "locales": {
+          "madeRo": "A ajutat la crearea limbii române",
+          "madeEs": "A ajutat la crearea limbii spaniole",
+          "madeRu": "A ajutat la crearea limbii ruse",
+          "madeFr": "A ajutat la crearea limbii franceze",
+          "madeZh": "A ajutat la crearea limbii chineze"
+        }
+      },
+      "ui": {
+        "popup": {
+          "title": "Contribuțiile lui {{user}}",
+          "contributor": "Contribuitor",
+          "featureName": "Funcție",
+          "featureKey": "(Dev) Cheie funcție"
+        }
+      }
+    },
+    "donatorPerks": {
+      "title": "Avantaje pentru donatori!",
+      "subtitle": "Susține dezvoltarea RoValra și primește avantaje exclusive!",
+      "howToGet": "Cum obții avantajele",
+      "howToGetDesc": "Poți dona cumpărând gamepass-uri din jocul de susținere.",
+      "goToGame": "Mergi la jocul de donații",
+      "perkTiers": "Niveluri de avantaje",
+      "perk": "Avantaj",
+      "currentTier": "Nivel actual",
+      "tier1": "Nivelul 1: Susținător",
+      "tier1Desc": "Donează <strong>orice sumă</strong>",
+      "tier1Reward": "Insigna Donator 1",
+      "tier1DiscordRole": "Rol Discord Donator 1 + avantaje Discord suplimentare.",
+      "tier1Feature": "Setează Statusul și mediile fără să adaugi un șir în secțiunea „despre mine”.",
+      "tier2": "Nivelul 2: Susținător",
+      "tier2Desc": "Donează <strong>200+ Robux</strong>",
+      "tier2Reward": "Insigna Donator 2",
+      "tier2DiscordRole": "Rol Discord Donator 2 + avantaje Discord îmbunătățite.",
+      "tier3": "Nivelul 3: Susținător",
+      "tier3Desc": "Donează <strong>500+ Robux</strong>",
+      "tier3Reward": "Insigna Donator 3",
+      "tier3DiscordRole": "Rol Discord Donator 3 + cele mai bune avantaje Discord.",
+      "previousRewards": "+ Toate avantajele nivelurilor anterioare",
+      "moreComingSoon": "Mai multe în curând.",
+      "note": "Notă:\n- Insignele pot apărea la câteva minute după donație.\n- Pentru a gestiona vizibilitatea insignelor, mergi la fila de setări „Profil”. \n- Din păcate, donațiile prin comisioane nu oferă avantaje pentru donatori; aceasta este o limitare Roblox.\n- Prin donare, ești de acord cu [Termenii de utilizare RoValra](https://www.rovalra.com/tou/)"
+    },
+    "search": {
+      "minLength": "Introdu cel puțin 2 caractere pentru a căuta.",
+      "noResults": "Nu s-au găsit setări pentru „{{query}}”."
+    },
+    "ui": {
+      "common": {
+        "cancel": "Anulează",
+        "okay": "Bine",
+        "ok": "OK",
+        "pleaseWait": "Așteaptă...",
+        "loading": "Se încarcă...",
+        "unknown": "Necunoscut",
+        "user": "Utilizator",
+        "unavailable": "Indisponibil",
+        "notAvailable": "N/A"
+      },
+      "levels": {
+        "allGood": "Totul este în regulă",
+        "limited": "Limitat",
+        "veryLimited": "Foarte limitat",
+        "atRisk": "La risc",
+        "suspended": "Suspendat"
+      },
+      "search": {
+        "placeholder": "Caută setări..."
+      },
+      "controls": {
+        "clearStorage": "Șterge stocarea",
+        "preview": "Previzualizare",
+        "fadeStrength": "Intensitatea estompării",
+        "clickMe": "Apasă-mă",
+        "enterValue": "Introdu valoarea",
+        "remove": "Elimină",
+        "add": "Adaugă",
+        "experimental": "Experimental",
+        "beta": "Beta",
+        "deprecated": "Depreciat",
+        "invalidImageUrl": "Introdu un URL valid pentru imagine, http:// sau https://.",
+        "enablePermission": "Activează permisiunea {{permission}}"
+      },
+      "badges": {
+        "visibility": "Comută vizibilitatea insignelor tale de donație."
+      },
+      "locks": {
+        "donatorTierRequired": "Este necesar nivelul de donator RoValra {{tier}}",
+        "donatorPerk": "Avantaj de donator RoValra (nivelul {{tier}})",
+        "featureDisabled": "Această funcție a fost dezactivată {{lockType}}"
+      },
+      "featureStatus": {
+        "title": "Înainte de a activa această funcție",
+        "message": "Funcțiile cu aceste etichete pot fi instabile sau se pot schimba în timp. Pot cauza timpi de încărcare mai mari, o interfață inconsistentă, probleme legate de site sau alte comportamente neașteptate.<br><br>Activează această funcție doar dacă înțelegi că este posibil să nu funcționeze perfect.",
+        "acknowledge": "Confirm"
+      },
+      "environment": {
+        "exported": "JSON-ul mediului a fost afișat în consolă (F12).",
+        "imported": "Configurația mediului a fost importată cu succes. Pagina se va reîncărca pentru a aplica modificările.",
+        "parseFailed": "Nu s-a putut analiza fișierul JSON.",
+        "storageUsed": "Spațiu total utilizat în stocarea locală: {{size}}"
+      },
+      "pronouns": {
+        "tooLong": "Pronumele trebuie să aibă cel mult 15 caractere.",
+        "filterRejected": "Filtrul Roblox a respins aceste pronume. Încearcă o altă valoare.",
+        "checkFailed": "Pronumele nu au putut fi verificate de Roblox. Încearcă din nou.",
+        "filterBusy": "Filtrul de pronume Roblox este ocupat. Încearcă din nou în scurt timp."
+      },
+      "port": {
+        "enableProfileNotes": "Activează notițele profilului înainte de a importa sau exporta notițe.",
+        "exportedOne": "S-a exportat {{count}} notiță de profil.",
+        "exportedMany": "S-au exportat {{count}} notițe de profil.",
+        "exportFailed": "Notițele profilului nu au putut fi exportate.",
+        "notesTooLarge": "Backup-ul notițelor profilului este prea mare.",
+        "invalidNotesBackup": "Acesta nu este un backup valid al notițelor de profil RoValra.",
+        "importedOne": "S-a importat {{count}} notiță de profil.",
+        "importedMany": "S-au importat {{count}} notițe de profil.",
+        "notesReadFailed": "Backup-ul notițelor profilului nu a putut fi citit.",
+        "importFailed": "Notițele profilului nu au putut fi importate.",
+        "exportUnexpectedError": "A apărut o eroare neașteptată în timpul exportului.",
+        "exportError": "Eroare la exportarea setărilor. Verifică consola pentru detalii.",
+        "sanitizeError": "Eroare la igienizarea setărilor pentru export. Verifică consola pentru detalii.",
+        "invalidSettingsFile": "Acesta nu pare să fie un fișier valid de setări RoValra.",
+        "invalidSettingsData": "Eroare: Fișierul de setări importat conține date invalide sau potențial periculoase.",
+        "settingsTooLarge": "Eroare: Fișierul de setări este prea mare. Dimensiunea maximă este de 1 MB.",
+        "importError": "Eroare la importarea setărilor. Verifică consola pentru detalii.",
+        "malformedSettings": "Fișierul de setări este corupt sau formatat incorect.",
+        "readFailed": "Nu s-a putut citi fișierul de setări. Este posibil să fie corupt sau într-un format greșit.",
+        "importUnexpectedError": "A apărut o eroare neașteptată în timpul importului.",
+        "exportSettings": "Exportă setările",
+        "importSettings": "Importă setările"
+      },
+      "changelogs": {
+        "title": "Jurnale de modificări",
+        "github": "GitHub",
+        "chrome": "Chrome",
+        "untitledRelease": "Lansare fără titlu",
+        "current": "Versiunea ta",
+        "noNotes": "Nu au fost furnizate note de modificare pentru această lansare.",
+        "loading": "Se încarcă jurnalele de modificări...",
+        "empty": "Nu există jurnale de modificări disponibile momentan.",
+        "loadFailed": "Nu s-au putut încărca jurnalele de modificări. Încearcă din nou mai târziu."
+      },
+      "parentRequest": {
+        "sendingTitle": "Se trimite cererea",
+        "sentTitle": "Cerere trimisă!",
+        "sentBody": "Cererea ta a fost trimisă părinților și tutorilor tăi prin e-mail.",
+        "experienceName": "Numele experienței este",
+        "sendFailedTitle": "Trimiterea cererii a eșuat",
+        "sendFailedBody": "Cererea ta nu a putut fi trimisă dintr-un motiv necunoscut. Este posibil să fi fost limitat de ratelimit. Verifică consola pentru mai multe detalii.",
+        "cancelingTitle": "Se anulează cererea",
+        "canceledTitle": "Cerere anulată",
+        "canceledBody": "Cererea ta către părinți și tutori a fost anulată.",
+        "cancelFailedTitle": "Anularea cererii a eșuat",
+        "cancelFailedBody": "Anularea cererii de deblocare a eșuat. Este posibil să fi fost limitat de ratelimit. Verifică consola pentru mai multe detalii.",
+        "sendUnblock": "Trimite cerere de deblocare",
+        "alreadyRequestedTitle": "Deja solicitat",
+        "alreadyRequestedBody": "Ai solicitat deja această experiență, prostuțule!"
+      },
+      "donation": {
+        "donateUsd": "Donează (min. 1 USD)",
+        "donateRobux": "Donează (min. 5 Robux)",
+        "parentApprovalTitle": "Ajută la susținerea RoValra și mai mult!",
+        "parentApprovalMessage": "RoValra primește o parte mai mare din donație atunci când sunt folosite gamepass-uri. Vedem că ai cel puțin un cont de părinte conectat. Poți solicita deblocarea experienței, astfel încât RoValra să primească o parte mai mare decât prin folosirea hainelor 2D (și 3D).",
+        "useMarketplace": "Folosește Marketplace",
+        "currencyLabel": "Moneda donației",
+        "donateWith": "Donează cu",
+        "supportTitle": "Ajută la susținerea RoValra",
+        "supportDescription": "Obține avantaje cosmetice exclusive donând",
+        "githubSponsors": "GitHub Sponsors",
+        "included": "Inclus",
+        "notIncluded": "Neinclus",
+        "totalDonated": "Totalul donat de tine către RoValra: {{amount}}",
+        "tierTooltip": "Nivelul tău de donator",
+        "topDonators": "Donatori de top (Robux)"
+      },
+      "profileBadge": {
+        "title": "Insignă de profil personalizată RoValra",
+        "description": "Obține o insignă personalizată pentru profilul tău",
+        "iconLabel": "Pictograma insignei de profil personalizate",
+        "getUsd": "Obține (5 USD)",
+        "getRobux": "Obține (4.000 Robux)",
+        "purchaseIntro": "Această achiziție este destinată persoanelor care doresc cu adevărat să susțină RoValra.",
+        "createTicket": "După cumpărarea acestui articol, intră pe Discord-ul RoValra și creează un ticket. CONTUL TĂU DISCORD TREBUIE SĂ AIBĂ CEL PUȚIN 30 DE ZILE PENTRU A REVENDICA",
+        "provideDetails": "Oferă personalului imaginea și numele pe care vrei să le aibă insigna ta personalizată de profil.",
+        "countsTowardTier": "Cumpărarea acestui articol va contribui la nivelurile de donator RoValra.",
+        "visibility": "Aceste insigne personalizate sunt vizibile doar utilizatorilor RoValra.",
+        "imageRequirements": "Cerințe pentru imagine",
+        "webpRequirement": "Imaginea trebuie să fie un fișier <strong>WEBP</strong> mai mic de <strong>1 MB</strong>.",
+        "noRobloxBadges": "Nu pot fi folosite SVG-uri sau insigne Roblox oficiale.",
+        "noOfficialRoValraBadges": "Insignele oficiale RoValra, precum insignele de contribuitor și artist, nu sunt permise.",
+        "followTerms": "Imaginile trebuie să respecte Termenii Roblox",
+        "joinDiscord": "Intră pe Discord-ul RoValra",
+        "agree": "Sunt de acord",
+        "agreeCountdown": "Sunt de acord ({{count}})"
+      },
+      "githubSponsorBadge": {
+        "title": "Insignă de profil GitHub Sponsors",
+        "description": "Insignă de profil cu inimă curcubeu. Doar pentru GitHub Sponsors",
+        "get": "Obține (min. 1 USD)"
+      },
+      "store": {
+        "artist": "Artist",
+        "artistTooltip": "{{name}} a creat această ramă de avatar.",
+        "free": "Gratuit",
+        "owned": "Deținut",
+        "equipped": "Echipat",
+        "equip": "Echipează",
+        "buy": "Cumpără",
+        "buyFor": "Cumpără pentru {{price}}",
+        "viewGamepass": "Vezi Gamepass",
+        "all": "Toate",
+        "new": "Nou",
+        "static": "STATIC",
+        "animated": "ANIMAT",
+        "borderTitle": "Magazin de rame pentru avatar",
+        "borderDescription": "Magazin de rame pentru avatar; cumpără rame pentru a susține direct RoValra și artiștii, <strong>nivelul de donator 3 primește toate ramele de avatar gratuit.</strong> Cumpărarea ramelor de avatar contribuie la nivelul tău de donator!",
+        "loadingBorders": "Se încarcă ramele..."
+      },
+      "border": {
+        "bundleNotice": "(Include atât variantele statice, cât și cele animate)",
+        "freeTier3Tooltip": "Gratuit deoarece ai nivelul de donator 3!",
+        "ownedTooltip": "Deții această ramă!",
+        "freeTooltip": "Această ramă este gratuită pentru echipare.",
+        "supportNotice": "Cumpărarea cosmeticelor direct îi susține pe artist și pe RoValra",
+        "purchaseDelay": "Poate dura până la un minut pentru ca rama avatarului să apară după cumpărare",
+        "parentApprovalTitle": "Este necesară acțiunea părintelui",
+        "parentApprovalMessage": "Pentru a cumpăra rame de avatar, ai nevoie de permisiunea unui părinte.",
+        "noParentTitle": "Nu poți folosi ramele de avatar",
+        "noParentBody": "Roblox îți cere permisiunea unui părinte, dar nu ai niciun cont de părinte conectat la contul tău. Dacă vrei să folosești rame de avatar, va trebui să conectezi un cont de părinte și să soliciți deblocarea experienței.",
+        "noBorders": "Nu există rame disponibile.",
+        "currentPreview": "Previzualizarea selecției curente",
+        "signInPreview": "Autentifică-te pentru a previzualiza ramele pe avatarul tău.",
+        "noBordersInTab": "Nu s-au găsit rame în această filă.",
+        "loadFailed": "Nu s-au putut încărca ramele. Încearcă din nou mai târziu.",
+        "unequipTooltip": "Apasă pentru a dezechipa această ramă",
+        "equipTooltip": "Echipează această ramă",
+        "buyTooltip": "Cumpără această ramă"
+      },
+      "appeal": {
+        "messageLabel": "Introdu mesajul contestației (20-3000 de caractere)",
+        "title": "Trimite contestația",
+        "submit": "Trimite contestația",
+        "invalidLength": "Mesajul contestației trebuie să aibă între 20 și 3000 de caractere.",
+        "submitFailed": "Trimiterea contestației a eșuat. Încearcă din nou."
+      },
+      "standing": {
+        "levels": {
+          "allGood": "Totul este în regulă",
+          "none": "Niciuna / Fără restricții",
+          "limited": "Limitat",
+          "veryLimited": "Foarte limitat",
+          "atRisk": "La risc",
+          "suspended": "Suspendat"
+        },
+        "appealStatuses": {
+          "notAppealed": "Fără contestație",
+          "pending": "Contestație în așteptare",
+          "denied": "Contestație respinsă",
+          "accepted": "Contestație acceptată"
+        },
+        "goodTitle": "Contul tău este în stare bună.",
+        "goodDescription": "Nu ai încălcări sau restricții active din partea echipei de siguranță RoValra.",
+        "temporaryTitle": "Contul tău este limitat temporar.",
+        "violationTitle": "Am găsit o încălcare în contul tău.",
+        "statusDescription": "Starea contului tău a fost setată la: {{status}}",
+        "policyTitle": "Politica de siguranță RoValra",
+        "policyDescription": "Conturilor care încalcă {{- termsLink}} sau sunt considerate un risc prin detectări terțe li se vor dezactiva anumite funcții. Reține că, deși anumite capabilități online pot fi restricționate, echipa de siguranță RoValra <strong>nu va dezactiva niciodată</strong> întreaga extensie sau funcțiile complet locale.",
+        "automatedAction": "Acțiune automată",
+        "manualReview": "Verificare manuală",
+        "disabledFeatures": "Funcții dezactivate",
+        "moderatedContent": "Conținut moderat",
+        "violationDetails": "Detalii despre încălcare",
+        "unknownReason": "Motiv necunoscut",
+        "moderated": "Moderat",
+        "temporaryExpires": "Restricția temporară expiră",
+        "appealCase": "Caz de contestație",
+        "status": "Stare",
+        "yourMessage": "Mesajul tău",
+        "response": "Răspuns",
+        "reviewingAppeal": "Echipa noastră verifică în prezent contestația ta.",
+        "appealDecision": "Contestă această decizie"
+      }
+    },
+    "compatibilityWarning": {
+      "title": "RoValra poate să nu funcționeze corect cu {{extensions}} activat.",
+      "description": "Nu promitem compatibilitate pentru {{extensions}}."
+    }
+  },
+  "privacyToggles": {
+    "nav": {
+      "tooltip": "Setări de confidențialitate"
+    },
+    "noTogglesEnabled": "Nu este activată nicio comutare! Mergi la Setări RoValra pentru a activa comutările setărilor de confidențialitate.",
+    "dropdowns": {
+      "shared": {
+        "allUsers": "Toată lumea",
+        "friendsFollowingFollowers": "Prieteni, urmărite și urmăritori",
+        "friendsFollowing": "Prieteni și urmăriți",
+        "friends": "Prieteni",
+        "trustedFriends": "Prieteni de încredere",
+        "noOne": "Nimeni"
+      },
+      "onlineStatus": {
+        "name": "Stare online"
+      },
+      "joinStatus": {
+        "name": "Starea experienței"
+      },
+      "privateServerPrivacy": {
+        "name": "Confidențialitatea serverului privat"
+      },
+      "inventoryPrivacy": {
+        "name": "Confidențialitatea inventarului"
+      }
+    }
+  },
+  "groupFunds": {
+    "loading": "Se încarcă...",
+    "pending": "În așteptare:",
+    "noPermissions": "Fără permisiune"
+  },
+  "navigation": {
+    "transactions": "Tranzacții",
+    "apiDocs": "Documentație API",
+    "incidentLearnMore": "Apasă aici pentru a afla mai multe.",
+    "incidentHideNotice": "Poți ascunde această notificare aici",
+    "rovalraApi": "API RoValra"
+  },
+  "sidebarCollapse": {
+    "collapseSidebar": "Restrânge bara laterală",
+    "expandSidebar": "Extinde bara laterală"
+  },
+  "voiceBanIndicator": {
+    "title": "Interzis în chat vocal",
+    "liftsIn": "Se ridică în",
+    "noExpiry": "Fără dată de expirare furnizată"
+  },
+  "ageTheme": {
+    "navbarTooltip": "Tema în funcție de vârstă",
+    "options": {
+      "normal": "Roblox normal",
+      "kids": "Roblox Kids",
+      "select": "Roblox Select",
+      "startmode": "Roblox Select divulgat de Roblox (modul Start)"
+    },
+    "badge": {
+      "kids": "COPII",
+      "select": "SELECT"
+    }
+  },
+  "betaPrograms": {
+    "toggleTooltip": "Comută programele Beta",
+    "noPrograms": "Nu ești înscris în niciun program Beta.",
+    "allowlist": "Pe lista de acces",
+    "previousProgramsTitle": "Programe Beta la care ai fost înscris anterior",
+    "previousProgramTooltip": "Acest program Beta nu mai este disponibil."
+  },
+  "quickSearch": {
+    "aborted": "Anulat",
+    "apiRequestFailed": "Cererea API a eșuat cu statusul {{status}}",
+    "friendSearchError": "RoValra: eroare la căutarea prietenului",
+    "userSearchError": "RoValra: eroare la căutarea utilizatorului",
+    "gameSearchError": "RoValra: eroare la căutarea jocului",
+    "trustedConnection": "Sunteți prieteni de încredere",
+    "connection": "Sunteți prieteni",
+    "playing": "Se joacă {{gameName}}",
+    "verifiedBadge": "Insignă verificată",
+    "verified": "Verificat",
+    "permanentlyBanned": "Acest utilizator a fost închis sau și-a dezactivat contul.",
+    "joinPreferredRegion": "Alătură-te regiunii preferate",
+    "bestRegionAuto": "Cea mai bună regiune (automat)",
+    "searchHistory": "Istoricul căutărilor",
+    "noSearchHistory": "Nu ai niciun istoric al căutărilor.",
+    "deleteSearchHistoryTitle": "Șterge istoricul căutărilor",
+    "deleteSearchHistoryMessage": "Sigur vrei să ștergi această intrare din istoricul căutărilor?",
+    "delete": "Șterge"
+  },
+  "friendOwnership": {
+    "pillLabel": "{{count}} prieteni dețin",
+    "pillTooltip": "Vezi care dintre prietenii tăi dețin acest articol",
+    "overlayTitle": "{{count}} prieteni dețin acest articol",
+    "unknownUser": "Utilizatorul {{id}}"
+  },
+  "regionPlayButton": {
+    "ariaLabel": "Selectează sau alătură-te regiunii preferate a serverului",
+    "tooltip": "Alătură-te regiunii preferate",
+    "tooltipWithRegion": "Alătură-te regiunii preferate<br><b>{{regionName}}</b>",
+    "tooltipBestRegion": "Alătură-te regiunii preferate<br><b>Cea mai bună regiune (automat)</b>"
+  },
+  "quickPlay": {
+    "loading": "Se încarcă...",
+    "rateLimited": "Limită de rată atinsă. Se reîncearcă...",
+    "loadError": "Nu s-au putut încărca serverele.",
+    "noPrivateServers": "Nu au fost găsite servere private active.",
+    "configure": "Configurează",
+    "copyLink": "Copiază linkul",
+    "copied": "Copiat!",
+    "error": "Eroare!",
+    "generateLink": "Generează un link nou",
+    "joinClosestServer": "Alătură-te celui mai apropiat server",
+    "selectPreferredRegion": "Selectează regiunea preferată",
+    "privateServers": "Servere private"
+  },
+  "privateServerPage": {
+    "regenerateLink": "Generează linkul",
+    "regenerated": "Generat!"
+  },
+  "devProducts": {
+    "noProducts": "Nu au fost găsite produse pentru dezvoltatori.",
+    "loadError": "Nu s-au putut încărca produsele pentru dezvoltatori ale acestui joc.",
+    "passes": "Pass-uri",
+    "developerProducts": "Produse pentru dezvoltatori",
+    "search": "Caută",
+    "sort": {
+      "created": "Sortează după data creării",
+      "price": "Sortează după preț",
+      "updated": "Sortează după data actualizării",
+      "name": "Sortează după nume"
+    },
+    "order": {
+      "ascending": "Sortează crescător",
+      "descending": "Sortează descrescător"
+    }
+  },
+  "shop": {
+    "tab": "Magazin",
+    "all": "Toate",
+    "category": "Categorie",
+    "product": "Produs",
+    "gamePass": "Game Pass",
+    "robuxAmount": "{{amount}} Robux",
+    "bonusItem": "Bonus: {{item}}",
+    "bonusItemFallback": "Include un articol bonus",
+    "noItems": "Nu s-au găsit articole în magazin.",
+    "failedToLoad": "Nu s-au putut încărca articolele magazinului.",
+    "sections": {
+      "robux": "Robux"
+    },
+    "types": {
+      "Product": "Produs",
+      "GamePass": "Game Pass",
+      "Robux": "Pachet Robux"
+    }
+  },
+  "subplaces": {
+    "tabTitle": "Sub-locuri",
+    "searchPlaceholder": "Caută sub-locuri",
+    "loadMore": "Încarcă mai multe",
+    "rootPlace": "Place principal",
+    "noSubplaces": "Nu s-au găsit sub-locuri.",
+    "failedToLoad": "Nu s-au putut încărca sub-locurile.",
+    "labels": {
+      "sort": "Sortează",
+      "order": "Ordine"
+    },
+    "sort": {
+      "default": "Implicit",
+      "updated": "Actualizat recent",
+      "created": "Creat recent",
+      "name": "Nume (Z-A)"
+    },
+    "order": {
+      "descending": "Descrescător",
+      "ascending": "Crescător"
+    },
+    "banner": {
+      "title": "În prezent vizualizezi un sub-loc al [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+      "descriptionDefault": "Unele experiențe pot dezactiva conectarea la sub-locuri.",
+      "descriptionRestricted": "Acest sub-loc nu poate fi accesat din cauza restricțiilor de conectare.",
+      "descriptionJoinable": "Te poți conecta la acest sub-loc.",
+      "mainExperience": "experiența principală"
+    }
+  },
+  "updateHistory": {
+    "tabTitle": "Actualizări",
+    "title": "Istoricul actualizărilor",
+    "blocked": {
+      "eighteenPlus": "Istoricul actualizărilor nu funcționează pentru experiențele 18+",
+      "paidAccess": "Istoricul actualizărilor nu funcționează pentru experiențele cu acces plătit",
+      "subplace": "Istoricul actualizărilor nu funcționează pentru sub-locurile cu restricții de conectare",
+      "noDesktopSupport": "Istoricul actualizărilor nu este acceptat pentru experiențele fără suport pentru PC"
+    }
+  },
+  "serverList": {
+    "clear": "Șterge",
+    "noServersApi": "Nu s-au găsit servere prin API-ul RoValra.",
+    "allServersInactive": "Toate serverele din această regiune au devenit inactive",
+    "loadErrorApi": "Nu s-au putut încărca serverele din API-ul RoValra.",
+    "hide": "Ascunde",
+    "join": "Alătură-te",
+    "peopleMax": "{{playing}} din maximum {{maxPlayers}} persoane",
+    "pinPrivateServer": "Fixează serverul privat",
+    "unpinPrivateServer": "Anulează fixarea serverului privat",
+    "playerCountUnknownTooltip": "Numărul de jucători este necunoscut, aceasta este o limitare Roblox. Miniaturile nu reprezintă persoanele din joc.",
+    "playerCountUnknownLabel": "Număr de jucători necunoscut"
+  },
+  "recentServers": {
+    "title": "Servere recente",
+    "refresh": "Reîmprospătează",
+    "noneFound": "Nu au fost găsite servere recente.",
+    "noActiveFound": "Nu au fost găsite servere recente active.",
+    "lastJoined": "Ultima conectare: {{time}}",
+    "meAlt": "Eu",
+    "secondsAgo": "acum {{count}}s",
+    "minutesAgo": "acum {{count}}m",
+    "hoursAgo": "acum {{count}}h",
+    "daysAgo": "acum {{count}}z",
+    "description": "Servere recente în care tocmai ai fost."
+  },
+  "quickOutfits": {
+    "errorFetching": "Eroare la obținerea ținutelor",
+    "equipping": "Se echipează...",
+    "equipped": "Echipat!",
+    "failed": "A eșuat",
+    "error": "Eroare:",
+    "noUserId": "ID-ul utilizatorului autentificat nu a fost găsit pentru ținutele rapide.",
+    "loading": "Se încarcă ținutele...",
+    "title": "Ținute rapide",
+    "noneFound": "Nu s-au găsit ținute.",
+    "success": "Ținuta a fost echipată cu succes."
+  },
+  "btrDonationWarning": {
+    "title": "IMPORTANT: dezactivează BTRoblox",
+    "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox a fost detectat. Poate interfera cu procesul de cumpărare Roblox. Dacă ai probleme la cumpărare, încearcă să dezactivezi temporar BTRoblox și să reîncarci pagina.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Te rugăm să dezactivezi BTRoblox, să reîncarci această pagină și apoi să încerci din nou achiziția.</p>",
+    "continue": "Continuă oricum"
+  },
+  "botDetector": {
+    "tooltip": "Boții sunt conturi care rulează scripturi automatizate pentru a colecta articole. Un singur utilizator poate rula uneori peste 50 de boți. Reține că aceasta nu este vina dezvoltatorilor jocului. Aceste informații pot fi inexacte dacă o experiență este jucată în principal de conturi Roblox noi.",
+    "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> are mulți boți",
+    "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> are câțiva boți, dar în principal jucători reali",
+    "thisGame": "Acest joc"
+  },
+  "events": {
+    "title": "Evenimente",
+    "tabs": {
+      "upcoming": "Viitoare",
+      "past": "Trecute"
+    },
+    "buttons": {
+      "viewEvent": "Vezi evenimentul",
+      "joinEvent": "Intră la eveniment",
+      "unfollowEvent": "Nu mai urmări evenimentul",
+      "notifyMe": "Anunță-mă"
+    },
+    "loadMore": "Încarcă mai multe",
+    "releaseDate": "Data lansării evenimentului",
+    "empty": {
+      "active": "Nu există evenimente în desfășurare sau viitoare.",
+      "past": "Nu există evenimente trecute.",
+      "all": "Nu s-au găsit evenimente."
+    }
+  },
+  "hiddenBadges": {
+    "tabs": {
+      "badges": "Insigne",
+      "hiddenBadges": "Insigne ascunse"
+    },
+    "hiddenOwnedNotice": "Aici sunt afișate doar insignele ascunse pe care le-ai obținut.",
+    "unableToDetectPlace": "Nu s-a putut detecta acest loc.",
+    "unableToDetectUniverse": "Nu s-a putut detecta acest univers.",
+    "stillScanning": "Încă se scanează insignele tale. Insignele ascunse pe care le deții pot apărea în curând.",
+    "noneOwnedFound": "Nu au fost găsite insigne ascunse pe care le deții pentru această experiență.",
+    "failedToLoad": "Nu s-au putut încărca insignele ascunse pe care le deții."
+  },
+  "antiBots": {
+    "reviewMembers": "Verifică membrii selectați {{count}}:",
+    "botWarning": "<strong>Avertisment:</strong> Asigură-te că aceștia sunt boți înainte de a acționa.",
+    "banMembers": "Interzice membrii",
+    "kickMembers": "Elimină membrii",
+    "cancel": "Anulează",
+    "actionRequired": "Acțiune necesară ({{count}})",
+    "noPermission": "Nu ai permisiunea de a interzice sau elimina membri.",
+    "confirmBan": "Urmează să <strong>interzici {{count}} membru/membri</strong>. Vor fi blocați permanent.",
+    "confirmKick": "Urmează să <strong>elimini {{count}} membru/membri</strong>. Se pot alătura din nou oricând.",
+    "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reamintire:</strong> Verifică scorurile boților înainte de a-i interzice.</div>",
+    "yesAction": "Da, {{action}}",
+    "confirmAction": "Confirmă acțiunea",
+    "processing": "Se procesează {{current}} din {{total}}: {{displayName}}... ETA: {{time}}s",
+    "rateLimited": "Limită de rată atinsă. Se reîncearcă peste {{delay}}s...",
+    "apiError": "Eroare API {{status}}",
+    "unknownError": "Eroare necunoscută",
+    "processComplete": "{{successCount}} din {{totalMembers}} membri au fost {{actionType}} cu succes.",
+    "processFailed": "{{failedCount}} au eșuat.",
+    "close": "Închide",
+    "score": "Scor: {{score}}/100",
+    "actionCount": "Acțiune ({{count}})",
+    "unselectAll": "Deselectează tot",
+    "selectAll": "Selectează tot",
+    "antiBots": "Anti-boți",
+    "banByScore": "Interzice după scor",
+    "quickAction": "Acțiune rapidă",
+    "members": "Membri",
+    "loadingMembers": "Se încarcă membrii...",
+    "selectMembersForAction": "Selectează membri pentru acțiune ({{count}} încărcați)",
+    "noMembersFound": "Nu s-au găsit membri.",
+    "initializingScan": "Se inițializează scanarea...",
+    "scanStatus": "Scanate: {{loaded}} ({{percent}}%) | Analizate: {{processed}}",
+    "finalizingAnalysis": "Se finalizează analiza...",
+    "botsFound": "Probabil {{count}} boți găsiți",
+    "noBotsFound": "Nu au fost găsiți probabil boți",
+    "noBotsDetected": "Nu au fost detectați boți.",
+    "errorRetry": "Eroare - Reîncearcă",
+    "errorDuringScan": "Eroare în timpul scanării.",
+    "minBotScore": "Scor minim pentru bot: <span id=\"rovalra-score-value\">50</span>",
+    "scoreImpact": "Acest lucru va selecta aproximativ <span id=\"rovalra-score-ban-count\">0</span> membri.",
+    "confirm": "Confirmă",
+    "banKickByScore": "Interzice/Elimină după scor",
+    "confirmCount": "Confirmă ({{count}})"
+  },
+  "revertLogo": {
+    "haveFun": "Succes!",
+    "close": "Închide",
+    "robloxExperience": "Experiență Roblox",
+    "unknownExperience": "Experiență necunoscută",
+    "serverId": "ServerID:",
+    "privateServer": "Server privat",
+    "owner": "Proprietar:",
+    "version": "Versiune:",
+    "uptime": "Timp de funcționare:",
+    "rcc": "RCC:",
+    "serverChannel": "Canal server:",
+    "production": "Producție",
+    "launchingRoblox": "Se lansează Roblox",
+    "downloadRoblox": "Descarcă Roblox",
+    "thanksDownloading": "Îți mulțumim că ai descărcat Roblox",
+    "downloadInstructions": "Urmează pașii de mai jos pentru a instala Roblox. Descărcarea ar trebui să înceapă în câteva secunde. Dacă nu începe, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">repornește descărcarea</a>.",
+    "installInstructions": "Instrucțiuni de instalare",
+    "step1": "După descărcare, fă dublu clic pe fișierul <b>RobloxPlayerInstaller.exe</b> din folderul Descărcări.",
+    "step2": "Fă dublu clic pe <b>RobloxPlayerInstaller</b> pentru a instala aplicația.",
+    "step3": "Urmează instrucțiunile pentru a instala Roblox pe computer.",
+    "step4": "Acum că este instalat, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">intră în experiență</a>.",
+    "mobileApp": "Nu uita de aplicația mobilă",
+    "scanCode": "Scanează acest cod cu camera telefonului pentru a obține Roblox.",
+    "joiningServer": "Se conectează la server...",
+    "errorParsingUrl": "Eroare la analizarea URL-ului",
+    "findingUser": "Se caută utilizatorul...",
+    "fetchingServerInfo": "Se obțin informațiile serverului...",
+    "nonRootPlaceRestrictions": "Nu te poți conecta: restricții pentru Place-ul principal.",
+    "waitingForRoblox": "Se așteaptă Roblox...",
+    "launching": "Se lansează..."
+  },
+  "createRoblox": {
+    "download": "Descarcă",
+    "downloadMesh": "Descarcă .mesh",
+    "downloadObj": "Descarcă .obj",
+    "explorer": {
+      "button": "Explorer",
+      "title": "Explorer",
+      "loading": "Se încarcă...",
+      "selectInstance": "Selectează o instanță pentru a-i vedea proprietățile",
+      "noProperties": "Fără proprietăți",
+      "viewSource": "Vezi sursa",
+      "closePreview": "Închide previzualizarea",
+      "defaultDevice": "Implicit (1280x720)",
+      "fitToWindow": "Încadrează în fereastră",
+      "actualResolution": "Rezoluție reală",
+      "physicalSize": "Dimensiune fizică",
+      "rotate": "Rotește",
+      "loadingPreview": "Se încarcă previzualizarea GUI...",
+      "searchInstances": "Caută instanțe... (2+ caractere)",
+      "searchProperties": "Caută proprietăți...",
+      "previewGui": "Previzualizare GUI",
+      "togglePreviewVisibility": "Comută vizibilitatea în previzualizare",
+      "noMatchingInstances": "Nu s-au găsit instanțe corespunzătoare",
+      "loadError": "Nu s-a putut încărca."
+    }
+  },
+  "priceFloor": {
+    "label": "Preț minim:",
+    "status": "Acest articol este {{status}} prețul minim{{difference}}.",
+    "statusTypes": {
+      "above": "peste",
+      "below": "sub",
+      "at": "la"
+    },
+    "difference": " cu {{diff}}",
+    "description": "Prețul minim este prețul minim actualizat dinamic la care un articol poate fi vândut."
+  },
+  "parentItem": {
+    "multipleBundles": "Acest articol face parte din mai multe pachete",
+    "multipleBundlesDescription": "Probabil acest articol este folosit ca șablon și este inclus în mai multe pachete.",
+    "partOfBundle": "Acest articol face parte din pachetul [{{bundleName}}]({{bundleUrl}})",
+    "viewingFromBundle": "În prezent vizualizezi un articol dintr-un pachet."
+  },
+  "rovalraBadges": {
+    "userVerified": "Utilizatorul este verificat prin ID.",
+    "userNotVerified": "Utilizatorul nu este verificat prin ID.",
+    "userAgeVerified": "Vârsta utilizatorului este verificată.",
+    "userNotAgeVerified": "Vârsta utilizatorului nu este verificată.",
+    "userAgeVerificationMayBeInaccurate": "Este posibil ca acest lucru să fie inexact"
+  },
+  "friendsSince": {
+    "friended": "Prietenit",
+    "lastSeen": "Văzut",
+    "age": "Vârstă",
+    "friendedVia": "Prietenit prin",
+    "originFrom": "De la",
+    "originSearch": "Caută",
+    "originInGame": "În joc",
+    "originProfile": "Profil",
+    "originQQContacts": "Contacte QQ",
+    "originWeChatContacts": "Contacte WeChat",
+    "originQrCode": "Cod QR",
+    "originProfileShare": "Distribuire profil",
+    "originPhoneContacts": "Contacte telefonice",
+    "originPeopleYouMayKnow": "Persoane pe care este posibil să le cunoști",
+    "originschoolmemberlist": "Lista membrilor școlii",
+    "originFriendLink": "Link de prieten",
+    "originSocialTabsPage": "Pagina filelor sociale",
+    "originUnknown": "Necunoscut"
+  },
+  "lastPlayed": {
+    "together": "Jucat împreună cel mai frecvent"
+  },
+  "avatarDownload": {
+    "button": "Descarcă avatarul",
+    "title": "Descarcă avatarul",
+    "size": "Rezoluție:",
+    "downloadPortrait": "PNG portret",
+    "downloadBust": "PNG bust",
+    "downloadAvatar": "PNG avatar",
+    "downloading": "Se descarcă...",
+    "failed": "Descărcarea avatarului a eșuat. Încearcă din nou mai târziu."
+  },
+  "unfriend": {
+    "confirmUnfriend": "Confirmă eliminarea prietenului",
+    "confirmUnfriends": "Confirmă eliminările prietenilor",
+    "descriptionSingle": "Urmează să elimini 1 prieten. Această acțiune nu poate fi anulată.",
+    "descriptionPlural": "Urmează să elimini {{count}} prieteni. Această acțiune nu poate fi anulată.",
+    "cancel": "Anulează",
+    "unfriend": "Elimină prietenul",
+    "unfriendCount": "Elimină ({{count}})",
+    "unfriendCountAction": "Elimină {{count}} prieten",
+    "unfriendCountActionPlural": "Elimină {{count}} prieteni",
+    "unfriending": "Se elimină...",
+    "bulkUnfriend": "Elimină în masă",
+    "exitBulkMode": "Ieși din modul în masă",
+    "successMessage": "Ai eliminat cu succes {{successCount}}/{{totalCount}} prieteni!"
+  },
+  "bulkBadgeRemover": {
+    "bulk": "Eliminator de insigne în masă",
+    "exit": "Ieși din modul în masă",
+    "delete": "Șterge insignele",
+    "deleteCount": "Șterge insignele ({{count}})",
+    "confirmTitle": "Confirmă ștergerea insignelor",
+    "finalTitle": "Ești sigur(ă)?",
+    "finalDescription": "Aceasta va șterge definitiv {{count}} insigne din inventarul tău.",
+    "descriptionSingle": "Urmează să ștergi 1 insignă din inventarul tău. Această acțiune nu poate fi anulată.",
+    "descriptionPlural": "Urmează să ștergi {{count}} insigne din inventarul tău. Această acțiune nu poate fi anulată.",
+    "deletingProgress": "Se șterg insignele... {{current}}/{{total}}",
+    "cancel": "Anulează",
+    "success": "S-au șters {{successCount}}/{{totalCount}} insigne."
+  },
+  "blockUser": {
+    "block": "Blochează",
+    "unblock": "Deblochează",
+    "blockTitle": "Blochează {{username}}",
+    "unblockTitle": "Deblochează {{username}}",
+    "blockTitleGeneric": "Blochează utilizatorul",
+    "unblockTitleGeneric": "Deblochează utilizatorul",
+    "blockMessage": "Nu îți vor mai putea trimite schimburi. Poți în continuare să respingi orice schimb existent, dar nu îl vei putea accepta sau contracara.",
+    "unblockMessage": "Îți vor putea trimite din nou schimburi și vei putea accepta sau contracara orice schimb existent.",
+    "cancel": "Anulează"
+  },
+  "unfriendDetector": {
+    "title_one": "Eliminare de prieten detectată",
+    "title_other": "Eliminări de prieteni detectate",
+    "description_one": "Acest prieten te-a eliminat de la ultima ta sesiune de joc:",
+    "description_other": "Acești {{count}} prieteni te-au eliminat de la ultima ta sesiune de joc:",
+    "viewProfile": "Vezi profilul lui {{name}}",
+    "dismiss": "Închide"
+  },
+  "leaveGroups": {
+    "confirmLeave": "Confirmă părăsirea",
+    "confirmLeaves": "Confirmă părăsirile",
+    "descriptionSingle": "Urmează să părăsești 1 comunitate. Această acțiune nu poate fi anulată.",
+    "descriptionPlural": "Urmează să părăsești {{count}} comunități. Această acțiune nu poate fi anulată.",
+    "cancel": "Anulează",
+    "leave": "Părăsește",
+    "leaveCount": "Părăsește ({{count}})",
+    "leaveCountAction": "Părăsește {{count}} comunitate",
+    "leaveCountActionPlural": "Părăsește {{count}} comunități",
+    "leaving": "Se părăsește...",
+    "bulkLeave": "Părăsește în masă",
+    "exitBulkMode": "Ieși din modul în masă",
+    "successMessage": "Ai părăsit cu succes {{successCount}}/{{totalCount}} comunități!"
+  },
+  "purchasePrompt": {
+    "balanceAfter": "Soldul tău după această tranzacție va fi"
+  },
+  "recentlyViewed": {
+    "title": "Vizualizate recent",
+    "clear": "Șterge",
+    "remove": "Elimină",
+    "cheaper": "{{value}} Robux mai ieftin decât când l-ai vizualizat",
+    "pricier": "{{value}} Robux mai mult decât când l-ai vizualizat",
+    "offSale": "A fost scos de la vânzare",
+    "backOnSale": "Din nou la vânzare"
+  },
+  "tradeRecentItems": {
+    "offer": "Oferit recent",
+    "request": "Solicitat recent",
+    "clear": "Șterge"
+  },
+  "tradeQuickActions": {
+    "minValue": "Valoarea minimă oferită de ei",
+    "hideLosses": "Ascunde pierderile",
+    "bulkTitle": "Acțiune în masă",
+    "bulkHint": "Respinge fiecare schimb primit în care pierzi valoare. Confirmi mai întâi.",
+    "declineLosses": "Respinge schimburile pierzătoare",
+    "loadingTrades": "Se încarcă schimburile primite...",
+    "checking": "Se verifică schimburile {{done}}/{{total}}...",
+    "noLosses": "Nu au fost găsite schimburi primite pierzătoare",
+    "confirmTitle": "Respinge schimburile pierzătoare",
+    "confirmMessage": "{{count}} din cele {{total}} schimburi primite sunt pierderi ca valoare ({{value}} în total). Respinge-le pe toate? Această acțiune nu poate fi anulată.",
+    "declineConfirm": "Respinge",
+    "declining": "Se resping {{done}}/{{total}}...",
+    "declined": "S-au respins {{count}} schimburi",
+    "declinedWithFailures": "S-au respins {{count}} schimburi, {{failed}} au eșuat"
+  },
+  "time": {
+    "justNow": "chiar acum",
+    "secondsAgo": "acum {{count}}s",
+    "minutesAgo": "acum {{count}}m",
+    "hoursAgo": "acum {{count}}h",
+    "daysAgo": "acum {{count}}z",
+    "weeksAgo": "acum {{count}}s",
+    "monthsAgo": "acum {{count}}luni",
+    "yearsAgo": "acum {{count}}ani",
+    "secondsFromNow": "în {{count}}s",
+    "minutesFromNow": "în {{count}}m",
+    "hoursFromNow": "în {{count}}h",
+    "daysFromNow": "în {{count}}z",
+    "weeksFromNow": "în {{count}}s",
+    "monthsFromNow": "în {{count}}luni",
+    "yearsFromNow": "în {{count}}ani",
+    "months": {
+      "jan": "ian.",
+      "feb": "feb.",
+      "mar": "mar.",
+      "apr": "apr.",
+      "may": "mai",
+      "jun": "iun.",
+      "jul": "iul.",
+      "aug": "aug.",
+      "sep": "sept.",
+      "oct": "oct.",
+      "nov": "nov.",
+      "dec": "dec."
+    }
+  },
+  "privateGames": {
+    "tabs": {
+      "about": "Despre",
+      "store": "Magazin",
+      "servers": "Servere"
+    },
+    "servers": {
+      "title": "Serverele tale private",
+      "description": "Joacă în propriul tău spațiu, singur sau cu persoane pe care le inviți",
+      "friendsTitle": "Servere în care sunt prietenii mei",
+      "publicTitle": "Alte servere",
+      "privateServer": "Server privat",
+      "players": "{{playing}} din maximum {{maxPlayers}} persoane",
+      "join": "Alătură-te",
+      "loadMore": "Încarcă mai multe",
+      "loading": "Se încarcă serverele...",
+      "noServers": "Nu s-au găsit servere.",
+      "loadError": "Nu s-au putut încărca serverele.",
+      "ownerAvatar": "Proprietarul serverului",
+      "playerAvatar": "Jucător",
+      "morePlayers": "+{{count}}"
+    },
+    "privateExperience": "Experiență privată",
+    "experienceIsPrivate": "Această experiență este privată.",
+    "unknown": "Necunoscut",
+    "rovalraNotice": "Doar utilizatorii RoValra pot vedea această pagină.",
+    "unavailable": "Indisponibil",
+    "favorite": {
+      "add": "Adaugă la favorite",
+      "remove": "Elimină de la favorite",
+      "favorited": "La favorite",
+      "favorite": "Favorite"
+    },
+    "notify": {
+      "tooltip": "Activează notificările",
+      "label": "Notifică"
+    },
+    "description": {
+      "title": "Descriere",
+      "noDescription": "Nu este disponibilă nicio descriere."
+    },
+    "stats": {
+      "active": "Activ",
+      "favorites": "Favorite",
+      "visits": "Vizite",
+      "maxPlayers": "Număr maxim de jucători",
+      "genre": "Gen",
+      "subgenre": "Subgen",
+      "created": "Creat",
+      "updated": "Actualizat",
+      "voiceChat": "Chat vocal",
+      "supported": "Acceptat",
+      "unsupported": "Neacceptat"
+    },
+    "reportAbuse": "Raportează abuz",
+    "badges": {
+      "title": "Insigne",
+      "noBadges": "Încă nu există insigne",
+      "rarity": "Raritate",
+      "wonYesterday": "Obținut ieri",
+      "wonEver": "Obținut vreodată"
+    },
+    "subscriptions": {
+      "title": "Abonamente",
+      "subscribe": "Abonează-te"
+    },
+    "passes": {
+      "title": "Pass-uri",
+      "showOffSale": "Afișează cele scoase de la vânzare",
+      "noPasses": "Nu există pass-uri disponibile",
+      "offSale": "Nu este la vânzare",
+      "owned": "Deținut",
+      "buy": "Cumpără"
+    },
+    "disabled": "Vizualizarea jocurilor private / moderate este dezactivată",
+    "disabledDescription": "Pentru a vedea jocurile private și moderate trebuie să activezi setarea aici:",
+    "disabledLinkText": "Vezi jocurile private / moderate",
+    "products": {
+      "title": "Produse",
+      "buy": "Cumpără"
+    },
+    "moderated": "Moderat"
+  },
+  "gamePassViewer": {
+    "type": "Tip",
+    "typeValue": "Pass",
+    "productId": "ID produs",
+    "price": "Preț",
+    "owned": "Deținut",
+    "ownedItem": "Articol deținut",
+    "free": "Gratuit",
+    "ownedNotice": "Acest articol este disponibil în inventarul tău.",
+    "inventory": "Inventar",
+    "by": "De către",
+    "usePassIn": "Folosește acest Pass în:",
+    "rovalraNoticeDescription": "Acest game pass este inactiv și nu poate fi cumpărat din cauza limitărilor Roblox, posibil legate de vârsta contului sau vizibilitatea jocului."
+  },
+  "playabilityStatus": {
+    "0": "Experiența nu este disponibilă",
+    "1": "Experiența poate fi jucată",
+    "2": "Oaspeții nu se pot alătura acestei experiențe",
+    "3": "Această experiență a fost moderată deoarece a încălcat Standardele comunității Roblox",
+    "4": "Această experiență este configurată incorect",
+    "5": "Această experiență este privată",
+    "6": "Doar prietenii se pot alătura acestei experiențe",
+    "7": "Doar membrii comunității se pot alătura acestei experiențe",
+    "8": "Această experiență este restricționată pe dispozitivul tău",
+    "9": "Această experiență este în curs de verificare deoarece este posibil să fi încălcat Standardele comunității Roblox",
+    "10": "Este necesară o achiziție pentru a juca",
+    "11": "Contul tău este restricționat",
+    "12": "Această experiență este temporar indisponibilă",
+    "13": "Această experiență nu are o versiune publicată",
+    "14": "Această experiență este blocată din motive de conformitate",
+    "15": "Această experiență nu este disponibilă în regiunea ta",
+    "16": "Această experiență este blocată din motive de conformitate regională",
+    "17": "Această experiență este restricționată de controalele parentale",
+    "18": "Această experiență este blocată de controalele parentale",
+    "19": "Această experiență are acces restricționat în funcție de vârstă",
+    "20": "Este necesară verificarea pentru experiențele 18+",
+    "21": "Este necesară o achiziție pentru a juca",
+    "22": "Achiziția este restricționată pe acest dispozitiv",
+    "23": "Această experiență nu are o clasificare",
+    "24": "Această experiență are acces restricționat în funcție de descriptorul de conținut",
+    "25": "Această experiență a fost moderată deoarece are o clasificare de maturitate inexactă.",
+    "unknown": "Această experiență nu este disponibilă"
+  },
+  "bannedUsers": {
+    "connections": "Prieteni",
+    "followers": "Urmăritori",
+    "following": "Urmărești",
+    "about": "Despre",
+    "creations": "Creații",
+    "experiences": "Experiențe",
+    "bannedStatus": "Interzis",
+    "seeAll": "Vezi tot",
+    "hiddenUser": "Utilizator ascuns",
+    "communities": "Comunități",
+    "badges": "Insigne",
+    "noExperiences": "Acest utilizator nu are experiențe publice.",
+    "favorites": "Favorite",
+    "joinedDate": "S-a alăturat",
+    "store": "Magazin",
+    "members": "Membri",
+    "accountForgotten": "Cont uitat"
+  },
+  "copyId": {
+    "copyId": "Copiază ID-ul {{type}}",
+    "copyUniverseId": "Copiază ID-ul universului",
+    "types": {
+      "bundle": "Pachet",
+      "asset": "Resursă",
+      "gamePass": "GamePass",
+      "badge": "Insignă",
+      "community": "Comunitate",
+      "event": "Eveniment",
+      "developerProduct": "Produs pentru dezvoltatori",
+      "place": "Place",
+      "universe": "Univers",
+      "user": "Utilizator"
+    }
+  },
+  "viewid": {
+    "viewId": "Vezi ID-urile",
+    "popup": {
+      "title": "ID-uri articole",
+      "button": {
+        "copy": "Copiază datele",
+        "copyMd": "Copiază datele Markdown"
+      }
+    }
+  },
+  "friendsListOverlay": {
+    "title": "Prieteni care se joacă {{gameName}}",
+    "join": "Alătură-te"
+  },
+  "friendUsernames": {
+    "ariaLabel": "Nume utilizator: @{{username}}",
+    "nameWithUsername": "{{displayName}} (@{{username}})"
+  },
+  "placeVisits": {
+    "label": "{{count}} vizite ale Place-ului",
+    "tooltip": "Total vizite ale Place-urilor comunității"
+  },
+  "groups": {
+    "createdLabel": "Creat",
+    "joinedLabel": "Alăturat",
+    "unknown": "Necunoscut"
+  },
+  "showcase": {
+    "tab": "Prezentare",
+    "favoriteGame": "Experiența preferată",
+    "favoriteGroup": "Comunitatea preferată",
+    "favoriteDecal": "Galerie de artă",
+    "chooseGame": "Alege o experiență de afișat pe profilul tău.",
+    "noFeaturedGame": "Încă nu există nicio experiență afișată. :C",
+    "chooseGroup": "Alege o comunitate de afișat pe profilul tău.",
+    "noFeaturedGroup": "Încă nu există nicio comunitate afișată. :(",
+    "chooseDecal": "Introdu un ID de decal pentru a afișa o imagine pe profilul tău.",
+    "noFeaturedDecal": "Încă nu există nicio imagine afișată. :C",
+    "searchGame": "Caută o experiență de afișat",
+    "searchGroup": "Caută o comunitate de afișat",
+    "clearGame": "Șterge experiența preferată",
+    "clearGroup": "Șterge comunitatea preferată",
+    "gameOptions": "Opțiuni pentru experiența preferată",
+    "groupOptions": "Opțiuni pentru comunitatea preferată",
+    "decalId": "ID decal",
+    "decalImageOptions": "Opțiuni imagine",
+    "openImagePage": "Deschide pagina imaginii",
+    "report": "Raportează",
+    "clearDecal": "Șterge imaginea",
+    "by": "De către",
+    "maturity": "Maturitate",
+    "maturityUnavailable": "Maturitatea nu este disponibilă",
+    "members": "{{count}} membri",
+    "noResultsGame": "Nu s-a putut găsi experiența.",
+    "noResultsGroup": "Nu s-a putut găsi comunitatea.",
+    "unknownExperience": "Experiență necunoscută",
+    "unknownCommunity": "Comunitate necunoscută",
+    "verifiedBadge": "Pictograma insignei verificate"
+  },
+  "profileCustomization": {
+    "pill": "Personalizare",
+    "pillTooltip": "Schimbă ramele și cadrele avatarului.",
+    "title": "Personalizarea profilului",
+    "tabBorders": "Rame avatar",
+    "tabFrames": "Cadre",
+    "currentPreview": "Previzualizarea selecției curente",
+    "unequip": "Dezechipează",
+    "unequipTooltip": "Apasă pentru a dezechipa această ramă",
+    "equip": "Echipează",
+    "equipTooltip": "Echipează această ramă",
+    "equipped": "Echipat",
+    "getMore": "Obține mai multe",
+    "owned": "Deținut",
+    "unowned": "Nedeținut",
+    "unownedTooltip": "Nu deții încă această ramă.",
+    "all": "Toate",
+    "new": "Nou",
+    "static": "STATIC",
+    "animated": "ANIMAT",
+    "free": "Gratuit",
+    "noBorders": "Nu s-au găsit rame.",
+    "noBordersInTab": "Nu s-au găsit rame în această filă.",
+    "noFrames": "Nu s-au găsit cadre.",
+    "noFramesInTab": "Nu s-au găsit cadre în această filă.",
+    "none": "Niciuna",
+    "failedToLoad": "Nu s-au putut încărca ramele tale. Încearcă din nou mai târziu."
+  },
+  "profileFrame": {
+    "storeTitle": "Magazin de cadre pentru profil",
+    "storeDesc": "Cadrele de profil înconjoară întreaga afișare a avatarului pe profilul tău. Cumpărarea cadrelor susține direct RoValra și artiștii și contribuie la nivelul tău de donator. Cadrele nu sunt incluse în deblocarea pentru nivelul de donator 3, care acoperă doar ramele avatarului.",
+    "tabBorders": "Rame avatar",
+    "tabFrames": "Cadre",
+    "loading": "Se încarcă cadrele...",
+    "currentPreview": "Previzualizarea cadrului curent",
+    "all": "Toate",
+    "new": "Nou",
+    "static": "STATIC",
+    "animated": "ANIMAT",
+    "equip": "Echipează",
+    "equipTooltip": "Echipează acest cadru",
+    "equipped": "Echipat",
+    "unequipTooltip": "Apasă pentru a dezechipa acest cadru",
+    "unequip": "Dezechipează",
+    "buy": "Cumpără",
+    "buyFor": "Cumpără pentru {{price}}",
+    "viewItem": "Vezi articolul",
+    "buyTooltip": "Cumpără acest cadru",
+    "owned": "Deținut",
+    "ownedTooltip": "Deții acest cadru!",
+    "free": "Gratuit",
+    "freeTooltip": "Acest cadru este gratuit pentru echipare.",
+    "localOnly": "Salvat local",
+    "localOnlyTooltip": "RoValra nu a putut salva încă acest cadru în contul tău, așa că este vizibil doar pentru tine în acest browser.",
+    "noFrames": "Nu există cadre disponibile.",
+    "noFramesInTab": "Nu s-au găsit cadre în această filă.",
+    "failedToLoad": "Nu s-au putut încărca cadrele. Încearcă din nou mai târziu."
+  },
+  "profileNotes": {
+    "ariaLabel": "Notă privată de profil",
+    "heading": "Notă (vizibilă doar pentru tine)",
+    "headingTooltip": "Această notă este stocată doar în acest browser și nu este trimisă niciodată către Roblox sau RoValra.",
+    "addNote": "Apasă pentru a adăuga o notă",
+    "editAriaLabel": "Editează nota privată de profil",
+    "addAriaLabel": "Adaugă notă privată de profil",
+    "displayTooltip": "Apasă pentru a edita. Notițele sunt salvate doar în acest browser.",
+    "inputPlaceholder": "Adaugă o notă privată",
+    "inputTooltip": "Se salvează când apeși în afara câmpului. Apasă Escape pentru a anula sau Ctrl+Enter pentru a salva."
+  },
+  "profilePronouns": {
+    "label": "Pronume",
+    "ariaLabel": "Pronume: {{pronouns}}"
+  },
+  "profileEdit": {
+    "featuresTitle": "Funcțiile RoValra",
+    "profilePronouns": "Pronume profil",
+    "profileBadges": "Insigne profil",
+    "pronounsPlaceholder": "Introdu pronumele",
+    "donatorPerks": "Avantaje pentru donatori",
+    "usernameCustomizations": "Personalizări nume de utilizator"
+  },
+  "profile": {
+    "socialLinks": "Linkuri sociale",
+    "currencyTransfer": "Trimite Robux",
+    "currencyTransferConfirmation": "Aceasta va deschide clientul Roblox, permițându-ți să trimiți Robux.",
+    "openClient": "Deschide clientul"
+  },
+  "animations": {
+    "idle": "Inactiv",
+    "walk": "Mers",
+    "fall": "Cădere",
+    "climb": "Cățărare",
+    "run": "Alergare",
+    "jump": "Săritură",
+    "swim": "Înot"
+  },
+  "itemRender": {
+    "renderOptions": "Opțiuni de randare",
+    "darkLighting": "Iluminare întunecată",
+    "baseplate": "Plan de bază",
+    "rotatePreview": "Rotește previzualizarea",
+    "itemOnly": "Afișează doar articolul"
+  },
+  "groupFilters": {
+    "sort": {
+      "default": "Implicit",
+      "az": "A-Z",
+      "za": "Z-A",
+      "newest": "Cele mai noi",
+      "oldest": "Cele mai vechi"
+    },
+    "tooltip": "Sortează după momentul în care utilizatorul s-a alăturat comunității"
+  },
+  "creatorStats": {
+    "ccu": "CCU",
+    "visits": "Vizite",
+    "members": "Membri",
+    "ccuTooltip": "Jucători actuali din toate experiențele publice create de acest utilizator.",
+    "visitsTooltip": "Vizite totale de-a lungul timpului în toate experiențele publice create de acest utilizator.",
+    "membersTooltip": "Membri din comunitățile deținute de acest utilizator."
+  },
+  "plus": {
+    "stats": {
+      "robux": "Ai economisit {{robux}} când aveai Plus",
+      "percentOffSmall": "Articole din joc, avatare și altele",
+      "percentOff": "{{percent}} reducere",
+      "itemsBoughtSmall": "Articole cumpărate cu reducerea Plus",
+      "privateServersCreatedSmall": "Servere private create gratuit",
+      "robuxSentSmall": "Robux trimiși prietenilor",
+      "delayNotice": "Toate datele afișate aici au o întârziere de 1 zi"
+    },
+    "transferLimits": {
+      "dailyLimitLeft": "Limită zilnică rămasă",
+      "monthlyLimitLeft": "Limită lunară rămasă",
+      "sentToday": "Trimiși astăzi",
+      "sentThisMonth": "Trimiși luna aceasta",
+      "nextRefill": "Următoarea reîncărcare",
+      "leftAfter": "{{amount}} rămași",
+      "refillNote": "Fiecare transfer contribuie la limita lunară timp de 30 de zile, apoi acei Robux devin din nou disponibili.",
+      "caption": "Limita zilnică este {{dailyLimit}}. Limita lunară este {{monthlyLimit}}. Se actualizează la fiecare 5 minute. Valorile rămase sunt estimative și pot fi inexacte."
+    },
+    "referral": {
+      "reward": "Obține 100 Robux gratuit și ajută la susținerea RoValra!",
+      "details": "Doar utilizatorii noi ai Roblox Plus se califică. RoValra va primi, de asemenea, 100 Robux când te abonezi folosind codul de recomandare RoValra.",
+      "button": "Abonează-te folosind codul de recomandare RoValra"
+    },
+    "privateServerTooltip": {
+      "tooltipText": "Preț inițial: <b>{{originalPrice}} Robux</b><br>În prezent apare ca <b>Gratuit</b> datorită Roblox Plus."
+    },
+    "sendRobux": {
+      "profile": {
+        "button": "Trimite Robux",
+        "openInApp": "Deschide în aplicație"
+      },
+      "buyRobux": {
+        "deletedAccountTitle": "Nu poți trimite Robux",
+        "deletedAccountBody": "Contul acestui utilizator a fost șters, nu i se pot trimite Robux"
+      },
+      "popup": {
+        "shared": {
+          "title": "Trimite Robux",
+          "titleSilly": "trimite bobux :3",
+          "okBtn": "OK"
+        },
+        "step1": {
+          "robuxInputName": "Suma de Robux de trimis",
+          "mutedNotice": "Robux sunt trimiși instantaneu fără taxe",
+          "minRobux": "Trebuie să trimiți cel puțin {{robuxAmount}} Robux",
+          "maxRobux": "Nu poți trimite mai mult de {{robuxAmount}} Robux",
+          "notEnoughRobux": "Nu ai suficienți Robux",
+          "nextBtn": "Următorul"
+        },
+        "step2": {
+          "sendBtn": "Trimite",
+          "editBtn": "Editează",
+          "mutedNotice": "Fără anulări. Este posibil să ai nevoie de verificarea vârstei sau de aprobarea unui părinte.",
+          "transferErrorGeneric": "A apărut o eroare necunoscută.",
+          "transferErrorNoMessage": "A apărut o eroare necunoscută fără mesaj furnizat",
+          "transferSuccessBody": "Transferul a fost realizat cu succes!",
+          "transferSuccessBodySilly": "transferul a fost ok! foarte tare",
+          "transferSuccessOkBtnSilly": "electric boogaloo",
+          "userInfoFriendTime": "Prietenit {{time, relativetime}}",
+          "userInfoMutualFriends_one": "{{count}} prieten comun",
+          "userInfoMutualFriends_other": "{{count}} prieteni comuni",
+          "userInfoJoin": "S-a alăturat în {{year}}",
+          "paramPassedError": "A apărut o eroare necunoscută! Verifică consola și raportează problema către RoValra."
+        },
+        "parentPerms": {
+          "askBtn": "Întreabă",
+          "sendRobuxBody": "Pentru a trimite Robux, ai nevoie de permisiunea unui părinte",
+          "receiveRobuxBody": "Pentru a primi Robux, ai nevoie de permisiunea unui părinte",
+          "askTitle": "Cere permisiunea",
+          "askTitleSilly": "cere voie părinților :3",
+          "errorSending": "A apărut o eroare necunoscută, verifică consola și raportează problema către RoValra",
+          "errorReceivingTitle": "A apărut o eroare la acceptarea Robux",
+          "errorReceivingBody": "A apărut o eroare necunoscută, este posibil să fi acceptat deja acest transfer de Robux. Verifică consola pentru detalii.",
+          "errorReceivingOkBtnSilly": "aw",
+          "successfulAskTitle": "Cerere trimisă",
+          "successfulAskTitleSilly": "i-am anunțat pe ai tăi, pregătește-te...",
+          "successfulAskBody": "Am trimis cererea părinților și tutorilor tăi prin e-mail!",
+          "successfulAskOkBtnSilly": "bine, foarte tare, mersi"
+        },
+        "plusNeeded": {
+          "body": "Din păcate, ai nevoie de Roblox Plus pentru a putea trimite Robux; aceasta face parte din abonamentul Roblox Plus.",
+          "bodySilly": "nu ai bobloc plus :c deci nu poți trimite bobux oamenilor pentru că este reqwired 3:",
+          "buyPlusBtn": "Cumpără Roblox Plus",
+          "buyPlusBtnSilly": "ia-ți bobloc plus c:",
+          "okBtnSilly": "awww nașpa, bine :c"
+        }
+      }
+    }
+  },
+  "settingsCompat-settingChangeNote": {
+    "ui": {
+      "popup": {
+        "title": "Unele setări au fost eliminate/înlocuite"
+      },
+      "deleted": "Următoarele setări au fost șterse, blocate sau depreciate recent:",
+      "replaced": "Următoarele setări au fost înlocuite sau modificate recent:"
+    }
+  },
+  "avatar": {
+    "gameOutfits": {
+      "button": "Ținute pentru jocuri",
+      "title": "Ținute pentru experiențe",
+      "hint": "Alege ținuta care este echipată când joci o experiență R6 sau R15.",
+      "r6": "Experiențe R6",
+      "r15": "Experiențe R15",
+      "none": "Nu schimba",
+      "gameTitle": "Ținută pentru această experiență",
+      "gameHint": "Aceasta înlocuiește ținuta setată pentru experiențele R6 și R15.",
+      "useGlobal": "Folosește setarea mea implicită"
+    },
+    "bodyColors": {
+      "addCustom": "Alege o culoare personalizată",
+      "savedColor": "{{hex}}, clic dreapta pentru a elimina",
+      "applyFailed": "Nu s-au putut actualiza culorile corpului. Încearcă din nou peste un moment."
+    }
+  },
+  "pinnedFriends": {
+    "pin": "Fixează în partea de sus",
+    "unpin": "Anulează fixarea"
+  },
+  "richLinks": {
+    "by": "De către {{name}}",
+    "members": "{{count}} membri",
+    "playing": "{{count}} se joacă",
+    "visits": "{{count}} vizite",
+    "loading": "Se încarcă...",
+    "free": "Gratuit",
+    "offSale": "Nu este la vânzare"
+  },
+  "privateApiDocs": {
+    "title": "API RoValra",
+    "loading": "Se încarcă documentația API...",
+    "loadFailed": "Nu s-a putut încărca documentația API: {{error}}",
+    "noAccess": "Nu ai acces la această documentație.",
+    "serverError": "Serverul a răspuns cu {{status}}.",
+    "invalidSpec": "Serverul a returnat un document OpenAPI invalid.",
+    "baseUrl": "URL de bază: {{url}}",
+    "apiVersion": "Versiunea API",
+    "openApiVersion": "Versiunea OpenAPI",
+    "server": "Server",
+    "sendToken": "Trimite tokenul meu de acces RoValra",
+    "filterLabel": "Filtrează endpoint-urile",
+    "filterPlaceholder": "Cale, rezumat sau etichetă",
+    "hideDeprecated": "Ascunde elementele depreciate",
+    "noEndpoints": "Nu s-au găsit endpoint-uri.",
+    "deprecated": "Depreciat",
+    "deprecatedTooltip": "Acest endpoint este depreciat.",
+    "authRequired": "Este necesară autentificarea",
+    "authOptional": "Autentificarea este opțională",
+    "schemeNotSent": "Necesită {{name}}, pe care această pagină nu îl trimite.",
+    "operationId": "ID operațiune",
+    "security": "Autentificare: {{schemes}}",
+    "securityOptional": "Autentificare: {{schemes}} (opțional)",
+    "securityTooltip": "Cerințe de securitate",
+    "parameters": "Parametri",
+    "noParameters": "Fără parametri",
+    "tryItOut": "Încearcă",
+    "name": "Nume",
+    "description": "Descriere",
+    "required": "obligatoriu",
+    "availableValues": "Valori disponibile: {{values}}",
+    "requestBody": "Corpul cererii",
+    "requestContentType": "Tipul de conținut al cererii",
+    "exampleValue": "Valoare exemplu",
+    "schema": "Schemă",
+    "responses": "Răspunsuri",
+    "noResponses": "Fără răspunsuri documentate",
+    "code": "Cod",
+    "details": "Detalii",
+    "execute": "Execută",
+    "clear": "Șterge",
+    "missingParams": "Parametri obligatorii lipsă: {{params}}",
+    "invalidJson": "Corpul cererii nu este JSON valid: {{error}}",
+    "bodyRequired": "Este necesar un corp al cererii.",
+    "confirmTitle": "Trimiți cererea?",
+    "confirmMessage": "Aceasta va trimite o cerere {{method}} către {{path}}. Continuă doar dacă înțelegi ce face.",
+    "send": "Trimite",
+    "sending": "Se trimite cererea...",
+    "requestFailed": "Cererea a eșuat: {{error}}",
+    "curl": "Curl",
+    "requestUrl": "URL cerere",
+    "serverResponse": "Răspuns server",
+    "responseBody": "Corpul răspunsului",
+    "responseHeaders": "Antetele răspunsului",
+    "emptyResponse": "(răspuns gol)",
+    "responseImage": "Imagine răspuns",
+    "duration": "{{ms}} ms",
+    "durationTooltip": "Durata cererii",
+    "contentType": "Tip de conținut",
+    "redirected": "Redirecționat",
+    "copy": "Copiază"
+  }
 }
