@@ -668,6 +668,16 @@ function openCustomProfileBadgePurchaseOverlay() {
     }, 1000);
 }
 
+async function openCustomProfileBadgePreview() {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
+    window.open(
+        `${getUserProfileHref(userId)}?rovalraBadgePreview=1`,
+        '_blank',
+        'noopener',
+    );
+}
+
 function renderCustomProfileBadgePurchaseButton(container = document) {
     const holder = container.querySelector(
         '#rovalra-custom-profile-badge-button-holder',
@@ -691,7 +701,18 @@ function renderCustomProfileBadgePurchaseButton(container = document) {
     }
 
     holder.dataset.rovalraCustomProfileBadgeRendered = 'true';
+    holder.classList.add('rovalra-custom-profile-badge-buttons');
     holder.replaceChildren(
+        createSquareButton({
+            content: ui('profileBadge.preview'),
+            id: 'rovalra-custom-profile-badge-preview-button',
+            onClick: openCustomProfileBadgePreview,
+            width: 'auto',
+            height: 'height-1000',
+            paddingX: 'padding-x-medium',
+            radius: 'radius-medium',
+            disableTextTruncation: true,
+        }),
         createSquareButton({
             content: ui('profileBadge.getRobux'),
             id: 'rovalra-custom-profile-badge-button',

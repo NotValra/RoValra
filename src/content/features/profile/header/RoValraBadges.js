@@ -7,6 +7,10 @@ import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { Icon } from '../../../core/ui/buildericon.js';
+import { createOverlay } from '../../../core/ui/overlay.js';
+import { createButton } from '../../../core/ui/buttons.js';
+import { createFileUpload } from '../../../core/ui/fileupload.js';
+import { ts } from '../../../core/locale/i18n.js';
 const badgeCache = new Map();
 const groupRuntimeBadgeCache = new Map();
 const VIDEO_STAR_GROUP_ID = 4199740;
@@ -26,6 +30,62 @@ const DONATOR_BADGE_KEYS = [
 const DONATOR_PERKS_URL =
     'https://www.roblox.com/my/account?rovalra=donator+perks';
 let groupRolesListenerInitialized = false;
+let previewBadgeImage = null;
+let previewOverlayOpened = false;
+
+function isBadgePreviewRequested() {
+    return new URLSearchParams(window.location.search).has(
+        'rovalraBadgePreview',
+    );
+}
+
+function openBadgePreviewOverlay() {
+    const body = document.createElement('div');
+
+    const description = document.createElement('p');
+    description.textContent = ts('settings.ui.profileBadge.previewDescription');
+    description.className = 'rovalra-badge-preview-description';
+
+    const upload = createFileUpload({
+        id: 'rovalra-badge-preview-upload',
+        accept: 'image/webp',
+        compress: false,
+        onFileSelect: (data) => {
+            if (!data.startsWith('data:image/webp')) {
+                upload.clearPreview();
+                upload.setFileName(null);
+                upload.showClear(false);
+                upload.showError(ts('common.invalidImageFile'));
+                return;
+            }
+            previewBadgeImage = data;
+            rerenderCurrentProfileBadges();
+        },
+        onFileClear: () => {
+            previewBadgeImage = null;
+            rerenderCurrentProfileBadges();
+        },
+    });
+    upload.element.classList.add('rovalra-badge-preview-upload');
+    upload.element.appendChild(upload.getPreviewElement());
+
+    body.append(description, upload.element);
+
+    let overlay;
+    const doneButton = createButton(
+        ts('settings.ui.profileBadge.previewDone'),
+        'primary',
+        { onClick: () => overlay.close() },
+    );
+
+    overlay = createOverlay({
+        title: ts('settings.ui.profileBadge.previewTitle'),
+        bodyContent: body,
+        actions: [doneButton],
+        maxWidth: '440px',
+        showLogo: true,
+    });
+}
 
 function isVideoStarGroupMember(item) {
     return item?.group?.id === VIDEO_STAR_GROUP_ID;
@@ -77,9 +137,7 @@ function createDirectImageBadgeConfig(name, imageUrl, isRemoteBadge = false) {
         icon: imageUrl,
         iconAssetName: null,
         confettiAssetName: null,
-        ...(isRemoteBadge
-            ? { url: DONATOR_PERKS_URL }
-            : {}),
+        ...(isRemoteBadge ? { url: DONATOR_PERKS_URL } : {}),
     };
 }
 
@@ -445,6 +503,18 @@ async function addHeaderBadges(container) {
             if (config) badgesToRender.push({ isIcon: true, config });
         });
 
+        if (previewBadgeImage) {
+            badgesToRender.push({
+                isIcon: true,
+                config: {
+                    type: 'header',
+                    userIds: [],
+                    icon: previewBadgeImage,
+                    tooltip: ts('settings.ui.profileBadge.previewTooltip'),
+                },
+            });
+        }
+
         mergedRuntimeBadges.forEach((name) => {
             if (BADGE_CONFIG[name]) {
                 badgesToRender.push({
@@ -591,8 +661,10 @@ export function init() {
             });
     });
 
+    const badgePreviewRequested = isBadgePreviewRequested();
+
     chrome.storage.local.get({ RoValraBadgesEnable: true }, (settings) => {
-        if (!settings.RoValraBadgesEnable) return;
+        if (!settings.RoValraBadgesEnable && !badgePreviewRequested) return;
 
         // Keep the same selector to find the naming container
         const targetSelector = '#profile-header-title-container-name';
@@ -602,6 +674,11 @@ export function init() {
             (element) => {
                 const parentContainer = element.parentElement;
                 if (!parentContainer) return;
+
+                if (badgePreviewRequested && !previewOverlayOpened) {
+                    previewOverlayOpened = true;
+                    openBadgePreviewOverlay();
+                }
 
                 if (!parentContainer.dataset.rovalraObserved) {
                     addHeaderBadges(parentContainer);
