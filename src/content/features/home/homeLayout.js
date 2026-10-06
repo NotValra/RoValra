@@ -17,6 +17,8 @@ const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
 const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
 const CONTINUE_TOPIC_ID = 100000003;
 const ACCURATE_CONTINUE_STORAGE_KEY = 'AccurateContinueEnabled';
+const CATEGORY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+const LAST_SEEN_UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_LOCALE = {
     untitled: 'Untitled',
     empty: 'Open or refresh Home once so RoValra can learn the current categories.',
@@ -175,43 +177,6 @@ function mergeMissingKeysIntoSavedOrder(newCategories) {
     return true;
 }
 
-function syncCategoryOrder(newCategories) {
-    const incomingOrder = new Map();
-
-    newCategories.forEach((category) => {
-        if (!category?.key) return;
-
-        const key = String(category.key);
-        if (!incomingOrder.has(key)) {
-            incomingOrder.set(key, incomingOrder.size);
-        }
-    });
-
-    if (!incomingOrder.size) return false;
-
-    const previousOrder = categories.map((category) => category.key).join('\n');
-    const originalOrder = new Map(
-        categories.map((category, index) => [category.key, index]),
-    );
-
-    categories.sort((a, b) => {
-        const aIndex = incomingOrder.get(a.key);
-        const bIndex = incomingOrder.get(b.key);
-        const aHasIncomingOrder = aIndex !== undefined;
-        const bHasIncomingOrder = bIndex !== undefined;
-
-        if (aHasIncomingOrder && bHasIncomingOrder) return aIndex - bIndex;
-        if (aHasIncomingOrder) return -1;
-        if (bHasIncomingOrder) return 1;
-
-        return originalOrder.get(a.key) - originalOrder.get(b.key);
-    });
-
-    return (
-        previousOrder !== categories.map((category) => category.key).join('\n')
-    );
-}
-
 function createNormalizedCategory(category) {
     if (!category?.key) return null;
 
@@ -220,6 +185,9 @@ function createNormalizedCategory(category) {
         topic: category.topic || locale.untitled,
         topicId: category.topicId ?? null,
         treatmentType: category.treatmentType || '',
+        lastSeen: Number.isFinite(category.lastSeen)
+            ? category.lastSeen
+            : Date.now(),
     };
 }
 
@@ -290,15 +258,51 @@ function pruneLayoutStateToCategories(nextCategories) {
     return true;
 }
 
+function mergeWithRememberedCategories(incomingCategories) {
+    const now = Date.now();
+    const previousByKey = new Map(
+        categories.map((category) => [category.key, category]),
+    );
+    const merged = incomingCategories.map((category) => {
+        const previous = previousByKey.get(category.key);
+        const lastSeen =
+            previous && now - previous.lastSeen < LAST_SEEN_UPDATE_INTERVAL_MS
+                ? previous.lastSeen
+                : now;
+        return { ...category, lastSeen };
+    });
+    const mergedKeys = new Set(merged.map((category) => category.key));
+
+    categories.forEach((category, index) => {
+        if (mergedKeys.has(category.key)) return;
+        if (now - category.lastSeen > CATEGORY_RETENTION_MS) return;
+
+        let insertionIndex = 0;
+        for (let i = index - 1; i >= 0; i--) {
+            const neighborIndex = merged.findIndex(
+                (mergedCategory) => mergedCategory.key === categories[i].key,
+            );
+            if (neighborIndex !== -1) {
+                insertionIndex = neighborIndex + 1;
+                break;
+            }
+        }
+
+        merged.splice(insertionIndex, 0, category);
+        mergedKeys.add(category.key);
+    });
+
+    return merged;
+}
+
 function replaceCategories(newCategories) {
     if (!Array.isArray(newCategories)) return false;
 
     const compacted = compactCategoriesByKey(newCategories);
     const previousCategories = JSON.stringify(categories);
-    categories = compacted.categories;
+    categories = mergeWithRememberedCategories(compacted.categories);
 
     mergeMissingKeysIntoSavedOrder(newCategories);
-    syncCategoryOrder(newCategories);
     pruneLayoutStateToCategories(categories);
 
     const changed =
@@ -970,28 +974,31 @@ function attachHomeLayoutButton(homeContainer) {
 }
 
 function hydrateFromStorage() {
-    chrome.storage.local.get(
-        {
-            [ORDER_STORAGE_KEY]: [],
-            [CATEGORIES_STORAGE_KEY]: [],
-            [HIDDEN_STORAGE_KEY]: [],
-        },
-        (data) => {
-            const compacted = compactCategoriesByKey(
-                data[CATEGORIES_STORAGE_KEY],
-            );
-            categories = compacted.categories;
-            if (compacted.changed) {
-                chrome.storage.local.set({
-                    [CATEGORIES_STORAGE_KEY]: categories,
-                });
-            }
-            publishHomeLayoutState(
-                data[ORDER_STORAGE_KEY],
-                data[HIDDEN_STORAGE_KEY],
-            );
-        },
-    );
+    return new Promise((resolve) => {
+        chrome.storage.local.get(
+            {
+                [ORDER_STORAGE_KEY]: [],
+                [CATEGORIES_STORAGE_KEY]: [],
+                [HIDDEN_STORAGE_KEY]: [],
+            },
+            (data) => {
+                const compacted = compactCategoriesByKey(
+                    data[CATEGORIES_STORAGE_KEY],
+                );
+                categories = compacted.categories;
+                if (compacted.changed) {
+                    chrome.storage.local.set({
+                        [CATEGORIES_STORAGE_KEY]: categories,
+                    });
+                }
+                publishHomeLayoutState(
+                    data[ORDER_STORAGE_KEY],
+                    data[HIDDEN_STORAGE_KEY],
+                );
+                resolve();
+            },
+        );
+    });
 }
 
 export async function init() {
@@ -1006,10 +1013,10 @@ export async function init() {
         await loadLocale();
         homeLayoutButtonEnabled =
             (await settings.homeLayoutButtonEnabled) !== false;
-        hydrateFromStorage();
+        const hydrated = hydrateFromStorage();
 
         document.addEventListener('rovalra-home-layout-categories', (event) => {
-            replaceCategories(event.detail?.categories);
+            hydrated.then(() => replaceCategories(event.detail?.categories));
         });
 
         chrome.storage.onChanged.addListener((changes, namespace) => {
