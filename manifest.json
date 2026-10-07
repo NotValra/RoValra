@@ -26,7 +26,7 @@
             "all_frames": false
         }
     ],
-    "permissions": ["declarativeNetRequest", "storage", "scripting", "alarms"],
+    "permissions": ["declarativeNetRequest", "storage", "scripting"],
     "host_permissions": [
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",

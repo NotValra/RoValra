@@ -1,4 +1,4 @@
-const ALARM_NAME = 'rovalra-notifications';
+const CHECK_INTERVAL = 60 * 1000;
 const STATE_KEY = 'rovalra_notifications_state';
 const PINNED_KEY = 'rovalra_pinned_friends';
 const ICON_URL = 'public/Assets/icon-128.png';
@@ -11,6 +11,7 @@ const SETTING_DEFAULTS = {
 };
 
 let api;
+let interval = null;
 let rolimons = { items: null, fetchedAt: 0 };
 
 async function hasPermission() {
@@ -222,21 +223,18 @@ export async function syncNotifications() {
 
     const { trades, friends } = await getEnabled();
     const enabled = trades || friends;
-    const alarm = await chrome.alarms.get(ALARM_NAME);
-    if (enabled && !alarm) {
-        chrome.alarms.create(ALARM_NAME, { periodInMinutes: 1 });
-        check();
-    } else if (!enabled && alarm) {
-        chrome.alarms.clear(ALARM_NAME);
+    if (enabled && !interval) {
+        interval = setInterval(() => check().catch(() => {}), CHECK_INTERVAL);
+        check().catch(() => {});
+    } else if (!enabled && interval) {
+        clearInterval(interval);
+        interval = null;
         chrome.storage.local.remove(STATE_KEY);
     }
 }
 
 export function setupNotifications(callApi) {
     api = callApi;
-    chrome.alarms.onAlarm.addListener((alarm) => {
-        if (alarm.name === ALARM_NAME) check().catch(() => {});
-    });
     chrome.storage.onChanged.addListener((changes, namespace) => {
         if (
             namespace === 'local' &&
