@@ -1364,6 +1364,27 @@
             "mainExperience": "the main experience"
         }
     },
+    "experienceInfoStats": {
+        "supportedDevices": "Supported Devices",
+        "avatarType": "Avatar Type",
+        "created": "Created",
+        "updated": "Updated",
+        "devices": {
+            "desktop": "Computer",
+            "phone": "Phone",
+            "tablet": "Tablet",
+            "console": "Console",
+            "vr": "VR",
+            "tv": "TV"
+        },
+        "avatarTypes": {
+            "r6": "R6",
+            "r15": "R15",
+            "rthro": "Rthro",
+            "playerChoice": "User Choice",
+            "custom": "Custom"
+        }
+    },
     "updateHistory": {
         "tabTitle": "Updates",
         "title": "Update History",

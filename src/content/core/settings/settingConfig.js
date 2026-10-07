@@ -492,6 +492,16 @@ export const SETTINGS_CONFIG = {
                 locked: 'Roblox patched this feature.',
                 isPermanent: true,
             },
+            experienceInfoStatsEnabled: {
+                label: 'More Experience Stats',
+                description: [
+                    'Shows which devices an experience can be played on and which avatar type it uses (R6, R15, Rthro, player choice or custom) in the experience stats.',
+                    'Also shows when the experience was created and updated as relative times. Click a date to switch to the full date.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['48255812'],
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [
