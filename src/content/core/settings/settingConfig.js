@@ -2212,7 +2212,7 @@ export const SETTINGS_CONFIG = {
                 description: ['Adds a button to collapse the Roblox sidebar.'],
                 type: 'checkbox',
                 default: true,
-                contributors: ['447170745', '2963377564'],
+                contributors: ['447170745', '2963377564', '48255812'],
                 storageKey: 'rovalraSidebarCollapsed',
                 childSettings: {
                     sidebarExpandOnHover: {

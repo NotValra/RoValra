@@ -76,6 +76,32 @@ $roblox-left-nav-breakpoint: 768px;
         margin: 0 !important;
     }
 
+    nav li > a > span:has(> .foundation-web-badge),
+    nav li > button > span:has(> .foundation-web-badge) {
+        display: flex !important;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 0 !important;
+        pointer-events: none;
+    }
+
+    nav li > a > span > .foundation-web-badge,
+    nav li > button > span > .foundation-web-badge {
+        display: flex !important;
+        justify-content: center;
+        height: 16px;
+        min-width: 16px;
+        padding: 0 4px !important;
+        box-sizing: border-box;
+
+        > span {
+            padding: 0 !important;
+            font-size: 10px;
+            line-height: 16px;
+        }
+    }
+
     .padding-x-large {
         padding-left: 0 !important;
         padding-right: 0 !important;
