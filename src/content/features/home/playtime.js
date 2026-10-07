@@ -31,9 +31,10 @@ function formatPlaytime(seconds) {
     if (seconds >= 3600) {
         const hours = seconds / 3600;
         const value = hours >= 10 ? Math.round(hours) : hours.toFixed(1);
-        return ts('playtime.hours', { value });
+        return ts('playtime.hours', { count: Number(value), value });
     }
-    return ts('playtime.minutes', { value: Math.max(1, Math.round(seconds / 60)) });
+    const minutes = Math.max(1, Math.round(seconds / 60));
+    return ts('playtime.minutes', { count: minutes, value: minutes });
 }
 
 async function publish() {

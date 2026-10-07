@@ -597,7 +597,7 @@ function populateRegionSidePanel(container, theme) {
             );
             addTooltip(row, ts('regionSelector.filterByRegionItem', {
                 region: item.label,
-                count: item.count,
+                count: Number(item.count) || 0,
             }), {
                 position: 'left',
             });

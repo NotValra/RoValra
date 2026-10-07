@@ -1,4 +1,5 @@
 const localeResources = new Map();
+const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
 
 function flattenTranslationKeys(value, prefix = '', keys = []) {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -64,7 +65,9 @@ export function getTranslationProgress(language) {
 
     const englishKeys = flattenTranslationKeys(english);
     const translatedKeys = englishKeys.filter((key) => {
-        const value = getValueAtPath(locale, key);
+        const value =
+            getValueAtPath(locale, key) ??
+            getValueAtPath(locale, key.replace(PLURAL_SUFFIX, ''));
         return typeof value === 'string' && value.trim().length > 0;
     }).length;
 

@@ -58,7 +58,8 @@
         "servers": "Servers: ",
         "datacenters": "Datacenters: ",
         "filterByRegion": "Filter servers by region",
-        "filterByRegionItem": "Filter by {{region}} ({{count}} servers)",
+        "filterByRegionItem_one": "Filter by {{region}} ({{count}} server)",
+        "filterByRegionItem_other": "Filter by {{region}} ({{count}} servers)",
         "filterByUptime": "Filter servers by uptime (newest/oldest)",
         "filterByVersion": "Filter servers by game version"
     },
@@ -444,8 +445,10 @@
         "thisMonth": "This month",
         "thisYear": "This year",
         "allTime": "All time",
-        "hours": "{{value}} hours",
-        "minutes": "{{value}} minutes"
+        "hours_one": "{{count}} hour",
+        "hours_other": "{{count}} hours",
+        "minutes_one": "{{count}} minute",
+        "minutes_other": "{{count}} minutes"
     },
     "mutualFriends": {
         "pill_one": "{{count}} Mutual Friend",
@@ -611,11 +614,13 @@
         "inactivating": "Inactivating",
         "progressText": "{{actionText}} server {{current}} of {{total}}...",
         "unknownApiError": "An unknown API error occurred.",
-        "processCancelled": "Process Cancelled. <span class=\"success-text\">{{count}} server(s) processed.</span>",
+        "processCancelled_one": "Process Cancelled. <span class=\"success-text\">{{count}} server processed.</span>",
+        "processCancelled_other": "Process Cancelled. <span class=\"success-text\">{{count}} servers processed.</span>",
         "completed": "Completed: <span class=\"success-text\">{{successCount}} succeeded</span>, <span class=\"error-text\">{{errorCount}} failed</span>.",
         "processingComplete": "Processing Complete",
         "confirmationTitle": "Confirm Action",
-        "confirmationMessage": "You are about to set {{count}} private server(s) as {{action}}.",
+        "confirmationMessage_one": "You are about to set {{count}} private server as {{action}}.",
+        "confirmationMessage_other": "You are about to set {{count}} private servers as {{action}}.",
         "confirmationJoinable": "This will make the private server joinable.",
         "confirmationUnjoinable": "This will make the private server unjoinable.",
         "confirmationReversible": "You can always change this back later.",
@@ -1637,7 +1642,8 @@
         "deleteCount": "Delete Badges ({{count}})",
         "confirmTitle": "Confirm Badge Deletion",
         "finalTitle": "Are You Really Sure?",
-        "finalDescription": "This will permanently delete {{count}} badges from your inventory.",
+        "finalDescription_one": "This will permanently delete {{count}} badge from your inventory.",
+        "finalDescription_other": "This will permanently delete {{count}} badges from your inventory.",
         "descriptionSingle": "You are about to delete 1 badge from your inventory. This action cannot be undone.",
         "descriptionPlural": "You are about to delete {{count}} badges from your inventory. This action cannot be undone.",
         "deletingProgress": "Deleting badges... {{current}}/{{total}}",
@@ -1708,8 +1714,10 @@
         "confirmMessage": "{{count}} of your {{total}} received trades are a loss by value ({{value}} total). Decline all of them? This can't be undone.",
         "declineConfirm": "Decline",
         "declining": "Declining {{done}}/{{total}}...",
-        "declined": "Declined {{count}} trades",
-        "declinedWithFailures": "Declined {{count}} trades, {{failed}} failed"
+        "declined_one": "Declined {{count}} trade",
+        "declined_other": "Declined {{count}} trades",
+        "declinedWithFailures_one": "Declined {{count}} trade, {{failed}} failed",
+        "declinedWithFailures_other": "Declined {{count}} trades, {{failed}} failed"
     },
     "time": {
         "justNow": "just now",
