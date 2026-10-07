@@ -41,6 +41,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '200565345', // krampuszc
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
+    '4782753165', // Forgot-ai
 ];
 
 export const TESTER_USER_IDS = [
