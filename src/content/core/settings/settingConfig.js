@@ -178,6 +178,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            backgroundProfilePreviewEnabled: {
+                label: 'Preview Backgrounds on Profile',
+                description: [
+                    'Adds a button to avatar background items in the Marketplace that shows how the background would look on your profile.',
+                    'The preview is only shown to you and does not change your profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['48255812'],
+            },
             recentlyViewedEnabled: {
                 label: 'Recently Viewed Items',
                 description: [

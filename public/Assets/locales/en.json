@@ -2058,6 +2058,13 @@
         "jump": "Jump",
         "swim": "Swim"
     },
+    "backgroundPreview": {
+        "previewOnProfile": "Preview on profile",
+        "previewing": "Previewing",
+        "backToItem": "Back to item",
+        "hideOverlays": "Hide frame & status",
+        "showOverlays": "Show frame & status"
+    },
     "itemRender": {
         "renderOptions": "Render Options",
         "darkLighting": "Dark Lighting",

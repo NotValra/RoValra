@@ -77,6 +77,7 @@ import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js'
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
 import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js';
+import { init as initBackgroundProfilePreview } from './features/catalog/backgroundProfilePreview.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
@@ -326,6 +327,7 @@ const featureRoutes = [
             initFriendOwnership,
             initCatalogExplorer,
             initRecentlyViewed,
+            initBackgroundProfilePreview,
         ],
     },
     // Avatar pages
@@ -428,6 +430,7 @@ const featureRoutes = [
     {
         paths: ['/users/'],
         features: [
+            initBackgroundProfilePreview,
             initDonationLink,
             initImprovedAvatarCard,
             initProfileFrame,
