@@ -2276,5 +2276,12 @@
         "contentType": "Content type",
         "redirected": "Redirected",
         "copy": "Copy"
+    },
+    "notifications": {
+        "newTrade": "New trade",
+        "tradeFrom": "From {{name}}",
+        "tradeStats": "{{value}} Value | {{rap}} RAP",
+        "friendPlaying": "{{name}} is playing",
+        "unknownGame": "An experience"
     }
 }

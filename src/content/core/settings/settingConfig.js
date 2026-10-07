@@ -2478,6 +2478,31 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            browserNotificationsEnabled: {
+                label: 'Browser Notifications',
+                description:
+                    'Sends browser notifications for the things you pick below.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['notifications'],
+                storageKey: ['rovalra_notifications_state'],
+                contributors: ['2239549101'],
+                childSettings: {
+                    tradeNotificationsEnabled: {
+                        label: 'Trades',
+                        description: 'Notifies you when you get a new trade.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    friendNotificationsEnabled: {
+                        label: 'Pinned Friends',
+                        description:
+                            'Notifies you when a pinned friend joins an experience.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
                 description: [
