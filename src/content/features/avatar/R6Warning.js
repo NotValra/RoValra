@@ -38,9 +38,9 @@ export function init() {
             return;
         }
 
-        const toggleGroupSelector =
-            '.avatar-type-contents-container .MuiToggleButtonGroup-root';
-        const modalSelector = 'div[role="presentation"].MuiDialog-root';
+        const avatarTypeSwitchSelector =
+            '.avatar-type-toggle-scale button[role="switch"]';
+        const modalSelector = '.foundation-web-dialog-overlay';
         const viewToggleSelector = '.toggle-three-dee';
 
         let lastToggleClickTime = 0;
@@ -61,29 +61,17 @@ export function init() {
             }, 150);
         }
 
-        function handleToggleGroupFound(groupContainer) {
-            if (groupContainer.dataset.rovalraR6Patched) return;
-            groupContainer.dataset.rovalraR6Patched = 'true';
+        function handleAvatarTypeSwitchFound(switchEl) {
+            if (switchEl.dataset.rovalraR6Patched) return;
+            switchEl.dataset.rovalraR6Patched = 'true';
 
-            const buttons = groupContainer.querySelectorAll('button');
-
-            buttons.forEach((btn) => {
-                btn.addEventListener(
-                    'click',
-                    () => {
-                        lastToggleClickTime = Date.now();
-
-                        buttons.forEach((b) => {
-                            const isSelected = b === btn;
-                            b.setAttribute('aria-pressed', isSelected);
-                            if (isSelected)
-                                b.classList.add('selected', 'Mui-selected');
-                            else b.classList.remove('selected', 'Mui-selected');
-                        });
-                    },
-                    { capture: true },
-                );
-            });
+            switchEl.addEventListener(
+                'click',
+                () => {
+                    lastToggleClickTime = Date.now();
+                },
+                { capture: true },
+            );
         }
 
         function handleModalFound(modal) {
@@ -91,13 +79,15 @@ export function init() {
                 return;
             }
 
-            const allButtons = modal.querySelectorAll('button');
+            const actionButtons = modal.querySelectorAll(
+                '.foundation-web-dialog-content button.foundation-web-button',
+            );
             const switchBtn =
-                Array.from(allButtons).find(
-                    (b) => b.textContent.trim().toLowerCase() === 'switch',
+                modal.querySelector(
+                    '.foundation-web-dialog-content button.foundation-web-button.bg-action-emphasis',
                 ) ||
-                (allButtons.length > 0
-                    ? allButtons[allButtons.length - 1]
+                (actionButtons.length > 0
+                    ? actionButtons[actionButtons.length - 1]
                     : null);
 
             if (switchBtn) {
@@ -113,7 +103,7 @@ export function init() {
             }
         }
 
-        observeElement(toggleGroupSelector, handleToggleGroupFound, {
+        observeElement(avatarTypeSwitchSelector, handleAvatarTypeSwitchFound, {
             multiple: true,
         });
         observeElement(modalSelector, handleModalFound, { multiple: true });
