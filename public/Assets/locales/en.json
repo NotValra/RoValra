@@ -828,6 +828,12 @@
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
         },
+        "language": {
+            "title": "RoValra Language",
+            "desc1": "Manually configure a language for RoValra. Some translations may be missing.",
+            "desc2": "The page will reload to apply changes. Might not work immediately on the settings page.",
+            "desc3": "We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy"
+        },
         "credits": {
             "contributorsTitle": "Contributors",
             "translatorsTitle": "Translators",

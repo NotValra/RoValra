@@ -622,11 +622,11 @@
         "friendsAllowed": "允许好友加入"
     },
     "firstAccount": {
-        "label": "首个账户",
+        "label": "首个账号",
         "yes": "是",
         "no": "否",
         "tooltip": "这显示 Roblox 是否认为您的账号是您的第一个账号。<br>此信息直接来自 Roblox，但有可能不准确的。",
-        "createdDate": "首次创建账户：{{date}}"
+        "createdDate": "首次创建账号：{{date}}"
     },
     "trustedCreator": {
         "label": "已加入可信赖创作者计划",
@@ -817,6 +817,12 @@
             "support": "支持 RoValra",
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
+        },
+        "language": {
+            "title": "RoValra 语言",
+            "desc1": "手动配置 RoValra 的语言。部分翻译可能缺失。",
+            "desc2": "页面将重新加载以应用更改。设置页面上的更改可能不会立即生效。",
+            "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
         },
         "mutualFriends": {
             "pill_one": "{{count}} 位共同好友",

@@ -392,7 +392,7 @@
         "labels": {
             "logo": "Roblox 標誌",
             "charts": "圖表",
-            "marketplace": "商集",
+            "marketplace": "市集",
             "create": "創作",
             "robux": "Robux",
             "search": "搜尋",
@@ -825,6 +825,12 @@
             "support": "支援 RoValra",
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
+        },
+        "language": {
+            "title": "RoValra 語言",
+            "desc1": "手動配置 RoValra 的語言。部分翻譯可能缺失。",
+            "desc2": "頁面將重新載入以套用變更。設定頁面上的變更可能不會立即生效。",
+            "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
         },
         "credits": {
             "contributorsTitle": "貢獻者",
