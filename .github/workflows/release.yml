@@ -33,6 +33,14 @@ jobs:
                   cd dist
                   zip -r ../rovalra-${{ github.ref_name }}.zip .
 
+            - name: Package Firefox extension
+              run: |
+                  cd dist-firefox
+                  zip -r ../rovalra-firefox-${{ github.ref_name }}.zip .
+
+            - name: Package source code for AMO review
+              run: git archive --format=zip -o rovalra-source-${{ github.ref_name }}.zip HEAD
+
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:
@@ -48,3 +56,13 @@ jobs:
                   client-id: ${{ secrets.CLIENT_ID }}
                   client-secret: ${{ secrets.CLIENT_SECRET }}
                   refresh-token: ${{ secrets.REFRESH_TOKEN }}
+
+            - name: Upload to Firefox Add-ons
+              uses: wdzeng/firefox-addon@v1
+              with:
+                  addon-guid: '{7f4e2a91-6c83-4d15-9b72-a0e5f3c8146d}'
+                  xpi-path: rovalra-firefox-${{ github.ref_name }}.zip
+                  source-file-path: rovalra-source-${{ github.ref_name }}.zip
+                  self-hosted: false
+                  jwt-issuer: ${{ secrets.AMO_JWT_ISSUER }}
+                  jwt-secret: ${{ secrets.AMO_JWT_SECRET }}
