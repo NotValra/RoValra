@@ -618,7 +618,8 @@
         "setActive": "设置为活跃",
         "noServersFound": "未找到 {{status}} 个私人服务器。",
         "byCreator": "创作者：",
-        "allowJoining": "允许加入"
+        "allowJoining": "允许加入",
+        "friendsAllowed": "允许好友加入"
     },
     "firstAccount": {
         "label": "首个账户",
@@ -1075,7 +1076,12 @@
                 "followTerms": "图像必须遵守 Roblox 使用条款。",
                 "joinDiscord": "加入 RoValra 的 Discord 服务器。",
                 "agree": "同意",
-                "agreeCountdown": "同意（{{count}}）"
+                "agreeCountdown": "同意（{{count}}）",
+                "preview": "预览",
+                "previewTitle": "预览自定义徽章",
+                "previewDescription": "上传一张 WEBP 图片，即可查看它作为个人资料徽章的效果。该图片仅保存在内存中，不会被上传或保存，当您离开或刷新页面时，图片就会消失。",
+                "previewTooltip": "徽章预览",
+                "previewDone": "完成"
             },
             "githubSponsorBadge": {
                 "title": "GitHub 赞助者个人资料徽章",

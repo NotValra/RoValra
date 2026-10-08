@@ -626,7 +626,8 @@
         "setActive": "設定為活躍",
         "noServersFound": "找不到 {{status}} 個人伺服器。",
         "byCreator": "創作者：",
-        "allowJoining": "允許加入"
+        "allowJoining": "允許加入",
+        "friendsAllowed": "允許好友加入"
     },
     "firstAccount": {
         "label": "首個帳號",
@@ -674,7 +675,7 @@
                 "bottomright": "右下側"
             },
             "overlay": {
-                "color": "顏色顔色",
+                "color": "疊加顏色",
                 "opacity": "疊加不透明度"
             },
             "errors": {
@@ -974,7 +975,7 @@
             },
             "featureStatus": {
                 "title": "啟用此功能前",
-                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導致加載時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您瞭解此功能可能無法完美執行時才啟用它。",
+                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導載入時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您瞭解此功能可能無法完美執行時才啟用它。",
                 "acknowledge": "我已閱讀並同意"
             },
             "environment": {
@@ -1075,7 +1076,12 @@
                 "followTerms": "圖片必須遵守 Roblox 使用條款",
                 "joinDiscord": "加入 RoValra 的 Discord 伺服器。",
                 "agree": "同意",
-                "agreeCountdown": "同意（{{count}}）"
+                "agreeCountdown": "同意（{{count}}）",
+                "preview": "預覽",
+                "previewTitle": "預覽自訂徽章",
+                "previewDescription": "上傳一張 WEBP 圖片，即可查看它作為個人檔案徽章的效果。圖片僅儲存在記憶體中，不會上傳或儲存。當您離開或重新整理頁面時，圖片就會消失。",
+                "previewTooltip": "徽章預覽",
+                "previewDone": "完成"
             },
             "githubSponsorBadge": {
                 "title": "GitHub 贊助者個人檔案徽章",
@@ -1748,8 +1754,8 @@
     "privateGames": {
         "tabs": {
             "about": "介紹",
-            "store": "伺服器",
-            "servers": "商店"
+            "store": "商店",
+            "servers": "伺服器"
         },
         "servers": {
             "title": "你的私人伺服器",
@@ -1846,7 +1852,7 @@
         "0": "此體驗無法使用",
         "1": "此體驗可玩",
         "2": "訪客無法加入此體驗",
-        "3": "此體驗因違反 Roblox 社群準則而被審查",
+        "3": "此體驗因違反 Roblox 社群準則而被經過審核",
         "4": "此體驗配置錯誤",
         "5": "此體驗為私人",
         "6": "只有好友才能加入此體驗",
