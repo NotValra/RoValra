@@ -21,6 +21,8 @@ const CREATOR_EVENTS_GROUP_ID = 9420522;
 const CREATOR_EVENTS_BADGE_NAME = 'creator_events';
 const QA_TESTER_GROUP_ID = 3055661;
 const QA_TESTER_BADGE_NAME = 'qa_tester';
+const COMMUNITY_SAFETY_COUNCIL_GROUP_ID = 309577991;
+const COMMUNITY_SAFETY_COUNCIL_BADGE_NAME = 'community_safety_council';
 const DONATOR_BADGE_KEYS = [
     'donator_1',
     'donator_2',
@@ -93,6 +95,10 @@ function isVideoStarGroupMember(item) {
 
 function isCommunityFeedbackProgramGroupMember(item) {
     return item?.group?.id === COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID;
+}
+
+function isCommunitySafetyCouncilGroupMember(item) {
+    return item?.group?.id === COMMUNITY_SAFETY_COUNCIL_GROUP_ID;
 }
 
 function isCreatorEventsGroupMember(item) {
@@ -623,6 +629,9 @@ export function init() {
                 }
                 if (groups.some(isCommunityFeedbackProgramGroupMember)) {
                     runtimeBadges.push(COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME);
+                }
+                if (groups.some(isCommunitySafetyCouncilGroupMember)) {
+                    runtimeBadges.push(COMMUNITY_SAFETY_COUNCIL_BADGE_NAME);
                 }
                 if (groups.some(isCreatorEventsGroupMember)) {
                     runtimeBadges.push(CREATOR_EVENTS_BADGE_NAME);
