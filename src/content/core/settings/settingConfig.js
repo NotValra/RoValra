@@ -5,7 +5,7 @@ import {
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
-import { t, ts } from '../locale/i18n.js';
+import { ts } from '../locale/i18n.js';
 
 function languageLabel(label, language) {
     const progress = getTranslationProgress(language);
