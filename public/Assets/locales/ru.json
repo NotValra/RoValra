@@ -382,7 +382,11 @@
         "myProfile": "Мой профиль",
         "disabled": "Отключено",
         "show": "Показать",
-        "hide": "Скрыть"
+        "hide": "Скрыть",
+        "add": "Добавить",
+        "addButton": "Добавить кнопку",
+        "buttonPlaceholder1": "Имя",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra не удалось найти поддерживаемые элементы верхней панели.",

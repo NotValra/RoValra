@@ -31,6 +31,9 @@ const DEFAULT_LOCALE = {
     disabled: 'Disabled',
     show: 'Show',
     hide: 'Hide',
+    addButton: "Add button",
+    buttonPlaceholder1: "Name",
+    buttonPlaceholder2: "URL",
 };
 
 let savedOrder = [];
@@ -53,13 +56,16 @@ async function loadLocale() {
             empty: await t('sidebarLayout.empty'),
             reset: await t('sidebarLayout.reset'),
             save: await t('sidebarLayout.save'),
-            add: "Add",
+            add: await t('sidebarLayout.add'),
             overlayTitle: await t('sidebarLayout.overlayTitle'),
             button: await t('sidebarLayout.button'),
             myProfile: await t('sidebarLayout.myProfile'),
             disabled: await t('sidebarLayout.disabled'),
             show: await t('sidebarLayout.show'),
             hide: await t('sidebarLayout.hide'),
+            addButton: await t('sidebarLayout.addButton'),
+            buttonPlaceholder1: await t('sidebarLayout.buttonPlaceholder1'),
+            buttonPlaceholder2: await t('sidebarLayout.buttonPlaceholder2'),
         };
     } catch {
         locale = { ...DEFAULT_LOCALE };
@@ -161,7 +167,7 @@ function addCustomButton(buttonName, buttonLink) {
 function addCustomButtonPopup() {
     const buttonNameInput = document.createElement('input');
     buttonNameInput.type = 'text';
-    buttonNameInput.placeholder = 'Enter button name';
+    buttonNameInput.placeholder = locale.buttonPlaceholder1;
     Object.assign(buttonNameInput.style, {
         width: '100%',
         height: '40px',
@@ -172,7 +178,7 @@ function addCustomButtonPopup() {
     });
     const buttonUrlInput = document.createElement('input');
     buttonUrlInput.type = 'text';
-    buttonUrlInput.placeholder = 'Enter URL';
+    buttonUrlInput.placeholder = locale.buttonPlaceholder2;
     Object.assign(buttonUrlInput.style, {
         width: '100%',
         height: '40px',
@@ -189,14 +195,14 @@ function addCustomButtonPopup() {
     body.appendChild(document.createElement('br'));
     body.appendChild(document.createElement('br'));
     let popup = null;
-    const addButton = createButton('Add', 'primary', {
+    const addButton = createButton(locale.add, 'primary', {
         onClick: () => {
             addCustomButton(buttonNameInput.value, buttonUrlInput.value);
             popup?.close();
         },
     });
     popup = createOverlay({
-        title: 'Add Button',
+        title: locale.addButton,
         bodyContent: body,
         actions: [addButton],
         maxWidth: '620px',
