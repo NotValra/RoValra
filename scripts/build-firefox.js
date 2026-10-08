@@ -20,6 +20,30 @@ if (!fs.existsSync(path.join(srcDir, 'manifest.json'))) {
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.cpSync(srcDir, outDir, { recursive: true });
 
+// Point review links (review popup, extension popup, locale strings) at the
+// Firefox Add-ons listing instead of the Chrome Web Store
+const CHROME_REVIEW_URL =
+    'https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews';
+const FIREFOX_REVIEW_URL =
+    'https://addons.mozilla.org/en-US/firefox/addon/rovalra-roblox-improved-/reviews/';
+function replaceReviewLinks(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            replaceReviewLinks(entryPath);
+            continue;
+        }
+        if (!/\.(js|html|json)$/.test(entry.name)) continue;
+        const text = fs.readFileSync(entryPath, 'utf8');
+        if (!text.includes(CHROME_REVIEW_URL)) continue;
+        fs.writeFileSync(
+            entryPath,
+            text.replaceAll(CHROME_REVIEW_URL, FIREFOX_REVIEW_URL),
+        );
+    }
+}
+replaceReviewLinks(outDir);
+
 const manifestPath = path.join(outDir, 'manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 
