@@ -5,7 +5,7 @@ import {
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
-import { ts } from '../locale/i18n.js';
+import { t, ts } from '../locale/i18n.js';
 
 function languageLabel(label, language) {
     const progress = getTranslationProgress(language);
@@ -20,13 +20,13 @@ export const SETTINGS_CONFIG = {
         hidden: true,
         settings: {
             rovalraLanguage: {
-                label: ts('settings.language.title'),
+                label: t('settings.language.title'),
                 contributors: [1564574922],
                 description: [
-                    ts('settings.language.desc1'),
+                    t('settings.language.desc1'),
                     // it works on the setting page only once it figures out the language from other pages' URLs
-                    ts('settings.language.desc2'),
-                    ts('settings.language.desc3'),
+                    t('settings.language.desc2'),
+                    t('settings.language.desc3'),
                 ],
                 type: 'select',
                 options: [
