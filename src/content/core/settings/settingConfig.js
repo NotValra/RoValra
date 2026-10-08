@@ -20,13 +20,13 @@ export const SETTINGS_CONFIG = {
         hidden: true,
         settings: {
             rovalraLanguage: {
-                label: t('settings.language.title'),
+                label: ts('settings.language.title'),
                 contributors: [1564574922],
                 description: [
-                    t('settings.language.desc1'),
+                    ts('settings.language.desc1'),
                     // it works on the setting page only once it figures out the language from other pages' URLs
-                    t('settings.language.desc2'),
-                    t('settings.language.desc3'),
+                    ts('settings.language.desc2'),
+                    ts('settings.language.desc3'),
                 ],
                 type: 'select',
                 options: [
