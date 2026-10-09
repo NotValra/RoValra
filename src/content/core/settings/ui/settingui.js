@@ -280,7 +280,7 @@ export async function buildSettingsPage({
                 return;
             dropdownItems.push({
                 value: sectionName.toLowerCase(),
-                label: SETTINGS_CONFIG[sectionName].title,
+                label: ts(SETTINGS_CONFIG[sectionName].title),
             });
         });
 
@@ -587,7 +587,7 @@ function createUnifiedMenu({
             return;
         const listItem = createSidebarItem(
             sectionName,
-            SETTINGS_CONFIG[sectionName].title,
+            ts(SETTINGS_CONFIG[sectionName].title),
             loadTabContent,
         );
         menuList.appendChild(listItem);
