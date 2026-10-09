@@ -986,6 +986,23 @@
                     "title": "Change the normal Play button to join your preferred region in Quick Play",
                     "desc1": "This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region."
                 }
+            },
+            "wideGameTileStatsEnabled": {
+                "title": "Player Counts on Wide Tiles",
+                "desc1": "Shows the concurrent player count alongside the rating on wide experience tiles."
+            },
+            "whatamIJoiningEnabled": {
+                "title": "What Am I Joining",
+                "desc1": "This shows the server ID, region, if it's a private server, and more info about the server you're joining when joining an experience.",
+                "AlwaysGetInfo": {
+                    "title": "Always Get Server Info",
+                    "desc1": "This will always get the server info, even if no server data is available.",
+                    "desc2": "It has a very small chance to get inaccurate information."
+                },
+                "closeUiByClickingTheBackground": {
+                    "title": "Close the 'What am I joining' UI by clicking the background",
+                    "desc1": "This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI"
+                }
             }
         },
         "profile": {

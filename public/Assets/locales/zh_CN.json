@@ -972,6 +972,23 @@
                     "title": "将普通的「开始游戏」按钮更改为加入您在快速游玩中的首选地区",
                     "desc1": "这将使快速游玩中的 Roblox「开始游戏」按钮加入离您最近的服务器，而不是随机地区。"
                 }
+            },
+            "wideGameTileStatsEnabled": {
+                "title": "宽图块上的玩家数量",
+                "desc1": "在宽体验图块上显示同时在线玩家数量和评分。"
+            },
+            "whatamIJoiningEnabled": {
+                "title": "我加入的是什么",
+                "desc1": "加入体验时，显示服务器 ID、地区、是否为私人服务器以及更多关于您加入的服务器的信息。",
+                "AlwaysGetInfo": {
+                    "title": "始终获取服务器信息",
+                    "desc1": "即使没有服务器数据，也会始终获取服务器信息。",
+                    "desc2": "获取不准确信息的概率很小。"
+                },
+                "closeUiByClickingTheBackground": {
+                    "title": "点击背景关闭「我加入的是什么」界面",
+                    "desc1": "点击背景即可关闭界面，但如果您想查看界面中提供的信息，这可能会很麻烦"
+                }
             }
         },
         "profile": {
@@ -1752,10 +1769,10 @@
             "actualResolution": "实际分辨率",
             "physicalSize": "物理尺寸",
             "rotate": "旋转",
-            "loadingPreview": "正在加载用户介面预览...",
+            "loadingPreview": "正在加载用户界面预览...",
             "searchInstances": "搜索实例... (2 个以上字符)",
             "searchProperties": "搜索属性...",
-            "previewGui": "预览用户介面",
+            "previewGui": "预览用户界面",
             "togglePreviewVisibility": "切换预览可见度",
             "noMatchingInstances": "未找到匹配的实例",
             "loadError": "加载失败。"

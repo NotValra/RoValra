@@ -690,7 +690,7 @@ function addDeveloperTabUI({ menuList, loadTabContent, renderMobileDropdown }) {
     if (menuList && loadTabContent) {
         const devItem = createSidebarItem(
             'Developer',
-            SETTINGS_CONFIG.Developer.title,
+            ts(SETTINGS_CONFIG.Developer.title),
             loadTabContent,
         );
 
@@ -720,7 +720,7 @@ function updateFunStuffTabUI({
     if (enabled && !existingItem && menuList && loadTabContent) {
         const funItem = createSidebarItem(
             'FunStuff',
-            SETTINGS_CONFIG.FunStuff.title,
+            ts(SETTINGS_CONFIG.FunStuff.title),
             loadTabContent,
         );
         const developerItem = document.getElementById('developer-tab');

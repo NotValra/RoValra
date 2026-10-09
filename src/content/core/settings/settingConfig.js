@@ -374,36 +374,36 @@ export const SETTINGS_CONFIG = {
                 },
             },
             wideGameTileStatsEnabled: {
-                label: 'Player Counts on Wide Tiles',
+                label: 'settings.experiences.wideGameTileStatsEnabled.title',
                 description: [
-                    'Shows the concurrent player count alongside the rating on wide experience tiles.',
+                    'settings.experiences.wideGameTileStatsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['2963377564', '2333236354'],
             },
             whatamIJoiningEnabled: {
-                label: 'What Am I Joining',
+                label: 'settings.experiences.whatamIJoiningEnabled.title',
                 description: [
-                    "This shows the server ID, region, if it's a private server, and more info about the server you're joining when joining an experience.",
+                    'settings.experiences.whatamIJoiningEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '8345351117'],
                 childSettings: {
                     AlwaysGetInfo: {
-                        label: 'Always Get Server Info',
+                        label: 'settings.experiences.whatamIJoiningEnabled.AlwaysGetInfo.title',
                         description: [
-                            'This will always get the server info, even if no server data is available.',
-                            'It has a very small chance to get inaccurate information.',
+                            'settings.experiences.whatamIJoiningEnabled.AlwaysGetInfo.desc1',
+                            'settings.experiences.whatamIJoiningEnabled.AlwaysGetInfo.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     closeUiByClickingTheBackground: {
-                        label: "Close the 'What am I joining' UI by clicking the background",
+                        label: 'settings.experiences.whatamIJoiningEnabled.closeUiByClickingTheBackground.title',
                         description:
-                            'This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI',
+                            'settings.experiences.whatamIJoiningEnabled.closeUiByClickingTheBackground.desc1',
                         type: 'checkbox',
                         default: true,
                     },
