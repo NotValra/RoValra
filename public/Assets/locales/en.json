@@ -380,7 +380,11 @@
         "myProfile": "My Profile",
         "disabled": "Disabled",
         "show": "Show",
-        "hide": "Hide"
+        "hide": "Hide",
+        "add": "Add",
+        "addButton": "Add button",
+        "buttonPlaceholder1": "Name",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra was unable to find any supported topbar items.",
