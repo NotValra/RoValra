@@ -29,7 +29,7 @@
 - **FAQ & Support:** https://www.rovalra.com/support/
 
 > [!WARNING]
-> RoValra is only distributed through the official [website](https://rovalra.com), [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
+> RoValra is only distributed through the official [website](https://rovalra.com), [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli) and [FireFox](https://addons.mozilla.org/en-US/firefox/addon/rovalra-roblox-improved-/)
 
 ---
 
