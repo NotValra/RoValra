@@ -95,7 +95,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Marketplace: {
-        title: 'Marketplace',
+        title: 'settings.marketplace.title',
         settings: {
             itemSalesEnabled: {
                 label: 'Item Sales',
@@ -264,7 +264,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Games: {
-        title: 'Experiences',
+        title: 'settings.experiences.title',
         settings: {
             gameBookmarksEnabled: {
                 label: 'Game Bookmarks',
@@ -796,7 +796,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Profile: {
-        title: 'Profile',
+        title: 'settings.profile.title',
         settings: {
             userGamesEnabled: {
                 label: 'Hidden User Experiences',
@@ -1460,7 +1460,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Home: {
-        title: 'Home',
+        title: 'settings.home.title',
         settings: {
             AccurateContinueEnabled: {
                 label: 'Accurate Continue',
@@ -1603,7 +1603,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Communities: {
-        title: 'Communities',
+        title: 'settings.communities.title',
         settings: {
             groupGamesEnabled: {
                 label: 'Hidden Community Experiences',
@@ -1698,7 +1698,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Avatar: {
-        title: 'Avatar',
+        title: 'settings.avatar.title',
         settings: {
             forceR6Enabled: {
                 label: 'Remove R6 Warning',
@@ -1779,7 +1779,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     transactions: {
-        title: 'Transactions',
+        title: 'settings.transactions.title',
         settings: {
             robuxFiatEstimatesEnabled: {
                 label: 'Robux Fiat Estimates',
@@ -1883,7 +1883,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Trading: {
-        title: 'Trading',
+        title: 'settings.trading.title',
         settings: {
             tradeValuesEnabled: {
                 label: 'Trade Values',
@@ -2031,7 +2031,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Plus: {
-        title: 'Roblox Plus',
+        title: 'settings.robloxPlus.title',
         settings: {
             reducePlusAds: {
                 label: 'Less Roblox Plus',
@@ -2131,7 +2131,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Navigation: {
-        title: 'Navigation',
+        title: 'settings.navigation.title',
         settings: {
             privacyTogglesEnabled: {
                 label: 'Privacy Toggles in Navigation',
@@ -2477,7 +2477,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Miscellaneous: {
-        title: 'Miscellaneous',
+        title: 'settings.miscellaneous.title',
         settings: {
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
@@ -2712,7 +2712,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     AntiAccountTracking: {
-        title: 'Privacy',
+        title: 'settings.privacy.title',
         settings: {
             streamermode: {
                 label: 'Streamer Mode',
@@ -3005,7 +3005,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     WebsiteCustomization: {
-        title: 'Website Customization',
+        title: 'settings.websiteCustomization.title',
         settings: {
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
@@ -3202,7 +3202,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     PublicDeveloper: {
-        title: 'Developer',
+        title: 'settings.developer.title',
         settings: {
             exportSettings: {
                 label: 'Export Settings',
