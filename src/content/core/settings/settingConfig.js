@@ -253,9 +253,9 @@ export const SETTINGS_CONFIG = {
                 contributors: ['4866259395', '447170745'],
             },
             ownedItemPriceEnabled: {
-                label: 'Price on Owned Item Pages',
+                label: 'settings.marketplace.ownedItemPriceEnabled.title',
                 description:
-                    'Shows the price of an item on its item page even when you already own it.',
+                    'settings.marketplace.ownedItemPriceEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
@@ -336,37 +336,37 @@ export const SETTINGS_CONFIG = {
                 },
             },
             QuickPlayEnable: {
-                label: 'Quick Play Button',
+                label: 'settings.experiences.QuickPlayEnable.title',
                 description: [
-                    'This will add a quick play button to experiences so you can quickly join the experience without opening the experience page.',
-                    'If you have Preferred Region Play Button enabled it will also add a Preferred Region quick play button to quickly join your preferred region.',
-                    "This is made to look like the official Roblox client's Quick Play button.",
+                    'settings.experiences.QuickPlayEnable.desc1',
+                    'settings.experiences.QuickPlayEnable.desc2',
+                    'settings.experiences.QuickPlayEnable.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['48255812', '447170745'],
                 childSettings: {
                     privateservers: {
-                        label: 'Show Private Servers in Quick Play',
+                        label: 'settings.experiences.QuickPlayEnable.privateservers.title',
                         description: [
-                            'This adds a button to quickly browse and join private servers to the quick play.',
+                            'settings.experiences.QuickPlayEnable.privateservers.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     PaidAccessPriceBadgeEnabled: {
-                        label: 'Show Paid Game Access Price',
+                        label: 'settings.experiences.QuickPlayEnable.PaidAccessPriceBadgeEnabled.title',
                         description: [
-                            'This adds a small box that shows the price of paid Games.',
+                            'settings.experiences.QuickPlayEnable.PaidAccessPriceBadgeEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                         contributors: ['10646979010'],
                     },
                     playbuttonpreferredregionenabled: {
-                        label: 'Change the normal Play button to join your preferred region in Quick Play',
+                        label: 'settings.experiences.QuickPlayEnable.playbuttonpreferredregionenabled.title',
                         description: [
-                            'This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region.',
+                            'settings.experiences.QuickPlayEnable.playbuttonpreferredregionenabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,

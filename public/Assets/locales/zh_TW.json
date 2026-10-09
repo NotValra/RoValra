@@ -695,6 +695,11 @@
     "lastEquipped": {
         "label": "最後使用"
     },
+    "ownedItemPrice": {
+        "label": "價格",
+        "free": "免費",
+        "offSale": "已下架"
+    },
     "pendingRobux": {
         "tooltip": "根據您的交易記錄，這是您預計明天將有多少待處理餘額中的 Robux 可用。實際數量可能會有所不同，並且此估算可能不准確。",
         "loading": "正在載入...",
@@ -918,6 +923,10 @@
                 "title": "道具頁面上的上次裝備時間",
                 "desc1": "在道具頁面上顯示您上次裝備道具的時間。"
             },
+            "ownedItemPriceEnabled": {
+                "title": "已擁有道具頁面上的價格",
+                "desc1": "即使您已擁有該道具，也會在其道具頁面上顯示此道具的價格。"
+            },
             "itemTradingEnabled": {
                 "title": "道具交易資訊",
                 "desc1": "在道具頁面上顯示 Rolimons 的價值、需求量、趨勢、稀有、虛高價格等資訊。"
@@ -945,13 +954,31 @@
                 },
                 "preferredRegionUseRobloxLatencyv1": {
                     "title": "使用自動模式時優先選擇最大的伺服器",
-                    "desc1": "這將使首選區域加入離您最近且玩家最多的伺服器。",
+                    "desc1": "這將使首選地區加入離您最近且玩家最多的伺服器。",
                     "desc2": "可能會導致某些虛擬私人網路（VPN）出現問題"
                 },
                 "preferredRegionLocalSearchEnabled": {
                     "title": "強製本地伺服器搜尋",
                     "desc1": "在本地搜尋 Roblox 伺服器，而不是使用 RoValra 按地區尋找伺服器。",
                     "desc2": "**不建議一般使用者使用此功能，因為它會慢很多。**"
+                }
+            },
+            "QuickPlayEnable": {
+                "title": "快速遊玩按鈕",
+                "desc1": "這將在體驗中新增一個快速遊玩按鈕，以便您無需打開體驗頁面即可快速加入體驗。",
+                "desc2": "如果您啟用了首選地區遊戲按鈕，它還會新增一個首選地區的快速遊玩按鈕，以便您快速加入您首選的地區。",
+                "desc3": "此按鈕的外觀與官方 Roblox 客戶端的快速遊玩按鈕類似。",
+                "privateservers": {
+                    "title": "在快速遊玩中顯示私人伺服器",
+                    "desc1": "這將在快速遊玩中新增一個按鈕，以便快速瀏覽和加入私人伺服器。"
+                },
+                "PaidAccessPriceBadgeEnabled": {
+                    "title": "顯示付費遊戲價格",
+                    "desc1": "這將新增一個小框，顯示付費遊戲的價格。"
+                },
+                "playbuttonpreferredregionenabled": {
+                    "title": "將普通的「開始遊戲」按鈕變更為加入您在快速遊玩中的首選地區",
+                    "desc1": "這將使快速遊玩中的 Roblox「開始遊戲」按鈕加入離您最近的伺服器，而不是隨機地區。"
                 }
             }
         },

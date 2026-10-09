@@ -929,6 +929,10 @@
                 "title": "Last Equipped on Item Pages",
                 "desc1": "Shows when you last equipped an item on item pages."
             },
+            "ownedItemPriceEnabled": {
+                "title": "Price on Owned Item Pages",
+                "desc1": "Shows the price of an item on its item page even when you already own it."
+            },
             "itemTradingEnabled": {
                 "title": "Item Trading Info",
                 "desc1": "Shows Rolimons values, demand, trend, rare, projected and more on item pages."
@@ -963,6 +967,24 @@
                     "title": "Force Local Server Search",
                     "desc1": "Searches Roblox servers locally instead of using RoValra to find servers by region.",
                     "desc2": "**This isn't recommended for normal users, as it'll be much slower.**"
+                }
+            },
+            "QuickPlayEnable": {
+                "title": "Quick Play Button",
+                "desc1": "This will add a quick play button to experiences so you can quickly join the experience without opening the experience page.",
+                "desc2": "If you have Preferred Region Play Button enabled it will also add a Preferred Region quick play button to quickly join your preferred region.",
+                "desc3": "This is made to look like the official Roblox client's Quick Play button.",
+                "privateservers": {
+                    "title": "Show Private Servers in Quick Play",
+                    "desc1": "This adds a button to quickly browse and join private servers to the quick play."
+                },
+                "PaidAccessPriceBadgeEnabled": {
+                    "title": "Show Paid Game Access Price",
+                    "desc1": "This adds a small box that shows the price of paid Games."
+                },
+                "playbuttonpreferredregionenabled": {
+                    "title": "Change the normal Play button to join your preferred region in Quick Play",
+                    "desc1": "This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region."
                 }
             }
         },
