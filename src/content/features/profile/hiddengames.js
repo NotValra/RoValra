@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeChildren, observeElement } from '../../core/observer.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
@@ -609,30 +609,55 @@ export async function init() {
         { multiple: true },
     );
 
+    const isBlank = (content) =>
+        [...content.children].every(
+            (child) =>
+                child.tagName === 'DIV' &&
+                child.children.length === 0 &&
+                child.textContent.trim() === '',
+        );
+
+    let isCheckingEmptyState = false;
     const checkEmptyState = async () => {
-        if (!window.location.hash.includes('#creations')) return;
+        if (isCheckingEmptyState) return;
+        if (!window.location.hash.includes('creations')) return;
+        isCheckingEmptyState = true;
 
-        const contents = document.querySelectorAll('.profile-tab-content');
-        for (const content of contents) {
-            if (content.classList.contains('ng-hide')) return;
-
-            if (content.children.length === 1) {
-                const inner = content.children[0];
+        try {
+            const contents = document.querySelectorAll('.profile-tab-content');
+            for (const content of contents) {
                 if (
-                    inner.tagName === 'DIV' &&
-                    inner.children.length === 0 &&
-                    inner.textContent.trim() === ''
-                ) {
-                    if (content.querySelector('.rovalra-empty-state')) return;
-                    content.innerHTML = '';
-                    content.appendChild(
-                        await UI.createEmptyState(handleButtonClick),
-                    );
-                }
+                    content.classList.contains('ng-hide') ||
+                    content.classList.contains('hidden')
+                )
+                    continue;
+                if (content.querySelector('.rovalra-empty-state')) continue;
+                if (!isBlank(content)) continue;
+
+                await new Promise((resolve) => setTimeout(resolve, 1500));
+                if (
+                    content.querySelector('.rovalra-empty-state') ||
+                    !isBlank(content)
+                )
+                    continue;
+
+                content.innerHTML = '';
+                content.appendChild(
+                    await UI.createEmptyState(handleButtonClick),
+                );
             }
+        } finally {
+            isCheckingEmptyState = false;
         }
     };
 
     window.addEventListener('hashchange', checkEmptyState);
-    observeElement('.profile-tab-content', checkEmptyState);
+    observeElement(
+        '.profile-tab-content',
+        (content) => {
+            checkEmptyState();
+            observeChildren(content, checkEmptyState);
+        },
+        { multiple: true },
+    );
 }

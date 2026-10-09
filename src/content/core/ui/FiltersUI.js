@@ -3,6 +3,7 @@ import { createCloseButton } from './closeButton.js';
 import { createDropdown } from './dropdown.js';
 import { createRadioButton } from './general/radio.js';
 import { createStyledInput } from './catalog/input.js';
+import { ts } from '../locale/i18n.js';
 
 
 function injectStyles() {
@@ -51,7 +52,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
 
         const triggerValue = document.createElement('span');
         triggerValue.className = 'text-no-wrap text-truncate-split content-default';
-        triggerValue.textContent = 'Filter Items';
+        triggerValue.textContent = ts('common.filterItems');
 
         const chevron = document.createElement('span');
         chevron.className = 'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
@@ -74,7 +75,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
 
         const headerTitle = document.createElement('h3');
         headerTitle.className = 'text-heading-medium';
-        headerTitle.textContent = 'Filter Items';
+        headerTitle.textContent = ts('common.filterItems');
 
         const closeButton = createCloseButton({ onClick: () => {
             dropdown.setAttribute('data-state', 'closed');
@@ -210,7 +211,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
 
         const applyBtn = document.createElement('button');
         applyBtn.id = 'rovalra-price-apply-btn';
-        applyBtn.textContent = 'Apply Filter';
+        applyBtn.textContent = ts('common.applyFilter');
         applyBtn.className = 'apply-button btn-primary-md btn-full-width';
         applyBtn.style.marginTop = '20px';
         applyBtn.style.backgroundColor = 'rgb(51, 95, 255)';
@@ -260,7 +261,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         searchInput.id = 'rovalra-fx-search-bar';
         searchInput.className = 'form-control input-field';
         searchInput.type = 'text';
-        searchInput.placeholder = 'Search';
+        searchInput.placeholder = ts('common.search');
         Object.assign(searchInput.style, {
             flexGrow: '1',
             width: 'auto'

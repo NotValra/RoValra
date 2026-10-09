@@ -1,4 +1,5 @@
 import { showConfirmationPrompt } from '../confirmationPrompt.js';
+import { ts } from '../../locale/i18n.js';
 
 const TOU_AGREEMENT_KEY = 'rovalra_tou_agreed';
 const FORCE_GUIDELINES_POPUP_KEY = 'forceGuidelinesPopup';
@@ -23,14 +24,9 @@ export function ensureTouAgreement(onAgreed, options = {}) {
             if (forcePopup || !result[agreementKey]) {
                 if (options.onPrompt) options.onPrompt();
                 showConfirmationPrompt({
-                    title: 'RoValra Guidelines',
-                    message: `By using RoValra, you agree to follow our Terms of Use. Failure to follow these rules may result in the suspension of access to specific features, including status bubbles and pronouns.<br><br>
-                         <b>Key Takeaways:</b><br>
-                         • You cannot direct users off-platform.<br>
-                         • You cannot do anything inappropriate.<br>
-                         • You must not violate the Roblox Terms of Service.<br><br>
-                         Read more at <a href="https://www.rovalra.com/tou/" target="_blank" style="color: #007bff; text-decoration: underline;">rovalra.com/tou</a>.`,
-                    confirmText: 'I Understand',
+                    title: ts('guidelines.title'),
+                    message: ts('guidelines.message'),
+                    confirmText: ts('guidelines.confirm'),
                     onConfirm: () => {
                         chrome.storage.local.set(
                             { [agreementKey]: true },

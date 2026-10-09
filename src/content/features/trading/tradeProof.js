@@ -7,6 +7,7 @@ import {
     getLatestTradeDetailsId,
     getTradeAnalysis,
 } from '../../core/trade/tradeDetailsHandler.js';
+import { ts } from '../../core/locale/i18n.js';
 
 export function init() {
     chrome.storage.local.get({ tradeProofEnabled: true }, (settings) => {
@@ -20,7 +21,7 @@ export function init() {
 
             const btn = document.createElement('button');
             btn.className = 'btn-control-xs rovalra-copy-proof-btn';
-            btn.innerText = 'Copy Proof';
+            btn.innerText = ts('trading.copyProof');
             Object.assign(btn.style, {
                 position: 'absolute',
                 top: '12px',
@@ -91,7 +92,7 @@ async function copyTradeProof(container, btn) {
     try {
         await navigator.clipboard.writeText(text);
         const originalText = btn.innerText;
-        btn.innerText = 'Copied!';
+        btn.innerText = ts('trading.copied');
         setTimeout(() => {
             if (btn.isConnected) btn.innerText = originalText;
         }, 2000);

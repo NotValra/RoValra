@@ -1,6 +1,7 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { getAssets } from '../../core/assets.js';
+import { ts } from '../../core/locale/i18n.js';
 
 export function init() {
     chrome.storage.local.get({ onboardingShown: false }, function(settings) {
@@ -12,21 +13,21 @@ export function init() {
 
             bodyContent.innerHTML = `
                 <p style="line-height: 1.6; margin-bottom: 15px;">
-                    Thank you for installing <strong>RoValra</strong>!
+                    ${ts('onboarding.thankYou')}
                 </p>
 
                 <p style="line-height: 1.6; margin-bottom: 15px;">
-                    To change settings and explore all features, you can:
+                    ${ts('onboarding.exploreFeatures')}
                 </p>
                 <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 15px; line-height: 1.6;">
-                    <li>Click the <strong>gear icon</strong> in the Roblox header, and then click on "RoValra Settings".</li>
+                    <li>${ts('onboarding.settingsInstruction')}</li>
                    
                 </ul>
 
-                <img src="${assets.onboarding}" alt="A guide showing where to find the RoValra settings button on the Roblox website." style="max-width: 100%; height: auto; display: block; margin: 5px auto 20px auto; border-radius: 8px; border: 1px solid var(--rovalra-overlay-border-primary, #D9DADB);"/>
+                <img src="${assets.onboarding}" alt="${ts('onboarding.imageAlt')}" style="max-width: 100%; height: auto; display: block; margin: 5px auto 20px auto; border-radius: 8px; border: 1px solid var(--rovalra-overlay-border-primary, #D9DADB);"/>
 
                 <p style="line-height: 1.6;">
-                    RoValra is a forever free Roblox extension trying to provide quality of life to everyone!
+                    ${ts('onboarding.description')}
                 </p>
             `;// Verified
 
@@ -36,10 +37,10 @@ export function init() {
                 });
             };
 
-            const gotItButton = createButton('Got It!', 'primary');
+            const gotItButton = createButton(ts('onboarding.gotIt'), 'primary');
 
             const { close } = createOverlay({
-                title: 'Welcome to RoValra!',
+                title: ts('onboarding.title'),
                 bodyContent: bodyContent,
                 actions: [gotItButton],
                 maxWidth: 'min(550px, 90vw)',

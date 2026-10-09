@@ -484,8 +484,10 @@ async function applyDisplayNameGradient() {
         return;
     }
 
-    const profileHeaderEls = nameEls.filter((el) =>
-        el.matches(PROFILE_HEADER_NAME_SELECTOR),
+    const profileHeaderEls = nameEls.filter(
+        (el) =>
+            el.matches(PROFILE_HEADER_NAME_SELECTOR) &&
+            !el.closest('[data-rovalra-banned-profile]'),
     );
     const selfEls = nameEls.filter(
         (el) => !el.matches(PROFILE_HEADER_NAME_SELECTOR),

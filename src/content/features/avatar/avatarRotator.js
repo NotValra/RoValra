@@ -7,6 +7,8 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
+import { ts } from '../../core/locale/i18n.js';
+import { createFoundationButton } from '../../core/ui/buttons.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -28,7 +30,8 @@ export function init() {
                 li.style.alignItems = 'center';
                 li.style.gap = '5px';
 
-                const createBtnSelector = '.btn-float-right.btn-secondary-xs';
+                const createBtnSelector =
+                    '.btn-float-right.btn-secondary-xs, .btn-float-right.foundation-web-button';
                 let resizeHandler = null;
 
                 const updateMargin = () => {
@@ -68,23 +71,23 @@ export function init() {
                     },
                 );
 
-                const stopBtn = document.createElement('button');
-                stopBtn.type = 'button';
-                stopBtn.className =
-                    'btn-control-xs rovalra-avatar-rotator-stop-btn';
-                stopBtn.textContent = 'Stop Rotator';
+                const stopBtn = createFoundationButton(
+                    ts('avatarRotator.stop'),
+                    {
+                        classList: ['rovalra-avatar-rotator-stop-btn'],
+                        onClick: () => {
+                            chrome.storage.local.set({
+                                rovalra_avatar_rotator_enabled: false,
+                            });
+                        },
+                    },
+                );
                 stopBtn.style.display = 'none';
-                stopBtn.onclick = () => {
-                    chrome.storage.local.set({
-                        rovalra_avatar_rotator_enabled: false,
-                    });
-                };
 
-                const rotatorBtn = document.createElement('button');
-                rotatorBtn.type = 'button';
-                rotatorBtn.className =
-                    'btn-secondary-xs rovalra-avatar-rotator-btn';
-                rotatorBtn.textContent = 'Avatar Rotator';
+                const rotatorBtn = createFoundationButton(
+                    ts('avatarRotator.button'),
+                    { classList: ['rovalra-avatar-rotator-btn'] },
+                );
 
                 let nextPageCursor = '';
                 let isLoading = false;
@@ -101,15 +104,15 @@ export function init() {
                         setRotatorsBtn.disabled = count < 2;
                         setRotatorsBtn.textContent =
                             count < 2
-                                ? 'Select at least 2 avatars'
-                                : `Set as rotators (${count})`;
+                                ? ts('avatarRotator.selectMinimum')
+                                : ts('avatarRotator.setRotators', { count });
                     }
 
                     const statusText = document.getElementById(
                         'rovalra-avatar-status',
                     );
                     if (statusText) {
-                        statusText.textContent = `Select avatars to rotate between. (${count} selected)`;
+                        statusText.textContent = ts('avatarRotator.selectedStatus', { count });
                         statusText.style.color = '';
                     }
                 }
@@ -127,7 +130,7 @@ export function init() {
                     const loadBtn = document.getElementById(
                         'rovalra-avatar-load-more',
                     );
-                    if (loadBtn) loadBtn.textContent = 'Loading...';
+                    if (loadBtn) loadBtn.textContent = ts('avatarRotator.loading');
 
                     try {
                         const queryParams = new URLSearchParams({
@@ -239,7 +242,7 @@ export function init() {
                     } finally {
                         isLoading = false;
                         if (loadBtn) {
-                            loadBtn.textContent = 'Load More';
+                            loadBtn.textContent = ts('avatarRotator.loadMore');
                             loadBtn.style.display = nextPageCursor
                                 ? 'block'
                                 : 'none';
@@ -273,7 +276,7 @@ export function init() {
                                 document.createElement('button');
                             loadMoreBtn.id = 'rovalra-avatar-load-more';
                             loadMoreBtn.className = 'btn-control-sm';
-                            loadMoreBtn.textContent = 'Load More';
+                            loadMoreBtn.textContent = ts('avatarRotator.loadMore');
                             loadMoreBtn.style.cssText =
                                 'display: none; margin: 10px auto; flex-shrink: 0;';
                             loadMoreBtn.onclick = () => fetchAndRenderAvatars();
@@ -281,7 +284,7 @@ export function init() {
                             const placeholderText =
                                 document.createElement('div');
                             placeholderText.id = 'rovalra-avatar-status';
-                            placeholderText.textContent = `Select avatars to rotate between. (${selectedAvatars.size} selected)`;
+                            placeholderText.textContent = ts('avatarRotator.selectedStatus', { count: selectedAvatars.size });
                             placeholderText.style.cssText =
                                 'padding: 0 10px 10px 10px; text-align: center; font-size: 12px; opacity: 0.8; flex-shrink: 0;';
 
@@ -295,7 +298,7 @@ export function init() {
                                 input: intervalInput,
                             } = createStyledInput({
                                 id: 'rovalra-rotator-interval',
-                                label: 'Interval (seconds)',
+                                label: ts('avatarRotator.interval'),
                             });
 
                             intervalInput.type = 'number';
@@ -324,7 +327,7 @@ export function init() {
                             setRotatorsBtn = document.createElement('button');
                             setRotatorsBtn.className = 'btn-primary-md';
                             setRotatorsBtn.textContent =
-                                'Select at least 2 avatars';
+                                ts('avatarRotator.selectMinimum');
                             setRotatorsBtn.disabled = true;
                             setRotatorsBtn.onclick = () => {
                                 const avatars = Array.from(selectedAvatars);
@@ -332,7 +335,7 @@ export function init() {
                                     parseInt(intervalInput.value, 10) || 5;
                                 setRotatorsBtn.disabled = true;
                                 setRotatorsBtn.textContent =
-                                    'Loading outfit details...';
+                                    ts('avatarRotator.loadingDetails');
 
                                 Promise.all(
                                     avatars.map(async (outfitId) => {
@@ -363,8 +366,7 @@ export function init() {
                                             rovalra_avatar_rotator_interval:
                                                 interval,
                                         });
-                                        setRotatorsBtn.textContent =
-                                            'Rotators Active!';
+                                        setRotatorsBtn.textContent = ts('avatarRotator.active');
                                         if (disableRotatorBtn)
                                             disableRotatorBtn.style.display =
                                                 'inline-block';
@@ -386,7 +388,7 @@ export function init() {
                             disableRotatorBtn =
                                 document.createElement('button');
                             disableRotatorBtn.className = 'btn-control-md';
-                            disableRotatorBtn.textContent = 'Disable';
+                            disableRotatorBtn.textContent = ts('avatarRotator.disable');
                             disableRotatorBtn.style.display =
                                 data.rovalra_avatar_rotator_enabled
                                     ? 'inline-block'
@@ -400,7 +402,7 @@ export function init() {
 
                             const clearBtn = document.createElement('button');
                             clearBtn.className = 'btn-control-md';
-                            clearBtn.textContent = 'Clear Selection';
+                            clearBtn.textContent = ts('avatarRotator.clearSelection');
                             clearBtn.onclick = () => {
                                 selectedAvatars.clear();
                                 chrome.storage.local.set({
@@ -419,7 +421,7 @@ export function init() {
                             };
 
                             createOverlay({
-                                title: 'Avatar Rotator',
+                                title: ts('avatarRotator.title'),
                                 bodyContent: wrapper,
                                 showLogo: true,
                                 maxWidth: '600px',
@@ -446,7 +448,7 @@ export function init() {
                         (data) => {
                             stopBtn.style.display =
                                 data.rovalra_avatar_rotator_enabled
-                                    ? 'inline-block'
+                                    ? 'flex'
                                     : 'none';
                         },
                     );

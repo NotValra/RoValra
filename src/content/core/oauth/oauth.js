@@ -7,6 +7,7 @@ import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { shouldUseFallback, getValidFallbackToken } from './fallback.js';
 import { getCurrentUserTierSync } from '../settings/handlesettings.js';
+import * as cache from '../storage/cacheHandler.js';
 
 let activeOAuthPromise = null;
 
@@ -129,6 +130,15 @@ export async function getValidAccessToken(
         return storedVerification.accessToken;
     }
 
+    const lastValidatedToken = await cache.get(
+        'oauth_validation',
+        String(userId),
+        'local',
+    );
+    if (lastValidatedToken === storedVerification.accessToken) {
+        return storedVerification.accessToken;
+    }
+
     try {
         const response = await callRobloxApi({
             isRovalraApi: true,
@@ -160,10 +170,20 @@ export async function getValidAccessToken(
         }
 
         const updatedStorage = await chrome.storage.local.get(STORAGE_KEY);
-        return (
+        const validToken =
             updatedStorage[STORAGE_KEY]?.[userId]?.accessToken ||
-            storedVerification.accessToken
-        );
+            storedVerification.accessToken;
+
+        if (response.ok) {
+            await cache.set(
+                'oauth_validation',
+                String(userId),
+                validToken,
+                'local',
+            );
+        }
+
+        return validToken;
     } catch (error) {
         console.error('RoValra: Network error during token sync:', error);
         return storedVerification.accessToken;

@@ -19,6 +19,7 @@ import {
     getCachedItemValue,
     getCachedRolimonsItem,
 } from '../../core/trade/itemHandler.js';
+import { ts } from '../../core/locale/i18n.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 
 let observerRequest = null;
@@ -89,20 +90,26 @@ function applyThumbnail(thumbContainer, thumbnailData, itemName) {
     thumbContainer.appendChild(thumb);
 }
 
+function isMakeOfferButton(button) {
+    if (!button.matches('.foundation-web-button')) return false;
+    if (button.closest('[role="dialog"], .trade-request-item')) return false;
+    return Boolean(
+        button.closest(
+            '.trade-request-window-offers-parent, .trade-request-window-offers, .trade-request-window',
+        ),
+    );
+}
+
 function getTradeRequestOffersFromButton(button) {
-    const directOffers = button.closest('.trade-request-window-offers');
-    if (directOffers) return directOffers;
+    let element = button.parentElement;
+    while (element && element !== document.body) {
+        const offers = element.querySelectorAll('.trade-request-window-offer');
+        if (offers.length >= 2) return offers;
+        element = element.parentElement;
+    }
 
-    const siblingOffers = button.previousElementSibling?.matches(
-        '.trade-request-window-offers',
-    )
-        ? button.previousElementSibling
-        : null;
-    if (siblingOffers) return siblingOffers;
-
-    return button
-        .closest('.trade-request-window')
-        ?.querySelector('.trade-request-window-offers');
+    const offers = document.querySelectorAll('.trade-request-window-offer');
+    return offers.length >= 2 ? offers : null;
 }
 
 function getTradeDetailContext(button) {
@@ -145,6 +152,8 @@ function handleTradeRequestAction(event) {
         }, 5000);
         return;
     }
+
+    if (!isMakeOfferButton(button)) return;
 
     const offers = getTradeRequestOffersFromButton(button);
     if (!offers) return;
@@ -269,10 +278,10 @@ export function init() {
 
         if (!isTradePage) {
             if (observerRequest) {
-                observerRequest.active = false;
+                observerRequest.disconnect();
                 observerRequest = null;
             }
-            prefetchRequests.forEach((req) => (req.active = false));
+            prefetchRequests.forEach((req) => req.disconnect());
             prefetchRequests = [];
             return;
         }
@@ -310,10 +319,12 @@ export function init() {
                     return;
                 }
 
-                let tradeOffers = pendingRequestOffers?.querySelectorAll(
-                    '.trade-request-window-offer',
-                );
-                if (!tradeOffers?.length) {
+                let tradeOffers = pendingRequestOffers;
+                if (
+                    !tradeOffers ||
+                    tradeOffers.length < 2 ||
+                    !Array.from(tradeOffers).every((offer) => offer.isConnected)
+                ) {
                     tradeOffers = document.querySelectorAll(
                         '.trade-request-window-offer',
                     );
@@ -369,7 +380,7 @@ export function init() {
 }
 
 function startPrefetching() {
-    prefetchRequests.forEach((req) => (req.active = false));
+    prefetchRequests.forEach((req) => req.disconnect());
     prefetchRequests = [];
 
     const handleLink = (el) => {
@@ -524,7 +535,7 @@ async function injectTradePreview(
                     height: '16px',
                     zIndex: '2',
                 });
-                addTooltip(projIcon, 'Projected', { position: 'top' });
+                addTooltip(projIcon, ts('trading.projected'), { position: 'top' });
                 wrap.appendChild(projIcon);
             }
 
@@ -539,14 +550,14 @@ async function injectTradePreview(
                     height: '16px',
                     zIndex: '2',
                 });
-                addTooltip(rareIcon, 'Rare Item', { position: 'top' });
+                addTooltip(rareIcon, ts('trading.rareItem'), { position: 'top' });
                 wrap.appendChild(rareIcon);
             }
 
-            let tooltipHtml = `<b>${item.name}</b><br>RAP: ${item.rap ? item.rap.toLocaleString() : '?'}`;
-            tooltipHtml += `<br>Value: ${item.value ? item.value.toLocaleString() : '?'}`;
+            let tooltipHtml = `<b>${item.name}</b><br>${ts('trading.rap')}: ${item.rap ? item.rap.toLocaleString() : '?'}`;
+            tooltipHtml += `<br>${ts('trading.valueLabel')}: ${item.value ? item.value.toLocaleString() : '?'}`;
             if (item.serial) {
-                tooltipHtml += `<br>Serial: #${item.serial} / ${item.stock ? item.stock.toLocaleString() : '?'}`;
+                tooltipHtml += `<br>${ts('trading.serial')}: #${item.serial} / ${item.stock ? item.stock.toLocaleString() : '?'}`;
             }
             addTooltip(wrap, tooltipHtml, { position: 'top' });
             itemsDiv.appendChild(wrap);
@@ -576,7 +587,9 @@ async function injectTradePreview(
             );
             rDiv.appendChild(text);
 
-            const tooltipLabel = isGiving ? 'After Tax' : 'Before Tax';
+            const tooltipLabel = isGiving
+                ? ts('trading.afterTax')
+                : ts('trading.beforeTax');
             const tooltipValue = isGiving ? afterTax : data.robux;
 
             addTooltip(
@@ -601,7 +614,7 @@ async function injectTradePreview(
         rapTotal.style.display = 'flex';
         rapTotal.style.alignItems = 'center';
         rapTotal.style.justifyContent = 'center';
-        rapTotal.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span> RAP: ${data.totalRap.toLocaleString()}`;
+        rapTotal.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span> ${ts('trading.rap')}: ${data.totalRap.toLocaleString()}`;
         totalDiv.appendChild(rapTotal);
 
         const valueTotal = document.createElement('div');
@@ -611,7 +624,7 @@ async function injectTradePreview(
         valueTotal.style.display = 'flex';
         valueTotal.style.alignItems = 'center';
         valueTotal.style.justifyContent = 'center';
-        valueTotal.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;"> Value: ${data.totalValue.toLocaleString()}`;
+        valueTotal.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;"> ${ts('trading.valueLabel')}: ${data.totalValue.toLocaleString()}`;
         totalDiv.appendChild(valueTotal);
 
         div.appendChild(totalDiv);
@@ -620,7 +633,7 @@ async function injectTradePreview(
     };
 
     flex.appendChild(
-        createSide('You Give', previewData.giving, '#d43f3a', true),
+        createSide(ts('trading.youGive'), previewData.giving, '#d43f3a', true),
     );
 
     const middleDiv = document.createElement('div');
@@ -666,7 +679,7 @@ async function injectTradePreview(
     flex.appendChild(middleDiv);
 
     flex.appendChild(
-        createSide('You Get', previewData.receiving, '#00b06f', false),
+        createSide(ts('trading.youGet'), previewData.receiving, '#00b06f', false),
     );
 
     const dialogFooter = isRadixDialog

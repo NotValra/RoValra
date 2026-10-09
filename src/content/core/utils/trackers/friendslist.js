@@ -13,7 +13,7 @@ import {
 } from '../../apis/users.js';
 
 const FRIENDS_DATA_KEY = 'rovalra_friends_data';
-const FRIENDS_DATA_VERSION = 5;
+const FRIENDS_DATA_VERSION = 6;
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
 const TRUSTED_FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -202,6 +202,7 @@ export async function updateFriendsList(userId) {
             onlineMap.set(item.id, {
                 lastOnline: item.userPresence?.lastOnline,
                 lastLocation: item.userPresence?.placeId,
+                sortScore: item.sortScore,
             });
         });
 
@@ -439,6 +440,10 @@ export async function updateFriendsList(userId) {
                                 presence?.lastLocation ||
                                 existingFriend?.lastLocation ||
                                 null,
+                            sortScore:
+                                presence?.sortScore ??
+                                existingFriend?.sortScore ??
+                                null,
                         };
                     },
                 );
@@ -476,6 +481,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
             onlineMap.set(item.id, {
                 lastOnline: item.userPresence?.lastOnline,
                 lastLocation: item.userPresence?.placeId,
+                sortScore: item.sortScore,
             });
         });
 
@@ -487,6 +493,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
                     ...friend,
                     lastOnline: presence.lastOnline || friend.lastOnline,
                     lastLocation: presence.lastLocation || friend.lastLocation,
+                    sortScore: presence.sortScore ?? friend.sortScore ?? null,
                 };
             }
             return friend;
@@ -551,9 +558,24 @@ async function detectUnfriendEvents(userId, currentFriendRecords) {
     if (!(await settings.unfriendDetectorEnabled)) return;
     if (!currentFriendRecords?.length) return;
 
+    const actualUserId = await getAuthenticatedUserId(true);
+    if (!actualUserId || String(actualUserId) !== String(userId)) return;
+
     const result = await new Promise((resolve) =>
-        chrome.storage.local.get([UNFRIEND_SNAPSHOT_KEY], resolve),
+        chrome.storage.local.get(
+            [UNFRIEND_SNAPSHOT_KEY, FRIENDS_DATA_KEY],
+            resolve,
+        ),
     );
+
+    const expectedCount = result[FRIENDS_DATA_KEY]?.[userId]?.friendsCount;
+    if (
+        typeof expectedCount === 'number' &&
+        currentFriendRecords.length < expectedCount
+    ) {
+        return;
+    }
+
     const allSnapshots = result[UNFRIEND_SNAPSHOT_KEY] || {};
     const previousSnapshot = allSnapshots[userId] || null;
     const currentIds = new Set(currentFriendRecords.map((friend) => friend.id));
@@ -671,7 +693,7 @@ let initialFriendsRefreshPromise = null;
 export function initFriendsListTracking() {
     if (!initialFriendsRefreshPromise) {
         initialFriendsRefreshPromise = (async () => {
-            const userId = await getAuthenticatedUserId();
+            const userId = await getAuthenticatedUserId(true);
             if (!userId) return;
 
             const friendsList = await updateFriendsList(userId);

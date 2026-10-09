@@ -1,0 +1,2275 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Chia sẻ",
+        "serverCopied": "Đã sao chép!",
+        "recentServerTitle": "Máy chủ",
+        "decalOptions": "Tuỳ chọn hình ảnh"
+    },
+    "common": {
+        "select": "Chọn...",
+        "search": "Tìm kiếm",
+        "rovalraSettings": "Cài đặt RoValra",
+        "filterItems": "Lọc vật phẩm",
+        "applyFilter": "Áp dụng bộ lọc",
+        "uploadFile": "Tải lên tệp",
+        "change": "Thay đổi",
+        "invalidFileFormat": "Định dạng tệp không hợp lệ.",
+        "invalidImageFile": "Định dạng tệp không hợp lệ. Xin hãy tải lên một hình ảnh hợp lệ.",
+        "fileProcessingFailed": "Xử lý tệp thất bại. Xin hãy thử tệp khác.",
+        "errorProcessingFile": "Lỗi khi xử lý tệp. Xin hãy thử tệp khác.",
+        "less": "Ít",
+        "more": "Nhiều",
+        "pastYear": "Năm qua",
+        "past6Months": "6 tháng qua",
+        "past3Months": "3 tháng qua",
+        "pastMonth": "Tháng qua",
+        "pastWeek": "Tuần qua",
+        "unnamedProduct": "Vật phẩm không tên",
+        "offSale": "Ngừng bán",
+        "robloxExperience": "Trải nghiệm Roblox",
+        "subplace": "Bản đồ phụ",
+        "subplaceUpper": "BẢN ĐỒ PHỤ",
+        "offline": "Ngoại tuyến",
+        "website": "Trên web",
+        "playing": "Đang chơi game",
+        "playingGame": "Đang chơi {{gameName}}",
+        "studio": "Trong studio",
+        "share": "Chia sẻ",
+        "copied": "Đã sao chép!",
+        "free": "Miễn phí",
+        "unknown": "Không rõ",
+        "somethingWentWrong": "Đã xảy ra lỗi",
+        "robloxPlusSubscriber": "Người đăng ký Roblox Plus",
+        "joinServerFull": "Tham gia (máy chủ đầy)",
+        "id": "ID: ",
+        "profile": "Hồ sơ",
+        "error": "Lỗi",
+        "rovalraDeveloper": "Nhà phát triển RoValra",
+        "close": "Đóng",
+        "confirmAction": "Xác nhận hành động",
+        "areYouSure": "Bạn có chắc muốn tiếp tục không?",
+        "confirm": "Xác nhận",
+        "cancel": "Huỷ bỏ"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Gilbert xung quanh bạn",
+        "title": "Chọn khu vực RoValra",
+        "automatic": "Tự động",
+        "servers": "Máy chủ: ",
+        "datacenters": "Trung tâm dữ liệu: ",
+        "filterByRegion": "Lọc máy chủ theo khu vực",
+        "filterByRegionItem": "Lọc theo {{region}} ({{count}} máy chủ)",
+        "filterByUptime": "Lọc máy chủ theo thời gian hoạt động (mới nhất/cũ nhất)",
+        "filterByVersion": "Lọc máy chủ theo phiên bản game"
+    },
+    "guidelines": {
+        "title": "Quy tắc RoValra",
+        "message": "Bằng cách dùng RoValra, bạn đồng ý tuân theo Điều khoản sử dụng của RoValra. Việc không tuân theo những điều khoản này có thể dẫn đến đình chỉ quyền truy cập vào các tính năng cụ thể, như bong bóng trạng thái hay danh xưng.<br><br><b>Điều cần nhớ:</b><br>• Bạn không được điều hướng người chơi khỏi nền tảng.<br>• Bạn không đuợc làm những hành vi không phù hợp.<br>• Bạn không được vi phạm Điều khoản sử dụng của Roblox.<br><br>Đọc thêm tại <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "Tôi hiểu"
+    },
+    "review": {
+        "requestMessage": "Có vẻ như bạn đang tận hưởng RoValra!\n Không ngần ngại để lại một đánh giá chứ?\n Việc đó giúp RoValra tiếp tục miễn phí cho tất cả mọi người mà không cần trả phí.",
+        "leaveReview": "Để lại đánh giá",
+        "notNow": "Không phải bây giờ",
+        "doNotShowAgain": "Đừng hiện nữa",
+        "rateTitle": "Đánh giá RoValra",
+        "donationMessage": "Việc vận hành các tính năng như chọn khu vực khá tốn kém và RoValra hoàn toàn dựa vào các khoản ủng hộ để chi trả những chi phí đó.\n\nViệc ủng hộ sẽ giúp chúng tôi duy trì các máy chủ nên các tính năng thế này có thể tiếp tục miễn phí cho tất cả mọi người.",
+        "donate": "Ủng hộ",
+        "donationTitle": "Bạn có muốn hỗ trợ RoValra không?"
+    },
+    "heatmap": {
+        "updatesBetween": "Cập nhật từ {{start}} - {{end}} vào {{date}}",
+        "updatesOn": "Cập nhật vào {{date}}",
+        "trackingSince": "Lịch sử cập nhật chỉ được theo dõi từ 15/02/2026"
+    },
+    "profileFeatures": {
+        "title": "Tính năng của RoValra"
+    },
+    "serverFilters": {
+        "newest": "Máy chủ mới nhất",
+        "oldest": "Máy chủ cũ nhất",
+        "uptime": "Thời gian hoạt động máy chủ",
+        "version": "Phiên bản",
+        "enterVersion": "Nhập phiên bản",
+        "region": "Khu vực",
+        "versionPlaceholder": "Phiên bản"
+    },
+    "serverInfo": {
+        "loading": "Đang tải...",
+        "versionUnknown": "Không rõ phiên bản",
+        "version": "Phiên bản {{version}}",
+        "versionLabel": "Phiên bản",
+        "regionTooltip": "Khu vực máy chủ: {{region}}",
+        "performanceTooltip": "Hiệu năng máy chủ",
+        "latest": " (Mới nhất)",
+        "oldest": " (Cũ nhất)",
+        "serverFull": "Máy chủ đã đầy",
+        "privateServer": "Đang chơi trong máy chủ riêng",
+        "purchaseGame": "Mua game để xem khu vực.",
+        "currentVersionTooltip": "Phiên bản hiện tại đã được xuất bản."
+    },
+    "serverStats": {
+        "totalServers": "Tổng máy chủ",
+        "totalServersTooltip": "Tổng số máy chủ mà RoValra đang theo dõi trong trải nghiệm này",
+        "oldest": "Cũ nhất",
+        "oldestTooltip": "Phiên bản cũ nhất mà một máy chủ đang chạy."
+    },
+    "preferredRegion": {
+        "criticalError": "API Join của Roblox đang không phản hồi. Bạn có thể phải chờ một chút.\nChuyện này thường hay xây ra bởi lỗi mạng hoặc hoặc một vấn đề nào đó từ máy chủ. Nếu lỗi này tiếp tục xảy ra, hãy thử tắt [Khu vực yêu thích.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) hoặc dọn bộ nhớ đệm của trình duyệt.\nNếu vấn đề này vẫn tiếp tục diễn ra, hãy báo cáo vấn đề này trong máy chủ Discord RoValra.\n\n---\n**Chi tiết lỗi:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Roblox có thể đã thay đổi địa chỉ API gamejoin. Việc này vượt khỏi sự kiểm soát của RoValra và nó sẽ ảnh hưởng việc chọn khu vực một chút; chúng tôi đang sửa nó nhanh nhất có thể.\n\n---\n**Chi tiết lỗi:**\n{{detailMsg}}",
+        "detectingLocation": "Đang nhận diện vị trí của bạn...",
+        "closestRegion": "khu vực gần nhất",
+        "inactiveRegion": "{{region}} không còn được sử dụng làm vị trí máy chủ của Roblox.",
+        "scanningLocally": "Đang quét cục bộ cho {{region}}...",
+        "regionApiUnavailable": "API Region không khả dụng. Đang quét {{region}}...",
+        "findingLowestLatency": "Đang tìm máy chủ có độ trễ thấp nhất...",
+        "searchingInRegion": "Đang tìm trong khu vực {{region}}...",
+        "fallbackInactive": "Máy chủ tốt nhất theo API không khả dụng. Đang quét cục bộ cho {{region}}...",
+        "noServersApi": "Không tìm thấy server nào trong khu vực {{region}} qua API. Đang quét cục bộ...",
+        "loadBalancing": "{{region}} chỉ được dùng cho cân bằng tải và có vẻ chỉ hoạt động dưới tải nặng. Đang quét...",
+        "foundJoining": "Đã tìm thấy {{region}}! Đang tham gia...",
+        "foundContinuing": "Đã tìm thấy: {{region}}. Tiếp tục tìm kiếm {{targetRegion}}...",
+        "foundVerifying": "Đã tìm thấy {{region}}! Đang xác nhận...",
+        "verifyingStatus": "Đang xác nhận tình trạng máy chủ...",
+        "searchingClosest": "Đang tìm kiếm khu vực gần nhất với {{region}}...",
+        "noServersRunning": "Không có máy chủ {{region}} nào đang chạy.",
+        "joinRegion": "Tham gia {{region}}",
+        "couldNotFindServers": "Không thể tìm thấy máy chủ nào."
+    },
+    "purchaseModal": {
+        "title": "Mua vật phẩm",
+        "buy": "Mua",
+        "savingWithPlus": "Đang tiết kiệm <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> với Plus",
+        "subtotal": "Tạm tính",
+        "plusBenefit": "Quyền lợi Plus (giảm {{percent}}%)",
+        "total": "Tổng",
+        "insufficientRobux": "Không đủ Robux",
+        "purchasing": "Đang mua...",
+        "purchaseComplete": "Đã mua thành công",
+        "successMessage": "Bạn đã thành công mua <b>{{itemName}}</b>",
+        "ok": "OK",
+        "purchaseError": "Lỗi khi mua",
+        "purchaseFailed": "Mua thất bại",
+        "unknownError": "Lỗi không rõ",
+        "errorLoadingTitle": "Lỗi khi tải vật phẩm",
+        "errorLoadingMessage": "Chúng tôi không thể tải thông tin cho vật phẩm này. Chi tiết: {{errorMessage}}. Vui lòng thử lại sau."
+    },
+    "avatarRotator": {
+        "stop": "Ngừng xoay",
+        "button": "Bộ xoay Avatar",
+        "selectMinimum": "Hãy chọn ít nhất 2 avatar",
+        "setRotators": "Đã đặt để xoay ({{count}})",
+        "selectedStatus": "Chọn avatar để xoay vòng. (đã chọn {{count}})",
+        "loading": "Đang tải...",
+        "loadMore": "Tải thêm",
+        "interval": "Lặp lại (giây)",
+        "loadingDetails": "Đang tải thông tin trang phục...",
+        "active": "Bộ xoay đã được bật!",
+        "disable": "Tắt",
+        "clearSelection": "Xoá chọn tất cả",
+        "title": "Bộ xoay Avatar"
+    },
+    "avatarFilters": {
+        "filterItems": "Lọc vật phẩm",
+        "filtering": "Đang lọc...",
+        "loading": "Đang tải...",
+        "creatorName": "Tên nhà sáng tạo",
+        "minPrice": "Giá thấp nhất",
+        "maxPrice": "Giá cao nhất",
+        "availability": "Tính khả dụng",
+        "showAll": "Hiện tất cả",
+        "onsaleOnly": "Chỉ đang bán",
+        "offsaleOnly": "Chỉ ngừng bán",
+        "effects": "Hiệu ứng",
+        "limiteds": "Giới hạn"
+    },
+    "trading": {
+        "searchInventory": "Tìm trong kho vật phẩm",
+        "continueSearch": "Tiếp tục tìm",
+        "filterTrades": "Lọc giao dịch",
+        "noResults": "Không tìm thấy kết quả nào",
+        "copyProof": "Sao chép bằng chứng",
+        "copied": "Đã sao chép!",
+        "value": "Giá trị:",
+        "demand": "Nhu cầu:",
+        "includeRobux": "Thêm Robux",
+        "openUserOnRolimons": "Mở người dùng trên Rolimons",
+        "openOnRolimons": "Mở {{type}} trên Rolimons",
+        "projectedItem": "Vật phẩm bị thổi giá",
+        "projected": "Bị thổi giá",
+        "rareItem": "Vật phẩm hiếm",
+        "rap": "RAP",
+        "valueLabel": "Giá trị",
+        "demandLabel": "Nhu cầu",
+        "bundle": "bundle",
+        "item": "item",
+        "serial": "Số sê-ri",
+        "afterTax": "Sau thuế",
+        "beforeTax": "Trước thuế",
+        "youGive": "Bạn đưa",
+        "youGet": "Bạn nhận"
+    },
+    "onboarding": {
+        "title": "Chào mừng đến với RoValra!",
+        "thankYou": "Cảm ơn bạn vì đã tải <strong>RoValra</strong>!",
+        "exploreFeatures": "Để thay đổi các cài đặt và khám phá tất cả tính năng, bạn có thể:",
+        "settingsInstruction": "Bấm vào <strong>biểu tượng bánh răng</strong> trên thanh điều hướng Roblox, và bấm vào \"Cài đặt RoValra\".",
+        "imageAlt": "Hướng dẫn tìm nút cài đặt RoValra trên trang web Roblox.",
+        "description": "RoValra là một tiện ích mở rộng Roblox miễn phí vĩnh viễn cố gắng để cải thiện trải nghiệm của mọi người!",
+        "gotIt": "Hiểu rồi!"
+    },
+    "catalogDependencies": {
+        "scan": "Quét phần phụ thuộc",
+        "loading": "Đang tải ({{count}})...",
+        "title": "Phần phụ thuộc",
+        "unknown": "Không rõ",
+        "assetFallback": "Tài sản {{id}}",
+        "verifiedBadge": "Huy hiệu đã xác nhận",
+        "by": "Bởi"
+    },
+    "catalogItemSales": {
+        "sales": "Doanh số",
+        "revenue": "Doanh thu",
+        "statsTooltip": "Thông số về doanh số và doanh thu là từ một cuộc rò rỉ và có vẻ sẽ không chính xác."
+    },
+    "fortyMethod": {
+        "loginRequired": "Không thể nhận diện mã người dùng của bạn. Hãy chắc chắn bạn đã đăng nhập.",
+        "setupExperience": "Thiết lập một trải nghiệm",
+        "specificTemplate": "Chỉ một mẫu cụ thể hoạt động",
+        "selectGroup": "Chọn một nhóm mà bạn có quyền quản lý trải nghiệm. <br>Và tiện ích mở rộng sẽ tạo trải nghiệm cho bạn.",
+        "or": "HOẶC",
+        "manualPlaceId": "Nhập một mã bản đồ thủ công <br> (Chỉ làm điều này nếu bạn biết bạn đang làm gì.)",
+        "donateSavedRobux": "Ủng hộ số robux tiết kiệm được cho RoValra",
+        "estimatedSavings": "Khoản tiết kiệm ước tính hiển thị sau đây chỉ mang tính tương đối và có thể không chính xác",
+        "importantInformation": "Thông tin quan trọng",
+        "acknowledge": "Tôi hiểu",
+        "groupRequired": "Cần nhóm",
+        "goBack": "Trở lại",
+        "ownershipDetected": "Đã nhận diện quyền sở hữu",
+        "understandContinue": "Tôi hiểu và tiếp tục",
+        "createExperience": "Tạo trải nghiệm",
+        "createNewExperience": "Tạo trải nghiệm mới",
+        "findingExperience": "Đang tìm trải nghiệm của bạn",
+        "findingExperienceWait": "Xin hãy chờ trong lúc chúng tôi tìm trải nghiệm mới tạo của bạn...",
+        "donateToRoValra": "Ủng hộ cho RoValra",
+        "back": "Trở lại",
+        "validationWarning": "Cảnh báo xác nhận",
+        "updateExperience": "Cập nhật trải nghiệm",
+        "useAnyway": "Vẫn sử dụng",
+        "permissionRequired": "Cần quyền",
+        "backToGroupSelection": "Trở lại bước chọn nhóm",
+        "experience": "Trải nghiệm",
+        "loading": "Đang tải...",
+        "setupGame": "Thiết lập game của bạn",
+        "saveContinue": "Lưu & tiếp tục",
+        "creating": "Đang tạo...",
+        "uploadingTemplate": "Đang tải lên mẫu...",
+        "configuring": "Đang điều chỉnh...",
+        "done": "Xong!",
+        "updating": "Đang cập nhật...",
+        "purchaseFailed": "Mua thất bại",
+        "gotIt": "Đã hiểu",
+        "confirmMethodPurchase": "Xác nhận mua phương pháp 40%",
+        "confirmCartPurchase": "Xác nhận mua trong giỏ",
+        "cancel": "Huỷ bỏ",
+        "alreadyOwned": "Đã sở hữu",
+        "joinToPurchase": "Tham gia game để mua",
+        "confirmPurchase": "Xác nhận mua",
+        "purchaseError": "Lỗi khi mua",
+        "ownerAccount": "<strong>Tài khoản sở hữu:</strong> Người sở hữu nhóm KHÔNG THỂ là tài khoản bạn đang dùng để mua. Chủ sỡ hữu nên là một tài khoản phụ với 2FA được bật và một mật khẩu mạnh, duy nhất.",
+        "payouts": "<strong>Rút robux:</strong> Chỉ tài khoản chủ sở hữu nhóm mới có thể rút số Robux đã tích lũy từ quỹ nhóm.",
+        "pendingRobux": "<strong>Robux đang chờ:</strong> Hãy biết rằng sau khi dùng tính năng này, số robux sẽ chờ xử lý trong khoảng 1 tháng trước khi có thể được rút.",
+        "groupRequiredBody": "Để dùng phương pháp 40% với nhóm của bạn, bạn cần một nhóm mà bạn có quyền quản lý trải nghiệm.",
+        "groupRequiredImportant": "<strong>Quan trọng:</strong> Để tính năng này hoạt động đúng cách, nhóm này phải được sở hữu bởi một tài khoản phụ được bảo mật. Tài khoản chính của bạn (cái bạn dùng để mua vật phẩm) nên có vai trò với quyền tạo và quản lý trải nghiệm.",
+        "groupRequiredDonate": "Nếu bạn không có nhóm phù hợp, bạn có thể hỗ trợ RoValra bằng cách dùng trải nghiệm của chúng tôi để mua, vì việc này sẽ giúp RoValra nhận số robux được tiết kiệm ❤️",
+        "ownershipBody": "Phương pháp 40% sẽ không hoạt động nếu bạn là chủ sở hữu của nhóm. Vui lòng chọn nhóm khác hoặc chuyển quyền sở hữu cho một tài khoản phụ được bảo mật.",
+        "experienceAccepted": "Trải nghiệm được chấp nhận",
+        "experienceAcceptedSpecific": "<strong>Chỉ vài trải nghiệm cụ thể có thể hoạt động.</strong> Hãy chắc chắn trải nghiệm này đã được thiết lập với các tệp lệnh phù hợp để xử lý giao dịch mua trong trải nghiệm.",
+        "experienceAcceptedGroup": "Hãy chắc chắn trải nghiệm sở hữu bởi một nhóm <strong>bạn có thể kiếm soát, nhưng không được sở hữu bởi tài khoản này</strong>. Nhóm nên được sở hữu bởi một tài khoản phụ. Nếu bạn sở hữu nhóm, phương pháp 40% sẽ không hoạt động.",
+        "experienceAcceptedPending": "Robux tiết kiệm được sẽ chờ xử lý trong khoảng 1 tháng trước khi có thể rút. Hãy dùng một tài khoản phụ bảo mật để thực hiện rút.",
+        "createExperienceBody": "Tạo một trải nghiệm mới trong nhóm này để dùng phương pháp 40%.",
+        "createNewExperienceBody": "Tạo một trải nghiệm mới cho phương pháp này:",
+        "createStepOne": "Mở trải nghiệm được sao chép trên Studio:",
+        "openStudio": "Mở Studio",
+        "createStepTwo": "Trong Studio, vào <strong>File > Game Settings > Security > Turn on \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>",
+        "createStepThree": "Chọn nhóm này từ danh sách Creator.",
+        "createStepFour": "Bấm <strong>Create</strong> và trải nghiệm sẽ được xuất bản",
+        "createPublishedBody": "Khi đã được xuất bản, bấm nút bên dưới và chúng tôi sẽ tự tìm và chọn trải nghiệm đó cho bạn.",
+        "publishedGame": "Tôi đã xuất bản game",
+        "saveSettingsUnavailable": "Lưu cài đặt thất bại. API Storage hiện không khả dụng.",
+        "groupsLoadFailed": "Tải nhóm thất bại. Hãy tải lại và thử lại.",
+        "noGroupSelected": "Chưa chọn nhóm nào. Xin hãy thử lại."
+    },
+    "risk": {
+        "projected": "Vật phẩm này đã được gắn cờ bị thổi giá.",
+        "rapMuchHigher": "RAP cao hơn nhiều so với Giá trị, giá trị có thể tăng.",
+        "rapHigher": "RAP cao hơn so với Giá trị, giá trị có thể tăng.",
+        "rapMuchLower": "RAP thấp hơn nhiều so với Giá trị, giá trị có thể giảm.",
+        "rapHigherSales": "RAP cao hơn doanh số, nhưng Giá tốt nhất đã xác thực nó.",
+        "rapUnusuallyHigh": "RAP cao bất thường so với giá bán ổn định gần đây.",
+        "rapHigherStable": "RAP cao hơn nhiều so với giá bán ổn định (Tăng dần).",
+        "bestPriceMuchLower": "Giá tốt nhất thấp hơn nhiều so với RAP.",
+        "bestPriceLower": "Giá tốt nhất thấp hơn so với RAP.",
+        "bestPriceHigher": "Giá tốt nhất cao hơn RAP.",
+        "bestPriceSlightlyHigher": "Giá tốt nhất hơi cao hơn RAP.",
+        "sufferingProjection": "Vật phẩm đang bị thổi giá.",
+        "stableTrend": "Xu hướng giá ổn định."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Chọn và dùng bất cứ chủ đề nào mà không cần Roblox Plus."
+    },
+    "items": {
+        "hiddenFromMarketplace": "Vật phẩm này đang bị ẩn khỏi Chợ",
+        "notFound": "Không tìm thấy",
+        "failedToLoad": "Tải thất bại",
+        "onHold": "Đang bị tạm giữ",
+        "faeItem": "Vật phẩm đang chờ xác thực FAE (Độ tuổi)"
+    },
+    "inventory": {
+        "openRolimons": "Mở trong Rolimon's",
+        "searchPlaceholder": "Tìm bằng tên vật phẩm..."
+    },
+    "games": {
+        "failedToLoad": "Tải game thất bại"
+    },
+    "gameBookmarks": {
+        "bookmark": "Đánh dấu",
+        "saved": "Đã đánh dấu",
+        "title": "Dấu trang",
+        "uncategorized": "Chưa được phân loại",
+        "create": "+ Tạo phân loại mới",
+        "categoryName": "Tên phân loại",
+        "createSave": "Tạo và lưu",
+        "save": "Lưu thay đổi",
+        "deleteCategory": "Xoá phân loại",
+        "deleteCategoryConfirm": "Bạn có chắc không? Việc này sẽ xoá phân loại và loại bỏ nó khỏi tất cả game được đánh dấu.",
+        "confirm": "Xoá",
+        "cancel": "Huỷ bỏ",
+        "remove": "Xoá dấu trang",
+        "error": "Không thể lưu dấu trang. Vui lòng thử lại.",
+        "loading": "Đang tải game…",
+        "all": "Tất cả",
+        "topic": "Game đã đánh dấu",
+        "empty": "Chưa có game được đánh dấu nào trong phân loại này."
+    },
+    "homeLayout": {
+        "untitled": "Chưa đặt tên",
+        "empty": "RoValra không thể tìm thấy bố cục, hãy tải lại và thử lại.",
+        "reset": "Reset",
+        "save": "Lưu",
+        "overlayTitle": "Bố cục trang chủ",
+        "button": "Tuỳ chỉnh bố cục",
+        "edit": "Chỉnh sửa",
+        "settingsTitle": "Cài đặt phân loại",
+        "visibility": "Hiển thị",
+        "visibilityDescription": "Chọn bạn muốn phân loại này hiện trên trang chủ hay không.",
+        "accurateContinue": "Phần Tiếp tục chính xác",
+        "accurateContinueDescription": "Sắp xếp phần Tiếp tục qua lần cuối bạn chơi.",
+        "enable": "Bật",
+        "disable": "Tắt",
+        "show": "Hiện",
+        "hide": "Ẩn"
+    },
+    "sidebarLayout": {
+        "untitled": "Chưa đặt tên",
+        "empty": "RoValra không thể tìm thấy các nút thanh bên.",
+        "reset": "Reset",
+        "save": "Lưu",
+        "overlayTitle": "Bố cục thanh bên",
+        "button": "Tuỳ chỉnh bố cục",
+        "myProfile": "Hồ sơ của tôi",
+        "disabled": "Tắt",
+        "show": "Hiện",
+        "hide": "Ẩn"
+    },
+    "topbarLayout": {
+        "empty": "RoValra không thể tìm thấy mục thanh trên được hỗ trợ nào.",
+        "reset": "Reset",
+        "save": "Lưu",
+        "overlayTitle": "Bố cục thanh trên",
+        "button": "Bố cục thanh trên",
+        "disabled": "Bắt buộc",
+        "show": "Hiện",
+        "hide": "Ẩn",
+        "labels": {
+            "logo": "Logo Roblox",
+            "charts": "Bảng xếp hạng",
+            "marketplace": "Chợ",
+            "create": "Tạo",
+            "robux": "Robux",
+            "search": "Tìm kiếm",
+            "profile": "Hồ sơ",
+            "qol": "Trạng thái",
+            "topbarLayout": "Bố cục thanh trên",
+            "notifications": "Thông báo",
+            "robuxBalance": "Số dư Robux",
+            "settings": "Cài đặt"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Bạn trước đó",
+        "nextFriends": "Hiện thêm bạn",
+        "isPlaying": "{{name}} đang chơi",
+        "online": "Trực tuyến",
+        "inStudio": "Đang trong Studio",
+        "offline": "Ngoại tuyến",
+        "friendFallback": "Bạn",
+        "join": "Tham gia",
+        "chat": "Trò chuyện",
+        "viewProfile": "Xem hồ sơ"
+    },
+    "friendLabels": {
+        "menuAction": "Đặt nhãn bạn",
+        "dialogTitle": "Nhãn {{displayName}}",
+        "inputLabel": "Nhãn bạn",
+        "inputPlaceholder": "Bạn thân, Bạn học,",
+        "existingLabels": "Nhãn có sẵn",
+        "friendFallback": "Bạn",
+        "save": "Lưu",
+        "remove": "Xoá",
+        "cancel": "Huỷ bỏ"
+    },
+    "underratedGames": {
+        "topic": "Game hay nhưng ít người biết",
+        "subtitle": "Những game hay nhưng ít người biết được chọn tay bởi cộng đồng RoValra.",
+        "rotates": "Làm mới sau",
+        "suggestOnDiscord": "Đề xuất game trên {{discord}}",
+        "ageRestrictionWarning": "Một vài game có thể bị khoá cho 16+ vì quy định 250 HEP của Roblox."
+    },
+    "playtime": {
+        "topic": "Thời gian chơi",
+        "period": "Khoảng thời gian chơi",
+        "today": "Hôm nay",
+        "thisWeek": "Tuần này",
+        "thisMonth": "Tháng này",
+        "thisYear": "Năm nay",
+        "allTime": "Mọi lúc",
+        "hours": "{{value}} giờ",
+        "minutes": "{{value}} phút"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} bạn chung",
+        "pill_other": "{{count}} bạn chung",
+        "tooltip": "Những người bạn bạn có chung bạn với người này",
+        "tab": "Bạn chung",
+        "title": "Bạn chung ({{count}})",
+        "empty": "Bạn không có người bạn chung nào với người dùng này."
+    },
+    "trustedFriends": {
+        "pendingConnection": "Bạn tin cậy (đang chờ)",
+        "pendingRequest": "Lời mời làm Bạn tin cậy đang chờ",
+        "addConnection": "Thêm Bạn tin cậy",
+        "addConfirmation": "Bạn có chắc muốn gửi lời mời làm Bạn tin cậy?",
+        "sendRequest": "Gửi lời mời",
+        "sending": "Đang gửi...",
+        "requestSent": "Đã gửi lời mời làm Bạn tin cậy!",
+        "requestFailed": "Lỗi khi gửi lời mời làm Bạn tin cậy.",
+        "errorSending": "Lỗi gửi",
+        "acceptConnection": "Chấp nhận Bạn tin cậy",
+        "acceptConfirmation": "Bạn có chắc muốn chấp nhận lời mời làm Bạn tin cậy này?",
+        "accept": "Chấp nhận",
+        "accepting": "Đang chấp nhân...",
+        "requestAccepted": "Đã chấp nhận lời mời làm Bạn tin cậy!",
+        "acceptFailed": "Lỗi khi chấp nhận lời mời làm Bạn tin cậy.",
+        "errorAccepting": "Lỗi chấp nhận",
+        "removeConnection": "Xoá Bạn tin cậy",
+        "removeConfirmation": "Bạn có chắc muốn xoá người Bạn tin cậy này?",
+        "remove": "Xoá",
+        "removing": "Đang xoá...",
+        "connectionRemoved": "Xoá Bạn tin cậy thành công!",
+        "removeFailed": "Lỗi khi xoá Bạn tin cậy.",
+        "errorRemoving": "Lỗi xoá"
+    },
+    "chatEligibility": {
+        "canChat": "Bạn có thể trò chuyện với người dùng này.",
+        "cannotChat": "Người dùng này nằm ngoài vùng tuổi của bạn.",
+        "ageCheckRequired": "Người dùng này chưa xác thực độ tuổi."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Đang mặc",
+        "items": "Vật phẩm",
+        "cosmetics": "Phụ kiện",
+        "bodyParts": "Bộ phận cơ thể",
+        "animations": "Hoạt ảnh",
+        "emotes": "Biểu cảm"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Người dùng này không có trải nghiệm công khai nào",
+        "overlayText": "Trải nghiệm ẩn",
+        "noHiddenGames": "Người dùng này không có trải nghiệm ẩn nào.",
+        "buttonText": "Trải nghiệm ẩn",
+        "labels": {
+            "sort": "Sắp xếp",
+            "order": "Thứ tự",
+            "showAll": "Hiện tất cả"
+        },
+        "sort": {
+            "default": "Mặc định",
+            "likeRatio": "Tỷ lệ lượt thích",
+            "likes": "Lượt thích",
+            "dislikes": "Lượt không thích",
+            "players": "Số người chơi",
+            "name": "Tên (Z-A)"
+        },
+        "order": {
+            "descending": "Giảm dần",
+            "ascending": "Tăng dần"
+        },
+        "noMatches": "Không có trải nghiệm nào thoả bộ lọc.",
+        "loading": "Đang tải..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Trải nghiệm ẩn của nhóm (Tổng {{count}})",
+        "noHiddenGames": "Nhóm này không có trải nghiệm ẩn nào.",
+        "buttonText": "Trải nghiệm ẩn",
+        "labels": {
+            "sort": "Sắp xếp",
+            "order": "Thứ tự",
+            "showAll": "Hiện tất cả"
+        },
+        "sort": {
+            "recentlyUpdated": "Cập nhật gần đây",
+            "likeRatio": "Tỷ lệ lượt thích",
+            "likes": "Lượt thích",
+            "dislikes": "Lượt không thích",
+            "players": "Số người chơi",
+            "name": "Tên (Z-A)"
+        },
+        "order": {
+            "descending": "Giảm dần",
+            "ascending": "Tăng dần"
+        },
+        "noMatches": "Không có trải nghiệm nào thoả bộ lọc.",
+        "loadingMore": "Đang tải thêm game..."
+    },
+    "userOutfits": {
+        "loading": "Đang tải trang phục...",
+        "back": "Trở lại",
+        "totalPrice": "Tổng giá trị:",
+        "loadingItems": "Đang tải vật phẩm...",
+        "noItems": "Trang phục này không có vật phẩm nào.",
+        "errorLoadingItems": "Không thể tải vật phẩm.",
+        "buttonText": "Hiện trang phục",
+        "overlayTitle": "Trang phục người dùng",
+        "overlayTitleUser": "Trang phục của {{displayName}}",
+        "noOutfits": "Người dùng này không có trang phục.",
+        "inventoryPrivate": "Kho đồ của người dùng này đang ở chế độ riêng tư",
+        "errorNoUserId": "Không thể xác định mã người dùng từ trang này.",
+        "errorFetch": "Không thể tải trang phục."
+    },
+    "donationLink": {
+        "donate": "Ủng hộ",
+        "overlayTitle": "Pls Donate",
+        "description": "Nút này sẽ bật \"PLS DONATE\" nơi bạn có thể ủng hộ ngoại tuyến\n\nDo các phí từ Roblox (30%) và game (10%), người dùng sẽ chỉ được nhận 60% tổng số Robux.\n\nKhi tham gia, màn hình \"Offline Donations\" sẽ hiện lên với tên người này được nhập sẵn. Hãy nhấn nút tặng để vào cửa hàng của người này và mua gamepass để ủng hộ.",
+        "joinButton": "Tham gia Pls Donate",
+        "goBackButton": "Quay lại",
+        "loadingGamePasses": "Đang tải gamepass...",
+        "priceLowToHigh": "Giá (Thấp đến cao)",
+        "priceHighToLow": "Giá (Cao đến thấp)",
+        "userGamePasses": "Gamepass của {{username}}",
+        "copyDonationLink": "Sao chép liên kết ủng hộ",
+        "copyLinkDescription": "Việc này sao chép một liên kết đặc biệt tới hồ sơ này.Khi người dùng RoValra mở nó, bảng ủng hộ này sẽ tự động xuất hiện.<br><br><strong>Lưu ý:</strong> Chỉ người dùng RoValra sẽ thấy màn hình ủng hộ, những người khác sẽ thấy hồ sơ bình thường.",
+        "copyLinkButton": "Sao chép liên kết",
+        "copySuccess": "Đã sao chép thành công liên kết ủng hộ",
+        "noGamePassesFound": "Không tìm thấy gamepass nào trong game của {{username}}.",
+        "errorLoading": "Lỗi tải gamepass: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Tham gia lập tức",
+        "stopJoining": "Ngừng tham gia",
+        "description": "Tính năng này sẽ tự động thử tham gia người dùng ngay khi họ vào một trải nghiệm.<br><br>Tính năng này yêu cầu người được tham gia cho phép mọi người tham gia hoặc bạn là bạn bè của họ.",
+        "searchPlaceholder": "Tìm một trải nghiệm hoặc mã bản đồ (tuỳ chọn)",
+        "continue": "Tiếp tục",
+        "cancel": "Huỷ bỏ",
+        "confirmTitle": "Xác nhận hành động"
+    },
+    "rap": {
+        "error": "Lỗi",
+        "private": "Riêng tư",
+        "openInRolimons": "Mở trong Rolimon's",
+        "thisUser": "người dùng này",
+        "rolimonsRedirect": "Bạn chuẩn bị được chuyển hướng sang hồ sơ của {{username}} trên Rolimon's, một trang web ngoài dành cho các giao dịch và giá trị vật phẩm.<br><br>Bạn có muốn tiếp tục?",
+        "continueToRolimons": "Tiếp tục tới Rolimon's",
+        "user": "Người dùng",
+        "loadingItems": "Đang tải thêm vật phẩm...",
+        "noItemsMatch": "Không có vật phẩm nào khớp từ khoá.",
+        "collectiblesTitle": "Bộ sưu tập của {{displayName}} ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "Bộ sưu tập của {{displayName}} (Giá trị {{totalRapString}})",
+        "inventoryPrivateOrNoLimiteds": "Kho vật phẩm của người này ở chế độ riêng tư hoặc không có vật phẩm giới hạn.",
+        "searchByName": "Tìm bằng tên vật phẩm",
+        "itemAmount": "Số vật phẩm sở hữu: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Gửi"
+    },
+    "privateServer": {
+        "processingTitle": "Xử lý máy chủ",
+        "starting": "Đang khởi chạy...",
+        "cancel": "Huỷ bỏ",
+        "cancelling": "Đang huỷ bỏ...",
+        "activating": "Đang kích hoạt máy chủ",
+        "inactivating": "Đang vô hiệu hoá máy chủ",
+        "progressText": "{{actionText}} máy chủ {{current}} trên {{total}}...",
+        "unknownApiError": "Một lỗi API không xác định đã xảy ra.",
+        "processCancelled": "Thao tác xử lý đã bị huỷ. <span class=\"success-text\">{{count}} máy chủ đã được xử lý.</span>",
+        "completed": "Đã hoàn thành: <span class=\"success-text\">{{successCount}} thành công</span>, <span class=\"error-text\">{{errorCount}} thất bại</span>.",
+        "processingComplete": "Xử lý hoàn tất",
+        "confirmationTitle": "Xác nhận hành động",
+        "confirmationMessage": "Bạn chuẩn bị đặt {{count}} máy chủ riêng tư thành {{action}}.",
+        "confirmationJoinable": "Điều này sẽ khiến máy chủ có thể tham gia.",
+        "confirmationUnjoinable": "Điều này sẽ khiến máy chủ không thể tham gia.",
+        "confirmationReversible": "Bạn luôn có thể thay đổi cài đặt này sau.",
+        "confirm": "Xác nhận",
+        "deselectAll": "Huỷ chọn tất cả",
+        "selectAll": "Chọn tất cả",
+        "bulkInactivate": "Vô hiệu hóa hàng loạt",
+        "bulkActivate": "Kích hoạt hàng loạt",
+        "setInactive": "Vô hiệu hóa",
+        "setActive": "Kích hoạt",
+        "noServersFound": "Không tìm thấy máy chủ riêng tư {{status}} nào.",
+        "byCreator": "Bởi ",
+        "allowJoining": "Cho phép tham gia",
+        "friendsAllowed": "Bạn bè được cho phép"
+    },
+    "firstAccount": {
+        "label": "Tài khoản đầu tiên",
+        "yes": "Có",
+        "no": "Không",
+        "tooltip": "Dòng này cho biết liệu Roblox có coi tài khoản của bạn là tài khoản đầu tiên hay không. <br>Thông tin này đến trực tiếp từ Roblox và có thể không chính xác.",
+        "createdDate": "Ngày tạo tài khoản đầu tiên: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "Trong Trusted Creator Program",
+        "yes": "Có",
+        "no": "Không",
+        "tooltip": "Đã tìm thấy một cách để kiểm tra cái này và nó khá thú vị :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Chủ đề",
+        "light": "Sáng",
+        "dark": "Tối"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Cài đặt tuỳ chỉnh hình ảnh",
+            "source": "Nguồn hình ảnh",
+            "opacity": "Độ mờ hình ảnh",
+            "customSize": "Tỷ lệ tùy chỉnh",
+            "blur": "Mờ",
+            "overrideTopbarSidebar": "Chế độ trong suốt",
+            "size": {
+                "label": "Kích cỡ hình nền",
+                "cover": "Phủ kín",
+                "contain": "Vừa vặn",
+                "auto": "Tự động",
+                "custom": "Tuỳ chỉnh"
+            },
+            "position": {
+                "label": "Vị trí hình nền",
+                "center": "Chính giữa",
+                "top": "Trên cùng",
+                "bottom": "Dưới cùng",
+                "left": "Trái",
+                "right": "Phải",
+                "topleft": "Trên cùng bên trái",
+                "topright": "Trên cùng bên phải",
+                "bottomleft": "Dưới cùng bên trái",
+                "bottomright": "Dưới cùng bên phải"
+            },
+            "overlay": {
+                "color": "Màu lớp phủ",
+                "opacity": "Độ mờ lớp phủ"
+            },
+            "errors": {
+                "invalidUrl": "Nhập một liên kết https hợp lệ."
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Ngừng bán",
+        "text": "Giá trước đó:",
+        "lastOnSale": "Lần cuối được bán",
+        "for": "với"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Đã mở khoá"
+    },
+    "lastEquipped": {
+        "label": "Mặc lần cuối"
+    },
+    "pendingRobux": {
+        "tooltip": "Đây là ước tính số Robux từ số dư đang chờ xử lý của bạn sẽ khả dụng vào ngày mai, dựa trên dữ liệu giao dịch của bạn. Số lượng thực tế có thể thay đổi và con số này có thể không chính xác.",
+        "loading": "Đang tải...",
+        "error": "Lỗi: {{message}}",
+        "insufficientData": "Thiếu dữ liệu",
+        "insufficientDataTooltip": "Chưa đủ lịch sử giao dịch để đưa ra ước tính chính xác. Vui lòng chờ thêm các giao dịch hoàn tất.",
+        "label": "Robux xử lý xong vào ngày mai"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Tính toán Robux kiếm được",
+        "calculateEarned": "Tính toán doanh thu",
+        "pausedMessage": "Việc tính toán đã được dừng lại. Nhấn Tiếp tục đếm để đếm tiếp.",
+        "resumeCalculation": "Tiếp tục đếm",
+        "startNewCalculation": "Bắt đầu tính toán mới",
+        "description": "Tính toán tổng số Robux thu được từ Bán vật phẩm và Chi trả nhóm.",
+        "startCalculation": "Bắt đầu tính toán",
+        "transactionsScanned": "Các giao dịch đã quét",
+        "totalRobuxEarned": "Tổng số Robux thu được",
+        "breakdownLabel": "Chi tiết nguồn thu",
+        "calculatingTitle": "Đang tính toán tổng số Robux thu được",
+        "scanningHistory": "Đang tính toán tổng số Robux thu được...",
+        "rateLimited": "API bị giới hạn. Đang tiếp tục đếm...",
+        "calculationComplete": "Đã tính toán thành công",
+        "allScanned": "Đã hoàn thành quét tổng số Robux kiếm được.",
+        "newCalculation": "Tính toán mới",
+        "errorTitle": "Đã xảy ra lỗi",
+        "retry": "Thử lại",
+        "robloxLimitError": "Roblox đã trả về một lỗi máy chủ cục bộ. Nhiều khả năng sẽ không thể quét thêm giao dịch do các giới hạn từ Roblox.",
+        "noEarnings": "Không tìm thấy doanh thu nào.",
+        "other": "Khác",
+        "groupPayout": "Chi trả nhóm"
+    },
+    "totalSpent": {
+        "other": "Khác",
+        "na": "N/A",
+        "calculatingTitle": "Đang tính toán",
+        "calculatingRobuxTitle": "Đang tính toán số Robux đã tiêu",
+        "calculatingMoneyTitle": "Đang tính toán số tiền đã tiêu",
+        "calculatingText": "Đang tính toán...",
+        "calculatingRobuxText": "Đang tính toán số Robux đã tiêu...",
+        "calculatingMoneyText": "Đang tính toán số tiền đã tiêu...",
+        "rateLimited": "API bị giới hạn. Đang tiếp tục đếm...",
+        "calculationComplete": "Đã tính toán thành công",
+        "allScanned": "Các giao dịch liên quan đã được quét.",
+        "robuxAllScanned": "Hoàn thành quét tổng số Robux đã tiêu.",
+        "moneyAllScanned": "Hoàn thành quét tổng số tiền đã tiêu.",
+        "newCalculation": "Tính toán mới",
+        "errorTitle": "Đã xảy ra lỗi",
+        "retry": "Thử lại",
+        "calculateSpend": "Tính toán chi tiêu",
+        "pausedMessage": "Việc tính toán đã được dừng lại. Nhấn Tiếp tục đếm để đếm tiếp.",
+        "resumeCalculation": "Tiếp tục đếm",
+        "startNewCalculation": "Bắt đầu tính toán mới",
+        "description": "Chọn một chế độ để tính toán chi tiêu.",
+        "calculateRobux": "Tính số Robux đã tiêu",
+        "calculateMoney": "Tính số tiền đã tiêu",
+        "transactionsScanned": "Các giao dịch đã quét",
+        "totalRobuxSpent": "Tổng Robux đã tiêu",
+        "totalMoneySpent": "Tổng chi tiêu (ước tính)",
+        "itemTypeBreakdown": "Chi tiết loại vật phẩm",
+        "premiumBreakdown": "Chi tiết gói đăng ký Premium",
+        "purchaseBreakdown": "Chi tiết mua bằng Robux",
+        "noItems": "Không tìm thấy vật phẩm nào.",
+        "pack": "Gói",
+        "stipend": "Trợ cấp",
+        "errorUserId": "Không thể xác định mã người dùng.",
+        "robloxLimitError": "Roblox đã trả về một lỗi máy chủ cục bộ. Nhiều khả năng sẽ không thể quét thêm giao dịch do các giới hạn từ Roblox.",
+        "errorRetries": "Thất bại sau nhiều lần thử. Lỗi gần nhất: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Tổnh chi tiêu",
+        "loading": "Đang tải...",
+        "failedToLoad": "Tải thất bại",
+        "singlePurchase": "1 giao dịch",
+        "multiplePurchases": "{{count}} giao dịch",
+        "stillCalculating": "Tổng chi tiêu vẫn đang được tính toán."
+    },
+    "spentPerGame": {
+        "title": "Tổng chi mỗi Game",
+        "disclaimer": "Dữ liệu này có thể không chính xác vì các giới hạn từ Roblox",
+        "mostSpent": "Chi nhiều nhất",
+        "mostPurchases": "Nhiều giao dịch nhất",
+        "noPurchases": "Không tìm thấy giao dịch trong game nào.",
+        "singlePurchase": "1 giao dịch",
+        "multiplePurchases": "{{count}} giao dịch",
+        "loadMore": "Xem thêm (còn {{remaining}} giao dịch)",
+        "searchPlaceholder": "Tìm game",
+        "loading": "Đang tải chi tiêu trong game…",
+        "scanInProgress": "Đang quét các giao dịch, có thể tốn một chút thời gian.",
+        "loadError": "Không thể tải giao dịch trong game."
+    },
+    "spentPerCreator": {
+        "title": "Tổng chi mỗi Nhà sáng tạo",
+        "disclaimer": "Dữ liệu này có thể không chính xác vì các giới hạn từ Roblox",
+        "mostSpent": "Chi nhiều nhất",
+        "mostPurchases": "Nhiều giao dịch nhất",
+        "noPurchases": "Không tìm thấy giao dịch từ nhà sáng tạo nào.",
+        "unknownCreator": "Không rõ nhà sáng tạo",
+        "includeGameCreators": "Bao gồm cả nhà sáng tạo game",
+        "singlePurchase": "1 giao dịch",
+        "multiplePurchases": "{{count}} giao dịch",
+        "loadMore": "Xem thêm (còn {{remaining}} giao dịch)",
+        "searchPlaceholder": "Tìm nhà sáng tạo",
+        "loading": "Đang tải giao dịch từ nhà sáng tạo…",
+        "scanInProgress": "Đang quét các giao dịch, có thể tốn một chút thời gian.",
+        "loadError": "Không thể tải giao dịch từ nhà sáng tạo."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Thông tin",
+            "credits": "Người đóng góp",
+            "donatorPerks": "Đặc quyền người ủng hộ",
+            "settings": "Cài đặt",
+            "accountStanding": "Tình trạng tài khoản",
+            "store": "Cửa hàng"
+        },
+        "info": {
+            "title": "Thông tin về RoValra!",
+            "desc1": "RoValra là một tiện tích cố gắng đem những tính năng cải thiện trải nghiệm miễn phí và có thể truy cập bởi tất cả mọi người bằng cách khiến mọi thứ đều là mã nguồn mở.",
+            "desc2": "Một vài tính năng miễn phí vẫn dựa vào các máy chủ của RoValra và tốn tiền để duy trì.",
+            "desc3": "Các ủng hộ hỗ trợ giúp chi trả những khoản này, cho phép RoValra khiến nhiều tính năng miễn phí cho mọi người trong khi vẫn tiếp tục cải thiện từng ngày. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra là một dự án vì đam mê và sẽ luôn luôn là như thế.",
+            "suggestions": "Nếu bạn muốn đề xuất bất kì tính năng nào, hãy cho tôi biết thông qua máy chủ Discord hoặc qua Github",
+            "bugs": "Nếu bạn tìm thấy bất kì lỗi nào, hãy cho tôi biết thông qua máy chủ Discord hoặc qua Github",
+            "review": "Nếu bạn thích tiện tích mở rộng này, hãy cân nhắc <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">để lại đánh giá</a>, việc ấy giúp rất nhiều ấy <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Máy chủ Discord",
+            "github": "Kho mã Github",
+            "support": "Hỗ trợ RoValra",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Người đóng góp",
+            "translatorsTitle": "Nhà dịch thuật",
+            "featureCount_one": "{{count}} tính năng",
+            "featureCount_other": "{{count}} tính năng",
+            "contributorTooltips": {
+                "146089324": "WoozyNate đã tạo ra fisch, vốn là nguồn gốc của logo RoValra cũ. Bạn nên chơi thử fisch!",
+                "1337447242": "Tạo ra logo mới và tất cả hình ảnh trong cửa hàng.",
+                "795922138": "Nghĩ ra cái tên 'RoValra' như một trò đùa, nhưng quá buồn cười nên không thể không dùng.",
+                "2974594300": "Cải thiện UI, sửa lỗi và các đóng góp khác.",
+                "170038374": "Đã tạo ra các ý tưởng làm nền tảng cho một số tính năng của RoValra."
+            },
+            "sortLabel": "Sắp xếp Người đóng góp",
+            "sortMost": "Nhiều nhất",
+            "sortLeast": "Ít nhất",
+            "contributionCount_one": "Đã đóng góp tạo {{count}} tính năng",
+            "contributionCount_other": "Đã đóng góp tạo {{count}} tính năng",
+            "backendContributorsNote": "Những người này đã giúp với các thứ không phải tính năng.",
+            "loadingContributors": "Đang tải...",
+            "failedToLoadContributors": "Lỗi khi tải người đóng góp.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Đã thêm huy hiệu Nhà dịch thuật and huy hiệu WoozyNate",
+                    "nateGilbertFix": "Sửa huy hiệu của nates thành gilbert trở lại"
+                },
+                "caching": {
+                    "hashmap": "Thêm hashmap vào bộ xử lý cache"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Khắc phục lỗi thanh bên do một cập nhật của Roblox"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "Sửa lỗi lệch đồng bộ của trình parser RBXM và định dạng CFRAME"
+                },
+                "markdown": {
+                    "untrustedMd": "Thêm trình phân tích Markdown giới hạn cho người dùng chưa xác thực"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Thêm API cài đặt hợp nhất"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Đã cải thiện phần credit trong danh sách người đóng góp",
+                    "nonSettingCredits": "Thêm credit cho những tính năng và sự cải thiện mà không có cài đặt riêng"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Thêm nhận diện cho từng bậc ủng hộ"
+                },
+                "iconElement": {
+                    "addIcons": "Thêm phần tử `<icon>` cho phép sử dụng Builder Icons, Material Icons và RoValra Icons.",
+                    "addElement": "Thêm phần tử `<icon>` nền tảng cho phép sử dụng Builder Icons. Trước đó, dùng phần tử `<i>` có sẵn với các class.",
+                    "makeRoValraIcons": "Thêm một font cho RoValra Icons + một phương pháp xây dựng mới cho trang web.",
+                    "addBuilderIconsWOFF": "Thêm hosting cho Builder Icons trên trang web của RoValra, cũng như các font kích cỡ nhỏ hơn."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Thêm danh mục giao diện Plus trên website, giúp người dùng chỉ sử dụng đúng các giao diện được phép."
+                },
+                "locales": {
+                    "madeRo": "Giúp phiên dịch sang tiếng Rumani",
+                    "madeEs": "Giúp phiên dịch sang tiếng Tây Ban Nha",
+                    "madeRu": "Giúp phiên dịch sang tiếng Nga",
+                    "madeFr": "Giúp phiên dịch sang tiếng Pháp",
+                    "madeZh": "Giúp phiên dịch sang tiếng Trung",
+                    "madeVi": "Giúp phiên dịch sang tiếng Việt"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "Những đóng góp của {{user}}",
+                    "contributor": "Người đóng góp",
+                    "featureName": "Tính năng",
+                    "featureKey": "(Dev) Khoá tính năng"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "Quyền lợi của người ủng hộ!",
+            "subtitle": "Giúp sự phát triển của RoValra và nhận quyền lợi đặc biệt!",
+            "howToGet": "Cách để nhận quyền lợi",
+            "howToGetDesc": "Bạn có thể ủng hộ bằng cách mua gamepass trong game",
+            "goToGame": "Đi tới game ủng hộ",
+            "perkTiers": "Các bậc quyền lợi",
+            "perk": "Quyền lợi",
+            "currentTier": "Bậc hiện tại",
+            "tier1": "Bậc 1: Người hỗ trợ",
+            "tier1Desc": "Ủng hộ <strong>bất kì số Robux nào</strong>",
+            "tier1Reward": "Huy hiệu Donator 1",
+            "tier1DiscordRole": "Vai trò Donator 1 trong Discord + quyền lợi Discord bổ sung.",
+            "tier1Feature": "Đặt trạng thái và môi trường mà không cần thêm gì vào phần About me.",
+            "tier2": "Bậc 2: Người hỗ trợ",
+            "tier2Desc": "Ủng hộ <strong>200+ Robux</strong>",
+            "tier2Reward": "Huy hiệu Donator 2",
+            "tier2DiscordRole": "Vai trò Donator 2 trong Disocrd + quyền lợi Discord được nâng cấp.",
+            "tier3": "Bậc 3: Người hỗ trợ",
+            "tier3Desc": "Ủng hộ <strong>500+ Robux</strong>",
+            "tier3Reward": "Huy hiệu Donator 3",
+            "tier3DiscordRole": "Vai trò Donator 3 trong Discord + quyền lợi Discord tốt nhất.",
+            "previousRewards": "+ Những quyền lợi của bậc trước",
+            "moreComingSoon": "Nhiều quyền lợi hơn sắp đến.",
+            "note": "Lưu ý:\n- Huy hiệu có thể mất vài phút để xuất hiện sau khi ủng hộ.\n- Để tuỳ chỉnh hiển thị của huy hiệu, hãy vào tab cài đặt 'Hồ sơ'. \n- Việc ủng hộ qua commission tiếc thay sẽ không được tính quyền lợi, đây là một giới hạn của Roblox.\n- Khi bạn ủng hộ thì bạn đã đồng ý [Điều khoản sử dụng của RoValra](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "Hãy nhập ít nhất 2 kí tự để tìm kiếm.",
+            "noResults": "Không tìm thấy cài đặt nào trùng với \"{{query}}\"."
+        },
+        "ui": {
+            "common": {
+                "cancel": "Huỷ bỏ",
+                "okay": "Okay",
+                "ok": "OK",
+                "pleaseWait": "Xin chờ chút...",
+                "loading": "Đang tải...",
+                "unknown": "Không rõ",
+                "user": "Người dùng",
+                "unavailable": "Không khả dụng",
+                "notAvailable": "N/A"
+            },
+            "levels": {
+                "allGood": "Tất cả đều ổn",
+                "limited": "Bị giới hạn",
+                "veryLimited": "Rất giới hạn",
+                "atRisk": "Có nguy cơ đình chỉ",
+                "suspended": "Đã bị đình chỉ"
+            },
+            "search": {
+                "placeholder": "Tìm cài đặt..."
+            },
+            "controls": {
+                "clearStorage": "Dọn bộ nhớ",
+                "preview": "Xem trước",
+                "fadeStrength": "Độ mờ hiệu ứng",
+                "clickMe": "Nhấn vào tôi",
+                "enterValue": "Nhập giá trị",
+                "remove": "Xoá",
+                "add": "Thêm",
+                "experimental": "Thử nghiệm",
+                "beta": "Beta",
+                "deprecated": "Đã lỗi thời",
+                "invalidImageUrl": "Nhập một liên kết hình ảnh http:// hoặc https:// hợp lệ.",
+                "enablePermission": "Cho phép quyền {{permission}}"
+            },
+            "badges": {
+                "visibility": "Ẩn/hiện huy hiệu người ủng hộ của bạn."
+            },
+            "locks": {
+                "donatorTierRequired": "Yêu cầu Bậc quyền lợi RoValra {{tier}}",
+                "donatorPerk": "Quyền lợi ủng hộ RoValra(Bậc {{tier}})",
+                "featureDisabled": "Tính năng này đã bị khoá {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "Lưu ý trước khi bật tính năng",
+                "message": "Những tính năng với nhãn này thường thiếu ổn định hoặc thay đổi theo thời gian. Chúng có thể tăng thời gian chờ tải, UI không đồng nhất, vấn đề về trang web hoặc những biểu hiện không thể đoán trước.<br><br>Chỉ bật tính năng này nếu bạn hiểu nó sẽ không hoạt động một cách hoàn hảo.",
+                "acknowledge": "Tôi hiểu"
+            },
+            "environment": {
+                "exported": "JSON Môi trường đã được in ra bảng điều khiển (F12).",
+                "imported": "Cài đặt môi trường đã được nhập thành công. Trang này sẽ được tải lại để áp dụng thay đổi.",
+                "parseFailed": "Phân tích tệp JSON thất bại.",
+                "storageUsed": "Tổng bộ nhớ cục bộ đã dùng: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Danh xưng phải từ 15 kí tự trở xuống.",
+                "filterRejected": "Bộ lọc của Roblox đã từ chối danh xưng này. Hãy thử giá trị khác.",
+                "checkFailed": "Danh xưng không thể được kiểm tra bởi Roblox. Xin hãy thử lại.",
+                "filterBusy": "Bộ lọc danh xưng của Roblox đang bận. Xin hãy thử lại sau."
+            },
+            "port": {
+                "enableProfileNotes": "Bật Ghi chú hồ sơ trước khi nhập hoặc xuất các ghi chú.",
+                "exportedOne": "Đã xuất {{count}} ghi chú hồ sơ.",
+                "exportedMany": "Đã xuất {{count}} ghi chú hồ sơ.",
+                "exportFailed": "Không thể xuất ghi chú hồ sơ.",
+                "notesTooLarge": "Bản sao lưu ghi chú hồ sơ quá lớn.",
+                "invalidNotesBackup": "Đây không phải là một bản sao lưu ghi chú hồ sơ RoValra hợp lệ.",
+                "importedOne": "Đã nhập {{count}} ghi chú hồ sơ.",
+                "importedMany": "Đã nhập {{count}} ghi chú hồ sơ.",
+                "notesReadFailed": "Không thể đọc bản sao lưu ghi chú hồ sơ.",
+                "importFailed": "Không thể nhập bản sao lưu ghi chú hồ sơ.",
+                "exportUnexpectedError": "Đã có một lỗi xảy ra trong lúc xuất.",
+                "exportError": "Lỗi xuất cài đặt. Kiểm tra bảng điều khiển để biết chi tiết.",
+                "sanitizeError": "Không thể chuẩn hoá cài đặt để xuất. Kiểm tra bảng điều khiển để biết chi tiết.",
+                "invalidSettingsFile": "Có vẻ như đây không phải một tệp cài đặt RoValra hợp lệ.",
+                "invalidSettingsData": "Lỗi: Tệp cài đặt đã nhập chứa dữ liệu không hợp lệ hoặc có nguy cơ nguy hiểm cao.",
+                "settingsTooLarge": "Lỗi: Tệp cài đặt quá lớn. Kích cỡ tối đa là 1MB.",
+                "importError": "Lỗi nhập cài đặt. Kiểm tra bảng điều khiển để biết chi tiết.",
+                "malformedSettings": "Tệp cài đặt bị lỗi định dạng.",
+                "readFailed": "Không thể đọc tệp cài đặt. Tệp có thể đã bị hỏng hoặc sai định dạng.",
+                "importUnexpectedError": "Đã có một lỗi không xác định xảy ra khi nhập.",
+                "exportSettings": "Xuất cài đặt",
+                "importSettings": "Nhập cài đặt"
+            },
+            "changelogs": {
+                "title": "Lịch sử cập nhật",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Bản phát hành không tiêu đề",
+                "current": "Phiên bản của bạn",
+                "noNotes": "Không có ghi chú cập nhật nào cho bản phát hành này.",
+                "loading": "Đang tải lịch sử cập nhật...",
+                "empty": "Không có lịch sử nào khả dụng lúc này.",
+                "loadFailed": "Không thể tải lịch sử cập nhật. Hãy thử lại sau."
+            },
+            "parentRequest": {
+                "sendingTitle": "Đang gửi yêu cầu",
+                "sentTitle": "Đã gửi yêu cầu!",
+                "sentBody": "Yêu cầu của bạn đã được gửi tới phụ huynh và người giám hộ của bạn qua email.",
+                "experienceName": "Tên trải nghiệm là",
+                "sendFailedTitle": "Lỗi gửi yêu cầu",
+                "sendFailedBody": "Lỗi khi gửi yêu cầu vì lý do không xác định. Có thể bạn đã bị giới hạn, kiểm tra bảng điều khiển để biết thêm chi tiết.",
+                "cancelingTitle": "Đang huỷ yêu cầu",
+                "canceledTitle": "Đã huỷ yêu cầu",
+                "canceledBody": "Yêu cầu của bạn tới phụ huynh và người giám hộ đã bị huỷ.",
+                "cancelFailedTitle": "Huỷ gửi yêu cầu thất bại",
+                "cancelFailedBody": "Yêu cầu huỷ bỏ yêu cầu bỏ chặn của bạn đã thất bại. Có thể bạn đã bị giới hạn, kiểm tra bảng điều khiển để biết thêm chi tiết.",
+                "sendUnblock": "Gửi yêu cầu bỏ chặn",
+                "alreadyRequestedTitle": "Đã yêu cầu",
+                "alreadyRequestedBody": "Bạn đã yêu cầu bỏ chặn rồi đồ ngốc này!"
+            },
+            "donation": {
+                "donateUsd": "Ủng hộ (ít nhất $1 USD)",
+                "donateRobux": "Ủng hộ (ít nhất 5 Robux)",
+                "parentApprovalTitle": "Giúp hỗ trợ RoValra hơn nữa!",
+                "parentApprovalMessage": "RoValra nhận được nhiều phần ủng hộ hơn khi dùng gamepass. Chúng tôi thấy bạn có liên kết với ít nhất 1 tài khoản phụ huynh. Bạn có thể yêu cầu bỏ chặn trải nghiệm để RoValra nhận được nhiều phần chia hơn so với quần áo 2D (và 3D).",
+                "useMarketplace": "Dùng chợ",
+                "currencyLabel": "Đơn vị tiền tệ ủng hộ",
+                "donateWith": "Ủng hộ với",
+                "supportTitle": "Giúp hỗ trợ RoValra",
+                "supportDescription": "Nhận quyền lợi trang trí độc quyền khi ủng hộ",
+                "githubSponsors": "GitHub Sponsors",
+                "included": "Đã bao gồm",
+                "notIncluded": "Chưa bao gồm",
+                "totalDonated": "Tổng số tiền bạn đã ủng hộ RoValra: {{amount}}",
+                "tierTooltip": "Bậc ủng hộ của bạn",
+                "topDonators": "Top người ủng hộ (Robux)"
+            },
+            "profileBadge": {
+                "title": "Huy hiệu hồ sơ RoValra theo yêu cầu",
+                "description": "Nhận một huy hiệu RoValra theo yêu cầu cho hồ sơ của bạn",
+                "iconLabel": "Huy hiệu hồ sơ theo yêu cầu",
+                "getUsd": "Nhận ($5 USD)",
+                "getRobux": "Nhận (4,000 Robux)",
+                "purchaseIntro": "Khoản mua này dành cho những người thực sự muốn ủng hộ RoValra.",
+                "createTicket": "Sau khi mua vật phẩm này,hãy vào máy chủ Discord RoValra và tạo một phiếu hỗ trợ. TÀI KHOẢN DISCORD CỦA BẠN PHẢI ÍT NHẤT 30 NGÀY ĐỂ NHẬN",
+                "provideDetails": "Hãy đưa đội ngũ hỗ trợ hình này và nêu những gì bạn muốn có trong huy hiệu.",
+                "countsTowardTier": "Mua vật phẩm này có tính vào bậc ủng hộ của RoValra.",
+                "visibility": "Những huy hiệu theo yêu cầu này chỉ hiện cho người dùng RoValra.",
+                "imageRequirements": "Yêu cầu hình ảnh",
+                "webpRequirement": "Hình ảnh phải là một tệp <strong>WEBP</strong> nhỏ hơn <strong>1 MB</strong>.",
+                "noRobloxBadges": "Không thể dùng SVG và huy hiệu chính thức của Roblox.",
+                "noOfficialRoValraBadges": "Huy hiệu chính thức của RoValra như người đóng góp và hoạ sĩ không được cho phép.",
+                "followTerms": "Hình ảnh phải tuân theo Điều khoản sử dụng của Roblox",
+                "joinDiscord": "Tham gia máy chủ Discord RoValra",
+                "agree": "Đồng ý",
+                "agreeCountdown": "Đồng ý ({{count}})"
+            },
+            "githubSponsorBadge": {
+                "title": "Huy hiệu hồ sơ GitHub Sponsors",
+                "description": "Huy hiệu hồ sơ trái tim cầu vồng. Chỉ dành cho GitHub Sponsors",
+                "get": "Nhận (ít nhất $1 USD)"
+            },
+            "store": {
+                "artist": "Hoạ sĩ",
+                "artistTooltip": "{{name}} đã tạo viền ảnh đại diện này.",
+                "free": "Miễn phí",
+                "owned": "Đã sở hữu",
+                "equipped": "Đã dùng",
+                "equip": "Dùng",
+                "buy": "Mua",
+                "buyFor": "Mua với {{price}}",
+                "viewGamepass": "Xem gamepass",
+                "all": "Tất cả",
+                "new": "Mới",
+                "static": "TĨNH",
+                "animated": "ĐỘNG",
+                "borderTitle": "Cửa hàng viền ảnh đại diện",
+                "borderDescription": "Cửa hàng viền ảnh đại diện, mua viền ảnh đại diện để trực tiếp ủng hộ RoValra và các hoạ sĩ, <strong>Người ủng hộ bậc 3 nhận tất cả viền ảnh đại diện miễn phí.</strong> Mua viền ảnh đại diện tính vào Bậc người ủng hộ của bạn!",
+                "loadingBorders": "Đang tải viền..."
+            },
+            "border": {
+                "bundleNotice": "(Bao gồm cả bản Tĩnh và Động)",
+                "freeTier3Tooltip": "Miễn phí vì bạn có Người ủng hộ bậc 3!",
+                "ownedTooltip": "Bạn sở hữu viền này!",
+                "freeTooltip": "Có thể dùng viền này miễn phí.",
+                "supportNotice": "Mua phụ kiện này sẽ trực tiếp ủng hộ RoValra và hoạ sĩ",
+                "purchaseDelay": "Có thể mất đến vài phút để viền ảnh đại diện hiện lên sau khi mua",
+                "parentApprovalTitle": "Cần hành động phụ huynh",
+                "parentApprovalMessage": "Để mua viền ảnh đại diện từ RoValra, bạn cần quyền từ RoValra.",
+                "noParentTitle": "Bạn không thể dùng Khung ảnh đại diện",
+                "noParentBody": "Roblox yêu cầu sự cho phép của phụ huynh nhưng tài khoản của bạn chưa liên kết với phụ huynh nào. Nếu muốn sử dụng viền ảnh đại diện, bạn cần liên kết tài khoản phụ huynh và gửi yêu cầu bỏ chặn trải nghiệm.",
+                "noBorders": "Không có viền nào khả dụng.",
+                "currentPreview": "Lựa chọn xem trước hiện tại",
+                "signInPreview": "Đăng nhập để xem trước viền trên ảnh đại diện của bạn.",
+                "noBordersInTab": "Không tìm thấy viền nào trong tab này.",
+                "loadFailed": "Lỗi khi tải viền. Vui lòng thử lại sau.",
+                "unequipTooltip": "Nhấn để bỏ dùng viền này",
+                "equipTooltip": "Dùng viền này",
+                "buyTooltip": "Mua viền này"
+            },
+            "appeal": {
+                "messageLabel": "Nhập nội dung kháng cáo của bạn (20-3000 kí tự)",
+                "title": "Gửi yêu cầu kháng cáo",
+                "submit": "Gửi đơn kháng cáo",
+                "invalidLength": "Nội dung kháng cáo phải giữa 20 và 3000 kí tự.",
+                "submitFailed": "Không thể gửi đơn kháng cáo. Xin hãy thử lại."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Tất cả đều ổn",
+                    "none": "Không có giới hạn",
+                    "limited": "Bị giới hạn",
+                    "veryLimited": "Rất giới hạn",
+                    "atRisk": "Có nguy cơ đình chỉ",
+                    "suspended": "Đã bị đình chỉ"
+                },
+                "appealStatuses": {
+                    "notAppealed": "Chưa kháng cáo",
+                    "pending": "Đơn kháng cáo đang chờ xử lý",
+                    "denied": "Đơn kháng cáo bị từ chối",
+                    "accepted": "Đơn kháng cáo được chấp nhận"
+                },
+                "goodTitle": "Tài khoản của bạn đang ở trạng thái tốt.",
+                "goodDescription": "Bạn không có hạn chế hay vi phạm còn hiệu lực nào từ đội ngũ an toàn RoValra.",
+                "temporaryTitle": "Tài khoản của bạn đang tạm thời bị giới hạn.",
+                "violationTitle": "Chúng tôi tìm thấy một vi phạm trên tài khoản của bạn.",
+                "statusDescription": "Tình trạng tài khoản của bạn đã được đặt thành: {{status}}",
+                "policyTitle": "Quy định an toàn RoValra",
+                "policyDescription": "Các tài khoản bị phát hiện vi phạm {{- termsLink}} hoặc bị xác định có rủi ro qua hệ thống phát hiện của bên thứ ba sẽ bị vô hiệu hóa một số tính năng nhất định. Xin lưu ý rằng mặc dù một số tính năng trực tuyến có thể bị giới hạn, đội ngũ an toàn RoValra sẽ không bao giờ vô hiệu hóa toàn bộ tiện ích hay các tính năng hoàn toàn cục bộ.",
+                "automatedAction": "Xử lý tự động",
+                "manualReview": "Kiểm duyệt thủ công",
+                "disabledFeatures": "Tính năng bị tắt",
+                "moderatedContent": "Nội dung bị kiểm duyệt",
+                "violationDetails": "Thông tin vi phạm",
+                "unknownReason": "Không rõ lý do",
+                "moderated": "Bị kiểm duyệt",
+                "temporaryExpires": "Hạn chế tạm thời hết hạn vào",
+                "appealCase": "Trường hợp kháng cáo",
+                "status": "Tình trạng",
+                "yourMessage": "Lời nhắn của bạn",
+                "response": "Câu trả lời",
+                "reviewingAppeal": "Đội ngũ của chúng tôi đang xem xét đơn kháng cáo của bạn.",
+                "appealDecision": "Kháng cáo quyết định này"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "RoValra có thể không hoạt động đúng cách khi bật {{extensions}}.",
+            "description": "Chúng tôi không đảm bảo hỗ trợ {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Cài đặt quyền riêng tư"
+        },
+        "noTogglesEnabled": "Không có nút nào được bật! Hãy vào Cài đặt RoValra để bật các nút cài đặt quyền riêng tư.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Mọi người",
+                "friendsFollowingFollowers": "Bạn bè, Đang theo dõi và Người theo dõi",
+                "friendsFollowing": "Bạn bè và Đang theo dõi",
+                "friends": "Bạn bè",
+                "trustedFriends": "Bạn bè tin cậy",
+                "noOne": "Không ai cả"
+            },
+            "onlineStatus": {
+                "name": "Tình trạng trực tuyến"
+            },
+            "joinStatus": {
+                "name": "Tình trạng trải nghiệm"
+            },
+            "privateServerPrivacy": {
+                "name": "Quyền riêng tư trong máy chủ riêng tư"
+            },
+            "inventoryPrivacy": {
+                "name": "Quyền riêng tư kho vật phẩm"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "Đang tải...",
+        "pending": "Đang xử lý:",
+        "noPermissions": "Không có quyền hạn"
+    },
+    "navigation": {
+        "transactions": "Giao dịch",
+        "apiDocs": "Tài liệu API",
+        "incidentLearnMore": "Bấm vào đây để tìm hiểu thêm.",
+        "incidentHideNotice": "Bạn có thể ẩn thông báo này ở đây",
+        "rovalraApi": "API RoValra"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Thu gọn thanh bên",
+        "expandSidebar": "Mở rộng thanh bên"
+    },
+    "voiceBanIndicator": {
+        "title": "Trò chuyện giọng nói bị cấm",
+        "liftsIn": "Gỡ chặn vào",
+        "noExpiry": "Không có thời hạn"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Chủ đề tuổi",
+        "options": {
+            "normal": "Roblox bình thường",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Roblox Select bị rò rỉ (Start Mode)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Bật/tắt chương trình Beta",
+        "noPrograms": "Bạn không có trong bất kì chương trình beta nào.",
+        "allowlist": "Trong danh sách cho phép",
+        "previousProgramsTitle": "Đã tham gia chương trình beta trước đó",
+        "previousProgramTooltip": "Chương trình beta này không còn khả dụng."
+    },
+    "quickSearch": {
+        "aborted": "Đã huỷ",
+        "apiRequestFailed": "Yêu cầu API thất bại với mã {{status}}",
+        "friendSearchError": "RoValra: Lỗi tìm bạn",
+        "userSearchError": "RoValra: Lỗi tìm người dùng",
+        "gameSearchError": "RoValra: Lỗi tìm game",
+        "trustedConnection": "Hai người là Bạn tin cậy",
+        "connection": "Hai bạn là bạn bè",
+        "playing": "Đang chơi {{gameName}}",
+        "verifiedBadge": "Huy hiệu Đã xác nhận",
+        "verified": "Đã xác nhận",
+        "permanentlyBanned": "Người này đã bị đình chỉ hoặc đã vô hiệu hoá tài khoản.",
+        "joinPreferredRegion": "Tham gia khu vực yêu thích",
+        "bestRegionAuto": "Khu vực tốt nhất (Tự động)",
+        "searchHistory": "Lịch sử tìm kiếm",
+        "noSearchHistory": "Bạn không có lịch sử tìm kiếm nào.",
+        "deleteSearchHistoryTitle": "Xoá lịch sử tìm kiếm",
+        "deleteSearchHistoryMessage": "Bạn có chắc muốn xoá mục lịch sử tìm kiếm này?",
+        "delete": "Xoá"
+    },
+    "friendOwnership": {
+        "pillLabel": "{{count}} Bạn sở hữu",
+        "pillTooltip": "Xem những người bạn nào sở hữu vật phẩm này",
+        "overlayTitle": "{{count}} Bạn sở hữu vật phẩm này",
+        "unknownUser": "Người dùng {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Chọn hoặc tham gia khu vực yêu thích",
+        "tooltip": "Tham gia khu vực yêu thích",
+        "tooltipWithRegion": "Tham gia khu vực yêu thích<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Tham gia khu vực yêu thích<br><b>Khu vực tốt nhất (Tự động)</b>"
+    },
+    "quickPlay": {
+        "loading": "Đang tải...",
+        "rateLimited": "Đã bị giới hạn. Đang thử lại...",
+        "loadError": "Không thể tải máy chủ.",
+        "noPrivateServers": "Không tìm thấy máy chủ riêng tư nào đang chạy.",
+        "configure": "Chỉnh sửa",
+        "copyLink": "Sao chép liên kết",
+        "copied": "Đã liên kết!",
+        "error": "Lỗi!",
+        "generateLink": "Tạo liên kết mới",
+        "joinClosestServer": "Tham gia máy chủ gần nhất",
+        "selectPreferredRegion": "Chọn khu vực yêu thích",
+        "privateServers": "Máy chủ riêng tư"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Tạo liên kết khác",
+        "regenerated": "Đã tạo!"
+    },
+    "devProducts": {
+        "noProducts": "Không tìm thấy sản phẩm nhà phát triển nào.",
+        "loadError": "Không thể tải sản phẩm nhà phát triển từ game này",
+        "passes": "Gamepass",
+        "developerProducts": "Sản phẩm nhà phát triển",
+        "search": "Tìm kiếm",
+        "sort": {
+            "created": "Sắp xếp theo Ngày tạo",
+            "price": "Sắp xếp theo Giá",
+            "updated": "Sắp xếp theo Ngày cập nhật",
+            "name": "Sắp xếp theo Tên"
+        },
+        "order": {
+            "ascending": "Sắp xếp tăng dần",
+            "descending": "Sắp xếp giảm dần"
+        }
+    },
+    "shop": {
+        "tab": "Cửa hàng",
+        "all": "Tất cả",
+        "category": "Phân loại",
+        "product": "Sản phẩm",
+        "gamePass": "Gamepass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bonus: {{item}}",
+        "bonusItemFallback": "Có vật phẩm tặng kèm",
+        "noItems": "Không tìm thấy vật phẩm cửa hàng nào",
+        "failedToLoad": "Không thể tải vật phẩm shop.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Sản phẩm",
+            "GamePass": "Game Pass",
+            "Robux": "Gói Robux"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Bản đồ phụ",
+        "searchPlaceholder": "Tìm kiếm bản đồ phụ",
+        "loadMore": "Tải thêm",
+        "rootPlace": "Bản đồ gốc",
+        "noSubplaces": "Không tìm thấy bản đồ phụ nào.",
+        "failedToLoad": "Không thể tải bản đồ phụ.",
+        "labels": {
+            "sort": "Sắp xếp",
+            "order": "Thứ tự"
+        },
+        "sort": {
+            "default": "Mặc định",
+            "updated": "Cập nhật gần đây",
+            "created": "Tạo gần đây",
+            "name": "Tên (Z-A)"
+        },
+        "order": {
+            "descending": "Giảm dần",
+            "ascending": "Tăng dần"
+        },
+        "banner": {
+            "title": "Bạn đang một bản đồ phụ của [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Một vài trải nghiệm có thể không cho phép tham gia bản đồ phụ.",
+            "descriptionRestricted": "Bản đồ phụ này không thể được tham gia do một vài giới hạn tham gia.",
+            "descriptionJoinable": "Bản đồ phụ này có thể được tham gia.",
+            "mainExperience": "trải nghiệm chính"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Cập nhật",
+        "title": "Lịch sử cập nhật",
+        "blocked": {
+            "eighteenPlus": "Lịch sử hoạt động không hoạt động với trải nghiệm 18+",
+            "paidAccess": "Lịch sử cập nhật không hoạt động với trải nghiệm có trả phí",
+            "subplace": "Lịch sử cập nhật không hoạt động với bản đồ phụ có giới hạn tham gia",
+            "noDesktopSupport": "Lịch sử cập nhật không hỗ trợ trải nghiệm không hỗ trợ PC"
+        }
+    },
+    "serverList": {
+        "clear": "Xoá ",
+        "noServersApi": "Không tìm thấy máy chủ nào qua RoValra API.",
+        "allServersInactive": "Mọi máy chủ trong khu vực này đều không hoạt động",        
+        "loadErrorApi": "Tải máy chủ từ RoValra API thất bại.",
+        "hide": "Ẩn",
+        "join": "Tham gia",
+        "peopleMax": "{{playing}} trên {{maxPlayers}} người chơi tối đa",
+        "pinPrivateServer": "Ghim máy chủ riêng tư",
+        "unpinPrivateServer": "Bỏ ghim máy chủ riêng tư",
+        "playerCountUnknownTooltip": "Không rõ số người chơi, đây là giới hạn tử Roblox. Hình ảnh không thể hiện người chơi trong game.",
+        "playerCountUnknownLabel": "Không rõ số người chơi"
+    },
+    "recentServers": {
+        "title": "Máy chủ gần đây",
+        "refresh": "Tải lại",
+        "noneFound": "Không tìm thấy máy chủ gần đây nào.",
+        "noActiveFound": "Không có máy chủ gần đây nào đang hoạt động.",
+        "lastJoined": "Tham gia lần cuối: {{time}}",
+        "meAlt": "Tôi",
+        "secondsAgo": "{{count}} giây trước",
+        "minutesAgo": "{{count}} phút trước",
+        "hoursAgo": "{{count}} giờ trước",
+        "daysAgo": "{{count}} ngày trước",
+        "description": "Máy chủ gần đây bạn mới chơi."
+    },
+    "quickOutfits": {
+        "errorFetching": "Lỗi tải trang phục",
+        "equipping": "Đang mặc...",
+        "equipped": "Đã mặc!",
+        "failed": "Thất bại",
+        "error": "Lỗi:",
+        "noUserId": "Không tìm thấy mã người dùng đã xác thực not found cho thay trang phục nhanh.",
+        "loading": "Đang tải trang phục...",
+        "title": "Thay trang phục nhanh",
+        "noneFound": "Không tìm thấy trang phục nào.",
+        "success": "Mặc trang phục thành công."
+    },
+    "btrDonationWarning": {
+        "title": "QUAN TRỌNG: tắt BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">Đã nhận diện BTRoblox. Tiện ích này có thể can thiệp vào quá trình mua của Roblox. Nếu bạn có vấn đề trong lúc mua, hãy thử tắt BTRoblox tạm thời và tải lại trang.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Vui lòng tắt BTRoblox, tải lại trang này và thử mua lại.</p>",
+        "continue": "Vẫn tiếp tục"
+    },
+    "botDetector": {
+        "tooltip": "Bot là những tài khoản dùng tệp lệnh tự động cày vật phẩm. Một người dùng có thể vận hành đến 50+ bot. Hãy biết rằng đây không phải lỗi của Dev Game. Thông tin này có thể không chính xác nếu phần lớn game được chơi bởi tài khoản mới tạo.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> có rất nhiều bot",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> có vài bot nhưng phần lớn vẫn là người chơi thật",
+        "thisGame": "Game này"
+    },
+    "events": {
+        "title": "Sự kiện",
+        "tabs": {
+            "upcoming": "Sắp tới",
+            "past": "Đã qua"
+        },
+        "buttons": {
+            "viewEvent": "Xem sự kiện",
+            "joinEvent": "Tham gia sự kiện",
+            "unfollowEvent": "Ngừng theo dõi sự kiện",
+            "notifyMe": "Nhắc tôi"
+        },
+        "loadMore": "Xem thêm",
+        "releaseDate": "Ngày diễn ra sự kiện",
+        "empty": {
+            "active": "Không có sự kiện nào đang diễn ra hoặc sắp diễn ra",
+            "past": "Không có sự kiện đã diễn ra.",
+            "all": "Không tìm thấy sự kiện nào."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Huy hiệu",
+            "hiddenBadges": "Huy hiệu ẩn"
+        },
+        "hiddenOwnedNotice": "Chỉ những huy hiệu ẩn mà bạn có mới hiện ở đây.",
+        "unableToDetectPlace": "Không thể xác định Bản đồ này.",
+        "unableToDetectUniverse": "Không thể xác định Universe này.",
+        "stillScanning": "Vẫn đang quét huy hiệu của bạn. Huy hiệu ẩn bạn có sẽ xuất hiện sớm thôi.",
+        "noneOwnedFound": "Không tìm thấy huy hiệu ẩn nào bạn có trong trải nghiệm này.",
+        "failedToLoad": "Lỗi tải huy hiệu ẩn bạn có."
+    },
+    "antiBots": {
+        "reviewMembers": "Xem xét {{count}} thành viên đã chọn:",
+        "botWarning": "<strong>Lưu ý:</strong> Hãy chắc chắn họ là bot trước khi tiếp tục.",
+        "banMembers": "Cấm thành viên",
+        "kickMembers": "Đuổi thành viên",
+        "cancel": "Huỷ",
+        "actionRequired": "Cần hành động ({{count}})",
+        "noPermission": "Bạn không có quyền để cấm hay đuổi thành viên.",
+        "confirmBan": "Bạn chuẩn bị <strong>cấm {{count}} thành viên</strong>. Họ sẽ vĩnh viễn bị chặn.",
+        "confirmKick": "Bạn chuẩn bị kick <strong>đuổi {{count}} thành viên</strong>. Họ có thể tham gia lại bất cứ lúc nào.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Nhắc nhở:</strong> Xác nhận điểm bot trước khi cấm.</div>",
+        "yesAction": "Có, {{action}}",
+        "confirmAction": "Xác nhận hành động",
+        "processing": "Đang xử lý {{current}} trên {{total}}: {{displayName}}... ETA: {{time}}s",
+        "rateLimited": "Bị giới hạn. Thử lại trong {{delay}}s...",
+        "apiError": "Lỗi API  {{status}}",
+        "unknownError": "Lỗi không xác định",
+        "processComplete": "{{successCount}} trên {{totalMembers}} thành viên đã thành công bị {{actionType}}.",
+        "processFailed": "{{failedCount}} đã thất bại.",
+        "close": "Đóng",
+        "score": "Điểm: {{score}}/100",
+        "actionCount": "Hành động ({{count}})",
+        "unselectAll": "Bỏ chọn tất cả",
+        "selectAll": "Chọn tất cả",
+        "antiBots": "Anti Bot",
+        "banByScore": "Cấm qua điểm",
+        "quickAction": "Hành động nhanh",
+        "members": "Thành viên",
+        "loadingMembers": "Đang tải thành viên...",
+        "selectMembersForAction": "Chọn thành viên cho hành động (đã tải {{count}})",
+        "noMembersFound": "Không tìm thấy thành viên nào.",
+        "initializingScan": "Bắt đầu quét...",
+        "scanStatus": "Đã quét: {{loaded}} ({{percent}}%) | Đã phân tích: {{processed}}",
+        "finalizingAnalysis": "Hoàn tất phân tích...",
+        "botsFound": "Đã tìm thấy {{count}} nghi vấn bot",
+        "noBotsFound": "Không tìm thấy nghi vấn bot nào",
+        "noBotsDetected": "Không nhận diện được bot nào.",
+        "errorRetry": "Lỗi - Thử lại",
+        "errorDuringScan": "Lỗi trong khi quét.",
+        "minBotScore": "Điểm bot tối thiểu: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Việc này sẽ chọn khoảng <span id=\"rovalra-score-ban-count\">0</span> thành viên.",
+        "confirm": "Xác nhận",
+        "banKickByScore": "Cấm/Đuổi bằng điểm",
+        "confirmCount": "Xác nhận ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Vui vẻ nhé!",
+        "close": "Đóng",
+        "robloxExperience": "Trải nghiệm Roblox",
+        "unknownExperience": "Trải nghiệm không xác định",
+        "serverId": "Mã máy chủ:",
+        "privateServer": "Máy chủ riêng tư",
+        "owner": "Chủ sở hữu:",
+        "version": "Phiên bản:",
+        "uptime": "Thời gian hoạt động:",
+        "rcc": "RCC:",
+        "serverChannel": "Kênh máy chủ:",
+        "production": "Chính thức",
+        "launchingRoblox": "Đang khởi chạy Roblox",
+        "downloadRoblox": "Tải xuống Roblox",
+        "thanksDownloading": "Cảm ơn vì đã tải Roblox",
+        "downloadInstructions": "Hãy làm theo những bước dưới để cài đặt Roblox. Quá trình tải xuống sẽ bắt đầu sau vài giây nữa. Nếu không, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">bắt đầu lại quá trình tải</a>.",
+        "installInstructions": "Hướng dẫn cài đặt",
+        "step1": "Sau khi tải xuống, nhấp đúp vào tệp <b>RobloxPlayerInstaller.exe</b> trong thư mục Downloads.",
+        "step2": "Nhấn đúp vào <b>RobloxPlayerInstaller</b> để cài đặt ứng dụng.",
+        "step3": "Làm theo hướng dẫn để cài đặt Roblox trên máy tính của bạn.",
+        "step4": "Và bây giờ khi Roblox đã được cài đặt, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">tham gia trải nghiệm</a>.",
+        "mobileApp": "Đừng quên ứng dụng trên điện thoại",
+        "scanCode": "Quét mã này bằng camera điện thoại của bạn để tải Roblox.",
+        "joiningServer": "Đang tham gia máy chủ...",
+        "errorParsingUrl": "Lỗi phân tích URL",
+        "findingUser": "Đang tìm người dùng...",
+        "fetchingServerInfo": "Đang tải thông tin máy chủ...",
+        "nonRootPlaceRestrictions": "Không thể tham gia: Giới hạn với map không phải gốc.",
+        "waitingForRoblox": "Đang chờ Roblox...",
+        "launching": "Đang khởi chạy..."
+    },
+    "createRoblox": {
+        "download": "Tải xuống",
+        "downloadMesh": "Tải xuống .mesh",
+        "downloadObj": "Tải xuống .obj",
+        "explorer": {
+            "button": "Mở trình duyệt",
+            "title": "Trình duyệt",
+            "loading": "Đang tải...",
+            "selectInstance": "Chọn một đối tượng để xem thuộc tính của nó",
+            "noProperties": "Không có thuộc tính",
+            "viewSource": "Xem nguồn",
+            "closePreview": "Đóng bản xem trước",
+            "defaultDevice": "Mặc định (1280x720)",
+            "fitToWindow": "Vừa với cửa sổ",
+            "actualResolution": "Độ phân giải thực",
+            "physicalSize": "Kích cỡ vật lý",
+            "rotate": "Xoay",
+            "loadingPreview": "Đang tải bản xem trước GUI...",
+            "searchInstances": "Tìm đối tượng... (2+ kí tự)",
+            "searchProperties": "Tìm thuộc tính...",
+            "previewGui": "Xem trước GUI",
+            "togglePreviewVisibility": "Tuỳ chỉnh độ hiển thị trong bản xem trước",
+            "noMatchingInstances": "Không tìm thấy đối tượng nào khớp",
+            "loadError": "Tải thất bại."
+        }
+    },
+    "priceFloor": {
+        "label": "Giá sàn:",
+        "status": "Vật phẩm này đang {{status}} giá sàn {{difference}}.",
+        "statusTypes": {
+            "above": "trên",
+            "below": "dưới",
+            "at": "ở"
+        },
+        "difference": "{{diff}}",
+        "description": "Giá sàn là mức giá tối thiểu được cập nhật tự động mà một vật phẩm có thể được bán."
+    },
+    "parentItem": {
+        "multipleBundles": "Vật phẩm này là một phần của nhiều gói",
+        "multipleBundlesDescription": "Vật phẩm này có nhiều khả năng được dùng làm mẫu và xuất hiện trong nhiều gói.",
+        "partOfBundle": "Vật phẩm này là một phần của gói [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Bạn hiện đang xem một vậy phẩm từ một gói."
+    },
+    "rovalraBadges": {
+        "userVerified": "Người dùng đã xác thực giấy tờ tuỳ thân.",
+        "userNotVerified": "Người dùng chưa xác thực giấy tờ tuỳ thân.",
+        "userAgeVerified": "Người dùng đã xác thực tuổi.",
+        "userNotAgeVerified": "Người đung chưa xác thực tuổi.",
+        "userAgeVerificationMayBeInaccurate": "Dữ liệu có thể sai"
+    },
+    "friendsSince": {
+        "friended": "Đã kết bạn",
+        "lastSeen": "Lần cuối thấy",
+        "age": "Tuổi",
+        "friendedVia": "Kết bạn qua",
+        "originFrom": "Từ",
+        "originSearch": "Tìm kiếm",
+        "originInGame": "Trong Game",
+        "originProfile": "Hồ sơ",
+        "originQQContacts": "Danh bạ QQ",
+        "originWeChatContacts": "Danh bạ WeChat",
+        "originQrCode": "Mã QR",
+        "originProfileShare": "Chia sẻ hồ sơ",
+        "originPhoneContacts": "Danh bạ sđt",
+        "originPeopleYouMayKnow": "Những người bạn có thể biết",
+        "originschoolmemberlist": "Danh sách thành viên trường",
+        "originFriendLink": "Liên kết bạn",
+        "originSocialTabsPage": "Trang mạng xã hội",
+        "originUnknown": "Không rõ"
+    },
+    "lastPlayed": {
+        "together": "Chơi cùng nhau nhiều nhất"
+    },
+    "avatarDownload": {
+        "button": "Tải xuống Avatar",
+        "title": "Tải xuống Ảnh đại diện",
+        "size": "Chất lượng:",
+        "downloadPortrait": "PNG Dọc",
+        "downloadBust": "PNG chân dung",
+        "downloadAvatar": "PNG Avatar",
+        "downloading": "Đang tải...",
+        "failed": "Không thể tải avatar. Xin hãy thử lại sau."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Xác nhận huỷ kết bạn",
+        "confirmUnfriends": "Xác nhận huỷ kết bạn",
+        "descriptionSingle": "Bạn sắp huỷ kết bạn 1 bạn. Hành động này không thể hoàn tác.",
+        "descriptionPlural": "Bạn sắp huỷ kết bạn {{count}} bạn. Hành động này không thể hoàn tác.",
+        "cancel": "Huỷ",
+        "unfriend": "Huỷ kết bạn",
+        "unfriendCount": "Huỷ kết bạn ({{count}})",
+        "unfriendCountAction": "Huỷ kết bạn {{count}} bạn",
+        "unfriendCountActionPlural": "Huỷ kết bạn {{count}} bạn",
+        "unfriending": "Đang huỷ kết bạn...",
+        "bulkUnfriend": "Huỷ kết bạn hàng loạt",
+        "exitBulkMode": "Thoát chế độ hàng loạt",
+        "successMessage": "Huỷ kết bạn thành công {{successCount}}/{{totalCount}} bạn!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Xoá huy hiệu hàng loạt",
+        "exit": "Thoát chế độ hàng loạt",
+        "delete": "Xoá huy hiệu",
+        "deleteCount": "Xoá huy hiệu ({{count}})",
+        "confirmTitle": "Xác nhận xoá huy hiệu",
+        "finalTitle": "Bạn có chắc không?",
+        "finalDescription": "Việc này sẽ xoá VĨNH VIỄN {{count}} huy hiệu khỏi kho đồ của bạn.",
+        "descriptionSingle": "Bạn sắp xoá 1 huy hiệu khỏi kho đồ của bạn. Hành động này không thể hoàn tác.",
+        "descriptionPlural": "Bạn sắp xoá {{count}} huy hiệu khỏi kho đồ của bạn. Hành động này không thể hoàn tác.",
+        "deletingProgress": "Đang xoá huy hiệu... {{current}}/{{total}}",
+        "cancel": "Huỷ",
+        "success": "Đã xoá {{successCount}}/{{totalCount}} huy hiệu."
+    },
+    "blockUser": {
+        "block": "Chặn",
+        "unblock": "Bỏ chặn",
+        "blockTitle": "Chặn {{username}}",
+        "unblockTitle": "Bỏ chặn {{username}}",
+        "blockTitleGeneric": "Chặn người dùng",
+        "unblockTitleGeneric": "Bỏ chặn người dùng",
+        "blockMessage": "Họ sẽ không còn có thể gửi bạn yêu cầu trao đổi. Bạn vẫn có thể từ chối giao dich hiện có, nhưng bạn sẽ không thể chấp nhận hoặc thương lượng lại.",
+        "unblockMessage": "Họ sẽ lại có thể gửi bạn yêu cầu trao đổi. Và bạn sẽ lại có thể chấp nhận hoặc thương lượng lại giao dịch hiện có",
+        "cancel": "Huỷ"
+    },
+    "unfriendDetector": {
+        "title_one": "Đã nhận diện huỷ kết bạn",
+        "title_other": "Đã nhận diện huỷ kết bạn",
+        "description_one": "Người bạn này đã huỷ kết bạn bạn từ lần cuối bain chơi:",
+        "description_other": "{{count}} người bạn này đã huỷ kết bạn bạn từ lần cuối bain chơi:",
+        "viewProfile": "Xem hồ sơ của {{name}}",
+        "dismiss": "Bỏ qua"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Xác nhận rời đi",
+        "confirmLeaves": "Xác nhận rời đi",
+        "descriptionSingle": "Bạn sắp rời 1 cộng đồng. Hành động này không thể hoàn tác.",
+        "descriptionPlural": "Bạn sắp rời {{count}} cộng đồng. Hành động này không thể hoàn tác.",
+        "cancel": "Huỷ bỏ",
+        "leave": "Rời đi",
+        "leaveCount": "Rời đi ({{count}})",
+        "leaveCountAction": "Rời {{count}} cộng đồng",
+        "leaveCountActionPlural": "Rời {{count}} cộng đồng",
+        "leaving": "Đang rời...",
+        "bulkLeave": "Rời hàng loạt",
+        "exitBulkMode": "Thoát chế độ hàng loạt",
+        "successMessage": "Đã rời thành công {{successCount}}/{{totalCount}} cộng đồng!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Số dư của bạn sau giao dịch này sẽ là"
+    },
+    "recentlyViewed": {
+        "title": "Xem gần đây",
+        "clear": "Dọn dẹp",
+        "remove": "Xoá",
+        "cheaper": "Rẻ hơn {{value}} Robux so với lần cuối bạn xem nó",
+        "pricier": "Mắc hơn {{value}} Robux so với lần cuối bạn xem nó",
+        "offSale": "Đã ngừng bán",
+        "backOnSale": "Đã bán trở lại"
+    },
+    "tradeRecentItems": {
+        "offer": "Đề nghị cần đây",
+        "request": "Yêu cầu gần đây",
+        "clear": "Dọn dẹp"
+    },
+    "tradeQuickActions": {
+        "minValue": "Giá trị thấp nhất họ đưa",
+        "hideLosses": "Ẩn khoản lỗ",
+        "bulkTitle": "Hành động hàng loạt",
+        "bulkHint": "Từ chối mọi yêu cầu giao dịch nhận được mà bạn thua lỗ. Bạn xác nhận trước.",
+        "declineLosses": "Từ chối giao dịch thua lỗ",
+        "loadingTrades": "Đang tải giao dịch nhận được...",
+        "checking": "Đang kiểm tra giao dịch {{done}}/{{total}}...",
+        "noLosses": "Không tìm thấy giao dịch thua lỗ nào",
+        "confirmTitle": "Từ chối mọi giao dịch thua lỗ",
+        "confirmMessage": "{{count}} trên {{total}} giao dịch của bạn thua lỗ so về giá trị (tổng {{value}}). Từ chối tất cả? Hành động này không thể hoàn tác.",
+        "declineConfirm": "Từ chối",
+        "declining": "Đang từ chối {{done}}/{{total}}...",
+        "declined": "Đã từ chối {{count}} giao dịhc",
+        "declinedWithFailures": "Đã từ chối {{count}} giao dịch, {{failed}} thất bại"
+    },
+    "time": {
+        "justNow": "vừa lúc nãy",
+        "secondsAgo": "{{count}} giây trước",
+        "minutesAgo": "{{count}} phút trước",
+        "hoursAgo": "{{count}} giờ trước",
+        "daysAgo": "{{count}} ngày trước",
+        "weeksAgo": "{{count}} tuần trước",
+        "monthsAgo": "{{count}} tháng trước",
+        "yearsAgo": "{{count}} năm trước",
+        "secondsFromNow": "trong {{count}} giây",
+        "minutesFromNow": "trong {{count}} phút",
+        "hoursFromNow": "trong {{count}} giờ",
+        "daysFromNow": "trong {{count}} ngày",
+        "weeksFromNow": "trong {{count}} tuần",
+        "monthsFromNow": "trong {{count}} tháng",
+        "yearsFromNow": "trong {{count}} năm",
+        "months": {
+            "jan": "Th1",
+            "feb": "Th2",
+            "mar": "Th3",
+            "apr": "Th4",
+            "may": "Th5",
+            "jun": "Th6",
+            "jul": "Th7",
+            "aug": "Th8",
+            "sep": "Th9",
+            "oct": "Th10",
+            "nov": "Th11",
+            "dec": "Th12"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Giới thiệu",
+            "store": "Cửa hàng",
+            "servers": "Máy chủ"
+        },
+        "servers": {
+            "title": "Máy chủ riêng tư của tôi",
+            "description": "Chơi trong không gian riêng của bạn, một mình hoặc với người bạn mời",
+            "friendsTitle": "Máy chủ mà bạn tôi trong đó",
+            "publicTitle": "Máy chủ khác",
+            "privateServer": "Máy chủ riêng tư",
+            "players": "{{playing}} trên {{maxPlayers}} người chơi tối đa",
+            "join": "Tham gia",
+            "loadMore": "Xem thêm",
+            "loading": "Đang tải máy chủ...",
+            "noServers": "Không tìm thấy máy chủ nào.",
+            "loadError": "Không thể tải máy chủ.",
+            "ownerAvatar": "Chủ sở hữu máy chủ",
+            "playerAvatar": "Người chơi",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Trải nghiệm riêng tư",
+        "experienceIsPrivate": "Trải nghiệm này riêng tư.",
+        "unknown": "Không rõ",
+        "rovalraNotice": "Chỉ người dùng RoValra mới thấy trang này.",
+        "unavailable": "Không khả dụng",
+        "favorite": {
+            "add": "Thêm vào Yêu thích",
+            "remove": "Xoá khỏi Yêu thích",
+            "favorited": "Đã yêu thích",
+            "favorite": "Yêu thích"
+        },
+        "notify": {
+            "tooltip": "Bật thông báo",
+            "label": "Thong báo"
+        },
+        "description": {
+            "title": "Mô tả",
+            "noDescription": "Không có mô tả."
+        },
+        "stats": {
+            "active": "Đang chơi",
+            "favorites": "Số yêu thích",
+            "visits": "Lượt chơi",
+            "maxPlayers": "Số người chơi tối đa",
+            "genre": "Thể loại",
+            "subgenre": "Thể loại phụ",
+            "created": "Ngày tạo",
+            "updated": "Ngày cập nhật",
+            "voiceChat": "Voice Chat",
+            "supported": "Hỗ trợ",
+            "unsupported": "Không hỗ trợ"
+        },
+        "reportAbuse": "Báo cáo lạm dụng",
+        "badges": {
+            "title": "Huy hiệu",
+            "noBadges": "Chưa có huy hiệu nào",
+            "rarity": "Độ hiếm",
+            "wonYesterday": "Nhận hôm qua",
+            "wonEver": "Nhận mọi lúc"
+        },
+        "subscriptions": {
+            "title": "Gói đăng ký",
+            "subscribe": "Đăng ký"
+        },
+        "passes": {
+            "title": "Pass",
+            "showOffSale": "Hiện ngừng bán",
+            "noPasses": "Không có pass khả dụng",
+            "offSale": "Ngừng bán",
+            "owned": "Đã sở hữu",
+            "buy": "Mua"
+        },
+        "disabled": "Xem Game riêng tư / bị kiểm duyệt đang bị vô hiệu hoá",
+        "disabledDescription": "Để xem game riêng tư và bị kiểm duyệt, hãy bật cài đặt ở đây:",
+        "disabledLinkText": "Xem Game riêng tư / bị kiểm duyệt",
+        "products": {
+            "title": "Sản phẩm",
+            "buy": "Mua"
+        },
+        "moderated": "Bị kiểm duyệt"
+    },
+    "gamePassViewer": {
+        "type": "Loại",
+        "typeValue": "Pass",
+        "productId": "Mã sản phẩm",
+        "price": "Giá",
+        "owned": "Đã sở hữu",
+        "ownedItem": "Vật phẩm đã sở hữu",
+        "free": "Miễn phí",
+        "ownedNotice": "Vật phẩm này có trong kho đồ của bạn.",
+        "inventory": "Kho đồ",
+        "by": "Bởi",
+        "usePassIn": "Dùng Pass này trong:",
+        "rovalraNoticeDescription": "Gamepass này hiện đang không hoạt động và không thể được mua vì giới hạn Roblox, có thể liên quan đến độ tuổi tài khoản hoặc hiển thị game."
+    },
+    "playabilityStatus": {
+        "0": "Trải nghiệm này hiện không khả dụng",
+        "1": "Trải nghiệm này có thể tham gia",
+        "2": "Khách không thể tham gia trải nghiệm này",
+        "3": "Trải nghiệm này đã bị kiểm duyệt vì nó đã vi phạm Tiêu chuẩn Cộng đồng của Roblox",
+        "4": "Trải nghiệm này đã bị thiết lập sai",
+        "5": "Trải nghiệm này đang ở chế độ riêng tư",
+        "6": "Chỉ có bạn bè mới có thể tham gia trải nghiệm này",
+        "7": "Chỉ thành viên cộng đồng mới có thể tham gia trải nghiệm này",
+        "8": "Trải nghiệm này bị hạn chế trên thiết bị của bạn",
+        "9": "Trải nghiệm này đang được xem xét vì nó có thể đã vi phạm Tiêu chuẩn Cộng đồng của Roblox",
+        "10": "Cần mua trước khi chơi",
+        "11": "Tài khoản của bạn đã bị hạn chế",
+        "12": "Trải nghiệm này tạm thời không khả dụng",
+        "13": "Trải nghiệm này không có phiên bản nào được xuất bản",
+        "14": "Trải nghiệm này đã bị chặn vì các lý do chấp hành",
+        "15": "Trải nghiệm này không khả dụng ở khu vực của bạn",
+        "16": "Trải nghiệm này đã bị chặn vì các lý do chấp hành của quốc gia",
+        "17": "Trải nghiệm này đã bị hạn chế vì kiểm soát phụ huynh",
+        "18": "Trải nghiệm này đã bị chặn vì kiểm soát phụ huynh",
+        "19": "Trải nghiệm này bị giới hạn độ tuổi",
+        "20": "Cần xác minh trước khi chơi trải nghiệm 18+",
+        "21": "Cần mua trước khi chơi",
+        "22": "Purchase restricted on this device",
+        "23": "Trải nghiệm này chưa được đánh giá",
+        "24": "Trải nghiệm này đã bị giới hạn độ tuổi do nhãn mô tả nội dung",
+        "25": "Trải nghiệm này đã bị kiểm duyệt vì có nhãn mô tả nội dung không chính xác.",
+        "unknown": "Trải nghiệm này không khả dụng"
+    },
+    "bannedUsers": {
+        "connections": "Bạn bè",
+        "followers": "Người theo dõi",
+        "following": "Đang theo dõi",
+        "about": "Giới thiệu",
+        "creations": "Tác phẩm",
+        "experiences": "Trải nghiệm",
+        "bannedStatus": "Đã bị cấm",
+        "seeAll": "Xem tất cả",
+        "hiddenUser": "Người dùng bị ẩn",
+        "communities": "Cộng đồng",
+        "badges": "Huy hiệu",
+        "noExperiences": "Người dùng này không có trải nghiệm công khai nào.",
+        "favorites": "Yêu thích",
+        "joinedDate": "Ngày tham gia",
+        "store": "Cửa hàng",
+        "members": "Thành viên",
+        "accountForgotten": "Tài khoản bị lãng quên"
+    },
+    "copyId": {
+        "copyId": "Sao chép mã {{type}}",
+        "copyUniverseId": "Sao chép mã Universe",
+        "types": {
+            "bundle": "Gói",
+            "asset": "Tài sản",
+            "gamePass": "GamePass",
+            "badge": "Huy hiệu",
+            "community": "Cộng đồng",
+            "event": "Sự kiện",
+            "developerProduct": "Sản phẩm nhà phát triển",
+            "place": "Bản đồ",
+            "universe": "Universe",
+            "user": "Người dùng"
+        }
+    },
+    "viewid": {
+        "viewId": "Xem mã",
+        "popup": {
+            "title": "Mã Vật phẩm",
+            "button": {
+                "copy": "Sao chép dữ liệu",
+                "copyMd": "Sao chép dữ liệu dạng Markdown"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Bạn bè đang chơi {{gameName}}",
+        "join": "Tham gia"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Tên người dùng: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} Lượt chơi",
+        "tooltip": "Tổng lượt chơi của cộng đồng"
+    },
+    "groups": {
+        "createdLabel": "Ngày tạo",
+        "joinedLabel": "Ngày tham gia",
+        "unknown": "Không rõ"
+    },
+    "showcase": {
+        "tab": "Khu trưng bày",
+        "favoriteGame": "Trải nghiệm yêu thích",
+        "favoriteGroup": "Cộng đồng yêu thích",
+        "favoriteDecal": "Trưng bày tranh",
+        "chooseGame": "Chọn một trải nghiệm để ghim lên hồ sơ của bạn.",
+        "noFeaturedGame": "Chưa có trải nghiệm yêu thích nào cả. :C",
+        "chooseGroup": "Chọn một cộng đồng để ghim lên hồ sơ của bạn.",
+        "noFeaturedGroup": "Chưa có cộng đồng yêu thích nào cả. :C",
+        "chooseDecal": "Nhập một mã Decal để ghim một hình lên hồ sơ của bạn.",
+        "noFeaturedDecal": "Chưa có hình ảnh nào được ghim. :C",
+        "searchGame": "Tìm một trải nghiệm để ghim",
+        "searchGroup": "Tìm một cộng đồng để ghim",
+        "clearGame": "Xoá trải nghiệm yêu thích",
+        "clearGroup": "Xoá cộng đồng yêu thích",
+        "gameOptions": "Tuỳ chọn trải nghiệm yêu thích",
+        "groupOptions": "Tuỳ chọn cộng đồng yêu thích",
+        "decalId": "Mã Decal",
+        "decalImageOptions": "Tuỳ chọn hình ảnh",
+        "openImagePage": "Mở trang hình ảnh",
+        "report": "Báo cáo",
+        "clearDecal": "Xoá hình ảnh",
+        "by": "Bởi",
+        "maturity": "Độ trưởng thành",
+        "maturityUnavailable": "Độ trưởng thành không xác định",
+        "members": "{{count}} thành viên",
+        "noResultsGame": "Không tìm thấy trải nghiệm.",
+        "noResultsGroup": "Không tìm thấy cộng đồng.",
+        "unknownExperience": "Trải nghiệm không xác định",
+        "unknownCommunity": "Cộng đồng không xác định",
+        "verifiedBadge": "Biểu tượng huy hiệu đã xác minh"
+    },
+    "profileCustomization": {
+        "pill": "Tuỳ chỉnh",
+        "pillTooltip": "Thay đổi khung và viền ảnh đại diện.",
+        "title": "Tuỳ chỉnh hồ sơ",
+        "tabBorders": "Viền ảnh đại diện",
+        "tabFrames": "Khung",
+        "currentPreview": "Lựa chọn xem trước hiện tại",
+        "unequip": "Tháo ra",
+        "unequipTooltip": "Nhấn để bỏ dùng viền này",
+        "equip": "Dùng",
+        "equipTooltip": "Dùng viền này",
+        "equipped": "Đã dùng",
+        "getMore": "Lấy thêm",
+        "owned": "Đã sở hữu",
+        "unowned": "Chưa sở hữu",
+        "unownedTooltip": "Bạn chưa sở hữu viền này.",
+        "all": "Tất cả",
+        "new": "Mới",
+        "static": "TĨNH",
+        "animated": "ĐỘNG",
+        "free": "Miễn phí",
+        "noBorders": "Không tìm thấy viền nào.",
+        "noBordersInTab": "Không tìm thấy viền nào trong tab này.",
+        "noFrames": "Không tìm thấy khung nào.",
+        "noFramesInTab": "Không tìm thấy khung nào trong tab này.",
+        "none": "Không có",
+        "failedToLoad": "Không thể tải viền của bạn. Vui lòng thử lại sau."
+    },
+    "profileFrame": {
+        "storeTitle": "Cửa hàng khung hồ sơ",
+        "storeDesc": "Khung trang cá nhân bao quanh toàn bộ phần hiển thị nhân vật trên trang cá nhân của bạn. Mua khung trực tiếp hỗ trợ RoValra và các hoạ sĩ, và tính vào Bậc người hỗ trợ của bạn . Khung không bao gồm trong Quyền lợi người hỗ trợ Bậc 3, cái đó chỉ tính mấy cái viền thôi.",
+        "tabBorders": "Viền ảnh đại diện",
+        "tabFrames": "Khung",
+        "loading": "Đang tải khung...",
+        "currentPreview": "Lựa chọn xem trước khung hiện tại",
+        "all": "Tất cả",
+        "new": "Mới",
+        "static": "TĨNH",
+        "animated": "ĐỘNG",
+        "equip": "Dùng",
+        "equipTooltip": "Dùng khung này",
+        "equipped": "Đã dùng",
+        "unequipTooltip": "Nhấn để bỏ dùng khung này",
+        "unequip": "Tháo ra",
+        "buy": "Mua",
+        "buyFor": "Mua với {{price}}",
+        "viewItem": "Xem vật phẩm",
+        "buyTooltip": "Mua khung này",
+        "owned": "Đã sở hữu",
+        "ownedTooltip": "Bạn sở hữu khung này!",
+        "free": "Miễn phí",
+        "freeTooltip": "Khung này được dùng miễn phí.",
+        "localOnly": "Đã lưu cục bộ",
+        "localOnlyTooltip": "RoValra chưa thể lưu khung này vào hồ sơ của bạn, nên có chỉ hiển thị với bạn trong trình duyệt này.",
+        "noFrames": "Không có khung nào khả dụng.",
+        "noFramesInTab": "Không tìm thấy khung nào trong tab này.",
+        "failedToLoad": "Không thể tải khung của bạn. Vui lòng thử lại sau."
+    },
+    "profileNotes": {
+        "ariaLabel": "Ghi chú hồ sơ riêng tư",
+        "heading": "Ghi chú (chỉ hiển thị với bạn)",
+        "headingTooltip": "Ghi chú này chỉ được lưu trong trình duyệt và không bao giờ được gửi đến Roblox hay RoValra.",
+        "addNote": "Nhấn để thêm ghi chú",
+        "editAriaLabel": "Chỉnh sửa ghi chú hồ sơ riêng tư",
+        "addAriaLabel": "Thêm ghi chú hồ sơ riêng tư",
+        "displayTooltip": "Nhấn để chỉnh sửa. Ghi chú chỉ được lưu trong trình duyệt này.",
+        "inputPlaceholder": "Thêm ghi chú riêng tư",
+        "inputTooltip": "Lưu khi bạn bấm ra ngoài. Bấm Esc để huỷ hoặc Ctrl+Enter để lưu."
+    },
+    "profilePronouns": {
+        "label": "Danh xưng",
+        "ariaLabel": "Danh xưng: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "Tính năng của RoValra",
+        "profilePronouns": "Danh xưng hồ sơ",
+        "profileBadges": "Huy hiệu hồ sơ",
+        "pronounsPlaceholder": "Nhập danh xưng của bạn",
+        "donatorPerks": "Đặc quyền người ủng hộ",
+        "usernameCustomizations": "Tuỳ chỉnh tên người dùng"
+    },
+    "profile": {
+        "socialLinks": "Liên kết mạng xã hội",
+        "currencyTransfer": "Gửi Robux",
+        "currencyTransferConfirmation": "Nút này sẽ mở Ứng dụng Roblox cho phép bạn gửi robux.",
+        "openClient": "Mở ứng dụng"
+    },
+    "animations": {
+        "idle": "Đứng",
+        "walk": "Đi",
+        "fall": "Ngã",
+        "climb": "Leo",
+        "run": "Chạy",
+        "jump": "Nhảy",
+        "swim": "Bơi"
+    },
+    "itemRender": {
+        "renderOptions": "Tuỳ chọn hiển thị",
+        "darkLighting": "Ánh sáng tối",
+        "baseplate": "Baseplate",
+        "rotatePreview": "Xoay bản xem trước",
+        "itemOnly": "Chỉ hiện vật phẩm"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Mặc định",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Mới nhất",
+            "oldest": "Cũ nhất"
+        },
+        "tooltip": "Sắp xếp theo thời gian người dùng tham gia cộng đồng"
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Lượt chơi",
+        "members": "Thành viên",
+        "ccuTooltip": "Số người chơi đang chơi hiện tại khắp các game tạo ra bởi người dùng này.",
+        "visitsTooltip": "Lượt chơi khắp các game được tạo ra bởi người dùng này.",
+        "membersTooltip": "Số thành viên khắp các cộng đồng được tạo ra bởi người dùng này."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Bạn đã tiết kiệm {{robux}} khi bạn có Plus",
+            "percentOffSmall": "Vật phẩm trong game, ảnh đại diện và hơn thế",
+            "percentOff": "giảm {{percent}}",
+            "itemsBoughtSmall": "Vật phẩm mua với chiết khấu Plus",
+            "privateServersCreatedSmall": "Số máy chủ riêng tư được tạo miễn phí",
+            "robuxSentSmall": "Số Robux đã gửi đến bạn bè",
+            "delayNotice": "Tất cả dữ liệu hiện ở đây bị trễ 1 ngày"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Hạn mức hàng ngày còn lại",
+            "monthlyLimitLeft": "Hạn mức hàng tháng còn lại",
+            "sentToday": "Đã gửi hôm nay",
+            "sentThisMonth": "Đã gửi tháng này",
+            "nextRefill": "Lần phục hồi tiếp theo",
+            "leftAfter": "còn {{amount}}",
+            "refillNote": "Mỗi lượt chuyển Robux sẽ tính vào hạn mức hàng tháng trong 30 ngày, sau đó số Robux đó sẽ khả dụng trở lại.",
+            "caption": "Hạn mức hàng ngày là {{dailyLimit}}. Hạn mức hàng tháng là {{monthlyLimit}}. Cập nhật 5 phút một lần. Số lượng còn lại chỉ là ước tính và có thể không chính xác."
+        },
+        "referral": {
+            "reward": "Nhận 100 robux miễn phí và hỗ trợ RoValra!",
+            "details": "Chỉ người đăng ký mới Plus đủ điều kiện. RoValra cũng sẽ nhận 100 Robux khi bạn đăng ký và dùng mã giới thiệu của RoValra.",
+            "button": "Đăng ký với mã giới thiệu của RoValra"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Giá gốc: <b>{{originalPrice}} Robux</b><br>Hiện đang là<b>Miễn phí</b> vì Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Gửi Robux",
+                "openInApp": "Mở trong ứng dụng"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Không thể gửi Robux",
+                "deletedAccountBody": "Tài khoản người dùng này đã bị xoá, nó không thể được gửi Robux"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Gửi Robux",
+                    "titleSilly": "gửi bobux :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "Số Robux để gửi",
+                    "mutedNotice": "Robux được gửi ngay lập tức với không phụ phí",
+                    "minRobux": "Bạn phải gửi ít nhất {{robuxAmount}} Robux",
+                    "maxRobux": "Bạn không được gửi nhiều hơn {{robuxAmount}} Robux",
+                    "notEnoughRobux": "Bạn không có đủ Robux",
+                    "nextBtn": "Tiếp tục"
+                },
+                "step2": {
+                    "sendBtn": "Gửi",
+                    "editBtn": "Chỉnh sửa",
+                    "mutedNotice": "Không thể hủy giao dịch. Bạn có thể cần xác minh độ tuổi hoặc sự phê duyệt của phụ huynh.",
+                    "transferErrorGeneric": "Một lỗi không rõ đã xảy ra.",
+                    "transferErrorNoMessage": "Một lỗi không rõ đã xảy ra với không một lời nhắn",
+                    "transferSuccessBody": "Giao dịch thành công!",
+                    "transferSuccessBodySilly": "giao dịch ổn r! ngollll!",
+                    "transferSuccessOkBtnSilly": "ok con dê",
+                    "userInfoFriendTime": "Đã kết bạn {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} bạn chung",
+                    "userInfoMutualFriends_other": "{{count}} bạn chung",
+                    "userInfoJoin": "Đã tham gia vào {{year}}",
+                    "paramPassedError": "Một lỗi không rõ đã xảy ra! Xem bảng điều khiển và báo cáo lại cho RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Hỏi",
+                    "sendRobuxBody": "Để gửi Robux, bạn cần sự phê duyệt của phụ huynh",
+                    "receiveRobuxBody": "Để nhận Robux, bạn cần sự phê duyệt của phụ huynh",
+                    "askTitle": "Xin sự phê duyệt",
+                    "askTitleSilly": "xin phụ huyn cho quyềnnn",
+                    "errorSending": "Một lỗi không rõ đã xảy ra! Xem bảng điều khiển và báo cáo lại cho RoValra.",
+                    "errorReceivingTitle": "Đã có một lỗi trong khi nhận Robux",
+                    "errorReceivingBody": "Một lỗi không rõ đã xảy ra, có thể bạn đã chấp nhận giao dịch Robux này rồi. Xem bảng điều khiển để biết thêm chi tiết.",
+                    "errorReceivingOkBtnSilly": "aw",
+                    "successfulAskTitle": "Đã gửi yêu câu",
+                    "successfulAskTitleSilly": "chúng tôi đã thông báo với phụ huynh bạn rồi, chuẩn bị đi..",
+                    "successfulAskBody": "Chúng tôi đã gửi yêu cầu của bạn cho phụ huynh hoặc người giám hộ qua email!",
+                    "successfulAskOkBtnSilly": "ngolll, cảm ơn nhaaa"
+                },
+                "plusNeeded": {
+                    "body": "Rất tiếc, bạn cần Roblox Plus để có thể gửi Robux, đây là một phần của gói đăng ký Roblox Plus.",
+                    "bodySilly": "bạn khum có bobloc plus :c nên bạn khum thể gửi bobux tới người khác vì nó là bắt buộc 3:",
+                    "buyPlusBtn": "Mua Roblox Plus",
+                    "buyPlusBtnSilly": "muaaa bobloc plus c:",
+                    "okBtnSilly": "awww thế thui :c"
+                }
+            }
+        }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Một vài cài đặt đã bị thay thế/loại bỏ"
+            },
+            "deleted": "Những cài đặt dưới đây gần đây đã bị loại bỏ, khoá hoặc bị lỗi thời:",
+            "replaced": "Những cài đặt dưới đây gần đây đã bị thay thế hoặc chỉnh sửa:"
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Trang phục game",
+            "title": "Trang phục cho trải nghiệm",
+            "hint": "Hãy chọn trang phục mà sẽ được mặc khi bạn chơi trải nghiệm R6 hoặc R15.",
+            "r6": "Trải nghiệm R6",
+            "r15": "Trải nghiệm R15",
+            "none": "Đừng đổi",
+            "gameTitle": "Trang phục cho trải nghiệm này",
+            "gameHint": "Cài đặt này ghi đè lên trang phục đã cài đặt cho trải nghiệm R6 và R15.",
+            "useGlobal": "Dùng mặc định của tôi"
+        },
+        "bodyColors": {
+            "addCustom": "Chọn một màu tuỳ chỉnh",
+            "savedColor": "{{hex}}, chuột phải để loại bỏ",
+            "applyFailed": "Không thể cập nhật màu cơ thể. Thử lại sau."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "Ghim lên đầu",
+        "unpin": "Bỏ ghim"
+    },
+    "richLinks": {
+        "by": "Bởi {{name}}",
+        "members": "{{count}} thành viên",
+        "playing": "{{count}} đang chơi",
+        "visits": "{{count}} lượt chơi",
+        "loading": "Đang tải...",
+        "free": "Miễn phí",
+        "offSale": "Ngừng bán"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "Đang tải tài liệu API...",
+        "loadFailed": "Không thể tải tài liệu API, lỗi: {{error}}",
+        "noAccess": "Bạn không có quyền truy cập những tài liệu này.",
+        "serverError": "Máy chủ đã phản hồi với {{status}}.",
+        "invalidSpec": "Máy chủ đã trả về một tài liệu OpenAPI không hợp lệ.",
+        "baseUrl": "Base URL: {{url}}",
+        "apiVersion": "Phiên bản API",
+        "openApiVersion": "Phiên bản OpenAPI",
+        "server": "Máy chủ",
+        "sendToken": "Gửi token truy cập RoValra của tôi",
+        "filterLabel": "Lọc endpoints",
+        "filterPlaceholder": "Đường dẫn, tóm tắt hoặc thẻ",
+        "hideDeprecated": "Ẩn bị lỗi thời",
+        "noEndpoints": "Không tìm thấy endpoints nào.",
+        "deprecated": "Bị lỗi thời",
+        "deprecatedTooltip": "Endpoint dã bị lỗi thời.",
+        "authRequired": "Cần xác thực",
+        "authOptional": "Không cần xác thực",
+        "schemeNotSent": "Cần {{name}}, nhưng trang này không gửi nó.",
+        "operationId": "Mã thao tác",
+        "security": "Auth: {{schemes}}",
+        "securityOptional": "Auth: {{schemes}} (tuỳ chọn)",
+        "securityTooltip": "Điều kiện bảo mật",
+        "parameters": "Tham số",
+        "noParameters": "Không có tham số",
+        "tryItOut": "Thử nó xem",
+        "name": "Tên",
+        "description": "Mô tả",
+        "required": "bắt buộc",
+        "availableValues": "Giá trị được chấp nhận: {{values}}",
+        "requestBody": "Nội dung yêu cầu",
+        "requestContentType": "Loại nội dung yêu cầu",
+        "exampleValue": "Giá trị mẫu",
+        "schema": "Cấu trúc dữ liệu",
+        "responses": "Phản hồi",
+        "noResponses": "Không có phản hồi được ghi lại",
+        "code": "Mã",
+        "details": "Chi tiết",
+        "execute": "Thực thi",
+        "clear": "Xoá",
+        "missingParams": "Thiếu tham số cần thiết: {{params}}",
+        "invalidJson": "Nội dung yêu cầu không phải một JSON hợp lệ: {{error}}",
+        "bodyRequired": "Bắt buộc có nội dung yêu cầu.",
+        "confirmTitle": "Gửi yêu cầu?",
+        "confirmMessage": "Nút này sẽ gửi một yêu cầu {{method}} đến {{path}}. Chỉ tiếp tục nếu bạn hiểu nó làm gì.",
+        "send": "Gửi",
+        "sending": "Đang gửi yêu cầu...",
+        "requestFailed": "Yêu cầu thất bại: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "Liên kết yêu cầu",
+        "serverResponse": "Phản hồi từ máy chủ",
+        "responseBody": "Nội dung phản hồi",
+        "responseHeaders": "Header phản hồi",
+        "emptyResponse": "(phản hồi trống)",
+        "responseImage": "Hình ảnh phản hồi",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Thời gian phản hồi",
+        "contentType": "Loại nội dung",
+        "redirected": "Đã chuyển tiếp",
+        "copy": "Sao chép"
+    }
+}

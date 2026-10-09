@@ -1,6 +1,8 @@
 import { callRobloxApiJson } from '../api.js';
 import { generateSettingInput } from './generateSettings.js';
 import { initSettings, syncDonatorTier } from './handlesettings.js';
+import { ts } from '../locale/i18n.js';
+import { invalidateAuthenticatedUserSettingsCache } from '../donators/settingHandler.js';
 
 export async function setBadgeVisibility(badgeName, isVisible) {
     try {
@@ -11,6 +13,7 @@ export async function setBadgeVisibility(badgeName, isVisible) {
             method: 'POST',
             body: { badge: badgeName, visible: isVisible },
         });
+        await invalidateAuthenticatedUserSettingsCache();
     } catch (error) {
         console.error(
             `RoValra: Failed to set badge visibility for ${badgeName}`,
@@ -20,7 +23,7 @@ export async function setBadgeVisibility(badgeName, isVisible) {
 }
 
 export async function getBadgeVisibilitySettings() {
-    const response = await syncDonatorTier();
+    const response = await syncDonatorTier({ force: true });
     if (!response || response.status !== 'success' || !response.badges) {
         return [];
     }
@@ -63,7 +66,7 @@ export async function createBadgeSettings(container) {
         mainControls.className = 'setting-controls';
 
         const mainLabel = document.createElement('label');
-        mainLabel.textContent = 'Toggle your donation badges visibility.';
+        mainLabel.textContent = ts('settings.ui.badges.visibility');
         mainControls.appendChild(mainLabel);
 
         const mainToggle = generateSettingInput('ShowAllBadges', {

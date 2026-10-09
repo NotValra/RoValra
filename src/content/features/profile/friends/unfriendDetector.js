@@ -70,7 +70,7 @@ async function handlePendingQueue() {
     try {
         if (!(await settings.unfriendDetectorEnabled)) return;
 
-        const userId = await getAuthenticatedUserId();
+        const userId = await getAuthenticatedUserId(true);
         if (!userId) return;
 
         const pending = await consumePendingUnfriends(userId);

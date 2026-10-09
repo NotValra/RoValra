@@ -8,6 +8,15 @@
     margin-right: 4px;
 }
 
+.rovalra-modern-icon.rovalra-modern-icon-sdui {
+    width: 16px;
+    height: 16px;
+    margin-right: 0;
+    flex-shrink: 0;
+    --icon-size: 16px;
+    font-size: 16px;
+}
+
 .rovalra-modern-icon svg {
     fill: var(--rovalra-secondary-text-color) !important;
     width: 100%;

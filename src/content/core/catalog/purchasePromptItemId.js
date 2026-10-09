@@ -505,11 +505,12 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
 
 export function init() {
     observeElement(
-        '.modal-dialog .modal-content, .modal-content, .unified-purchase-dialog-content',
+        '.modal-dialog .modal-content, .modal-content, .unified-purchase-dialog-content, .foundation-web-dialog-content',
         (element) => {
             const modal =
                 element.closest('.modal-content') ||
-                element.closest('.unified-purchase-dialog-content');
+                element.closest('.unified-purchase-dialog-content') ||
+                element.closest('.foundation-web-dialog-content');
 
             if (modal) {
                 attachItemDataToPurchasePrompt(modal);

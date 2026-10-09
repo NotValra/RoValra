@@ -12,6 +12,7 @@ import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 import { showSystemAlert } from '../ui/roblox/alert.js';
+import { ts } from '../locale/i18n.js';
 import { requestTouAgreement } from '../ui/tou/touAgreement.js';
 import {
     normalizeProfilePronouns,
@@ -107,8 +108,8 @@ async function prepareProfilePronounsUpdate(value) {
                 restoreProfilePronounsInput(previousValue);
                 showSystemAlert(
                     validationStatus === 'toolong'
-                        ? 'Pronouns must be 15 characters or fewer.'
-                        : "Roblox's filter rejected these pronouns. Try a different value.",
+                        ? ts('settings.ui.pronouns.tooLong')
+                        : ts('settings.ui.pronouns.filterRejected'),
                     'warning',
                 );
                 return { shouldSave: false };
@@ -116,13 +117,11 @@ async function prepareProfilePronounsUpdate(value) {
         } catch (error) {
             restoreProfilePronounsInput(previousValue);
             let validationErrorMessage =
-                'Pronouns could not be checked by Roblox. Please try again.';
+                ts('settings.ui.pronouns.checkFailed');
             if (error?.status === 400) {
-                validationErrorMessage =
-                    "Roblox's filter rejected these pronouns. Try a different value.";
+                validationErrorMessage = ts('settings.ui.pronouns.filterRejected');
             } else if (error?.status === 429) {
-                validationErrorMessage =
-                    'The Roblox pronoun filter is busy. Please try again shortly.';
+                validationErrorMessage = ts('settings.ui.pronouns.filterBusy');
             }
             showSystemAlert(validationErrorMessage, 'warning');
             return { shouldSave: false };
@@ -174,9 +173,9 @@ const isStatusLabeledOffByDefaultSetting = (config) =>
 
 const getFeatureStatusPromptPills = () =>
     [
-        '<span class="rovalra-pill experimental">Experimental</span>',
-        '<span class="rovalra-pill beta">Beta</span>',
-        '<span class="rovalra-pill deprecated">Deprecated</span>',
+        `<span class="rovalra-pill experimental">${ts('settings.ui.controls.experimental')}</span>`,
+        `<span class="rovalra-pill beta">${ts('settings.ui.controls.beta')}</span>`,
+        `<span class="rovalra-pill deprecated">${ts('settings.ui.controls.deprecated')}</span>`,
     ].join('');
 
 const shouldShowFeatureStatusPrompt = async (config) => {
@@ -275,7 +274,7 @@ export const getCurrentUserTier = async () => {
     return currentUserTier;
 };
 
-export const syncDonatorTier = async () => {
+export const syncDonatorTier = async ({ force = false } = {}) => {
     if (donatorTierPromise) return donatorTierPromise;
 
     const now = Date.now();
@@ -307,8 +306,6 @@ export const syncDonatorTier = async () => {
         userId: null,
     };
 
-    state.cachedResponse = null;
-
     if (state.userId !== currentUserId) {
         state.lastSync = 0;
         state.cachedResponse = null;
@@ -331,8 +328,14 @@ export const syncDonatorTier = async () => {
         state.priorityActive && isUrlChange && state.checksLeft > 0;
     const isExpired = now - state.lastSync > 5 * 60 * 1000;
 
-    if (inMemoryDonatorResponse && !isPriorityCheck && !isExpired) {
-        return inMemoryDonatorResponse;
+    if (!force && !isPriorityCheck && !isExpired) {
+        const cachedResponse =
+            inMemoryDonatorResponse || state.cachedResponse || null;
+        if (cachedResponse) {
+            inMemoryDonatorResponse = cachedResponse;
+            currentUserTierLoaded = true;
+            return cachedResponse;
+        }
     }
 
     donatorTierPromise = (async () => {
@@ -376,7 +379,7 @@ export const syncDonatorTier = async () => {
             state.lastPath = currentPath;
             inMemoryDonatorResponse = response;
             state.userId = currentUserId;
-            state.cachedResponse = null;
+            state.cachedResponse = response;
 
             await CacheHandler.set(
                 'donator_info',
@@ -512,8 +515,6 @@ export const enforceSettingOverrides = async () => {
         if (is3DLocked && settings.profile3DRenderEnabled === true) {
             overrides.profile3DRenderEnabled = false;
         }
-
-        await syncDonatorTier(); // Sync status
 
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, config] of Object.entries(
@@ -670,7 +671,7 @@ export const handleSaveSettings = async (settingName, value) => {
                             if (normalizedUrl === INVALID_HTTP_URL) {
                                 await restoreTextSettingInput(settingName);
                                 showSystemAlert(
-                                    'Enter a valid http:// or https:// image URL.',
+                                    ts('settings.ui.controls.invalidImageUrl'),
                                     'warning',
                                 );
                                 return;
@@ -1208,7 +1209,9 @@ export const initSettings = async (settingsContent) => {
                                                 );
                                             option.value = regionCode;
                                             option.textContent =
-                                                getFullRegionName(regionCode);
+                                                regionCode === 'AUTO'
+                                                    ? ts('regionSelector.automatic')
+                                                    : getFullRegionName(regionCode);
                                             childElement.appendChild(option);
                                         },
                                     );
@@ -1348,10 +1351,12 @@ export const applyLockedState = (
         if (isDonatorLock) {
             const tier = config?.donatorTier || '';
             statusLine.textContent = isLocked
-                ? `RoValra Donator Tier ${tier} Required`
-                : `RoValra Donator Perk (Tier ${tier})`;
+                ? ts('settings.ui.locks.donatorTierRequired', { tier })
+                : ts('settings.ui.locks.donatorPerk', { tier });
         } else {
-            statusLine.textContent = `This feature has been disabled ${lockType}`;
+            statusLine.textContent = ts('settings.ui.locks.featureDisabled', {
+                lockType,
+            });
         }
 
         const reasonLine = document.createElement('div');
@@ -1920,7 +1925,7 @@ export function initializeSettingsEventListeners() {
             'Generated Environment JSON:\n' +
                 JSON.stringify(envConfig, null, 2),
         );
-        alert('Environment JSON has been printed to the console (F12).');
+        alert(ts('settings.ui.environment.exported'));
     });
 
     document.addEventListener('rovalra:importEnvironmentJson', () => {
@@ -2050,7 +2055,7 @@ export function initializeSettingsEventListeners() {
                     await Promise.all(promises);
 
                     alert(
-                        'Environment config imported successfully. The page will reload to apply changes.',
+                        ts('settings.ui.environment.imported'),
                     );
                     location.reload();
                 } catch (error) {
@@ -2058,7 +2063,7 @@ export function initializeSettingsEventListeners() {
                         'Failed to import environment config:',
                         error,
                     );
-                    alert('Failed to parse the JSON file.');
+                    alert(ts('settings.ui.environment.parseFailed'));
                 }
             };
             reader.readAsText(file);
@@ -2077,7 +2082,9 @@ export function initializeSettingsEventListeners() {
                     totalBytes += itemSize;
                 }
             }
-            alert(`Total Local Storage Used: ${formatBytes(totalBytes)}`);
+            alert(ts('settings.ui.environment.storageUsed', {
+                size: formatBytes(totalBytes),
+            }));
         });
     });
 
@@ -2138,12 +2145,12 @@ export function initializeSettingsEventListeners() {
                     target.checked = false;
                     const statusPills = getFeatureStatusPromptPills();
                     showConfirmationPrompt({
-                        title: 'Before Enabling This Feature',
+                        title: ts('settings.ui.featureStatus.title'),
                         message:
                             `<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">${statusPills}</span>` +
-                            'Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.',
-                        confirmText: 'I Acknowledge',
-                        cancelText: 'Cancel',
+                            ts('settings.ui.featureStatus.message'),
+                        confirmText: ts('settings.ui.featureStatus.acknowledge'),
+                        cancelText: ts('common.cancel'),
                         confirmType: 'primary',
                         cancelType: 'secondary',
                         onConfirm: async () => {
@@ -2243,6 +2250,10 @@ export function initializeSettingsEventListeners() {
             savePromises.push(handleSaveSettings(settingName, value));
         } else if (target.matches('select')) {
             value = target.value;
+            const previousLanguage =
+                settingName === 'rovalraLanguage'
+                    ? (await loadSettings()).rovalraLanguage
+                    : null;
             savePromises.push(handleSaveSettings(settingName, value));
             if (settingName === 'profileRenderEnvironment') {
                 const profileEnvs =
@@ -2264,6 +2275,14 @@ export function initializeSettingsEventListeners() {
                             ),
                     );
                 }
+            }
+            if (
+                settingName === 'rovalraLanguage' &&
+                value !== previousLanguage
+            ) {
+                await Promise.all(savePromises);
+                location.reload();
+                return;
             }
         } else if (
             target.matches(

@@ -1,4 +1,5 @@
 import { callRobloxApiJson } from '../../api';
+import { ts } from '../../locale/i18n.js';
 
 const presenceQueue = {
     pendingIds: new Set(),
@@ -591,8 +592,10 @@ async function updateNativePresenceContainer(container) {
                 !currentGame ||
                 presenceTextLooksLikeGame(currentGame, baseName, compactName)
             ) {
-                target.textContent = `Playing ${compactName}`;
-                target.title = `Playing ${gameName}`;
+                target.textContent = ts('common.playingGame', {
+                    gameName: compactName,
+                });
+                target.title = ts('common.playingGame', { gameName });
                 target.classList.add('rovalra-subplace-presence-native-label');
                 target.style.setProperty('white-space', 'nowrap', 'important');
                 target.style.setProperty('overflow', 'hidden', 'important');

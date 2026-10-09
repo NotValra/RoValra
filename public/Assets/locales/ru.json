@@ -1,0 +1,2256 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Поделиться",
+        "serverCopied": "Скопировано!",
+        "recentServerTitle": "Сервер",
+        "decalOptions": "Параметры изображения"
+    },
+    "common": {
+        "select": "Выбрать...",
+        "search": "Поиск",
+        "rovalraSettings": "Настройки RoValra",
+        "filterItems": "Фильтр предметов",
+        "applyFilter": "Применить фильтр",
+        "uploadFile": "Загрузить файл",
+        "change": "Изменить",
+        "invalidFileFormat": "Неверный формат файла.",
+        "invalidImageFile": "Неверный формат файла. Загрузите корректное изображение.",
+        "fileProcessingFailed": "Не удалось обработать файл. Попробуйте другой файл.",
+        "errorProcessingFile": "Ошибка при обработке файла. Попробуйте другой файл.",
+        "less": "Меньше",
+        "more": "Больше",
+        "pastYear": "За последний год",
+        "past6Months": "За последние 6 месяцев",
+        "past3Months": "За последние 3 месяца",
+        "pastMonth": "За последний месяц",
+        "pastWeek": "За последнюю неделю",
+        "unnamedProduct": "Товар без названия",
+        "offSale": "Не продаётся",
+        "robloxExperience": "Игра Roblox",
+        "subplace": "Подплейс",
+        "subplaceUpper": "ПОДПЛЕЙС",
+        "offline": "Не в сети",
+        "website": "Сайт",
+        "playing": "Играет",
+        "playingGame": "Играет в {{gameName}}",
+        "studio": "Studio",
+        "share": "Поделиться",
+        "copied": "Скопировано!",
+        "free": "Бесплатно",
+        "unknown": "Неизвестно",
+        "somethingWentWrong": "Что-то пошло не так",
+        "robloxPlusSubscriber": "Подписчик Roblox Plus",
+        "joinServerFull": "Присоединиться (сервер полон)",
+        "id": "ID: ",
+        "profile": "Профиль",
+        "error": "Ошибка",
+        "rovalraDeveloper": "Разработчик RoValra",
+        "close": "Закрыть",
+        "confirmAction": "Подтвердите действие",
+        "areYouSure": "Вы уверены, что хотите продолжить?",
+        "confirm": "Подтвердить",
+        "cancel": "Отмена"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Гилберты в вашем районе",
+        "title": "Выбор региона RoValra",
+        "automatic": "Автоматически",
+        "servers": "Серверы: ",
+        "datacenters": "Дата-центры: ",
+        "filterByRegion": "Фильтровать серверы по региону",
+        "filterByRegionItem": "Фильтр по {{region}} ({{count}} серверов)",
+        "filterByRegionItem_one": "Фильтр по {{region}} ({{count}} сервер)",
+        "filterByRegionItem_few": "Фильтр по {{region}} ({{count}} сервера)",
+        "filterByRegionItem_many": "Фильтр по {{region}} ({{count}} серверов)",
+        "filterByRegionItem_other": "Фильтр по {{region}} ({{count}} серверов)",
+        "filterByUptime": "Фильтровать серверы по времени работы (новые/старые)",
+        "filterByVersion": "Фильтровать серверы по версии игры"
+    },
+    "guidelines": {
+        "title": "Правила RoValra",
+        "message": "Используя RoValra, вы соглашаетесь соблюдать наши Условия использования. Нарушение этих правил может привести к блокировке доступа к отдельным функциям, включая пузыри статуса и местоимения.<br><br><b>Главное:</b><br>• Нельзя уводить пользователей на сторонние платформы.<br>• Нельзя делать ничего неприемлемого.<br>• Нельзя нарушать Условия использования Roblox.<br><br>Подробнее на <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "Понятно"
+    },
+    "review": {
+        "requestMessage": "Похоже, RoValra вам пригодился!\n Не могли бы вы оставить отзыв?\n Это помогает RoValra оставаться бесплатным для всех без платных функций.",
+        "leaveReview": "Оставить отзыв",
+        "notNow": "Не сейчас",
+        "doNotShowAgain": "Больше не показывать",
+        "rateTitle": "Оцените RoValra",
+        "donationMessage": "Работа таких функций, как выбор региона, стоит денег, и RoValra полностью зависит от пожертвований, чтобы покрывать эти расходы.\n\nПожертвования помогают поддерживать серверы, чтобы такие функции оставались бесплатными для всех.",
+        "donate": "Пожертвовать",
+        "donationTitle": "Хотите поддержать RoValra?"
+    },
+    "heatmap": {
+        "updatesBetween": "Обновления с {{start}} по {{end}} за {{date}}",
+        "updatesOn": "Обновления за {{date}}",
+        "trackingSince": "История обновлений отслеживается только с 15 февраля 2026 года"
+    },
+    "profileFeatures": {
+        "title": "Функции RoValra"
+    },
+    "serverFilters": {
+        "newest": "Новые серверы",
+        "oldest": "Старые серверы",
+        "uptime": "Время работы сервера",
+        "version": "Версия",
+        "enterVersion": "Введите версию",
+        "region": "Регион",
+        "versionPlaceholder": "Версия"
+    },
+    "serverInfo": {
+        "loading": "Загрузка...",
+        "versionUnknown": "Версия неизвестна",
+        "version": "Версия {{version}}",
+        "versionLabel": "Версия",
+        "latest": " (последняя)",
+        "oldest": " (самая старая)",
+        "serverFull": "Сервер заполнен",
+        "privateServer": "Играет на приватном сервере",
+        "purchaseGame": "Купите игру, чтобы увидеть регионы.",
+        "currentVersionTooltip": "Текущая опубликованная версия."
+    },
+    "serverStats": {
+        "totalServers": "Всего серверов",
+        "totalServersTooltip": "Общее количество серверов этой игры, которые отслеживает RoValra",
+        "oldest": "Самая старая",
+        "oldestTooltip": "Самая старая версия, на которой сейчас работает сервер."
+    },
+    "preferredRegion": {
+        "criticalError": "Roblox Join API не отвечает. Возможно, придётся немного подождать.\nОбычно это вызвано проблемами с сетью или с серверами Roblox. Если проблема не исчезает, попробуйте отключить [Предпочитаемый регион.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) или очистить кэш браузера.\nЕсли ошибка повторяется, сообщите о ней на Discord-сервере RoValra.\n\n---\n**Подробности ошибки:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Возможно, Roblox отказывается от API gamejoin. Это не зависит от RoValra и на какое-то время повлияет на выбор региона; мы работаем над исправлением как можно скорее.\n\n---\n**Подробности ошибки:**\n{{detailMsg}}",
+        "detectingLocation": "Определяем ваше местоположение...",
+        "closestRegion": "ближайший регион",
+        "inactiveRegion": "{{region}} больше не используется Roblox как расположение серверов.",
+        "scanningLocally": "Локальный поиск серверов в регионе {{region}}...",
+        "regionApiUnavailable": "API регионов недоступен. Ищем серверы в регионе {{region}}...",
+        "findingLowestLatency": "Ищем сервер с минимальной задержкой...",
+        "searchingInRegion": "Поиск в регионе {{region}}...",
+        "fallbackInactive": "Следующие подходящие серверы из API неактивны. Локальный поиск в регионе {{region}}...",
+        "noServersApi": "Через API не найдено серверов в регионе {{region}}. Выполняется локальный поиск...",
+        "loadBalancing": "{{region}} используется для балансировки нагрузки и, скорее всего, активен только при высокой нагрузке. Поиск...",
+        "foundJoining": "Найден {{region}}! Подключаемся...",
+        "foundContinuing": "Найден: {{region}}. Продолжаем поиск {{targetRegion}}...",
+        "foundVerifying": "Найден {{region}}! Проверяем...",
+        "verifyingStatus": "Проверка состояния сервера...",
+        "searchingClosest": "Поиск ближайшего региона к {{region}}...",
+        "noServersRunning": "Нет запущенных серверов в регионе {{region}}.",
+        "joinRegion": "Войти в {{region}}",
+        "couldNotFindServers": "Не удалось найти ни одного сервера."
+    },
+    "purchaseModal": {
+        "title": "Купить предмет",
+        "buy": "Купить",
+        "savingWithPlus": "Экономия <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> с Plus",
+        "subtotal": "Промежуточный итог",
+        "plusBenefit": "Скидка Plus ({{percent}}%)",
+        "total": "Итого",
+        "insufficientRobux": "Недостаточно Robux",
+        "purchasing": "Покупка...",
+        "purchaseComplete": "Покупка завершена",
+        "successMessage": "Вы успешно купили <b>{{itemName}}</b>",
+        "ok": "ОК",
+        "purchaseError": "Ошибка покупки",
+        "purchaseFailed": "Не удалось совершить покупку",
+        "unknownError": "Неизвестная ошибка",
+        "errorLoadingTitle": "Ошибка загрузки предмета",
+        "errorLoadingMessage": "Не удалось получить информацию об этом предмете. Подробности: {{errorMessage}}. Попробуйте позже."
+    },
+    "avatarRotator": {
+        "stop": "Остановить смену",
+        "button": "Смена аватаров",
+        "selectMinimum": "Выберите минимум 2 аватара",
+        "setRotators": "Назначить для смены ({{count}})",
+        "selectedStatus": "Выберите аватары для поочерёдной смены. ({{count}} выбрано)",
+        "loading": "Загрузка...",
+        "loadMore": "Загрузить ещё",
+        "interval": "Интервал (секунды)",
+        "loadingDetails": "Загрузка информации об образах...",
+        "active": "Смена аватаров активна!",
+        "disable": "Отключить",
+        "clearSelection": "Сбросить выбор",
+        "title": "Смена аватаров"
+    },
+    "avatarFilters": {
+        "filterItems": "Фильтр предметов",
+        "filtering": "Фильтрация...",
+        "loading": "Загрузка...",
+        "creatorName": "Имя создателя",
+        "minPrice": "Минимальная цена",
+        "maxPrice": "Максимальная цена",
+        "availability": "Доступность",
+        "showAll": "Показать все",
+        "onsaleOnly": "Только в продаже",
+        "offsaleOnly": "Только снятые с продажи",
+        "effects": "Эффекты",
+        "limiteds": "Лимитированные"
+    },
+    "trading": {
+        "searchInventory": "Поиск по инвентарю",
+        "continueSearch": "Продолжить поиск",
+        "filterTrades": "Фильтр обменов",
+        "noResults": "Ничего не найдено",
+        "copyProof": "Скопировать доказательство",
+        "copied": "Скопировано!",
+        "value": "Ценность:",
+        "demand": "Спрос:",
+        "includeRobux": "Учитывать Robux",
+        "openUserOnRolimons": "Открыть пользователя на Rolimons",
+        "openOnRolimons": "Открыть {{type}} на Rolimons",
+        "projectedItem": "Проецируемый предмет",
+        "projected": "Проецируемый",
+        "rareItem": "Редкий предмет",
+        "rap": "RAP",
+        "valueLabel": "Ценность",
+        "demandLabel": "Спрос",
+        "bundle": "набор",
+        "item": "предмет",
+        "serial": "Серийный номер",
+        "afterTax": "После комиссии",
+        "beforeTax": "До комиссии",
+        "youGive": "Вы отдаёте",
+        "youGet": "Вы получаете"
+    },
+    "onboarding": {
+        "title": "Добро пожаловать в RoValra!",
+        "thankYou": "Спасибо за установку <strong>RoValra</strong>!",
+        "exploreFeatures": "Чтобы изменить настройки и изучить все функции, вы можете:",
+        "settingsInstruction": "Нажать на <strong>значок шестерёнки</strong> в шапке Roblox, а затем выбрать \"Настройки RoValra\".",
+        "imageAlt": "Подсказка, где найти кнопку настроек RoValra на сайте Roblox.",
+        "description": "RoValra является навсегда бесплатным расширением для Roblox, которое старается сделать Roblox удобнее для всех!",
+        "gotIt": "Понятно!"
+    },
+    "catalogDependencies": {
+        "scan": "Сканировать зависимости",
+        "loading": "Загрузка информации ({{count}})...",
+        "title": "Зависимости",
+        "unknown": "Неизвестно",
+        "assetFallback": "Ассет {{id}}",
+        "verifiedBadge": "Значок подтверждения",
+        "by": "От"
+    },
+    "catalogItemSales": {
+        "sales": "Продажи",
+        "revenue": "Доход",
+        "statsTooltip": "Статистика продаж и дохода взята из утечки и, скорее всего, неточна."
+    },
+    "fortyMethod": {
+        "loginRequired": "Не удалось определить ваш ID пользователя. Убедитесь, что вы вошли в аккаунт.",
+        "setupExperience": "Настроить игру",
+        "specificTemplate": "Работает только определённый шаблон",
+        "selectGroup": "Выберите группу, в которой вы можете управлять играми. <br>Расширение само создаст для вас игру.",
+        "or": "ИЛИ",
+        "manualPlaceId": "Ввести Place ID вручную <br> (Делайте это, только если знаете, что делаете.)",
+        "donateSavedRobux": "Пожертвовать сэкономленные Robux RoValra",
+        "estimatedSavings": "Показанная далее примерная экономия является приблизительной и может быть неточной.",
+        "importantInformation": "Важная информация",
+        "acknowledge": "Я ознакомлен",
+        "groupRequired": "Нужна группа",
+        "goBack": "Назад",
+        "ownershipDetected": "Обнаружено владение",
+        "understandContinue": "Я понимаю, продолжить",
+        "createExperience": "Создать игру",
+        "createNewExperience": "Создать новую игру",
+        "findingExperience": "Ищем вашу игру",
+        "findingExperienceWait": "Подождите, пока мы ищем вашу только что опубликованную игру...",
+        "donateToRoValra": "Пожертвовать RoValra",
+        "back": "Назад",
+        "validationWarning": "Предупреждение проверки",
+        "updateExperience": "Обновить игру",
+        "useAnyway": "Всё равно использовать",
+        "permissionRequired": "Нужно разрешение",
+        "backToGroupSelection": "Назад к выбору группы",
+        "experience": "Игра",
+        "loading": "Загрузка...",
+        "setupGame": "Настройте свою игру",
+        "saveContinue": "Сохранить и продолжить",
+        "creating": "Создание...",
+        "uploadingTemplate": "Загрузка шаблона...",
+        "configuring": "Настройка...",
+        "done": "Готово!",
+        "updating": "Обновление...",
+        "purchaseFailed": "Покупка не удалась",
+        "gotIt": "Понятно",
+        "confirmMethodPurchase": "Подтвердите покупку методом 40%",
+        "confirmCartPurchase": "Подтвердите покупку корзины",
+        "cancel": "Отмена",
+        "alreadyOwned": "Уже есть",
+        "joinToPurchase": "Войдите в игру для покупки",
+        "confirmPurchase": "Подтвердить покупку",
+        "purchaseError": "Ошибка покупки",
+        "ownerAccount": "<strong>Аккаунт владельца:</strong> владелец группы НЕ МОЖЕТ быть тем же аккаунтом, с которого вы покупаете предметы. Владельцем должен быть защищённый альт-аккаунт с включённой 2FA и надёжным уникальным паролем.",
+        "payouts": "<strong>Выплаты:</strong> выплачивать сэкономленные Robux из средств группы может только аккаунт владельца группы.",
+        "pendingRobux": "<strong>Ожидающие Robux:</strong> учтите, что после использования этой функции Robux будут в ожидании примерно месяц, прежде чем их можно будет выплатить.",
+        "groupRequiredBody": "Чтобы использовать метод 40% со своей группой, вам нужна группа, в которой вы можете управлять играми.",
+        "groupRequiredImportant": "<strong>Важно:</strong> чтобы всё работало правильно, группа должна принадлежать защищённому альт-аккаунту. У вашего основного аккаунта (с которого вы покупаете предметы) должна быть роль с правами на создание и управление играми группы.",
+        "groupRequiredDonate": "Если у вас нет подходящей группы, вы можете поддержать RoValra, используя нашу игру для обработки покупки, благодаря чему сэкономленные Robux получит RoValra ❤️",
+        "ownershipBody": "Метод 40% не сработает, если вы владелец этой группы. Выберите другую группу или передайте права владельца защищённому альт-аккаунту.",
+        "experienceAccepted": "Игра принята",
+        "experienceAcceptedSpecific": "<strong>Работают только определённые игры.</strong> Убедитесь, что в этой игре настроены необходимые скрипты для обработки внутриигровых покупок.",
+        "experienceAcceptedGroup": "Убедитесь, что игра принадлежит группе, которой <strong>вы управляете, но которая не принадлежит этому аккаунту</strong>. Желательно, чтобы владельцем группы был альт. Если вы владелец группы, метод 40% не сработает.",
+        "experienceAcceptedPending": "Сэкономленные Robux будут в ожидании примерно месяц до выплаты. Используйте защищённый альт как владельца группы для выплат.",
+        "createExperienceBody": "Создайте новую игру для этой группы, чтобы использовать метод 40%.",
+        "createNewExperienceBody": "Чтобы создать новую игру для этого метода:",
+        "createStepOne": "Откройте незаблокированную для копирования игру в Studio:",
+        "openStudio": "Открыть Studio",
+        "createStepTwo": "В Studio перейдите в <strong>File > Game Settings > Security > включите \"Allow Third Party Sales\" > File > Publish to Roblox As...</strong>",
+        "createStepThree": "Выберите эту группу в списке Creator.",
+        "createStepFour": "Нажмите <strong>Create</strong>, и игра будет опубликована",
+        "createPublishedBody": "После публикации нажмите кнопку ниже, и мы автоматически найдём и выберем её для вас.",
+        "publishedGame": "Я опубликовал игру",
+        "saveSettingsUnavailable": "Не удалось сохранить настройки. Storage API недоступен.",
+        "groupsLoadFailed": "Не удалось загрузить группы. Обновите страницу и попробуйте снова.",
+        "noGroupSelected": "Группа не выбрана. Попробуйте снова."
+    },
+    "risk": {
+        "projected": "Предмет помечен как проецируемый.",
+        "rapMuchHigher": "RAP намного выше ценности, ценность может вырасти.",
+        "rapHigher": "RAP выше ценности, ценность может вырасти.",
+        "rapMuchLower": "RAP намного ниже ценности, ценность может упасть.",
+        "rapHigherSales": "RAP выше продаж, но лучшая цена это подтверждает.",
+        "rapUnusuallyHigh": "RAP необычно высок по сравнению с недавней стабильной ценой продаж.",
+        "rapHigherStable": "RAP выше стабильной цены (постепенно растёт).",
+        "bestPriceMuchLower": "Лучшая цена значительно ниже RAP.",
+        "bestPriceLower": "Лучшая цена ниже RAP.",
+        "bestPriceHigher": "Лучшая цена выше RAP.",
+        "bestPriceSlightlyHigher": "Лучшая цена немного выше RAP.",
+        "sufferingProjection": "Предмет страдает от проекции.",
+        "stableTrend": "Стабильный тренд цены."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Выбирайте и используйте любую тему без Roblox Plus."
+    },
+    "items": {
+        "hiddenFromMarketplace": "Этот предмет скрыт с маркетплейса",
+        "notFound": "Не найдено",
+        "failedToLoad": "Не удалось загрузить",
+        "onHold": "На удержании",
+        "faeItem": "Предмет FAE"
+    },
+    "inventory": {
+        "openRolimons": "Открыть на Rolimon's",
+        "searchPlaceholder": "Поиск по названию предмета..."
+    },
+    "games": {
+        "failedToLoad": "Не удалось загрузить игру"
+    },
+    "gameBookmarks": {
+        "bookmark": "В закладки",
+        "saved": "В закладках",
+        "title": "Закладки",
+        "uncategorized": "Без категории",
+        "create": "+ Создать категорию",
+        "categoryName": "Название категории",
+        "createSave": "Создать и сохранить",
+        "save": "Сохранить изменения",
+        "deleteCategory": "Удалить категорию",
+        "deleteCategoryConfirm": "Вы уверены? Категория будет удалена и убрана из всех игр в закладках.",
+        "confirm": "Удалить",
+        "cancel": "Отмена",
+        "remove": "Удалить из закладок",
+        "error": "Не удалось сохранить закладку. Попробуйте снова.",
+        "loading": "Загрузка игры…",
+        "all": "Все",
+        "topic": "Игры в закладках",
+        "empty": "В этой категории нет игр в закладках."
+    },
+    "homeLayout": {
+        "untitled": "Без названия",
+        "empty": "RoValra не удалось найти раскладку, обновите страницу и попробуйте снова.",
+        "reset": "Сбросить",
+        "save": "Сохранить",
+        "overlayTitle": "Раскладка главной",
+        "button": "Настроить раскладку",
+        "edit": "Изменить",
+        "settingsTitle": "Настройки категории",
+        "visibility": "Видимость",
+        "visibilityDescription": "Выберите, показывать ли эту категорию на главной.",
+        "accurateContinue": "Точный раздел Продолжить",
+        "accurateContinueDescription": "Сортировать раздел Продолжить по тому, когда вы последний раз играли в каждую игру.",
+        "enable": "Включить",
+        "disable": "Отключить",
+        "show": "Показать",
+        "hide": "Скрыть"
+    },
+    "sidebarLayout": {
+        "untitled": "Без названия",
+        "empty": "RoValra не удалось найти кнопки боковой панели.",
+        "reset": "Сбросить",
+        "save": "Сохранить",
+        "overlayTitle": "Раскладка боковой панели",
+        "button": "Настроить раскладку",
+        "myProfile": "Мой профиль",
+        "disabled": "Отключено",
+        "show": "Показать",
+        "hide": "Скрыть"
+    },
+    "topbarLayout": {
+        "empty": "RoValra не удалось найти поддерживаемые элементы верхней панели.",
+        "reset": "Сбросить",
+        "save": "Сохранить",
+        "overlayTitle": "Раскладка верхней панели",
+        "button": "Раскладка верхней панели",
+        "disabled": "Обязательно",
+        "show": "Показать",
+        "hide": "Скрыть",
+        "labels": {
+            "logo": "Логотип Roblox",
+            "charts": "Чарты",
+            "marketplace": "Маркетплейс",
+            "create": "Создать",
+            "robux": "Robux",
+            "search": "Поиск",
+            "profile": "Профиль",
+            "qol": "Статус",
+            "topbarLayout": "Раскладка верхней панели",
+            "notifications": "Уведомления",
+            "robuxBalance": "Баланс Robux",
+            "settings": "Настройки"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Предыдущие друзья",
+        "nextFriends": "Ещё друзья",
+        "isPlaying": "{{name}} играет",
+        "online": "В сети",
+        "inStudio": "В Studio",
+        "offline": "Не в сети",
+        "friendFallback": "Друг",
+        "join": "Присоединиться",
+        "chat": "Чат",
+        "viewProfile": "Открыть профиль"
+    },
+    "friendLabels": {
+        "menuAction": "Задать метку друга",
+        "dialogTitle": "Метка для {{displayName}}",
+        "inputLabel": "Метка друга",
+        "inputPlaceholder": "Близкие друзья, Школа,",
+        "existingLabels": "Существующие метки",
+        "friendFallback": "Друг",
+        "save": "Сохранить",
+        "remove": "Удалить",
+        "cancel": "Отмена"
+    },
+    "underratedGames": {
+        "topic": "Недооценённые игры",
+        "subtitle": "Недооценённые игры, отобранные сообществом RoValra.",
+        "rotates": "Обновляется",
+        "suggestOnDiscord": "Предлагайте недооценённые игры в {{discord}}",
+        "ageRestrictionWarning": "Некоторые из этих игр могут быть доступны только с 16+ из-за требования Roblox в 250 HEP."
+    },
+    "playtime": {
+        "topic": "Время в игре",
+        "period": "Период",
+        "today": "Сегодня",
+        "thisWeek": "На этой неделе",
+        "thisMonth": "В этом месяце",
+        "thisYear": "В этом году",
+        "allTime": "За всё время",
+        "hours": "{{value}} ч",
+        "minutes": "{{value}} мин"
+    },
+    "trustedFriends": {
+        "pendingConnection": "Ожидает подтверждения доверенного друга",
+        "pendingRequest": "Запрос в доверенные друзья ожидает ответа",
+        "addConnection": "Добавить в доверенные друзья",
+        "addConfirmation": "Вы уверены, что хотите отправить запрос в доверенные друзья?",
+        "sendRequest": "Отправить запрос",
+        "sending": "Отправка...",
+        "requestSent": "Запрос в доверенные друзья отправлен!",
+        "requestFailed": "Не удалось отправить запрос в доверенные друзья.",
+        "errorSending": "Ошибка отправки",
+        "acceptConnection": "Принять в доверенные друзья",
+        "acceptConfirmation": "Вы уверены, что хотите принять этот запрос в доверенные друзья?",
+        "accept": "Принять",
+        "accepting": "Принятие...",
+        "requestAccepted": "Запрос в доверенные друзья принят!",
+        "acceptFailed": "Не удалось принять запрос в доверенные друзья.",
+        "errorAccepting": "Ошибка принятия",
+        "removeConnection": "Удалить из доверенных друзей",
+        "removeConfirmation": "Вы уверены, что хотите удалить этого доверенного друга?",
+        "remove": "Удалить",
+        "removing": "Удаление...",
+        "connectionRemoved": "Доверенный друг удалён!",
+        "removeFailed": "Не удалось удалить доверенного друга.",
+        "errorRemoving": "Ошибка удаления"
+    },
+    "chatEligibility": {
+        "canChat": "Вы можете общаться с этим пользователем.",
+        "cannotChat": "Этот пользователь вне вашего возрастного диапазона для чата.",
+        "ageCheckRequired": "Этот пользователь не прошёл проверку возраста."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Сейчас надето",
+        "items": "Предметы",
+        "cosmetics": "Косметика",
+        "bodyParts": "Части тела",
+        "animations": "Анимации",
+        "emotes": "Эмоции"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "У пользователя нет публичных игр",
+        "overlayText": "Скрытые игры",
+        "noHiddenGames": "У этого пользователя нет скрытых игр.",
+        "buttonText": "Скрытые игры",
+        "labels": {
+            "sort": "Сортировка",
+            "order": "Порядок",
+            "showAll": "Показать все игры"
+        },
+        "sort": {
+            "default": "По умолчанию",
+            "likeRatio": "Соотношение лайков",
+            "likes": "Лайки",
+            "dislikes": "Дизлайки",
+            "players": "Игроки",
+            "name": "Название (Я-А)"
+        },
+        "order": {
+            "descending": "По убыванию",
+            "ascending": "По возрастанию"
+        },
+        "noMatches": "Нет игр, подходящих под фильтры.",
+        "loading": "Загрузка..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Скрытые игры группы (всего {{count}})",
+        "noHiddenGames": "У этой группы нет скрытых игр.",
+        "buttonText": "Скрытые игры",
+        "labels": {
+            "sort": "Сортировка",
+            "order": "Порядок",
+            "showAll": "Показать все игры"
+        },
+        "sort": {
+            "recentlyUpdated": "Недавно обновлённые",
+            "likeRatio": "Соотношение лайков",
+            "likes": "Лайки",
+            "dislikes": "Дизлайки",
+            "players": "Игроки",
+            "name": "Название (Я-А)"
+        },
+        "order": {
+            "descending": "По убыванию",
+            "ascending": "По возрастанию"
+        },
+        "noMatches": "Нет скрытых игр, подходящих под текущие фильтры.",
+        "loadingMore": "Загрузка других игр..."
+    },
+    "userOutfits": {
+        "loading": "Загрузка образов...",
+        "back": "Назад",
+        "totalPrice": "Общая стоимость:",
+        "loadingItems": "Загрузка предметов...",
+        "noItems": "В этом образе нет предметов.",
+        "errorLoadingItems": "Не удалось загрузить предметы.",
+        "buttonText": "Показать образы",
+        "overlayTitle": "Образы пользователя",
+        "overlayTitleUser": "Образы {{displayName}}",
+        "noOutfits": "У этого пользователя нет образов.",
+        "inventoryPrivate": "Инвентарь пользователя скрыт.",
+        "errorNoUserId": "Не удалось определить ID пользователя на странице.",
+        "errorFetch": "Не удалось получить образы."
+    },
+    "donationLink": {
+        "donate": "Пожертвовать",
+        "overlayTitle": "Pls Donate",
+        "description": "Будет запущена игра \"PLS DONATE\", где можно сделать офлайн-пожертвование.\n\nИз-за комиссий Roblox (30%) и игры (10%) пользователь получит 60% от пожертвованной суммы.\n\nПосле входа появится интерфейс \"Offline Donations\" с уже заполненным именем пользователя. Просто нажмите на кнопку подарка, чтобы открыть его стенд и купить геймпасс для пожертвования.",
+        "joinButton": "Войти в Pls Donate",
+        "goBackButton": "Назад",
+        "loadingGamePasses": "Загрузка геймпассов...",
+        "priceLowToHigh": "Цена (по возрастанию)",
+        "priceHighToLow": "Цена (по убыванию)",
+        "userGamePasses": "Геймпассы {{username}}",
+        "copyDonationLink": "Скопировать ссылку для пожертвований",
+        "copyLinkDescription": "Копирует специальную ссылку на этот профиль. Когда пользователь RoValra откроет её, это меню пожертвований появится автоматически.<br><br><strong>Примечание:</strong> окно пожертвований увидят только пользователи RoValra, остальные увидят обычный профиль.",
+        "copyLinkButton": "Скопировать ссылку",
+        "copySuccess": "Ссылка для пожертвований скопирована!",
+        "noGamePassesFound": "В играх {{username}} не найдено геймпассов.",
+        "errorLoading": "Ошибка загрузки геймпассов: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Мгновенный вход",
+        "stopJoining": "Остановить вход",
+        "description": "Автоматически пытается присоединиться к пользователю, как только он зайдёт в игру.<br><br>Для этого у пользователя должен быть разрешён вход для всех, либо вы должны быть друзьями.",
+        "searchPlaceholder": "Найдите игру или введите Place ID (необязательно)",
+        "continue": "Продолжить",
+        "cancel": "Отмена",
+        "confirmTitle": "Подтвердите действие"
+    },
+    "rap": {
+        "error": "Ошибка",
+        "private": "Скрыто",
+        "openInRolimons": "Открыть на Rolimon's",
+        "thisUser": "этого пользователя",
+        "rolimonsRedirect": "Сейчас вы будете перенаправлены на профиль {{username}} на Rolimon's, сторонний сайт для обменов и оценки предметов.<br><br>Хотите продолжить?",
+        "continueToRolimons": "Перейти на Rolimon's",
+        "user": "Пользователь",
+        "loadingItems": "Загрузка других предметов...",
+        "noItemsMatch": "Нет предметов, подходящих под ваш запрос.",
+        "collectiblesTitle": "Коллекционные предметы {{displayName}} ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "Коллекционные предметы {{displayName}} (ценность {{totalRapString}})",
+        "inventoryPrivateOrNoLimiteds": "Инвентарь этого пользователя скрыт или в нём нет лимитированных предметов.",
+        "searchByName": "Поиск по названию предмета",
+        "itemAmount": "Количество этого предмета: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Отправить"
+    },
+    "privateServer": {
+        "processingTitle": "Обработка серверов",
+        "starting": "Запуск...",
+        "cancel": "Отмена",
+        "cancelling": "Отмена...",
+        "activating": "Активация",
+        "inactivating": "Деактивация",
+        "progressText": "{{actionText}} сервера {{current}} из {{total}}...",
+        "unknownApiError": "Произошла неизвестная ошибка API.",
+        "processCancelled": "Процесс отменён. <span class=\"success-text\">{{count}} серверов обработано.</span>",
+        "processCancelled_one": "Процесс отменён. <span class=\"success-text\">{{count}} сервер обработан.</span>",
+        "processCancelled_few": "Процесс отменён. <span class=\"success-text\">{{count}} сервера обработано.</span>",
+        "processCancelled_many": "Процесс отменён. <span class=\"success-text\">{{count}} серверов обработано.</span>",
+        "processCancelled_other": "Процесс отменён. <span class=\"success-text\">{{count}} серверов обработано.</span>",
+        "completed": "Завершено: <span class=\"success-text\">{{successCount}} успешно</span>, <span class=\"error-text\">{{errorCount}} с ошибкой</span>.",
+        "processingComplete": "Обработка завершена",
+        "confirmationTitle": "Подтвердите действие",
+        "confirmationMessage": "Вы собираетесь установить {{count}} приватных серверов как {{action}}.",
+        "confirmationMessage_one": "Вы собираетесь установить {{count}} приватный сервер как {{action}}.",
+        "confirmationMessage_few": "Вы собираетесь установить {{count}} приватных сервера как {{action}}.",
+        "confirmationMessage_many": "Вы собираетесь установить {{count}} приватных серверов как {{action}}.",
+        "confirmationMessage_other": "Вы собираетесь установить {{count}} приватных серверов как {{action}}.",
+        "confirmationJoinable": "К приватному серверу можно будет присоединиться.",
+        "confirmationUnjoinable": "К приватному серверу нельзя будет присоединиться.",
+        "confirmationReversible": "Вы всегда сможете изменить это позже.",
+        "confirm": "Подтвердить",
+        "deselectAll": "Снять выделение",
+        "selectAll": "Выбрать все",
+        "bulkInactivate": "Массовая деактивация",
+        "bulkActivate": "Массовая активация",
+        "setInactive": "Деактивировать",
+        "setActive": "Активировать",
+        "noServersFound": "Не найдено {{status}} приватных серверов.",
+        "byCreator": "От ",
+        "allowJoining": "Разрешить вход"
+    },
+    "firstAccount": {
+        "label": "Первый аккаунт",
+        "yes": "Да",
+        "no": "Нет",
+        "tooltip": "Показывает, считает ли Roblox ваш аккаунт первым. <br>Эта информация приходит напрямую от Roblox, но может быть неточной.",
+        "createdDate": "Первый аккаунт создан: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "В программе Trusted Creator",
+        "yes": "Да",
+        "no": "Нет",
+        "tooltip": "Нашёл способ это проверить и подумал, что это круто :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Тема",
+        "light": "Светлая",
+        "dark": "Тёмная"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Настройки изображения",
+            "source": "Источник изображения",
+            "opacity": "Непрозрачность изображения",
+            "customSize": "Свой масштаб",
+            "blur": "Размытие",
+            "overrideTopbarSidebar": "Прозрачный режим",
+            "size": {
+                "label": "Размер фона",
+                "cover": "Заполнить",
+                "contain": "Вписать",
+                "auto": "Авто",
+                "custom": "Свой"
+            },
+            "position": {
+                "label": "Положение фона",
+                "center": "По центру",
+                "top": "Сверху",
+                "bottom": "Снизу",
+                "left": "Слева",
+                "right": "Справа",
+                "topleft": "Сверху слева",
+                "topright": "Сверху справа",
+                "bottomleft": "Снизу слева",
+                "bottomright": "Снизу справа"
+            },
+            "overlay": {
+                "color": "Цвет наложения",
+                "opacity": "Непрозрачность наложения"
+            },
+            "errors": {
+                "invalidUrl": "Введите корректный https-адрес изображения."
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Не продаётся",
+        "text": "Предыдущая цена:",
+        "lastOnSale": "Последний раз продавался",
+        "for": "за"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Получен"
+    },
+    "lastEquipped": {
+        "label": "Последний раз надето"
+    },
+    "pendingRobux": {
+        "tooltip": "Это примерная оценка того, сколько Robux из ожидающего баланса станет доступно завтра, на основе ваших транзакций. Реальная сумма может отличаться, и оценка может быть неточной.",
+        "loading": "Загрузка...",
+        "error": "Ошибка: {{message}}",
+        "insufficientData": "Недостаточно данных",
+        "insufficientDataTooltip": "Недостаточно истории транзакций для точной оценки. Дождитесь завершения новых транзакций.",
+        "label": "Robux, которые станут доступны завтра"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Подсчитать доход",
+        "calculateEarned": "Подсчитать заработок",
+        "pausedMessage": "Подсчёт приостановлен. Возобновите, чтобы продолжить.",
+        "resumeCalculation": "Возобновить подсчёт",
+        "startNewCalculation": "Начать новый подсчёт",
+        "description": "Подсчитайте, сколько всего Robux вы заработали на продажах и выплатах от групп.",
+        "startCalculation": "Начать подсчёт",
+        "transactionsScanned": "Проверено транзакций",
+        "totalRobuxEarned": "Всего заработано Robux",
+        "breakdownLabel": "Источники дохода",
+        "calculatingTitle": "Подсчёт заработанных Robux",
+        "scanningHistory": "Подсчитываем заработанные Robux...",
+        "rateLimited": "Превышен лимит запросов к API. Подсчёт продолжается...",
+        "calculationComplete": "Подсчёт завершён",
+        "allScanned": "Подсчёт заработанных Robux завершён.",
+        "newCalculation": "Новый подсчёт",
+        "errorTitle": "Произошла ошибка",
+        "retry": "Повторить",
+        "robloxLimitError": "Roblox вернул внутреннюю ошибку сервера. Скорее всего, из-за ограничений Roblox проверить больше транзакций не получится.",
+        "noEarnings": "Доходов пока не найдено.",
+        "other": "Другое",
+        "groupPayout": "Выплата от группы"
+    },
+    "totalSpent": {
+        "other": "Другое",
+        "na": "Н/Д",
+        "calculatingTitle": "Подсчёт",
+        "calculatingRobuxTitle": "Подсчёт потраченных Robux",
+        "calculatingMoneyTitle": "Подсчёт потраченных денег",
+        "calculatingText": "Подсчёт...",
+        "calculatingRobuxText": "Подсчитываем потраченные Robux...",
+        "calculatingMoneyText": "Подсчитываем потраченные деньги...",
+        "rateLimited": "Превышен лимит запросов к API. Подсчёт продолжается...",
+        "calculationComplete": "Подсчёт завершён",
+        "allScanned": "Все нужные транзакции проверены.",
+        "robuxAllScanned": "Подсчёт потраченных Robux завершён.",
+        "moneyAllScanned": "Подсчёт потраченных денег завершён.",
+        "newCalculation": "Новый подсчёт",
+        "errorTitle": "Произошла ошибка",
+        "retry": "Повторить",
+        "calculateSpend": "Подсчитать траты",
+        "pausedMessage": "Подсчёт приостановлен. Возобновите, чтобы продолжить.",
+        "resumeCalculation": "Возобновить подсчёт",
+        "startNewCalculation": "Начать новый подсчёт",
+        "description": "Выберите режим подсчёта по истории транзакций.",
+        "calculateRobux": "Подсчитать потраченные Robux",
+        "calculateMoney": "Подсчитать потраченные деньги",
+        "transactionsScanned": "Проверено транзакций",
+        "totalRobuxSpent": "Всего потрачено Robux",
+        "totalMoneySpent": "Всего потрачено (примерно)",
+        "itemTypeBreakdown": "По типам предметов",
+        "premiumBreakdown": "По подпискам Premium",
+        "purchaseBreakdown": "По покупкам Robux",
+        "noItems": "Предметов пока не найдено.",
+        "pack": "Пакет",
+        "stipend": "Стипендия",
+        "errorUserId": "Не удалось получить ID пользователя.",
+        "robloxLimitError": "Roblox вернул внутреннюю ошибку сервера. Скорее всего, из-за ограничений Roblox проверить больше транзакций не получится.",
+        "errorRetries": "Не удалось после нескольких попыток. Последняя ошибка: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Всего потрачено",
+        "loading": "Загрузка...",
+        "failedToLoad": "Не удалось загрузить",
+        "singlePurchase": "1 покупка",
+        "multiplePurchases": "{{count}} покупок",
+        "multiplePurchases_one": "{{count}} покупка",
+        "multiplePurchases_few": "{{count}} покупки",
+        "multiplePurchases_many": "{{count}} покупок",
+        "multiplePurchases_other": "{{count}} покупок",
+        "stillCalculating": "Общие траты ещё подсчитываются."
+    },
+    "spentPerGame": {
+        "title": "Траты по играм",
+        "disclaimer": "Может быть неточно из-за ограничений Roblox",
+        "mostSpent": "Больше всего потрачено",
+        "mostPurchases": "Больше всего покупок",
+        "noPurchases": "Покупок в играх не найдено.",
+        "singlePurchase": "1 покупка",
+        "multiplePurchases": "{{count}} покупок",
+        "multiplePurchases_one": "{{count}} покупка",
+        "multiplePurchases_few": "{{count}} покупки",
+        "multiplePurchases_many": "{{count}} покупок",
+        "multiplePurchases_other": "{{count}} покупок",
+        "loadMore": "Загрузить ещё (осталось {{remaining}})",
+        "searchPlaceholder": "Поиск игр",
+        "loading": "Загрузка трат по играм…",
+        "scanInProgress": "Идёт проверка транзакций. Это может занять некоторое время.",
+        "loadError": "Не удалось загрузить траты по играм."
+    },
+    "spentPerCreator": {
+        "title": "Траты по создателям",
+        "disclaimer": "Может быть неточно из-за ограничений Roblox",
+        "mostSpent": "Больше всего потрачено",
+        "mostPurchases": "Больше всего покупок",
+        "noPurchases": "Покупок у создателей не найдено.",
+        "unknownCreator": "Неизвестный создатель",
+        "includeGameCreators": "Учитывать создателей игр",
+        "singlePurchase": "1 покупка",
+        "multiplePurchases": "{{count}} покупок",
+        "multiplePurchases_one": "{{count}} покупка",
+        "multiplePurchases_few": "{{count}} покупки",
+        "multiplePurchases_many": "{{count}} покупок",
+        "multiplePurchases_other": "{{count}} покупок",
+        "loadMore": "Загрузить ещё (осталось {{remaining}})",
+        "searchPlaceholder": "Поиск создателей",
+        "loading": "Загрузка трат по создателям…",
+        "scanInProgress": "Идёт проверка транзакций. Это может занять некоторое время.",
+        "loadError": "Не удалось загрузить траты по создателям."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Информация",
+            "credits": "Контрибьюторы",
+            "donatorPerks": "Бонусы для донатеров",
+            "settings": "Настройки",
+            "accountStanding": "Статус аккаунта",
+            "store": "Магазин"
+        },
+        "info": {
+            "title": "Информация о RoValra!",
+            "desc1": "RoValra является расширением, которое старается сделать базовые функции для удобства бесплатными и доступными для всех, делая весь код полностью открытым.",
+            "desc2": "Некоторые бесплатные функции всё ещё зависят от серверов RoValra, работа которых стоит денег.",
+            "desc3": "Пожертвования поддерживающих помогают покрывать эти расходы, благодаря чему RoValra может оставлять больше функций бесплатными для всех и продолжать развиваться. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra является проектом, который делается с душой, и всегда им был.",
+            "suggestions": "Если у вас есть идеи для новых функций, напишите мне на моём Discord-сервере или на GitHub",
+            "bugs": "Если вы нашли баг, сообщите мне на моём Discord-сервере или на GitHub",
+            "review": "Если вам нравится это расширение, пожалуйста, <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">оставьте отзыв</a>, это очень помогает <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Discord-сервер",
+            "github": "Репозиторий на GitHub",
+            "support": "Поддержать RoValra",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Контрибьюторы",
+            "translatorsTitle": "Переводчики",
+            "featureCount_one": "{{count}} функция",
+            "featureCount_few": "{{count}} функции",
+            "featureCount_many": "{{count}} функций",
+            "featureCount_other": "{{count}} функции",
+            "contributorTooltips": {
+                "146089324": "WoozyNate создал fisch, откуда взят старый логотип RoValra. Обязательно загляните в fisch!",
+                "170038374": "Создал концепты, на которых основаны некоторые функции RoValra.",
+                "795922138": "Придумал название 'RoValra' в шутку, и оно оказалось слишком смешным, чтобы его не использовать.",
+                "1337447242": "Создал новый логотип и все изображения для страницы магазина.",
+                "2974594300": "Улучшения интерфейса, исправления багов и другой вклад."
+            },
+            "sortLabel": "Сортировка контрибьюторов",
+            "sortMost": "Больше всего",
+            "sortLeast": "Меньше всего",
+            "contributionCount_one": "Законтрибьютил в {{count}} функцию",
+            "contributionCount_few": "Законтрибьютил в {{count}} функции",
+            "contributionCount_many": "Законтрибьютил в {{count}} функций",
+            "contributionCount_other": "Законтрибьютил в {{count}} функций",
+            "backendContributorsNote": "Эти люди помогли с вещами, не связанными с конкретными функциями.",
+            "loadingContributors": "Загрузка...",
+            "failedToLoadContributors": "Не удалось загрузить список контрибьюторов.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Добавил значок переводчика и значок WoozyNate",
+                    "nateGilbertFix": "Вернул значку Nate вид Гилберта"
+                },
+                "caching": {
+                    "hashmap": "Добавил хеш-таблицу в обработчик кэша"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Исправил боковую панель после обновления Roblox"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "Исправил рассинхронизацию парсера RBXM и формат CFRAME"
+                },
+                "markdown": {
+                    "untrustedMd": "Добавил ограниченный парсер markdown для недоверенных пользователей"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Добавил единый API настроек"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Улучшил отображение заслуг в списке контрибьюторов",
+                    "nonSettingCredits": "Добавил заслуги за функции и улучшения, у которых нет своих настроек"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Добавил новые индикаторы уровней донатеров"
+                },
+                "iconElement": {
+                    "addIcons": "Добавил элемент `<icon>`, позволяющий использовать Builder Icons, Material Icons и RoValra Icons.",
+                    "addElement": "Добавил базовый элемент `<icon>` для использования Builder Icons. Раньше планировалось использовать встроенный элемент `<i>` с классами.",
+                    "makeRoValraIcons": "Добавил шрифт для RoValra Icons и новый способ сборки для сайта.",
+                    "addBuilderIconsWOFF": "Добавил хостинг Builder Icons на сайте RoValra, а также файлы шрифтов меньшего размера."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Добавил список тем Plus на сайт, чтобы пользователи могли использовать только правильные и указанные темы."
+                },
+                "locales": {
+                    "madeRo": "Помог сделать румынский перевод",
+                    "madeEs": "Помог сделать испанский перевод",
+                    "madeRu": "Помог сделать русский перевод"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "Контрибуции {{user}}",
+                    "contributor": "Контрибьютор",
+                    "featureName": "Функция",
+                    "featureKey": "(Dev) Ключ функции"
+                }
+            },
+            "contributionCount": "Законтрибьютил в {{count}} функций"
+        },
+        "donatorPerks": {
+            "title": "Бонусы для донатеров!",
+            "subtitle": "Поддержите разработку RoValra и получите эксклюзивные бонусы!",
+            "howToGet": "Как получить бонусы",
+            "howToGetDesc": "Вы можете пожертвовать, купив геймпассы в игре поддержки.",
+            "goToGame": "Перейти в игру для пожертвований",
+            "perkTiers": "Уровни бонусов",
+            "perk": "Бонус",
+            "currentTier": "Текущий уровень",
+            "tier1": "Уровень 1: Поддерживающий",
+            "tier1Desc": "Пожертвуйте <strong>любую сумму</strong>",
+            "tier1Reward": "Значок Donator 1",
+            "tier1DiscordRole": "Роль Donator 1 в Discord + дополнительные бонусы в Discord.",
+            "tier1Feature": "Установка статуса и окружения без добавления строки в раздел Обо мне.",
+            "tier2": "Уровень 2: Поддерживающий",
+            "tier2Desc": "Пожертвуйте <strong>200+ Robux</strong>",
+            "tier2Reward": "Значок Donator 2",
+            "tier2DiscordRole": "Роль Donator 2 в Discord + улучшенные бонусы в Discord.",
+            "tier3": "Уровень 3: Поддерживающий",
+            "tier3Desc": "Пожертвуйте <strong>500+ Robux</strong>",
+            "tier3Reward": "Значок Donator 3",
+            "tier3DiscordRole": "Роль Donator 3 в Discord + лучшие бонусы в Discord.",
+            "previousRewards": "+ Все награды предыдущих уровней",
+            "moreComingSoon": "Скоро будет больше.",
+            "note": "Примечание:\n- Значки могут появиться через несколько минут после пожертвования.\n- Чтобы управлять видимостью значков, перейдите на вкладку настроек 'Профиль'. \n- К сожалению, пожертвования через комиссии не дают бонусов донатера, это ограничение Roblox.\n- Делая пожертвование, вы соглашаетесь с [Условиями использования RoValra](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "Для поиска введите минимум 2 символа.",
+            "noResults": "По запросу \"{{query}}\" настроек не найдено."
+        },
+        "ui": {
+            "common": {
+                "cancel": "Отмена",
+                "okay": "Хорошо",
+                "ok": "ОК",
+                "pleaseWait": "Подождите...",
+                "loading": "Загрузка...",
+                "unknown": "Неизвестно",
+                "user": "Пользователь",
+                "unavailable": "Недоступно",
+                "notAvailable": "Н/Д"
+            },
+            "levels": {
+                "allGood": "Всё хорошо",
+                "limited": "Ограничен",
+                "veryLimited": "Сильно ограничен",
+                "atRisk": "Под угрозой",
+                "suspended": "Заблокирован"
+            },
+            "search": {
+                "placeholder": "Поиск настроек..."
+            },
+            "controls": {
+                "clearStorage": "Очистить хранилище",
+                "preview": "Предпросмотр",
+                "fadeStrength": "Сила затухания",
+                "clickMe": "Нажми меня",
+                "enterValue": "Введите значение",
+                "remove": "Удалить",
+                "add": "Добавить",
+                "experimental": "Экспериментально",
+                "beta": "Бета",
+                "deprecated": "Устарело",
+                "invalidImageUrl": "Введите корректный http:// или https:// адрес изображения.",
+                "enablePermission": "Включить разрешение {{permission}}"
+            },
+            "badges": {
+                "visibility": "Переключить видимость ваших значков донатера."
+            },
+            "locks": {
+                "donatorTierRequired": "Требуется уровень донатера RoValra {{tier}}",
+                "donatorPerk": "Бонус донатера RoValra (уровень {{tier}})",
+                "featureDisabled": "Эта функция отключена {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "Перед включением этой функции",
+                "message": "Функции с такими метками могут быть нестабильными или меняться со временем. Они могут замедлять загрузку, вызывать проблемы с интерфейсом, сайтом или другое неожиданное поведение.<br><br>Включайте, только если понимаете, что она может работать не идеально.",
+                "acknowledge": "Я ознакомлен"
+            },
+            "environment": {
+                "exported": "JSON окружения выведен в консоль (F12).",
+                "imported": "Конфигурация окружения успешно импортирована. Страница перезагрузится, чтобы применить изменения.",
+                "parseFailed": "Не удалось разобрать JSON-файл.",
+                "storageUsed": "Всего использовано локального хранилища: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Местоимения должны быть не длиннее 15 символов.",
+                "filterRejected": "Фильтр Roblox отклонил эти местоимения. Попробуйте другое значение.",
+                "checkFailed": "Roblox не смог проверить местоимения. Попробуйте снова.",
+                "filterBusy": "Фильтр местоимений Roblox занят. Попробуйте чуть позже."
+            },
+            "port": {
+                "enableProfileNotes": "Включите заметки профиля перед импортом или экспортом заметок.",
+                "exportedOne": "Экспортирована {{count}} заметка профиля.",
+                "exportedMany": "Экспортировано {{count}} заметок профиля.",
+                "exportedMany_one": "Экспортирована {{count}} заметка профиля.",
+                "exportedMany_few": "Экспортировано {{count}} заметки профиля.",
+                "exportedMany_many": "Экспортировано {{count}} заметок профиля.",
+                "exportedMany_other": "Экспортировано {{count}} заметок профиля.",
+                "exportFailed": "Не удалось экспортировать заметки профиля.",
+                "notesTooLarge": "Резервная копия заметок профиля слишком большая.",
+                "invalidNotesBackup": "Это не резервная копия заметок профиля RoValra.",
+                "importedOne": "Импортирована {{count}} заметка профиля.",
+                "importedMany": "Импортировано {{count}} заметок профиля.",
+                "importedMany_one": "Импортирована {{count}} заметка профиля.",
+                "importedMany_few": "Импортировано {{count}} заметки профиля.",
+                "importedMany_many": "Импортировано {{count}} заметок профиля.",
+                "importedMany_other": "Импортировано {{count}} заметок профиля.",
+                "notesReadFailed": "Не удалось прочитать резервную копию заметок профиля.",
+                "importFailed": "Не удалось импортировать заметки профиля.",
+                "exportUnexpectedError": "Во время экспорта произошла непредвиденная ошибка.",
+                "exportError": "Ошибка экспорта настроек. Подробности в консоли.",
+                "sanitizeError": "Ошибка очистки настроек для экспорта. Подробности в консоли.",
+                "invalidSettingsFile": "Похоже, это не файл настроек RoValra.",
+                "invalidSettingsData": "Ошибка: импортируемый файл настроек содержит некорректные или потенциально опасные данные.",
+                "settingsTooLarge": "Ошибка: файл настроек слишком большой. Максимальный размер 1 МБ.",
+                "importError": "Ошибка импорта настроек. Подробности в консоли.",
+                "malformedSettings": "Файл настроек повреждён.",
+                "readFailed": "Не удалось прочитать файл настроек. Возможно, он повреждён или имеет неверный формат.",
+                "importUnexpectedError": "Во время импорта произошла непредвиденная ошибка.",
+                "exportSettings": "Экспорт настроек",
+                "importSettings": "Импорт настроек"
+            },
+            "changelogs": {
+                "title": "Списки изменений",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Релиз без названия",
+                "current": "Ваша версия",
+                "noNotes": "Для этого релиза нет описания изменений.",
+                "loading": "Загрузка списков изменений...",
+                "empty": "Сейчас нет доступных списков изменений.",
+                "loadFailed": "Не удалось загрузить списки изменений. Попробуйте позже."
+            },
+            "parentRequest": {
+                "sendingTitle": "Отправка запроса",
+                "sentTitle": "Запрос отправлен!",
+                "sentBody": "Ваш запрос отправлен родителям и опекунам по электронной почте.",
+                "experienceName": "Название игры",
+                "sendFailedTitle": "Не удалось отправить запрос",
+                "sendFailedBody": "Не удалось отправить запрос по неизвестной причине. Возможно, вы превысили лимит запросов. Подробности в консоли.",
+                "cancelingTitle": "Отмена запроса",
+                "canceledTitle": "Запрос отменён",
+                "canceledBody": "Ваш запрос родителям и опекунам отменён.",
+                "cancelFailedTitle": "Не удалось отменить запрос",
+                "cancelFailedBody": "Не удалось отменить запрос на разблокировку. Возможно, вы превысили лимит запросов. Подробности в консоли.",
+                "sendUnblock": "Отправить запрос на разблокировку",
+                "alreadyRequestedTitle": "Запрос уже отправлен",
+                "alreadyRequestedBody": "Вы уже запросили эту игру, глупенький!"
+            },
+            "donation": {
+                "donateUsd": "Пожертвовать (от $1 USD)",
+                "donateRobux": "Пожертвовать (от 5 Robux)",
+                "parentApprovalTitle": "Поддержите RoValra ещё больше!",
+                "parentApprovalMessage": "RoValra получает большую часть пожертвования при использовании геймпассов. Мы видим, что к вашему аккаунту привязан хотя бы один родительский аккаунт. Вы можете запросить разблокировку игры, чтобы RoValra получал больше, чем через 2D (и 3D) одежду.",
+                "useMarketplace": "Через маркетплейс",
+                "currencyLabel": "Валюта пожертвования",
+                "donateWith": "Пожертвовать через",
+                "supportTitle": "Поддержите RoValra",
+                "supportDescription": "Получите эксклюзивные косметические бонусы за пожертвование",
+                "githubSponsors": "GitHub Sponsors",
+                "included": "Включено",
+                "notIncluded": "Не включено",
+                "totalDonated": "Всего вы пожертвовали RoValra: {{amount}}",
+                "tierTooltip": "Ваш уровень донатера",
+                "topDonators": "Топ донатеров (Robux)"
+            },
+            "profileBadge": {
+                "title": "Собственный значок профиля RoValra",
+                "description": "Получите собственный значок для своего профиля",
+                "iconLabel": "Иконка собственного значка профиля",
+                "getUsd": "Получить ($5 USD)",
+                "getRobux": "Получить (4 000 Robux)",
+                "purchaseIntro": "Эта покупка для тех, кто очень хочет поддержать RoValra.",
+                "createTicket": "После покупки зайдите на Discord-сервер RoValra и создайте тикет.",
+                "provideDetails": "Отправьте персоналу изображение и название, которые должны быть у вашего значка.",
+                "countsTowardTier": "Эта покупка засчитывается в уровни донатера RoValra.",
+                "visibility": "Эти значки видны только пользователям RoValra.",
+                "imageRequirements": "Требования к изображению",
+                "webpRequirement": "Изображение должно быть файлом <strong>WEBP</strong> размером меньше <strong>1 МБ</strong>.",
+                "noRobloxBadges": "Нельзя использовать официальные SVG или значки Roblox.",
+                "noOfficialRoValraBadges": "Нельзя использовать официальные значки RoValra, например значки контрибьютора или художника.",
+                "followTerms": "Изображения должны соответствовать Условиям использования Roblox",
+                "joinDiscord": "Присоединиться к Discord RoValra",
+                "agree": "Согласен",
+                "agreeCountdown": "Согласен ({{count}})"
+            },
+            "githubSponsorBadge": {
+                "title": "Значок профиля GitHub Sponsors",
+                "description": "Значок профиля с радужным сердцем. Только для GitHub Sponsors",
+                "get": "Получить (от $1 USD)"
+            },
+            "store": {
+                "artist": "Художник",
+                "artistTooltip": "{{name}} создал эту рамку аватара.",
+                "free": "Бесплатно",
+                "owned": "Есть",
+                "equipped": "Надето",
+                "equip": "Надеть",
+                "buy": "Купить",
+                "buyFor": "Купить за {{price}}",
+                "viewGamepass": "Открыть геймпасс",
+                "all": "Все",
+                "new": "Новые",
+                "static": "СТАТИЧНАЯ",
+                "animated": "АНИМИРОВАННАЯ",
+                "borderTitle": "Магазин рамок аватара",
+                "borderDescription": "Магазин рамок аватара, покупайте рамки аватара, чтобы напрямую поддержать RoValra и художников, <strong>Донатеры 3 уровня получают все рамки аватара бесплатно.</strong> Покупка рамок аватара засчитывается в ваш уровень донатера!",
+                "loadingBorders": "Загрузка рамок..."
+            },
+            "border": {
+                "bundleNotice": "(Включает статичный и анимированный варианты)",
+                "freeTier3Tooltip": "Бесплатно, потому что у вас 3 уровень донатера!",
+                "ownedTooltip": "У вас есть эта рамка!",
+                "freeTooltip": "Эту рамку можно надеть бесплатно.",
+                "supportNotice": "Покупая косметику напрямую, вы поддерживаете художника и RoValra",
+                "purchaseDelay": "После покупки рамка аватара может появиться в течение минуты",
+                "parentApprovalTitle": "Требуется действие родителя",
+                "parentApprovalMessage": "Чтобы покупать рамки аватара, нужно разрешение родителя.",
+                "noParentTitle": "Вы не можете использовать рамки аватара",
+                "noParentBody": "Roblox требует разрешения родителя, но к вашему аккаунту не привязан ни один родитель. Если вы хотите использовать рамки аватара, привяжите родительский аккаунт и запросите разблокировку игры.",
+                "noBorders": "Нет доступных рамок.",
+                "currentPreview": "Предпросмотр выбранного",
+                "signInPreview": "Войдите, чтобы примерить рамки на свой аватар.",
+                "noBordersInTab": "В этой вкладке рамок не найдено.",
+                "loadFailed": "Не удалось загрузить рамки. Попробуйте позже.",
+                "unequipTooltip": "Нажмите, чтобы снять эту рамку",
+                "equipTooltip": "Надеть эту рамку",
+                "buyTooltip": "Купить эту рамку"
+            },
+            "appeal": {
+                "messageLabel": "Введите текст апелляции (20-3000 символов)",
+                "title": "Подать апелляцию",
+                "submit": "Подать апелляцию",
+                "invalidLength": "Текст апелляции должен быть от 20 до 3000 символов.",
+                "submitFailed": "Не удалось подать апелляцию. Попробуйте снова."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Всё хорошо",
+                    "none": "Нет / без ограничений",
+                    "limited": "Ограничен",
+                    "veryLimited": "Сильно ограничен",
+                    "atRisk": "Под угрозой",
+                    "suspended": "Заблокирован"
+                },
+                "appealStatuses": {
+                    "notAppealed": "Апелляция не подана",
+                    "pending": "Апелляция на рассмотрении",
+                    "denied": "Апелляция отклонена",
+                    "accepted": "Апелляция принята"
+                },
+                "goodTitle": "Ваш аккаунт в хорошем состоянии.",
+                "goodDescription": "У вас нет активных нарушений или ограничений от команды безопасности RoValra.",
+                "temporaryTitle": "Ваш аккаунт временно ограничен.",
+                "violationTitle": "На вашем аккаунте обнаружено нарушение.",
+                "statusDescription": "Статус вашего аккаунта: {{status}}",
+                "policyTitle": "Политика безопасности RoValra",
+                "policyDescription": "У аккаунтов, нарушивших {{- termsLink}} или признанных опасными по сторонним проверкам, будут отключены отдельные функции. Обратите внимание, что, хотя отдельные онлайн-возможности могут быть ограничены, команда безопасности RoValra <strong>никогда</strong> не отключит расширение целиком или полностью локальные функции.",
+                "automatedAction": "Автоматическое действие",
+                "manualReview": "Ручная проверка",
+                "disabledFeatures": "Отключённые функции",
+                "moderatedContent": "Модерированный контент",
+                "violationDetails": "Подробности нарушения",
+                "unknownReason": "Неизвестная причина",
+                "moderated": "Модерировано",
+                "temporaryExpires": "Временное ограничение истекает",
+                "appealCase": "Дело по апелляции",
+                "status": "Статус",
+                "yourMessage": "Ваше сообщение",
+                "response": "Ответ",
+                "reviewingAppeal": "Наша команда сейчас рассматривает вашу апелляцию.",
+                "appealDecision": "Обжаловать это решение"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "RoValra может работать некорректно при включённых {{extensions}}.",
+            "description": "Мы не гарантируем поддержку {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Настройки конфиденциальности"
+        },
+        "noTogglesEnabled": "Переключатели не включены! Перейдите в настройки RoValra, чтобы включить переключатели конфиденциальности.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Все",
+                "friendsFollowingFollowers": "Друзья, подписки и подписчики",
+                "friendsFollowing": "Друзья и подписки",
+                "friends": "Друзья",
+                "trustedFriends": "Доверенные друзья",
+                "noOne": "Никто"
+            },
+            "onlineStatus": {
+                "name": "Статус в сети"
+            },
+            "joinStatus": {
+                "name": "Статус игры"
+            },
+            "privateServerPrivacy": {
+                "name": "Доступ к приватным серверам"
+            },
+            "inventoryPrivacy": {
+                "name": "Видимость инвентаря"
+            }
+        }
+    },
+    "qolToggles": {
+        "onlineStatus": "Статус в сети",
+        "joinStatus": "Статус игры",
+        "privateServerPrivacy": "Доступ к приватным серверам",
+        "inventoryVisibility": "Видимость инвентаря",
+        "everyone": "Все",
+        "friendsFollowingAndFollowers": "Друзья, подписчики и подписки",
+        "friendsAndFollowing": "Друзья и подписки",
+        "friends": "Друзья",
+        "trustedFriends": "Доверенные друзья",
+        "noOne": "Никто"
+    },
+    "groupFunds": {
+        "loading": "Загрузка...",
+        "pending": "В ожидании:",
+        "noPermissions": "Нет доступа"
+    },
+    "navigation": {
+        "transactions": "Транзакции",
+        "apiDocs": "Документация API",
+        "incidentLearnMore": "Нажмите здесь, чтобы узнать больше.",
+        "incidentHideNotice": "Скрыть это уведомление можно здесь"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Свернуть боковую панель",
+        "expandSidebar": "Развернуть боковую панель"
+    },
+    "voiceBanIndicator": {
+        "title": "Бан голосового чата",
+        "liftsIn": "Снимется через",
+        "noExpiry": "Срок окончания не указан"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Возрастная тема",
+        "options": {
+            "normal": "Обычный Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Слитый Roblox Select (Start Mode)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Переключить бета-программы",
+        "noPrograms": "Вы не участвуете ни в одной бета-программе.",
+        "allowlist": "В списке допуска",
+        "previousProgramsTitle": "Бета-программы, в которых вы участвовали раньше",
+        "previousProgramTooltip": "Эта бета-программа больше недоступна."
+    },
+    "quickSearch": {
+        "aborted": "Прервано",
+        "apiRequestFailed": "Запрос к API завершился ошибкой со статусом {{status}}",
+        "friendSearchError": "RoValra: ошибка поиска друзей",
+        "userSearchError": "RoValra: ошибка поиска пользователей",
+        "gameSearchError": "RoValra: ошибка поиска игр",
+        "trustedConnection": "Вы доверенные друзья",
+        "connection": "Вы друзья",
+        "playing": "Играет в {{gameName}}",
+        "verifiedBadge": "Значок подтверждения",
+        "verified": "Подтверждён",
+        "permanentlyBanned": "Аккаунт этого пользователя заблокирован или деактивирован.",
+        "joinPreferredRegion": "Войти в предпочитаемый регион",
+        "bestRegionAuto": "Лучший регион (авто)",
+        "searchHistory": "История поиска",
+        "noSearchHistory": "У вас нет истории поиска.",
+        "deleteSearchHistoryTitle": "Удалить историю поиска",
+        "deleteSearchHistoryMessage": "Вы уверены, что хотите удалить эту запись из истории поиска?",
+        "delete": "Удалить"
+    },
+    "friendOwnership": {
+        "pillLabel": "Есть у {{count}} друзей",
+        "pillLabel_one": "Есть у {{count}} друга",
+        "pillLabel_few": "Есть у {{count}} друзей",
+        "pillLabel_many": "Есть у {{count}} друзей",
+        "pillLabel_other": "Есть у {{count}} друзей",
+        "pillTooltip": "Посмотреть, у кого из друзей есть этот предмет",
+        "overlayTitle": "Этот предмет есть у {{count}} друзей",
+        "overlayTitle_one": "Этот предмет есть у {{count}} друга",
+        "overlayTitle_few": "Этот предмет есть у {{count}} друзей",
+        "overlayTitle_many": "Этот предмет есть у {{count}} друзей",
+        "overlayTitle_other": "Этот предмет есть у {{count}} друзей",
+        "unknownUser": "Пользователь {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Выбрать предпочитаемый регион сервера или войти в него",
+        "tooltip": "Войти в предпочитаемый регион",
+        "tooltipWithRegion": "Войти в предпочитаемый регион<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Войти в предпочитаемый регион<br><b>Лучший регион (авто)</b>"
+    },
+    "quickPlay": {
+        "loading": "Загрузка...",
+        "rateLimited": "Превышен лимит запросов. Повторяем...",
+        "loadError": "Не удалось загрузить серверы.",
+        "noPrivateServers": "Активных приватных серверов не найдено.",
+        "configure": "Настроить",
+        "copyLink": "Скопировать ссылку",
+        "copied": "Скопировано!",
+        "error": "Ошибка!",
+        "generateLink": "Создать новую ссылку",
+        "joinClosestServer": "Войти на ближайший сервер",
+        "selectPreferredRegion": "Выбрать предпочитаемый регион",
+        "privateServers": "Приватные серверы"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Создать ссылку",
+        "regenerated": "Создано!"
+    },
+    "devProducts": {
+        "noProducts": "Товары разработчика не найдены.",
+        "loadError": "Не удалось загрузить товары разработчика для этой игры.",
+        "passes": "Пропуски",
+        "developerProducts": "Товары разработчика",
+        "search": "Поиск",
+        "sort": {
+            "created": "Сортировать по дате создания",
+            "price": "Сортировать по цене",
+            "updated": "Сортировать по дате обновления",
+            "name": "Сортировать по названию"
+        },
+        "order": {
+            "ascending": "По возрастанию",
+            "descending": "По убыванию"
+        }
+    },
+    "shop": {
+        "tab": "Магазин",
+        "all": "Все",
+        "category": "Категория",
+        "product": "Товар",
+        "gamePass": "Геймпасс",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Бонус: {{item}}",
+        "bonusItemFallback": "Включает бонусный предмет",
+        "noItems": "Товары в магазине не найдены.",
+        "failedToLoad": "Не удалось загрузить товары магазина.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Товар",
+            "GamePass": "Геймпасс",
+            "Robux": "Набор Robux"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Подплейсы",
+        "searchPlaceholder": "Поиск подплейсов",
+        "loadMore": "Загрузить ещё",
+        "rootPlace": "Основной плейс",
+        "noSubplaces": "Подплейсы не найдены.",
+        "failedToLoad": "Не удалось загрузить подплейсы.",
+        "labels": {
+            "sort": "Сортировка",
+            "order": "Порядок"
+        },
+        "sort": {
+            "default": "По умолчанию",
+            "updated": "Недавно обновлённые",
+            "created": "Недавно созданные",
+            "name": "Название (Я-А)"
+        },
+        "order": {
+            "descending": "По убыванию",
+            "ascending": "По возрастанию"
+        },
+        "banner": {
+            "title": "Вы просматриваете подплейс игры [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Некоторые игры могут запрещать вход в подплейсы.",
+            "descriptionRestricted": "В этот подплейс нельзя войти из-за ограничений входа.",
+            "descriptionJoinable": "В этот подплейс можно войти.",
+            "mainExperience": "основная игра"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Обновления",
+        "title": "История обновлений",
+        "blocked": {
+            "eighteenPlus": "История обновлений не работает в играх 18+",
+            "paidAccess": "История обновлений не работает в платных играх",
+            "subplace": "История обновлений не работает в подплейсах с ограничениями входа",
+            "noDesktopSupport": "История обновлений не поддерживается в играх без поддержки ПК"
+        }
+    },
+    "serverList": {
+        "clear": "Очистить",
+        "noServersApi": "Через API RoValra серверы не найдены.",
+        "allServersInactive": "Все серверы в этом регионе стали неактивными",
+        "loadErrorApi": "Не удалось загрузить серверы из API RoValra.",
+        "hide": "Скрыть",
+        "join": "Войти",
+        "peopleMax": "{{playing}} из {{maxPlayers}} игроков",
+        "pinPrivateServer": "Закрепить приватный сервер",
+        "unpinPrivateServer": "Открепить приватный сервер",
+        "playerCountUnknownTooltip": "Количество игроков неизвестно, это ограничение Roblox. Миниатюры не отражают, кто сейчас в игре.",
+        "playerCountUnknownLabel": "Количество игроков неизвестно"
+    },
+    "recentServers": {
+        "title": "Недавние серверы",
+        "refresh": "Обновить",
+        "noneFound": "Недавние серверы не найдены.",
+        "noActiveFound": "Активных недавних серверов не найдено.",
+        "lastJoined": "Последний вход: {{time}}",
+        "meAlt": "Я",
+        "secondsAgo": "{{count}} с назад",
+        "minutesAgo": "{{count}} мин назад",
+        "hoursAgo": "{{count}} ч назад",
+        "daysAgo": "{{count}} д назад",
+        "description": "Серверы, на которых вы недавно были."
+    },
+    "quickOutfits": {
+        "errorFetching": "Ошибка при получении образов",
+        "equipping": "Надеваем...",
+        "equipped": "Надето!",
+        "failed": "Ошибка",
+        "error": "Ошибка:",
+        "noUserId": "Не найден ID авторизованного пользователя для быстрых образов.",
+        "loading": "Загрузка образов...",
+        "title": "Быстрые образы",
+        "noneFound": "Образы не найдены.",
+        "success": "Образ успешно надет."
+    },
+    "btrDonationWarning": {
+        "title": "ВАЖНО: отключите BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">Обнаружено расширение BTRoblox. Оно может мешать процессу покупки на Roblox. Если у вас возникают проблемы с покупкой, попробуйте временно отключить BTRoblox и перезагрузить страницу.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Отключите BTRoblox, перезагрузите страницу и попробуйте совершить покупку снова.</p>",
+        "continue": "Всё равно продолжить"
+    },
+    "botDetector": {
+        "tooltip": "Ботами называют аккаунты, на которых запущены автоматические скрипты для фарма предметов. Один человек иногда управляет 50+ ботами. Учтите, что разработчики игры в этом не виноваты. Информация может быть неточной, если в игру в основном играют новые аккаунты Roblox.",
+        "lotsOfBots": "В <span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> много ботов",
+        "someBots": "В <span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> есть боты, но в основном реальные игроки",
+        "thisGame": "этой игре"
+    },
+    "events": {
+        "title": "События",
+        "tabs": {
+            "upcoming": "Предстоящие",
+            "past": "Прошедшие"
+        },
+        "buttons": {
+            "viewEvent": "Открыть событие",
+            "joinEvent": "Присоединиться",
+            "unfollowEvent": "Отписаться от события",
+            "notifyMe": "Уведомить меня"
+        },
+        "loadMore": "Загрузить ещё",
+        "releaseDate": "Дата начала события",
+        "empty": {
+            "active": "Нет текущих или предстоящих событий.",
+            "past": "Нет прошедших событий.",
+            "all": "События не найдены."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Значки",
+            "hiddenBadges": "Скрытые значки"
+        },
+        "hiddenOwnedNotice": "Здесь показаны только полученные вами скрытые значки.",
+        "unableToDetectPlace": "Не удалось определить этот плейс.",
+        "unableToDetectUniverse": "Не удалось определить эту вселенную.",
+        "stillScanning": "Ваши значки ещё сканируются. Скрытые значки, которые у вас есть, скоро могут появиться.",
+        "noneOwnedFound": "В этой игре не найдено скрытых значков, которые есть у вас.",
+        "failedToLoad": "Не удалось загрузить ваши скрытые значки."
+    },
+    "antiBots": {
+        "reviewMembers": "Проверьте {{count}} выбранных участников:",
+        "reviewMembers_one": "Проверьте {{count}} выбранного участника:",
+        "reviewMembers_few": "Проверьте {{count}} выбранных участников:",
+        "reviewMembers_many": "Проверьте {{count}} выбранных участников:",
+        "reviewMembers_other": "Проверьте {{count}} выбранных участников:",
+        "botWarning": "<strong>Внимание:</strong> прежде чем что-то делать, убедитесь, что это боты.",
+        "banMembers": "Забанить участников",
+        "kickMembers": "Исключить участников",
+        "cancel": "Отмена",
+        "actionRequired": "Требуется действие ({{count}})",
+        "noPermission": "У вас нет прав банить или исключать участников.",
+        "confirmBan": "Вы собираетесь <strong>забанить {{count}} участников</strong>. Они будут заблокированы навсегда.",
+        "confirmBan_one": "Вы собираетесь <strong>забанить {{count}} участника</strong>. Они будут заблокированы навсегда.",
+        "confirmBan_few": "Вы собираетесь <strong>забанить {{count}} участников</strong>. Они будут заблокированы навсегда.",
+        "confirmBan_many": "Вы собираетесь <strong>забанить {{count}} участников</strong>. Они будут заблокированы навсегда.",
+        "confirmBan_other": "Вы собираетесь <strong>забанить {{count}} участников</strong>. Они будут заблокированы навсегда.",
+        "confirmKick": "Вы собираетесь <strong>исключить {{count}} участников</strong>. Они смогут вступить снова в любой момент.",
+        "confirmKick_one": "Вы собираетесь <strong>исключить {{count}} участника</strong>. Они смогут вступить снова в любой момент.",
+        "confirmKick_few": "Вы собираетесь <strong>исключить {{count}} участников</strong>. Они смогут вступить снова в любой момент.",
+        "confirmKick_many": "Вы собираетесь <strong>исключить {{count}} участников</strong>. Они смогут вступить снова в любой момент.",
+        "confirmKick_other": "Вы собираетесь <strong>исключить {{count}} участников</strong>. Они смогут вступить снова в любой момент.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Напоминание:</strong> проверьте оценку ботов перед баном.</div>",
+        "yesAction": "Да, {{action}}",
+        "confirmAction": "Подтвердите действие",
+        "processing": "Обработка {{current}} из {{total}}: {{displayName}}... Осталось: {{time}} с",
+        "rateLimited": "Превышен лимит запросов. Повтор через {{delay}} с...",
+        "apiError": "Ошибка API {{status}}",
+        "unknownError": "Неизвестная ошибка",
+        "processComplete": "Действие {{actionType}} успешно выполнено для {{successCount}} из {{totalMembers}} участников.",
+        "processFailed": "{{failedCount}} с ошибкой.",
+        "close": "Закрыть",
+        "score": "Оценка: {{score}}/100",
+        "actionCount": "Действие ({{count}})",
+        "unselectAll": "Снять выделение",
+        "selectAll": "Выбрать всех",
+        "antiBots": "Антибот",
+        "banByScore": "Бан по оценке",
+        "quickAction": "Быстрое действие",
+        "members": "Участники",
+        "loadingMembers": "Загрузка участников...",
+        "selectMembersForAction": "Выберите участников для действия (загружено {{count}})",
+        "noMembersFound": "Участники не найдены.",
+        "initializingScan": "Подготовка сканирования...",
+        "scanStatus": "Просканировано: {{loaded}} ({{percent}}%) | Проанализировано: {{processed}}",
+        "finalizingAnalysis": "Завершение анализа...",
+        "botsFound": "Найдено {{count}} вероятных ботов",
+        "botsFound_one": "Найден {{count}} вероятный бот",
+        "botsFound_few": "Найдено {{count}} вероятных бота",
+        "botsFound_many": "Найдено {{count}} вероятных ботов",
+        "botsFound_other": "Найдено {{count}} вероятных ботов",
+        "noBotsFound": "Вероятных ботов не найдено",
+        "noBotsDetected": "Боты не обнаружены.",
+        "errorRetry": "Ошибка - Повторить",
+        "errorDuringScan": "Ошибка во время сканирования.",
+        "minBotScore": "Минимальная оценка бота: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Будет выбрано примерно <span id=\"rovalra-score-ban-count\">0</span> участников.",
+        "confirm": "Подтвердить",
+        "banKickByScore": "Бан/исключение по оценке",
+        "confirmCount": "Подтвердить ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Хорошей игры!",
+        "close": "Закрыть",
+        "robloxExperience": "Игра Roblox",
+        "unknownExperience": "Неизвестная игра",
+        "serverId": "ID сервера:",
+        "privateServer": "Приватный сервер",
+        "owner": "Владелец:",
+        "version": "Версия:",
+        "uptime": "Время работы:",
+        "rcc": "RCC:",
+        "serverChannel": "Канал сервера:",
+        "production": "Production",
+        "launchingRoblox": "Запуск Roblox",
+        "downloadRoblox": "Скачать Roblox",
+        "thanksDownloading": "Спасибо за загрузку Roblox",
+        "downloadInstructions": "Просто выполните шаги ниже, чтобы установить Roblox. Загрузка должна начаться через несколько секунд. Если этого не произошло, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">перезапустите загрузку</a>.",
+        "installInstructions": "Инструкция по установке",
+        "step1": "После загрузки дважды щёлкните по файлу <b>RobloxPlayerInstaller.exe</b> в папке Загрузки.",
+        "step2": "Дважды щёлкните по <b>RobloxPlayerInstaller</b>, чтобы установить приложение.",
+        "step3": "Следуйте инструкциям, чтобы установить Roblox на компьютер.",
+        "step4": "Теперь, когда всё установлено, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">войдите в игру</a>.",
+        "mobileApp": "Не забудьте про мобильное приложение",
+        "scanCode": "Отсканируйте этот код камерой телефона, чтобы установить Roblox.",
+        "joiningServer": "Подключение к серверу...",
+        "errorParsingUrl": "Ошибка разбора URL",
+        "findingUser": "Поиск пользователя...",
+        "fetchingServerInfo": "Получение информации о сервере...",
+        "nonRootPlaceRestrictions": "Невозможно войти: ограничения для неосновного плейса.",
+        "waitingForRoblox": "Ожидание Roblox...",
+        "launching": "Запуск..."
+    },
+    "createRoblox": {
+        "download": "Скачать",
+        "downloadMesh": "Скачать .mesh",
+        "downloadObj": "Скачать .obj",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Загрузка...",
+            "selectInstance": "Выберите объект, чтобы посмотреть его свойства",
+            "noProperties": "Нет свойств",
+            "viewSource": "Показать исходный код",
+            "closePreview": "Закрыть предпросмотр",
+            "defaultDevice": "По умолчанию (1280x720)",
+            "fitToWindow": "Вписать в окно",
+            "actualResolution": "Реальное разрешение",
+            "physicalSize": "Физический размер",
+            "rotate": "Повернуть",
+            "loadingPreview": "Загрузка предпросмотра GUI...",
+            "searchInstances": "Поиск объектов... (от 2 символов)",
+            "searchProperties": "Поиск свойств...",
+            "previewGui": "Предпросмотр GUI",
+            "togglePreviewVisibility": "Переключить видимость в предпросмотре",
+            "noMatchingInstances": "Подходящие объекты не найдены",
+            "loadError": "Не удалось загрузить."
+        }
+    },
+    "priceFloor": {
+        "label": "Минимальная цена:",
+        "status": "Цена этого предмета {{status}} минимальной цены{{difference}}.",
+        "statusTypes": {
+            "above": "выше",
+            "below": "ниже",
+            "at": "на уровне"
+        },
+        "difference": " на {{diff}}",
+        "description": "Минимальная цена является динамически обновляемой наименьшей ценой, за которую можно продать предмет."
+    },
+    "parentItem": {
+        "multipleBundles": "Этот предмет входит в несколько наборов",
+        "multipleBundlesDescription": "Скорее всего, этот предмет используется как шаблон и входит в несколько наборов.",
+        "partOfBundle": "Этот предмет входит в набор [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Вы просматриваете предмет из набора."
+    },
+    "rovalraBadges": {
+        "userVerified": "Личность пользователя подтверждена.",
+        "userNotVerified": "Личность пользователя не подтверждена.",
+        "userAgeVerified": "Пользователь прошёл проверку возраста.",
+        "userNotAgeVerified": "Пользователь не прошёл проверку возраста.",
+        "userAgeVerificationMayBeInaccurate": "Это может быть неточно"
+    },
+    "friendsSince": {
+        "friended": "Добавлен",
+        "lastSeen": "Был в сети",
+        "age": "Возраст",
+        "friendedVia": "Добавлен через",
+        "originFrom": "через",
+        "originSearch": "поиск",
+        "originInGame": "игру",
+        "originProfile": "профиль",
+        "originQQContacts": "контакты QQ",
+        "originWeChatContacts": "контакты WeChat",
+        "originQrCode": "QR-код",
+        "originProfileShare": "ссылку на профиль",
+        "originPhoneContacts": "контакты телефона",
+        "originPeopleYouMayKnow": "рекомендации друзей",
+        "originschoolmemberlist": "список учеников школы",
+        "originFriendLink": "ссылку",
+        "originSocialTabsPage": "страницу соцвкладок",
+        "originUnknown": "неизвестный источник"
+    },
+    "lastPlayed": {
+        "together": "Чаще всего играли вместе"
+    },
+    "avatarDownload": {
+        "button": "Скачать аватар",
+        "title": "Скачать аватар",
+        "size": "Разрешение:",
+        "downloadPortrait": "Портрет PNG",
+        "downloadBust": "Бюст PNG",
+        "downloadAvatar": "Аватар PNG",
+        "downloading": "Скачивание...",
+        "failed": "Не удалось скачать аватар. Попробуйте позже."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Подтвердите удаление из друзей",
+        "confirmUnfriends": "Подтвердите удаление из друзей",
+        "descriptionSingle": "Вы собираетесь удалить 1 друга. Это действие нельзя отменить.",
+        "descriptionPlural": "Вы собираетесь удалить из друзей {{count}} друзей. Это действие нельзя отменить.",
+        "descriptionPlural_one": "Вы собираетесь удалить из друзей {{count}} друга. Это действие нельзя отменить.",
+        "descriptionPlural_few": "Вы собираетесь удалить из друзей {{count}} друга. Это действие нельзя отменить.",
+        "descriptionPlural_many": "Вы собираетесь удалить из друзей {{count}} друзей. Это действие нельзя отменить.",
+        "descriptionPlural_other": "Вы собираетесь удалить из друзей {{count}} друзей. Это действие нельзя отменить.",
+        "cancel": "Отмена",
+        "unfriend": "Удалить",
+        "unfriendCount": "Удалить ({{count}})",
+        "unfriendCountAction": "Удалить {{count}} друга",
+        "unfriendCountActionPlural": "Удалить {{count}} друзей",
+        "unfriendCountActionPlural_one": "Удалить {{count}} друга",
+        "unfriendCountActionPlural_few": "Удалить {{count}} друга",
+        "unfriendCountActionPlural_many": "Удалить {{count}} друзей",
+        "unfriendCountActionPlural_other": "Удалить {{count}} друзей",
+        "unfriending": "Удаление...",
+        "bulkUnfriend": "Массовое удаление",
+        "exitBulkMode": "Выйти из массового режима",
+        "successMessage": "Успешно удалено {{successCount}}/{{totalCount}} друзей!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Массовое удаление значков",
+        "exit": "Выйти из массового режима",
+        "delete": "Удалить значки",
+        "deleteCount": "Удалить значки ({{count}})",
+        "confirmTitle": "Подтвердите удаление значков",
+        "finalTitle": "Вы точно уверены?",
+        "finalDescription": "Это навсегда удалит {{count}} значков из вашего инвентаря.",
+        "finalDescription_one": "Это навсегда удалит {{count}} значок из вашего инвентаря.",
+        "finalDescription_few": "Это навсегда удалит {{count}} значка из вашего инвентаря.",
+        "finalDescription_many": "Это навсегда удалит {{count}} значков из вашего инвентаря.",
+        "finalDescription_other": "Это навсегда удалит {{count}} значков из вашего инвентаря.",
+        "descriptionSingle": "Вы собираетесь удалить 1 значок из инвентаря. Это действие нельзя отменить.",
+        "descriptionPlural": "Вы собираетесь удалить {{count}} значков из инвентаря. Это действие нельзя отменить.",
+        "descriptionPlural_one": "Вы собираетесь удалить {{count}} значок из инвентаря. Это действие нельзя отменить.",
+        "descriptionPlural_few": "Вы собираетесь удалить {{count}} значка из инвентаря. Это действие нельзя отменить.",
+        "descriptionPlural_many": "Вы собираетесь удалить {{count}} значков из инвентаря. Это действие нельзя отменить.",
+        "descriptionPlural_other": "Вы собираетесь удалить {{count}} значков из инвентаря. Это действие нельзя отменить.",
+        "deletingProgress": "Удаление значков... {{current}}/{{total}}",
+        "cancel": "Отмена",
+        "success": "Удалено {{successCount}}/{{totalCount}} значков."
+    },
+    "blockUser": {
+        "block": "Заблокировать",
+        "unblock": "Разблокировать",
+        "blockTitle": "Заблокировать {{username}}",
+        "unblockTitle": "Разблокировать {{username}}",
+        "blockTitleGeneric": "Заблокировать пользователя",
+        "unblockTitleGeneric": "Разблокировать пользователя",
+        "blockMessage": "Этот пользователь больше не сможет отправлять вам обмены. Вы по-прежнему сможете отклонять существующие обмены, но не сможете принимать их или делать встречные предложения.",
+        "unblockMessage": "Этот пользователь снова сможет отправлять вам обмены, а вы сможете принимать существующие обмены или делать встречные предложения.",
+        "cancel": "Отмена"
+    },
+    "unfriendDetector": {
+        "title_one": "Вас удалили из друзей",
+        "title_few": "Вас удалили из друзей",
+        "title_many": "Вас удалили из друзей",
+        "title_other": "Вас удалили из друзей",
+        "description_one": "Этот друг удалил вас с момента вашей последней игры:",
+        "description_few": "Эти {{count}} друга удалили вас с момента вашей последней игры:",
+        "description_many": "Эти {{count}} друзей удалили вас с момента вашей последней игры:",
+        "description_other": "Эти {{count}} друга удалили вас с момента вашей последней игры:",
+        "viewProfile": "Открыть профиль {{name}}",
+        "dismiss": "Закрыть"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Подтвердите выход",
+        "confirmLeaves": "Подтвердите выход",
+        "descriptionSingle": "Вы собираетесь покинуть 1 сообщество. Это действие нельзя отменить.",
+        "descriptionPlural": "Вы собираетесь покинуть {{count}} сообществ. Это действие нельзя отменить.",
+        "descriptionPlural_one": "Вы собираетесь покинуть {{count}} сообщество. Это действие нельзя отменить.",
+        "descriptionPlural_few": "Вы собираетесь покинуть {{count}} сообщества. Это действие нельзя отменить.",
+        "descriptionPlural_many": "Вы собираетесь покинуть {{count}} сообществ. Это действие нельзя отменить.",
+        "descriptionPlural_other": "Вы собираетесь покинуть {{count}} сообществ. Это действие нельзя отменить.",
+        "cancel": "Отмена",
+        "leave": "Покинуть",
+        "leaveCount": "Покинуть ({{count}})",
+        "leaveCountAction": "Покинуть {{count}} сообщество",
+        "leaveCountActionPlural": "Покинуть {{count}} сообществ",
+        "leaveCountActionPlural_one": "Покинуть {{count}} сообщество",
+        "leaveCountActionPlural_few": "Покинуть {{count}} сообщества",
+        "leaveCountActionPlural_many": "Покинуть {{count}} сообществ",
+        "leaveCountActionPlural_other": "Покинуть {{count}} сообществ",
+        "leaving": "Выход...",
+        "bulkLeave": "Массовый выход",
+        "exitBulkMode": "Выйти из массового режима",
+        "successMessage": "Успешно покинуто {{successCount}}/{{totalCount}} сообществ!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Ваш баланс после этой транзакции составит"
+    },
+    "time": {
+        "justNow": "только что",
+        "secondsAgo": "{{count}} с назад",
+        "minutesAgo": "{{count}} мин назад",
+        "hoursAgo": "{{count}} ч назад",
+        "daysAgo": "{{count}} д назад",
+        "weeksAgo": "{{count}} нед назад",
+        "monthsAgo": "{{count}} мес назад",
+        "yearsAgo": "{{count}} г назад",
+        "secondsFromNow": "через {{count}} с",
+        "minutesFromNow": "через {{count}} мин",
+        "hoursFromNow": "через {{count}} ч",
+        "daysFromNow": "через {{count}} д",
+        "weeksFromNow": "через {{count}} нед",
+        "monthsFromNow": "через {{count}} мес",
+        "yearsFromNow": "через {{count}} г",
+        "months": {
+            "jan": "Янв",
+            "feb": "Фев",
+            "mar": "Мар",
+            "apr": "Апр",
+            "may": "Май",
+            "jun": "Июн",
+            "jul": "Июл",
+            "aug": "Авг",
+            "sep": "Сен",
+            "oct": "Окт",
+            "nov": "Ноя",
+            "dec": "Дек"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Об игре",
+            "store": "Магазин",
+            "servers": "Серверы"
+        },
+        "servers": {
+            "title": "Ваши приватные серверы",
+            "description": "Играйте в своём пространстве, одни или с приглашёнными людьми",
+            "friendsTitle": "Серверы, на которых мои друзья",
+            "publicTitle": "Другие серверы",
+            "privateServer": "Приватный сервер",
+            "players": "{{playing}} из {{maxPlayers}} игроков",
+            "join": "Войти",
+            "loadMore": "Загрузить ещё",
+            "loading": "Загрузка серверов...",
+            "noServers": "Серверы не найдены.",
+            "loadError": "Не удалось загрузить серверы.",
+            "ownerAvatar": "Владелец сервера",
+            "playerAvatar": "Игрок",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Приватная игра",
+        "experienceIsPrivate": "Эта игра приватная.",
+        "unknown": "Неизвестно",
+        "rovalraNotice": "Эту страницу могут видеть только пользователи RoValra.",
+        "unavailable": "Недоступно",
+        "favorite": {
+            "add": "Добавить в избранное",
+            "remove": "Удалить из избранного",
+            "favorited": "В избранном",
+            "favorite": "В избранное"
+        },
+        "notify": {
+            "tooltip": "Включить уведомления",
+            "label": "Уведомлять"
+        },
+        "description": {
+            "title": "Описание",
+            "noDescription": "Описание отсутствует."
+        },
+        "stats": {
+            "active": "Онлайн",
+            "favorites": "В избранном",
+            "visits": "Посещения",
+            "maxPlayers": "Максимум игроков",
+            "genre": "Жанр",
+            "subgenre": "Поджанр",
+            "created": "Создана",
+            "updated": "Обновлена",
+            "voiceChat": "Голосовой чат",
+            "supported": "Поддерживается",
+            "unsupported": "Не поддерживается"
+        },
+        "reportAbuse": "Пожаловаться",
+        "badges": {
+            "title": "Значки",
+            "noBadges": "Значков пока нет",
+            "rarity": "Редкость",
+            "wonYesterday": "Получено вчера",
+            "wonEver": "Получено всего"
+        },
+        "subscriptions": {
+            "title": "Подписки",
+            "subscribe": "Подписаться"
+        },
+        "passes": {
+            "title": "Пропуски",
+            "showOffSale": "Показать снятые с продажи",
+            "noPasses": "Нет доступных пропусков",
+            "offSale": "Не продаётся",
+            "owned": "Есть",
+            "buy": "Купить"
+        },
+        "disabled": "Просмотр приватных / модерированных игр отключён",
+        "disabledDescription": "Чтобы просматривать приватные и модерированные игры, включите настройку здесь:",
+        "disabledLinkText": "Просмотр приватных / модерированных игр",
+        "products": {
+            "title": "Товары",
+            "buy": "Купить"
+        },
+        "moderated": "Модерирована"
+    },
+    "gamePassViewer": {
+        "type": "Тип",
+        "typeValue": "Пропуск",
+        "productId": "ID товара",
+        "price": "Цена",
+        "owned": "Есть",
+        "ownedItem": "Предмет у вас",
+        "free": "Бесплатно",
+        "ownedNotice": "Этот предмет есть в вашем инвентаре.",
+        "inventory": "Инвентарь",
+        "by": "От",
+        "usePassIn": "Используйте этот пропуск в:",
+        "rovalraNoticeDescription": "Этот геймпасс неактивен и не может быть куплен из-за ограничений Roblox, возможно связанных с возрастом аккаунта или видимостью игры."
+    },
+    "playabilityStatus": {
+        "0": "Эта игра недоступна",
+        "1": "В эту игру можно играть",
+        "2": "Гости не могут войти в эту игру",
+        "3": "Эта игра модерирована за нарушение Правил сообщества Roblox",
+        "4": "Эта игра неправильно настроена",
+        "5": "Эта игра приватная",
+        "6": "В эту игру могут войти только друзья",
+        "7": "В эту игру могут войти только участники сообщества",
+        "8": "Эта игра ограничена на вашем устройстве",
+        "9": "Эта игра на проверке, так как могла нарушить Правила сообщества Roblox",
+        "10": "Для игры требуется покупка",
+        "11": "Ваш аккаунт ограничен",
+        "12": "Эта игра временно недоступна",
+        "13": "У этой игры нет опубликованной версии",
+        "14": "Эта игра заблокирована по требованиям законодательства",
+        "15": "Эта игра недоступна в вашем регионе",
+        "16": "Эта игра заблокирована по региональным требованиям законодательства",
+        "17": "Эта игра ограничена родительским контролем",
+        "18": "Эта игра заблокирована родительским контролем",
+        "19": "Эта игра имеет возрастное ограничение",
+        "20": "Для игр 18+ требуется подтверждение",
+        "21": "Для игры требуется покупка",
+        "22": "Покупка на этом устройстве ограничена",
+        "23": "У этой игры нет возрастного рейтинга",
+        "24": "Эта игра имеет возрастное ограничение по описанию контента",
+        "25": "Эта игра модерирована из-за неверного возрастного рейтинга.",
+        "unknown": "Эта игра недоступна"
+    },
+    "bannedUsers": {
+        "connections": "Друзья",
+        "followers": "Подписчики",
+        "following": "Подписки",
+        "about": "О себе",
+        "creations": "Творения",
+        "experiences": "Игры",
+        "bannedStatus": "Заблокирован",
+        "seeAll": "Показать все",
+        "hiddenUser": "Скрытый пользователь",
+        "communities": "Сообщества",
+        "badges": "Значки",
+        "noExperiences": "У этого пользователя нет публичных игр.",
+        "favorites": "Избранное",
+        "joinedDate": "Регистрация",
+        "store": "Магазин",
+        "members": "Участники",
+        "accountForgotten": "Аккаунт забыт"
+    },
+    "copyId": {
+        "copyId": "Скопировать ID {{type}}",
+        "copyUniverseId": "Скопировать Universe ID",
+        "types": {
+            "bundle": "набора",
+            "asset": "ассета",
+            "gamePass": "геймпасса",
+            "badge": "значка",
+            "community": "сообщества",
+            "event": "события",
+            "developerProduct": "товара разработчика",
+            "place": "плейса",
+            "universe": "вселенной",
+            "user": "пользователя"
+        }
+    },
+    "viewid": {
+        "viewId": "Показать ID",
+        "popup": {
+            "title": "ID предметов",
+            "button": {
+                "copy": "Скопировать данные",
+                "copyMd": "Скопировать данные в Markdown"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Друзья, играющие в {{gameName}}",
+        "join": "Войти"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Имя пользователя: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} посещений плейсов",
+        "label_one": "{{count}} посещение плейсов",
+        "label_few": "{{count}} посещения плейсов",
+        "label_many": "{{count}} посещений плейсов",
+        "label_other": "{{count}} посещений плейсов",
+        "tooltip": "Всего посещений плейсов сообщества"
+    },
+    "groups": {
+        "createdLabel": "Создано",
+        "joinedLabel": "Вступил",
+        "unknown": "Неизвестно"
+    },
+    "showcase": {
+        "tab": "Витрина",
+        "favoriteGame": "Любимая игра",
+        "favoriteGroup": "Любимое сообщество",
+        "favoriteDecal": "Витрина артов",
+        "chooseGame": "Выберите игру, которую хотите показать в профиле.",
+        "noFeaturedGame": "Игра пока не выбрана. :C",
+        "chooseGroup": "Выберите сообщество, которое хотите показать в профиле.",
+        "noFeaturedGroup": "Сообщество пока не выбрано. :,(",
+        "chooseDecal": "Введите ID декали, чтобы показать изображение в профиле.",
+        "noFeaturedDecal": "Изображение пока не выбрано. :C",
+        "searchGame": "Найдите игру для витрины",
+        "searchGroup": "Найдите сообщество для витрины",
+        "clearGame": "Убрать любимую игру",
+        "clearGroup": "Убрать любимое сообщество",
+        "gameOptions": "Параметры любимой игры",
+        "groupOptions": "Параметры любимого сообщества",
+        "decalId": "ID декали",
+        "decalImageOptions": "Параметры изображения",
+        "openImagePage": "Открыть страницу изображения",
+        "report": "Пожаловаться",
+        "clearDecal": "Убрать изображение",
+        "by": "От",
+        "maturity": "Возрастной рейтинг",
+        "maturityUnavailable": "Возрастной рейтинг недоступен",
+        "members": "{{count}} участников",
+        "members_one": "{{count}} участник",
+        "members_few": "{{count}} участника",
+        "members_many": "{{count}} участников",
+        "members_other": "{{count}} участников",
+        "noResultsGame": "Не удалось найти игру.",
+        "noResultsGroup": "Не удалось найти сообщество.",
+        "unknownExperience": "Неизвестная игра",
+        "unknownCommunity": "Неизвестное сообщество",
+        "verifiedBadge": "Значок подтверждения"
+    },
+    "profileCustomization": {
+        "pill": "Оформление",
+        "pillTooltip": "Смените рамки аватара и рамки профиля.",
+        "title": "Оформление профиля",
+        "tabBorders": "Рамки аватара",
+        "tabFrames": "Рамки профиля",
+        "currentPreview": "Предпросмотр выбранного",
+        "unequip": "Снять",
+        "unequipTooltip": "Нажмите, чтобы снять эту рамку",
+        "equip": "Надеть",
+        "equipTooltip": "Надеть эту рамку",
+        "equipped": "Надето",
+        "getMore": "Получить больше",
+        "owned": "Есть",
+        "unowned": "Нет",
+        "unownedTooltip": "У вас пока нет этой рамки.",
+        "all": "Все",
+        "new": "Новые",
+        "static": "СТАТИЧНАЯ",
+        "animated": "АНИМИРОВАННАЯ",
+        "free": "Бесплатно",
+        "noBorders": "Рамки не найдены.",
+        "noBordersInTab": "В этой вкладке рамок не найдено.",
+        "noFrames": "Рамки профиля не найдены.",
+        "noFramesInTab": "В этой вкладке рамок профиля не найдено.",
+        "none": "Нет",
+        "failedToLoad": "Не удалось загрузить ваши рамки. Попробуйте позже."
+    },
+    "profileFrame": {
+        "storeTitle": "Магазин рамок профиля",
+        "storeDesc": "Рамки профиля окружают весь аватар в вашем профиле. Покупка рамок напрямую поддерживает RoValra и художников и засчитывается в ваш уровень донатера. Рамки профиля не входят в разблокировку 3 уровня донатера, она распространяется только на рамки аватара.",
+        "tabBorders": "Рамки аватара",
+        "tabFrames": "Рамки профиля",
+        "loading": "Загрузка рамок...",
+        "currentPreview": "Предпросмотр текущей рамки",
+        "all": "Все",
+        "new": "Новые",
+        "static": "СТАТИЧНАЯ",
+        "animated": "АНИМИРОВАННАЯ",
+        "equip": "Надеть",
+        "equipTooltip": "Надеть эту рамку",
+        "equipped": "Надето",
+        "unequipTooltip": "Нажмите, чтобы снять эту рамку",
+        "unequip": "Снять",
+        "buy": "Купить",
+        "buyFor": "Купить за {{price}}",
+        "viewItem": "Открыть предмет",
+        "buyTooltip": "Купить эту рамку",
+        "owned": "Есть",
+        "ownedTooltip": "У вас есть эта рамка!",
+        "free": "Бесплатно",
+        "freeTooltip": "Эту рамку можно надеть бесплатно.",
+        "localOnly": "Сохранено локально",
+        "localOnlyTooltip": "RoValra пока не удалось сохранить эту рамку в ваш аккаунт, поэтому она видна только вам в этом браузере.",
+        "noFrames": "Нет доступных рамок.",
+        "noFramesInTab": "В этой вкладке рамок не найдено.",
+        "failedToLoad": "Не удалось загрузить рамки. Попробуйте позже."
+    },
+    "profileNotes": {
+        "ariaLabel": "Личная заметка о профиле",
+        "heading": "Заметка (видна только вам)",
+        "headingTooltip": "Эта заметка хранится только в этом браузере и никогда не отправляется в Roblox или RoValra.",
+        "addNote": "Нажмите, чтобы добавить заметку",
+        "editAriaLabel": "Изменить личную заметку о профиле",
+        "addAriaLabel": "Добавить личную заметку о профиле",
+        "displayTooltip": "Нажмите, чтобы изменить. Заметки сохраняются только в этом браузере.",
+        "inputPlaceholder": "Добавьте личную заметку",
+        "inputTooltip": "Сохраняется при клике вне поля. Нажмите Escape для отмены или Ctrl+Enter для сохранения."
+    },
+    "profilePronouns": {
+        "label": "Местоимения",
+        "ariaLabel": "Местоимения: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "Функции RoValra",
+        "profilePronouns": "Местоимения в профиле",
+        "profileBadges": "Значки профиля",
+        "pronounsPlaceholder": "Введите свои местоимения",
+        "donatorPerks": "Бонусы для донатеров",
+        "usernameCustomizations": "Оформление имени пользователя"
+    },
+    "profile": {
+        "socialLinks": "Ссылки на соцсети",
+        "currencyTransfer": "Отправить Robux",
+        "currencyTransferConfirmation": "Откроется клиент Roblox, где вы сможете отправить Robux.",
+        "openClient": "Открыть клиент"
+    },
+    "animations": {
+        "idle": "Бездействие",
+        "walk": "Ходьба",
+        "fall": "Падение",
+        "climb": "Лазание",
+        "run": "Бег",
+        "jump": "Прыжок",
+        "swim": "Плавание"
+    },
+    "itemRender": {
+        "renderOptions": "Параметры рендера",
+        "darkLighting": "Тёмное освещение",
+        "baseplate": "Baseplate",
+        "rotatePreview": "Вращать предпросмотр"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "По умолчанию",
+            "az": "А-Я",
+            "za": "Я-А",
+            "newest": "Новые",
+            "oldest": "Старые"
+        },
+        "tooltip": "Сортировать по дате вступления пользователя в сообщество"
+    },
+    "creatorStats": {
+        "ccu": "Онлайн",
+        "visits": "Посещения",
+        "members": "Участники",
+        "ccuTooltip": "Текущее количество игроков во всех публичных играх этого пользователя.",
+        "visitsTooltip": "Общее количество посещений всех публичных игр этого пользователя.",
+        "membersTooltip": "Участники всех сообществ, которыми владеет этот пользователь."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Вы сэкономили {{robux}}, пока у вас был Plus",
+            "percentOffSmall": "Внутриигровые предметы, аватары и многое другое",
+            "percentOff": "Скидка {{percent}}",
+            "itemsBoughtSmall": "Предметов куплено со скидкой Plus",
+            "privateServersCreatedSmall": "Приватных серверов создано бесплатно",
+            "robuxSentSmall": "Robux отправлено друзьям",
+            "delayNotice": "Все данные здесь отображаются с задержкой в 1 день"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Остаток дневного лимита",
+            "monthlyLimitLeft": "Остаток месячного лимита",
+            "sentToday": "Отправлено сегодня",
+            "sentThisMonth": "Отправлено в этом месяце",
+            "caption": "Дневной лимит составляет {{dailyLimit}}. Месячный лимит составляет {{monthlyLimit}}. Обновляется каждые 5 минут. Остатки являются примерными и могут быть неточными."
+        },
+        "referral": {
+            "reward": "Получите 100 Robux бесплатно и поддержите RoValra!",
+            "details": "Подходит только для новых пользователей Roblox Plus. RoValra тоже получит 100 Robux, если вы оформите подписку по реферальному коду RoValra.",
+            "button": "Подписаться по реферальному коду RoValra"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Исходная цена: <b>{{originalPrice}} Robux</b><br>Сейчас отображается как <b>Бесплатно</b> благодаря Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Отправить Robux",
+                "openInApp": "Открыть в приложении"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Невозможно отправить Robux",
+                "deletedAccountBody": "Аккаунт этого пользователя удалён, отправить ему Robux нельзя"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Отправить Robux",
+                    "titleSilly": "отправить бобуксы :3",
+                    "okBtn": "ОК"
+                },
+                "step1": {
+                    "robuxInputName": "Сколько Robux отправить",
+                    "mutedNotice": "Robux отправляются мгновенно и без комиссии",
+                    "minRobux": "Нужно отправить минимум {{robuxAmount}} Robux",
+                    "maxRobux": "Нельзя отправить больше {{robuxAmount}} Robux",
+                    "notEnoughRobux": "У вас недостаточно Robux",
+                    "nextBtn": "Далее"
+                },
+                "step2": {
+                    "sendBtn": "Отправить",
+                    "editBtn": "Изменить",
+                    "mutedNotice": "Отмена невозможна. Может потребоваться проверка возраста или разрешение родителя.",
+                    "transferErrorGeneric": "Произошла неизвестная ошибка.",
+                    "transferErrorNoMessage": "Произошла неизвестная ошибка без сообщения",
+                    "transferSuccessBody": "Перевод выполнен успешно!",
+                    "transferSuccessBodySilly": "перевод прошёл норм! очень круто",
+                    "transferSuccessOkBtnSilly": "electric boogaloo",
+                    "userInfoFriendTime": "Добавлен в друзья {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} общий друг",
+                    "userInfoMutualFriends_few": "{{count}} общих друга",
+                    "userInfoMutualFriends_many": "{{count}} общих друзей",
+                    "userInfoMutualFriends_other": "{{count}} общих друга",
+                    "userInfoJoin": "Регистрация в {{year}}",
+                    "paramPassedError": "Произошла неизвестная ошибка! Проверьте консоль и сообщите о проблеме в RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Попросить",
+                    "sendRobuxBody": "Чтобы отправлять Robux, нужно разрешение родителя",
+                    "receiveRobuxBody": "Чтобы получать Robux, нужно разрешение родителя",
+                    "askTitle": "Попросить разрешение",
+                    "askTitleSilly": "попросить у родителей разрешения",
+                    "errorSending": "Произошла неизвестная ошибка, проверьте консоль и сообщите о ней в RoValra",
+                    "errorReceivingTitle": "Не удалось принять Robux",
+                    "errorReceivingBody": "Произошла неизвестная ошибка, возможно, вы уже приняли этот перевод Robux. Подробности в консоли.",
+                    "errorReceivingOkBtnSilly": "эх",
+                    "successfulAskTitle": "Запрос отправлен",
+                    "successfulAskTitleSilly": "мы сообщили твоим родителям, готовься...",
+                    "successfulAskBody": "Мы отправили запрос вашим родителям и опекунам по электронной почте!",
+                    "successfulAskOkBtnSilly": "ладно, круто, спасибо"
+                },
+                "plusNeeded": {
+                    "body": "К сожалению, чтобы отправлять Robux, нужен Roblox Plus, это часть подписки Roblox Plus.",
+                    "bodySilly": "у тя нет боблокс плюс :c поэтому ты не можешь отправлять бобуксы, он нужен 3:",
+                    "buyPlusBtn": "Купить Roblox Plus",
+                    "buyPlusBtnSilly": "взять боблокс плюс c:",
+                    "okBtnSilly": "эххх ну ладно :c"
+                }
+            }
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Образы для игр",
+            "title": "Образы для игр",
+            "hint": "Выберите образ, который будет надеваться, когда вы играете в игру на R6 или R15.",
+            "r6": "Игры на R6",
+            "r15": "Игры на R15",
+            "none": "Не менять",
+            "gameTitle": "Образ для этой игры",
+            "gameHint": "Переопределяет образ, заданный для игр на R6 и R15.",
+            "useGlobal": "Использовать мой по умолчанию"
+        },
+        "bodyColors": {
+            "addCustom": "Выбрать свой цвет",
+            "savedColor": "{{hex}}, нажмите правой кнопкой мыши, чтобы удалить",
+            "applyFailed": "Не удалось обновить цвета тела. Попробуйте чуть позже."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "Закрепить сверху",
+        "unpin": "Открепить"
+    }
+}

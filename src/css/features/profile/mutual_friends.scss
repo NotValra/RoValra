@@ -1,0 +1,51 @@
+// Mutual Friends pill in the profile header row of Friends, Followers and
+// Following. The pill background is translucent, so the ring around each
+// avatar layers it over the page background to match what shows through.
+.rovalra-mutual-friends-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-mutual-friends-avatars {
+    display: flex;
+    align-items: center;
+
+    img {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--color-surface-200);
+        box-shadow:
+            0 0 0 1.5px var(--color-shift-300),
+            0 0 0 1.5px var(--color-surface-0);
+
+        & + img {
+            margin-left: -5px;
+        }
+    }
+}
+
+// Mutuals tab on the friends page. The native panes belong to the friends web
+// app, so they are hidden with a class on its root instead of being touched.
+.rbx-tab-content > .rovalra-mutuals-pane {
+    display: none;
+}
+
+// The native tabs have a min-width of a third of the row; four tabs share it
+// evenly instead.
+.nav-tabs:has(> #mutuals) > li.rbx-tab {
+    width: 25% !important;
+    min-width: 25% !important;
+}
+
+.rovalra-mutuals-tab-active {
+    .rbx-tab-content > .tab-pane:not(.rovalra-mutuals-pane) {
+        display: none !important;
+    }
+
+    .rbx-tab-content > .rovalra-mutuals-pane {
+        display: block;
+    }
+}
