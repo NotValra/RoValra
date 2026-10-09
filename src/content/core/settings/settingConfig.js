@@ -215,8 +215,8 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             friendOwnershipEnabled: {
-                label: 'settings.marketplace.EnableItemDependencies.title',
-                description: 'settings.marketplace.EnableItemDependencies.desc1',
+                label: 'settings.marketplace.friendOwnershipEnabled.title',
+                description: 'settings.marketplace.friendOwnershipEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
