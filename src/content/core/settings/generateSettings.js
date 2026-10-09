@@ -1172,7 +1172,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         controlsContainer.appendChild(experimentalPill);
     }
     if (setting.beta) {
-        const betaPill = createPill(ts('settings.ui.controls.beta'), setting.beta, 'beta');
+        const betaPill = createPill(ts('settings.ui.controls.beta'), ts(setting.beta), 'beta');
         controlsContainer.appendChild(betaPill);
     }
     if (setting.deprecated) {
@@ -1311,7 +1311,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childControls.appendChild(experimentalPill);
             }
             if (childSetting.beta) {
-                const betaPill = createPill(ts('settings.ui.controls.beta'), childSetting.beta, 'beta');
+                const betaPill = createPill(ts('settings.ui.controls.beta'), ts(childSetting.beta), 'beta');
                 childControls.appendChild(betaPill);
             }
             if (childSetting.deprecated) {

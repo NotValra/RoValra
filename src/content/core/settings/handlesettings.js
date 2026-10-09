@@ -1474,7 +1474,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     if (currentSettings[name] === true) {
                         await handleSaveSettings(name, false);
                     }
-                    applyLockedState(name, settingsContent, true, conf.locked);
+                    applyLockedState(name, settingsContent, true, ts(conf.locked));
                     return true;
                 }
                 if (!handledLockState) {
