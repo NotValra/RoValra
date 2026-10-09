@@ -2223,7 +2223,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['2963377564'],
+                contributors: ['2963377564', '3598865306'],
                 storageKey: [
                     'rovalra_sidebar_layout_order',
                     'rovalra_sidebar_layout_hidden',
