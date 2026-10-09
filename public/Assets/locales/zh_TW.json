@@ -378,7 +378,11 @@
         "myProfile": "我的個人檔案",
         "disabled": "已停用",
         "show": "顯示",
-        "hide": "隱藏"
+        "hide": "隱藏",
+        "add": "新增",
+        "addButton": "新增按鈕",
+        "buttonPlaceholder1": "名稱",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra 找不到任何支援的頂部欄項目。",

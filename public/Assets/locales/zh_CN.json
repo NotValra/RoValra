@@ -378,7 +378,11 @@
         "myProfile": "我的个人资料",
         "disabled": "已停用",
         "show": "显示",
-        "hide": "隐藏"
+        "hide": "隐藏",
+        "add": "添加",
+        "addButton": "添加按钮",
+        "buttonPlaceholder1": "名称",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra 找不到任何支持的顶部栏项目。",
