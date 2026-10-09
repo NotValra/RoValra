@@ -617,7 +617,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
     } else if (setting.type === 'input') {
         const { container, input } = createStyledInput({
             id: settingName,
-            label: setting.placeholder || 'Enter value',
+            label: ts(setting.placeholder) || 'Enter value',
             placeholder: ' ',
         });
 
@@ -1085,7 +1085,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             row.style.gap = '8px';
 
             const { container: inputContainer, input } = createStyledInput({
-                label: setting.placeholder || ts('settings.ui.controls.enterValue'),
+                label: ts(setting.placeholder) || ts('settings.ui.controls.enterValue'),
                 placeholder: ' ',
             });
             input.value = value;
@@ -1160,7 +1160,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     if (setting.experimental) {
         const experimentalPill = createPill(
             ts('settings.ui.controls.experimental'),
-            setting.experimental,
+            ts(setting.experimental),
             'experimental',
         );
         controlsContainer.appendChild(experimentalPill);
@@ -1172,7 +1172,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     if (setting.deprecated) {
         const deprecatedPill = createPill(
             ts('settings.ui.controls.deprecated'),
-            setting.deprecated,
+            ts(setting.deprecated),
             'deprecated',
         );
         controlsContainer.appendChild(deprecatedPill);
