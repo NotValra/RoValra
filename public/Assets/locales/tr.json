@@ -1,0 +1,2281 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Paylaş",
+        "serverCopied": "Kopyalandı!",
+        "recentServerTitle": "Sunucu",
+        "decalOptions": "Görsel seçenekleri"
+    },
+    "common": {
+        "select": "Seç...",
+        "search": "Ara",
+        "rovalraSettings": "RoValra Ayarları",
+        "filterItems": "Öğeleri Filtrele",
+        "applyFilter": "Filtreyi Uygula",
+        "uploadFile": "Dosya Yükle",
+        "change": "Değiştir",
+        "invalidFileFormat": "Geçersiz dosya biçimi.",
+        "invalidImageFile": "Geçersiz dosya biçimi. Lütfen geçerli bir görsel yükle.",
+        "fileProcessingFailed": "Dosya işlenemedi. Lütfen başka bir dosya dene.",
+        "errorProcessingFile": "Dosya işlenirken hata oluştu. Lütfen başka bir dosya dene.",
+        "less": "Daha Az",
+        "more": "Daha Fazla",
+        "pastYear": "Son Bir Yıl",
+        "past6Months": "Son 6 Ay",
+        "past3Months": "Son 3 Ay",
+        "pastMonth": "Son Bir Ay",
+        "pastWeek": "Son Bir Hafta",
+        "unnamedProduct": "Adsız Ürün",
+        "offSale": "Satışta Değil",
+        "robloxExperience": "Roblox Oyunu",
+        "subplace": "Sub Place",
+        "subplaceUpper": "SUB PLACE",
+        "offline": "Çevrimdışı",
+        "website": "Web Sitesi",
+        "playing": "Oyunda",
+        "playingGame": "{{gameName}} oyununu oynuyor",
+        "studio": "Studio",
+        "share": "Paylaş",
+        "copied": "Kopyalandı!",
+        "free": "Ücretsiz",
+        "unknown": "Bilinmiyor",
+        "somethingWentWrong": "Bir şeyler ters gitti",
+        "robloxPlusSubscriber": "Roblox Plus abonesi",
+        "joinServerFull": "Katıl (Sunucu Dolu)",
+        "id": "ID: ",
+        "profile": "Profil",
+        "error": "Hata",
+        "rovalraDeveloper": "RoValra Geliştiricisi",
+        "close": "Kapat",
+        "confirmAction": "İşlemi Onayla",
+        "areYouSure": "Devam etmek istediğinden emin misin?",
+        "confirm": "Onayla",
+        "cancel": "İptal"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Yakınındaki Gilbert'ler",
+        "title": "RoValra Bölge Seçicisi",
+        "automatic": "Otomatik",
+        "servers": "Sunucular: ",
+        "datacenters": "Veri Merkezleri: ",
+        "filterByRegion": "Sunucuları bölgeye göre filtrele",
+        "filterByRegionItem": "{{region}} bölgesine göre filtrele ({{count}} sunucu)",
+        "filterByUptime": "Sunucuları açık kalma süresine göre filtrele (en yeni/en eski)",
+        "filterByVersion": "Sunucuları oyun sürümüne göre filtrele"
+    },
+    "guidelines": {
+        "title": "RoValra Kuralları",
+        "message": "RoValra'yı kullanarak Kullanım Koşullarımıza uymayı kabul edersin. Bu kurallara uyulmaması, durum baloncukları ve zamirler gibi belirli özelliklere erişiminin askıya alınmasına yol açabilir.<br><br><b>Temel Kurallar:</b><br>• Kullanıcıları platform dışına yönlendiremezsin.<br>• Uygunsuz davranışlarda bulunamazsın.<br>• Roblox Hizmet Şartları'nı ihlal etmemelisin.<br><br>Daha fazla bilgi için <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a> adresini ziyaret et.",
+        "confirm": "Anladım"
+    },
+    "review": {
+        "requestMessage": "Görünüşe göre RoValra işine yarıyor!\nBir yorum bırakmaya ne dersin?\nYorumun, RoValra'yı ücretli özellik kısıtlamaları olmadan herkes için ücretsiz tutmamıza yardımcı olur.",
+        "leaveReview": "Yorum Bırak",
+        "notNow": "Şimdi değil",
+        "doNotShowAgain": "Bir daha gösterme",
+        "rateTitle": "RoValra'yı Değerlendir",
+        "donationMessage": "Bölge seçici gibi özellikleri çalıştırmak ücretsiz değil. RoValra bu masrafları tamamen bağışlarla karşılıyor.\n\nBağışın, sunucuları çalışır durumda tutmamıza ve bu özellikleri herkese ücretsiz sunmamıza yardımcı olur.",
+        "donate": "Bağış Yap",
+        "donationTitle": "RoValra'ya destek olmak ister misin?"
+    },
+    "heatmap": {
+        "updatesBetween": "{{date}} tarihinde {{start}} - {{end}} arasındaki güncellemeler",
+        "updatesOn": "{{date}} tarihindeki güncellemeler",
+        "trackingSince": "Güncelleme geçmişi yalnızca 15 Şubat 2026'dan beri takip ediliyor"
+    },
+    "profileFeatures": {
+        "title": "RoValra Özellikleri"
+    },
+    "serverFilters": {
+        "newest": "En Yeni Sunucular",
+        "oldest": "En Eski Sunucular",
+        "uptime": "Sunucunun Açık Kalma Süresi",
+        "version": "Sürüm",
+        "enterVersion": "Sürüm Gir",
+        "region": "Bölge",
+        "versionPlaceholder": "Sürüm"
+    },
+    "serverInfo": {
+        "loading": "Yükleniyor...",
+        "versionUnknown": "Sürüm Bilinmiyor",
+        "version": "Sürüm {{version}}",
+        "versionLabel": "Sürüm",
+        "regionTooltip": "Sunucu bölgesi: {{region}}",
+        "performanceTooltip": "Sunucu performansı",
+        "latest": " (En Yeni)",
+        "oldest": " (En Eski)",
+        "serverFull": "Sunucu Dolu",
+        "privateServer": "Özel bir sunucuda oynuyor",
+        "purchaseGame": "Bölgeleri görmek için oyunu satın al.",
+        "currentVersionTooltip": "Yayımlanmış güncel sürüm."
+    },
+    "serverStats": {
+        "totalServers": "Toplam Sunucu",
+        "totalServersTooltip": "RoValra'nın bu oyunda takip ettiği toplam sunucu sayısı",
+        "oldest": "En Eski",
+        "oldestTooltip": "Şu anda bir sunucuda çalışan en eski sürüm."
+    },
+    "preferredRegion": {
+        "criticalError": "Roblox Katılma API'si yanıt vermiyor. Biraz beklemen gerekebilir.\nBu genellikle bir ağ sorunundan veya Roblox sunucularındaki bir sorundan kaynaklanır. Sorun sürerse [Tercih Edilen Bölge'yi](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) devre dışı bırakmayı veya tarayıcı önbelleğini temizlemeyi dene.\nSorun devam ederse lütfen RoValra Discord sunucusunda bildir.\n\n---\n**Hata Ayrıntıları:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Roblox, gamejoin API'sini kullanmayı bırakıyor olabilir. Bu durum RoValra'nın kontrolü dışında ve bölge seçicileri bir süre etkileyecek. En kısa sürede çözmek için çalışıyoruz.\n\n---\n**Hata Ayrıntıları:**\n{{detailMsg}}",
+        "detectingLocation": "Konumun belirleniyor...",
+        "closestRegion": "en yakın bölge",
+        "inactiveRegion": "Roblox artık {{region}} bölgesini sunucu konumu olarak kullanmıyor.",
+        "scanningLocally": "{{region}} için yerel tarama yapılıyor...",
+        "regionApiUnavailable": "Bölge API'sine ulaşılamıyor. {{region}} için tarama yapılıyor...",
+        "findingLowestLatency": "En düşük gecikmeli sunucu aranıyor...",
+        "searchingInRegion": "{{region}} bölgesinde sunucu aranıyor...",
+        "fallbackInactive": "API'nin önerdiği sonraki en iyi sunucular etkin değil. {{region}} için yerel tarama yapılıyor...",
+        "noServersApi": "API üzerinden {{region}} bölgesinde sunucu bulunamadı. Yerel tarama yapılıyor...",
+        "loadBalancing": "{{region}} yük dengeleme için kullanılıyor ve muhtemelen yalnızca yoğunluk arttığında etkin oluyor. Taranıyor...",
+        "foundJoining": "{{region}} bulundu! Sunucuya katılınıyor...",
+        "foundContinuing": "{{region}} bulundu. {{targetRegion}} için aramaya devam ediliyor...",
+        "foundVerifying": "{{region}} bulundu! Doğrulanıyor...",
+        "verifyingStatus": "Sunucu durumu doğrulanıyor...",
+        "searchingClosest": "{{region}} bölgesine en yakın bölge aranıyor...",
+        "noServersRunning": "{{region}} bölgesinde çalışan sunucu yok.",
+        "joinRegion": "{{region}} Bölgesine Katıl",
+        "couldNotFindServers": "Hiçbir sunucu bulunamadı."
+    },
+    "purchaseModal": {
+        "title": "Öğeyi Satın Al",
+        "buy": "Satın Al",
+        "savingWithPlus": "Plus ile <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> tasarruf",
+        "subtotal": "Ara Toplam",
+        "plusBenefit": "Plus avantajı (%{{percent}} indirim)",
+        "total": "Toplam",
+        "insufficientRobux": "Yetersiz Robux",
+        "purchasing": "Satın alınıyor...",
+        "purchaseComplete": "Satın Alma Tamamlandı",
+        "successMessage": "<b>{{itemName}}</b> başarıyla satın alındı",
+        "ok": "Tamam",
+        "purchaseError": "Satın Alma Hatası",
+        "purchaseFailed": "Satın alma başarısız oldu",
+        "unknownError": "Bilinmeyen hata",
+        "errorLoadingTitle": "Öğe Yüklenirken Hata Oluştu",
+        "errorLoadingMessage": "Bu öğenin bilgilerini alamadık. Ayrıntılar: {{errorMessage}}. Lütfen daha sonra tekrar dene."
+    },
+    "avatarRotator": {
+        "stop": "Avatar Değiştirmeyi Durdur",
+        "button": "Avatar Değiştirici",
+        "selectMinimum": "En az 2 avatar seç",
+        "setRotators": "Döngüye ekle ({{count}})",
+        "selectedStatus": "Dönüşümlü kullanmak istediğin avatarları seç. ({{count}} seçildi)",
+        "loading": "Yükleniyor...",
+        "loadMore": "Daha Fazla Yükle",
+        "interval": "Aralık (saniye)",
+        "loadingDetails": "Kombin ayrıntıları yükleniyor...",
+        "active": "Avatar Değiştirici Etkin!",
+        "disable": "Devre Dışı Bırak",
+        "clearSelection": "Seçimi Temizle",
+        "title": "Avatar Değiştirici"
+    },
+    "avatarFilters": {
+        "filterItems": "Öğeleri Filtrele",
+        "filtering": "Filtreleniyor...",
+        "loading": "Yükleniyor...",
+        "creatorName": "İçerik Üreticisi Adı",
+        "minPrice": "En Düşük Fiyat",
+        "maxPrice": "En Yüksek Fiyat",
+        "availability": "Satış Durumu",
+        "showAll": "Tümünü Göster",
+        "onsaleOnly": "Yalnızca Satıştakiler",
+        "offsaleOnly": "Yalnızca Satışta Olmayanlar",
+        "effects": "Efektler",
+        "limiteds": "Limited Öğeler"
+    },
+    "trading": {
+        "searchInventory": "Envanterde Ara",
+        "continueSearch": "Aramaya Devam Et",
+        "filterTrades": "Takasları Filtrele",
+        "noResults": "Sonuç bulunamadı",
+        "copyProof": "Kanıtı Kopyala",
+        "copied": "Kopyalandı!",
+        "value": "Değer:",
+        "demand": "Talep:",
+        "includeRobux": "Robux'u Dahil Et",
+        "openUserOnRolimons": "Kullanıcıyı Rolimon's'ta aç",
+        "openOnRolimons": "{{type}} için Rolimon's sayfasını aç",
+        "projectedItem": "Projected Öğe",
+        "projected": "Projected",
+        "rareItem": "Nadir Öğe",
+        "rap": "RAP",
+        "valueLabel": "Değer",
+        "demandLabel": "Talep",
+        "bundle": "paket",
+        "item": "öğe",
+        "serial": "Seri No",
+        "afterTax": "Vergi Sonrası",
+        "beforeTax": "Vergi Öncesi",
+        "youGive": "Verdiklerin",
+        "youGet": "Aldıkların"
+    },
+    "onboarding": {
+        "title": "RoValra'ya hoş geldin!",
+        "thankYou": "<strong>RoValra</strong>'yı yüklediğin için teşekkürler!",
+        "exploreFeatures": "Ayarları değiştirmek ve tüm özellikleri keşfetmek için:",
+        "settingsInstruction": "Roblox'un üst çubuğundaki <strong>dişli simgesine</strong>, ardından \"RoValra Ayarları\"na tıkla.",
+        "imageAlt": "Roblox web sitesinde RoValra ayarları düğmesinin nerede olduğunu gösteren rehber.",
+        "description": "RoValra, herkesin Roblox deneyimini kolaylaştırmayı amaçlayan, hep ücretsiz kalacak bir eklenti!",
+        "gotIt": "Anladım!"
+    },
+    "catalogDependencies": {
+        "scan": "Bağımlılıkları Tara",
+        "loading": "Bilgiler Yükleniyor ({{count}})...",
+        "title": "Bağımlılıklar",
+        "unknown": "Bilinmiyor",
+        "assetFallback": "Varlık {{id}}",
+        "verifiedBadge": "Doğrulama Rozeti",
+        "by": "Oluşturan"
+    },
+    "catalogItemSales": {
+        "sales": "Satışlar",
+        "revenue": "Gelir",
+        "statsTooltip": "Satış ve gelir istatistikleri sızdırılmış verilerden geliyor ve muhtemelen doğru değil."
+    },
+    "fortyMethod": {
+        "loginRequired": "Kullanıcı ID'n belirlenemedi. Lütfen giriş yaptığından emin ol.",
+        "setupExperience": "Oyun Kur",
+        "specificTemplate": "Yalnızca belirli bir şablon çalışır",
+        "selectGroup": "Oyunları yönetebildiğin bir topluluk seç. <br>Eklenti senin için oyunu oluşturacak.",
+        "or": "VEYA",
+        "manualPlaceId": "Place ID'yi elle gir <br> (Bunu yalnızca ne yaptığını biliyorsan yap.)",
+        "donateSavedRobux": "Tasarruf Ettiğin Robux'u RoValra'ya Bağışla",
+        "estimatedSavings": "İleride gösterilen tahmini tasarruf tutarları yaklaşık değerlerdir ve doğru olmayabilir.",
+        "importantInformation": "Önemli Bilgiler",
+        "acknowledge": "Anladım",
+        "groupRequired": "Topluluk Gerekli",
+        "goBack": "Geri Dön",
+        "ownershipDetected": "Topluluk Sahibi Olduğun Belirlendi",
+        "understandContinue": "Anladım, Devam Et",
+        "createExperience": "Oyun Oluştur",
+        "createNewExperience": "Yeni Oyun Oluştur",
+        "findingExperience": "Oyunun Aranıyor",
+        "findingExperienceWait": "Yeni yayımladığın oyunu ararken lütfen bekle...",
+        "donateToRoValra": "RoValra'ya Bağış Yap",
+        "back": "Geri",
+        "validationWarning": "Doğrulama Uyarısı",
+        "updateExperience": "Oyunu Güncelle",
+        "useAnyway": "Yine de Kullan",
+        "permissionRequired": "İzin Gerekli",
+        "backToGroupSelection": "Topluluk Seçimine Dön",
+        "experience": "Oyun",
+        "loading": "Yükleniyor...",
+        "setupGame": "Oyununu Kur",
+        "saveContinue": "Kaydet ve Devam Et",
+        "creating": "Oluşturuluyor...",
+        "uploadingTemplate": "Şablon Yükleniyor...",
+        "configuring": "Yapılandırılıyor...",
+        "done": "Hazır!",
+        "updating": "Güncelleniyor...",
+        "purchaseFailed": "Satın Alma Başarısız Oldu",
+        "gotIt": "Anladım",
+        "confirmMethodPurchase": "%40 Yöntemiyle Satın Almayı Onayla",
+        "confirmCartPurchase": "Sepettekileri Satın Almayı Onayla",
+        "cancel": "İptal",
+        "alreadyOwned": "Zaten Sahipsin",
+        "joinToPurchase": "Satın almak için oyuna katıl",
+        "confirmPurchase": "Satın Almayı Onayla",
+        "purchaseError": "Satın Alma Hatası",
+        "ownerAccount": "<strong>Sahip Hesabı:</strong> Topluluk sahibi, öğeleri satın aldığın hesapla aynı OLAMAZ. Sahip hesabı; iki adımlı doğrulaması (2FA) açık, güçlü ve benzersiz bir parolaya sahip, güvenli bir yan hesap olmalı.",
+        "payouts": "<strong>Ödemeler:</strong> Topluluk fonlarında biriken Robux'u yalnızca topluluk sahibinin hesabı dağıtabilir.",
+        "pendingRobux": "<strong>Bekleyen Robux:</strong> Bu özelliği kullandıktan sonra Robux'un dağıtılabilir hâle gelmesi için yaklaşık bir ay beklemesi gerektiğini unutma.",
+        "groupRequiredBody": "%40 yöntemini kendi grubunla kullanmak için oyunları yönetebildiğin bir grubun olmalı.",
+        "groupRequiredImportant": "<strong>Önemli:</strong> Bu yöntemin düzgün çalışması için topluluğun sahibi güvenli bir yan hesap olmalı. Ana hesabının (öğeleri satın aldığın hesabın) topluluk oyunları oluşturma ve yönetme izinlerine sahip bir rolü olmalı.",
+        "groupRequiredDonate": "Uygun bir grubun yoksa satın alma işlemini bizim oyunumuz üzerinden yaparak RoValra'ya destek olabilirsin. Böylece tasarruf edilen Robux RoValra'ya gider ❤️",
+        "ownershipBody": "Bu topluluğun sahibiysen %40 yöntemi çalışmaz. Lütfen başka bir topluluk seç veya sahipliği güvenli bir yan hesaba devret.",
+        "experienceAccepted": "Oyun Kabul Edildi",
+        "experienceAcceptedSpecific": "<strong>Yalnızca belirli oyunlar çalışır.</strong> Bu oyunun oyun içi satın almaları işlemek için gereken scriptlerle kurulduğundan emin ol.",
+        "experienceAcceptedGroup": "Oyunun <strong>yönettiğin, ancak bu hesabın sahibi olmadığı</strong> bir topluluğa ait olduğundan emin ol. Tercihen topluluğun sahibi bir yan hesap olmalı. Topluluk seninse %40 yöntemi çalışmaz.",
+        "experienceAcceptedPending": "Tasarruf edilen Robux, dağıtılmadan önce yaklaşık bir ay beklemede kalır. Ödemeler için topluluk sahibi olarak güvenli bir yan hesap kullan.",
+        "createExperienceBody": "%40 yöntemini kullanmak için bu gruba yeni bir oyun oluştur.",
+        "createNewExperienceBody": "Bu yöntem için yeni bir oyun oluşturmak üzere:",
+        "createStepOne": "Kopyalamaya açık oyunu Studio'da aç:",
+        "openStudio": "Studio'yu Aç",
+        "createStepTwo": "Studio'da <strong>File > Game Settings > Security > \"Allow Third Party Sales\" seçeneğini aç > File > Publish to Roblox As...</strong> yolunu izle.",
+        "createStepThree": "Creator listesinden bu grubu seç.",
+        "createStepFour": "<strong>Create</strong> düğmesine tıkla; oyun yayımlanacak.",
+        "createPublishedBody": "Yayımladıktan sonra aşağıdaki düğmeye tıkla. Oyunu senin için otomatik bulup seçeceğiz.",
+        "publishedGame": "Oyunu Yayımladım",
+        "saveSettingsUnavailable": "Ayarlar kaydedilemedi. Depolama API'sine ulaşılamıyor.",
+        "groupsLoadFailed": "Topluluklar yüklenemedi. Lütfen sayfayı yenileyip tekrar dene.",
+        "noGroupSelected": "Topluluk seçilmedi. Lütfen tekrar dene."
+    },
+    "risk": {
+        "projected": "Bu öğe Projected (fiyatı yapay olarak şişirilmiş) olarak işaretlenmiş.",
+        "rapMuchHigher": "RAP, değerinden çok daha yüksek; değeri artabilir.",
+        "rapHigher": "RAP, değerinden yüksek; değeri artabilir.",
+        "rapMuchLower": "RAP, değerinden çok daha düşük; değeri düşebilir.",
+        "rapHigherSales": "RAP son satış fiyatlarından yüksek, ancak en düşük satış fiyatı bunu destekliyor.",
+        "rapUnusuallyHigh": "RAP, son dönemdeki istikrarlı satış fiyatına göre olağan dışı yüksek.",
+        "rapHigherStable": "RAP, istikrarlı fiyatın üzerinde (yavaş yavaş artıyor).",
+        "bestPriceMuchLower": "En düşük fiyat, RAP'tan belirgin şekilde düşük.",
+        "bestPriceLower": "En düşük fiyat, RAP'tan düşük.",
+        "bestPriceHigher": "En düşük fiyat, RAP'tan yüksek.",
+        "bestPriceSlightlyHigher": "En düşük fiyat, RAP'tan biraz yüksek.",
+        "sufferingProjection": "Öğenin fiyatı yapay olarak şişirilmiş.",
+        "stableTrend": "Fiyat eğilimi istikrarlı."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Roblox Plus olmadan istediğin temayı seç ve kullan."
+    },
+    "items": {
+        "hiddenFromMarketplace": "Bu öğe pazar yerinden gizlenmiş",
+        "notFound": "Bulunamadı",
+        "failedToLoad": "Yüklenemedi",
+        "onHold": "Beklemede",
+        "faeItem": "FAE öğesi"
+    },
+    "inventory": {
+        "openRolimons": "Rolimon's'ta Aç",
+        "searchPlaceholder": "Öğe adına göre ara..."
+    },
+    "games": {
+        "failedToLoad": "Oyun yüklenemedi"
+    },
+    "gameBookmarks": {
+        "bookmark": "Yer İmlerine Ekle",
+        "saved": "Yer İmlerinde",
+        "title": "Yer İmleri",
+        "uncategorized": "Kategorisiz",
+        "create": "+ Yeni Kategori Oluştur",
+        "categoryName": "Kategori adı",
+        "createSave": "Oluştur ve Kaydet",
+        "save": "Değişiklikleri Kaydet",
+        "deleteCategory": "Kategoriyi sil",
+        "deleteCategoryConfirm": "Emin misin? Bu işlem kategoriyi siler ve yer imlerindeki tüm oyunlardan kaldırır.",
+        "confirm": "Sil",
+        "cancel": "İptal",
+        "remove": "Yer İmlerinden Kaldır",
+        "error": "Yer imi kaydedilemedi. Lütfen tekrar dene.",
+        "loading": "Oyun yükleniyor…",
+        "all": "Tümü",
+        "topic": "Yer İmlerindeki Oyunlar",
+        "empty": "Bu kategoride yer imlerine eklenmiş oyun yok."
+    },
+    "homeLayout": {
+        "untitled": "Başlıksız",
+        "empty": "RoValra düzeni bulamadı. Sayfayı yenileyip tekrar dene.",
+        "reset": "Sıfırla",
+        "save": "Kaydet",
+        "overlayTitle": "Ana Sayfa Düzeni",
+        "button": "Düzeni Özelleştir",
+        "edit": "Düzenle",
+        "settingsTitle": "Kategori Ayarları",
+        "visibility": "Görünürlük",
+        "visibilityDescription": "Bu kategorinin ana sayfada görünüp görünmeyeceğini seç.",
+        "accurateContinue": "Son Oynanana Göre Devam Et",
+        "accurateContinueDescription": "Devam Et bölümünü her oyunu en son ne zaman oynadığına göre sırala.",
+        "enable": "Etkinleştir",
+        "disable": "Devre Dışı Bırak",
+        "show": "Göster",
+        "hide": "Gizle"
+    },
+    "sidebarLayout": {
+        "untitled": "Başlıksız",
+        "empty": "RoValra hiçbir kenar çubuğu düğmesi bulamadı.",
+        "reset": "Sıfırla",
+        "save": "Kaydet",
+        "overlayTitle": "Kenar Çubuğu Düzeni",
+        "button": "Düzeni Özelleştir",
+        "myProfile": "Profilim",
+        "disabled": "Devre Dışı",
+        "show": "Göster",
+        "hide": "Gizle"
+    },
+    "topbarLayout": {
+        "empty": "RoValra desteklenen bir üst çubuk öğesi bulamadı.",
+        "reset": "Sıfırla",
+        "save": "Kaydet",
+        "overlayTitle": "Üst Çubuk Düzeni",
+        "button": "Üst Çubuk Düzeni",
+        "disabled": "Gerekli",
+        "show": "Göster",
+        "hide": "Gizle",
+        "labels": {
+            "logo": "Roblox Logosu",
+            "charts": "Listeler",
+            "marketplace": "Pazar Yeri",
+            "create": "Oluştur",
+            "robux": "Robux",
+            "search": "Ara",
+            "profile": "Profil",
+            "qol": "Durum",
+            "topbarLayout": "Üst Çubuk Düzeni",
+            "notifications": "Bildirimler",
+            "robuxBalance": "Robux Bakiyesi",
+            "settings": "Ayarlar"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Önceki arkadaşlar",
+        "nextFriends": "Diğer arkadaşlar",
+        "isPlaying": "{{name}} oynuyor",
+        "online": "Çevrimiçi",
+        "inStudio": "Studio'da",
+        "offline": "Çevrimdışı",
+        "friendFallback": "Arkadaş",
+        "join": "Katıl",
+        "chat": "Sohbet",
+        "viewProfile": "Profili Görüntüle"
+    },
+    "friendLabels": {
+        "menuAction": "Arkadaş Etiketi Belirle",
+        "dialogTitle": "{{displayName}} İçin Etiket",
+        "inputLabel": "Arkadaş Etiketi",
+        "inputPlaceholder": "Yakın Arkadaşlar, Okul,",
+        "existingLabels": "Mevcut etiketler",
+        "friendFallback": "Arkadaş",
+        "save": "Kaydet",
+        "remove": "Kaldır",
+        "cancel": "İptal"
+    },
+    "underratedGames": {
+        "topic": "Keşfedilmeyi Bekleyen Oyunlar",
+        "subtitle": "RoValra topluluğunun özenle seçtiği, keşfedilmeyi bekleyen oyunlar.",
+        "rotates": "Yenilenir",
+        "suggestOnDiscord": "{{discord}} üzerinden keşfedilmeyi bekleyen oyunlar öner",
+        "ageRestrictionWarning": "Roblox'un 250 HEP şartı nedeniyle bu oyunlardan bazıları yalnızca 16 yaş ve üzeri kullanıcılara açık olabilir."
+    },
+    "playtime": {
+        "topic": "Oyun Süresi",
+        "period": "Oyun Süresi Aralığı",
+        "today": "Bugün",
+        "thisWeek": "Bu hafta",
+        "thisMonth": "Bu ay",
+        "thisYear": "Bu yıl",
+        "allTime": "Tüm zamanlar",
+        "hours": "{{value}} saat",
+        "minutes": "{{value}} dakika"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} Ortak Arkadaş",
+        "pill_other": "{{count}} Ortak Arkadaş",
+        "tooltip": "Bu kullanıcıyla ortak arkadaşların",
+        "tab": "Ortak Arkadaşlar",
+        "title": "Ortak Arkadaşlar ({{count}})",
+        "empty": "Bu kullanıcıyla ortak arkadaşın yok."
+    },
+    "trustedFriends": {
+        "pendingConnection": "Güvenilir Arkadaşlık Onayı Bekleniyor",
+        "pendingRequest": "Güvenilir Arkadaşlık İsteği Beklemede",
+        "addConnection": "Güvenilir Arkadaş Ekle",
+        "addConfirmation": "Güvenilir arkadaşlık isteği göndermek istediğinden emin misin?",
+        "sendRequest": "İstek Gönder",
+        "sending": "Gönderiliyor...",
+        "requestSent": "Güvenilir arkadaşlık isteği gönderildi!",
+        "requestFailed": "Güvenilir arkadaşlık isteği gönderilemedi.",
+        "errorSending": "Gönderme Hatası",
+        "acceptConnection": "Güvenilir Arkadaşlığı Kabul Et",
+        "acceptConfirmation": "Bu güvenilir arkadaşlık isteğini kabul etmek istediğinden emin misin?",
+        "accept": "Kabul Et",
+        "accepting": "Kabul ediliyor...",
+        "requestAccepted": "Güvenilir arkadaşlık isteği kabul edildi!",
+        "acceptFailed": "Güvenilir arkadaşlık isteği kabul edilemedi.",
+        "errorAccepting": "Kabul Etme Hatası",
+        "removeConnection": "Güvenilir Arkadaşlığı Kaldır",
+        "removeConfirmation": "Bu güvenilir arkadaşı kaldırmak istediğinden emin misin?",
+        "remove": "Kaldır",
+        "removing": "Kaldırılıyor...",
+        "connectionRemoved": "Güvenilir arkadaş kaldırıldı!",
+        "removeFailed": "Güvenilir arkadaş kaldırılamadı.",
+        "errorRemoving": "Kaldırma Hatası"
+    },
+    "chatEligibility": {
+        "canChat": "Bu kullanıcıyla sohbet edebilirsin.",
+        "cannotChat": "Bu kullanıcı, sohbet edebildiğin yaş aralığının dışında.",
+        "ageCheckRequired": "Bu kullanıcı yaş kontrolünü tamamlamamış."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Şu Anda Giydikleri",
+        "items": "Öğeler",
+        "cosmetics": "Kozmetikler",
+        "bodyParts": "Vücut Parçaları",
+        "animations": "Animasyonlar",
+        "emotes": "İfadeler"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Kullanıcının herkese açık oyunu yok",
+        "overlayText": "Gizli Oyunlar",
+        "noHiddenGames": "Bu kullanıcının gizli oyunu yok.",
+        "buttonText": "Gizli Oyunlar",
+        "labels": {
+            "sort": "Sırala",
+            "order": "Sıralama Yönü",
+            "showAll": "Tüm Oyunları Göster"
+        },
+        "sort": {
+            "default": "Varsayılan",
+            "likeRatio": "Beğeni Oranı",
+            "likes": "Beğeniler",
+            "dislikes": "Beğenmeme Sayısı",
+            "players": "Oyuncular",
+            "name": "Ad (Z-A)"
+        },
+        "order": {
+            "descending": "Azalan",
+            "ascending": "Artan"
+        },
+        "noMatches": "Filtrelere uygun oyun yok.",
+        "loading": "Yükleniyor..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Gizli Topluluk Oyunları (Toplam {{count}})",
+        "noHiddenGames": "Bu grubun gizli oyunu yok.",
+        "buttonText": "Gizli Oyunlar",
+        "labels": {
+            "sort": "Sırala",
+            "order": "Sıralama Yönü",
+            "showAll": "Tüm Oyunları Göster"
+        },
+        "sort": {
+            "recentlyUpdated": "Yakın Zamanda Güncellenenler",
+            "likeRatio": "Beğeni Oranı",
+            "likes": "Beğeniler",
+            "dislikes": "Beğenmeme Sayısı",
+            "players": "Oyuncular",
+            "name": "Ad (Z-A)"
+        },
+        "order": {
+            "descending": "Azalan",
+            "ascending": "Artan"
+        },
+        "noMatches": "Mevcut filtrelere uygun gizli oyun yok.",
+        "loadingMore": "Daha fazla oyun yükleniyor..."
+    },
+    "userOutfits": {
+        "loading": "Kombinler yükleniyor...",
+        "back": "Geri",
+        "totalPrice": "Toplam Fiyat:",
+        "loadingItems": "Öğeler yükleniyor...",
+        "noItems": "Bu kombinde öğe yok.",
+        "errorLoadingItems": "Öğeler yüklenemedi.",
+        "buttonText": "Kombinleri Göster",
+        "overlayTitle": "Kullanıcı Kombinleri",
+        "overlayTitleUser": "{{displayName}} adlı kullanıcının kombinleri",
+        "noOutfits": "Bu kullanıcının kombini yok.",
+        "inventoryPrivate": "Kullanıcının envanteri gizli.",
+        "errorNoUserId": "Sayfadan kullanıcı ID'si belirlenemedi.",
+        "errorFetch": "Kombinler alınamadı."
+    },
+    "donationLink": {
+        "donate": "Bağış Yap",
+        "overlayTitle": "Pls Donate",
+        "description": "Çevrimdışı bağış yapabileceğin \"PLS DONATE\" oyunu açılacak.\n\nRoblox'un (%30) ve oyunun (%10) kesintileri nedeniyle kullanıcı, bağışlanan tutarın %60'ını alır.\n\nKatıldığında, kullanıcının adı önceden doldurulmuş \"Offline Donations\" menüsü açılır. Standını açmak için hediye düğmesine tıkla ve bağış yapmak için bir Game Pass satın al.",
+        "joinButton": "Pls Donate'e Katıl",
+        "goBackButton": "Geri Dön",
+        "loadingGamePasses": "Game Pass'ler yükleniyor...",
+        "priceLowToHigh": "Fiyat (Düşükten Yükseğe)",
+        "priceHighToLow": "Fiyat (Yüksekten Düşüğe)",
+        "userGamePasses": "{{username}} adlı kullanıcının Game Pass'leri",
+        "copyDonationLink": "Bağış Bağlantısını Kopyala",
+        "copyLinkDescription": "Bu profile özel bir bağlantıyı kopyalar. Bir RoValra kullanıcısı bağlantıyı açtığında bu bağış menüsü otomatik görünür.<br><br><strong>Not:</strong> Bağış penceresini yalnızca RoValra kullanıcıları görür. Diğer kullanıcılar normal profili görür.",
+        "copyLinkButton": "Bağlantıyı Kopyala",
+        "copySuccess": "Bağış bağlantısı kopyalandı!",
+        "noGamePassesFound": "{{username}} adlı kullanıcının oyunları için Game Pass bulunamadı.",
+        "errorLoading": "Game Pass'ler yüklenirken hata oluştu: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Anında Katıl",
+        "stopJoining": "Katılmayı Durdur",
+        "description": "Kullanıcı bir oyuna girer girmez ona otomatik olarak katılmayı dener.<br><br>Bunun için kullanıcının herkese katılma izni vermiş olması veya arkadaşın olması gerekir.",
+        "searchPlaceholder": "Bir oyun ara veya Place ID gir (İsteğe bağlı)",
+        "continue": "Devam Et",
+        "cancel": "İptal",
+        "confirmTitle": "İşlemi Onayla"
+    },
+    "rap": {
+        "error": "Hata",
+        "private": "Gizli",
+        "openInRolimons": "Rolimon's'ta Aç",
+        "thisUser": "bu kullanıcı",
+        "rolimonsRedirect": "Takas ve öğe değerleri için kullanılan haricî bir web sitesi olan Rolimon's'ta {{username}} adlı kullanıcının profiline yönlendirileceksin.<br><br>Devam etmek istiyor musun?",
+        "continueToRolimons": "Rolimon's'a Git",
+        "user": "Kullanıcı",
+        "loadingItems": "Daha fazla öğe yükleniyor...",
+        "noItemsMatch": "Aramana uygun öğe yok.",
+        "collectiblesTitle": "{{displayName}} adlı kullanıcının koleksiyon öğeleri ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "{{displayName}} adlı kullanıcının koleksiyon öğeleri ({{totalRapString}} Değer)",
+        "inventoryPrivateOrNoLimiteds": "Bu kullanıcının envanteri gizli veya limited öğesi yok.",
+        "searchByName": "Öğe adına göre ara",
+        "itemAmount": "Sahip olunan miktar: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Gönder"
+    },
+    "privateServer": {
+        "processingTitle": "Sunucular İşleniyor",
+        "starting": "Başlatılıyor...",
+        "cancel": "İptal",
+        "cancelling": "İptal ediliyor...",
+        "activating": "Etkinleştiriliyor",
+        "inactivating": "Devre dışı bırakılıyor",
+        "progressText": "{{total}} sunucudan {{current}}. sunucu: {{actionText}}...",
+        "unknownApiError": "Bilinmeyen bir API hatası oluştu.",
+        "processCancelled": "İşlem İptal Edildi. <span class=\"success-text\">{{count}} sunucu işlendi.</span>",
+        "completed": "Tamamlandı: <span class=\"success-text\">{{successCount}} başarılı</span>, <span class=\"error-text\">{{errorCount}} başarısız</span>.",
+        "processingComplete": "İşlem Tamamlandı",
+        "confirmationTitle": "İşlemi Onayla",
+        "confirmationMessage": "{{count}} özel sunucunun durumunu {{action}} olarak değiştireceksin.",
+        "confirmationJoinable": "Bu işlem özel sunucuyu katılıma açar.",
+        "confirmationUnjoinable": "Bu işlem özel sunucuya katılımı kapatır.",
+        "confirmationReversible": "Bunu daha sonra istediğin zaman geri alabilirsin.",
+        "confirm": "Onayla",
+        "deselectAll": "Tüm Seçimleri Kaldır",
+        "selectAll": "Tümünü Seç",
+        "bulkInactivate": "Topluca Devre Dışı Bırak",
+        "bulkActivate": "Topluca Etkinleştir",
+        "setInactive": "Devre Dışı Bırak",
+        "setActive": "Etkinleştir",
+        "noServersFound": "{{status}} durumunda özel sunucu bulunamadı.",
+        "byCreator": "Oluşturan: ",
+        "allowJoining": "Katılıma İzin Ver",
+        "friendsAllowed": "Arkadaşlara İzin Ver"
+    },
+    "firstAccount": {
+        "label": "İlk Hesap",
+        "yes": "Evet",
+        "no": "Hayır",
+        "tooltip": "Roblox'un bu hesabı ilk hesabın olarak görüp görmediğini gösterir. <br>Bu bilgi doğrudan Roblox'tan gelir ama doğru olmayabilir.",
+        "createdDate": "İlk hesabın oluşturulma tarihi: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "Güvenilir İçerik Üreticisi Programında",
+        "yes": "Evet",
+        "no": "Hayır",
+        "tooltip": "Bunu kontrol etmenin bir yolunu buldum, hoşuma gitti :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Tema",
+        "light": "Açık",
+        "dark": "Koyu"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Görsel Ayarlarını Özelleştir",
+            "source": "Görsel Kaynağı",
+            "opacity": "Görsel Opaklığı",
+            "customSize": "Özel Ölçek",
+            "blur": "Bulanıklık",
+            "overrideTopbarSidebar": "Şeffaf Mod",
+            "size": {
+                "label": "Arka Plan Boyutu",
+                "cover": "Kapla",
+                "contain": "Sığdır",
+                "auto": "Otomatik",
+                "custom": "Özel"
+            },
+            "position": {
+                "label": "Arka Plan Konumu",
+                "center": "Orta",
+                "top": "Üst",
+                "bottom": "Alt",
+                "left": "Sol",
+                "right": "Sağ",
+                "topleft": "Sol Üst",
+                "topright": "Sağ Üst",
+                "bottomleft": "Sol Alt",
+                "bottomright": "Sağ Alt"
+            },
+            "overlay": {
+                "color": "Kaplama Rengi",
+                "opacity": "Kaplama Opaklığı"
+            },
+            "errors": {
+                "invalidUrl": "Geçerli bir HTTPS görsel URL'si gir."
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Satışta Değil",
+        "text": "Önceki Fiyat:",
+        "lastOnSale": "Son satış tarihi",
+        "for": "fiyatı"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Kazanıldı"
+    },
+    "lastEquipped": {
+        "label": "En Son Giyildiği Tarih"
+    },
+    "pendingRobux": {
+        "tooltip": "İşlem verilerine göre, bekleyen bakiyenden yarın kullanılabilir hâle gelecek tahmini Robux tutarıdır. Gerçek tutar farklı olabilir. Bu tahmin doğru olmayabilir.",
+        "loading": "Yükleniyor...",
+        "error": "Hata: {{message}}",
+        "insufficientData": "Yetersiz veri",
+        "insufficientDataTooltip": "Doğru bir tahmin için yeterli işlem geçmişi yok. Lütfen daha fazla işlemin tamamlanmasını bekle.",
+        "label": "Yarın Kullanılabilir Olacak Robux"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Kazançları Hesapla",
+        "calculateEarned": "Toplam Kazancı Hesapla",
+        "pausedMessage": "Hesaplama duraklatıldı. Saymaya devam etmek için sürdür.",
+        "resumeCalculation": "Hesaplamayı Sürdür",
+        "startNewCalculation": "Yeni Hesaplama Başlat",
+        "description": "Satışlardan ve topluluk ödemelerinden kazandığın toplam Robux'u hesapla.",
+        "startCalculation": "Hesaplamayı Başlat",
+        "transactionsScanned": "Taranan İşlemler",
+        "totalRobuxEarned": "Toplam Kazanılan Robux",
+        "breakdownLabel": "Kazançların Kaynaklara Göre Dağılımı",
+        "calculatingTitle": "Toplam Kazanılan Robux Hesaplanıyor",
+        "scanningHistory": "Toplam kazanılan Robux hesaplanıyor...",
+        "rateLimited": "API istek sınırına ulaşıldı. Sayım devam ediyor...",
+        "calculationComplete": "Hesaplama Tamamlandı",
+        "allScanned": "Toplam kazanılan Robux taraması tamamlandı.",
+        "newCalculation": "Yeni Hesaplama",
+        "errorTitle": "Bir Hata Oluştu",
+        "retry": "Tekrar Dene",
+        "robloxLimitError": "Roblox bir iç sunucu hatası döndürdü. Roblox'un sınırlamaları nedeniyle muhtemelen daha fazla işlem taranamayacak.",
+        "noEarnings": "Henüz kazanç bulunamadı.",
+        "other": "Diğer",
+        "groupPayout": "Topluluk Ödemesi"
+    },
+    "totalSpent": {
+        "other": "Diğer",
+        "na": "Bilgi yok",
+        "calculatingTitle": "Hesaplanıyor",
+        "calculatingRobuxTitle": "Harcanan Toplam Robux Hesaplanıyor",
+        "calculatingMoneyTitle": "Harcanan Toplam Para Hesaplanıyor",
+        "calculatingText": "Hesaplanıyor...",
+        "calculatingRobuxText": "Harcanan toplam Robux hesaplanıyor...",
+        "calculatingMoneyText": "Harcanan toplam para hesaplanıyor...",
+        "rateLimited": "API istek sınırına ulaşıldı. Sayım sürüyor...",
+        "calculationComplete": "Hesaplama Tamamlandı",
+        "allScanned": "İlgili tüm işlemler tarandı.",
+        "robuxAllScanned": "Harcanan toplam Robux taraması tamamlandı.",
+        "moneyAllScanned": "Harcanan toplam para taraması tamamlandı.",
+        "newCalculation": "Yeni Hesaplama",
+        "errorTitle": "Bir Hata Oluştu",
+        "retry": "Tekrar Dene",
+        "calculateSpend": "Harcamayı Hesapla",
+        "pausedMessage": "Hesaplama duraklatıldı. Sayımı sürdürmek için devam et.",
+        "resumeCalculation": "Hesaplamaya Devam Et",
+        "startNewCalculation": "Yeni Hesaplama Başlat",
+        "description": "Harcamalarını işlem geçmişine göre hesaplamak için bir yöntem seç.",
+        "calculateRobux": "Harcanan Robux'u Hesapla",
+        "calculateMoney": "Harcanan Parayı Hesapla",
+        "transactionsScanned": "Taranan İşlemler",
+        "totalRobuxSpent": "Harcanan Toplam Robux",
+        "totalMoneySpent": "Toplam Harcama (Yaklaşık)",
+        "itemTypeBreakdown": "Öğe Türüne Göre Dağılım",
+        "premiumBreakdown": "Premium Abonelik Dağılımı",
+        "purchaseBreakdown": "Robux Alımlarının Dağılımı",
+        "noItems": "Henüz öğe bulunamadı.",
+        "pack": "Paket",
+        "stipend": "Aylık ödeme",
+        "errorUserId": "Kullanıcı kimliği alınamadı.",
+        "robloxLimitError": "Roblox bir dahili sunucu hatası döndürdü. Roblox kısıtlamaları nedeniyle daha fazla işlem taranamayabilir.",
+        "errorRetries": "Birden fazla denemeden sonra başarısız oldu. Son hata: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Toplam Harcama",
+        "loading": "Yükleniyor...",
+        "failedToLoad": "Yüklenemedi",
+        "singlePurchase": "1 satın alım",
+        "multiplePurchases": "{{count}} satın alım",
+        "stillCalculating": "Toplam Harcama hâlâ hesaplanıyor."
+    },
+    "spentPerGame": {
+        "title": "Oyuna Göre Toplam Harcama",
+        "disclaimer": "Roblox kısıtlamaları nedeniyle hatalı olabilir",
+        "mostSpent": "En çok harcama",
+        "mostPurchases": "En çok satın alım",
+        "noPurchases": "Oyun içi satın alım bulunamadı.",
+        "singlePurchase": "1 satın alım",
+        "multiplePurchases": "{{count}} satın alım",
+        "loadMore": "Daha fazla yükle ({{remaining}} kaldı)",
+        "searchPlaceholder": "Oyun ara",
+        "loading": "Oyun harcamaları yükleniyor...",
+        "scanInProgress": "İşlemler taranıyor. Bu biraz zaman alabilir.",
+        "loadError": "Oyun harcamaları yüklenemedi."
+    },
+    "spentPerCreator": {
+        "title": "İçerik Üreticisine Göre Toplam Harcama",
+        "disclaimer": "Roblox kısıtlamaları nedeniyle hatalı olabilir",
+        "mostSpent": "En çok harcama",
+        "mostPurchases": "En çok satın alım",
+        "noPurchases": "İçerik üreticilerinden yapılan satın alım bulunamadı.",
+        "unknownCreator": "Bilinmeyen içerik üreticisi",
+        "includeGameCreators": "Oyun geliştiricilerini dahil et",
+        "singlePurchase": "1 satın alım",
+        "multiplePurchases": "{{count}} satın alım",
+        "loadMore": "Daha fazla yükle ({{remaining}} kaldı)",
+        "searchPlaceholder": "İçerik üreticisi ara",
+        "loading": "İçerik üreticilerine yapılan harcamalar yükleniyor...",
+        "scanInProgress": "İşlemler taranıyor. Bu biraz zaman alabilir.",
+        "loadError": "İçerik üreticilerine yapılan harcamalar yüklenemedi."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Bilgi",
+            "credits": "Katkıda Bulunanlar",
+            "donatorPerks": "Bağışçı Ayrıcalıkları",
+            "settings": "Ayarlar",
+            "accountStanding": "Hesap Durumu",
+            "store": "Mağaza"
+        },
+        "info": {
+            "title": "RoValra Hakkında!",
+            "desc1": "RoValra, her şeyi tamamen açık kaynaklı yaparak günlük kullanımı kolaylaştıran temel özellikleri herkes için ücretsiz ve erişilebilir kılmaya çalışan bir uzantı.",
+            "desc2": "Bazı ücretsiz özellikler hâlâ RoValra sunucularına ihtiyaç duyuyor ve çalıştırılmaları masraflı.",
+            "desc3": "Destekçilerin bağışları bu masrafları karşılamaya yardımcı oluyor. Böylece RoValra gelişmeye devam ederken daha fazla özelliği herkese ücretsiz sunabiliyor. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra hep tutkuyla geliştirilen bir proje oldu.",
+            "suggestions": "Özellik önerilerin varsa Discord sunucumdan veya GitHub üzerinden bana iletebilirsin",
+            "bugs": "Bir hata bulursan Discord sunucumdan veya GitHub üzerinden bana haber verebilirsin",
+            "review": "Bu eklentiyi seviyorsan <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">bir yorum bırakmayı düşünebilirsin</a>. Bize çok yardımcı olur <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Discord Sunucusu",
+            "github": "GitHub Deposu",
+            "support": "RoValra'yı Destekle",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Katkıda Bulunanlar",
+            "translatorsTitle": "Çevirmenler",
+            "featureCount_one": "{{count}} özellik",
+            "featureCount_other": "{{count}} özellik",
+            "contributorTooltips": {
+                "146089324": "WoozyNate, eski RoValra logosunun geldiği fisch oyununu yaptı. fisch'e bir göz atmalısın!",
+                "170038374": "Bazı RoValra özelliklerine temel olan taslakları hazırladı.",
+                "795922138": "'RoValra' adını şaka olarak buldu. O kadar komikti ki kullanmadan olmazdı.",
+                "1337447242": "Yeni logoyu ve tüm mağaza sayfası görsellerini hazırladı.",
+                "2974594300": "Arayüz iyileştirmeleri, hata düzeltmeleri ve diğer katkılar."
+            },
+            "sortLabel": "Katkıda bulunanları sırala",
+            "sortMost": "En çok",
+            "sortLeast": "En az",
+            "contributionCount_one": "{{count}} özelliğe katkıda bulundu",
+            "contributionCount_other": "{{count}} özelliğe katkıda bulundu",
+            "backendContributorsNote": "Bu kişiler özelliklerin dışında da projeye katkıda bulundu.",
+            "loadingContributors": "Yükleniyor...",
+            "failedToLoadContributors": "Katkıda bulunanlar yüklenemedi.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Çevirmen rozeti ve WoozyNate rozeti eklendi",
+                    "nateGilbertFix": "Nate'in rozeti yeniden Gilbert olacak şekilde düzeltildi"
+                },
+                "caching": {
+                    "hashmap": "Önbellek yöneticisine hashmap eklendi"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Yan çubuk bir Roblox güncellemesine uyum sağlayacak şekilde düzeltildi"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "RBXM ayrıştırıcısındaki senkronizasyon sorunu ve CFRAME biçimi düzeltildi"
+                },
+                "markdown": {
+                    "untrustedMd": "Güvenilmeyen kullanıcılar için sınırlı bir Markdown ayrıştırıcısı eklendi"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Birleştirilmiş ayarlar API'si eklendi"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Katkıda bulunanlar listesindeki katkı bilgileri iyileştirildi",
+                    "nonSettingCredits": "Ayrı ayarı bulunmayan özellikler ve iyileştirmeler için katkı bilgileri eklendi"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Bağışçı seviyeleri için yeni göstergeler eklendi"
+                },
+                "iconElement": {
+                    "addIcons": "Builder Icons, Material Icons ve RoValra Icons kullanımına olanak sağlayan `<icon>` öğesi eklendi.",
+                    "addElement": "Builder Icons kullanımına olanak sağlayan temel `<icon>` öğesi eklendi. Önceden sınıflarla birlikte yerleşik `<i>` öğesinin kullanılması planlanıyordu.",
+                    "makeRoValraIcons": "RoValra Icons için bir yazı tipi ve web sitesi için yeni bir derleme yöntemi eklendi.",
+                    "addBuilderIconsWOFF": "Builder Icons için RoValra web sitesinde barındırma ve daha küçük boyutlu farklı yazı tipi dosyaları eklendi."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Kullanıcıların yalnızca geçerli ve belirtilen temaları kullanabilmesi için Plus tema dizini web sitesine eklendi."
+                },
+                "locales": {
+                    "madeRo": "Rumence çeviriye yardımcı oldu",
+                    "madeEs": "İspanyolca çeviriye yardımcı oldu",
+                    "madeRu": "Rusça çeviriye yardımcı oldu",
+                    "madeFr": "Fransızca çeviriye yardımcı oldu",
+                    "madeZh": "Çince çeviriye yardımcı oldu",
+                    "madeVi": "Vietnamca çeviriye yardımcı oldu",
+                    "madeTr": "Türkçe çevirinin hazırlanmasına katkıda bulundu"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "{{user}} adlı kullanıcının katkıları",
+                    "contributor": "Katkıda Bulunan",
+                    "featureName": "Özellik",
+                    "featureKey": "(Geliştirici) Özellik Anahtarı"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "Bağışçı Ayrıcalıkları!",
+            "subtitle": "RoValra'nın gelişimini destekle, özel ayrıcalıklar kazan!",
+            "howToGet": "Ayrıcalıklar Nasıl Kazanılır?",
+            "howToGetDesc": "Destek oyununda Game Pass satın alarak bağış yapabilirsin.",
+            "goToGame": "Bağış Oyununa Git",
+            "perkTiers": "Ayrıcalık Seviyeleri",
+            "perk": "Ayrıcalık",
+            "currentTier": "Mevcut Seviye",
+            "tier1": "Seviye 1: Destekçi",
+            "tier1Desc": "<strong>İstediğin miktarda</strong> bağış yap",
+            "tier1Reward": "Bağışçı 1 Rozeti",
+            "tier1DiscordRole": "Bağışçı 1 Discord rolü + ek Discord ayrıcalıkları.",
+            "tier1Feature": "Hakkımda bölümüne bir metin eklemeden durumunu ve ortamlarını ayarla.",
+            "tier2": "Seviye 2: Destekçi",
+            "tier2Desc": "<strong>200+ Robux</strong> bağış yap",
+            "tier2Reward": "Bağışçı 2 Rozeti",
+            "tier2DiscordRole": "Bağışçı 2 Discord rolü + daha iyi Discord ayrıcalıkları.",
+            "tier3": "Seviye 3: Destekçi",
+            "tier3Desc": "<strong>500+ Robux</strong> bağış yap",
+            "tier3Reward": "Bağışçı 3 Rozeti",
+            "tier3DiscordRole": "Bağışçı 3 Discord rolü + en iyi Discord ayrıcalıkları.",
+            "previousRewards": "+ Önceki seviyelerin tüm ödülleri",
+            "moreComingSoon": "Yakında daha fazlası geliyor.",
+            "note": "Not:\n- Bağış yaptıktan sonra rozetlerin görünmesi birkaç dakika sürebilir.\n- Rozet görünürlüğünü yönetmek için 'Profil' ayarları sekmesine git. \n- Komisyon üzerinden yapılan bağışlar ne yazık ki bağışçı ayrıcalıkları kazandırmıyor; bu bir Roblox kısıtlaması.\n- Bağış yaparak [RoValra'nın Kullanım Koşulları](https://www.rovalra.com/tou/) metnini kabul etmiş olursun"
+        },
+        "search": {
+            "minLength": "Aramak için en az 2 karakter gir.",
+            "noResults": "\"{{query}}\" için ayar bulunamadı."
+        },
+        "ui": {
+            "common": {
+                "cancel": "İptal",
+                "okay": "Tamam",
+                "ok": "Tamam",
+                "pleaseWait": "Lütfen bekle...",
+                "loading": "Yükleniyor...",
+                "unknown": "Bilinmiyor",
+                "user": "Kullanıcı",
+                "unavailable": "Kullanılamıyor",
+                "notAvailable": "Bilgi yok"
+            },
+            "levels": {
+                "allGood": "Sorun Yok",
+                "limited": "Kısıtlı",
+                "veryLimited": "Çok Kısıtlı",
+                "atRisk": "Risk Altında",
+                "suspended": "Askıya Alındı"
+            },
+            "search": {
+                "placeholder": "Ayarlarda Ara..."
+            },
+            "controls": {
+                "clearStorage": "Depolamayı Temizle",
+                "preview": "Önizleme",
+                "fadeStrength": "Solma Düzeyi",
+                "clickMe": "Tıkla Bana!",
+                "enterValue": "Değer gir",
+                "remove": "Kaldır",
+                "add": "Ekle",
+                "experimental": "Deneysel",
+                "beta": "Beta",
+                "deprecated": "Kullanımdan Kaldırıldı",
+                "invalidImageUrl": "Geçerli bir http:// veya https:// görsel URL'si gir.",
+                "enablePermission": "{{permission}} iznini etkinleştir"
+            },
+            "badges": {
+                "visibility": "Bağışçı rozetlerini göster veya gizle."
+            },
+            "locks": {
+                "donatorTierRequired": "RoValra Bağışçı Seviyesi {{tier}} Gerekli",
+                "donatorPerk": "RoValra Bağışçı Ayrıcalığı (Seviye {{tier}})",
+                "featureDisabled": "Bu özellik {{lockType}} devre dışı bırakıldı"
+            },
+            "featureStatus": {
+                "title": "Bu Özelliği Etkinleştirmeden Önce",
+                "message": "Bu etiketleri taşıyan özellikler kararsız olabilir veya zamanla değişebilir. Yükleme sürelerini uzatabilir; arayüz tutarsızlıklarına, siteyle ilgili sorunlara veya başka beklenmedik davranışlara neden olabilir.<br><br>Kusursuz çalışmayabileceğini kabul ediyorsan etkinleştir.",
+                "acknowledge": "Anladım"
+            },
+            "environment": {
+                "exported": "Ortam JSON'u konsola (F12) yazdırıldı.",
+                "imported": "Ortam ayarları başarıyla içe aktarıldı. Değişiklikleri uygulamak için sayfa yenilenecek.",
+                "parseFailed": "JSON dosyası ayrıştırılamadı.",
+                "storageUsed": "Kullanılan Toplam Yerel Depolama: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Zamirler en fazla 15 karakter olabilir.",
+                "filterRejected": "Roblox filtresi bu zamirleri reddetti. Başka bir değer dene.",
+                "checkFailed": "Zamirler Roblox tarafından kontrol edilemedi. Lütfen tekrar dene.",
+                "filterBusy": "Roblox'un zamir filtresi şu anda yoğun. Biraz sonra tekrar dene."
+            },
+            "port": {
+                "enableProfileNotes": "Notları içe veya dışa aktarmadan önce Profil Notları'nı etkinleştir.",
+                "exportedOne": "{{count}} profil notu dışa aktarıldı.",
+                "exportedMany": "{{count}} profil notu dışa aktarıldı.",
+                "exportFailed": "Profil notları dışa aktarılamadı.",
+                "notesTooLarge": "Profil notları yedeği çok büyük.",
+                "invalidNotesBackup": "Bu, geçerli bir RoValra profil notları yedeği değil.",
+                "importedOne": "{{count}} profil notu içe aktarıldı.",
+                "importedMany": "{{count}} profil notu içe aktarıldı.",
+                "notesReadFailed": "Profil notları yedeği okunamadı.",
+                "importFailed": "Profil notları içe aktarılamadı.",
+                "exportUnexpectedError": "Dışa aktarım sırasında beklenmedik bir hata oluştu.",
+                "exportError": "Ayarlar dışa aktarılırken hata oluştu. Ayrıntılar için konsola bak.",
+                "sanitizeError": "Ayarlar dışa aktarım için güvenli hâle getirilirken hata oluştu. Ayrıntılar için konsola bak.",
+                "invalidSettingsFile": "Bu dosya geçerli bir RoValra ayar dosyasına benzemiyor.",
+                "invalidSettingsData": "Hata: İçe aktarılan ayar dosyası geçersiz veya tehlikeli olabilecek veriler içeriyor.",
+                "settingsTooLarge": "Hata: Ayar dosyası çok büyük. En fazla 1 MB olabilir.",
+                "importError": "Ayarlar içe aktarılırken hata oluştu. Ayrıntılar için konsola bak.",
+                "malformedSettings": "Ayar dosyasının yapısı bozuk.",
+                "readFailed": "Ayar dosyası okunamadı. Bozulmuş veya yanlış biçimde olabilir.",
+                "importUnexpectedError": "İçe aktarım sırasında beklenmedik bir hata oluştu.",
+                "exportSettings": "Ayarları Dışa Aktar",
+                "importSettings": "Ayarları İçe Aktar"
+            },
+            "changelogs": {
+                "title": "Sürüm Notları",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Adsız sürüm",
+                "current": "Kullandığın Sürüm",
+                "noNotes": "Bu sürüm için sürüm notu paylaşılmamış.",
+                "loading": "Sürüm notları yükleniyor...",
+                "empty": "Şu anda sürüm notu bulunmuyor.",
+                "loadFailed": "Sürüm notları yüklenemedi. Lütfen daha sonra tekrar dene."
+            },
+            "parentRequest": {
+                "sendingTitle": "İstek Gönderiliyor",
+                "sentTitle": "İstek Gönderildi!",
+                "sentBody": "İsteğin ebeveynlerine ve velilerine e-postayla gönderildi.",
+                "experienceName": "Oyunun adı",
+                "sendFailedTitle": "İstek Gönderilemedi",
+                "sendFailedBody": "İsteğin bilinmeyen bir nedenle gönderilemedi. İstek sınırına ulaşmış olabilirsin. Ayrıntılar için konsola bak.",
+                "cancelingTitle": "İstek İptal Ediliyor",
+                "canceledTitle": "İstek İptal Edildi",
+                "canceledBody": "Ebeveynlerine ve velilerine gönderdiğin istek iptal edildi.",
+                "cancelFailedTitle": "İstek İptal Edilemedi",
+                "cancelFailedBody": "Engeli kaldırma isteğin iptal edilemedi. İstek sınırına ulaşmış olabilirsin. Ayrıntılar için konsola bak.",
+                "sendUnblock": "Engeli Kaldırma İsteği Gönder",
+                "alreadyRequestedTitle": "İstek Zaten Gönderilmiş",
+                "alreadyRequestedBody": "Bu oyun için zaten istek gönderdin, unutkan seni!"
+            },
+            "donation": {
+                "donateUsd": "Bağış Yap (en az $1 USD)",
+                "donateRobux": "Bağış Yap (en az 5 Robux)",
+                "parentApprovalTitle": "RoValra'ya Daha Fazla Destek Ol!",
+                "parentApprovalMessage": "Game Pass'lerle yapılan bağışlarda RoValra'ya daha büyük bir pay kalıyor. En az 1 ebeveyn hesabının bağlı olduğunu görüyoruz. Oyunun engelinin kaldırılmasını isteyebilirsin. Böylece 2D (ve 3D) kıyafetlerle bağış yapmaya kıyasla RoValra'ya daha büyük bir pay kalır.",
+                "useMarketplace": "Pazar Yerini Kullan",
+                "currencyLabel": "Bağış para birimi",
+                "donateWith": "Bağış yöntemi",
+                "supportTitle": "RoValra'ya Destek Ol",
+                "supportDescription": "Bağış yaparak özel kozmetik ayrıcalıklar kazan",
+                "githubSponsors": "GitHub Sponsors",
+                "included": "Dahil",
+                "notIncluded": "Dahil değil",
+                "totalDonated": "RoValra'ya yaptığın toplam bağış: {{amount}}",
+                "tierTooltip": "Bağışçı seviyen",
+                "topDonators": "En Çok Bağış Yapanlar (Robux)"
+            },
+            "profileBadge": {
+                "title": "Özel RoValra Profil Rozeti",
+                "description": "Profilin için özel bir rozet al",
+                "iconLabel": "Özel profil rozeti simgesi",
+                "getUsd": "Al ($5 USD)",
+                "getRobux": "Al (4.000 Robux)",
+                "purchaseIntro": "Bu ürün, RoValra'ya daha fazla destek olmak isteyenler için.",
+                "createTicket": "Bu ürünü satın aldıktan sonra RoValra Discord sunucusunda bir destek talebi aç. ROZETİ ALMAK İÇİN DISCORD HESABIN EN AZ 30 GÜNLÜK OLMALI",
+                "provideDetails": "Özel profil rozetinde kullanmak istediğin görseli ve adı ekibe ilet.",
+                "countsTowardTier": "Bu ürünü satın almak RoValra bağışçı seviyene katkıda bulunur.",
+                "visibility": "Bu özel rozetleri yalnızca RoValra kullanıcıları görebilir.",
+                "imageRequirements": "Görsel gereksinimleri",
+                "webpRequirement": "Görsel, <strong>1 MB</strong>'tan küçük bir <strong>WEBP</strong> dosyası olmalı.",
+                "noRobloxBadges": "Resmî Roblox SVG'leri veya rozetleri kullanılamaz.",
+                "noOfficialRoValraBadges": "Katkıda bulunan ve sanatçı rozetleri gibi resmî RoValra rozetleri kullanılamaz.",
+                "followTerms": "Görseller Roblox Kullanım Koşulları'na uymalı",
+                "joinDiscord": "RoValra Discord Sunucusuna Katıl",
+                "agree": "Kabul Et",
+                "agreeCountdown": "Kabul Et ({{count}})",
+                "preview": "Önizleme",
+                "previewTitle": "Özel Rozeti Önizle",
+                "previewDescription": "Profilinde rozet olarak nasıl görüneceğini görmek için bir WEBP görseli seç. Görsel yalnızca bellekte tutulur; hiçbir yere yüklenmez veya kaydedilmez. Sayfadan ayrılınca ya da sayfayı yenileyince silinir.",
+                "previewTooltip": "Rozet Önizlemesi",
+                "previewDone": "Bitti"
+            },
+            "githubSponsorBadge": {
+                "title": "GitHub Sponsors Profil Rozeti",
+                "description": "Gökkuşağı renklerinde kalp rozeti. Yalnızca GitHub Sponsors destekçileri için",
+                "get": "Al (en az $1 USD)"
+            },
+            "store": {
+                "artist": "Sanatçı",
+                "artistTooltip": "Bu avatar çerçevesini {{name}} tasarladı.",
+                "free": "Ücretsiz",
+                "owned": "Sahip oldukların",
+                "equipped": "Kullanılıyor",
+                "equip": "Kullan",
+                "buy": "Satın Al",
+                "buyFor": "{{price}} karşılığında satın al",
+                "viewGamepass": "Game Pass'i Gör",
+                "all": "Tümü",
+                "new": "Yeni",
+                "static": "SABİT",
+                "animated": "HAREKETLİ",
+                "borderTitle": "Avatar Çerçevesi Mağazası",
+                "borderDescription": "Avatar çerçeveleri satın alarak RoValra'yı ve sanatçıları doğrudan destekle. <strong>3. seviye bağışçılar tüm avatar çerçevelerini ücretsiz alır.</strong> Avatar çerçevesi satın almak bağışçı seviyene katkıda bulunur!",
+                "loadingBorders": "Avatar çerçeveleri yükleniyor..."
+            },
+            "border": {
+                "bundleNotice": "(Sabit ve hareketli sürümler dahildir)",
+                "freeTier3Tooltip": "Bağışçı seviyen 3 olduğu için ücretsiz!",
+                "ownedTooltip": "Bu çerçeve sende var!",
+                "freeTooltip": "Bu çerçeveyi ücretsiz kullanabilirsin.",
+                "supportNotice": "Kozmetik ürünleri doğrudan satın almak sanatçıyı ve RoValra'yı destekler",
+                "purchaseDelay": "Satın aldıktan sonra avatar çerçevesinin görünmesi bir dakika sürebilir",
+                "parentApprovalTitle": "Ebeveyn Onayı Gerekli",
+                "parentApprovalMessage": "Avatar çerçevesi satın almak için ebeveyn izni gerekiyor.",
+                "noParentTitle": "Avatar Çerçevelerini Kullanamazsın",
+                "noParentBody": "Roblox ebeveyn izni istiyor, ancak hesabına bağlı bir ebeveyn hesabı yok. Avatar çerçevelerini kullanmak için bir ebeveyn hesabı bağlamalı ve oyunun engelinin kaldırılmasını istemelisin.",
+                "noBorders": "Kullanılabilir avatar çerçevesi yok.",
+                "currentPreview": "Seçili Çerçevenin Önizlemesi",
+                "signInPreview": "Çerçeveleri avatarında önizlemek için giriş yap.",
+                "noBordersInTab": "Bu sekmede avatar çerçevesi bulunamadı.",
+                "loadFailed": "Avatar çerçeveleri yüklenemedi. Lütfen daha sonra tekrar dene.",
+                "unequipTooltip": "Bu çerçeveyi çıkarmak için tıkla",
+                "equipTooltip": "Bu çerçeveyi kullan",
+                "buyTooltip": "Bu çerçeveyi satın al"
+            },
+            "appeal": {
+                "messageLabel": "İtiraz mesajını gir (20-3000 karakter)",
+                "title": "İtiraz Gönder",
+                "submit": "İtiraz Gönder",
+                "invalidLength": "İtiraz mesajı 20 ile 3000 karakter arasında olmalı.",
+                "submitFailed": "İtiraz gönderilemedi. Lütfen tekrar dene."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Sorun Yok",
+                    "none": "Yok / Kısıtlama yok",
+                    "limited": "Kısıtlı",
+                    "veryLimited": "Çok Kısıtlı",
+                    "atRisk": "Risk Altında",
+                    "suspended": "Askıya Alındı"
+                },
+                "appealStatuses": {
+                    "notAppealed": "İtiraz edilmedi",
+                    "pending": "İtiraz Beklemede",
+                    "denied": "İtiraz Reddedildi",
+                    "accepted": "İtiraz Kabul Edildi"
+                },
+                "goodTitle": "Hesabında herhangi bir sorun yok.",
+                "goodDescription": "RoValra güvenlik ekibi tarafından hesabına uygulanmış aktif bir ihlal kaydı veya kısıtlama bulunmuyor.",
+                "temporaryTitle": "Hesabın geçici olarak kısıtlandı.",
+                "violationTitle": "Hesabında bir ihlal tespit ettik.",
+                "statusDescription": "Hesap durumun şöyle ayarlandı: {{status}}",
+                "policyTitle": "RoValra Güvenlik Politikası",
+                "policyDescription": "{{- termsLink}} metnini ihlal ettiği tespit edilen veya üçüncü taraf tespitleriyle riskli bulunan hesapların bazı özellikleri devre dışı bırakılır. Bazı çevrim içi işlevler kısıtlanabilse de RoValra güvenlik ekibi uzantının tamamını veya tamamen yerel çalışan özellikleri <strong>asla</strong> devre dışı bırakmaz.",
+                "automatedAction": "Otomatik İşlem",
+                "manualReview": "Manuel İnceleme",
+                "disabledFeatures": "Devre Dışı Özellikler",
+                "moderatedContent": "Moderasyon Uygulanan İçerik",
+                "violationDetails": "İhlal Ayrıntıları",
+                "unknownReason": "Bilinmeyen Neden",
+                "moderated": "Moderasyon Uygulandı",
+                "temporaryExpires": "Geçici kısıtlamanın bitişi",
+                "appealCase": "İtiraz Kaydı",
+                "status": "Durum",
+                "yourMessage": "Mesajın",
+                "response": "Yanıt",
+                "reviewingAppeal": "Ekibimiz şu anda itirazını inceliyor.",
+                "appealDecision": "Bu karara itiraz et"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "{{extensions}} etkinken RoValra düzgün çalışmayabilir.",
+            "description": "{{extensions}} ile uyumluluk garantisi vermiyoruz."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Gizlilik Ayarları"
+        },
+        "noTogglesEnabled": "Hiçbir gizlilik ayarı açık değil! Gizlilik seçeneklerini açmak için RoValra Ayarları'na git.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Herkes",
+                "friendsFollowingFollowers": "Arkadaşlar, Takip Ettiklerin ve Takipçilerin",
+                "friendsFollowing": "Arkadaşlar ve Takip Ettiklerin",
+                "friends": "Arkadaşlar",
+                "trustedFriends": "Güvenilir Arkadaşlar",
+                "noOne": "Hiç kimse"
+            },
+            "onlineStatus": {
+                "name": "Çevrimiçi Durum"
+            },
+            "joinStatus": {
+                "name": "Oyun Durumu"
+            },
+            "privateServerPrivacy": {
+                "name": "Özel Sunucu Gizliliği"
+            },
+            "inventoryPrivacy": {
+                "name": "Envanter Gizliliği"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "Yükleniyor...",
+        "pending": "Beklemede:",
+        "noPermissions": "İzin Yok"
+    },
+    "navigation": {
+        "transactions": "İşlemler",
+        "apiDocs": "API Belgeleri",
+        "incidentLearnMore": "Daha fazla bilgi için buraya tıkla.",
+        "incidentHideNotice": "Bu bildirimi buradan gizleyebilirsin",
+        "rovalraApi": "RoValra API"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Yan çubuğu daralt",
+        "expandSidebar": "Yan çubuğu genişlet"
+    },
+    "voiceBanIndicator": {
+        "title": "Sesli Sohbet Yasağı",
+        "liftsIn": "Kalkmasına kalan süre",
+        "noExpiry": "Bitiş süresi belirtilmedi"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Yaş Teması",
+        "options": {
+            "normal": "Normal Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Sızdırılmış Roblox Select (Başlangıç Modu)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Beta Programlarını Aç/Kapat",
+        "noPrograms": "Herhangi bir beta programına kayıtlı değilsin.",
+        "allowlist": "İzin listesinde",
+        "previousProgramsTitle": "Daha önce kayıtlı olduğun beta programları",
+        "previousProgramTooltip": "Bu beta programı artık kullanılamıyor."
+    },
+    "quickSearch": {
+        "aborted": "İptal edildi",
+        "apiRequestFailed": "API isteği {{status}} durum koduyla başarısız oldu",
+        "friendSearchError": "RoValra: Arkadaş Arama Hatası",
+        "userSearchError": "RoValra: Kullanıcı Arama Hatası",
+        "gameSearchError": "RoValra: Oyun Arama Hatası",
+        "trustedConnection": "Güvenilir arkadaşsınız",
+        "connection": "Arkadaşsınız",
+        "playing": "{{gameName}} oyununu oynuyor",
+        "verifiedBadge": "Doğrulama Rozeti",
+        "verified": "Doğrulanmış",
+        "permanentlyBanned": "Bu kullanıcının hesabı kapatılmış veya kullanıcı hesabını devre dışı bırakmış.",
+        "joinPreferredRegion": "Tercih Edilen Bölgeye Katıl",
+        "bestRegionAuto": "En İyi Bölge (Otomatik)",
+        "searchHistory": "Arama Geçmişi",
+        "noSearchHistory": "Arama geçmişin yok.",
+        "deleteSearchHistoryTitle": "Arama Geçmişini Sil",
+        "deleteSearchHistoryMessage": "Bu arama geçmişi kaydını silmek istediğine emin misin?",
+        "delete": "Sil"
+    },
+    "friendOwnership": {
+        "pillLabel": "{{count}} Arkadaşında Var",
+        "pillTooltip": "Bu öğenin hangi arkadaşlarında olduğunu gör",
+        "overlayTitle": "Bu öğe {{count}} arkadaşında var",
+        "unknownUser": "Kullanıcı {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Tercih Edilen Sunucu Bölgesini Seç veya Bölgeye Katıl",
+        "tooltip": "Tercih Edilen Bölgeye Katıl",
+        "tooltipWithRegion": "Tercih Edilen Bölgeye Katıl<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Tercih Edilen Bölgeye Katıl<br><b>En İyi Bölge (Otomatik)</b>"
+    },
+    "quickPlay": {
+        "loading": "Yükleniyor...",
+        "rateLimited": "İstek sınırına ulaşıldı. Tekrar deneniyor...",
+        "loadError": "Sunucular yüklenemedi.",
+        "noPrivateServers": "Etkin özel sunucu bulunamadı.",
+        "configure": "Yapılandır",
+        "copyLink": "Bağlantıyı Kopyala",
+        "copied": "Kopyalandı!",
+        "error": "Hata!",
+        "generateLink": "Yeni Bağlantı Oluştur",
+        "joinClosestServer": "En Yakın Sunucuya Katıl",
+        "selectPreferredRegion": "Tercih Edilen Bölgeyi Seç",
+        "privateServers": "Özel Sunucular"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Bağlantı Oluştur",
+        "regenerated": "Oluşturuldu!"
+    },
+    "devProducts": {
+        "noProducts": "Geliştirici ürünü bulunamadı.",
+        "loadError": "Bu oyunun geliştirici ürünleri yüklenemedi.",
+        "passes": "Game Pass'ler",
+        "developerProducts": "Geliştirici Ürünleri",
+        "search": "Ara",
+        "sort": {
+            "created": "Oluşturma Tarihine Göre Sırala",
+            "price": "Fiyata Göre Sırala",
+            "updated": "Güncelleme Tarihine Göre Sırala",
+            "name": "Ada Göre Sırala"
+        },
+        "order": {
+            "ascending": "Artan Sırada Sırala",
+            "descending": "Azalan Sırada Sırala"
+        }
+    },
+    "shop": {
+        "tab": "Mağaza",
+        "all": "Tümü",
+        "category": "Kategori",
+        "product": "Ürün",
+        "gamePass": "Game Pass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bonus: {{item}}",
+        "bonusItemFallback": "Bonus öğe içerir",
+        "noItems": "Mağaza öğesi bulunamadı.",
+        "failedToLoad": "Mağaza öğeleri yüklenemedi.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Ürün",
+            "GamePass": "Game Pass",
+            "Robux": "Robux paketi"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Sub Place'ler",
+        "searchPlaceholder": "Sub Place'lerde ara",
+        "loadMore": "Daha Fazla Yükle",
+        "rootPlace": "Ana Yer",
+        "noSubplaces": "Sub Place bulunamadı.",
+        "failedToLoad": "Sub Place'ler yüklenemedi.",
+        "labels": {
+            "sort": "Sırala",
+            "order": "Sıralama Yönü"
+        },
+        "sort": {
+            "default": "Varsayılan",
+            "updated": "Son Güncellenenler",
+            "created": "Yeni Oluşturulanlar",
+            "name": "Ad (Z-A)"
+        },
+        "order": {
+            "descending": "Azalan",
+            "ascending": "Artan"
+        },
+        "banner": {
+            "title": "Şu anda [{{rootPlaceName}}]({{rootPlaceUrl}}) adlı ana yerin bir Sub Place'ini görüntülüyorsun.",
+            "descriptionDefault": "Bazı oyunlar Sub Place'lere doğrudan katılmayı engelleyebilir.",
+            "descriptionRestricted": "Katılım kısıtlamaları nedeniyle bu Sub Place'e katılamazsın.",
+            "descriptionJoinable": "Bu Sub Place'e katılabilirsin.",
+            "mainExperience": "ana oyun"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Güncellemeler",
+        "title": "Güncelleme Geçmişi",
+        "blocked": {
+            "eighteenPlus": "Güncelleme Geçmişi 18+ oyunlarda çalışmaz",
+            "paidAccess": "Güncelleme Geçmişi ücretli erişime sahip oyunlarda çalışmaz",
+            "subplace": "Güncelleme Geçmişi, katılım kısıtlaması olan Sub Place'lerde çalışmaz.",
+            "noDesktopSupport": "Güncelleme Geçmişi PC desteği olmayan oyunlarda kullanılamaz"
+        }
+    },
+    "serverList": {
+        "clear": "Temizle",
+        "noServersApi": "RoValra API üzerinden sunucu bulunamadı.",
+        "allServersInactive": "Bu bölgedeki tüm sunucular artık etkin değil",
+        "loadErrorApi": "Sunucular RoValra API üzerinden yüklenemedi.",
+        "hide": "Gizle",
+        "join": "Katıl",
+        "peopleMax": "{{playing}} / {{maxPlayers}} kişi",
+        "pinPrivateServer": "Özel sunucuyu sabitle",
+        "unpinPrivateServer": "Özel sunucunun sabitlemesini kaldır",
+        "playerCountUnknownTooltip": "Oyuncu sayısı bilinmiyor; bu bir Roblox kısıtlaması. Küçük resimler oyundaki oyuncuları yansıtmıyor.",
+        "playerCountUnknownLabel": "Oyuncu sayısı bilinmiyor"
+    },
+    "recentServers": {
+        "title": "Son Girilen Sunucular",
+        "refresh": "Yenile",
+        "noneFound": "Son Girilen Sunucu Bulunamadı.",
+        "noActiveFound": "Son katıldığın sunuculardan etkin olan bulunamadı.",
+        "lastJoined": "En Son Katılma: {{time}}",
+        "meAlt": "Ben",
+        "secondsAgo": "{{count}} sn önce",
+        "minutesAgo": "{{count}} dk önce",
+        "hoursAgo": "{{count}} sa önce",
+        "daysAgo": "{{count}} gün önce",
+        "description": "Yakın zamanda katıldığın sunucular."
+    },
+    "quickOutfits": {
+        "errorFetching": "Kombinler alınırken hata oluştu",
+        "equipping": "Giyiliyor...",
+        "equipped": "Giyildi!",
+        "failed": "Başarısız",
+        "error": "Hata:",
+        "noUserId": "Hızlı kombinler için giriş yapan kullanıcının kimliği bulunamadı.",
+        "loading": "Kombinler yükleniyor...",
+        "title": "Hızlı Kombinler",
+        "noneFound": "Kombin bulunamadı.",
+        "success": "Kombin başarıyla giyildi."
+    },
+    "btrDonationWarning": {
+        "title": "ÖNEMLİ: BTRoblox'u devre dışı bırak",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox tespit edildi. Roblox'un satın alma akışını etkileyebilir. Satın alırken sorun yaşıyorsan BTRoblox'u geçici olarak devre dışı bırakıp sayfayı yenilemeyi dene.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Lütfen BTRoblox'u devre dışı bırak, bu sayfayı yenile ve satın alma işlemini tekrar dene.</p>",
+        "continue": "Yine de devam et"
+    },
+    "botDetector": {
+        "tooltip": "Botlar, öğe toplamak için otomatik betikler çalıştıran hesaplardır. Tek bir kullanıcı bazen 50'den fazla bot çalıştırabilir. Bu durumun oyun geliştiricilerinin hatası olmadığını unutma. Bir oyun çoğunlukla yeni Roblox hesapları tarafından oynanıyorsa bu bilgi hatalı olabilir.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> içinde çok sayıda bot var",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> içinde bazı botlar var ama oyuncuların çoğu gerçek",
+        "thisGame": "Bu oyun"
+    },
+    "events": {
+        "title": "Etkinlikler",
+        "tabs": {
+            "upcoming": "Yaklaşan",
+            "past": "Geçmiş"
+        },
+        "buttons": {
+            "viewEvent": "Etkinliği Gör",
+            "joinEvent": "Etkinliğe Katıl",
+            "unfollowEvent": "Etkinliği Takip Etmeyi Bırak",
+            "notifyMe": "Bildirim Al"
+        },
+        "loadMore": "Daha Fazla Yükle",
+        "releaseDate": "Etkinliğin Yayınlanma Tarihi",
+        "empty": {
+            "active": "Devam eden veya yaklaşan etkinlik yok.",
+            "past": "Geçmiş etkinlik yok.",
+            "all": "Etkinlik bulunamadı."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Rozetler",
+            "hiddenBadges": "Gizli Rozetler"
+        },
+        "hiddenOwnedNotice": "Burada yalnızca kazandığın gizli rozetler gösterilir.",
+        "unableToDetectPlace": "Bu yer tespit edilemedi.",
+        "unableToDetectUniverse": "Bu evren tespit edilemedi.",
+        "stillScanning": "Rozetlerin hâlâ taranıyor. Sahip olduğun gizli rozetler birazdan görünebilir.",
+        "noneOwnedFound": "Bu oyunda sahip olduğun gizli rozet bulunamadı.",
+        "failedToLoad": "Sahip olduğun gizli rozetler yüklenemedi."
+    },
+    "antiBots": {
+        "reviewMembers": "Seçilen {{count}} üyeyi incele:",
+        "botWarning": "<strong>Uyarı:</strong> İşlem yapmadan önce bunların bot olduğundan emin ol.",
+        "banMembers": "Üyeleri Yasakla",
+        "kickMembers": "Üyeleri Çıkar",
+        "cancel": "İptal",
+        "actionRequired": "İşlem Gerekli ({{count}})",
+        "noPermission": "Üyeleri yasaklama veya çıkarma iznin yok.",
+        "confirmBan": "<strong>{{count}} üyeyi yasaklamak</strong> üzeresin. Kalıcı olarak engellenecekler.",
+        "confirmKick": "<strong>{{count}} üyeyi çıkarmak</strong> üzeresin. İstedikleri zaman yeniden katılabilirler.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Hatırlatma:</strong> Yasaklamadan önce bot puanlarını kontrol et.</div>",
+        "yesAction": "Evet, {{action}}",
+        "confirmAction": "İşlemi Onayla",
+        "processing": "{{total}} üyeden {{current}}. üye işleniyor: {{displayName}}... Tahmini kalan süre: {{time}} sn",
+        "rateLimited": "İstek sınırına ulaşıldı. {{delay}} sn sonra tekrar denenecek...",
+        "apiError": "API Hatası {{status}}",
+        "unknownError": "Bilinmeyen Hata",
+        "processComplete": "{{totalMembers}} üyeden {{successCount}} tanesi için {{actionType}} işlemi başarıyla tamamlandı.",
+        "processFailed": "{{failedCount}} işlem başarısız oldu.",
+        "close": "Kapat",
+        "score": "Puan: {{score}}/100",
+        "actionCount": "İşlem ({{count}})",
+        "unselectAll": "Tüm Seçimleri Kaldır",
+        "selectAll": "Tümünü Seç",
+        "antiBots": "Botlarla Mücadele",
+        "banByScore": "Puana Göre Yasakla",
+        "quickAction": "Hızlı İşlem",
+        "members": "Üyeler",
+        "loadingMembers": "Üyeler Yükleniyor...",
+        "selectMembersForAction": "İşlem Yapılacak Üyeleri Seç ({{count}} Yüklendi)",
+        "noMembersFound": "Üye bulunamadı.",
+        "initializingScan": "Tarama Başlatılıyor...",
+        "scanStatus": "Taranan: {{loaded}} (%{{percent}}) | İncelenen: {{processed}}",
+        "finalizingAnalysis": "İnceleme tamamlanıyor...",
+        "botsFound": "Bot Olması Muhtemel {{count}} Hesap Bulundu",
+        "noBotsFound": "Bot Olması Muhtemel Hesap Bulunamadı",
+        "noBotsDetected": "Bot tespit edilmedi.",
+        "errorRetry": "Hata - Tekrar Dene",
+        "errorDuringScan": "Tarama sırasında hata oluştu.",
+        "minBotScore": "En Düşük Bot Puanı: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Yaklaşık <span id=\"rovalra-score-ban-count\">0</span> üye seçilecek.",
+        "confirm": "Onayla",
+        "banKickByScore": "Puana Göre Yasakla/Çıkar",
+        "confirmCount": "Onayla ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "İyi Eğlenceler!",
+        "close": "Kapat",
+        "robloxExperience": "Roblox Oyunu",
+        "unknownExperience": "Bilinmeyen Oyun",
+        "serverId": "Sunucu Kimliği:",
+        "privateServer": "Özel Sunucu",
+        "owner": "Sahibi:",
+        "version": "Sürüm:",
+        "uptime": "Çalışma Süresi:",
+        "rcc": "RCC:",
+        "serverChannel": "Sunucu Kanalı:",
+        "production": "Canlı",
+        "launchingRoblox": "Roblox Başlatılıyor",
+        "downloadRoblox": "Roblox'u İndir",
+        "thanksDownloading": "Roblox'u indirdiğin için teşekkürler",
+        "downloadInstructions": "Roblox'u kurmak için aşağıdaki adımları izle. İndirme birkaç saniye içinde başlayacak. Başlamazsa <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">indirmeyi yeniden başlat</a>.",
+        "installInstructions": "Kurulum Talimatları",
+        "step1": "İndirdikten sonra İndirilenler klasöründeki <b>RobloxPlayerInstaller.exe</b> dosyasına çift tıkla.",
+        "step2": "Uygulamayı yüklemek için <b>RobloxPlayerInstaller</b> dosyasına çift tıkla.",
+        "step3": "Roblox'u bilgisayarına yüklemek için talimatları izle.",
+        "step4": "Yükleme tamamlandığına göre <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">oyuna katılabilirsin</a>.",
+        "mobileApp": "Mobil uygulamayı da unutma",
+        "scanCode": "Roblox'u indirmek için bu kodu telefonunun kamerasıyla tara.",
+        "joiningServer": "Sunucuya katılınıyor...",
+        "errorParsingUrl": "URL ayrıştırılırken hata oluştu",
+        "findingUser": "Kullanıcı aranıyor...",
+        "fetchingServerInfo": "Sunucu bilgileri alınıyor...",
+        "nonRootPlaceRestrictions": "Katılınamıyor: Ana yer dışındaki Sub Place'lere katılım kısıtlanmış.",
+        "waitingForRoblox": "Roblox bekleniyor...",
+        "launching": "Başlatılıyor..."
+    },
+    "createRoblox": {
+        "download": "İndir",
+        "downloadMesh": ".mesh indir",
+        "downloadObj": ".obj indir",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Yükleniyor...",
+            "selectInstance": "Özelliklerini görmek için bir nesne seç",
+            "noProperties": "Özellik yok",
+            "viewSource": "Kaynak Kodu Görüntüle",
+            "closePreview": "Önizlemeyi Kapat",
+            "defaultDevice": "Varsayılan (1280x720)",
+            "fitToWindow": "Pencereye Sığdır",
+            "actualResolution": "Gerçek Çözünürlük",
+            "physicalSize": "Fiziksel Boyut",
+            "rotate": "Döndür",
+            "loadingPreview": "GUI önizlemesi yükleniyor...",
+            "searchInstances": "Nesne ara... (en az 2 karakter)",
+            "searchProperties": "Özellik ara...",
+            "previewGui": "GUI'yi Önizle",
+            "togglePreviewVisibility": "Önizlemede görünürlüğü değiştir",
+            "noMatchingInstances": "Eşleşen nesne bulunamadı",
+            "loadError": "Yüklenemedi."
+        }
+    },
+    "priceFloor": {
+        "label": "Taban Fiyat:",
+        "status": "Bu öğenin fiyatı taban fiyatın {{status}}{{difference}}.",
+        "statusTypes": {
+            "above": "üstünde",
+            "below": "altında",
+            "at": "seviyesinde"
+        },
+        "difference": " ({{diff}} farkla)",
+        "description": "Taban fiyat, bir öğenin satılabileceği en düşük fiyattır ve sürekli güncellenir."
+    },
+    "parentItem": {
+        "multipleBundles": "Bu öğe birden fazla paketin parçası",
+        "multipleBundlesDescription": "Bu öğe muhtemelen şablon olarak kullanılıyor ve birden fazla pakette yer alıyor.",
+        "partOfBundle": "Bu öğe [{{bundleName}}]({{bundleUrl}}) paketinin parçası",
+        "viewingFromBundle": "Şu anda bir paketteki öğeyi görüntülüyorsun."
+    },
+    "rovalraBadges": {
+        "userVerified": "Kullanıcının kimliği doğrulanmış.",
+        "userNotVerified": "Kullanıcının kimliği doğrulanmamış.",
+        "userAgeVerified": "Kullanıcının yaşı kontrol edilmiş.",
+        "userNotAgeVerified": "Kullanıcının yaşı kontrol edilmemiş.",
+        "userAgeVerificationMayBeInaccurate": "Bu bilgi hatalı olabilir"
+    },
+    "friendsSince": {
+        "friended": "Arkadaş Olma Tarihi",
+        "lastSeen": "Son görülme",
+        "age": "Yaş",
+        "friendedVia": "Nasıl Arkadaş Oldunuz?",
+        "originFrom": "Kaynak",
+        "originSearch": "Arama",
+        "originInGame": "Oyun İçi",
+        "originProfile": "Profil",
+        "originQQContacts": "QQ Kişileri",
+        "originWeChatContacts": "WeChat Kişileri",
+        "originQrCode": "QR Kodu",
+        "originProfileShare": "Profil Paylaşımı",
+        "originPhoneContacts": "Telefon Kişileri",
+        "originPeopleYouMayKnow": "Tanıyor Olabileceğin Kişiler",
+        "originschoolmemberlist": "Okul Üye Listesi",
+        "originFriendLink": "Arkadaşlık Bağlantısı",
+        "originSocialTabsPage": "Sosyal Sekmeler Sayfası",
+        "originUnknown": "Bilinmiyor"
+    },
+    "lastPlayed": {
+        "together": "Birlikte En Çok Oynadıkların"
+    },
+    "avatarDownload": {
+        "button": "Avatarı İndir",
+        "title": "Avatarı İndir",
+        "size": "Çözünürlük:",
+        "downloadPortrait": "Portre PNG",
+        "downloadBust": "Üst Gövde PNG",
+        "downloadAvatar": "Avatar PNG",
+        "downloading": "İndiriliyor...",
+        "failed": "Avatar indirilemedi. Daha sonra tekrar dene."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Arkadaşlıktan Çıkarmayı Onayla",
+        "confirmUnfriends": "Arkadaşlıktan Çıkarmayı Onayla",
+        "descriptionSingle": "1 kişiyi arkadaşlıktan çıkarmak üzeresin. Bu işlem geri alınamaz.",
+        "descriptionPlural": "{{count}} kişiyi arkadaşlıktan çıkarmak üzeresin. Bu işlem geri alınamaz.",
+        "cancel": "İptal",
+        "unfriend": "Arkadaşlıktan Çıkar",
+        "unfriendCount": "Arkadaşlıktan Çıkar ({{count}})",
+        "unfriendCountAction": "{{count}} Kişiyi Arkadaşlıktan Çıkar",
+        "unfriendCountActionPlural": "{{count}} Kişiyi Arkadaşlıktan Çıkar",
+        "unfriending": "Arkadaşlıktan çıkarılıyor...",
+        "bulkUnfriend": "Toplu Arkadaşlıktan Çıkarma",
+        "exitBulkMode": "Toplu İşlemden Çık",
+        "successMessage": "{{successCount}}/{{totalCount}} kişi arkadaşlıktan çıkarıldı!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Toplu Rozet Silme",
+        "exit": "Toplu İşlemden Çık",
+        "delete": "Rozetleri Sil",
+        "deleteCount": "Rozetleri Sil ({{count}})",
+        "confirmTitle": "Rozet Silmeyi Onayla",
+        "finalTitle": "Gerçekten Emin misin?",
+        "finalDescription": "Bu işlem envanterinden {{count}} rozeti kalıcı olarak silecek.",
+        "descriptionSingle": "Envanterinden 1 rozeti silmek üzeresin. Bu işlem geri alınamaz.",
+        "descriptionPlural": "Envanterinden {{count}} rozeti silmek üzeresin. Bu işlem geri alınamaz.",
+        "deletingProgress": "Rozetler siliniyor... {{current}}/{{total}}",
+        "cancel": "İptal",
+        "success": "{{successCount}}/{{totalCount}} rozet silindi."
+    },
+    "blockUser": {
+        "block": "Engelle",
+        "unblock": "Engeli Kaldır",
+        "blockTitle": "{{username}} Kullanıcısını Engelle",
+        "unblockTitle": "{{username}} Kullanıcısının Engelini Kaldır",
+        "blockTitleGeneric": "Kullanıcıyı Engelle",
+        "unblockTitleGeneric": "Kullanıcının Engelini Kaldır",
+        "blockMessage": "Artık sana takas gönderemez. Mevcut takasları reddedebilirsin ama kabul edemez veya karşı teklif veremezsin.",
+        "unblockMessage": "Sana yeniden takas gönderebilir. Sen de mevcut takasları kabul edebilir veya karşı teklif verebilirsin.",
+        "cancel": "İptal"
+    },
+    "unfriendDetector": {
+        "title_one": "Arkadaşlıktan Çıkarıldın",
+        "title_other": "Arkadaşlıktan Çıkarıldın",
+        "description_one": "Son oynadığından beri bu arkadaşın seni arkadaşlıktan çıkarmış:",
+        "description_other": "Son oynadığından beri bu {{count}} arkadaşın seni arkadaşlıktan çıkarmış:",
+        "viewProfile": "{{name}} adlı kişinin profilini görüntüle",
+        "dismiss": "Kapat"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Ayrılmayı Onayla",
+        "confirmLeaves": "Ayrılmayı Onayla",
+        "descriptionSingle": "1 topluluktan ayrılmak üzeresin. Bu işlem geri alınamaz.",
+        "descriptionPlural": "{{count}} topluluktan ayrılmak üzeresin. Bu işlem geri alınamaz.",
+        "cancel": "İptal",
+        "leave": "Ayrıl",
+        "leaveCount": "Ayrıl ({{count}})",
+        "leaveCountAction": "{{count}} Topluluktan Ayrıl",
+        "leaveCountActionPlural": "{{count}} Topluluktan Ayrıl",
+        "leaving": "Ayrılınıyor...",
+        "bulkLeave": "Toplu Ayrılma",
+        "exitBulkMode": "Toplu İşlemden Çık",
+        "successMessage": "{{successCount}}/{{totalCount}} topluluktan ayrıldın!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Bu işlemden sonra bakiyen"
+    },
+    "recentlyViewed": {
+        "title": "Son Görüntülenenler",
+        "clear": "Temizle",
+        "remove": "Kaldır",
+        "cheaper": "Görüntülediğin zamana göre {{value}} Robux daha ucuz",
+        "pricier": "Görüntülediğin zamana göre {{value}} Robux daha pahalı",
+        "offSale": "Satıştan kaldırıldı",
+        "backOnSale": "Yeniden satışta"
+    },
+    "tradeRecentItems": {
+        "offer": "Son teklif edilenler",
+        "request": "Son talep edilenler",
+        "clear": "Temizle"
+    },
+    "tradeQuickActions": {
+        "minValue": "Karşı tarafın verdiği en düşük değer",
+        "hideLosses": "Zararlı takasları gizle",
+        "bulkTitle": "Toplu işlem",
+        "bulkHint": "Değer kaybına yol açan tüm gelen takasları reddeder. Önce onayın istenir.",
+        "declineLosses": "Zararlı takasları reddet",
+        "loadingTrades": "Gelen takaslar yükleniyor...",
+        "checking": "Takaslar kontrol ediliyor {{done}}/{{total}}...",
+        "noLosses": "Değer kaybına yol açan gelen takas bulunamadı",
+        "confirmTitle": "Zararlı takasları reddet",
+        "confirmMessage": "Gelen {{total}} takasın {{count}} tanesi değer kaybına yol açıyor (toplam {{value}}). Hepsi reddedilsin mi? Bu işlem geri alınamaz.",
+        "declineConfirm": "Reddet",
+        "declining": "Reddediliyor {{done}}/{{total}}...",
+        "declined": "{{count}} takas reddedildi",
+        "declinedWithFailures": "{{count}} takas reddedildi, {{failed}} tanesi reddedilemedi"
+    },
+    "time": {
+        "justNow": "az önce",
+        "secondsAgo": "{{count}} sn önce",
+        "minutesAgo": "{{count}} dk önce",
+        "hoursAgo": "{{count}} sa önce",
+        "daysAgo": "{{count}} gün önce",
+        "weeksAgo": "{{count}} hafta önce",
+        "monthsAgo": "{{count}} ay önce",
+        "yearsAgo": "{{count}} yıl önce",
+        "secondsFromNow": "{{count}} sn sonra",
+        "minutesFromNow": "{{count}} dk sonra",
+        "hoursFromNow": "{{count}} sa sonra",
+        "daysFromNow": "{{count}} gün sonra",
+        "weeksFromNow": "{{count}} hafta sonra",
+        "monthsFromNow": "{{count}} ay sonra",
+        "yearsFromNow": "{{count}} yıl sonra",
+        "months": {
+            "jan": "Oca",
+            "feb": "Şub",
+            "mar": "Mar",
+            "apr": "Nis",
+            "may": "May",
+            "jun": "Haz",
+            "jul": "Tem",
+            "aug": "Ağu",
+            "sep": "Eyl",
+            "oct": "Eki",
+            "nov": "Kas",
+            "dec": "Ara"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Hakkında",
+            "store": "Mağaza",
+            "servers": "Sunucular"
+        },
+        "servers": {
+            "title": "Özel Sunucuların",
+            "description": "Kendi alanında tek başına veya davet ettiğin kişilerle oyna",
+            "friendsTitle": "Arkadaşlarımın Bulunduğu Sunucular",
+            "publicTitle": "Diğer Sunucular",
+            "privateServer": "Özel sunucu",
+            "players": "{{playing}} / {{maxPlayers}} kişi",
+            "join": "Katıl",
+            "loadMore": "Daha Fazla Yükle",
+            "loading": "Sunucular yükleniyor...",
+            "noServers": "Sunucu Bulunamadı.",
+            "loadError": "Sunucular yüklenemedi.",
+            "ownerAvatar": "Sunucu sahibi",
+            "playerAvatar": "Oyuncu",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Özel Oyun",
+        "experienceIsPrivate": "Bu oyun özel.",
+        "unknown": "Bilinmiyor",
+        "rovalraNotice": "Bu sayfayı yalnızca RoValra kullanıcıları görüntüleyebilir.",
+        "unavailable": "Kullanılamıyor",
+        "favorite": {
+            "add": "Favorilere Ekle",
+            "remove": "Favorilerden Kaldır",
+            "favorited": "Favorilere Eklendi",
+            "favorite": "Favori"
+        },
+        "notify": {
+            "tooltip": "Bildirimleri Aç",
+            "label": "Bildir"
+        },
+        "description": {
+            "title": "Açıklama",
+            "noDescription": "Açıklama yok."
+        },
+        "stats": {
+            "active": "Aktif",
+            "favorites": "Favoriler",
+            "visits": "Ziyaretler",
+            "maxPlayers": "Oyuncu Sınırı",
+            "genre": "Tür",
+            "subgenre": "Alt Tür",
+            "created": "Oluşturulma Tarihi",
+            "updated": "Son Güncelleme",
+            "voiceChat": "Sesli Sohbet",
+            "supported": "Destekleniyor",
+            "unsupported": "Desteklenmiyor"
+        },
+        "reportAbuse": "İhlal Bildir",
+        "badges": {
+            "title": "Rozetler",
+            "noBadges": "Henüz rozet yok",
+            "rarity": "Nadirlik",
+            "wonYesterday": "Dün Kazanılan",
+            "wonEver": "Toplam Kazanılan"
+        },
+        "subscriptions": {
+            "title": "Abonelikler",
+            "subscribe": "Abone Ol"
+        },
+        "passes": {
+            "title": "Game Pass'ler",
+            "showOffSale": "Satışta Olmayanları Göster",
+            "noPasses": "Game Pass yok",
+            "offSale": "Satışta Değil",
+            "owned": "Sende Var",
+            "buy": "Satın Al"
+        },
+        "disabled": "Özel / Moderasyon Uygulanmış Oyunları Görüntüleme Kapalı",
+        "disabledDescription": "Özel ve moderasyon uygulanmış oyunları görüntülemek için şu ayarı açmalısın:",
+        "disabledLinkText": "Özel / Moderasyon Uygulanmış Oyunları Görüntüle",
+        "products": {
+            "title": "Ürünler",
+            "buy": "Satın Al"
+        },
+        "moderated": "Moderasyon Uygulanmış"
+    },
+    "gamePassViewer": {
+        "type": "Tür",
+        "typeValue": "Game Pass",
+        "productId": "Ürün ID'si",
+        "price": "Fiyat",
+        "owned": "Sende Var",
+        "ownedItem": "Sahip Olduğun Öğe",
+        "free": "Ücretsiz",
+        "ownedNotice": "Bu öğe envanterinde bulunuyor.",
+        "inventory": "Envanter",
+        "by": "Oluşturan",
+        "usePassIn": "Bu Game Pass'i burada kullan:",
+        "rovalraNoticeDescription": "Bu Game Pass devre dışı ve Roblox kısıtlamaları nedeniyle satın alınamıyor. Bunun nedeni hesap yaşı veya oyunun görünürlüğü olabilir."
+    },
+    "playabilityStatus": {
+        "0": "Bu oyun kullanılamıyor",
+        "1": "Bu oyun oynanabilir",
+        "2": "Misafirler bu oyuna katılamaz",
+        "3": "Bu oyuna, Roblox Topluluk Standartlarını ihlal ettiği için moderasyon uygulanmış",
+        "4": "Bu oyun yanlış yapılandırılmış",
+        "5": "Bu oyun özel",
+        "6": "Bu oyuna yalnızca arkadaşlar katılabilir",
+        "7": "Bu oyuna yalnızca topluluk üyeleri katılabilir",
+        "8": "Bu oyun cihazında kısıtlanmış",
+        "9": "Bu oyun, Roblox Topluluk Standartlarını ihlal etmiş olabileceği için inceleniyor",
+        "10": "Oynamak için satın alman gerekiyor",
+        "11": "Hesabın kısıtlanmış",
+        "12": "Bu oyun geçici olarak kullanılamıyor",
+        "13": "Bu oyunun yayımlanmış bir sürümü yok",
+        "14": "Bu oyun, yasal gerekliliklere uyum nedeniyle engellenmiş.",
+        "15": "Bu oyun bölgende kullanılamıyor",
+        "16": "Bu oyun, bölgesel yasal gereklilikler nedeniyle engellenmiş.",
+        "17": "Bu oyun ebeveyn denetimleriyle kısıtlanmış",
+        "18": "Bu oyun ebeveyn denetimleriyle engellenmiş",
+        "19": "Bu oyunda yaş kısıtlaması var",
+        "20": "18+ oyunlar için doğrulama gerekiyor",
+        "21": "Oynamak için satın alman gerekiyor",
+        "22": "Bu cihazda satın alma kısıtlanmış",
+        "23": "Bu oyunun içerik derecelendirmesi yok",
+        "24": "Bu oyunun içerik sınıflandırmasına göre yaş sınırı var.",
+        "25": "Bu oyuna, hatalı yaş uygunluğu derecelendirmesi nedeniyle moderasyon uygulanmış.",
+        "unknown": "Bu oyun kullanılamıyor"
+    },
+    "bannedUsers": {
+        "connections": "Arkadaşlar",
+        "followers": "Takipçiler",
+        "following": "Takip Edilenler",
+        "about": "Hakkında",
+        "creations": "Eserler",
+        "experiences": "Oyunlar",
+        "bannedStatus": "Yasaklanmış",
+        "seeAll": "Tümünü Gör",
+        "hiddenUser": "Gizli Kullanıcı",
+        "communities": "Topluluklar",
+        "badges": "Rozetler",
+        "noExperiences": "Bu kullanıcının herkese açık oyunu yok.",
+        "favorites": "Favoriler",
+        "joinedDate": "Katılma Tarihi",
+        "store": "Mağaza",
+        "members": "Üyeler",
+        "accountForgotten": "Unutulmuş Hesap"
+    },
+    "copyId": {
+        "copyId": "{{type}} ID'sini Kopyala",
+        "copyUniverseId": "Evren ID'sini Kopyala",
+        "types": {
+            "bundle": "Paket",
+            "asset": "Asset",
+            "gamePass": "Game Pass",
+            "badge": "Rozet",
+            "community": "Topluluk",
+            "event": "Etkinlik",
+            "developerProduct": "Geliştirici Ürünü",
+            "place": "Yer",
+            "universe": "Evren",
+            "user": "Kullanıcı"
+        }
+    },
+    "viewid": {
+        "viewId": "ID'leri Görüntüle",
+        "popup": {
+            "title": "Öğe ID'leri",
+            "button": {
+                "copy": "Verileri Kopyala",
+                "copyMd": "Verileri Markdown Olarak Kopyala"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "{{gameName}} oynayan arkadaşlar",
+        "join": "Katıl"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Kullanıcı adı: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} Place Ziyareti",
+        "tooltip": "Topluluğun Place'lerine Yapılan Toplam Ziyaret"
+    },
+    "groups": {
+        "createdLabel": "Oluşturulma Tarihi",
+        "joinedLabel": "Katılma Tarihi",
+        "unknown": "Bilinmiyor"
+    },
+    "showcase": {
+        "tab": "Vitrin",
+        "favoriteGame": "Favori oyun",
+        "favoriteGroup": "Favori topluluk",
+        "favoriteDecal": "Sanat Vitrini",
+        "chooseGame": "Profilinde öne çıkarmak için bir oyun seç.",
+        "noFeaturedGame": "Henüz öne çıkarılmış bir oyun yok. :C",
+        "chooseGroup": "Profilinde öne çıkarmak için bir topluluk seç.",
+        "noFeaturedGroup": "Henüz öne çıkarılmış bir topluluk yok. :,(",
+        "chooseDecal": "Profilinde bir görseli öne çıkarmak için decal ID'si gir.",
+        "noFeaturedDecal": "Henüz öne çıkarılmış bir görsel yok. :C",
+        "searchGame": "Öne çıkarılacak bir oyun ara",
+        "searchGroup": "Öne çıkarılacak bir topluluk ara",
+        "clearGame": "Favori Oyunu Kaldır",
+        "clearGroup": "Favori Topluluğu Kaldır",
+        "gameOptions": "Favori oyun seçenekleri",
+        "groupOptions": "Favori topluluk seçenekleri",
+        "decalId": "Decal ID'si",
+        "decalImageOptions": "Görsel seçenekleri",
+        "openImagePage": "Görsel sayfasını aç",
+        "report": "Bildir",
+        "clearDecal": "Görseli Kaldır",
+        "by": "Oluşturan",
+        "maturity": "İçerik Derecelendirmesi",
+        "maturityUnavailable": "İçerik derecelendirmesi bilgisi yok",
+        "members": "{{count}} üye",
+        "noResultsGame": "Oyun bulunamadı.",
+        "noResultsGroup": "Topluluk bulunamadı.",
+        "unknownExperience": "Bilinmeyen oyun",
+        "unknownCommunity": "Bilinmeyen topluluk",
+        "verifiedBadge": "Doğrulama Rozeti Simgesi"
+    },
+    "profileCustomization": {
+        "pill": "Özelleştirme",
+        "pillTooltip": "Avatar ve profil çerçevelerini değiştir.",
+        "title": "Profil Özelleştirme",
+        "tabBorders": "Avatar Çerçeveleri",
+        "tabFrames": "Profil Çerçeveleri",
+        "currentPreview": "Seçili Çerçevenin Önizlemesi",
+        "unequip": "Çıkar",
+        "unequipTooltip": "Bu çerçeveyi çıkarmak için tıkla",
+        "equip": "Kullan",
+        "equipTooltip": "Bu çerçeveyi kullan",
+        "equipped": "Kullanılıyor",
+        "getMore": "Daha Fazlasını Al",
+        "owned": "Sende Var",
+        "unowned": "Sahip olmadıkların.",
+        "unownedTooltip": "Bu çerçeve henüz sende yok.",
+        "all": "Tümü",
+        "new": "Yeni",
+        "static": "SABİT",
+        "animated": "HAREKETLİ",
+        "free": "Ücretsiz",
+        "noBorders": "Avatar çerçevesi bulunamadı.",
+        "noBordersInTab": "Bu sekmede avatar çerçevesi bulunamadı.",
+        "noFrames": "Profil çerçevesi bulunamadı.",
+        "noFramesInTab": "Bu sekmede profil çerçevesi bulunamadı.",
+        "none": "Yok",
+        "failedToLoad": "Avatar çerçevelerin yüklenemedi. Daha sonra tekrar dene."
+    },
+    "profileFrame": {
+        "storeTitle": "Profil Çerçevesi Mağazası",
+        "storeDesc": "Profil çerçeveleri, profilindeki avatar alanının tamamını çevreler. Çerçeve satın almak RoValra'yı ve sanatçıları doğrudan destekler ve bağışçı seviyene katkıda bulunur. 3. seviye bağışçı ayrıcalığı yalnızca avatar çerçevelerini kapsar; profil çerçeveleri buna dahil değildir.",
+        "tabBorders": "Avatar Çerçeveleri",
+        "tabFrames": "Profil Çerçeveleri",
+        "loading": "Çerçeveler yükleniyor...",
+        "currentPreview": "Seçili Çerçevenin Önizlemesi",
+        "all": "Tümü",
+        "new": "Yeni",
+        "static": "SABİT",
+        "animated": "HAREKETLİ",
+        "equip": "Kullan",
+        "equipTooltip": "Bu çerçeveyi kullan",
+        "equipped": "Kullanılıyor",
+        "unequipTooltip": "Bu çerçeveyi çıkarmak için tıkla",
+        "unequip": "Çıkar",
+        "buy": "Satın Al",
+        "buyFor": "{{price}} karşılığında satın al",
+        "viewItem": "Öğeyi görüntüle",
+        "buyTooltip": "Bu çerçeveyi satın al",
+        "owned": "Sende Var",
+        "ownedTooltip": "Bu çerçeve sende var!",
+        "free": "Ücretsiz",
+        "freeTooltip": "Bu çerçeveyi ücretsiz kullanabilirsin.",
+        "localOnly": "Yerel olarak kaydedildi",
+        "localOnlyTooltip": "RoValra bu çerçeveyi henüz hesabına kaydedemedi. Bu yüzden yalnızca bu tarayıcıda, sadece sen görebilirsin.",
+        "noFrames": "Çerçeve yok.",
+        "noFramesInTab": "Bu sekmede çerçeve bulunamadı.",
+        "failedToLoad": "Çerçeveler yüklenemedi. Daha sonra tekrar dene."
+    },
+    "profileNotes": {
+        "ariaLabel": "Özel profil notu",
+        "heading": "Not (yalnızca sana görünür)",
+        "headingTooltip": "Bu not yalnızca bu tarayıcıda saklanır, Roblox veya RoValra'ya asla gönderilmez.",
+        "addNote": "Not eklemek için tıkla",
+        "editAriaLabel": "Özel profil notunu düzenle",
+        "addAriaLabel": "Özel profil notu ekle",
+        "displayTooltip": "Düzenlemek için tıkla. Notlar yalnızca bu tarayıcıda kaydedilir.",
+        "inputPlaceholder": "Özel bir not ekle",
+        "inputTooltip": "Dışarı tıkladığında kaydedilir. İptal etmek için Escape, kaydetmek için Ctrl+Enter tuşlarına bas."
+    },
+    "profilePronouns": {
+        "label": "Zamirler",
+        "ariaLabel": "Zamirler: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "RoValra Özellikleri",
+        "profilePronouns": "Profil Zamirleri",
+        "profileBadges": "Profil Rozetleri",
+        "pronounsPlaceholder": "Zamirlerini gir",
+        "donatorPerks": "Bağışçı Ayrıcalıkları",
+        "usernameCustomizations": "Kullanıcı Adı Özelleştirmeleri"
+    },
+    "profile": {
+        "socialLinks": "Sosyal bağlantılar",
+        "currencyTransfer": "Robux Gönder",
+        "currencyTransferConfirmation": "Bu işlem, Robux gönderebilmen için Roblox uygulamasını açacak.",
+        "openClient": "Uygulamayı Aç"
+    },
+    "animations": {
+        "idle": "Bekleme",
+        "walk": "Yürüme",
+        "fall": "Düşme",
+        "climb": "Tırmanma",
+        "run": "Koşma",
+        "jump": "Zıplama",
+        "swim": "Yüzme"
+    },
+    "itemRender": {
+        "renderOptions": "Görüntüleme Seçenekleri",
+        "darkLighting": "Karanlık Aydınlatma",
+        "baseplate": "Baseplate",
+        "rotatePreview": "Önizlemeyi döndür",
+        "itemOnly": "Yalnızca öğeyi göster"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Varsayılan",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "En Yeni",
+            "oldest": "En Eski"
+        },
+        "tooltip": "Kullanıcının topluluğa katılma tarihine göre sırala"
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Ziyaretler",
+        "members": "Üyeler",
+        "ccuTooltip": "Bu kullanıcının oluşturduğu herkese açık oyunlardaki anlık oyuncu sayısı.",
+        "visitsTooltip": "Bu kullanıcının oluşturduğu herkese açık oyunlara yapılan toplam ziyaret.",
+        "membersTooltip": "Bu kullanıcının sahibi olduğu topluluklardaki üyeler."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Plus'ın varken {{robux}} tasarruf ettin",
+            "percentOffSmall": "Oyun içi öğeler, avatarlar ve daha fazlası",
+            "percentOff": "{{percent}} indirim",
+            "itemsBoughtSmall": "Plus indirimiyle alınan öğeler",
+            "privateServersCreatedSmall": "Ücretsiz oluşturulan özel sunucular",
+            "robuxSentSmall": "Arkadaşlara gönderilen Robux",
+            "delayNotice": "Buradaki tüm veriler 1 gün gecikmeyle gösterilir"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Kalan günlük limit",
+            "monthlyLimitLeft": "Kalan aylık limit",
+            "sentToday": "Bugün gönderilen",
+            "sentThisMonth": "Bu ay gönderilen",
+            "nextRefill": "Sonraki yenilenme",
+            "leftAfter": "{{amount}} kaldı",
+            "refillNote": "Her transfer, 30 gün boyunca aylık limitten düşer. Sonrasında o Robux miktarını yeniden gönderebilirsin.",
+            "caption": "Günlük limit {{dailyLimit}}. Aylık limit {{monthlyLimit}}. Her 5 dakikada bir güncellenir. Kalan miktarlar tahminidir ve hatalı olabilir."
+        },
+        "referral": {
+            "reward": "Ücretsiz 100 Robux kazan, RoValra'ya destek ol!",
+            "details": "Yalnızca yeni Roblox Plus kullanıcıları yararlanabilir. RoValra'nın davet koduyla abone olduğunda RoValra da 100 Robux alır.",
+            "button": "RoValra'nın davet koduyla abone ol"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Normal Fiyat: <b>{{originalPrice}} Robux</b><br>Roblox Plus sayesinde şu anda <b>Ücretsiz</b> görünüyor."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Robux Gönder",
+                "openInApp": "Uygulamada Aç"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Robux Gönderilemiyor",
+                "deletedAccountBody": "Bu kullanıcının hesabı silinmiş, ona Robux gönderilemez"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Robux Gönder",
+                    "titleSilly": "bobux gönder :3",
+                    "okBtn": "Tamam"
+                },
+                "step1": {
+                    "robuxInputName": "Gönderilecek Robux Miktarı",
+                    "mutedNotice": "Robux anında, işlem ücreti alınmadan gönderilir",
+                    "minRobux": "En az {{robuxAmount}} Robux göndermelisin",
+                    "maxRobux": "En fazla {{robuxAmount}} Robux gönderebilirsin",
+                    "notEnoughRobux": "Yeterli Robux'un yok",
+                    "nextBtn": "İleri"
+                },
+                "step2": {
+                    "sendBtn": "Gönder",
+                    "editBtn": "Düzenle",
+                    "mutedNotice": "İptal edilemez. Yaş kontrolü veya ebeveyn onayı gerekebilir.",
+                    "transferErrorGeneric": "Bilinmeyen bir hata oluştu.",
+                    "transferErrorNoMessage": "Açıklaması olmayan, bilinmeyen bir hata oluştu",
+                    "transferSuccessBody": "Transfer başarılı!",
+                    "transferSuccessBodySilly": "transfer tamam! mis gibi",
+                    "transferSuccessOkBtnSilly": "hadi dansa",
+                    "userInfoFriendTime": "{{time, relativetime}} arkadaş oldunuz",
+                    "userInfoMutualFriends_one": "{{count}} ortak arkadaş",
+                    "userInfoMutualFriends_other": "{{count}} ortak arkadaş",
+                    "userInfoJoin": "{{year}} yılında katıldı",
+                    "paramPassedError": "Bilinmeyen bir hata oluştu! Konsolu kontrol et ve sorunu RoValra'ya bildir."
+                },
+                "parentPerms": {
+                    "askBtn": "İzin İste",
+                    "sendRobuxBody": "Robux göndermek için ebeveyn izni gerekiyor",
+                    "receiveRobuxBody": "Robux almak için ebeveyn izni gerekiyor",
+                    "askTitle": "İzin İste",
+                    "askTitleSilly": "anne babadan izin iste",
+                    "errorSending": "Bilinmeyen bir hata oluştu. Konsolu kontrol et ve sorunu RoValra'ya bildir",
+                    "errorReceivingTitle": "Robux kabul edilirken hata oluştu",
+                    "errorReceivingBody": "Bilinmeyen bir hata oluştu. Bu Robux transferini zaten kabul etmiş olabilirsin. Ayrıntılar için konsolu kontrol et.",
+                    "errorReceivingOkBtnSilly": "hay aksi",
+                    "successfulAskTitle": "İstek Gönderildi",
+                    "successfulAskTitleSilly": "anne babana haber verdik, hazırlan...",
+                    "successfulAskBody": "İsteği ebeveynlerine ve vasilerine e-postayla gönderdik!",
+                    "successfulAskOkBtnSilly": "tamamdır süper, sağ ol"
+                },
+                "plusNeeded": {
+                    "body": "Maalesef Robux göndermek için Roblox Plus gerekiyor. Bu özellik Roblox Plus aboneliğinin bir parçası.",
+                    "bodySilly": "bobloc plus'ın yok :c o yüzden kimseye bobux gönderemiyosun, şartmış 3:",
+                    "buyPlusBtn": "Roblox Plus Satın Al",
+                    "buyPlusBtnSilly": "bobloc plus kap gel c:",
+                    "okBtnSilly": "tüh ya tamam :c"
+                }
+            }
+        }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Bazı ayarlar kaldırıldı/değiştirildi"
+            },
+            "deleted": "Şu ayarlar yakın zamanda silindi, kilitlendi veya kullanımdan kaldırıldı:",
+            "replaced": "Şu ayarlar yakın zamanda başka ayarlarla değiştirildi veya güncellendi:"
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Oyun Kombinleri",
+            "title": "Oyunlar için kombinler",
+            "hint": "R6 veya R15 türündeki bir oyunu oynarken giyilecek kombini seç.",
+            "r6": "R6 oyunları",
+            "r15": "R15 oyunları",
+            "none": "Değiştirme",
+            "gameTitle": "Bu oyun için kombin",
+            "gameHint": "Bu seçim, R6 ve R15 oyunları için belirlediğin kombinlerin yerine kullanılır.",
+            "useGlobal": "Varsayılanımı kullan"
+        },
+        "bodyColors": {
+            "addCustom": "Özel renk seç",
+            "savedColor": "{{hex}}, kaldırmak için sağ tıkla",
+            "applyFailed": "Vücut renklerin güncellenemedi. Biraz sonra tekrar dene."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "En üste sabitle",
+        "unpin": "Sabitlemeyi kaldır"
+    },
+    "richLinks": {
+        "by": "Oluşturan: {{name}}",
+        "members": "{{count}} Üye",
+        "playing": "{{count}} Kişi Oynuyor",
+        "visits": "{{count}} Ziyaret",
+        "loading": "Yükleniyor...",
+        "free": "Ücretsiz",
+        "offSale": "Satışta değil"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "API belgeleri yükleniyor...",
+        "loadFailed": "API belgeleri yüklenemedi: {{error}}",
+        "noAccess": "Bu belgelere erişimin yok.",
+        "serverError": "Sunucu {{status}} yanıtını verdi.",
+        "invalidSpec": "Sunucu geçersiz bir OpenAPI belgesi döndürdü.",
+        "baseUrl": "Temel URL: {{url}}",
+        "apiVersion": "API sürümü",
+        "openApiVersion": "OpenAPI sürümü",
+        "server": "Sunucu",
+        "sendToken": "RoValra erişim token'ımı gönder",
+        "filterLabel": "Uç noktaları filtrele",
+        "filterPlaceholder": "Yol, özet veya etiket",
+        "hideDeprecated": "Kullanımdan kaldırılanları gizle",
+        "noEndpoints": "Uç nokta bulunamadı.",
+        "deprecated": "Kullanımdan Kaldırılmış",
+        "deprecatedTooltip": "Bu uç nokta kullanımdan kaldırılmış.",
+        "authRequired": "Kimlik doğrulaması gerekiyor",
+        "authOptional": "Kimlik doğrulaması isteğe bağlı",
+        "schemeNotSent": "Bu sayfanın göndermediği {{name}} gerekiyor.",
+        "operationId": "İşlem ID'si",
+        "security": "Kimlik doğrulama: {{schemes}}",
+        "securityOptional": "Kimlik doğrulama: {{schemes}} (isteğe bağlı)",
+        "securityTooltip": "Güvenlik gereksinimleri",
+        "parameters": "Parametreler",
+        "noParameters": "Parametre yok",
+        "tryItOut": "Dene",
+        "name": "Ad",
+        "description": "Açıklama",
+        "required": "zorunlu",
+        "availableValues": "Kullanılabilir değerler: {{values}}",
+        "requestBody": "İstek gövdesi",
+        "requestContentType": "İsteğin içerik türü",
+        "exampleValue": "Örnek Değer",
+        "schema": "Şema",
+        "responses": "Yanıtlar",
+        "noResponses": "Belgelenmiş yanıt yok",
+        "code": "Kod",
+        "details": "Ayrıntılar",
+        "execute": "Çalıştır",
+        "clear": "Temizle",
+        "missingParams": "Zorunlu parametreler eksik: {{params}}",
+        "invalidJson": "İstek gövdesi geçerli JSON değil: {{error}}",
+        "bodyRequired": "İstek gövdesi gerekiyor.",
+        "confirmTitle": "İstek gönderilsin mi?",
+        "confirmMessage": "Bu işlem {{path}} adresine bir {{method}} isteği gönderecek. Yalnızca ne yaptığını biliyorsan devam et.",
+        "send": "Gönder",
+        "sending": "İstek gönderiliyor...",
+        "requestFailed": "İstek başarısız: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "İstek URL'si",
+        "serverResponse": "Sunucu yanıtı",
+        "responseBody": "Yanıt gövdesi",
+        "responseHeaders": "Yanıt üst bilgileri",
+        "emptyResponse": "(boş yanıt)",
+        "responseImage": "Yanıt görseli",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "İstek süresi",
+        "contentType": "İçerik türü",
+        "redirected": "Yönlendirildi",
+        "copy": "Kopyala"
+    }
+}
