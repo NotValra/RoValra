@@ -80,6 +80,7 @@ import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js
 import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
+import { init as initOwnedItemPrice } from './features/catalog/ownedItemPrice.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
 import { init as initFriendOwnership } from './features/catalog/friendOwnership.js';
 
@@ -325,6 +326,7 @@ const featureRoutes = [
             initParentItem,
             initItemTrading,
             initLastEquipped,
+            initOwnedItemPrice,
             initItemRender,
             initFriendOwnership,
             initCatalogExplorer,
