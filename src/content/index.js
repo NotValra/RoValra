@@ -38,6 +38,7 @@ import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
+import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
@@ -270,6 +271,7 @@ const featureRoutes = [
             initCustomFont,
             initCyrillicFont,
             initCustomFavicon,
+            initCursorBuddy,
             initRobuxIcons,
             initMoreRobuxDigits,
             initProfileBackground,
