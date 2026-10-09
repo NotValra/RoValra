@@ -862,6 +862,32 @@
                     "title": "Use Roblox deeplinks for Sober support",
                     "desc1": "This is less stable and should only be used if on Sober"
                 }
+            },
+            "marketplace3DRenderEnabledV2": {
+                "title": "Enable Custom 3D Marketplace Item Renderer",
+                "desc1": "Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.",
+                "desc2": "This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "marketplace3DRenderHoverPreviewDisabled": {
+                    "title": "Disable Hover Preview",
+                    "desc1": "Disables the 3D try-on preview when hovering over marketplace items."
+                },
+                "marketplace3DPostProcessing": {
+                    "title": "Post Processing",
+                    "desc1": "Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device."
+                }
+            },
+            "EnableRobuxAfterPurchase": {
+                "title": "Robux After Purchase",
+                "desc1": "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed."
+            },
+            "recentlyViewedEnabled": {
+                "title": "Recently Viewed Items",
+                "desc1": "Adds a Recently Viewed row to the top of the Marketplace with the last items and bundles you opened.",
+                "desc2": "Items can be removed one by one or all at once. Your history is only stored on this device.",
+                "recentlyViewedPriceChanges": {
+                    "title": "Show Price Changes",
+                    "desc1": "Shows if an item got cheaper, more expensive, went off sale or came back on sale since you viewed it."
+                }
             }
         },
         "experiences": {
