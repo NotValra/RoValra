@@ -896,7 +896,8 @@
             },
             "bonusItemEnabled": {
                 "title": "Robux Purchase Bonus Item Selector",
-                "desc1": "Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more."
+                "desc1": "Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.",
+                "beta": "Currently missing gamepasses."
             },
             "EnableItemDependencies": {
                 "title": "Item Dependencies",
@@ -908,7 +909,8 @@
             },
             "priceFloorEnabled": {
                 "title": "Show Price Floor",
-                "desc1": "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor."
+                "desc1": "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
+                "locked": "Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind."
             },
             "ParentItemsEnabled": {
                 "title": "Show what bundle an item is a part of.",
@@ -928,7 +930,36 @@
             }
         },
         "experiences": {
-            "title": "Experiences"
+            "title": "Experiences",
+            "gameBookmarksEnabled": {
+                "title": "Game Bookmarks",
+                "desc1": "Save games to your own bookmark categories and find them later on Home.",
+                "gameBookmarksCardButtonsEnabled": {
+                    "title": "Show Bookmark Buttons on Game Cards",
+                    "desc1": "Shows a Bookmark button when you hover over game cards."
+                }
+            },
+            "PreferredRegionEnabled": {
+                "title": "Preferred Region Play Button",
+                "desc1": "This adds a play button that joins your preferred region.",
+                "desc2": "This also automatically serverhops.",
+                "desc3": "If you have this enabled along with Quick Play, there will be a Preferred Region quick play button.",
+                "robloxPreferredRegion": {
+                    "title": "Preferred Region",
+                    "desc1": "Select your preferred region for joining experiences.",
+                    "desc2": "**Automatic** will automatically attempt to find the closest region to you."
+                },
+                "preferredRegionUseRobloxLatencyv1": {
+                    "title": "Prioritize biggest servers when using Automatic Mode",
+                    "desc1": "This makes Preferred Region join the servers closest to you with the most players.",
+                    "desc2": "May cause issues with some VPNs"
+                },
+                "preferredRegionLocalSearchEnabled": {
+                    "title": "Force Local Server Search",
+                    "desc1": "Searches Roblox servers locally instead of using RoValra to find servers by region.",
+                    "desc2": "**This isn't recommended for normal users, as it'll be much slower.**"
+                }
+            }
         },
         "profile": {
             "title": "Profile"
@@ -1027,6 +1058,7 @@
                     "madeEs": "Helped make the Spanish locale",
                     "madeRu": "Helped make the Russian locale",
                     "madeFr": "Helped make the French locale",
+                    "madeId": "Helped make the Indonesian locale",
                     "madeZh": "Helped make the Chinese locale",
                     "madeVi": "Helped make the Vietnamese locale"
                 }

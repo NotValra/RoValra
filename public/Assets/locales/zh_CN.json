@@ -882,7 +882,8 @@
             },
             "bonusItemEnabled": {
                 "title": "Robux 购买奖励道具选择器",
-                "desc1": "为符合条件的 2,000 Robux 购买添加奖励道具选择器。"
+                "desc1": "为符合条件的 2,000 Robux 购买添加奖励道具选择器。",
+                "beta": "目前缺少游戏通行证。"
             },
             "EnableItemDependencies": {
                 "title": "道具依赖项",
@@ -894,7 +895,8 @@
             },
             "priceFloorEnabled": {
                 "title": "显示最低价格",
-                "desc1": "查看道具时将显示最低价格，并显示您正在查看的道具是否以等于或高于最低价格出售。"
+                "desc1": "查看道具时将显示最低价格，并显示您正在查看的道具是否以等于或高于最低价格出售。",
+                "locked": "由于 Roblox 更新 API 的方式，维护起来非常麻烦。他们更新 API 时完全不考虑向后兼容性。"
             },
             "ParentItemsEnabled": {
                 "title": "显示道具所属的套装。",
@@ -914,7 +916,36 @@
             }
         },
         "experiences": {
-            "title": "体验"
+            "title": "体验",
+            "gameBookmarksEnabled": {
+                "title": "游戏收藏",
+                "desc1": "将游戏保存到您自己的收藏类别，以便稍后在首页上找到它们。",
+                "gameBookmarksCardButtonsEnabled": {
+                    "title": "在游戏卡片上显示收藏按钮",
+                    "desc1": "当您将鼠标悬停在游戏卡片上时，会显示一个收藏按钮。"
+                }
+            },
+            "PreferredRegionEnabled": {
+                "title": "首选地区游玩按钮",
+                "desc1": "这将添加一个游玩按钮，点击即可加入您首选的地区。",
+                "desc2": "此功能还会自动切换服务器。",
+                "desc3": "如果您同时启用了此功能和快速游玩，则会显示一个首选地区的快速游玩按钮。",
+                "robloxPreferredRegion": {
+                    "title": "首选地区",
+                    "desc1": "选择您首选的地区以加入游戏。",
+                    "desc2": "**自动** 会自动尝试查找离您最近的地区。"
+                },
+                "preferredRegionUseRobloxLatencyv1": {
+                    "title": "使用自动模式时优先选择最大的服务器",
+                    "desc1": "这将使首选区域加入离您最近且玩家最多的服务器。",
+                    "desc2": "可能会导致某些虚拟专用网络（VPN）出现问题"
+                },
+                "preferredRegionLocalSearchEnabled": {
+                    "title": "强制本地服务器搜索",
+                    "desc1": "在本地搜索 Roblox 服务器，而不是使用 RoValra 按地区查找服务器。",
+                    "desc2": "**不建议普通用户使用此功能，因为它会慢很多。**"
+                }
+            }
         },
         "profile": {
             "title": "个人资料"
@@ -1021,6 +1052,7 @@
                     "madeEs": "协助进行西班牙语本地化",
                     "madeRu": "协助进行俄语本地化",
                     "madeFr": "协助进行法语本地化",
+                    "madeId": "协助进行印度尼西亚语本地化",
                     "madeZh": "协助进行繁体中文/简体中文本地化",
                     "madeVi": "协助进行越南语本地化"
                 }
@@ -1514,7 +1546,7 @@
         "blocked": {
             "eighteenPlus": "更新历史记录不适用于 18 岁以上体验",
             "paidAccess": "更新历史记录不适用于付费体验",
-            "subplace": "更新历史记录不适用于有加入限制的子区域",
+            "subplace": "更新历史记录不适用于有加入限制的子地区",
             "noDesktopSupport": "更新历史记录不适用于不支持计算机的体验"
         }
     },
@@ -2136,7 +2168,7 @@
     },
     "profileFrame": {
         "storeTitle": "个人资料框架商店",
-        "storeDesc": "个人资料框架会环绕您个人资料页面上的整个虚拟形象显示区域。购买框架可直接支持 RoValra 和艺术家，并计入您的捐赠者等级。捐赠者等级 3 的解锁内容不包含框架，该等级仅包含虚拟形象边框。",
+        "storeDesc": "个人资料框架会环绕您个人资料页面上的整个虚拟形象显示地区。购买框架可直接支持 RoValra 和艺术家，并计入您的捐赠者等级。捐赠者等级 3 的解锁内容不包含框架，该等级仅包含虚拟形象边框。",
         "tabBorders": "虚拟形象边框",
         "tabFrames": "框架",
         "loading": "正在加载框架...",

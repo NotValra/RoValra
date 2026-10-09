@@ -204,7 +204,7 @@ export const SETTINGS_CONFIG = {
                     'settings.marketplace.bonusItemEnabled.desc1',
                 type: 'checkbox',
                 default: false,
-                beta: 'Currently missing gamepasses.',
+                beta: 'settings.marketplace.bonusItemEnabled.beta',
             },
             EnableItemDependencies: {
                 label: 'settings.marketplace.EnableItemDependencies.title',
@@ -226,7 +226,7 @@ export const SETTINGS_CONFIG = {
                     "settings.marketplace.priceFloorEnabled.desc1",
                 type: 'checkbox',
                 default: false,
-                locked: 'Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind.',
+                locked: 'settings.marketplace.priceFloorEnabled.locked',
                 isPermanent: true,
             },
             ParentItemsEnabled: {
@@ -266,9 +266,9 @@ export const SETTINGS_CONFIG = {
         title: 'settings.experiences.title',
         settings: {
             gameBookmarksEnabled: {
-                label: 'Game Bookmarks',
+                label: 'settings.experiences.gameBookmarksEnabled.title',
                 description: [
-                    'Save games to your own bookmark categories and find them later on Home.',
+                    'settings.experiences.gameBookmarksEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -276,9 +276,9 @@ export const SETTINGS_CONFIG = {
                 contributors: ['476449201'],
                 childSettings: {
                     gameBookmarksCardButtonsEnabled: {
-                        label: 'Show Bookmark Buttons on Game Cards',
+                        label: 'settings.experiences.gameBookmarksEnabled.gameBookmarksCardButtonsEnabled.title',
                         description: [
-                            'Shows a Bookmark button when you hover over game cards.',
+                            'settings.experiences.gameBookmarksEnabled.gameBookmarksCardButtonsEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -286,11 +286,11 @@ export const SETTINGS_CONFIG = {
                 },
             },
             PreferredRegionEnabled: {
-                label: 'Preferred Region Play Button',
+                label: 'settings.experiences.PreferredRegionEnabled.title',
                 description: [
-                    'This adds a play button that joins your preferred region.',
-                    'This also automatically serverhops.',
-                    'If you have this enabled along with Quick Play, there will be a Preferred Region quick play button.',
+                    'settings.experiences.PreferredRegionEnabled.desc1',
+                    'settings.experiences.PreferredRegionEnabled.desc2',
+                    'settings.experiences.PreferredRegionEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -298,10 +298,10 @@ export const SETTINGS_CONFIG = {
 
                 childSettings: {
                     robloxPreferredRegion: {
-                        label: 'Preferred Region',
+                        label: 'settings.experiences.PreferredRegionEnabled.robloxPreferredRegion.title',
                         description: [
-                            'Select your preferred region for joining experiences.',
-                            '**Automatic** will automatically attempt to find the closest region to you.',
+                            'settings.experiences.PreferredRegionEnabled.robloxPreferredRegion.desc1',
+                            'settings.experiences.PreferredRegionEnabled.robloxPreferredRegion.desc2',
                         ],
                         type: 'select',
                         options: 'REGIONS',
@@ -309,19 +309,19 @@ export const SETTINGS_CONFIG = {
                         default: 'AUTO',
                     },
                     preferredRegionUseRobloxLatencyv1: {
-                        label: 'Prioritize biggest servers when using Automatic Mode',
+                        label: 'settings.experiences.PreferredRegionEnabled.preferredRegionUseRobloxLatencyv1.title',
                         description: [
-                            'This makes Preferred Region join the servers closest to you with the most players.',
-                            'May cause issues with some VPNs',
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionUseRobloxLatencyv1.desc1',
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionUseRobloxLatencyv1.desc2',
                         ],
                         type: 'checkbox',
                         default: false,
                     },
                     preferredRegionLocalSearchEnabled: {
-                        label: 'Force Local Server Search',
+                        label: 'settings.experiences.PreferredRegionEnabled.preferredRegionLocalSearchEnabled.title',
                         description: [
-                            'Searches Roblox servers locally instead of using RoValra to find servers by region.',
-                            "**This isn't recommended for normal users, as it'll be much slower.**",
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionLocalSearchEnabled.desc1',
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionLocalSearchEnabled.desc2',
                         ],
                         type: 'checkbox',
                         default: false,

@@ -890,7 +890,8 @@
             },
             "bonusItemEnabled": {
                 "title": "Robux 購買獎勵道具選擇器",
-                "desc1": "為符合條件的 2,000 Robux 購買新增獎勵道具選擇器。"
+                "desc1": "為符合條件的 2,000 Robux 購買新增獎勵道具選擇器。",
+                "beta": "目前缺少遊戲通行證。"
             },
             "EnableItemDependencies": {
                 "title": "道具依賴",
@@ -902,7 +903,8 @@
             },
             "priceFloorEnabled": {
                 "title": "顯示最低價格",
-                "desc1": "查看道具時將顯示最低價格，並顯示您正在查看的道具是否以等於或高於最低價格出售。"
+                "desc1": "查看道具時將顯示最低價格，並顯示您正在查看的道具是否以等於或高於最低價格出售。",
+                "locked": "由於 Roblox 更新 API 的方式，維護起來非常麻煩。他們在更新 API 時完全不考慮向後相容性。"
             },
             "ParentItemsEnabled": {
                 "title": "顯示道具所屬的組合包。",
@@ -922,7 +924,36 @@
             }
         },
         "experiences": {
-            "title": "體驗"
+            "title": "體驗",
+            "gameBookmarksEnabled": {
+                "title": "遊戲書籤",
+                "desc1": "將遊戲儲存到您自己的書籤類別，以便稍後在首頁上找到它們。",
+                "gameBookmarksCardButtonsEnabled": {
+                    "title": "在遊戲卡上顯示書籤按鈕",
+                    "desc1": "當您將滑鼠停留在遊戲卡片上時，會顯示一個書籤按鈕。"
+                }
+            },
+            "PreferredRegionEnabled": {
+                "title": "首選地區遊玩按鈕",
+                "desc1": "這將新增一個遊玩按鈕，點觸即可加入您首選的地區。",
+                "desc2": "此功能也會自動切換伺服器。",
+                "desc3": "如果您同時啟用了此功能和快速遊玩，則會顯示一個首選地區的快速遊玩按鈕。",
+                "robloxPreferredRegion": {
+                    "title": "首選地區",
+                    "desc1": "選擇您首選的地區以加入遊戲。",
+                    "desc2": "**自動** 會自動嘗試尋找離您最近的地區。"
+                },
+                "preferredRegionUseRobloxLatencyv1": {
+                    "title": "使用自動模式時優先選擇最大的伺服器",
+                    "desc1": "這將使首選區域加入離您最近且玩家最多的伺服器。",
+                    "desc2": "可能會導致某些虛擬私人網路（VPN）出現問題"
+                },
+                "preferredRegionLocalSearchEnabled": {
+                    "title": "強製本地伺服器搜尋",
+                    "desc1": "在本地搜尋 Roblox 伺服器，而不是使用 RoValra 按地區尋找伺服器。",
+                    "desc2": "**不建議一般使用者使用此功能，因為它會慢很多。**"
+                }
+            }
         },
         "profile": {
             "title": "個人檔案"
@@ -1021,6 +1052,7 @@
                     "madeEs": "協助進行西班牙文在地化",
                     "madeRu": "協助進行俄文在地化",
                     "madeFr": "協助進行法文在地化",
+                    "madeId": "協助進行印尼文在地化",
                     "madeZh": "協助進行繁體中文/簡體中文在地化",
                     "madeVi": "協助進行越南文在地化"
                 }
@@ -1422,7 +1454,7 @@
         "ariaLabel": "選擇或加入首選伺服器地區",
         "tooltip": "加入首選地區",
         "tooltipWithRegion": "加入首選地區<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "加入首選地區<br><b>最佳區域（自動）</b>"
+        "tooltipBestRegion": "加入首選地區<br><b>最佳地區（自動）</b>"
     },
     "quickPlay": {
         "loading": "正在載入...",
@@ -2136,7 +2168,7 @@
     },
     "profileFrame": {
         "storeTitle": "個人檔案框架商店",
-        "storeDesc": "個人檔案框架會環繞您個人檔案頁面上的整個虛擬人偶顯示區域。購買框架可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含框架，此等級僅包含虛擬人偶邊框。",
+        "storeDesc": "個人檔案框架會環繞您個人檔案頁面上的整個虛擬人偶顯示地區。購買框架可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含框架，此等級僅包含虛擬人偶邊框。",
         "tabBorders": "虛擬人偶邊框",
         "tabFrames": "框架",
         "loading": "正在載入框架...",
