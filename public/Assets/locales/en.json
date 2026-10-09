@@ -1003,6 +1003,32 @@
                     "title": "Close the 'What am I joining' UI by clicking the background",
                     "desc1": "This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI"
                 }
+            },
+            "EnableImprovedEvents": {
+                "title": "Improved Events",
+                "desc1": "This allows you to view past events on experiences and how many are going."
+            },
+            "EnableGameTrailer": {
+                "title": "Experience Trailer",
+                "desc1": "This adds experience trailers not on YouTube to the website, replacing Roblox's way of doing it.",
+                "desc2": "As a result, it adds quality-of-life features such as full-screen playback, autoplay controls, video length, playback speed, and picture-in-picture mode.",
+                "locked": "This feature broke, and Roblox made its own version.",
+                "Enableautoplay": {
+                    "title": "Auto Play Trailer",
+                    "desc1": "This will automatically play the trailer."
+                }
+            },
+            "EnableDevProducts": {
+                "title": "View Developer Products",
+                "desc1": "This allows you to view the developer products of an experience directly on the store page."
+            },
+            "shopWidgetsEnabled": {
+                "title": "View In-Game Shop",
+                "desc1": "This adds a Shop tab to the experience store page, bringing the in-game shop to the website."
+            },
+            "QuickOutfitsEnabled": {
+                "title": "Quick Equip Outfits",
+                "desc1": "This allows you to quickly switch your avatar on an experience page."
             }
         },
         "profile": {

@@ -410,27 +410,27 @@ export const SETTINGS_CONFIG = {
                 },
             },
             EnableImprovedEvents: {
-                label: 'Improved Events',
+                label: 'settings.experiences.EnableImprovedEvents.title',
                 description:
-                    'This allows you to view past events on experiences and how many are going.',
+                    'settings.experiences.EnableImprovedEvents.desc1',
                 type: 'checkbox',
                 default: true,
             },
             EnableGameTrailer: {
-                label: 'Experience Trailer',
+                label: 'settings.experiences.EnableGameTrailer.title',
                 description: [
-                    "This adds experience trailers not on YouTube to the website, replacing Roblox's way of doing it.",
-                    'As a result, it adds quality-of-life features such as full-screen playback, autoplay controls, video length, playback speed, and picture-in-picture mode.',
+                    'settings.experiences.EnableGameTrailer.desc1',
+                    'settings.experiences.EnableGameTrailer.desc2',
                 ],
                 type: 'checkbox',
                 default: false,
-                locked: 'This feature broke, and Roblox made its own version.',
+                locked: 'settings.experiences.EnableGameTrailer.locked',
                 isPermanent: true,
                 childSettings: {
                     Enableautoplay: {
-                        label: 'Auto Play Trailer',
+                        label: 'settings.experiences.EnableGameTrailer.Enableautoplay.title',
                         description: [
-                            'This will automatically play the trailer.',
+                            'settings.experiences.EnableGameTrailer.Enableautoplay.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -438,24 +438,24 @@ export const SETTINGS_CONFIG = {
                 },
             },
             EnableDevProducts: {
-                label: 'View Developer Products',
+                label: 'settings.experiences.EnableDevProducts.title',
                 description:
-                    'This allows you to view the developer products of an experience directly on the store page.',
+                    'settings.experiences.EnableDevProducts.desc1',
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '10646979010'],
             },
             shopWidgetsEnabled: {
-                label: 'View In-Game Shop',
+                label: 'settings.experiences.shopWidgetsEnabled.title',
                 description:
-                    'This adds a Shop tab to the experience store page, bringing the in-game shop to the website.',
+                    'settings.experiences.shopWidgetsEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             QuickOutfitsEnabled: {
-                label: 'Quick Equip Outfits',
+                label: 'settings.experiences.QuickOutfitsEnabled.title',
                 description: [
-                    'This allows you to quickly switch your avatar on an experience page.',
+                    'settings.experiences.QuickOutfitsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
