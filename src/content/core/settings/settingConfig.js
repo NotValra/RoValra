@@ -3164,6 +3164,46 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            cursorBuddyEnabled: {
+                label: 'Cursor Buddy',
+                description: [
+                    'A cute little buddy follows your cursor around Roblox.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    cursorBuddyCompanion: {
+                        label: 'Buddy',
+                        type: 'select',
+                        options: [
+                            { label: 'Oneko', value: 'cat' },
+                            { label: 'Kitten', value: 'kitten' },
+                        ],
+                        default: 'cat',
+                    },
+                    cursorBuddySize: {
+                        label: 'Size',
+                        description: 'Choose how big your buddy looks.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 24,
+                        max: 128,
+                        step: 1,
+                        default: 32,
+                    },
+                    cursorBuddyFollowSpeed: {
+                        label: 'Follow Speed',
+                        description: 'Choose how quickly your buddy follows your cursor.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 40,
+                        max: 600,
+                        step: 10,
+                        default: 240,
+                    },
+                },
+            },
             customScrollbarEnabled: {
                 label: 'Customize Scroll Bar',
                 description: [
