@@ -824,6 +824,7 @@
             "desc2": "页面将重新加载以应用更改。设置页面上的更改可能不会立即生效。",
             "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
         },
+        "contributed": "{{username}} 为此功能的制作做出了贡献。",
         "marketplace": {
             "title": "商城",
             "itemSalesEnabled": {
@@ -878,6 +879,38 @@
                     "title": "显示价格变动",
                     "desc1": "显示自您浏览道具以来，该道具的价格是变便宜、变贵、下架还是重新上架。"
                 }
+            },
+            "bonusItemEnabled": {
+                "title": "Robux 购买奖励道具选择器",
+                "desc1": "为符合条件的 2,000 Robux 购买添加奖励道具选择器。"
+            },
+            "EnableItemDependencies": {
+                "title": "道具依赖项",
+                "desc1": "此功能显示道具的依赖项，这意味着您可以查看纹理、网格等。"
+            },
+            "friendOwnershipEnabled": {
+                "title": "拥有该道具的好友",
+                "desc1": "显示哪些好友拥有该道具。"
+            },
+            "priceFloorEnabled": {
+                "title": "显示最低价格",
+                "desc1": "查看道具时将显示最低价格，并显示您正在查看的道具是否以等于或高于最低价格出售。"
+            },
+            "ParentItemsEnabled": {
+                "title": "显示道具所属的套装。",
+                "desc1": "查看套装内道具的页面时，会显示该道具所属的套装。"
+            },
+            "PreviousPriceEnabled": {
+                "title": "在道具卡片和道具页面上显示之前的价格。",
+                "desc1": "显示下架道具下架前的价格以及上次上架的价格。"
+            },
+            "lastEquippedEnabled": {
+                "title": "道具页面上的上次装备时间。",
+                "desc1": "在道具页面上显示您上次装备道具的时间。"
+            },
+            "itemTradingEnabled": {
+                "title": "道具交易信息。",
+                "desc1": "在道具页面上显示 Rolimons的价值、需求量、趋势、稀有、虚高价格等信息。"
             }
         },
         "experiences": {

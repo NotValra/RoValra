@@ -834,6 +834,7 @@
             "desc2": "The page will reload to apply changes. Might not work immediately on the settings page.",
             "desc3": "We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy."
         },
+        "contributed": "{{username}} contributed in the making of this feature.",
         "marketplace": {
             "title": "Marketplace",
             "itemSalesEnabled": {
@@ -888,6 +889,38 @@
                     "title": "Show Price Changes",
                     "desc1": "Shows if an item got cheaper, more expensive, went off sale or came back on sale since you viewed it."
                 }
+            },
+            "bonusItemEnabled": {
+                "title": "Robux Purchase Bonus Item Selector",
+                "desc1": "Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more."
+            },
+            "EnableItemDependencies": {
+                "title": "Item Dependencies",
+                "desc1": "This feature shows an item's dependencies, which means you can view the texture, mesh, and more."
+            },
+            "friendOwnershipEnabled": {
+                "title": "Friends Who Own the Item",
+                "desc1": "Shows which of your friends own the item."
+            },
+            "priceFloorEnabled": {
+                "title": "Show Price Floor",
+                "desc1": "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor."
+            },
+            "ParentItemsEnabled": {
+                "title": "Show what bundle an item is a part of.",
+                "desc1": "When viewing items pages of items inside of a bundle it will tell you what bundle that item is from."
+            },
+            "PreviousPriceEnabled": {
+                "title": "Previous Price to item cards and on item pages.",
+                "desc1": "This shows the price of an offsale item before it went offsale and when it was last on sale."
+            },
+            "lastEquippedEnabled": {
+                "title": "Last Equipped on Item Pages",
+                "desc1": "Shows when you last equipped an item on item pages."
+            },
+            "itemTradingEnabled": {
+                "title": "Item Trading Info",
+                "desc1": "Shows Rolimons values, demand, trend, rare, projected and more on item pages."
             }
         },
         "experiences": {

@@ -199,63 +199,63 @@ export const SETTINGS_CONFIG = {
                 },
             },
             bonusItemEnabled: {
-                label: 'Robux Purchase Bonus Item Selector',
+                label: 'settings.marketplace.bonusItemEnabled.title',
                 description:
-                    'Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.',
+                    'settings.marketplace.bonusItemEnabled.desc1',
                 type: 'checkbox',
                 default: false,
                 beta: 'Currently missing gamepasses.',
             },
             EnableItemDependencies: {
-                label: 'Item Dependencies',
+                label: 'settings.marketplace.EnableItemDependencies.title',
                 description: [
-                    "This feature shows an item's dependencies, which means you can view the texture, mesh, and more.",
+                    "settings.marketplace.EnableItemDependencies.desc1",
                 ],
                 type: 'checkbox',
                 default: true,
             },
             friendOwnershipEnabled: {
-                label: 'Friends Who Own the Item',
-                description: 'Shows which of your friends own the item.',
+                label: 'settings.marketplace.EnableItemDependencies.title',
+                description: 'settings.marketplace.EnableItemDependencies.desc1',
                 type: 'checkbox',
                 default: true,
             },
             priceFloorEnabled: {
-                label: 'Show Price Floor',
+                label: 'settings.marketplace.priceFloorEnabled.title',
                 description:
-                    "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
+                    "settings.marketplace.priceFloorEnabled.desc1",
                 type: 'checkbox',
                 default: false,
                 locked: 'Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind.',
                 isPermanent: true,
             },
             ParentItemsEnabled: {
-                label: 'Show what bundle an item is a part of.',
+                label: 'settings.marketplace.ParentItemsEnabled.title',
                 description:
-                    'When viewing items pages of items inside of a bundle it will tell you what bundle that item is from.',
+                    'settings.marketplace.ParentItemsEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             PreviousPriceEnabled: {
-                label: 'Previous Price to item cards and on item pages.',
+                label: 'settings.marketplace.PreviousPriceEnabled.title',
                 description:
-                    'This shows the price of an offsale item before it went offsale and when it was last on sale.',
+                    'settings.marketplace.PreviousPriceEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
 
             lastEquippedEnabled: {
-                label: 'Last Equipped on Item Pages',
+                label: 'settings.marketplace.lastEquippedEnabled.title',
                 description:
-                    'Shows when you last equipped an item on item pages.',
+                    'settings.marketplace.lastEquippedEnabled.desc1',
                 type: 'checkbox',
                 default: true,
                 contributors: ['4866259395', '447170745'],
             },
             itemTradingEnabled: {
-                label: 'Item Trading Info',
+                label: 'settings.marketplace.itemTradingEnabled.title',
                 description: [
-                    'Shows Rolimons values, demand, trend, rare, projected and more on item pages.',
+                    'settings.marketplace.itemTradingEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,

@@ -832,6 +832,7 @@
             "desc2": "頁面將重新載入以套用變更。設定頁面上的變更可能不會立即生效。",
             "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
         },
+        "contributed": "{{username}} 為此功能的製作做出了貢獻。",
         "marketplace": {
             "title": "市集",
             "itemSalesEnabled": {
@@ -886,6 +887,38 @@
                     "title": "顯示價格變動",
                     "desc1": "顯示自您瀏覽道具以來，此道具的價格是變便宜、變貴、下架還是重新上架。"
                 }
+            },
+            "bonusItemEnabled": {
+                "title": "Robux 購買獎勵道具選擇器",
+                "desc1": "為符合條件的 2,000 Robux 購買新增獎勵道具選擇器。"
+            },
+            "EnableItemDependencies": {
+                "title": "道具依賴",
+                "desc1": "此功能顯示道具的依賴項，這表示您可以查看紋理、網格等。"
+            },
+            "friendOwnershipEnabled": {
+                "title": "擁有此道具的好友",
+                "desc1": "顯示哪些好友擁有此道具。"
+            },
+            "priceFloorEnabled": {
+                "title": "顯示最低價格",
+                "desc1": "查看道具時將顯示最低價格，並顯示您正在查看的道具是否以等於或高於最低價格出售。"
+            },
+            "ParentItemsEnabled": {
+                "title": "顯示道具所屬的組合包。",
+                "desc1": "查看組合包內道具的頁面時，會顯示此道具所屬的組合包。"
+            },
+            "PreviousPriceEnabled": {
+                "title": "在道具卡和道具頁面上顯示先前的價格。",
+                "desc1": "顯示下架道具下架前的價格以及上次上架的價格。"
+            },
+            "lastEquippedEnabled": {
+                "title": "道具頁面上的上次裝備時間",
+                "desc1": "在道具頁面上顯示您上次裝備道具的時間。"
+            },
+            "itemTradingEnabled": {
+                "title": "道具交易資訊",
+                "desc1": "在道具頁面上顯示 Rolimons 的價值、需求量、趨勢、稀有、虛高價格等資訊。"
             }
         },
         "experiences": {
