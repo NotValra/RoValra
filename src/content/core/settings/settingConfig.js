@@ -2047,7 +2047,7 @@ export const SETTINGS_CONFIG = {
                         default: false,
                     },
                 },
-                contributors: ['1564574922'],
+                contributors: ['1564574922', '476449201'],
             },
             PlusPrivateServerTooltipEnabled: {
                 label: 'Roblox Plus Free Server Tooltip',
