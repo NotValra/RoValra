@@ -58,7 +58,8 @@ import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndic
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
-import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js'
+import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
+import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -89,6 +90,7 @@ import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initBadgeLayoutToggle } from './features/games/badgeLayoutToggle.js';
 import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
 import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
+import { init as initGameStatTimestamps } from './features/games/gameStatTimestamps.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
@@ -294,6 +296,7 @@ const featureRoutes = [
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initCustomScrollbar,
             initRoValraIncidentTracker,
         ],
     },
@@ -374,6 +377,7 @@ const featureRoutes = [
             initAutoFriendsAllowed,
             initCatalogExplorer,
             initUnderReviewPill,
+            initGameStatTimestamps,
         ],
     },
     // private games and game pages

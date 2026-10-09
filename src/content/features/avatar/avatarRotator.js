@@ -8,6 +8,7 @@ import {
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { ts } from '../../core/locale/i18n.js';
+import { createFoundationButton } from '../../core/ui/buttons.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -29,7 +30,8 @@ export function init() {
                 li.style.alignItems = 'center';
                 li.style.gap = '5px';
 
-                const createBtnSelector = '.btn-float-right.btn-secondary-xs';
+                const createBtnSelector =
+                    '.btn-float-right.btn-secondary-xs, .btn-float-right.foundation-web-button';
                 let resizeHandler = null;
 
                 const updateMargin = () => {
@@ -69,23 +71,23 @@ export function init() {
                     },
                 );
 
-                const stopBtn = document.createElement('button');
-                stopBtn.type = 'button';
-                stopBtn.className =
-                    'btn-control-xs rovalra-avatar-rotator-stop-btn';
-                stopBtn.textContent = ts('avatarRotator.stop');
+                const stopBtn = createFoundationButton(
+                    ts('avatarRotator.stop'),
+                    {
+                        classList: ['rovalra-avatar-rotator-stop-btn'],
+                        onClick: () => {
+                            chrome.storage.local.set({
+                                rovalra_avatar_rotator_enabled: false,
+                            });
+                        },
+                    },
+                );
                 stopBtn.style.display = 'none';
-                stopBtn.onclick = () => {
-                    chrome.storage.local.set({
-                        rovalra_avatar_rotator_enabled: false,
-                    });
-                };
 
-                const rotatorBtn = document.createElement('button');
-                rotatorBtn.type = 'button';
-                rotatorBtn.className =
-                    'btn-secondary-xs rovalra-avatar-rotator-btn';
-                rotatorBtn.textContent = ts('avatarRotator.button');
+                const rotatorBtn = createFoundationButton(
+                    ts('avatarRotator.button'),
+                    { classList: ['rovalra-avatar-rotator-btn'] },
+                );
 
                 let nextPageCursor = '';
                 let isLoading = false;
@@ -446,7 +448,7 @@ export function init() {
                         (data) => {
                             stopBtn.style.display =
                                 data.rovalra_avatar_rotator_enabled
-                                    ? 'inline-block'
+                                    ? 'flex'
                                     : 'none';
                         },
                     );
