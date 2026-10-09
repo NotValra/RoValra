@@ -209,6 +209,11 @@ async function renderTestPage(contentDiv) {
         rovalra: true,
         size: 'xx-large',
     });
+    const classicRobloxIcon = Icon({
+        icon: 'roblox-classic',
+        //rovalra: true,
+        size: 'xx-large',
+    });
     container.append(
         document.createElement('br'),
         builderIconsHeader,
@@ -219,6 +224,7 @@ async function renderTestPage(contentDiv) {
         materialIconFilled,
         rovalraIcon,
         rovalraContributorIcon,
+        classicRobloxIcon,
     );
 
     removeHomeElement();
