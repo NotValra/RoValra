@@ -556,6 +556,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: [476449201],
             },
+            gameStatTimestampsEnabled: {
+                label: 'Detailed Created / Updated Dates',
+                description: [
+                    'Replaces the Created and Updated dates on experience pages with exact, clickable timestamps.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             updateHistoryEnabled: {
                 label: 'Update History',
                 description: [
