@@ -797,6 +797,15 @@ export const SETTINGS_CONFIG = {
     Profile: {
         title: 'Profile',
         settings: {
+            SearchProfileExperiencesEnabled: {
+                label: 'Search Profile Experiences',
+                description: [
+                    'Search user-created and publicly listed group-owned experiences from profiles.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+            },
             userGamesEnabled: {
                 label: 'Hidden User Experiences',
                 description: [
