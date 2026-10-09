@@ -87,7 +87,7 @@ async function attachContributors(container, config, isChild = false) {
 
         addTooltip(
             link,
-            ts('settings.contribution', { username: displayName }),
+            ts('settings.contributed', { username: displayName }),
             { position: 'top' },
         );
 
