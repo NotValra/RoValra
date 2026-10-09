@@ -1,0 +1,59 @@
+.rovalra-profile-experience-search {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 4px 0 8px;
+}
+
+.rovalra-profile-experience-search-input {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-default, #494b51);
+    border-radius: 8px;
+    background: var(--surface-default, #24262b);
+    color: var(--rovalra-main-text-color, #f7f7f8);
+    font: inherit;
+    outline-offset: 2px;
+}
+
+.rovalra-profile-experience-search-input:focus-visible {
+    outline: 2px solid var(--color-action-standard, #335fff);
+}
+
+.rovalra-profile-experience-search-status {
+    margin: 0;
+    color: var(--rovalra-secondary-text-color, #aaaeb6);
+    font-size: 13px;
+}
+
+.rovalra-profile-experience-search-status:empty {
+    display: none;
+}
+
+.rovalra-profile-experience-search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.rovalra-profile-experience-search-grid > .rovalra-game-card {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+}
+
+.rovalra-profile-experience-search-grid .game-card-link {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.rovalra-profile-experience-search-more {
+    align-self: center;
+}
+
+.rovalra-profile-experience-search-more[hidden] {
+    display: none !important;
+}
