@@ -1154,7 +1154,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     controlsContainer.className = 'setting-controls';
 
     const label = document.createElement('label');
-    label.textContent = setting.label;
+    label.textContent = ts(setting.label);
     controlsContainer.appendChild(label);
 
     if (setting.experimental) {
@@ -1219,7 +1219,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
             // No need in sanitizing, it's trusted data
-            ((descElement.innerHTML = parseMarkdown(String(desc), themeColors)), // Verified
+            ((descElement.innerHTML = parseMarkdown(String(ts(desc)), themeColors)), // Verified
                 settingContainer.appendChild(descElement));
         });
     }
