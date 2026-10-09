@@ -58,6 +58,7 @@ import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndic
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
+import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
 import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js'
 
 // Avatar
@@ -294,6 +295,7 @@ const featureRoutes = [
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initCustomScrollbar,
             initRoValraIncidentTracker,
         ],
     },

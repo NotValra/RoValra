@@ -11,6 +11,10 @@ This is a guide on how to contribute to RoValra
 
 ## Pull Request Guidelines
 
+**Most Important:** Do not expect me (Valra) to get to your PR instantly. I am still human, I need breaks once in a while.\
+Don't rush me and don't expect it to get accepted instantly.\
+If the PR has remained stale with no review for a few weeks then feel free to ask about it.
+
 Every PR needs a clear description of what it does. Depending on the type of PR, please also include the following:
 
 ### New features
