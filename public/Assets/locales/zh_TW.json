@@ -860,6 +860,32 @@
                     "title": "使用 Roblox 深度連結支援 Sober 功能",
                     "desc1": "此功能穩定性較差，僅應在 Sober 模式下使用。"
                 }
+            },
+            "marketplace3DRenderEnabledV2": {
+                "title": "啟用自訂 3D 市集道具渲染器",
+                "desc1": "滑鼠懸停在道具上時新增試穿預覽，並為道具頁面新增功能豐富的 3D 渲染器。",
+                "desc2": "此功能得益於 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "marketplace3DRenderHoverPreviewDisabled": {
+                    "title": "停用懸停預覽",
+                    "desc1": "滑鼠懸停在市集道具上時停用 3D 試穿預覽。"
+                },
+                "marketplace3DPostProcessing": {
+                    "title": "後製",
+                    "desc1": "後製可實現諸如光暈和環境光遮蔽等高級效果，但需要性能強大的裝置。"
+                }
+            },
+            "EnableRobuxAfterPurchase": {
+                "title": "購買後 Robux 餘額",
+                "desc1": "此功能會將「您在此交易後的餘額將為 X」文字恢復到新的 Roblox 購買介面（先前此文字已被移除）。"
+            },
+            "recentlyViewedEnabled": {
+                "title": "最近瀏覽道具",
+                "desc1": "在市集頂部新增一個「最近瀏覽」行，顯示您最近開啟的道具和組合包。",
+                "desc2": "您可以逐一移除道具，也可以一次全部移除。您的歷史記錄僅儲存在此裝置上。",
+                "recentlyViewedPriceChanges": {
+                    "title": "顯示價格變動",
+                    "desc1": "顯示自您瀏覽道具以來，此道具的價格是變便宜、變貴、下架還是重新上架。"
+                }
             }
         },
         "experiences": {

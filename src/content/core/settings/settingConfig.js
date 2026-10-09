@@ -146,43 +146,43 @@ export const SETTINGS_CONFIG = {
                 },
             },
             marketplace3DRenderEnabledV2: {
-                label: 'Enable Custom 3D Marketplace Item Renderer',
+                label: 'settings.marketplace.marketplace3DRenderEnabledV2.title',
                 description: [
-                    'Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.',
-                    'This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
+                    'settings.marketplace.marketplace3DRenderEnabledV2.desc1',
+                    'settings.marketplace.marketplace3DRenderEnabledV2.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['126448532'],
                 childSettings: {
                     marketplace3DRenderHoverPreviewDisabled: {
-                        label: 'Disable Hover Preview',
+                        label: 'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DRenderHoverPreviewDisabled.title',
                         description:
-                            'Disables the 3D try-on preview when hovering over marketplace items.',
+                            'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DRenderHoverPreviewDisabled.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                     marketplace3DPostProcessing: {
-                        label: 'Post Processing',
+                        label: 'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DPostProcessing.title',
                         description:
-                            'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
+                            'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DPostProcessing.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                 },
             },
             EnableRobuxAfterPurchase: {
-                label: 'Robux After Purchase',
+                label: 'settings.marketplace.EnableRobuxAfterPurchase.title',
                 description:
-                    "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
+                    "settings.marketplace.EnableRobuxAfterPurchase.desc1",
                 type: 'checkbox',
                 default: true,
             },
             recentlyViewedEnabled: {
-                label: 'Recently Viewed Items',
+                label: 'settings.marketplace.recentlyViewedEnabled.title',
                 description: [
-                    'Adds a Recently Viewed row to the top of the Marketplace with the last items and bundles you opened.',
-                    'Items can be removed one by one or all at once. Your history is only stored on this device.',
+                    'settings.marketplace.recentlyViewedEnabled.desc1',
+                    'settings.marketplace.recentlyViewedEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -190,9 +190,9 @@ export const SETTINGS_CONFIG = {
                 contributors: ['2239549101'],
                 childSettings: {
                     recentlyViewedPriceChanges: {
-                        label: 'Show Price Changes',
+                        label: 'settings.marketplace.recentlyViewedEnabled.recentlyViewedPriceChanges.title',
                         description:
-                            'Shows if an item got cheaper, more expensive, went off sale or came back on sale since you viewed it.',
+                            'settings.marketplace.recentlyViewedEnabled.recentlyViewedPriceChanges.desc1',
                         type: 'checkbox',
                         default: true,
                     },
