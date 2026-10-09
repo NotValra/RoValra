@@ -252,6 +252,13 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['4866259395', '447170745'],
             },
+            ownedItemPriceEnabled: {
+                label: 'Price on Owned Item Pages',
+                description:
+                    'Shows the price of an item on its item page even when you already own it.',
+                type: 'checkbox',
+                default: true,
+            },
             itemTradingEnabled: {
                 label: 'Item Trading Info',
                 description: [
