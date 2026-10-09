@@ -1016,7 +1016,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         return wrapper;
     } else if (setting.type === 'button') {
         const button = createButton(
-            setting.buttonText || ts('settings.ui.controls.clickMe'),
+            ts(setting.buttonText) || ts('settings.ui.controls.clickMe'),
             'secondary',
         );
         button.dataset.settingName = settingName;
@@ -1114,7 +1114,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         };
 
         const addBtn = createButton(
-            setting.addButtonText || ts('settings.ui.controls.add'),
+            ts(setting.addButtonText) || ts('settings.ui.controls.add'),
             'secondary',
         );
         addBtn.style.marginTop = '8px';
@@ -1293,13 +1293,13 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             childControls.className = 'setting-controls';
 
             const childLabel = document.createElement('label');
-            childLabel.textContent = childSetting.label;
+            childLabel.textContent = ts(childSetting.label);
             childControls.appendChild(childLabel);
 
             if (childSetting.experimental) {
                 const experimentalPill = createPill(
                     ts('settings.ui.controls.experimental'),
-                    childSetting.experimental,
+                    ts(childSetting.experimental),
                     'experimental',
                 );
                 childControls.appendChild(experimentalPill);
@@ -1311,7 +1311,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             if (childSetting.deprecated) {
                 const deprecatedPill = createPill(
                     ts('settings.ui.controls.deprecated'),
-                    childSetting.deprecated,
+                    ts(childSetting.deprecated),
                     'deprecated',
                 );
                 childControls.appendChild(deprecatedPill);
@@ -1364,7 +1364,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
                     ((childDescElement.innerHTML = parseMarkdown(
-                        String(desc),
+                        String(ts(desc)),
                         themeColors,
                     )), // Verified
                         childContainer.appendChild(childDescElement));

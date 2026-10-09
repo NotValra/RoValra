@@ -98,49 +98,48 @@ export const SETTINGS_CONFIG = {
         title: 'settings.marketplace.title',
         settings: {
             itemSalesEnabled: {
-                label: 'Item Sales',
+                label: 'settings.marketplace.itemSalesEnabled.title',
                 contributors: [447170745],
                 description: [
-                    'This shows the most up to date sales and revenue data we have.',
-                    'The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on offsale items.',
+                    'settings.marketplace.itemSalesEnabled.desc1',
+                    'settings.marketplace.itemSalesEnabled.desc2',
                 ],
-                deprecated: 'Sale stats are very old and now inaccurate.',
+                deprecated: 'settings.marketplace.itemSalesEnabled.deprecated',
                 type: 'checkbox',
                 default: false,
             },
             SaveLotsRobuxEnabled: {
-                label: 'Save 10%-40% Robux on Purchases',
+                label: 'settings.marketplace.SaveLotsRobuxEnabled.title',
                 description: [
-                    'This adds a button allowing you to save 40% on items on the marketplace.',
-                    'Keep in mind, a group is required for this to work.',
-
-                    "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**",
+                    'settings.marketplace.SaveLotsRobuxEnabled.desc1',
+                    'settings.marketplace.SaveLotsRobuxEnabled.desc2',
+                    'settings.marketplace.SaveLotsRobuxEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     RobuxPlaceId: {
-                        label: 'Place ID to use for the 10%-40% Robux back',
+                        label: 'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.title',
                         description: [
-                            'It is best not to modify this, as the feature automatically sets the correct place ID when used.',
-                            "**Don't change this unless you know what you're doing.**",
+                            'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.desc1',
+                            'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.desc2',
                         ],
                         type: 'input',
                         default: null,
-                        placeholder: 'Enter Place ID here...',
+                        placeholder: 'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.placeholder',
                     },
                     configureGame: {
-                        label: 'Configure Experience',
+                        label: 'settings.marketplace.SaveLotsRobuxEnabled.configureGame.title',
                         description:
-                            'Open the setup to configure an experience for the 40% method without needing to be in a purchase flow.',
+                            'settings.marketplace.SaveLotsRobuxEnabled.configureGame.desc1',
                         type: 'button',
-                        buttonText: 'Open Setup',
+                        buttonText: 'settings.marketplace.SaveLotsRobuxEnabled.configureGame.buttonText',
                         event: 'rovalra:open40methodSetup',
                     },
                     useSoberSupportDeeplinks: {
-                        label: 'Use Roblox deeplinks for Sober support',
+                        label: 'settings.marketplace.SaveLotsRobuxEnabled.useSoberSupportDeeplinks.title',
                         description:
-                            'This is less stable and should only be used if on sober',
+                            'settings.marketplace.SaveLotsRobuxEnabled.useSoberSupportDeeplinks.desc1',
                         type: 'checkbox',
                         default: false,
                     },

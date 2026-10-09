@@ -835,7 +835,34 @@
             "desc3": "We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy."
         },
         "marketplace": {
-            "title": "Marketplace"
+            "title": "Marketplace",
+            "itemSalesEnabled": {
+                "title": "Item Sales",
+                "desc1": "This shows the most up to date sales and revenue data we have.",
+                "desc2": "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on offsale items.",
+                "deprecated": "Sale stats are very old and now inaccurate."
+            },
+            "SaveLotsRobuxEnabled": {
+                "title": "Save 10%-40% Robux on Purchases",
+                "desc1": "This adds a button allowing you to save 40% on items on the marketplace.",
+                "desc2": "Keep in mind, a group is required for this to work.",
+                "desc3": "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**",
+                "RobuxPlaceId": {
+                    "title": "Place ID to use for the 10%-40% Robux back",
+                    "desc1": "It is best not to modify this, as the feature automatically sets the correct place ID when used.",
+                    "desc2": "**Don't change this unless you know what you're doing.**",
+                    "placeholder": "Enter Place ID here..."
+                },
+                "configureGame": {
+                    "title": "Configure Experience",
+                    "desc1": "Open the setup to configure an experience for the 40% method without needing to be in a purchase flow.",
+                    "buttonText": "Open Setup"
+                },
+                "useSoberSupportDeeplinks": {
+                    "title": "Use Roblox deeplinks for Sober support",
+                    "desc1": "This is less stable and should only be used if on Sober"
+                }
+            }
         },
         "experiences": {
             "title": "Experiences"

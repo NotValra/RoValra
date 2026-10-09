@@ -825,7 +825,34 @@
             "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
         },
         "marketplace": {
-            "title": "商城"
+            "title": "商城",
+            "itemSalesEnabled": {
+                "title": "道具销售",
+                "desc1": "此处显示我们最新的销售和收入数据。",
+                "desc2": "在售道具的销售数据很可能不准确，但非在售道具的销售数据很可能正确。",
+                "deprecated": "销售统计数据非常陈旧，现在已不准确。"
+            },
+            "SaveLotsRobuxEnabled": {
+                "title": "购买道具可节省 10%-40% Robux",
+                "desc1": "此功能会添加一个按钮，让您在商城购买道具时节省 40% 的费用。",
+                "desc2": "请注意，此功能需要拥有群组才能生效。",
+                "desc3": "**购买道具时会出现一个「节省 X Robux」按钮，点击该按钮将设置此功能生效所需的体验（如果尚未设置）。**",
+                "RobuxPlaceId": {
+                    "title": "用于 10%-40% Robux 返利的地点 ID",
+                    "desc1": "最好不要修改此 ID，因为此功能会在使用时自动设置正确的地点 ID。",
+                    "desc2": "**除非您清楚自己在做什么，否则请勿更改地点 ID。**",
+                    "placeholder": "在此处输入地点 ID..."
+                },
+                "configureGame": {
+                    "title": "配置体验",
+                    "desc1": "打开设置，无需进入购买流程即可配置 40% 折扣方式的体验。",
+                    "buttonText": "打开设置"
+                },
+                "useSoberSupportDeeplinks": {
+                    "title": "使用 Roblox 深度链接支持 Sober 功能",
+                    "desc1": "此功能稳定性较差，仅应在 Sober 模式下使用。"
+                }
+            }
         },
         "experiences": {
             "title": "体验"

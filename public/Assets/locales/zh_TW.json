@@ -558,7 +558,7 @@
     "donationLink": {
         "donate": "捐贈",
         "overlayTitle": "《PLS DONATE》",
-        "description": "這將啟動《PLS DONATE》遊戲，您可以在這裡進行離線捐贈。\n\n由於 Roblox (30%) 和遊戲 (10%) 會收取費用，使用者將收到捐贈金額的 60%。\n\n加入後，「離線捐贈」介面將自動顯示，並預先填寫您的使用者名稱。只需點擊禮物按鈕即可開啟您的捐贈頁面，購買遊戲通行證進行捐贈。",
+        "description": "這將啟動《PLS DONATE》遊戲，您可以在這裡進行離線捐贈。\n\n由於 Roblox (30%) 和遊戲 (10%) 會收取費用，使用者將收到捐贈金額的 60%。\n\n加入後，「離線捐贈」介面將自動顯示，並預先填寫您的使用者名稱。只需點觸禮物按鈕即可開啟您的捐贈頁面，購買遊戲通行證進行捐贈。",
         "joinButton": "加入《PLS DONATE》",
         "goBackButton": "返回",
         "loadingGamePasses": "正在載入遊戲通行證...",
@@ -833,7 +833,34 @@
             "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
         },
         "marketplace": {
-            "title": "市集"
+            "title": "市集",
+            "itemSalesEnabled": {
+                "title": "道具銷售",
+                "desc1": "此處顯示我們最新的銷售和收入資料。",
+                "desc2": "在售道具的銷售資料很可能不準確，但下架道具的銷售資料很可能正確。",
+                "deprecated": "銷售統計資料非常陳舊，現在已不準確。"
+            },
+            "SaveLotsRobuxEnabled": {
+                "title": "購買道具可節省 10%-40% Robux",
+                "desc1": "此功能會新增一個按鈕，讓您在市集購買道具時節省 40% 的費用。",
+                "desc2": "請注意，此功能需要擁有群組才能生效。",
+                "desc3": "**購買道具時會出現一個「節省 X Robux」按鈕，點觸此按鈕將設定此功能生效所需的體驗（如果尚未設定）。**",
+                "RobuxPlaceId": {
+                    "title": "用於 10%-40% Robux 回饋的地點 ID",
+                    "desc1": "最好不要變更，因為此功能會在使用時自動設定正確的地點 ID。",
+                    "desc2": "**除非您清楚自己在做什麼，否則請勿變更地點 ID。**",
+                    "placeholder": "在此輸入地點 ID..."
+                },
+                "configureGame": {
+                    "title": "配置體驗",
+                    "desc1": "開啟設定，無需進入購買流程即可配置 40% 折扣方式的體驗。",
+                    "buttonText": "開啟設定"
+                },
+                "useSoberSupportDeeplinks": {
+                    "title": "使用 Roblox 深度連結支援 Sober 功能",
+                    "desc1": "此功能穩定性較差，僅應在 Sober 模式下使用。"
+                }
+            }
         },
         "experiences": {
             "title": "體驗"
