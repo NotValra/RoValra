@@ -832,6 +832,48 @@
             "desc2": "頁面將重新載入以套用變更。設定頁面上的變更可能不會立即生效。",
             "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
         },
+        "marketplace": {
+            "title": "市集"
+        },
+        "experiences": {
+            "title": "體驗"
+        },
+        "profile": {
+            "title": "個人檔案"
+        },
+        "home": {
+            "title": "首頁"
+        },
+        "communities": {
+            "title": "社群"
+        },
+        "avatar": {
+            "title": "虛擬人偶"
+        },
+        "transactions": {
+            "title": "交易記錄"
+        },
+        "trading": {
+            "title": "交易"
+        },
+        "robloxPlus": {
+            "title": "Roblox Plus"
+        },
+        "navigation": {
+            "title": "導航"
+        },
+        "miscellaneous": {
+            "title": "其他設定"
+        },
+        "privacy": {
+            "title": "隱私權"
+        },
+        "websiteCustomization": {
+            "title": "網站自訂"
+        },
+        "developer": {
+            "title": "開發者"
+        },
         "credits": {
             "contributorsTitle": "貢獻者",
             "translatorsTitle": "翻譯者",
@@ -893,7 +935,8 @@
                     "madeEs": "協助進行西班牙文在地化",
                     "madeRu": "協助進行俄文在地化",
                     "madeFr": "協助進行法文在地化",
-                    "madeZh": "協助進行繁體中文/簡體中文在地化"
+                    "madeZh": "協助進行繁體中文/簡體中文在地化",
+                    "madeVi": "協助進行越南文在地化"
                 }
             },
             "ui": {

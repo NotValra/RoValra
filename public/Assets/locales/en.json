@@ -834,6 +834,48 @@
             "desc2": "The page will reload to apply changes. Might not work immediately on the settings page.",
             "desc3": "We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy."
         },
+        "marketplace": {
+            "title": "Marketplace"
+        },
+        "experiences": {
+            "title": "Experiences"
+        },
+        "profile": {
+            "title": "Profile"
+        },
+        "home": {
+            "title": "Home"
+        },
+        "communities": {
+            "title": "Communities"
+        },
+        "avatar": {
+            "title": "Avatar"
+        },
+        "transactions": {
+            "title": "Transactions"
+        },
+        "trading": {
+            "title": "Trading"
+        },
+        "robloxPlus": {
+            "title": "Roblox Plus"
+        },
+        "navigation": {
+            "title": "Navigation"
+        },
+        "miscellaneous": {
+            "title": "Miscellaneous"
+        },
+        "privacy": {
+            "title": "Privacy"
+        },
+        "websiteCustomization": {
+            "title": "Website Customization"
+        },
+        "developer": {
+            "title": "Developer"
+        },
         "credits": {
             "contributorsTitle": "Contributors",
             "translatorsTitle": "Translators",

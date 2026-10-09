@@ -824,6 +824,48 @@
             "desc2": "页面将重新加载以应用更改。设置页面上的更改可能不会立即生效。",
             "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
         },
+        "marketplace": {
+            "title": "商城"
+        },
+        "experiences": {
+            "title": "体验"
+        },
+        "profile": {
+            "title": "个人资料"
+        },
+        "home": {
+            "title": "首页"
+        },
+        "communities": {
+            "title": "社区"
+        },
+        "avatar": {
+            "title": "虚拟形象"
+        },
+        "transactions": {
+            "title": "交易记录"
+        },
+        "trading": {
+            "title": "交易"
+        },
+        "robloxPlus": {
+            "title": "Roblox Plus"
+        },
+        "navigation": {
+            "title": "导航"
+        },
+        "miscellaneous": {
+            "title": "其他设置"
+        },
+        "privacy": {
+            "title": "隐私权"
+        },
+        "websiteCustomization": {
+            "title": "网站自定义"
+        },
+        "developer": {
+            "title": "开发者"
+        },
         "mutualFriends": {
             "pill_one": "{{count}} 位共同好友",
             "pill_other": "{{count}} 位共同好友",
@@ -893,7 +935,8 @@
                     "madeEs": "协助进行西班牙语本地化",
                     "madeRu": "协助进行俄语本地化",
                     "madeFr": "协助进行法语本地化",
-                    "madeZh": "协助进行繁体中文/简体中文本地化"
+                    "madeZh": "协助进行繁体中文/简体中文本地化",
+                    "madeVi": "协助进行越南语本地化"
                 }
             },
             "ui": {
