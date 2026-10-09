@@ -12,6 +12,7 @@ import { addTooltip } from '../../core/ui/tooltip.js';
 
 const ORDER_STORAGE_KEY = 'rovalra_sidebar_layout_order';
 const HIDDEN_STORAGE_KEY = 'rovalra_sidebar_layout_hidden';
+const CUSTOM_STORAGE_KEY = 'rovalra_sidebar_layout_custom';
 const BUTTON_ID = 'rovalra-sidebar-layout-button';
 const SIDEBAR_ITEM_SELECTOR = [
     '.left-nav nav a[href]',
@@ -24,15 +25,20 @@ const DEFAULT_LOCALE = {
     reset: 'Reset',
     save: 'Save',
     overlayTitle: 'Sidebar Layout',
+    add: 'Add',
     button: 'Customize Layout',
     myProfile: 'My Profile',
     disabled: 'Disabled',
     show: 'Show',
     hide: 'Hide',
+    addButton: "Add button",
+    buttonPlaceholder1: "Name",
+    buttonPlaceholder2: "URL",
 };
 
 let savedOrder = [];
 let hiddenSidebarKeys = [];
+let customButtons = [];
 let originalOrder = [];
 let profileItemKey = null;
 let currentSidebar = null;
@@ -50,12 +56,16 @@ async function loadLocale() {
             empty: await t('sidebarLayout.empty'),
             reset: await t('sidebarLayout.reset'),
             save: await t('sidebarLayout.save'),
+            add: await t('sidebarLayout.add'),
             overlayTitle: await t('sidebarLayout.overlayTitle'),
             button: await t('sidebarLayout.button'),
             myProfile: await t('sidebarLayout.myProfile'),
             disabled: await t('sidebarLayout.disabled'),
             show: await t('sidebarLayout.show'),
             hide: await t('sidebarLayout.hide'),
+            addButton: await t('sidebarLayout.addButton'),
+            buttonPlaceholder1: await t('sidebarLayout.buttonPlaceholder1'),
+            buttonPlaceholder2: await t('sidebarLayout.buttonPlaceholder2'),
         };
     } catch {
         locale = { ...DEFAULT_LOCALE };
@@ -105,6 +115,99 @@ function getSidebarItemLabel(control) {
         control.textContent.trim() ||
         locale.untitled
     ).replace(/\s+/g, ' ');
+}
+
+function addCustomButton(buttonName, buttonLink) {
+    if (buttonName) {
+        const name = String(buttonName).trim();
+        const href = String(buttonLink || '').trim();
+        if (!name || !href) return;
+        if (!customButtons.some((item) => item.name === name)) {
+            customButtons.push({ name, href });
+            const key = `custom:${name}`;
+            if (savedOrder.length && !savedOrder.includes(key)) savedOrder.push(key);
+            chrome.storage.local.set({
+                [CUSTOM_STORAGE_KEY]: customButtons,
+                [ORDER_STORAGE_KEY]: savedOrder,
+            });
+        }
+    }
+
+    if (!currentSidebar || !customButtons.length) return;
+
+    const nav = currentSidebar.querySelector('nav') || currentSidebar;
+    const list = nav.querySelector('ul') || nav;
+
+    customButtons.forEach(({ name, href }) => {
+        const key = `custom:${name}`;
+        if (list.querySelector(`[data-rovalra-sidebar-layout-key="${key}"]`)) return;
+
+        const li = document.createElement('li');
+        li.dataset.rovalraSidebarLayoutKey = key;
+        const a = document.createElement('a');
+        a.href = href;
+        a.className =
+            'content-emphasis text-title-large flex items-center gap-small padding-left-xsmall padding-right-xxsmall radius-medium relative clip group/interactable focus-visible:outline-focus disabled:outline-none';
+        a.setAttribute('aria-label', name);
+        a.innerHTML = `
+        <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
+        <span class="size-1000 grow-0 shrink-0 basis-auto flex justify-center items-center">
+            <span aria-hidden="true" data-testid="foundation-web-icon" class="grow-0 shrink-0 basis-auto icon icon-regular-paint-brush size-[var(--icon-size-large)]"></span>
+        </span>
+        <span class="min-width-0 text-truncate-end text-no-wrap"></span>
+    `;
+        a.querySelector('.text-truncate-end').textContent = name;
+        li.appendChild(a);
+        list.appendChild(li);
+    });
+
+    if (buttonName) applySidebarLayout();
+}
+
+function addCustomButtonPopup() {
+    const buttonNameInput = document.createElement('input');
+    buttonNameInput.type = 'text';
+    buttonNameInput.placeholder = locale.buttonPlaceholder1;
+    Object.assign(buttonNameInput.style, {
+        width: '100%',
+        height: '40px',
+        padding: '10px',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        boxSizing: 'border-box',
+    });
+    const buttonUrlInput = document.createElement('input');
+    buttonUrlInput.type = 'text';
+    buttonUrlInput.placeholder = locale.buttonPlaceholder2;
+    Object.assign(buttonUrlInput.style, {
+        width: '100%',
+        height: '40px',
+        padding: '10px',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        boxSizing: 'border-box',
+    });
+    const body = document.createElement('div');
+    body.appendChild(buttonNameInput);
+    body.appendChild(document.createElement('br'));
+    body.appendChild(document.createElement('br'));
+    body.appendChild(buttonUrlInput);
+    body.appendChild(document.createElement('br'));
+    body.appendChild(document.createElement('br'));
+    let popup = null;
+    const addButton = createButton(locale.add, 'primary', {
+        onClick: () => {
+            addCustomButton(buttonNameInput.value, buttonUrlInput.value);
+            popup?.close();
+        },
+    });
+    popup = createOverlay({
+        title: locale.addButton,
+        bodyContent: body,
+        actions: [addButton],
+        maxWidth: '620px',
+        showLogo: true,
+    });
 }
 
 function getSidebarItems(sidebar) {
@@ -199,6 +302,8 @@ function applySidebarOrder(sidebarItems) {
 
 function applySidebarLayout(sidebar = currentSidebar) {
     if (!sidebar?.isConnected) return;
+    currentSidebar = sidebar;
+    addCustomButton();
 
     const sidebarItems = getSidebarItems(sidebar);
     const hiddenItems = new Set(hiddenSidebarKeys);
@@ -247,21 +352,38 @@ function openSidebarLayoutOverlay() {
         nextHiddenKeys,
     );
     let overlayHandle = null;
+    const addButton = createButton(locale.add, 'primary', {
+        onClick: () => {
+            addCustomButtonPopup();
+            overlayHandle?.close();
+        },
+    });
+    addButton.style.marginRight = 'auto';
 
     const resetButton = createButton(locale.reset, 'secondary', {
-        disabled: !savedOrder.length && !hiddenSidebarKeys.length,
+        disabled:
+            !savedOrder.length &&
+            !hiddenSidebarKeys.length &&
+            !customButtons.length,
         onClick: () => {
             chrome.storage.local.remove(
-                [ORDER_STORAGE_KEY, HIDDEN_STORAGE_KEY],
+                [ORDER_STORAGE_KEY, HIDDEN_STORAGE_KEY, CUSTOM_STORAGE_KEY],
                 () => {
                     savedOrder = [];
                     hiddenSidebarKeys = [];
+                    customButtons = [];
+                    currentSidebar
+                        ?.querySelectorAll(
+                            '[data-rovalra-sidebar-layout-key^="custom:"]',
+                        )
+                        .forEach((item) => item.remove());
                     applySidebarLayout();
                     overlayHandle?.close();
                 },
             );
         },
     });
+
 
     const saveButton = createButton(locale.save, 'primary', {
         disabled: !list,
@@ -288,7 +410,7 @@ function openSidebarLayoutOverlay() {
     overlayHandle = createOverlay({
         title: locale.overlayTitle,
         bodyContent: container,
-        actions: [resetButton, saveButton],
+        actions: [addButton, resetButton, saveButton],
         maxWidth: '620px',
         showLogo: true,
         onClose: cleanup,
@@ -343,12 +465,21 @@ async function loadSavedLayout() {
     const data = await chrome.storage.local.get({
         [ORDER_STORAGE_KEY]: [],
         [HIDDEN_STORAGE_KEY]: [],
+        [CUSTOM_STORAGE_KEY]: [],
     });
     savedOrder = Array.isArray(data[ORDER_STORAGE_KEY])
         ? data[ORDER_STORAGE_KEY].map(String)
         : [];
     hiddenSidebarKeys = Array.isArray(data[HIDDEN_STORAGE_KEY])
         ? data[HIDDEN_STORAGE_KEY].map(String)
+        : [];
+    customButtons = Array.isArray(data[CUSTOM_STORAGE_KEY])
+        ? data[CUSTOM_STORAGE_KEY]
+              .filter((item) => item && item.name)
+              .map((item) => ({
+                  name: String(item.name),
+                  href: String(item.href || ''),
+              }))
         : [];
 }
 
