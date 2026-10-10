@@ -1223,7 +1223,7 @@
             },
             "displayAppThemeUserProfile": {
                 "title": "顯示 App 主題使用者個人檔案",
-                "desc1": "在使用者的個人檔案中顯示其 App 主題！",
+                "desc1": "在使用者的個人檔案中顯示 App 主題！",
                 "displayAppThemeOwnProfile": {
                     "title": "在您的個人檔案中顯示您的 App 主題",
                     "desc1": "向其他使用者顯示您的 App 主題！",
@@ -1271,6 +1271,48 @@
             "chatEligibilityTooltipEnabled": {
                 "title": "聊天資格提示",
                 "desc1": "當您將滑鼠停留在好友個人檔案上的聊天按鈕上時，會顯示您是否可以與此好友聊天，或者他們是否已完成年齡驗證。"
+            },
+            "userSniperEnabled": {
+                "title": "即時加入",
+                "desc1": "使用者進入遊戲時可立即加入，最適合多人嘗試加入的情況。",
+                "desc2": "### 要求",
+                "desc3": "- 此功能要求使用者啟用所有人可加入功能，或您是此使用者的好友。",
+                "deeplinkEnabled": {
+                    "title": "透過深度連結加入",
+                    "desc1": "此功能將使用深度連結加入使用者，速度更快，但可能不太可靠。"
+                }
+            },
+            "profile3DRenderEnabled": {
+                "title": "啟用自訂 3D 個人檔案渲染器",
+                "desc1": "將預設個人檔案虛擬人偶替換為更可自訂、功能更豐富的 3D 渲染器。",
+                "desc2": "自訂環境和其他渲染相關設定需要此功能。",
+                "desc3": "此功能得益於 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "experimental": "此功能可能會導致效能問題，並且可能存在錯誤。",
+                "profileRenderEnvironment": {
+                    "title": "3D 個人檔案環境",
+                    "desc1": "為您的個人檔案 3D 渲染選擇自訂環境。",
+                    "desc2": "此功能僅在查看您自己的個人檔案時生效。",
+                    "desc3": "**此設定儲存在 RoValra 的資料庫中，因此任何擁有 RoValra 的使用者都可以查看。RoValra 的資料庫曾經是等級 1 捐贈者特權，我們正在開發替代特權。**",
+                    "option1": "無",
+                    "option2": "紫色太空",
+                    "option3": "十字路口",
+                    "option4": "底板"
+                },
+                "profileRenderRotateEnabled": {
+                    "title": "自動旋轉個人檔案虛擬人偶",
+                    "desc1": "自動旋轉個人檔案頁面上的 3D 虛擬人偶。"
+                },
+                "environmentTester": {
+                    "title": "啟用環境建立器",
+                    "desc1": "在個人檔案中顯示環境建立器工具，用於建立自訂客戶端環境。",
+                    "desc2": "這是為了準備創造社群環境。",
+                    "desc3": "這將覆蓋個人檔案中的所有環境。",
+                    "desc4": "**僅當您計劃建立環境時才應啟用此功能。**"
+                },
+                "profile3DRenderPostProcessing": {
+                    "title": "後製",
+                    "desc1": "後製可實現諸如光暈和環境光遮蔽等高級效果，但需要性能強大的裝置。"
+                }
             }
         },
         "home": {

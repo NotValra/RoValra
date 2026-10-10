@@ -53,7 +53,7 @@ export function createDropdown({
                 current.label.length > prev.label.length ? current : prev,
             { label: '' },
         );
-        triggerValueSpan.textContent = widestItem.label || placeholder;
+        triggerValueSpan.textContent = ts(widestItem.label) || placeholder;
 
         Object.assign(trigger.style, {
             visibility: 'hidden',

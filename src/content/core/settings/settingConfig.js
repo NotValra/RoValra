@@ -958,19 +958,19 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             userSniperEnabled: {
-                label: 'Instant Joiner',
+                label: 'settings.profile.userSniperEnabled.title',
                 description: [
-                    'This joins a user instantly when they go into an experience, best used for people with a lot of people trying to join them.',
-                    '### Requirements',
-                    '- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.',
+                    'settings.profile.userSniperEnabled.desc1',
+                    'settings.profile.userSniperEnabled.desc2',
+                    'settings.profile.userSniperEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: false,
                 childSettings: {
                     deeplinkEnabled: {
-                        label: 'Join through deeplinks',
+                        label: 'settings.profile.userSniperEnabled.deeplinkEnabled.title',
                         description: [
-                            'This will use deeplinks to join the user for faster joining but may be less reliable.',
+                            'settings.profile.userSniperEnabled.deeplinkEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -979,31 +979,31 @@ export const SETTINGS_CONFIG = {
             },
 
             profile3DRenderEnabled: {
-                label: 'Enable Custom 3D Profile Renderer',
+                label: 'settings.profile.profile3DRenderEnabled.title',
                 description: [
-                    'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
-                    'This feature is required for custom environments and other render-related settings.',
-                    'This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
+                    'settings.profile.profile3DRenderEnabled.desc1',
+                    'settings.profile.profile3DRenderEnabled.desc2',
+                    'settings.profile.profile3DRenderEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['126448532', '447170745'],
 
                 experimental:
-                    'This feature may cause performance issues. And may be buggy',
+                    'settings.profile.profile3DRenderEnabled.experimental',
                 childSettings: {
                     profileRenderEnvironment: {
-                        label: '3D Profile Environment',
+                        label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.title',
                         description: [
-                            "Choose a custom environment for your own profile's 3D render.",
-                            'This only applies when viewing your own profile.',
-                            '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
+                            'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.desc1',
+                            'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.desc2',
+                            'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.desc3',
                         ],
                         type: 'select',
                         options: [
-                            { label: 'None', value: 'void', id: 1 },
+                            { label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option1', value: 'void', id: 1 },
                             {
-                                label: 'Purple Space',
+                                label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option2',
                                 value: 'purple',
                                 environmentEndpoint:
                                     '/static/json/skyboxSpace.json',
@@ -1011,14 +1011,14 @@ export const SETTINGS_CONFIG = {
                             },
 
                             {
-                                label: 'Crossroads',
+                                label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option3',
                                 value: 'crossroads',
                                 environmentEndpoint:
                                     '/static/json/crossroads.json',
                                 id: 3,
                             },
                             {
-                                label: 'Baseplate',
+                                label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option4',
                                 value: 'baseplate',
                                 environmentEndpoint:
                                     '/static/json/baseplate.json',
@@ -1028,28 +1028,28 @@ export const SETTINGS_CONFIG = {
                         default: 'void',
                     },
                     profileRenderRotateEnabled: {
-                        label: 'Auto-Rotate Profile Avatar',
+                        label: 'settings.profile.profile3DRenderEnabled.profileRenderRotateEnabled.title',
                         description: [
-                            'Automatically rotates the 3D avatar on the profile page.',
+                            'settings.profile.profile3DRenderEnabled.profileRenderRotateEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
                     },
                     environmentTester: {
-                        label: 'Enable Environment Creator',
+                        label: 'settings.profile.profile3DRenderEnabled.environmentTester.title',
                         description: [
-                            'Shows the Environment Creator tool on profiles to make custom client-side environments.',
-                            'This is to prepare for community environments.',
-                            'This will overwrite all environments on profiles.',
-                            '**This feature should only be enabled if you plan to make environments.**',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc1',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc2',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc3',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc4',
                         ],
                         type: 'checkbox',
                         default: false,
                     },
                     profile3DRenderPostProcessing: {
-                        label: 'Post Processing',
+                        label: 'settings.profile.profile3DRenderEnabled.profile3DRenderPostProcessing.title',
                         description:
-                            'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
+                            'settings.profile.profile3DRenderEnabled.profile3DRenderPostProcessing.desc1',
                         type: 'checkbox',
                         default: false,
                     },

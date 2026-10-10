@@ -892,7 +892,7 @@
             "recentlyViewedEnabled": {
                 "title": "最近浏览道具",
                 "desc1": "在商城顶部添加一个「最近浏览」行，显示您最近打开的道具和组合包。",
-                "desc2": "您可以逐个移除道具，也可以一次性全部移除。您的历史记录仅存储在此设备上。",
+                "desc2": "您可以逐个移除道具，也可以一次性全部移除。您的历史记录仅保存在此设备上。",
                 "recentlyViewedPriceChanges": {
                     "title": "显示价格变动",
                     "desc1": "显示自您浏览道具以来，该道具的价格是变便宜、变贵、下架还是重新上架。"
@@ -1103,7 +1103,7 @@
             "TotalSpentGamesEnabled": {
                 "title": "体验总消费",
                 "desc1": "显示您在此次体验中总共消费了多少 Robux。",
-                "desc2": "此功能会在后台扫描您的交易记录，并将总消费存储在本地。",
+                "desc2": "此功能会在后台扫描您的交易记录，并将总消费保存在本地。",
                 "desc3": "首次安装扩展程序后，可能需要几分钟才能生效。"
             },
             "OldestVersionEnabled": {
@@ -1235,7 +1235,7 @@
             "profileNotesEnabled": {
                 "title": "个人资料备注",
                 "desc1": "为 Roblox 个人资料添加私密备注字段。",
-                "desc2": "备注仅存储在本地，绝不会与 RoValra 或 Roblox 共享。",
+                "desc2": "备注仅保存在本地，绝不会与 RoValra 或 Roblox 共享。",
                 "desc3": "最多 256 个字符。",
                 "profileNotesBackup": {
                     "title": "备注备份",
@@ -1271,6 +1271,48 @@
             "chatEligibilityTooltipEnabled": {
                 "title": "聊天资格提示",
                 "desc1": "当您将鼠标悬停在好友个人资料上的聊天按钮上时，会显示您是否可以与该好友聊天，或者他们是否已完成年龄验证。"
+            },
+            "userSniperEnabled": {
+                "title": "马上加入",
+                "desc1": "用户进入游戏时可马上加入，最适合多人尝试加入的情况。",
+                "desc2": "### 要求",
+                "desc3": "- 此功能要求用户启用所有人可加入功能，或者您是该用户的好友。",
+                "deeplinkEnabled": {
+                    "title": "通过深度链接加入",
+                    "desc1": "此功能将使用深度链接加入用户，速度更快，但可能不太可靠。"
+                }
+            },
+            "profile3DRenderEnabled": {
+                "title": "启用自定义 3D 个人资料渲染器",
+                "desc1": "将默认个人资料虚拟形象替换为更可定制、功能更丰富的 3D 渲染器。",
+                "desc2": "自定义环境和其他渲染相关设置需要此功能。",
+                "desc3": "此功能得益于 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "experimental": "此功能可能会导致性能问题，并且可能存在错误。",
+                "profileRenderEnvironment": {
+                    "title": "3D 个人资料环境",
+                    "desc1": "为您的个人资料 3D 渲染选择自定义环境。",
+                    "desc2": "此功能仅在查看您自己的个人资料时生效。",
+                    "desc3": "**此设置保存在 RoValra 的数据库中，因此任何拥有 RoValra 的用户都可以查看。RoValra 的数据库曾经是等级 1 捐赠者福利，我们正在开发替代福利。**",
+                    "option1": "无",
+                    "option2": "紫色太空",
+                    "option3": "十字路口",
+                    "option4": "底板"
+                },
+                "profileRenderRotateEnabled": {
+                    "title": "自动旋转个人资料虚拟形象",
+                    "desc1": "自动旋转个人资料页面上的 3D 虚拟形象。"
+                },
+                "environmentTester": {
+                    "title": "启用环境创建器",
+                    "desc1": "在个人资料中显示环境创建器工具，用于创建自定义客户端环境。",
+                    "desc2": "这是为了准备创建社区环境。",
+                    "desc3": "这将覆盖个人资料中的所有环境。",
+                    "desc4": "**仅当您计划创建环境时才应启用此功能。**"
+                },
+                "profile3DRenderPostProcessing": {
+                    "title": "后期处理",
+                    "desc1": "后期处理可实现诸如光晕和环境光遮蔽等高级效果，但需要性能强大的设备。"
+                }
             }
         },
         "home": {

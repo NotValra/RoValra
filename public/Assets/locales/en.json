@@ -1273,6 +1273,48 @@
             "chatEligibilityTooltipEnabled": {
                 "title": "Chat Eligibility Tooltip",
                 "desc1": "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile."
+            },
+            "userSniperEnabled": {
+                "title": "Instant Joiner",
+                "desc1": "This joins a user instantly when they go into an experience, best used for people with a lot of people trying to join them.",
+                "desc2": "### Requirements",
+                "desc3": "- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.",
+                "deeplinkEnabled": {
+                    "title": "Join through deeplinks",
+                    "desc1": "This will use deeplinks to join the user for faster joining but may be less reliable."
+                }
+            },
+            "profile3DRenderEnabled": {
+                "title": "Enable Custom 3D Profile Renderer",
+                "desc1": "Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.",
+                "desc2": "This feature is required for custom environments and other render-related settings.",
+                "desc3": "This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "experimental": "This feature may cause performance issues. And may be buggy",
+                "profileRenderEnvironment": {
+                    "title": "3D Profile Environment",
+                    "desc1": "Choose a custom environment for your own profile's 3D render.",
+                    "desc2": "This only applies when viewing your own profile.",
+                    "desc3": "**This is saved on RoValra's database so anyone with RoValra can view it. It being saved on RoValra's database used to be a tier 1 Donator perk, we are working on a replacement perk.**",
+                    "option1": "None",
+                    "option2": "Purple Space",
+                    "option3": "Crossroads",
+                    "option4": "Baseplate"
+                },
+                "profileRenderRotateEnabled": {
+                    "title": "Auto-Rotate Profile Avatar",
+                    "desc1": "Automatically rotates the 3D avatar on the profile page."
+                },
+                "environmentTester": {
+                    "title": "Enable Environment Creator",
+                    "desc1": "Shows the Environment Creator tool on profiles to make custom client-side environments.",
+                    "desc2": "This is to prepare for community environments.",
+                    "desc3": "This will overwrite all environments on profiles.",
+                    "desc4": "**This feature should only be enabled if you plan to make environments.**"
+                },
+                "profile3DRenderPostProcessing": {
+                    "title": "Post Processing",
+                    "desc1": "Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device."
+                }
             }
         },
         "home": {
