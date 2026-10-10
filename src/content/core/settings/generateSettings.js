@@ -599,7 +599,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         dropdownOptions.forEach((opt) => {
             const option = document.createElement('option');
             option.value = opt.value;
-            option.textContent = opt.label;
+            option.textContent = ts(opt.label);
             hiddenSelect.appendChild(option);
         });
 
