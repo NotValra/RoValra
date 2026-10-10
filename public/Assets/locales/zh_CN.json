@@ -877,7 +877,7 @@
                 "desc1": "鼠标悬停在道具上时添加试穿预览，并为道具页面添加功能丰富的 3D 渲染器。",
                 "desc2": "此功能得益于 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
                 "marketplace3DRenderHoverPreviewDisabled": {
-                    "title": "禁用悬停预览",
+                    "title": "禁用鼠标悬停预览",
                     "desc1": "鼠标悬停在市场道具上时禁用 3D 试穿预览。"
                 },
                 "marketplace3DPostProcessing": {
@@ -1244,6 +1244,33 @@
                     "button1": "导出备注",
                     "button2": "导入备注"
                 }
+            },
+            "profileViewsEnabled": {
+                "title": "个人资料浏览次数",
+                "desc1": "在个人资料页面上显示浏览次数。",
+                "desc2": "禁用此功能将隐藏本地个人资料浏览次数，并隐藏您对其他 RoValra 用户的浏览次数。",
+                "desc3": "感谢 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "creatorStatsEnabled": {
+                "title": "创作者统计",
+                "desc1": "在用户的个人资料页面上显示当前活跃用户（CCU）、体验访问次数和拥有的社区成员数量。"
+            },
+            "socialLinksEnabled": {
+                "title": "个人资料社交链接",
+                "desc1": "在个人资料关于下方显示社交链接。"
+            },
+            "profileCustomizationEnabled": {
+                "title": "个人资料自定义",
+                "desc1": "在您的个人资料中添加一个自定义按钮，方便您快速切换虚拟形象边框。"
+            },
+            "profileShowcaseEnabled": {
+                "title": "个人资料展示",
+                "desc1": "在个人资料中添加一个展示标签，用于展示您最喜欢的体验和社区。",
+                "desc2": "感谢 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "chatEligibilityTooltipEnabled": {
+                "title": "聊天资格提示",
+                "desc1": "当您将鼠标悬停在好友个人资料上的聊天按钮上时，会显示您是否可以与该好友聊天，或者他们是否已完成年龄验证。"
             }
         },
         "home": {

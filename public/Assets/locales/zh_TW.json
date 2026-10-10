@@ -874,11 +874,11 @@
             },
             "marketplace3DRenderEnabledV2": {
                 "title": "啟用自訂 3D 市集道具渲染器",
-                "desc1": "滑鼠懸停在道具上時新增試穿預覽，並為道具頁面新增功能豐富的 3D 渲染器。",
+                "desc1": "滑鼠停留在道具上時新增試穿預覽，並為道具頁面新增功能豐富的 3D 渲染器。",
                 "desc2": "此功能得益於 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
                 "marketplace3DRenderHoverPreviewDisabled": {
-                    "title": "停用懸停預覽",
-                    "desc1": "滑鼠懸停在市集道具上時停用 3D 試穿預覽。"
+                    "title": "停用滑鼠停留預覽",
+                    "desc1": "滑鼠停留在市集道具上時停用 3D 試穿預覽。"
                 },
                 "marketplace3DPostProcessing": {
                     "title": "後製",
@@ -930,7 +930,7 @@
             },
             "ownedItemPriceEnabled": {
                 "title": "已擁有道具頁面上的價格",
-                "desc1": "即使您已擁有該道具，也會在其道具頁面上顯示此道具的價格。"
+                "desc1": "即使您已擁有此道具，也會在其道具頁面上顯示此道具的價格。"
             },
             "itemTradingEnabled": {
                 "title": "道具交易資訊",
@@ -1165,7 +1165,7 @@
                     "title": "顯示完整的伺服器 ID",
                     "desc1": "這將顯示完整的伺服器 ID",
                     "desc2": "預設情況下，Roblox 只顯示伺服器 ID 的一部分。",
-                    "desc3": "除非滑鼠懸停，否則將隱藏您正在玩或您的好友正在玩的伺服器的伺服器 ID。"
+                    "desc3": "除非滑鼠停留，否則將隱藏您正在玩或您的好友正在玩的伺服器的伺服器 ID。"
                 },
                 "EnableFullServerIndicators": {
                     "title": "伺服器已滿指示器",
@@ -1244,6 +1244,33 @@
                     "button1": "匯出備註",
                     "button2": "匯入備註"
                 }
+            },
+            "profileViewsEnabled": {
+                "title": "個人檔案瀏覽次數",
+                "desc1": "在個人檔案頁面上顯示瀏覽次數。",
+                "desc2": "停用此功能將隱藏本機個人檔案瀏覽次數，並隱藏您對其他 RoValra 使用者的瀏覽次數。",
+                "desc3": "感謝 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "creatorStatsEnabled": {
+                "title": "創作者統計",
+                "desc1": "在使用者的個人檔案頁面上顯示目前活躍使用者（CCU）、體驗參訪次數和擁有的社群成員數量。"
+            },
+            "socialLinksEnabled": {
+                "title": "個人檔案社群連結",
+                "desc1": "在個人檔案介紹下方顯示社群連結。"
+            },
+            "profileCustomizationEnabled": {
+                "title": "個人檔案自訂",
+                "desc1": "在您的個人檔案中新增一個自訂按鈕，方便您快速切換虛擬人偶邊框。"
+            },
+            "profileShowcaseEnabled": {
+                "title": "個人檔案展示",
+                "desc1": "在個人檔案中新增一個展示標籤，用於展示您最喜歡的體驗和社群。",
+                "desc2": "感謝 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "chatEligibilityTooltipEnabled": {
+                "title": "聊天資格提示",
+                "desc1": "當您將滑鼠停留在好友個人檔案上的聊天按鈕上時，會顯示您是否可以與此好友聊天，或者他們是否已完成年齡驗證。"
             }
         },
         "home": {

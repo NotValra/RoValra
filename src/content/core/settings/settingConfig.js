@@ -905,54 +905,54 @@ export const SETTINGS_CONFIG = {
                 },
             },
             profileViewsEnabled: {
-                label: 'Profile Views',
+                label: 'settings.profile.profileViewsEnabled.title',
                 description: [
-                    'Shows profile view counts on profiles.',
-                    'Disabling this hides profile views locally and hides your profile views from other RoValra users.',
-                    'Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on.',
+                    'settings.profile.profileViewsEnabled.desc1',
+                    'settings.profile.profileViewsEnabled.desc2',
+                    'settings.profile.profileViewsEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             creatorStatsEnabled: {
-                label: 'Creator Stats',
+                label: 'settings.profile.creatorStatsEnabled.title',
                 description: [
-                    "Shows a user's combined CCU, experience visits, and owned community member count on their profile.",
+                    'settings.profile.creatorStatsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['4632962611'],
             },
             socialLinksEnabled: {
-                label: 'Profile Social Links',
+                label: 'settings.profile.socialLinksEnabled.title',
                 description: [
-                    'Shows social links below the profile description.',
+                    'settings.profile.socialLinksEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
             },
             profileCustomizationEnabled: {
-                label: 'Profile Customization',
+                label: 'settings.profile.profileCustomizationEnabled.title',
                 description: [
-                    'Adds a customization button to your own profile for quickly switching avatar borders.',
+                    'settings.profile.profileCustomizationEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             profileShowcaseEnabled: {
-                label: 'Profile Showcase',
+                label: 'settings.profile.profileShowcaseEnabled.title',
                 description: [
-                    'Adds a Showcase tab to profiles for featuring a favourite experience and community.',
-                    'Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on.',
+                    'settings.profile.profileShowcaseEnabled.desc1',
+                    'settings.profile.profileShowcaseEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
 
             chatEligibilityTooltipEnabled: {
-                label: 'Chat Eligibility Tooltip',
+                label: 'settings.profile.chatEligibilityTooltipEnabled.title',
                 description: [
-                    "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile.",
+                    'settings.profile.chatEligibilityTooltipEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,

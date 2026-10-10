@@ -1246,6 +1246,33 @@
                     "button1": "Export Notes",
                     "button2": "Import Notes"
                 }
+            },
+            "profileViewsEnabled": {
+                "title": "Profile Views",
+                "desc1": "Shows profile view counts on profiles.",
+                "desc2": "Disabling this hides profile views locally and hides your profile views from other RoValra users.",
+                "desc3": "Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on."
+            },
+            "creatorStatsEnabled": {
+                "title": "Creator Stats",
+                "desc1": "Shows a user's combined CCU, experience visits, and owned community member count on their profile."
+            },
+            "socialLinksEnabled": {
+                "title": "Profile Social Links",
+                "desc1": "Shows social links below the profile description."
+            },
+            "profileCustomizationEnabled": {
+                "title": "Profile Customization",
+                "desc1": "Adds a customization button to your own profile for quickly switching avatar borders."
+            },
+            "profileShowcaseEnabled": {
+                "title": "Profile Showcase",
+                "desc1": "Adds a Showcase tab to profiles for featuring a favourite experience and community.",
+                "desc2": "Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on."
+            },
+            "chatEligibilityTooltipEnabled": {
+                "title": "Chat Eligibility Tooltip",
+                "desc1": "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile."
             }
         },
         "home": {
