@@ -94,6 +94,7 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(519742979, "locales.madeZh", "https://github.com/NotValra/RoValra/pull/276"),  // @BBasilio2001
             new Contribution(16147087, "locales.madeId"),  // @Edward667
             new Contribution(587930109, "locales.madeVi","https://github.com/NotValra/RoValra/pull/303") // @hnguyen1910
+            new Contribution(11785214974, "locales.madeVi","https://github.com/NotValra/RoValra/pull/303") // @DevinHmmmm
         ]
     }
 };
