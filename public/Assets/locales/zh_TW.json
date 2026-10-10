@@ -1027,6 +1027,105 @@
             "QuickOutfitsEnabled": {
                 "title": "快速裝備外觀",
                 "desc1": "此功能可讓您在體驗頁面上快速切換您的虛擬人偶。"
+            },
+            "privateGameViewerEnabled": {
+                "title": "查看私人/經過審核遊戲",
+                "desc1": "這將重新建立私人/經過審核遊戲的遊戲頁面，允許您查看它們。",
+                "privateGameDetectionFallbackEnabled": {
+                    "title": "使用強大的私人/經過審核遊戲偵測",
+                    "desc1": "這將確認它能夠識別您何時嘗試查看私人或經過審核遊戲。",
+                    "desc2": "如果沒有此選項，當您直接開啟連結時，它可能無法顯示私人或經過審核遊戲的頁面。"
+                }
+            },
+            "gamePassViewerEnabled": {
+                "title": "查看私人/經過審核遊戲中的遊戲通行證",
+                "desc1": "這將重新建立私人/經過審核遊戲的遊戲通行證頁面，讓您可以查看它們。"
+            },
+            "underReviewPillEnabled": {
+                "title": "顯示全年齡審核狀態",
+                "desc1": "當 Roblox 正在審查體驗是否符合全年齡資格時，會在體驗頁面上顯示一條簡短的通知。",
+                "locked": "Roblox 已修正此功能。"
+            },
+            "botdataEnabled": {
+                "title": "機器人資料",
+                "desc1": "在體驗說明中顯示體驗中是否存在大量機器人。",
+                "desc2": "由於樣本量太小，無法提供準確的機器人數量，因此不會顯示機器人的具體數量。"
+            },
+            "subplacesEnabled": {
+                "title": "子地點",
+                "desc1": "此功能會在體驗頁面新增一個標籤頁，顯示體驗的子地點。",
+                "subplacesSortEnabled": {
+                    "title": "排序",
+                    "desc1": "此功能會在「子地點」標籤頁新增排序和順序控制項。"
+                }
+            },
+            "hiddenBadgesEnabled": {
+                "title": "隱藏徽章",
+                "desc1": "此功能會在體驗頁面新增一個「隱藏徽章」標籤頁。",
+                "desc2": "此功能僅顯示您已獲得的遊戲中的隱藏徽章。"
+            },
+            "badgeLayoutToggleEnabled": {
+                "title": "徽章版面切換",
+                "desc1": "此功能會在體驗徽章部分新增名單/網格切換。"
+            },
+            "badgeOwnershipEnabled": {
+                "title": "未擁有的徽章顏色變暗",
+                "desc1": "在徽章頁面上，將您未擁有的體驗徽章顏色變暗。（類似於 BTRoblox 的做法）"
+            },
+            "badgeEarnedDateEnabled": {
+                "title": "徽章獲得日期",
+                "desc1": "在徽章和體驗頁面上顯示您獲得徽章的時間。"
+            },
+            "gameStatTimestampsEnabled": {
+                "title": "詳細的建立/更新日期",
+                "desc1": "將體驗頁面上的建立和更新日期替換為精確的、可點觸的時間戳。"
+            },
+            "updateHistoryEnabled": {
+                "title": "更新歷史記錄",
+                "desc1": "此功能會在體驗頁面新增一個標籤頁，其中包含一個熱圖，顯示體驗的更新歷史記錄。",
+                "desc2": "此功能的設計靈感主要來自 RoPro v2 的一個功能。",
+                "beta": "此功能目前缺少更新歷史記錄資訊，我們將逐步新增。"
+            },
+            "recentServersEnabled": {
+                "title": "最近加入的伺服器",
+                "desc1": "顯示您在某個體驗下最近加入的 4 個伺服器。"
+            },
+            "TotalServersEnabled": {
+                "title": "總數伺服器",
+                "desc1": "顯示 RoValra 在此體驗下追蹤的伺服器總數。"
+            },
+            "GameVersionEnabled": {
+                "title": "體驗版本",
+                "desc1": "顯示體驗目前使用的版本。",
+                "desc2": "對開發者特別有用。"
+            },
+            "TotalSpentGamesEnabled": {
+                "title": "體驗總消費",
+                "desc1": "顯示您在此次體驗中總共消費了多少 Robux。",
+                "desc2": "此功能會在背景掃描您的交易記錄，並將總消費儲存在本地。",
+                "desc3": "首次安裝擴充功能後，可能需要幾分鐘才能生效。"
+            },
+            "OldestVersionEnabled": {
+                "title": "伺服器最舊版本",
+                "desc1": "顯示伺服器仍在運作的最舊版本。",
+                "desc2": "對開發者特別有用。"
+            },
+            "ServerFilterEnabled": {
+                "title": "伺服器篩選器",
+                "desc1": "此功能會新增篩選器至伺服器名單。",
+                "desc2": "**強烈建議啟用「伺服器名單調整」功能，以便此功能正常運作。**",
+                "RegionFiltersEnabled": {
+                    "title": "地區篩選器",
+                    "desc1": "在伺服器名單中新增地區篩選器。"
+                },
+                "UptimeFiltersEnabled": {
+                    "title": "執行時間篩選器",
+                    "desc1": "在伺服器名單中新增伺服器執行時間篩選器。"
+                },
+                "VersionFiltersEnabled": {
+                    "title": "地點版本篩選器",
+                    "desc1": "在伺服器名單中新增地點版本篩選器，可讓您按執行特定地點版本的伺服器進行篩選。"
+                }
             }
         },
         "profile": {

@@ -1029,6 +1029,105 @@
             "QuickOutfitsEnabled": {
                 "title": "Quick Equip Outfits",
                 "desc1": "This allows you to quickly switch your avatar on an experience page."
+            },
+            "privateGameViewerEnabled": {
+                "title": "View Private / Moderated Games",
+                "desc1": "This recreates the games page of private / moderated games, allowing you to view them.",
+                "privateGameDetectionFallbackEnabled": {
+                    "title": "Use Robust Private / Moderated Games Detection",
+                    "desc1": "This makes sure it can identify when you're trying to view a private or moderated game.",
+                    "desc2": "Without this, it may fail to show private or moderated game pages when you open their links directly."
+                }
+            },
+            "gamePassViewerEnabled": {
+                "title": "View Gamepasses in Private / Moderated Games",
+                "desc1": "This recreates the gamepass page of private / moderated games, allowing you to view them."
+            },
+            "underReviewPillEnabled": {
+                "title": "Show All-Ages Review Status",
+                "desc1": "Shows a small notice on experience pages when Roblox is reviewing the experience for all-ages eligibility.",
+                "locked": "Roblox patched this feature."
+            },
+            "botdataEnabled": {
+                "title": "Bot Data",
+                "desc1": "Shows if an experience has a lot of bots in the description of the experience.",
+                "desc2": "It doesn't show the amount of bots, since the sample size is too small to give an accurate number."
+            },
+            "subplacesEnabled": {
+                "title": "Subplaces",
+                "desc1": "This adds a tab to an experience page that shows the subplaces of the experience.",
+                "subplacesSortEnabled": {
+                    "title": "Sorting",
+                    "desc1": "Adds sort and order controls to the Subplaces tab."
+                }
+            },
+            "hiddenBadgesEnabled": {
+                "title": "Hidden Badges",
+                "desc1": "Adds a Hidden Badges tab to experience pages.",
+                "desc2": "This only shows hidden badges of a game that you obtained."
+            },
+            "badgeLayoutToggleEnabled": {
+                "title": "Badge Layout Toggle",
+                "desc1": "Adds a List / Grid toggle to experience badge sections."
+            },
+            "badgeOwnershipEnabled": {
+                "title": "Dim Unowned Badges",
+                "desc1": "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)"
+            },
+            "badgeEarnedDateEnabled": {
+                "title": "Badge Earned Date",
+                "desc1": "Shows when you earned a badge on badge and experience pages."
+            },
+            "gameStatTimestampsEnabled": {
+                "title": "Detailed Created / Updated Dates",
+                "desc1": "Replaces the Created and Updated dates on experience pages with exact, clickable timestamps."
+            },
+            "updateHistoryEnabled": {
+                "title": "Update History",
+                "desc1": "This adds a tab to an experience page that has a heatmap showing the update history of an experience.",
+                "desc2": "This feature was heavily inspired by a RoPro v2 feature.",
+                "beta": "This feature is lacking update history data. It will slowly get it over time."
+            },
+            "recentServersEnabled": {
+                "title": "Recent Servers",
+                "desc1": "Shows the 4 most recent servers you joined under an experience."
+            },
+            "TotalServersEnabled": {
+                "title": "Total Servers",
+                "desc1": "This shows the total amount of servers RoValra is tracking under that experience."
+            },
+            "GameVersionEnabled": {
+                "title": "Experience Version",
+                "desc1": "This shows the current version an experience is on.",
+                "desc2": "Useful for developers."
+            },
+            "TotalSpentGamesEnabled": {
+                "title": "Total Spent on Experience",
+                "desc1": "This shows how much Robux you have spent total on this experience.",
+                "desc2": "This will scan your transactions in the background and store the total spent locally.",
+                "desc3": "This may take a few minutes to work after you first install the extension."
+            },
+            "OldestVersionEnabled": {
+                "title": "Oldest Server Version",
+                "desc1": "This shows the oldest place version that servers are still running on.",
+                "desc2": "Useful for developers."
+            },
+            "ServerFilterEnabled": {
+                "title": "Server Filters",
+                "desc1": "This adds a filter to the server list.",
+                "desc2": "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**",
+                "RegionFiltersEnabled": {
+                    "title": "Region Filters",
+                    "desc1": "Adds Region filters in the server list."
+                },
+                "UptimeFiltersEnabled": {
+                    "title": "Uptime Filters",
+                    "desc1": "Adds Server Uptime filters in the server list."
+                },
+                "VersionFiltersEnabled": {
+                    "title": "Place Version Filters",
+                    "desc1": "Adds Place Version filters in the server list allowing you to filter by servers running a specific place version."
+                }
             }
         },
         "profile": {

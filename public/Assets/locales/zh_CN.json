@@ -1019,6 +1019,105 @@
             "QuickOutfitsEnabled": {
                 "title": "快速装备形象",
                 "desc1": "此功能允许您在体验页面上快速切换您的虚拟形象。"
+            },
+            "privateGameViewerEnabled": {
+                "title": "查看私人/受审核游戏",
+                "desc1": "这将重新创建私人/受审核游戏的游戏页面，允许您查看它们。",
+                "privateGameDetectionFallbackEnabled": {
+                    "title": "使用强大的私人/受审核游戏检测",
+                    "desc1": "这将确保它能够识别您何时尝试查看私人或受审核游戏。",
+                    "desc2": "如果没有此选项，当您直接打开链接时，它可能无法显示私人或受审核游戏的页面。"
+                }
+            },
+            "gamePassViewerEnabled": {
+                "title": "查看私人/受审核游戏中的游戏通行证",
+                "desc1": "这将重新创建私人/受审核游戏的游戏通行证页面，允许您查看它们。"
+            },
+            "underReviewPillEnabled": {
+                "title": "显示全年龄审核状态",
+                "desc1": "当 Roblox 正在审核体验是否符合全年龄资格时，会在体验页面上显示一条简短的通知。",
+                "locked": "Roblox 已修补此功能。"
+            },
+            "botdataEnabled": {
+                "title": "机器人数据",
+                "desc1": "在体验描述中显示体验中是否存在大量机器人。",
+                "desc2": "由于样本量太小，无法提供准确的机器人数量，因此不会显示机器人的具体数量。"
+            },
+            "subplacesEnabled": {
+                "title": "子地点",
+                "desc1": "此功能会在体验页面添加一个标签页，显示体验的子地点。",
+                "subplacesSortEnabled": {
+                    "title": "排序",
+                    "desc1": "此功能会在「子地点」标签页添加排序和顺序控件。"
+                }
+            },
+            "hiddenBadgesEnabled": {
+                "title": "隐藏徽章",
+                "desc1": "此功能会在体验页面添加一个「隐藏徽章」标签页。",
+                "desc2": "此功能仅显示您已获得的游戏中的隐藏徽章。"
+            },
+            "badgeLayoutToggleEnabled": {
+                "title": "徽章布局切换",
+                "desc1": "此功能会在体验徽章部分添加列表/网格切换。"
+            },
+            "badgeOwnershipEnabled": {
+                "title": "未拥有的徽章颜色变暗",
+                "desc1": "在徽章页面上，将您未拥有的体验徽章颜色变暗。（类似于 BTRoblox 的做法）"
+            },
+            "badgeEarnedDateEnabled": {
+                "title": "徽章获得日期",
+                "desc1": "在徽章和体验页面上显示您获得徽章的时间。"
+            },
+            "gameStatTimestampsEnabled": {
+                "title": "详细的创建/更新日期",
+                "desc1": "将体验页面上的创建和更新日期替换为精确的、可点击的时间戳。"
+            },
+            "updateHistoryEnabled": {
+                "title": "更新历史记录",
+                "desc1": "此功能会在体验页面添加一个标签页，其中包含一个热图，显示体验的更新历史记录。",
+                "desc2": "此功能的设计灵感主要来自 RoPro v2 的一个功能。",
+                "beta": "此功能目前缺少更新历史记录数据，我们将逐步添加。"
+            },
+            "recentServersEnabled": {
+                "title": "最近加入的服务器",
+                "desc1": "显示您在某个体验下最近加入的 4 个服务器。"
+            },
+            "TotalServersEnabled": {
+                "title": "总数服务器",
+                "desc1": "显示 RoValra 在该体验下跟踪的服务器总数。"
+            },
+            "GameVersionEnabled": {
+                "title": "体验版本",
+                "desc1": "显示体验当前使用的版本。",
+                "desc2": "对开发者特别有用。"
+            },
+            "TotalSpentGamesEnabled": {
+                "title": "体验总消费",
+                "desc1": "显示您在此次体验中总共消费了多少 Robux。",
+                "desc2": "此功能会在后台扫描您的交易记录，并将总消费存储在本地。",
+                "desc3": "首次安装扩展程序后，可能需要几分钟才能生效。"
+            },
+            "OldestVersionEnabled": {
+                "title": "服务器最旧版本",
+                "desc1": "显示服务器仍在运行的最旧版本。",
+                "desc2": "对开发者特别有用。"
+            },
+            "ServerFilterEnabled": {
+                "title": "服务器筛选器",
+                "desc1": "此功能会向服务器列表添加筛选器。",
+                "desc2": "**强烈建议启用「服务器列表修改」功能，以便此功能正常工作。**",
+                "RegionFiltersEnabled": {
+                    "title": "地区筛选器",
+                    "desc1": "在服务器列表中添加地区筛选器。"
+                },
+                "UptimeFiltersEnabled": {
+                    "title": "运行时间筛选器",
+                    "desc1": "在服务器列表中添加服务器运行时间筛选器。"
+                },
+                "VersionFiltersEnabled": {
+                    "title": "地点版本筛选器",
+                    "desc1": "在服务器列表中添加地点版本筛选器，允许您按运行特定地点版本的服务器进行筛选。"
+                }
             }
         },
         "profile": {
