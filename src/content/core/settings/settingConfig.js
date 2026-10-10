@@ -57,13 +57,14 @@ export const SETTINGS_CONFIG = {
                         value: 'id',
                     },
                     {
-                        label: languageLabel('Russian (Русский)', 'ru'),
-                        value: 'ru',
-                    },
-                    {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+                    
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
