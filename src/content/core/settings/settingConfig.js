@@ -776,7 +776,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 storageKey: 'hiddenFriendPrivateServers',
                 contributors: ['476449201'],
-                experimental: '',
+                experimental: 'settings.experiences.HidePrivateServersEnabled.experimental',
             },
             PrivateQuickLinkCopy: {
                 label: 'settings.experiences.PrivateQuickLinkCopy.title',
