@@ -1063,6 +1063,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_group_filters_view',
             },
             trustedConnectionsEnabledv3: {
                 label: 'Trusted Friends',
@@ -1119,6 +1120,7 @@ export const SETTINGS_CONFIG = {
                     'Shows when a user joined a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
             },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
