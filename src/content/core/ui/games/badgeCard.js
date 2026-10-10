@@ -1,15 +1,12 @@
 import { createThumbnailElement } from '../../thumbnail/thumbnails.js';
 import { safeHtml } from '../../packages/dompurify.js';
+import { ts } from '../../locale/i18n.js';
 
-/**
- * Creates a badge card for the "view all badges" overlays.
- * @param {Object} options
- * @param {Object} options.badge - Raw badge object from the Roblox badges API (id, name/displayName, statistics, awardingUniverse, ...).
- * @param {Object} [options.thumbnail] - Thumbnail data for this badge from fetchThumbnails(..., 'BadgeIcon', ...).
- * @param {{ rarity: string, awarded: string }} options.labels - Localized stat labels.
- */
 export function createBadgeCard({ badge, thumbnail, labels }) {
-    const name = badge.displayName || badge.name || `Badge ${badge.id}`;
+    const name =
+        badge.displayName ||
+        badge.name ||
+        ts('viewBadgesProfile.fallbackName', { id: badge.id });
     const stats = badge.statistics || {};
     const winRate = (stats.winRatePercentage ?? 0).toFixed(1);
     const awardedCount = (stats.awardedCount ?? 0).toLocaleString();

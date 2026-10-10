@@ -5,7 +5,7 @@ import { createDropdown } from '../../core/ui/dropdown.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApiJson } from '../../core/api.js';
-import DOMPurify from 'dompurify';
+import DOMPurify from '../../core/packages/dompurify.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import { createBadgeCard } from '../../core/ui/games/badgeCard.js';
 import { getGroupIdFromUrl } from '../../core/idExtractor.js';
@@ -184,74 +184,31 @@ class ViewGroupBadgesManager {
         });
 
         const createFilterGroup = (label, input) =>
-            el(
-                'div',
-                '',
-                {
-                    style: {
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '4px',
-                    },
-                },
-                [
-                    el('label', '', {
-                        textContent: label,
-                        style: {
-                            fontSize: '12px',
-                            fontWeight: '500',
-                            color: 'var(--rovalra-secondary-text-color)',
-                        },
-                    }),
-                    input,
-                ],
-            );
+            el('div', 'rovalra-filter-section', {}, [
+                el('label', '', { textContent: label }),
+                input,
+            ]);
 
         const body = el(
             'div',
             '',
             { style: { display: 'flex', flexDirection: 'column' } },
             [
-                el(
-                    'div',
-                    'rovalra-filters-container',
-                    {
-                        style: {
-                            display: 'grid',
-                            gridTemplateColumns:
-                                'repeat(auto-fit, minmax(200px, 1fr))',
-                            gap: '16px 24px',
-                            padding: '16px 24px',
-                            backgroundColor: 'var(--surface-default)',
-                            borderBottom: '1px solid var(--border-default)',
-                        },
-                    },
-                    [
-                        createFilterGroup(
-                            await t('viewGroupBadges.labels.sort'),
-                            sortDropdown.element,
-                        ),
-                        createFilterGroup(
-                            await t('viewGroupBadges.labels.order'),
-                            orderDropdown.element,
-                        ),
-                    ],
-                ),
-                el('div', 'rovalra-hidden-games-list', {
-                    style: {
-                        display: 'grid',
-                        gridTemplateColumns:
-                            'repeat(auto-fill, minmax(160px, 1fr))',
-                        gap: '10px',
-                        padding: '24px',
-                    },
-                }),
+                el('div', 'rovalra-filters-container', {}, [
+                    createFilterGroup(
+                        await t('viewGroupBadges.labels.sort'),
+                        sortDropdown.element,
+                    ),
+                    createFilterGroup(
+                        await t('viewGroupBadges.labels.order'),
+                        orderDropdown.element,
+                    ),
+                ]),
+                el('div', 'rovalra-hidden-games-list'),
                 el(
                     'div',
                     'rovalra-load-more-container rovalra-hidden-games-list',
-                    {
-                        style: { padding: '0', textAlign: 'center' },
-                    },
+                    { style: { paddingTop: '0' } },
                 ),
             ],
         );
@@ -263,9 +220,12 @@ class ViewGroupBadgesManager {
         this.elements.loader = body.querySelector(
             '.rovalra-load-more-container',
         );
+        this.elements.list.appendChild(
+            createShimmerGrid(12, { width: '150px', height: '150px' }),
+        );
 
         const { overlay } = createOverlay({
-            title: await t('viewGroupBadges.buttonText'),
+            title: await t('viewGroupBadges.overlayText'),
             bodyContent: body,
             maxWidth: '1200px',
             maxHeight: '85vh',
@@ -296,6 +256,10 @@ class ViewGroupBadgesManager {
                 this.applyFilters();
             } catch (err) {
                 console.warn('RoValra: Failed to load group badges', err);
+                this.elements.list.innerHTML = DOMPurify.sanitize(
+                    `<p class="rovalra-no-hidden-games-message">${await t('viewGroupBadges.noBadges')}</p>`,
+                );
+                this.elements.filters.style.display = 'none';
             }
         })();
     }
@@ -441,14 +405,7 @@ export async function init() {
             new ViewGroupBadgesManager(groupId);
         });
 
-        const container = el(
-            'div',
-            'rovalra-view-badges-container',
-            {
-                style: { marginTop: '10px' },
-            },
-            [btn],
-        );
+        const container = el('div', 'rovalra-view-badges-container', {}, [btn]);
 
         ensureSingleButton();
 
@@ -457,13 +414,22 @@ export async function init() {
         );
         const description = header.querySelector('.description-container');
         if (hiddenGamesContainer) {
-            hiddenGamesContainer.after(container);
+            attachToHiddenGames(container, hiddenGamesContainer);
         } else if (description) {
+            container.style.marginTop = '10px';
             description.after(container);
         } else {
+            container.style.marginTop = '10px';
             header.appendChild(container);
         }
         ensureSingleButton();
+    };
+
+    const attachToHiddenGames = (container, hiddenGamesContainer) => {
+        container.style.marginTop = '';
+        container.style.marginLeft = '5px';
+        container.style.display = 'inline-block';
+        hiddenGamesContainer.appendChild(container);
     };
 
     const tryInsert = () => {
@@ -484,6 +450,19 @@ export async function init() {
     observeElement('.group-profile-header', () => {
         tryInsert();
     });
+
+    observeElement(
+        '.rovalra-hidden-games-container',
+        (hiddenGamesContainer) => {
+            const container = document.querySelector(
+                '.rovalra-view-badges-container',
+            );
+            if (container && !hiddenGamesContainer.contains(container)) {
+                attachToHiddenGames(container, hiddenGamesContainer);
+            }
+        },
+        { multiple: true },
+    );
 
     let lastUrl = window.location.href;
     const checkForUrlChange = () => {

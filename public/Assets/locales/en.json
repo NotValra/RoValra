@@ -551,6 +551,7 @@
         "overlayText": "All Badges",
         "noBadges": "This user has no badges yet.",
         "noMatches": "No badges match filters.",
+        "fallbackName": "Badge {{id}}",
         "labels": {
             "sort": "Sort",
             "order": "Order"

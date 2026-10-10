@@ -6,7 +6,7 @@ import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js';
-import { safeHtml } from '../../core/packages/dompurify';
+import { safeHtml } from '../../core/packages/dompurify.js';
 import { createBadgeCard } from '../../core/ui/games/badgeCard.js';
 import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
@@ -265,6 +265,18 @@ const UI = {
         btn.classList.add('rovalra-view-badges-button');
         btn.style.marginLeft = '5px';
         btn.addEventListener('click', onClick);
+        if (header.querySelector('.rovalra-view-badges-button')) return;
+        this.placeButton(header, btn);
+    },
+
+    placeButton(header, btn) {
+        const hiddenGamesButton = header.querySelector(
+            '.rovalra-hidden-games-button',
+        );
+        if (hiddenGamesButton) {
+            hiddenGamesButton.after(btn);
+            return;
+        }
         const buttonContainer = header.querySelector('.container-buttons');
         if (buttonContainer) {
             header.insertBefore(btn, buttonContainer);
@@ -473,6 +485,23 @@ export async function init() {
             if (header.dataset.rovalraBadgesProcessed) return;
             header.dataset.rovalraBadgesProcessed = 'true';
             UI.injectButton(header, handleButtonClick);
+        },
+        { multiple: true },
+    );
+
+    observeElement(
+        '.container-header .rovalra-hidden-games-button',
+        (hiddenGamesButton) => {
+            const header = hiddenGamesButton.closest('.container-header');
+            const badgesButton = header?.querySelector(
+                '.rovalra-view-badges-button',
+            );
+            if (
+                badgesButton &&
+                hiddenGamesButton.nextElementSibling !== badgesButton
+            ) {
+                hiddenGamesButton.after(badgesButton);
+            }
         },
         { multiple: true },
     );

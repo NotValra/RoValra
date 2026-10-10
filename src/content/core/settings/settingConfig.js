@@ -828,6 +828,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['3050364170'],
             },
             avatarDownloadEnabled: {
                 label: 'Download Avatar',
