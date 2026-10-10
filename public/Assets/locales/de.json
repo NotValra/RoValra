@@ -892,12 +892,13 @@
           "addedToWebsite": "Den Plus-Theme-Index zur Website hinzugefügt, damit Nutzer nur korrekte und festgelegte Designs verwenden können."
         },
         "locales": {
-          "madeRo": "Bei der rumänischen Übersetzung geholfen",
-          "madeEs": "Bei der spanischen Übersetzung geholfen",
-          "madeRu": "Bei der russischen Übersetzung geholfen",
-          "madeFr": "Bei der französischen Übersetzung geholfen",
-          "madeZh": "Bei der chinesischen Übersetzung geholfen",
-          "madeVi": "Bei der vietnamesischen Übersetzung geholfen"
+          "madeDe": "Hat bei der Deutschen übersetzung geholfen",
+          "madeRo": "Hat Bei der rumänischen Übersetzung geholfen",
+          "madeEs": "Hat Bei der spanischen Übersetzung geholfen",
+          "madeRu": "Hat Bei der russischen Übersetzung geholfen",
+          "madeFr": "Hat Bei der französischen Übersetzung geholfen",
+          "madeZh": "Hat Bei der chinesischen Übersetzung geholfen",
+          "madeVi": "Hat Bei der vietnamesischen Übersetzung geholfen"
         }
       },
       "ui": {
