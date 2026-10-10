@@ -9,6 +9,8 @@ import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/th
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
+import { addSortStatToCard } from '../../core/ui/games/sortStat.js';
+import { fetchLatestPlaceUpdates } from '../../core/games/latestPlaceUpdate.js';
 import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 const CONFIG = {
@@ -31,6 +33,8 @@ const ENDPOINTS = {
 
     VOTES_V1: (ids) => `/v1/games/votes?universeIds=${ids}`,
     GAMES_V1: (ids) => `/v1/games?universeIds=${ids}`,
+    UNIVERSES_MULTIGET: (ids) =>
+        `/v1/universes/multiget?${ids.map((id) => `ids=${id}`).join('&')}`,
 };
 
 const userListCache = new Map();
@@ -39,6 +43,7 @@ const sharedStatsCache = {
     players: new Map(),
     updated: new Map(),
     thumbnails: new Map(),
+    latestPlace: new Map(),
 };
 
 const Api = {
@@ -169,20 +174,31 @@ const Api = {
         }
 
         const fetchPromise = (async () => {
-            const isPublic = await this.checkInventoryPublic(userId);
-            if (!isPublic) return { all: [], hidden: [] };
-
-            const [itemByUniverse, publicGames] = await Promise.all([
-                this.getAllOwnedUniverses(userId),
+            const [isPublic, publicGames] = await Promise.all([
+                this.checkInventoryPublic(userId),
                 this.getPublicGames(userId),
             ]);
+            const publicList = publicGames.map((g) => ({
+                id: g.id,
+                name: g.name,
+                rootPlaceId: g.rootPlace?.id,
+            }));
 
-            const publicIds = new Set(publicGames.map((g) => g.id));
+            if (!isPublic) {
+                return { all: publicList, hidden: [], inventoryPrivate: true };
+            }
+
+            const itemByUniverse = await this.getAllOwnedUniverses(userId);
+            const publicIds = new Set(publicList.map((g) => g.id));
             const allIds = [...itemByUniverse.keys()];
-            const all = await this.resolveGameInfo(allIds, itemByUniverse);
-            const hidden = all.filter((g) => !publicIds.has(g.id));
+            const owned = await this.resolveGameInfo(allIds, itemByUniverse);
+            const hidden = owned.filter((g) => !publicIds.has(g.id));
+            const ownedIds = new Set(allIds);
+            const all = owned.concat(
+                publicList.filter((g) => !ownedIds.has(g.id)),
+            );
 
-            return { all, hidden };
+            return { all, hidden, inventoryPrivate: false };
         })();
 
         userListCache.set(userId, fetchPromise);
@@ -248,6 +264,20 @@ const Api = {
             }
         });
 
+        const missingUpdated = batch
+            .map((g) => g.id)
+            .filter((id) => !state.updated.has(id));
+        for (let i = 0; i < missingUpdated.length; i += 50) {
+            const res = await this.fetchWithRetry({
+                subdomain: 'develop',
+                endpoint: ENDPOINTS.UNIVERSES_MULTIGET(
+                    missingUpdated.slice(i, i + 50),
+                ),
+            });
+            const data = res ? await res.json().catch(() => null) : null;
+            data?.data?.forEach((u) => state.updated.set(u.id, u.updated));
+        }
+
         const newThumbnails = await fetchThumbnailsBatch(
             batch,
             'GameIcon',
@@ -275,6 +305,10 @@ const UI = {
                 {
                     value: 'default',
                     label: await t('hiddenGamesProfile.sort.default'),
+                },
+                {
+                    value: 'subplace-updated',
+                    label: await t('hiddenGamesProfile.sort.subplaceUpdated'),
                 },
                 {
                     value: 'like-ratio',
@@ -398,6 +432,7 @@ class HiddenGamesManager {
         this.ownedGames = [];
         this.hiddenGames = [];
         this.showAllGames = false;
+        this.inventoryPrivate = false;
         this.cache = sharedStatsCache;
         this.filters = { sort: 'default', order: 'desc' };
         this.processedGames = [];
@@ -431,12 +466,18 @@ class HiddenGamesManager {
             maxHeight: '85vh',
         });
 
-        const { all, hidden } = await Api.getUserGames(this.userId);
+        const { all, hidden, inventoryPrivate } = await Api.getUserGames(
+            this.userId,
+        );
         this.ownedGames = all;
         this.hiddenGames = hidden;
+        this.inventoryPrivate = inventoryPrivate === true;
 
         if (!this.ownedGames || this.ownedGames.length === 0) {
-            this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t('hiddenGamesProfile.noHiddenGames')}</p>`;
+            const emptyKey = this.inventoryPrivate
+                ? 'hiddenGamesProfile.inventoryPrivate'
+                : 'hiddenGamesProfile.noHiddenGames';
+            this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t(emptyKey)}</p>`;
             return;
         }
 
@@ -490,6 +531,12 @@ class HiddenGamesManager {
         }
 
         const { sort, order } = this.filters;
+        if (sort === 'subplace-updated') {
+            await fetchLatestPlaceUpdates(
+                source.map((g) => g.id),
+                this.cache.latestPlace,
+            );
+        }
         const orderMultiplier = order === 'desc' ? -1 : 1;
         let sorted = [...source];
 
@@ -498,6 +545,13 @@ class HiddenGamesManager {
                 (a, b) =>
                     (new Date(this.cache.updated.get(a.id) || 0).getTime() -
                         new Date(this.cache.updated.get(b.id) || 0).getTime()) *
+                    orderMultiplier,
+            );
+        } else if (sort === 'subplace-updated') {
+            sorted.sort(
+                (a, b) =>
+                    ((this.cache.latestPlace.get(a.id)?.time || 0) -
+                        (this.cache.latestPlace.get(b.id)?.time || 0)) *
                     orderMultiplier,
             );
         } else if (sort === 'like-ratio') {
@@ -543,10 +597,12 @@ class HiddenGamesManager {
 
         this.elements.list.innerHTML = '';
         if (this.processedGames.length === 0) {
-            const emptyKey =
-                !this.showAllGames && source.length === 0
-                    ? 'hiddenGamesProfile.noHiddenGames'
-                    : 'hiddenGamesProfile.noMatches';
+            let emptyKey = 'hiddenGamesProfile.noMatches';
+            if (!this.showAllGames && source.length === 0) {
+                emptyKey = this.inventoryPrivate
+                    ? 'hiddenGamesProfile.inventoryPrivate'
+                    : 'hiddenGamesProfile.noHiddenGames';
+            }
             this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t(emptyKey)}</p>`;
         } else {
             await this.loadMore();
@@ -574,7 +630,12 @@ class HiddenGamesManager {
                 await Api.enrichGameData(nextBatch, this.cache);
                 nextBatch.forEach((game) => {
                     this.elements.list.appendChild(
-                        createGameCard({ game, stats: this.cache }),
+                        addSortStatToCard(
+                            createGameCard({ game, stats: this.cache }),
+                            this.filters.sort,
+                            game.id,
+                            this.cache,
+                        ),
                     );
                 });
                 this.visibleCount += nextBatch.length;
