@@ -5,6 +5,7 @@ import {
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
+import { t, ts } from '../locale/i18n.js';
 
 function languageLabel(label, language) {
     const progress = getTranslationProgress(language);
@@ -19,13 +20,13 @@ export const SETTINGS_CONFIG = {
         hidden: true,
         settings: {
             rovalraLanguage: {
-                label: 'RoValra Language',
+                label: 'settings.language.title',
                 contributors: [1564574922],
                 description: [
-                    'Manually configure a language for RoValra. Some translations may be missing.',
+                    'settings.language.desc1',
                     // it works on the setting page only once it figures out the language from other pages' URLs
-                    'The page will reload to apply changes. Might not work immediately on the settings page.',
-                    'We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy ',
+                    'settings.language.desc2',
+                    'settings.language.desc3',
                 ],
                 type: 'select',
                 options: [
@@ -94,95 +95,94 @@ export const SETTINGS_CONFIG = {
         },
     },
     Marketplace: {
-        title: 'Marketplace',
+        title: 'settings.marketplace.title',
         settings: {
             itemSalesEnabled: {
-                label: 'Item Sales',
+                label: 'settings.marketplace.itemSalesEnabled.title',
                 contributors: [447170745],
                 description: [
-                    'This shows the most up to date sales and revenue data we have.',
-                    'The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on offsale items.',
+                    'settings.marketplace.itemSalesEnabled.desc1',
+                    'settings.marketplace.itemSalesEnabled.desc2',
                 ],
-                deprecated: 'Sale stats are very old and now inaccurate.',
+                deprecated: 'settings.marketplace.itemSalesEnabled.deprecated',
                 type: 'checkbox',
                 default: false,
             },
             SaveLotsRobuxEnabled: {
-                label: 'Save 10%-40% Robux on Purchases',
+                label: 'settings.marketplace.SaveLotsRobuxEnabled.title',
                 description: [
-                    'This adds a button allowing you to save 40% on items on the marketplace.',
-                    'Keep in mind, a group is required for this to work.',
-
-                    "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**",
+                    'settings.marketplace.SaveLotsRobuxEnabled.desc1',
+                    'settings.marketplace.SaveLotsRobuxEnabled.desc2',
+                    'settings.marketplace.SaveLotsRobuxEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     RobuxPlaceId: {
-                        label: 'Place ID to use for the 10%-40% Robux back',
+                        label: 'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.title',
                         description: [
-                            'It is best not to modify this, as the feature automatically sets the correct place ID when used.',
-                            "**Don't change this unless you know what you're doing.**",
+                            'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.desc1',
+                            'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.desc2',
                         ],
                         type: 'input',
                         default: null,
-                        placeholder: 'Enter Place ID here...',
+                        placeholder: 'settings.marketplace.SaveLotsRobuxEnabled.RobuxPlaceId.placeholder',
                     },
                     configureGame: {
-                        label: 'Configure Experience',
+                        label: 'settings.marketplace.SaveLotsRobuxEnabled.configureGame.title',
                         description:
-                            'Open the setup to configure an experience for the 40% method without needing to be in a purchase flow.',
+                            'settings.marketplace.SaveLotsRobuxEnabled.configureGame.desc1',
                         type: 'button',
-                        buttonText: 'Open Setup',
+                        buttonText: 'settings.marketplace.SaveLotsRobuxEnabled.configureGame.buttonText',
                         event: 'rovalra:open40methodSetup',
                     },
                     useSoberSupportDeeplinks: {
-                        label: 'Use Roblox deeplinks for Sober support',
+                        label: 'settings.marketplace.SaveLotsRobuxEnabled.useSoberSupportDeeplinks.title',
                         description:
-                            'This is less stable and should only be used if on sober',
+                            'settings.marketplace.SaveLotsRobuxEnabled.useSoberSupportDeeplinks.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                 },
             },
             marketplace3DRenderEnabledV2: {
-                label: 'Enable Custom 3D Marketplace Item Renderer',
+                label: 'settings.marketplace.marketplace3DRenderEnabledV2.title',
                 description: [
-                    'Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.',
-                    'This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
+                    'settings.marketplace.marketplace3DRenderEnabledV2.desc1',
+                    'settings.marketplace.marketplace3DRenderEnabledV2.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['126448532'],
                 childSettings: {
                     marketplace3DRenderHoverPreviewDisabled: {
-                        label: 'Disable Hover Preview',
+                        label: 'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DRenderHoverPreviewDisabled.title',
                         description:
-                            'Disables the 3D try-on preview when hovering over marketplace items.',
+                            'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DRenderHoverPreviewDisabled.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                     marketplace3DPostProcessing: {
-                        label: 'Post Processing',
+                        label: 'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DPostProcessing.title',
                         description:
-                            'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
+                            'settings.marketplace.marketplace3DRenderEnabledV2.marketplace3DPostProcessing.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                 },
             },
             EnableRobuxAfterPurchase: {
-                label: 'Robux After Purchase',
+                label: 'settings.marketplace.EnableRobuxAfterPurchase.title',
                 description:
-                    "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
+                    'settings.marketplace.EnableRobuxAfterPurchase.desc1',
                 type: 'checkbox',
                 default: true,
             },
             recentlyViewedEnabled: {
-                label: 'Recently Viewed Items',
+                label: 'settings.marketplace.recentlyViewedEnabled.title',
                 description: [
-                    'Adds a Recently Viewed row to the top of the Marketplace with the last items and bundles you opened.',
-                    'Items can be removed one by one or all at once. Your history is only stored on this device.',
+                    'settings.marketplace.recentlyViewedEnabled.desc1',
+                    'settings.marketplace.recentlyViewedEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -190,79 +190,79 @@ export const SETTINGS_CONFIG = {
                 contributors: ['2239549101'],
                 childSettings: {
                     recentlyViewedPriceChanges: {
-                        label: 'Show Price Changes',
+                        label: 'settings.marketplace.recentlyViewedEnabled.recentlyViewedPriceChanges.title',
                         description:
-                            'Shows if an item got cheaper, more expensive, went off sale or came back on sale since you viewed it.',
+                            'settings.marketplace.recentlyViewedEnabled.recentlyViewedPriceChanges.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                 },
             },
             bonusItemEnabled: {
-                label: 'Robux Purchase Bonus Item Selector',
+                label: 'settings.marketplace.bonusItemEnabled.title',
                 description:
-                    'Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.',
+                    'settings.marketplace.bonusItemEnabled.desc1',
                 type: 'checkbox',
                 default: false,
-                beta: 'Currently missing gamepasses.',
+                beta: 'settings.marketplace.bonusItemEnabled.beta',
             },
             EnableItemDependencies: {
-                label: 'Item Dependencies',
+                label: 'settings.marketplace.EnableItemDependencies.title',
                 description: [
-                    "This feature shows an item's dependencies, which means you can view the texture, mesh, and more.",
+                    'settings.marketplace.EnableItemDependencies.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             friendOwnershipEnabled: {
-                label: 'Friends Who Own the Item',
-                description: 'Shows which of your friends own the item.',
+                label: 'settings.marketplace.friendOwnershipEnabled.title',
+                description: 'settings.marketplace.friendOwnershipEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             priceFloorEnabled: {
-                label: 'Show Price Floor',
+                label: 'settings.marketplace.priceFloorEnabled.title',
                 description:
-                    "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
+                    'settings.marketplace.priceFloorEnabled.desc1',
                 type: 'checkbox',
                 default: false,
-                locked: 'Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind.',
+                locked: 'settings.marketplace.priceFloorEnabled.locked',
                 isPermanent: true,
             },
             ParentItemsEnabled: {
-                label: 'Show what bundle an item is a part of.',
+                label: 'settings.marketplace.ParentItemsEnabled.title',
                 description:
-                    'When viewing items pages of items inside of a bundle it will tell you what bundle that item is from.',
+                    'settings.marketplace.ParentItemsEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             PreviousPriceEnabled: {
-                label: 'Previous Price to item cards and on item pages.',
+                label: 'settings.marketplace.PreviousPriceEnabled.title',
                 description:
-                    'This shows the price of an offsale item before it went offsale and when it was last on sale.',
+                    'settings.marketplace.PreviousPriceEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
 
             lastEquippedEnabled: {
-                label: 'Last Equipped on Item Pages',
+                label: 'settings.marketplace.lastEquippedEnabled.title',
                 description:
-                    'Shows when you last equipped an item on item pages.',
+                    'settings.marketplace.lastEquippedEnabled.desc1',
                 type: 'checkbox',
                 default: true,
                 contributors: ['4866259395', '447170745'],
             },
             ownedItemPriceEnabled: {
-                label: 'Price on Owned Item Pages',
+                label: 'settings.marketplace.ownedItemPriceEnabled.title',
                 description:
-                    'Shows the price of an item on its item page even when you already own it.',
+                    'settings.marketplace.ownedItemPriceEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             itemTradingEnabled: {
-                label: 'Item Trading Info',
+                label: 'settings.marketplace.itemTradingEnabled.title',
                 description: [
-                    'Shows Rolimons values, demand, trend, rare, projected and more on item pages.',
+                    'settings.marketplace.itemTradingEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -270,12 +270,12 @@ export const SETTINGS_CONFIG = {
         },
     },
     Games: {
-        title: 'Experiences',
+        title: 'settings.experiences.title',
         settings: {
             gameBookmarksEnabled: {
-                label: 'Game Bookmarks',
+                label: 'settings.experiences.gameBookmarksEnabled.title',
                 description: [
-                    'Save games to your own bookmark categories and find them later on Home.',
+                    'settings.experiences.gameBookmarksEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -283,9 +283,9 @@ export const SETTINGS_CONFIG = {
                 contributors: ['476449201'],
                 childSettings: {
                     gameBookmarksCardButtonsEnabled: {
-                        label: 'Show Bookmark Buttons on Game Cards',
+                        label: 'settings.experiences.gameBookmarksEnabled.gameBookmarksCardButtonsEnabled.title',
                         description: [
-                            'Shows a Bookmark button when you hover over game cards.',
+                            'settings.experiences.gameBookmarksEnabled.gameBookmarksCardButtonsEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -293,11 +293,11 @@ export const SETTINGS_CONFIG = {
                 },
             },
             PreferredRegionEnabled: {
-                label: 'Preferred Region Play Button',
+                label: 'settings.experiences.PreferredRegionEnabled.title',
                 description: [
-                    'This adds a play button that joins your preferred region.',
-                    'This also automatically serverhops.',
-                    'If you have this enabled along with Quick Play, there will be a Preferred Region quick play button.',
+                    'settings.experiences.PreferredRegionEnabled.desc1',
+                    'settings.experiences.PreferredRegionEnabled.desc2',
+                    'settings.experiences.PreferredRegionEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -305,10 +305,10 @@ export const SETTINGS_CONFIG = {
 
                 childSettings: {
                     robloxPreferredRegion: {
-                        label: 'Preferred Region',
+                        label: 'settings.experiences.PreferredRegionEnabled.robloxPreferredRegion.title',
                         description: [
-                            'Select your preferred region for joining experiences.',
-                            '**Automatic** will automatically attempt to find the closest region to you.',
+                            'settings.experiences.PreferredRegionEnabled.robloxPreferredRegion.desc1',
+                            'settings.experiences.PreferredRegionEnabled.robloxPreferredRegion.desc2',
                         ],
                         type: 'select',
                         options: 'REGIONS',
@@ -316,19 +316,19 @@ export const SETTINGS_CONFIG = {
                         default: 'AUTO',
                     },
                     preferredRegionUseRobloxLatencyv1: {
-                        label: 'Prioritize biggest servers when using Automatic Mode',
+                        label: 'settings.experiences.PreferredRegionEnabled.preferredRegionUseRobloxLatencyv1.title',
                         description: [
-                            'This makes Preferred Region join the servers closest to you with the most players.',
-                            'May cause issues with some VPNs',
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionUseRobloxLatencyv1.desc1',
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionUseRobloxLatencyv1.desc2',
                         ],
                         type: 'checkbox',
                         default: false,
                     },
                     preferredRegionLocalSearchEnabled: {
-                        label: 'Force Local Server Search',
+                        label: 'settings.experiences.PreferredRegionEnabled.preferredRegionLocalSearchEnabled.title',
                         description: [
-                            'Searches Roblox servers locally instead of using RoValra to find servers by region.',
-                            "**This isn't recommended for normal users, as it'll be much slower.**",
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionLocalSearchEnabled.desc1',
+                            'settings.experiences.PreferredRegionEnabled.preferredRegionLocalSearchEnabled.desc2',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -336,37 +336,37 @@ export const SETTINGS_CONFIG = {
                 },
             },
             QuickPlayEnable: {
-                label: 'Quick Play Button',
+                label: 'settings.experiences.QuickPlayEnable.title',
                 description: [
-                    'This will add a quick play button to experiences so you can quickly join the experience without opening the experience page.',
-                    'If you have Preferred Region Play Button enabled it will also add a Preferred Region quick play button to quickly join your preferred region.',
-                    "This is made to look like the official Roblox client's Quick Play button.",
+                    'settings.experiences.QuickPlayEnable.desc1',
+                    'settings.experiences.QuickPlayEnable.desc2',
+                    'settings.experiences.QuickPlayEnable.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['48255812', '447170745'],
                 childSettings: {
                     privateservers: {
-                        label: 'Show Private Servers in Quick Play',
+                        label: 'settings.experiences.QuickPlayEnable.privateservers.title',
                         description: [
-                            'This adds a button to quickly browse and join private servers to the quick play.',
+                            'settings.experiences.QuickPlayEnable.privateservers.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     PaidAccessPriceBadgeEnabled: {
-                        label: 'Show Paid Game Access Price',
+                        label: 'settings.experiences.QuickPlayEnable.PaidAccessPriceBadgeEnabled.title',
                         description: [
-                            'This adds a small box that shows the price of paid Games.',
+                            'settings.experiences.QuickPlayEnable.PaidAccessPriceBadgeEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                         contributors: ['10646979010'],
                     },
                     playbuttonpreferredregionenabled: {
-                        label: 'Change the normal Play button to join your preferred region in Quick Play',
+                        label: 'settings.experiences.QuickPlayEnable.playbuttonpreferredregionenabled.title',
                         description: [
-                            'This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region.',
+                            'settings.experiences.QuickPlayEnable.playbuttonpreferredregionenabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -374,63 +374,63 @@ export const SETTINGS_CONFIG = {
                 },
             },
             wideGameTileStatsEnabled: {
-                label: 'Player Counts on Wide Tiles',
+                label: 'settings.experiences.wideGameTileStatsEnabled.title',
                 description: [
-                    'Shows the concurrent player count alongside the rating on wide experience tiles.',
+                    'settings.experiences.wideGameTileStatsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['2963377564', '2333236354'],
             },
             whatamIJoiningEnabled: {
-                label: 'What Am I Joining',
+                label: 'settings.experiences.whatamIJoiningEnabled.title',
                 description: [
-                    "This shows the server ID, region, if it's a private server, and more info about the server you're joining when joining an experience.",
+                    'settings.experiences.whatamIJoiningEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '8345351117'],
                 childSettings: {
                     AlwaysGetInfo: {
-                        label: 'Always Get Server Info',
+                        label: 'settings.experiences.whatamIJoiningEnabled.AlwaysGetInfo.title',
                         description: [
-                            'This will always get the server info, even if no server data is available.',
-                            'It has a very small chance to get inaccurate information.',
+                            'settings.experiences.whatamIJoiningEnabled.AlwaysGetInfo.desc1',
+                            'settings.experiences.whatamIJoiningEnabled.AlwaysGetInfo.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     closeUiByClickingTheBackground: {
-                        label: "Close the 'What am I joining' UI by clicking the background",
+                        label: 'settings.experiences.whatamIJoiningEnabled.closeUiByClickingTheBackground.title',
                         description:
-                            'This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI',
+                            'settings.experiences.whatamIJoiningEnabled.closeUiByClickingTheBackground.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                 },
             },
             EnableImprovedEvents: {
-                label: 'Improved Events',
+                label: 'settings.experiences.EnableImprovedEvents.title',
                 description:
-                    'This allows you to view past events on experiences and how many are going.',
+                    'settings.experiences.EnableImprovedEvents.desc1',
                 type: 'checkbox',
                 default: true,
             },
             EnableGameTrailer: {
-                label: 'Experience Trailer',
+                label: 'settings.experiences.EnableGameTrailer.title',
                 description: [
-                    "This adds experience trailers not on YouTube to the website, replacing Roblox's way of doing it.",
-                    'As a result, it adds quality-of-life features such as full-screen playback, autoplay controls, video length, playback speed, and picture-in-picture mode.',
+                    'settings.experiences.EnableGameTrailer.desc1',
+                    'settings.experiences.EnableGameTrailer.desc2',
                 ],
                 type: 'checkbox',
                 default: false,
-                locked: 'This feature broke, and Roblox made its own version.',
+                locked: 'settings.experiences.EnableGameTrailer.locked',
                 isPermanent: true,
                 childSettings: {
                     Enableautoplay: {
-                        label: 'Auto Play Trailer',
+                        label: 'settings.experiences.EnableGameTrailer.Enableautoplay.title',
                         description: [
-                            'This will automatically play the trailer.',
+                            'settings.experiences.EnableGameTrailer.Enableautoplay.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -438,41 +438,41 @@ export const SETTINGS_CONFIG = {
                 },
             },
             EnableDevProducts: {
-                label: 'View Developer Products',
+                label: 'settings.experiences.EnableDevProducts.title',
                 description:
-                    'This allows you to view the developer products of an experience directly on the store page.',
+                    'settings.experiences.EnableDevProducts.desc1',
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '10646979010'],
             },
             shopWidgetsEnabled: {
-                label: 'View In-Game Shop',
+                label: 'settings.experiences.shopWidgetsEnabled.title',
                 description:
-                    'This adds a Shop tab to the experience store page, bringing the in-game shop to the website.',
+                    'settings.experiences.shopWidgetsEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             QuickOutfitsEnabled: {
-                label: 'Quick Equip Outfits',
+                label: 'settings.experiences.QuickOutfitsEnabled.title',
                 description: [
-                    'This allows you to quickly switch your avatar on an experience page.',
+                    'settings.experiences.QuickOutfitsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
             },
             privateGameViewerEnabled: {
-                label: 'View Private / Moderated Games',
+                label: 'settings.experiences.privateGameViewerEnabled.title',
                 description: [
-                    'This recreates the games page of private / moderated games, allowing you to view them.',
+                    'settings.experiences.privateGameViewerEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     privateGameDetectionFallbackEnabled: {
-                        label: 'Use Robust Private / Moderated Games Detection',
+                        label: 'settings.experiences.privateGameViewerEnabled.privateGameDetectionFallbackEnabled.title',
                         description: [
-                            "This makes sure it can identify when you're trying to view a private or moderated game.",
-                            'Without this, it may fail to show private or moderated game pages when you open their links directly.',
+                            'settings.experiences.privateGameViewerEnabled.privateGameDetectionFallbackEnabled.desc1',
+                            'settings.experiences.privateGameViewerEnabled.privateGameDetectionFallbackEnabled.desc2',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -481,46 +481,46 @@ export const SETTINGS_CONFIG = {
                 },
             },
             gamePassViewerEnabled: {
-                label: 'View Gamepasses in Private / Moderated Games',
+                label: 'settings.experiences.gamePassViewerEnabled.title',
                 description: [
-                    'This recreates the gamepass page of private / moderated games, allowing you to view them.',
+                    'settings.experiences.gamePassViewerEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['9502859424'],
             },
             underReviewPillEnabled: {
-                label: 'Show All-Ages Review Status',
+                label: 'settings.experiences.underReviewPillEnabled.title',
                 description: [
-                    'Shows a small notice on experience pages when Roblox is reviewing the experience for all-ages eligibility.',
+                    'settings.experiences.underReviewPillEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
-                locked: 'Roblox patched this feature.',
+                locked: 'settings.experiences.underReviewPillEnabled.locked',
                 isPermanent: true,
             },
             botdataEnabled: {
-                label: 'Bot Data',
+                label: 'settings.experiences.botdataEnabled.title',
                 description: [
-                    'Shows if an experience has a lot of bots in the description of the experience.',
-                    "It doesn't show the amount of bots, since the sample size is too small to give an accurate number.",
+                    'settings.experiences.botdataEnabled.desc1',
+                    'settings.experiences.botdataEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             subplacesEnabled: {
-                label: 'Subplaces',
+                label: 'settings.experiences.subplacesEnabled.title',
                 description: [
-                    'This adds a tab to an experience page that shows the subplaces of the experience.',
+                    'settings.experiences.subplacesEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '3050364170'],
                 childSettings: {
                     subplacesSortEnabled: {
-                        label: 'Sorting',
+                        label: 'settings.experiences.subplacesEnabled.subplacesSortEnabled.title',
                         description: [
-                            'Adds sort and order controls to the Subplaces tab.',
+                            'settings.experiences.subplacesEnabled.subplacesSortEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -528,268 +528,268 @@ export const SETTINGS_CONFIG = {
                 },
             },
             hiddenBadgesEnabled: {
-                label: 'Hidden Badges',
+                label: 'settings.experiences.hiddenBadgesEnabled.title',
                 description: [
-                    'Adds a Hidden Badges tab to experience pages.',
-                    'This only shows hidden badges of a game that you obtained.',
+                    'settings.experiences.hiddenBadgesEnabled.desc1',
+                    'settings.experiences.hiddenBadgesEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_badges_v1',
             },
             badgeLayoutToggleEnabled: {
-                label: 'Badge Layout Toggle',
+                label: 'settings.experiences.badgeLayoutToggleEnabled.title',
                 description: [
-                    'Adds a List / Grid toggle to experience badge sections.',
+                    'settings.experiences.badgeLayoutToggleEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             badgeOwnershipEnabled: {
-                label: 'Dim Unowned Badges',
+                label: 'settings.experiences.badgeOwnershipEnabled.title',
                 description: [
-                    "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)",
+                    'settings.experiences.badgeOwnershipEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: [546872490],
             },
             badgeEarnedDateEnabled: {
-                label: 'Badge Earned Date',
+                label: 'settings.experiences.badgeEarnedDateEnabled.title',
                 description: [
-                    'Shows when you earned a badge on badge and experience pages.',
+                    'settings.experiences.badgeEarnedDateEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: [476449201],
             },
             gameStatTimestampsEnabled: {
-                label: 'Detailed Created / Updated Dates',
+                label: 'settings.experiences.gameStatTimestampsEnabled.title',
                 description: [
-                    'Replaces the Created and Updated dates on experience pages with exact, clickable timestamps.',
+                    'settings.experiences.gameStatTimestampsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             updateHistoryEnabled: {
-                label: 'Update History',
+                label: 'settings.experiences.updateHistoryEnabled.title',
                 description: [
-                    'This adds a tab to an experience page that has a heatmap showing the update history of an experience.',
-                    'This feature was heavily inspired by a RoPro v2 feature.',
+                    'settings.experiences.updateHistoryEnabled.desc1',
+                    'settings.experiences.updateHistoryEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
-                beta: 'This feature is lacking update history data. It will slowly get it over time.',
+                beta: '',
             },
             recentServersEnabled: {
-                label: 'Recent Servers',
+                label: 'settings.experiences.recentServersEnabled.title',
                 description: [
-                    'Shows the 4 most recent servers you joined under an experience.',
+                    'settings.experiences.recentServersEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_server_history',
             },
             TotalServersEnabled: {
-                label: 'Total Servers',
+                label: 'settings.experiences.TotalServersEnabled.title',
                 description: [
-                    'This shows the total amount of servers RoValra is tracking under that experience.',
+                    'settings.experiences.TotalServersEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             GameVersionEnabled: {
-                label: 'Experience Version',
+                label: 'settings.experiences.GameVersionEnabled.title',
                 description: [
-                    'This shows the current version an experience is on.',
-                    'Useful for developers.',
+                    'settings.experiences.GameVersionEnabled.desc1',
+                    'settings.experiences.GameVersionEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             TotalSpentGamesEnabled: {
-                label: 'Total Spent on Experience',
+                label: 'settings.experiences.TotalSpentGamesEnabled.title',
                 description: [
-                    'This shows how much Robux you have spent total on this experience.',
-                    'This will scan your transactions in the background and store the total spent locally.',
-                    'This may take a few minutes to work after you first install the extension.',
+                    'settings.experiences.TotalSpentGamesEnabled.desc1',
+                    'settings.experiences.TotalSpentGamesEnabled.desc2',
+                    'settings.experiences.TotalSpentGamesEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_transactions_v2',
             },
             OldestVersionEnabled: {
-                label: 'Oldest Server Version',
+                label: 'settings.experiences.OldestVersionEnabled.title',
                 description: [
-                    'This shows the oldest place version that servers are still running on.',
-                    'Useful for developers.',
+                    'settings.experiences.OldestVersionEnabled.desc1',
+                    'settings.experiences.OldestVersionEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             ServerFilterEnabled: {
-                label: 'Server Filters',
+                label: 'settings.experiences.ServerFilterEnabled.title',
                 description: [
-                    'This adds a filter to the server list.',
-                    "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**",
+                    'settings.experiences.ServerFilterEnabled.desc1',
+                    'settings.experiences.ServerFilterEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     RegionFiltersEnabled: {
-                        label: 'Region Filters',
-                        description: 'Adds Region filters in the server list.',
+                        label: 'settings.experiences.ServerFilterEnabled.RegionFiltersEnabled.title',
+                        description: 'settings.experiences.ServerFilterEnabled.RegionFiltersEnabled.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                     UptimeFiltersEnabled: {
-                        label: 'Uptime Filters',
+                        label: 'settings.experiences.ServerFilterEnabled.UptimeFiltersEnabled.title',
                         description:
-                            'Adds Server Uptime filters in the server list.',
+                            'settings.experiences.ServerFilterEnabled.UptimeFiltersEnabled.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                     VersionFiltersEnabled: {
-                        label: 'Place Version Filters',
+                        label: 'settings.experiences.ServerFilterEnabled.VersionFiltersEnabled.title',
                         description:
-                            'Adds Place Version filters in the server list allowing you to filter by servers running a specific place version.',
+                            'settings.experiences.ServerFilterEnabled.VersionFiltersEnabled.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                 },
             },
             ServerlistmodificationsEnabled: {
-                label: 'Server List Modifications',
+                label: 'settings.experiences.ServerlistmodificationsEnabled.title',
                 description: [
-                    'This adds multiple features to the server list.',
-                    "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                    'settings.experiences.ServerlistmodificationsEnabled.desc1',
+                    'settings.experiences.ServerlistmodificationsEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     PrivateServerGridEnabled: {
-                        label: 'Private Server Grid',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.PrivateServerGridEnabled.title',
                         description: [
-                            'Displays private/VIP servers in a compact responsive grid.',
-                            'Only changes the private server section.',
+                            'settings.experiences.ServerlistmodificationsEnabled.PrivateServerGridEnabled.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.PrivateServerGridEnabled.desc2',
                         ],
                         type: 'checkbox',
                         default: false,
                         contributors: ['4632962611'],
                     },
                     PinPrivateServersEnabled: {
-                        label: 'Pin Private Servers',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.title',
                         description: [
-                            'Allows private/VIP servers to be pinned to the top of the list.',
-                            'Pinned servers stay above normal private servers.',
-                            'Missing a bit of quality of life.',
+                            'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.desc2',
+                            'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.desc3',
                         ],
                         type: 'checkbox',
                         default: false,
                         contributors: ['4632962611'],
                     },
                     enableShareLink: {
-                        label: 'Share link button',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.enableShareLink.title',
                         description: [
-                            'This adds a share link button under the join button so you can send a link to the server for other people to join with.',
-                            'This uses fishstrap.app for the share link.',
+                            'settings.experiences.ServerlistmodificationsEnabled.enableShareLink.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.enableShareLink.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableServerUptime: {
-                        label: 'Server Uptime',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableServerUptime.title',
                         description: [
-                            "This shows an estimate of a server's uptime in the server list.",
-                            'This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerUptime.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerUptime.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableServerRegion: {
-                        label: 'Server Region',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableServerRegion.title',
                         description: [
-                            "This shows the server's region or location.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerRegion.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnablePlaceVersion: {
-                        label: 'Server Version',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnablePlaceVersion.title',
                         description: [
-                            'This shows the version of the experience that a specific server is running.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnablePlaceVersion.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableFullServerID: {
-                        label: 'Show the entire ServerID',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.title',
                         description: [
-                            'This shows the entire ServerID',
-                            'By default Roblox only shows a part of it.',
-                            "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.desc2',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.desc3',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
 
                     EnableFullServerIndicators: {
-                        label: 'Full Server Indicators',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerIndicators.title',
                         description: [
-                            'This adds indicators when a server is full',
-                            "Like text that tells you the server is full if we don't have region data.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerIndicators.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerIndicators.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableServerPerformance: {
-                        label: 'Show Server Performance',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableServerPerformance.title',
                         description: [
-                            'This shows the server performance, which is useful if you want to avoid poorly performing servers.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerPerformance.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableMiscIndicators: {
-                        label: 'Show misc indicators',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableMiscIndicators.title',
                         description: [
-                            "This shows indicators for servers you can't join, such as when someone is playing in a private server.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableMiscIndicators.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableDatacenterandId: {
-                        label: 'Show Datacenter ID and Server Ip',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.title',
                         description:
-                            'This shows the Datacenter ID server Ip of servers in the server list.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                 },
             },
             HidePrivateServersEnabled: {
-                label: 'Hide Private Servers',
+                label: 'settings.experiences.HidePrivateServersEnabled.title',
                 description: [
-                    'Adds an option to hide private servers from the server list.',
+                    'settings.experiences.HidePrivateServersEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 storageKey: 'hiddenFriendPrivateServers',
                 contributors: ['476449201'],
-                experimental: 'Has a few quality of life issues.',
+                experimental: 'settings.experiences.HidePrivateServersEnabled.experimental',
             },
             PrivateQuickLinkCopy: {
-                label: 'Quick Private Server Link Copy and Generation',
+                label: 'settings.experiences.PrivateQuickLinkCopy.title',
                 description: [
-                    'This allows you to quickly copy a private server link or generate a new private server link.',
+                    'settings.experiences.PrivateQuickLinkCopy.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     privateServerFriendsToggleEnabled: {
-                        label: 'Friends Allowed Toggle',
+                        label: 'settings.experiences.PrivateQuickLinkCopy.privateServerFriendsToggleEnabled.title',
                         description: [
-                            'Adds a Friends Allowed switch under Allow Joining, so you can let friends in or keep them out without opening the server settings.',
+                            'settings.experiences.PrivateQuickLinkCopy.privateServerFriendsToggleEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -798,10 +798,10 @@ export const SETTINGS_CONFIG = {
                 },
             },
             autoFriendsAllowedEnabled: {
-                label: 'Friends Allowed On New Private Servers',
+                label: 'settings.experiences.autoFriendsAllowedEnabled.title',
                 description: [
-                    'Turns on Friends Allowed as soon as you create a private server, so your friends can join without you going into its settings first.',
-                    'Only new servers are changed. Servers you already have are left as they are.',
+                    'settings.experiences.autoFriendsAllowedEnabled.desc1',
+                    'settings.experiences.autoFriendsAllowedEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -810,35 +810,35 @@ export const SETTINGS_CONFIG = {
         },
     },
     Profile: {
-        title: 'Profile',
+        title: 'settings.profile.title',
         settings: {
             userGamesEnabled: {
-                label: 'Hidden User Experiences',
+                label: 'settings.profile.userGamesEnabled.title',
                 description: [
-                    "Shows a user's hidden experiences on their profile.",
+                    'settings.profile.userGamesEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['8345351117', '447170745', '3050364170'],
             },
             avatarDownloadEnabled: {
-                label: 'Download Avatar',
+                label: 'settings.profile.avatarDownloadEnabled.title',
                 description: [
-                    'Adds a button to save avatar as a PNG on their profile.',
+                    'settings.profile.avatarDownloadEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['9502859424'],
             },
             profilePronouns: {
-                label: 'Profile Pronouns',
+                label: 'settings.profile.profilePronouns.title',
                 description: [
-                    'Displays your pronouns beside your username on your profile for other RoValra users.',
-                    'Maximum 15 characters.',
-                    'Emojis and spaces are allowed. Special characters such as /, comma, or ; are changed to |.',
+                    'settings.profile.profilePronouns.desc1',
+                    'settings.profile.profilePronouns.desc2',
+                    'settings.profile.profilePronouns.desc3',
                 ],
                 type: 'input',
-                placeholder: 'Enter Pronouns',
+                placeholder: 'settings.profile.profilePronouns.placeholder',
                 maxLength: 15,
                 showCharacterCount: true,
                 useGraphemeLength: true,
@@ -849,23 +849,23 @@ export const SETTINGS_CONFIG = {
                 contributors: ['10646979010'],
             },
             displayAppThemeUserProfile: {
-                label: 'Display app theme user profiles',
-                description: ['Displays users app theme on their profile!'],
+                label: 'settings.profile.displayAppThemeUserProfile.title',
+                description: ['settings.profile.displayAppThemeUserProfile.desc1'],
                 type: 'checkbox',
                 default: false,
                 childSettings: {
                     displayAppThemeOwnProfile: {
-                        label: 'Display your app theme on your profile',
+                        label: 'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.title',
                         description: [
-                            'Displays your app theme on your profile to other users!',
-                            'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
-                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.desc1',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.desc2',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.desc3',
                         ],
                         type: 'checkbox',
                         default: false,
                         donatorTier: 1,
                         donatorReason:
-                            'Donator Tier 1 is required to display your app theme on your own profile',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.donatorReason',
                         dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },
@@ -873,11 +873,11 @@ export const SETTINGS_CONFIG = {
                 dependedBy: ['displayAppThemeOwnProfile'],
             },
             profileNotesEnabled: {
-                label: 'Profile Notes',
+                label: 'settings.profile.profileNotesEnabled.title',
                 description: [
-                    'Adds a private note field to Roblox profiles.',
-                    'Notes are stored only locally and are never shared to RoValra or Roblox.',
-                    'Maximum 256 characters.',
+                    'settings.profile.profileNotesEnabled.desc1',
+                    'settings.profile.profileNotesEnabled.desc2',
+                    'settings.profile.profileNotesEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -885,92 +885,92 @@ export const SETTINGS_CONFIG = {
                 contributors: ['10646979010'],
                 childSettings: {
                     profileNotesBackup: {
-                        label: 'Notes Backup',
+                        label: 'settings.profile.profileNotesEnabled.profileNotesBackup.title',
                         description: [
-                            'Export all profile notes or import them from a .json file.',
-                            'Imported notes are merged with notes already stored in this browser.',
+                            'settings.profile.profileNotesEnabled.profileNotesBackup.desc1',
+                            'settings.profile.profileNotesEnabled.profileNotesBackup.desc2',
                         ],
                         type: 'buttonGroup',
                         buttons: [
                             {
                                 id: 'export-rovalra-profile-notes',
-                                text: 'Export Notes',
+                                text: 'settings.profile.profileNotesEnabled.profileNotesBackup.button1',
                             },
                             {
                                 id: 'import-rovalra-profile-notes',
-                                text: 'Import Notes',
+                                text: 'settings.profile.profileNotesEnabled.profileNotesBackup.button2',
                             },
                         ],
                     },
                 },
             },
             profileViewsEnabled: {
-                label: 'Profile Views',
+                label: 'settings.profile.profileViewsEnabled.title',
                 description: [
-                    'Shows profile view counts on profiles.',
-                    'Disabling this hides profile views locally and hides your profile views from other RoValra users.',
-                    'Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on.',
+                    'settings.profile.profileViewsEnabled.desc1',
+                    'settings.profile.profileViewsEnabled.desc2',
+                    'settings.profile.profileViewsEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             creatorStatsEnabled: {
-                label: 'Creator Stats',
+                label: 'settings.profile.creatorStatsEnabled.title',
                 description: [
-                    "Shows a user's combined CCU, experience visits, and owned community member count on their profile.",
+                    'settings.profile.creatorStatsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['4632962611'],
             },
             socialLinksEnabled: {
-                label: 'Profile Social Links',
+                label: 'settings.profile.socialLinksEnabled.title',
                 description: [
-                    'Shows social links below the profile description.',
+                    'settings.profile.socialLinksEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
             },
             profileCustomizationEnabled: {
-                label: 'Profile Customization',
+                label: 'settings.profile.profileCustomizationEnabled.title',
                 description: [
-                    'Adds a customization button to your own profile for quickly switching avatar borders.',
+                    'settings.profile.profileCustomizationEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             profileShowcaseEnabled: {
-                label: 'Profile Showcase',
+                label: 'settings.profile.profileShowcaseEnabled.title',
                 description: [
-                    'Adds a Showcase tab to profiles for featuring a favourite experience and community.',
-                    'Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on.',
+                    'settings.profile.profileShowcaseEnabled.desc1',
+                    'settings.profile.profileShowcaseEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
 
             chatEligibilityTooltipEnabled: {
-                label: 'Chat Eligibility Tooltip',
+                label: 'settings.profile.chatEligibilityTooltipEnabled.title',
                 description: [
-                    "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile.",
+                    'settings.profile.chatEligibilityTooltipEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             userSniperEnabled: {
-                label: 'Instant Joiner',
+                label: 'settings.profile.userSniperEnabled.title',
                 description: [
-                    'This joins a user instantly when they go into an experience, best used for people with a lot of people trying to join them.',
-                    '### Requirements',
-                    '- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.',
+                    'settings.profile.userSniperEnabled.desc1',
+                    'settings.profile.userSniperEnabled.desc2',
+                    'settings.profile.userSniperEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: false,
                 childSettings: {
                     deeplinkEnabled: {
-                        label: 'Join through deeplinks',
+                        label: 'settings.profile.userSniperEnabled.deeplinkEnabled.title',
                         description: [
-                            'This will use deeplinks to join the user for faster joining but may be less reliable.',
+                            'settings.profile.userSniperEnabled.deeplinkEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -979,31 +979,31 @@ export const SETTINGS_CONFIG = {
             },
 
             profile3DRenderEnabled: {
-                label: 'Enable Custom 3D Profile Renderer',
+                label: 'settings.profile.profile3DRenderEnabled.title',
                 description: [
-                    'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
-                    'This feature is required for custom environments and other render-related settings.',
-                    'This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
+                    'settings.profile.profile3DRenderEnabled.desc1',
+                    'settings.profile.profile3DRenderEnabled.desc2',
+                    'settings.profile.profile3DRenderEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['126448532', '447170745'],
 
                 experimental:
-                    'This feature may cause performance issues. And may be buggy',
+                    'settings.profile.profile3DRenderEnabled.experimental',
                 childSettings: {
                     profileRenderEnvironment: {
-                        label: '3D Profile Environment',
+                        label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.title',
                         description: [
-                            "Choose a custom environment for your own profile's 3D render.",
-                            'This only applies when viewing your own profile.',
-                            '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
+                            'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.desc1',
+                            'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.desc2',
+                            'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.desc3',
                         ],
                         type: 'select',
                         options: [
-                            { label: 'None', value: 'void', id: 1 },
+                            { label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option1', value: 'void', id: 1 },
                             {
-                                label: 'Purple Space',
+                                label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option2',
                                 value: 'purple',
                                 environmentEndpoint:
                                     '/static/json/skyboxSpace.json',
@@ -1011,14 +1011,14 @@ export const SETTINGS_CONFIG = {
                             },
 
                             {
-                                label: 'Crossroads',
+                                label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option3',
                                 value: 'crossroads',
                                 environmentEndpoint:
                                     '/static/json/crossroads.json',
                                 id: 3,
                             },
                             {
-                                label: 'Baseplate',
+                                label: 'settings.profile.profile3DRenderEnabled.profileRenderEnvironment.option4',
                                 value: 'baseplate',
                                 environmentEndpoint:
                                     '/static/json/baseplate.json',
@@ -1028,48 +1028,48 @@ export const SETTINGS_CONFIG = {
                         default: 'void',
                     },
                     profileRenderRotateEnabled: {
-                        label: 'Auto-Rotate Profile Avatar',
+                        label: 'settings.profile.profile3DRenderEnabled.profileRenderRotateEnabled.title',
                         description: [
-                            'Automatically rotates the 3D avatar on the profile page.',
+                            'settings.profile.profile3DRenderEnabled.profileRenderRotateEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
                     },
                     environmentTester: {
-                        label: 'Enable Environment Creator',
+                        label: 'settings.profile.profile3DRenderEnabled.environmentTester.title',
                         description: [
-                            'Shows the Environment Creator tool on profiles to make custom client-side environments.',
-                            'This is to prepare for community environments.',
-                            'This will overwrite all environments on profiles.',
-                            '**This feature should only be enabled if you plan to make environments.**',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc1',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc2',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc3',
+                            'settings.profile.profile3DRenderEnabled.environmentTester.desc4',
                         ],
                         type: 'checkbox',
                         default: false,
                     },
                     profile3DRenderPostProcessing: {
-                        label: 'Post Processing',
+                        label: 'settings.profile.profile3DRenderEnabled.profile3DRenderPostProcessing.title',
                         description:
-                            'Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device.',
+                            'settings.profile.profile3DRenderEnabled.profile3DRenderPostProcessing.desc1',
                         type: 'checkbox',
                         default: false,
                     },
                 },
             },
             groupFiltersEnabled: {
-                label: 'Community Filters',
+                label: 'settings.profile.groupFiltersEnabled.title',
                 description: [
-                    'Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest, also allows you to view groups in a row format or grid format.',
+                    'settings.profile.groupFiltersEnabled.desc1',
                 ],
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
             },
             trustedConnectionsEnabledv3: {
-                label: 'Trusted Friends',
+                label: 'settings.profile.trustedConnectionsEnabledv3.title',
                 description: [
-                    'This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.',
-                    'Trusted Friends might not be available in some regions.',
-                    '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
+                    'settings.profile.trustedConnectionsEnabledv3.desc1',
+                    'settings.profile.trustedConnectionsEnabledv3.desc2',
+                    'settings.profile.trustedConnectionsEnabledv3.desc3',
                 ],
                 type: 'true',
                 default: false,
@@ -1078,110 +1078,110 @@ export const SETTINGS_CONFIG = {
             },
 
             lastOnlineEnabled: {
-                label: 'Show Last Online / Last Seen',
+                label: 'settings.profile.lastOnlineEnabled.title',
                 description: [
-                    'Shows when a user was last online / seen on their profile.',
-                    'Only works for friends.',
+                    'settings.profile.lastOnlineEnabled.desc1',
+                    'settings.profile.lastOnlineEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             friendsSinceEnabled: {
-                label: 'Friends Since',
+                label: 'settings.profile.friendsSinceEnabled.title',
                 description:
-                    'This feature shows how long you have been friends with someone on their profile and in your friends list.',
+                    'settings.profile.friendsSinceEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             mutualFriendsEnabled: {
-                label: 'Mutual Friends',
+                label: 'settings.profile.mutualFriendsEnabled.title',
                 description: [
-                    'Shows how many friends you have in common with a user on their profile.',
-                    'Click it to see them in a Mutuals tab on their friends page.',
+                    'settings.profile.mutualFriendsEnabled.desc1',
+                    'settings.profile.mutualFriendsEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['2020751790'],
             },
             groupRoleEnabled: {
-                label: 'Show Community Roles',
+                label: 'settings.profile.groupRoleEnabled.title',
                 description:
-                    "Shows a user's role in a community on their profile.",
+                    'settings.profile.groupRoleEnabled.desc1',
                 type: 'checkbox',
                 default: true,
-                locked: 'Roblox released their own version of this.',
+                locked: 'settings.profile.groupRoleEnabled.locked',
                 isPermanent: true,
             },
 
             groupJoinedDateEnabled: {
-                label: 'Show Community Joined Date',
+                label: 'settings.profile.groupJoinedDateEnabled.title',
                 description:
-                    'Shows when a user joined a community on their profile.',
+                    'settings.profile.groupJoinedDateEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             showFriendedFromEnabled: {
-                label: 'Show Friended From',
+                label: 'settings.profile.showFriendedFromEnabled.title',
                 description:
-                    'This shows where you became friends with a user, e.g., in game, profile, etc.',
+                    'settings.profile.showFriendedFromEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             lastPlayedTogetherEnabled: {
-                label: 'Most Frequent Played Together',
+                label: 'settings.profile.lastPlayedTogetherEnabled.title',
                 description:
-                    'Shows the experience you played the most with a friend on their profile.',
+                    'settings.profile.lastPlayedTogetherEnabled.desc1',
                 type: 'checkbox',
                 default: false,
             },
             bulkUnfriendEnabled: {
-                label: 'Bulk Unfriend',
+                label: 'settings.profile.bulkUnfriendEnabled.title',
                 description:
-                    'This allows you to unfriend people from your friends list in bulk',
+                    'settings.profile.bulkUnfriendEnabled.desc1',
                 type: 'checkbox',
                 default: true,
             },
             bulkBadgeRemoverEnabled: {
-                label: 'Bulk Badge Removal',
-                description: 'This allows you to delete your badges in bulk.',
+                label: 'settings.profile.bulkBadgeRemoverEnabled.title',
+                description: 'settings.profile.bulkBadgeRemoverEnabled.desc1',
                 type: 'checkbox',
                 default: true,
                 contributors: ['476449201'],
             },
             unfriendDetectorEnabled: {
-                label: 'Unfriend Detector',
-                experimental: 'May cause issues',
+                label: 'settings.profile.unfriendDetectorEnabled.title',
+                experimental: 'settings.profile.unfriendDetectorEnabled.experimental',
                 type: 'checkbox',
                 default: false,
                 contributors: ['390309731'],
                 description: [
-                    'Tracks your friends list and alerts you with a popup if someone unfriends you, showing who unfriended you.',
+                    'settings.profile.unfriendDetectorEnabled.desc1',
                 ],
             },
             PrivateServerBulkEnabled: {
-                label: 'Private Server Bulk Removal',
+                label: 'settings.profile.PrivateServerBulkEnabled.title',
                 description: [
-                    'This will add a toggle to the private server inventory tab that allows you to easily set a bunch of private servers as inactive.',
-                    'This also works for setting inactive private servers as active',
+                    'settings.profile.PrivateServerBulkEnabled.desc1',
+                    'settings.profile.PrivateServerBulkEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             idVerificationBadgeEnabled: {
-                label: 'ID Verification Badge',
+                label: 'settings.profile.idVerificationBadgeEnabled.title',
                 description: [
-                    'Shows if a user has verified their ID on their profile.',
-                    'This is added to the "more" tab of the profile.',
+                    'settings.profile.idVerificationBadgeEnabled.desc1',
+                    'settings.profile.idVerificationBadgeEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['477516666', '447170745'],
             },
             ageVerificationBadgeEnabled: {
-                label: 'Age Checked Badge',
+                label: 'settings.profile.ageVerificationBadgeEnabled.title',
                 description: [
-                    'Shows whether a user has completed Roblox age check on their profile.',
-                    'This is added to the "more" tab of the profile.',
+                    'settings.profile.ageVerificationBadgeEnabled.desc1',
+                    'settings.profile.ageVerificationBadgeEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1474,7 +1474,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Home: {
-        title: 'Home',
+        title: 'settings.home.title',
         settings: {
             AccurateContinueEnabled: {
                 label: 'Accurate Continue',
@@ -1617,7 +1617,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Communities: {
-        title: 'Communities',
+        title: 'settings.communities.title',
         settings: {
             groupGamesEnabled: {
                 label: 'Hidden Community Experiences',
@@ -1712,7 +1712,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Avatar: {
-        title: 'Avatar',
+        title: 'settings.avatar.title',
         settings: {
             forceR6Enabled: {
                 label: 'Remove R6 Warning',
@@ -1793,7 +1793,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     transactions: {
-        title: 'Transactions',
+        title: 'settings.transactions.title',
         settings: {
             robuxFiatEstimatesEnabled: {
                 label: 'Robux Fiat Estimates',
@@ -1897,7 +1897,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Trading: {
-        title: 'Trading',
+        title: 'settings.trading.title',
         settings: {
             tradeValuesEnabled: {
                 label: 'Trade Values',
@@ -2045,7 +2045,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Plus: {
-        title: 'Roblox Plus',
+        title: 'settings.robloxPlus.title',
         settings: {
             reducePlusAds: {
                 label: 'Less Roblox Plus',
@@ -2145,7 +2145,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Navigation: {
-        title: 'Navigation',
+        title: 'settings.navigation.title',
         settings: {
             privacyTogglesEnabled: {
                 label: 'Privacy Toggles in Navigation',
@@ -2491,7 +2491,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Miscellaneous: {
-        title: 'Miscellaneous',
+        title: 'settings.miscellaneous.title',
         settings: {
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
@@ -2725,7 +2725,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     AntiAccountTracking: {
-        title: 'Privacy',
+        title: 'settings.privacy.title',
         settings: {
             streamermode: {
                 label: 'Streamer Mode',
@@ -3018,7 +3018,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     WebsiteCustomization: {
-        title: 'Website Customization',
+        title: 'settings.websiteCustomization.title',
         settings: {
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
@@ -3263,7 +3263,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     PublicDeveloper: {
-        title: 'Developer',
+        title: 'settings.developer.title',
         settings: {
             exportSettings: {
                 label: 'Export Settings',

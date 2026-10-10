@@ -837,6 +837,588 @@
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
         },
+        "language": {
+            "title": "RoValra Language",
+            "desc1": "Manually configure a language for RoValra. Some translations may be missing.",
+            "desc2": "The page will reload to apply changes. Might not work immediately on the settings page.",
+            "desc3": "We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy."
+        },
+        "donatorExclusive": "This is a donator-exclusive feature.",
+        "contributed": "{{username}} contributed in the making of this feature.",
+        "marketplace": {
+            "title": "Marketplace",
+            "itemSalesEnabled": {
+                "title": "Item Sales",
+                "desc1": "This shows the most up to date sales and revenue data we have.",
+                "desc2": "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on offsale items.",
+                "deprecated": "Sale stats are very old and now inaccurate."
+            },
+            "SaveLotsRobuxEnabled": {
+                "title": "Save 10%-40% Robux on Purchases",
+                "desc1": "This adds a button allowing you to save 40% on items on the marketplace.",
+                "desc2": "Keep in mind, a group is required for this to work.",
+                "desc3": "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**",
+                "RobuxPlaceId": {
+                    "title": "Place ID to use for the 10%-40% Robux back",
+                    "desc1": "It is best not to modify this, as the feature automatically sets the correct place ID when used.",
+                    "desc2": "**Don't change this unless you know what you're doing.**",
+                    "placeholder": "Enter Place ID here..."
+                },
+                "configureGame": {
+                    "title": "Configure Experience",
+                    "desc1": "Open the setup to configure an experience for the 40% method without needing to be in a purchase flow.",
+                    "buttonText": "Open Setup"
+                },
+                "useSoberSupportDeeplinks": {
+                    "title": "Use Roblox deeplinks for Sober support",
+                    "desc1": "This is less stable and should only be used if on Sober"
+                }
+            },
+            "marketplace3DRenderEnabledV2": {
+                "title": "Enable Custom 3D Marketplace Item Renderer",
+                "desc1": "Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.",
+                "desc2": "This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "marketplace3DRenderHoverPreviewDisabled": {
+                    "title": "Disable Hover Preview",
+                    "desc1": "Disables the 3D try-on preview when hovering over marketplace items."
+                },
+                "marketplace3DPostProcessing": {
+                    "title": "Post Processing",
+                    "desc1": "Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device."
+                }
+            },
+            "EnableRobuxAfterPurchase": {
+                "title": "Robux After Purchase",
+                "desc1": "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed."
+            },
+            "recentlyViewedEnabled": {
+                "title": "Recently Viewed Items",
+                "desc1": "Adds a Recently Viewed row to the top of the Marketplace with the last items and bundles you opened.",
+                "desc2": "Items can be removed one by one or all at once. Your history is only stored on this device.",
+                "recentlyViewedPriceChanges": {
+                    "title": "Show Price Changes",
+                    "desc1": "Shows if an item got cheaper, more expensive, went off sale or came back on sale since you viewed it."
+                }
+            },
+            "bonusItemEnabled": {
+                "title": "Robux Purchase Bonus Item Selector",
+                "desc1": "Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.",
+                "beta": "Currently missing gamepasses."
+            },
+            "EnableItemDependencies": {
+                "title": "Item Dependencies",
+                "desc1": "This feature shows an item's dependencies, which means you can view the texture, mesh, and more."
+            },
+            "friendOwnershipEnabled": {
+                "title": "Friends Who Own the Item",
+                "desc1": "Shows which of your friends own the item."
+            },
+            "priceFloorEnabled": {
+                "title": "Show Price Floor",
+                "desc1": "This will show the price floor when viewing items, and shows if the item you're viewing is sold at or above the price floor.",
+                "locked": "Pain to maintain due to how Roblox updates the API this uses. They update it without any backwards compatibility in mind."
+            },
+            "ParentItemsEnabled": {
+                "title": "Show what bundle an item is a part of.",
+                "desc1": "When viewing items pages of items inside of a bundle it will tell you what bundle that item is from."
+            },
+            "PreviousPriceEnabled": {
+                "title": "Previous Price to item cards and on item pages.",
+                "desc1": "This shows the price of an offsale item before it went offsale and when it was last on sale."
+            },
+            "lastEquippedEnabled": {
+                "title": "Last Equipped on Item Pages",
+                "desc1": "Shows when you last equipped an item on item pages."
+            },
+            "ownedItemPriceEnabled": {
+                "title": "Price on Owned Item Pages",
+                "desc1": "Shows the price of an item on its item page even when you already own it."
+            },
+            "itemTradingEnabled": {
+                "title": "Item Trading Info",
+                "desc1": "Shows Rolimons values, demand, trend, rare, projected and more on item pages."
+            }
+        },
+        "experiences": {
+            "title": "Experiences",
+            "gameBookmarksEnabled": {
+                "title": "Game Bookmarks",
+                "desc1": "Save games to your own bookmark categories and find them later on Home.",
+                "gameBookmarksCardButtonsEnabled": {
+                    "title": "Show Bookmark Buttons on Game Cards",
+                    "desc1": "Shows a Bookmark button when you hover over game cards."
+                }
+            },
+            "PreferredRegionEnabled": {
+                "title": "Preferred Region Play Button",
+                "desc1": "This adds a play button that joins your preferred region.",
+                "desc2": "This also automatically serverhops.",
+                "desc3": "If you have this enabled along with Quick Play, there will be a Preferred Region quick play button.",
+                "robloxPreferredRegion": {
+                    "title": "Preferred Region",
+                    "desc1": "Select your preferred region for joining experiences.",
+                    "desc2": "**Automatic** will automatically attempt to find the closest region to you."
+                },
+                "preferredRegionUseRobloxLatencyv1": {
+                    "title": "Prioritize biggest servers when using Automatic Mode",
+                    "desc1": "This makes Preferred Region join the servers closest to you with the most players.",
+                    "desc2": "May cause issues with some VPNs"
+                },
+                "preferredRegionLocalSearchEnabled": {
+                    "title": "Force Local Server Search",
+                    "desc1": "Searches Roblox servers locally instead of using RoValra to find servers by region.",
+                    "desc2": "**This isn't recommended for normal users, as it'll be much slower.**"
+                }
+            },
+            "QuickPlayEnable": {
+                "title": "Quick Play Button",
+                "desc1": "This will add a quick play button to experiences so you can quickly join the experience without opening the experience page.",
+                "desc2": "If you have Preferred Region Play Button enabled it will also add a Preferred Region quick play button to quickly join your preferred region.",
+                "desc3": "This is made to look like the official Roblox client's Quick Play button.",
+                "privateservers": {
+                    "title": "Show Private Servers in Quick Play",
+                    "desc1": "This adds a button to quickly browse and join private servers to the quick play."
+                },
+                "PaidAccessPriceBadgeEnabled": {
+                    "title": "Show Paid Game Access Price",
+                    "desc1": "This adds a small box that shows the price of paid Games."
+                },
+                "playbuttonpreferredregionenabled": {
+                    "title": "Change the normal Play button to join your preferred region in Quick Play",
+                    "desc1": "This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region."
+                }
+            },
+            "wideGameTileStatsEnabled": {
+                "title": "Player Counts on Wide Tiles",
+                "desc1": "Shows the concurrent player count alongside the rating on wide experience tiles."
+            },
+            "whatamIJoiningEnabled": {
+                "title": "What Am I Joining",
+                "desc1": "This shows the server ID, region, if it's a private server, and more info about the server you're joining when joining an experience.",
+                "AlwaysGetInfo": {
+                    "title": "Always Get Server Info",
+                    "desc1": "This will always get the server info, even if no server data is available.",
+                    "desc2": "It has a very small chance to get inaccurate information."
+                },
+                "closeUiByClickingTheBackground": {
+                    "title": "Close the 'What am I joining' UI by clicking the background",
+                    "desc1": "This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI"
+                }
+            },
+            "EnableImprovedEvents": {
+                "title": "Improved Events",
+                "desc1": "This allows you to view past events on experiences and how many are going."
+            },
+            "EnableGameTrailer": {
+                "title": "Experience Trailer",
+                "desc1": "This adds experience trailers not on YouTube to the website, replacing Roblox's way of doing it.",
+                "desc2": "As a result, it adds quality-of-life features such as full-screen playback, autoplay controls, video length, playback speed, and picture-in-picture mode.",
+                "locked": "This feature broke, and Roblox made its own version.",
+                "Enableautoplay": {
+                    "title": "Auto Play Trailer",
+                    "desc1": "This will automatically play the trailer."
+                }
+            },
+            "EnableDevProducts": {
+                "title": "View Developer Products",
+                "desc1": "This allows you to view the developer products of an experience directly on the store page."
+            },
+            "shopWidgetsEnabled": {
+                "title": "View In-Game Shop",
+                "desc1": "This adds a Shop tab to the experience store page, bringing the in-game shop to the website."
+            },
+            "QuickOutfitsEnabled": {
+                "title": "Quick Equip Outfits",
+                "desc1": "This allows you to quickly switch your avatar on an experience page."
+            },
+            "privateGameViewerEnabled": {
+                "title": "View Private / Moderated Games",
+                "desc1": "This recreates the games page of private / moderated games, allowing you to view them.",
+                "privateGameDetectionFallbackEnabled": {
+                    "title": "Use Robust Private / Moderated Games Detection",
+                    "desc1": "This makes sure it can identify when you're trying to view a private or moderated game.",
+                    "desc2": "Without this, it may fail to show private or moderated game pages when you open their links directly."
+                }
+            },
+            "gamePassViewerEnabled": {
+                "title": "View Gamepasses in Private / Moderated Games",
+                "desc1": "This recreates the gamepass page of private / moderated games, allowing you to view them."
+            },
+            "underReviewPillEnabled": {
+                "title": "Show All-Ages Review Status",
+                "desc1": "Shows a small notice on experience pages when Roblox is reviewing the experience for all-ages eligibility.",
+                "locked": "Roblox patched this feature."
+            },
+            "botdataEnabled": {
+                "title": "Bot Data",
+                "desc1": "Shows if an experience has a lot of bots in the description of the experience.",
+                "desc2": "It doesn't show the amount of bots, since the sample size is too small to give an accurate number."
+            },
+            "subplacesEnabled": {
+                "title": "Subplaces",
+                "desc1": "This adds a tab to an experience page that shows the subplaces of the experience.",
+                "subplacesSortEnabled": {
+                    "title": "Sorting",
+                    "desc1": "Adds sort and order controls to the Subplaces tab."
+                }
+            },
+            "hiddenBadgesEnabled": {
+                "title": "Hidden Badges",
+                "desc1": "Adds a Hidden Badges tab to experience pages.",
+                "desc2": "This only shows hidden badges of a game that you obtained."
+            },
+            "badgeLayoutToggleEnabled": {
+                "title": "Badge Layout Toggle",
+                "desc1": "Adds a List / Grid toggle to experience badge sections."
+            },
+            "badgeOwnershipEnabled": {
+                "title": "Dim Unowned Badges",
+                "desc1": "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)"
+            },
+            "badgeEarnedDateEnabled": {
+                "title": "Badge Earned Date",
+                "desc1": "Shows when you earned a badge on badge and experience pages."
+            },
+            "gameStatTimestampsEnabled": {
+                "title": "Detailed Created / Updated Dates",
+                "desc1": "Replaces the Created and Updated dates on experience pages with exact, clickable timestamps."
+            },
+            "updateHistoryEnabled": {
+                "title": "Update History",
+                "desc1": "This adds a tab to an experience page that has a heatmap showing the update history of an experience.",
+                "desc2": "This feature was heavily inspired by a RoPro v2 feature.",
+                "beta": "This feature is lacking update history data. It will slowly get it over time."
+            },
+            "recentServersEnabled": {
+                "title": "Recent Servers",
+                "desc1": "Shows the 4 most recent servers you joined under an experience."
+            },
+            "TotalServersEnabled": {
+                "title": "Total Servers",
+                "desc1": "This shows the total amount of servers RoValra is tracking under that experience."
+            },
+            "GameVersionEnabled": {
+                "title": "Experience Version",
+                "desc1": "This shows the current version an experience is on.",
+                "desc2": "Useful for developers."
+            },
+            "TotalSpentGamesEnabled": {
+                "title": "Total Spent on Experience",
+                "desc1": "This shows how much Robux you have spent total on this experience.",
+                "desc2": "This will scan your transactions in the background and store the total spent locally.",
+                "desc3": "This may take a few minutes to work after you first install the extension."
+            },
+            "OldestVersionEnabled": {
+                "title": "Oldest Server Version",
+                "desc1": "This shows the oldest place version that servers are still running on.",
+                "desc2": "Useful for developers."
+            },
+            "ServerFilterEnabled": {
+                "title": "Server Filters",
+                "desc1": "This adds a filter to the server list.",
+                "desc2": "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**",
+                "RegionFiltersEnabled": {
+                    "title": "Region Filters",
+                    "desc1": "Adds Region filters in the server list."
+                },
+                "UptimeFiltersEnabled": {
+                    "title": "Uptime Filters",
+                    "desc1": "Adds Server Uptime filters in the server list."
+                },
+                "VersionFiltersEnabled": {
+                    "title": "Place Version Filters",
+                    "desc1": "Adds Place Version filters in the server list allowing you to filter by servers running a specific place version."
+                }
+            },
+            "ServerlistmodificationsEnabled": {
+                "title": "Server List Modifications",
+                "desc1": "This adds multiple features to the server list.",
+                "desc2": "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                "PrivateServerGridEnabled": {
+                    "title": "Private Server Grid",
+                    "desc1": "Displays private/VIP servers in a compact responsive grid.",
+                    "desc2": "Only changes the private server section."
+                },
+                "PinPrivateServersEnabled": {
+                    "title": "Pin Private Servers",
+                    "desc1": "Allows private/VIP servers to be pinned to the top of the list.",
+                    "desc2": "Pinned servers stay above normal private servers.",
+                    "desc3": "Missing a bit of quality of life."
+                },
+                "enableShareLink": {
+                    "title": "Share link button",
+                    "desc1": "This adds a share link button under the join button so you can send a link to the server for other people to join with.",
+                    "desc2": "This uses fishstrap.app for the share link."
+                },
+                "EnableServerUptime": {
+                    "title": "Server Uptime",
+                    "desc1": "This shows an estimate of a server's uptime in the server list.",
+                    "desc2": "This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime."
+                },
+                "EnableServerRegion": {
+                    "title": "Server Region",
+                    "desc1": "This shows the server's region or location."
+                },
+                "EnablePlaceVersion": {
+                    "title": "Server Version",
+                    "desc1": "This shows the version of the experience that a specific server is running."
+                },
+                "EnableFullServerID": {
+                    "title": "Show the entire ServerID",
+                    "desc1": "This shows the entire ServerID",
+                    "desc2": "By default Roblox only shows a part of it.",
+                    "desc3": "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over."
+                },
+                "EnableFullServerIndicators": {
+                    "title": "Full Server Indicators",
+                    "desc1": "This adds indicators when a server is full",
+                    "desc2": "Like text that tells you the server is full if we don't have region data."
+                },
+                "EnableServerPerformance": {
+                    "title": "Show Server Performance",
+                    "desc1": "This shows the server performance, which is useful if you want to avoid poorly performing servers."
+                },
+                "EnableMiscIndicators": {
+                    "title": "Show misc indicators",
+                    "desc1": "This shows indicators for servers you can't join, such as when someone is playing in a private server."
+                },
+                "EnableDatacenterandId": {
+                    "title": "Show Datacenter ID and Server IP",
+                    "desc1": "This shows the Datacenter ID server IP of servers in the server list."
+                }
+            },
+            "HidePrivateServersEnabled": {
+                "title": "Hide Private Servers",
+                "desc1": "Adds an option to hide private servers from the server list.",
+                "experimental": "Has a few quality of life issues."
+            },
+            "PrivateQuickLinkCopy": {
+                "title": "Quick Private Server Link Copy and Generation",
+                "desc1": "This allows you to quickly copy a private server link or generate a new private server link.",
+                "privateServerFriendsToggleEnabled": {
+                    "title": "Friends Allowed Toggle",
+                    "desc1": "Adds a Friends Allowed switch under Allow Joining, so you can let friends in or keep them out without opening the server settings."
+                }
+            },
+            "autoFriendsAllowedEnabled": {
+                "title": "Friends Allowed On New Private Servers",
+                "desc1": "Turns on Friends Allowed as soon as you create a private server, so your friends can join without you going into its settings first.",
+                "desc2": "Only new servers are changed. Servers you already have are left as they are."
+            }
+        },
+        "profile": {
+            "title": "Profile",
+            "userGamesEnabled": {
+                "title": "Hidden User Experiences",
+                "desc1": "Shows a user's hidden experiences on their profile."
+            },
+            "avatarDownloadEnabled": {
+                "title": "Download Avatar",
+                "desc1": "Adds a button to save avatar as a PNG on their profile."
+            },
+            "profilePronouns": {
+                "title": "Profile Pronouns",
+                "desc1": "Displays your pronouns beside your username on your profile for other RoValra users.",
+                "desc2": "Maximum 15 characters.",
+                "desc3": "Emojis and spaces are allowed. Special characters such as /, comma, or ; are changed to |.",
+                "placeholder": "Enter Pronouns"
+            },
+            "displayAppThemeUserProfile": {
+                "title": "Display app theme user profiles",
+                "desc1": "Displays users app theme on their profile!",
+                "displayAppThemeOwnProfile": {
+                    "title": "Display your app theme on your profile",
+                    "desc1": "Displays your app theme on your profile to other users!",
+                    "desc2": "To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)",
+                    "desc3": "Enabling this setting will automatically turn on **Free Roblox Plus Themes**.",
+                    "donatorReason": "Donator Tier 1 is required to display your app theme on your own profile"
+                }
+            },
+            "profileNotesEnabled": {
+                "title": "Profile Notes",
+                "desc1": "Adds a private note field to Roblox profiles.",
+                "desc2": "Notes are stored only locally and are never shared to RoValra or Roblox.",
+                "desc3": "Maximum 256 characters.",
+                "profileNotesBackup": {
+                    "title": "Notes Backup",
+                    "desc1": "Export all profile notes or import them from a .json file.",
+                    "desc2": "Imported notes are merged with notes already stored in this browser.",
+                    "button1": "Export Notes",
+                    "button2": "Import Notes"
+                }
+            },
+            "profileViewsEnabled": {
+                "title": "Profile Views",
+                "desc1": "Shows profile view counts on profiles.",
+                "desc2": "Disabling this hides profile views locally and hides your profile views from other RoValra users.",
+                "desc3": "Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on."
+            },
+            "creatorStatsEnabled": {
+                "title": "Creator Stats",
+                "desc1": "Shows a user's combined CCU, experience visits, and owned community member count on their profile."
+            },
+            "socialLinksEnabled": {
+                "title": "Profile Social Links",
+                "desc1": "Shows social links below the profile description."
+            },
+            "profileCustomizationEnabled": {
+                "title": "Profile Customization",
+                "desc1": "Adds a customization button to your own profile for quickly switching avatar borders."
+            },
+            "profileShowcaseEnabled": {
+                "title": "Profile Showcase",
+                "desc1": "Adds a Showcase tab to profiles for featuring a favourite experience and community.",
+                "desc2": "Credit to [syra](https://www.roblox.com/users/170038374/profile) for making a concept which this feature is based on."
+            },
+            "chatEligibilityTooltipEnabled": {
+                "title": "Chat Eligibility Tooltip",
+                "desc1": "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile."
+            },
+            "userSniperEnabled": {
+                "title": "Instant Joiner",
+                "desc1": "This joins a user instantly when they go into an experience, best used for people with a lot of people trying to join them.",
+                "desc2": "### Requirements",
+                "desc3": "- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.",
+                "deeplinkEnabled": {
+                    "title": "Join through deeplinks",
+                    "desc1": "This will use deeplinks to join the user for faster joining but may be less reliable."
+                }
+            },
+            "profile3DRenderEnabled": {
+                "title": "Enable Custom 3D Profile Renderer",
+                "desc1": "Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.",
+                "desc2": "This feature is required for custom environments and other render-related settings.",
+                "desc3": "This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "experimental": "This feature may cause performance issues. And may be buggy",
+                "profileRenderEnvironment": {
+                    "title": "3D Profile Environment",
+                    "desc1": "Choose a custom environment for your own profile's 3D render.",
+                    "desc2": "This only applies when viewing your own profile.",
+                    "desc3": "**This is saved on RoValra's database so anyone with RoValra can view it. It being saved on RoValra's database used to be a tier 1 Donator perk, we are working on a replacement perk.**",
+                    "option1": "None",
+                    "option2": "Purple Space",
+                    "option3": "Crossroads",
+                    "option4": "Baseplate"
+                },
+                "profileRenderRotateEnabled": {
+                    "title": "Auto-Rotate Profile Avatar",
+                    "desc1": "Automatically rotates the 3D avatar on the profile page."
+                },
+                "environmentTester": {
+                    "title": "Enable Environment Creator",
+                    "desc1": "Shows the Environment Creator tool on profiles to make custom client-side environments.",
+                    "desc2": "This is to prepare for community environments.",
+                    "desc3": "This will overwrite all environments on profiles.",
+                    "desc4": "**This feature should only be enabled if you plan to make environments.**"
+                },
+                "profile3DRenderPostProcessing": {
+                    "title": "Post Processing",
+                    "desc1": "Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device."
+                }
+            },
+            "groupFiltersEnabled": {
+                "title": "Community Filters",
+                "desc1": "Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest, also allows you to view groups in a row format or grid format."
+            },
+            "trustedConnectionsEnabledv3": {
+                "title": "Trusted Friends",
+                "desc1": "This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.",
+                "desc2": "Trusted Friends might not be available in some regions.",
+                "desc3": "**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)"
+            },
+            "lastOnlineEnabled": {
+                "title": "Show Last Online / Last Seen",
+                "desc1": "Shows when a user was last online / seen on their profile.",
+                "desc2": "Only works for friends."
+            },
+            "friendsSinceEnabled": {
+                "title": "Friends Since",
+                "desc1": "This feature shows how long you have been friends with someone on their profile and in your friends list."
+            },
+            "mutualFriendsEnabled": {
+                "title": "Mutual Friends",
+                "desc1": "Shows how many friends you have in common with a user on their profile.",
+                "desc2": "Click it to see them in a Mutuals tab on their friends page."
+            },
+            "groupRoleEnabled": {
+                "title": "Show Community Roles",
+                "desc1": "Shows a user's role in a community on their profile.",
+                "locked": "Roblox released their own version of this."
+            },
+            "groupJoinedDateEnabled": {
+                "title": "Show Community Joined Date",
+                "desc1": "Shows when a user joined a community on their profile."
+            },
+            "showFriendedFromEnabled": {
+                "title": "Show Friended From",
+                "desc1": "This shows where you became friends with a user, e.g., in game, profile, etc."
+            },
+            "lastPlayedTogetherEnabled": {
+                "title": "Most Frequent Played Together",
+                "desc1": "Shows the experience you played the most with a friend on their profile."
+            },
+            "bulkUnfriendEnabled": {
+                "title": "Bulk Unfriend",
+                "desc1": "This allows you to unfriend people from your friends list in bulk."
+            },
+            "bulkBadgeRemoverEnabled": {
+                "title": "Bulk Badge Removal",
+                "desc1": "This allows you to delete your badges in bulk."
+            },
+            "unfriendDetectorEnabled": {
+                "title": "Unfriend Detector",
+                "desc1": "Tracks your friends list and alerts you with a popup if someone unfriends you, showing who unfriended you.",
+                "experimental": "May cause issues"
+            },
+            "PrivateServerBulkEnabled": {
+                "title": "Private Server Bulk Removal",
+                "desc1": "This will add a toggle to the private server inventory tab that allows you to easily set a bunch of private servers as inactive.",
+                "desc2": "This also works for setting inactive private servers as active"
+            },
+            "idVerificationBadgeEnabled": {
+                "title": "ID Verification Badge",
+                "desc1": "Shows if a user has verified their ID on their profile.",
+                "desc2": "This is added to the \"more\" tab of the profile."
+            },
+            "ageVerificationBadgeEnabled": {
+                "title": "Age Checked Badge",
+                "desc1": "Shows whether a user has completed Roblox age check on their profile.",
+                "desc2": "This is added to the \"more\" tab of the profile."
+            }
+        },
+        "home": {
+            "title": "Home"
+        },
+        "communities": {
+            "title": "Communities"
+        },
+        "avatar": {
+            "title": "Avatar"
+        },
+        "transactions": {
+            "title": "Transactions"
+        },
+        "trading": {
+            "title": "Trading"
+        },
+        "robloxPlus": {
+            "title": "Roblox Plus"
+        },
+        "navigation": {
+            "title": "Navigation"
+        },
+        "miscellaneous": {
+            "title": "Miscellaneous"
+        },
+        "privacy": {
+            "title": "Privacy"
+        },
+        "websiteCustomization": {
+            "title": "Website Customization"
+        },
+        "developer": {
+            "title": "Developer"
+        },
         "credits": {
             "contributorsTitle": "Contributors",
             "translatorsTitle": "Translators",
@@ -898,6 +1480,7 @@
                     "madeEs": "Helped make the Spanish locale",
                     "madeRu": "Helped make the Russian locale",
                     "madeFr": "Helped make the French locale",
+                    "madeId": "Helped make the Indonesian locale",
                     "madeZh": "Helped make the Chinese locale",
                     "madeVi": "Helped make the Vietnamese locale"
                 }

@@ -1,4 +1,5 @@
 import { createShimmerBlock } from './shimmer.js';
+import { ts } from '../locale/i18n.js';
 
 const DEFAULT_PANEL_MAX_HEIGHT = 300;
 const VIEWPORT_EDGE_MARGIN = 8;
@@ -192,7 +193,7 @@ export function createDropdownContent(
         const itemText = document.createElement('span');
         itemText.className =
             'foundation-web-menu-item-title text-no-wrap text-truncate-split content-emphasis';
-        itemText.textContent = item.label;
+        itemText.textContent = ts(item.label);
         itemText.style.flex = '1';
         itemTextWrapper.appendChild(itemText);
 

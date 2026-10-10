@@ -378,7 +378,11 @@
         "myProfile": "我的个人资料",
         "disabled": "已停用",
         "show": "显示",
-        "hide": "隐藏"
+        "hide": "隐藏",
+        "add": "添加",
+        "addButton": "添加按钮",
+        "buttonPlaceholder1": "名称",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra 找不到任何支持的顶部栏项目。",
@@ -444,6 +448,14 @@
         "allTime": "所有时间",
         "hours": "{{value}} 小时",
         "minutes": "{{value}} 分钟"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} 位共同好友",
+        "pill_other": "{{count}} 位共同好友",
+        "tooltip": "你与这位用户有哪些共同好友。",
+        "tab": "共同好友",
+        "title": "共同好友 ({{count}})",
+        "empty": "你与这位用户没有共同好友。"
     },
     "trustedFriends": {
         "pendingConnection": "待处理信赖好友",
@@ -618,14 +630,15 @@
         "setActive": "设置为活跃",
         "noServersFound": "未找到 {{status}} 个私人服务器。",
         "byCreator": "创作者：",
-        "allowJoining": "允许加入"
+        "allowJoining": "允许加入",
+        "friendsAllowed": "允许好友加入"
     },
     "firstAccount": {
-        "label": "首个账户",
+        "label": "首个账号",
         "yes": "是",
         "no": "否",
         "tooltip": "这显示 Roblox 是否认为您的账号是您的第一个账号。<br>此信息直接来自 Roblox，但有可能不准确的。",
-        "createdDate": "首次创建账户：{{date}}"
+        "createdDate": "首次创建账号：{{date}}"
     },
     "trustedCreator": {
         "label": "已加入可信赖创作者计划",
@@ -685,6 +698,11 @@
     },
     "lastEquipped": {
         "label": "最后使用"
+    },
+    "ownedItemPrice": {
+        "label": "价格",
+        "free": "免费",
+        "offSale": "已下架"
     },
     "pendingRobux": {
         "tooltip": "根据您的交易数据，这是您预计明天将有多少待处理余额中的 Robux 可用。实际数量可能会有所不同，并且此估算可能不准确。",
@@ -817,13 +835,587 @@
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
         },
-        "mutualFriends": {
-            "pill_one": "{{count}} 位共同好友",
-            "pill_other": "{{count}} 位共同好友",
-            "tooltip": "你与这位用户有哪些共同好友。",
-            "tab": "共同好友",
-            "title": "共同好友 ({{count}})",
-            "empty": "你与这位用户没有共同好友。"
+        "language": {
+            "title": "RoValra 语言",
+            "desc1": "手动配置 RoValra 的语言。部分翻译可能缺失。",
+            "desc2": "页面将重新加载以应用更改。设置页面上的更改可能不会立即生效。",
+            "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
+        },
+        "donatorExclusive": "这是一项捐赠者专属功能。",
+        "contributed": "{{username}} 为此功能的制作做出了贡献。",
+        "marketplace": {
+            "title": "商城",
+            "itemSalesEnabled": {
+                "title": "道具销售",
+                "desc1": "此处显示我们最新的销售和收入数据。",
+                "desc2": "在售道具的销售数据很可能不准确，但非在售道具的销售数据很可能正确。",
+                "deprecated": "销售统计数据非常陈旧，现在已不准确。"
+            },
+            "SaveLotsRobuxEnabled": {
+                "title": "购买道具可节省 10%-40% Robux",
+                "desc1": "此功能会添加一个按钮，让您在商城购买道具时节省 40% 的费用。",
+                "desc2": "请注意，此功能需要拥有群组才能生效。",
+                "desc3": "**购买道具时会出现一个「节省 X Robux」按钮，点击该按钮将设置此功能生效所需的体验（如果尚未设置）。**",
+                "RobuxPlaceId": {
+                    "title": "用于 10%-40% Robux 返利的地点 ID",
+                    "desc1": "最好不要修改此 ID，因为此功能会在使用时自动设置正确的地点 ID。",
+                    "desc2": "**除非您清楚自己在做什么，否则请勿更改地点 ID。**",
+                    "placeholder": "在此处输入地点 ID..."
+                },
+                "configureGame": {
+                    "title": "配置体验",
+                    "desc1": "打开设置，无需进入购买流程即可配置 40% 折扣方式的体验。",
+                    "buttonText": "打开设置"
+                },
+                "useSoberSupportDeeplinks": {
+                    "title": "使用 Roblox 深度链接支持 Sober 功能",
+                    "desc1": "此功能稳定性较差，仅应在 Sober 模式下使用。"
+                }
+            },
+            "marketplace3DRenderEnabledV2": {
+                "title": "启用自定义 3D 商城道具渲染器",
+                "desc1": "鼠标悬停在道具上时添加试穿预览，并为道具页面添加功能丰富的 3D 渲染器。",
+                "desc2": "此功能得益于 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "marketplace3DRenderHoverPreviewDisabled": {
+                    "title": "禁用鼠标悬停预览",
+                    "desc1": "鼠标悬停在市场道具上时禁用 3D 试穿预览。"
+                },
+                "marketplace3DPostProcessing": {
+                    "title": "后期处理",
+                    "desc1": "后期处理可实现诸如光晕和环境光遮蔽等高级效果，但需要性能强大的设备。"
+                }
+            },
+            "EnableRobuxAfterPurchase": {
+                "title": "购买后 Robux 余额",
+                "desc1": "此功能会将「你在此次交易后的余额将为 X」文本恢复到新的 Roblox 购买界面（此前该文本已被移除）。"
+            },
+            "recentlyViewedEnabled": {
+                "title": "最近浏览道具",
+                "desc1": "在商城顶部添加一个「最近浏览」行，显示您最近打开的道具和组合包。",
+                "desc2": "您可以逐个移除道具，也可以一次性全部移除。您的历史记录仅保存在此设备上。",
+                "recentlyViewedPriceChanges": {
+                    "title": "显示价格变动",
+                    "desc1": "显示自您浏览道具以来，该道具的价格是变便宜、变贵、下架还是重新上架。"
+                }
+            },
+            "bonusItemEnabled": {
+                "title": "Robux 购买奖励道具选择器",
+                "desc1": "为符合条件的 2,000 Robux 购买添加奖励道具选择器。",
+                "beta": "目前缺少游戏通行证。"
+            },
+            "EnableItemDependencies": {
+                "title": "道具依赖项",
+                "desc1": "此功能显示道具的依赖项，这意味着您可以查看纹理、网格等。"
+            },
+            "friendOwnershipEnabled": {
+                "title": "拥有该道具的好友",
+                "desc1": "显示哪些好友拥有该道具。"
+            },
+            "priceFloorEnabled": {
+                "title": "显示最低价格",
+                "desc1": "查看道具时将显示最低价格，并显示您正在查看的道具是否以等于或高于最低价格出售。",
+                "locked": "由于 Roblox 更新 API 的方式，维护起来非常麻烦。他们更新 API 时完全不考虑向后兼容性。"
+            },
+            "ParentItemsEnabled": {
+                "title": "显示道具所属的套装。",
+                "desc1": "查看套装内道具的页面时，会显示该道具所属的套装。"
+            },
+            "PreviousPriceEnabled": {
+                "title": "在道具卡片和道具页面上显示之前的价格。",
+                "desc1": "显示下架道具下架前的价格以及上次上架的价格。"
+            },
+            "lastEquippedEnabled": {
+                "title": "道具页面上的上次装备时间。",
+                "desc1": "在道具页面上显示您上次装备道具的时间。"
+            },
+            "ownedItemPriceEnabled": {
+                "title": "已拥有道具页面上的价格",
+                "desc1": "即使您已拥有该道具，也会在其道具页面上显示该道具的价格。"
+            },
+            "itemTradingEnabled": {
+                "title": "道具交易信息。",
+                "desc1": "在道具页面上显示 Rolimons的价值、需求量、趋势、稀有、虚高价格等信息。"
+            }
+        },
+        "experiences": {
+            "title": "体验",
+            "gameBookmarksEnabled": {
+                "title": "游戏收藏",
+                "desc1": "将游戏保存到您自己的收藏类别，以便稍后在首页上找到它们。",
+                "gameBookmarksCardButtonsEnabled": {
+                    "title": "在游戏卡片上显示收藏按钮",
+                    "desc1": "当您将鼠标悬停在游戏卡片上时，会显示一个收藏按钮。"
+                }
+            },
+            "PreferredRegionEnabled": {
+                "title": "首选地区游玩按钮",
+                "desc1": "这将添加一个游玩按钮，点击即可加入您首选的地区。",
+                "desc2": "此功能还会自动切换服务器。",
+                "desc3": "如果您同时启用了此功能和快速游玩，则会显示一个首选地区的快速游玩按钮。",
+                "robloxPreferredRegion": {
+                    "title": "首选地区",
+                    "desc1": "选择您首选的地区以加入游戏。",
+                    "desc2": "**自动** 会自动尝试查找离您最近的地区。"
+                },
+                "preferredRegionUseRobloxLatencyv1": {
+                    "title": "使用自动模式时优先选择最大的服务器",
+                    "desc1": "这将使首选地区加入离您最近且玩家最多的服务器。",
+                    "desc2": "可能会导致某些虚拟专用网络（VPN）出现问题"
+                },
+                "preferredRegionLocalSearchEnabled": {
+                    "title": "强制本地服务器搜索",
+                    "desc1": "在本地搜索 Roblox 服务器，而不是使用 RoValra 按地区查找服务器。",
+                    "desc2": "**不建议普通用户使用此功能，因为它会慢很多。**"
+                }
+            },
+            "QuickPlayEnable": {
+                "title": "快速游玩按钮",
+                "desc1": "这将在体验中添加一个快速游玩按钮，以便您无需打开体验页面即可快速加入体验。",
+                "desc2": "如果您启用了首选地区游戏按钮，它还会添加一个首选地区的快速游玩按钮，以便您快速加入您首选的地区。",
+                "desc3": "此按钮的外观与官方 Roblox 用户端的快速游玩按钮类似。",
+                "privateservers": {
+                    "title": "在快速游玩中显示私人服务器",
+                    "desc1": "这将在快速游玩中添加一个按钮，以便快速浏览和加入私人服务器。"
+                },
+                "PaidAccessPriceBadgeEnabled": {
+                    "title": "显示付费游戏价格",
+                    "desc1": "这将添加一个小框，显示付费游戏的价格。"
+                },
+                "playbuttonpreferredregionenabled": {
+                    "title": "将普通的「开始游戏」按钮更改为加入您在快速游玩中的首选地区",
+                    "desc1": "这将使快速游玩中的 Roblox「开始游戏」按钮加入离您最近的服务器，而不是随机地区。"
+                }
+            },
+            "wideGameTileStatsEnabled": {
+                "title": "宽图块上的玩家数量",
+                "desc1": "在宽体验图块上显示同时在线玩家数量和评分。"
+            },
+            "whatamIJoiningEnabled": {
+                "title": "我加入的是什么",
+                "desc1": "加入体验时，显示服务器 ID、地区、是否为私人服务器以及更多关于您加入的服务器的信息。",
+                "AlwaysGetInfo": {
+                    "title": "始终获取服务器信息",
+                    "desc1": "即使没有服务器数据，也会始终获取服务器信息。",
+                    "desc2": "获取不准确信息的概率很小。"
+                },
+                "closeUiByClickingTheBackground": {
+                    "title": "点击背景关闭「我加入的是什么」界面",
+                    "desc1": "点击背景即可关闭界面，但如果您想查看界面中提供的信息，这可能会很麻烦"
+                }
+            },
+            "EnableImprovedEvents": {
+                "title": "改进的活动",
+                "desc1": "此功能允许您查看过去体验中的活动以及正在进行的活动数量。"
+            },
+            "EnableGameTrailer": {
+                "title": "体验预告片",
+                "desc1": "此功能会将 YouTube 上没有的体验预告片添加到网站，取代 Roblox 原有的方式。",
+                "desc2": "因此，它添加了一些便捷功能，例如全屏播放、自动播放控制、视频长度、播放速度和画中画模式。",
+                "locked": "此功能已失效，Roblox 已开发了自己的版本。",
+                "Enableautoplay": {
+                    "title": "自动播放预告片",
+                    "desc1": "此功能将自动播放预告片。"
+                }
+            },
+            "EnableDevProducts": {
+                "title": "查看开发者产品",
+                "desc1": "此功能允许您直接在商店页面查看体验的开发者产品。"
+            },
+            "shopWidgetsEnabled": {
+                "title": "查看游戏内商店",
+                "desc1": "此功能会在体验商店页面添加一个商店标签，将游戏内商店带到网站上。"
+            },
+            "QuickOutfitsEnabled": {
+                "title": "快速装备形象",
+                "desc1": "此功能允许您在体验页面上快速切换您的虚拟形象。"
+            },
+            "privateGameViewerEnabled": {
+                "title": "查看私人/受审核游戏",
+                "desc1": "这将重新创建私人/受审核游戏的游戏页面，允许您查看它们。",
+                "privateGameDetectionFallbackEnabled": {
+                    "title": "使用强大的私人/受审核游戏检测",
+                    "desc1": "这将确保它能够识别您何时尝试查看私人或受审核游戏。",
+                    "desc2": "如果没有此选项，当您直接打开链接时，它可能无法显示私人或受审核游戏的页面。"
+                }
+            },
+            "gamePassViewerEnabled": {
+                "title": "查看私人/受审核游戏中的游戏通行证",
+                "desc1": "这将重新创建私人/受审核游戏的游戏通行证页面，允许您查看它们。"
+            },
+            "underReviewPillEnabled": {
+                "title": "显示全年龄审核状态",
+                "desc1": "当 Roblox 正在审核体验是否符合全年龄资格时，会在体验页面上显示一条简短的通知。",
+                "locked": "Roblox 已修补此功能。"
+            },
+            "botdataEnabled": {
+                "title": "机器人数据",
+                "desc1": "在体验描述中显示体验中是否存在大量机器人。",
+                "desc2": "由于样本量太小，无法提供准确的机器人数量，因此不会显示机器人的具体数量。"
+            },
+            "subplacesEnabled": {
+                "title": "子地点",
+                "desc1": "此功能会在体验页面添加一个标签页，显示体验的子地点。",
+                "subplacesSortEnabled": {
+                    "title": "排序",
+                    "desc1": "此功能会在「子地点」标签页添加排序和顺序控件。"
+                }
+            },
+            "hiddenBadgesEnabled": {
+                "title": "隐藏徽章",
+                "desc1": "此功能会在体验页面添加一个「隐藏徽章」标签页。",
+                "desc2": "此功能仅显示您已获得的游戏中的隐藏徽章。"
+            },
+            "badgeLayoutToggleEnabled": {
+                "title": "徽章布局切换",
+                "desc1": "此功能会在体验徽章部分添加列表/网格切换。"
+            },
+            "badgeOwnershipEnabled": {
+                "title": "未拥有的徽章颜色变暗",
+                "desc1": "在徽章页面上，将您未拥有的体验徽章颜色变暗。（类似于 BTRoblox 的做法）"
+            },
+            "badgeEarnedDateEnabled": {
+                "title": "徽章获得日期",
+                "desc1": "在徽章和体验页面上显示您获得徽章的时间。"
+            },
+            "gameStatTimestampsEnabled": {
+                "title": "详细的创建/更新日期",
+                "desc1": "将体验页面上的创建和更新日期替换为精确的、可点击的时间戳。"
+            },
+            "updateHistoryEnabled": {
+                "title": "更新历史记录",
+                "desc1": "此功能会在体验页面添加一个标签页，其中包含一个热图，显示体验的更新历史记录。",
+                "desc2": "此功能的设计灵感主要来自 RoPro v2 的一个功能。",
+                "beta": "此功能目前缺少更新历史记录数据，我们将逐步添加。"
+            },
+            "recentServersEnabled": {
+                "title": "最近加入的服务器",
+                "desc1": "显示您在某个体验下最近加入的 4 个服务器。"
+            },
+            "TotalServersEnabled": {
+                "title": "总数服务器",
+                "desc1": "显示 RoValra 在该体验下跟踪的服务器总数。"
+            },
+            "GameVersionEnabled": {
+                "title": "体验版本",
+                "desc1": "显示体验当前使用的版本。",
+                "desc2": "对开发者特别有用。"
+            },
+            "TotalSpentGamesEnabled": {
+                "title": "体验总消费",
+                "desc1": "显示您在此次体验中总共消费了多少 Robux。",
+                "desc2": "此功能会在后台扫描您的交易记录，并将总消费保存在本地。",
+                "desc3": "首次安装扩展程序后，可能需要几分钟才能生效。"
+            },
+            "OldestVersionEnabled": {
+                "title": "服务器最旧版本",
+                "desc1": "显示服务器仍在运行的最旧版本。",
+                "desc2": "对开发者特别有用。"
+            },
+            "ServerFilterEnabled": {
+                "title": "服务器筛选器",
+                "desc1": "此功能会向服务器列表添加筛选器。",
+                "desc2": "**强烈建议启用「服务器列表修改」功能，以便此功能正常工作。**",
+                "RegionFiltersEnabled": {
+                    "title": "地区筛选器",
+                    "desc1": "在服务器列表中添加地区筛选器。"
+                },
+                "UptimeFiltersEnabled": {
+                    "title": "运行时间筛选器",
+                    "desc1": "在服务器列表中添加服务器运行时间筛选器。"
+                },
+                "VersionFiltersEnabled": {
+                    "title": "地点版本筛选器",
+                    "desc1": "在服务器列表中添加地点版本筛选器，允许您按运行特定地点版本的服务器进行筛选。"
+                }
+            },
+            "ServerlistmodificationsEnabled": {
+                "title": "服务器列表修改",
+                "desc1": "这将为服务器列表添加多个功能。",
+                "desc2": "这些修改也将应用于「我的好友所在的服务器」部分。",
+                "PrivateServerGridEnabled": {
+                    "title": "私人服务器网格",
+                    "desc1": "以紧凑的响应式网格显示私人/VIP 服务器。",
+                    "desc2": "仅更改私人服务器部分。"
+                },
+                "PinPrivateServersEnabled": {
+                    "title": "置顶私人服务器",
+                    "desc1": "允许将私人/VIP服务器置顶到列表顶部。",
+                    "desc2": "已置顶的服务器将保持在普通私人服务器之上。",
+                    "desc3": "缺少一些便捷功能。"
+                },
+                "enableShareLink": {
+                    "title": "分享链接按钮",
+                    "desc1": "此功能会在加入按钮下方添加一个分享链接按钮，以便您可以向服务器发送链接，供其他人加入。",
+                    "desc2": "此功能使用 fishstrap.app 来处理分享链接。"
+                },
+                "EnableServerUptime": {
+                    "title": "服务器运行时间",
+                    "desc1": "此功能会在服务器列表中显示服务器运行时间的预估值。",
+                    "desc2": "此功能的工作原理是 RoValra 跟踪数据库中数十万台服务器，然后估算其运行时间。"
+                },
+                "EnableServerRegion": {
+                    "title": "服务器地区",
+                    "desc1": "此功能会显示服务器的地区或位置。"
+                },
+                "EnablePlaceVersion": {
+                    "title": "服务器版本",
+                    "desc1": "此功能会显示特定服务器正在运行的体验版本。"
+                },
+                "EnableFullServerID": {
+                    "title": "显示完整的服务器 ID",
+                    "desc1": "这将显示完整的服务器 ID",
+                    "desc2": "默认情况下，Roblox 只显示服务器 ID 的一部分。",
+                    "desc3": "除非鼠标悬停，否则将隐藏您正在玩或您的好友正在玩的服务器的服务器ID。"
+                },
+                "EnableFullServerIndicators": {
+                    "title": "服务器已满指示器",
+                    "desc1": "当服务器已满时，将添加指示器。",
+                    "desc2": "如果没有地区数据，则会显示服务器已满的提示文本。"
+                },
+                "EnableServerPerformance": {
+                    "title": "显示服务器性能",
+                    "desc1": "这将显示服务器性能，如果您想避免使用性能差的服务器，这将非常有用。"
+                },
+                "EnableMiscIndicators": {
+                    "title": "显示其他指示器",
+                    "desc1": "显示您无法加入的服务器的指示器，例如有人正在私人服务器上玩游戏时。"
+                },
+                "EnableDatacenterandId": {
+                    "title": "显示数据中心 ID 和服务器 IP",
+                    "desc1": "显示服务器列表中服务器的数据中心 ID 和服务器 IP。"
+                }
+            },
+            "HidePrivateServersEnabled": {
+                "title": "隐藏私人服务器",
+                "desc1": "添加一个选项，用于从服务器列表中隐藏私人服务器。",
+                "experimental": "存在一些便捷功能问题。"
+            },
+            "PrivateQuickLinkCopy": {
+                "title": "快速复制和生成私人服务器链接",
+                "desc1": "此功能允许您快速复制私人服务器链接或生成新的私人服务器链接。",
+                "privateServerFriendsToggleEnabled": {
+                    "title": "允许好友加入的开关",
+                    "desc1": "在「允许加入」下方添加一个「允许好友加入」开关，这样您就可以在不打开服务器设置的情况下允许好友加入或阻止好友加入。"
+                }
+            },
+            "autoFriendsAllowedEnabled": {
+                "title": "新建私人服务器允许好友加入",
+                "desc1": "创建私人服务器后立即启用「允许好友加入」功能，这样您的好友无需您先进入服务器设置即可加入。",
+                "desc2": "仅对新建服务器生效。您已有的服务器将保持不变。"
+            }
+        },
+        "profile": {
+            "title": "个人资料",
+            "userGamesEnabled": {
+                "title": "隐藏的用户体验",
+                "desc1": "在用户的个人资料中显示其隐藏的体验。"
+            },
+            "avatarDownloadEnabled": {
+                "title": "下载虚拟形象",
+                "desc1": "在用户的个人资料中添加一个按钮，用于将虚拟形象保存为 PNG 格式。"
+            },
+            "profilePronouns": {
+                "title": "个人资料代词",
+                "desc1": "在您的个人资料中，您的用户名旁边会显示您的代词，供其他 RoValra 用户查看。",
+                "desc2": "最多 15 个字符。",
+                "desc3": "允许使用表情符号和空格。特殊字符（例如 /、逗号或 ;）将自动替换为 |。",
+                "placeholder": "输入代词"
+            },
+            "displayAppThemeUserProfile": {
+                "title": "显示 App 主题用户个人资料",
+                "desc1": "在用户的个人资料中显示其 App 主题！",
+                "displayAppThemeOwnProfile": {
+                    "title": "在您的个人资料中显示您的 App 主题",
+                    "desc1": "向其他用户显示您的 App 主题！",
+                    "desc2": "要更改此设置，您可以前往 [Roblox 设置 > 浏览器首选项 > App 主题](https://www.roblox.com/my/account#!/browser-preferences)",
+                    "desc3": "启用此设置将自动开启**免费 Roblox Plus 主题**。",
+                    "donatorReason": "需要达到捐赠者等级 1 才能在个人资料中显示您的 App 主题"
+                }
+            },
+            "profileNotesEnabled": {
+                "title": "个人资料备注",
+                "desc1": "为 Roblox 个人资料添加私密备注字段。",
+                "desc2": "备注仅保存在本地，绝不会与 RoValra 或 Roblox 共享。",
+                "desc3": "最多 256 个字符。",
+                "profileNotesBackup": {
+                    "title": "备注备份",
+                    "desc1": "导出所有个人资料备注或从 .json 文件导入。",
+                    "desc2": "导入的备注将与此浏览器中已存储的备注合并。",
+                    "button1": "导出备注",
+                    "button2": "导入备注"
+                }
+            },
+            "profileViewsEnabled": {
+                "title": "个人资料浏览次数",
+                "desc1": "在个人资料页面上显示浏览次数。",
+                "desc2": "禁用此功能将隐藏本地个人资料浏览次数，并隐藏您对其他 RoValra 用户的浏览次数。",
+                "desc3": "感谢 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "creatorStatsEnabled": {
+                "title": "创作者统计",
+                "desc1": "在用户的个人资料页面上显示当前活跃用户（CCU）、体验访问次数和拥有的社区成员数量。"
+            },
+            "socialLinksEnabled": {
+                "title": "个人资料社交链接",
+                "desc1": "在个人资料关于下方显示社交链接。"
+            },
+            "profileCustomizationEnabled": {
+                "title": "个人资料自定义",
+                "desc1": "在您的个人资料中添加一个自定义按钮，方便您快速切换虚拟形象边框。"
+            },
+            "profileShowcaseEnabled": {
+                "title": "个人资料展示",
+                "desc1": "在个人资料中添加一个展示标签，用于展示您最喜欢的体验和社区。",
+                "desc2": "感谢 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "chatEligibilityTooltipEnabled": {
+                "title": "聊天资格提示",
+                "desc1": "当您将鼠标悬停在好友个人资料上的聊天按钮上时，会显示您是否可以与该好友聊天，或者他们是否已完成年龄验证。"
+            },
+            "userSniperEnabled": {
+                "title": "马上加入",
+                "desc1": "用户进入游戏时可马上加入，最适合多人尝试加入的情况。",
+                "desc2": "### 要求",
+                "desc3": "- 此功能要求用户启用所有人可加入功能，或者您是该用户的好友。",
+                "deeplinkEnabled": {
+                    "title": "通过深度链接加入",
+                    "desc1": "此功能将使用深度链接加入用户，速度更快，但可能不太可靠。"
+                }
+            },
+            "profile3DRenderEnabled": {
+                "title": "启用自定义 3D 个人资料渲染器",
+                "desc1": "将默认个人资料虚拟形象替换为更可定制、功能更丰富的 3D 渲染器。",
+                "desc2": "自定义环境和其他渲染相关设置需要此功能。",
+                "desc3": "此功能得益于 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "experimental": "此功能可能会导致性能问题，并且可能存在错误。",
+                "profileRenderEnvironment": {
+                    "title": "3D 个人资料环境",
+                    "desc1": "为您的个人资料 3D 渲染选择自定义环境。",
+                    "desc2": "此功能仅在查看您自己的个人资料时生效。",
+                    "desc3": "**此设置保存在 RoValra 的数据库中，因此任何拥有 RoValra 的用户都可以查看。RoValra 的数据库曾经是等级 1 捐赠者福利，我们正在开发替代福利。**",
+                    "option1": "无",
+                    "option2": "紫色太空",
+                    "option3": "十字路口",
+                    "option4": "底板"
+                },
+                "profileRenderRotateEnabled": {
+                    "title": "自动旋转个人资料虚拟形象",
+                    "desc1": "自动旋转个人资料页面上的 3D 虚拟形象。"
+                },
+                "environmentTester": {
+                    "title": "启用环境创建器",
+                    "desc1": "在个人资料中显示环境创建器工具，用于创建自定义客户端环境。",
+                    "desc2": "这是为了准备创建社区环境。",
+                    "desc3": "这将覆盖个人资料中的所有环境。",
+                    "desc4": "**仅当您计划创建环境时才应启用此功能。**"
+                },
+                "profile3DRenderPostProcessing": {
+                    "title": "后期处理",
+                    "desc1": "后期处理可实现诸如光晕和环境光遮蔽等高级效果，但需要性能强大的设备。"
+                }
+            },
+            "groupFiltersEnabled": {
+                "title": "社区筛选器",
+                "desc1": "在个人资料的社区部分添加筛选器，允许您按 A-Z、Z-A、最新和最旧排序，还允许您以行格式或网格格式查看群组。"
+            },
+            "trustedConnectionsEnabledv3": {
+                "title": "可信赖好友",
+                "desc1": "此功能允许您通过点击好友个人资料上的 (...) 来接受、请求和移除可信赖好友。此功能仅适用于符合条件的好友。",
+                "desc2": "可信赖好友功能可能在某些地区无法使用。",
+                "desc3": "**注意：**Roblox 使用算法，即使某人符合这些要求，也可能会阻止添加他们。[点击此处了解更多信息。](https://en.help.roblox.com/hc/zh-cn/articles/46158344285204)"
+            },
+            "lastOnlineEnabled": {
+                "title": "显示上次在线/上次出现时间",
+                "desc1": "显示用户上次在线/上次出现的时间。",
+                "desc2": "仅适用于好友。"
+            },
+            "friendsSinceEnabled": {
+                "title": "添加好友时间",
+                "desc1": "此功能会在对方的个人资料和好友列表中显示您与对方的添加好友时间。"
+            },
+            "mutualFriendsEnabled": {
+                "title": "共同好友",
+                "desc1": "在对方的个人资料中显示您与对方的共同好友数量。",
+                "desc2": "点击即可在对方好友页面的「共同好友」选项卡中查看对方。"
+            },
+            "groupRoleEnabled": {
+                "title": "显示社区角色",
+                "desc1": "在用户的个人资料中显示其在社区中的角色。",
+                "locked": "Roblox 发布了他们自己的版本。"
+            },
+            "groupJoinedDateEnabled": {
+                "title": "显示社群加入日期",
+                "desc1": "在用户个人资料中显示其加入社群的时间。"
+            },
+            "showFriendedFromEnabled": {
+                "title": "显示通过方式添加好友",
+                "desc1": "显示您与用户成为好友的方式，例如游戏内、个人资料等。"
+            },
+            "lastPlayedTogetherEnabled": {
+                "title": "最常一起玩的游戏",
+                "desc1": "在好友个人资料中显示您与好友一起玩得最多的游戏。"
+            },
+            "bulkUnfriendEnabled": {
+                "title": "批量删除好友",
+                "desc1": "此功能允许您从好友列表中批量删除好友。"
+            },
+            "bulkBadgeRemoverEnabled": {
+                "title": "批量移除徽章",
+                "desc1": "此功能允许您批量删除徽章。"
+            },
+            "unfriendDetectorEnabled": {
+                "title": "删除好友检测器",
+                "desc1": "跟踪您的好友列表，并在有人删除您好友时弹出窗口提醒您，并显示删除好友是谁。",
+                "experimental": "可能会导致问题"
+            },
+            "PrivateServerBulkEnabled": {
+                "title": "批量移除私人服务器",
+                "desc1": "这将在私人服务器列表标签页中添加一个切换按钮，方便您轻松地将多个私人服务器设置为非活动状态。",
+                "desc2": "此功能也适用于将非活动私人服务器设置为活动状态。"
+            },
+            "idVerificationBadgeEnabled": {
+                "title": "身份已验证徽章",
+                "desc1": "显示用户是否已在个人资料中已验证了身份。",
+                "desc2": "此功能将添加到个人资料的「更多」标签页。"
+            },
+            "ageVerificationBadgeEnabled": {
+                "title": "年龄已验证徽章",
+                "desc1": "显示用户是否已在个人资料中完成 Roblox 年龄验证。",
+                "desc2": "此功能将添加到个人资料的「更多」标签页。"
+            }
+        },
+        "home": {
+            "title": "首页"
+        },
+        "communities": {
+            "title": "社区"
+        },
+        "avatar": {
+            "title": "虚拟形象"
+        },
+        "transactions": {
+            "title": "交易记录"
+        },
+        "trading": {
+            "title": "交易"
+        },
+        "robloxPlus": {
+            "title": "Roblox Plus"
+        },
+        "navigation": {
+            "title": "导航"
+        },
+        "miscellaneous": {
+            "title": "其他设置"
+        },
+        "privacy": {
+            "title": "隐私权"
+        },
+        "websiteCustomization": {
+            "title": "网站自定义"
+        },
+        "developer": {
+            "title": "开发者"
         },
         "credits": {
             "contributorsTitle": "贡献者",
@@ -886,7 +1478,9 @@
                     "madeEs": "协助进行西班牙语本地化",
                     "madeRu": "协助进行俄语本地化",
                     "madeFr": "协助进行法语本地化",
-                    "madeZh": "协助进行繁体中文/简体中文本地化"
+                    "madeId": "协助进行印度尼西亚语本地化",
+                    "madeZh": "协助进行繁体中文/简体中文本地化",
+                    "madeVi": "协助进行越南语本地化"
                 }
             },
             "ui": {
@@ -1075,7 +1669,12 @@
                 "followTerms": "图像必须遵守 Roblox 使用条款。",
                 "joinDiscord": "加入 RoValra 的 Discord 服务器。",
                 "agree": "同意",
-                "agreeCountdown": "同意（{{count}}）"
+                "agreeCountdown": "同意（{{count}}）",
+                "preview": "预览",
+                "previewTitle": "预览自定义徽章",
+                "previewDescription": "上传一张 WEBP 图片，即可查看它作为个人资料徽章的效果。该图片仅保存在内存中，不会被上传或保存，当您离开或刷新页面时，图片就会消失。",
+                "previewTooltip": "徽章预览",
+                "previewDone": "完成"
             },
             "githubSponsorBadge": {
                 "title": "GitHub 赞助者个人资料徽章",
@@ -1373,7 +1972,7 @@
         "blocked": {
             "eighteenPlus": "更新历史记录不适用于 18 岁以上体验",
             "paidAccess": "更新历史记录不适用于付费体验",
-            "subplace": "更新历史记录不适用于有加入限制的子区域",
+            "subplace": "更新历史记录不适用于有加入限制的子地区",
             "noDesktopSupport": "更新历史记录不适用于不支持计算机的体验"
         }
     },
@@ -1552,10 +2151,10 @@
             "actualResolution": "实际分辨率",
             "physicalSize": "物理尺寸",
             "rotate": "旋转",
-            "loadingPreview": "正在加载用户介面预览...",
+            "loadingPreview": "正在加载用户界面预览...",
             "searchInstances": "搜索实例... (2 个以上字符)",
             "searchProperties": "搜索属性...",
-            "previewGui": "预览用户介面",
+            "previewGui": "预览用户界面",
             "togglePreviewVisibility": "切换预览可见度",
             "noMatchingInstances": "未找到匹配的实例",
             "loadError": "加载失败。"
@@ -1995,7 +2594,7 @@
     },
     "profileFrame": {
         "storeTitle": "个人资料框架商店",
-        "storeDesc": "个人资料框架会环绕您个人资料页面上的整个虚拟形象显示区域。购买框架可直接支持 RoValra 和艺术家，并计入您的捐赠者等级。捐赠者等级 3 的解锁内容不包含框架，该等级仅包含虚拟形象边框。",
+        "storeDesc": "个人资料框架会环绕您个人资料页面上的整个虚拟形象显示地区。购买框架可直接支持 RoValra 和艺术家，并计入您的捐赠者等级。捐赠者等级 3 的解锁内容不包含框架，该等级仅包含虚拟形象边框。",
         "tabBorders": "虚拟形象边框",
         "tabFrames": "框架",
         "loading": "正在加载框架...",

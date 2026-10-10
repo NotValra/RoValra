@@ -5064,7 +5064,7 @@ export async function handleSearch(event) {
                 !searchResults.some((res) => res.name === settingName)
             ) {
                 searchResults.push({
-                    category: category.title,
+                    category: ts(category.title),
                     name: settingName,
                     config: settingDef,
                 });

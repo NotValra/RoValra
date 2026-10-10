@@ -378,7 +378,11 @@
         "myProfile": "我的個人檔案",
         "disabled": "已停用",
         "show": "顯示",
-        "hide": "隱藏"
+        "hide": "隱藏",
+        "add": "新增",
+        "addButton": "新增按鈕",
+        "buttonPlaceholder1": "名稱",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra 找不到任何支援的頂部欄項目。",
@@ -392,7 +396,7 @@
         "labels": {
             "logo": "Roblox 標誌",
             "charts": "圖表",
-            "marketplace": "商集",
+            "marketplace": "市集",
             "create": "創作",
             "robux": "Robux",
             "search": "搜尋",
@@ -558,7 +562,7 @@
     "donationLink": {
         "donate": "捐贈",
         "overlayTitle": "《PLS DONATE》",
-        "description": "這將啟動《PLS DONATE》遊戲，您可以在這裡進行離線捐贈。\n\n由於 Roblox (30%) 和遊戲 (10%) 會收取費用，使用者將收到捐贈金額的 60%。\n\n加入後，「離線捐贈」介面將自動顯示，並預先填寫您的使用者名稱。只需點擊禮物按鈕即可開啟您的捐贈頁面，購買遊戲通行證進行捐贈。",
+        "description": "這將啟動《PLS DONATE》遊戲，您可以在這裡進行離線捐贈。\n\n由於 Roblox (30%) 和遊戲 (10%) 會收取費用，使用者將收到捐贈金額的 60%。\n\n加入後，「離線捐贈」介面將自動顯示，並預先填寫您的使用者名稱。只需點觸禮物按鈕即可開啟您的捐贈頁面，購買遊戲通行證進行捐贈。",
         "joinButton": "加入《PLS DONATE》",
         "goBackButton": "返回",
         "loadingGamePasses": "正在載入遊戲通行證...",
@@ -626,7 +630,8 @@
         "setActive": "設定為活躍",
         "noServersFound": "找不到 {{status}} 個人伺服器。",
         "byCreator": "創作者：",
-        "allowJoining": "允許加入"
+        "allowJoining": "允許加入",
+        "friendsAllowed": "允許好友加入"
     },
     "firstAccount": {
         "label": "首個帳號",
@@ -674,7 +679,7 @@
                 "bottomright": "右下側"
             },
             "overlay": {
-                "color": "顏色顔色",
+                "color": "疊加顏色",
                 "opacity": "疊加不透明度"
             },
             "errors": {
@@ -693,6 +698,11 @@
     },
     "lastEquipped": {
         "label": "最後使用"
+    },
+    "ownedItemPrice": {
+        "label": "價格",
+        "free": "免費",
+        "offSale": "已下架"
     },
     "pendingRobux": {
         "tooltip": "根據您的交易記錄，這是您預計明天將有多少待處理餘額中的 Robux 可用。實際數量可能會有所不同，並且此估算可能不准確。",
@@ -825,6 +835,588 @@
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
         },
+        "language": {
+            "title": "RoValra 語言",
+            "desc1": "手動配置 RoValra 的語言。部分翻譯可能缺失。",
+            "desc2": "頁面將重新載入以套用變更。設定頁面上的變更可能不會立即生效。",
+            "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
+        },
+        "donatorExclusive": "這是一項捐贈者專屬功能。",
+        "contributed": "{{username}} 為此功能的製作做出了貢獻。",
+        "marketplace": {
+            "title": "市集",
+            "itemSalesEnabled": {
+                "title": "道具銷售",
+                "desc1": "此處顯示我們最新的銷售和收入資料。",
+                "desc2": "在售道具的銷售資料很可能不準確，但下架道具的銷售資料很可能正確。",
+                "deprecated": "銷售統計資料非常陳舊，現在已不準確。"
+            },
+            "SaveLotsRobuxEnabled": {
+                "title": "購買道具可節省 10%-40% Robux",
+                "desc1": "此功能會新增一個按鈕，讓您在市集購買道具時節省 40% 的費用。",
+                "desc2": "請注意，此功能需要擁有群組才能生效。",
+                "desc3": "**購買道具時會出現一個「節省 X Robux」按鈕，點觸此按鈕將設定此功能生效所需的體驗（如果尚未設定）。**",
+                "RobuxPlaceId": {
+                    "title": "用於 10%-40% Robux 回饋的地點 ID",
+                    "desc1": "最好不要變更，因為此功能會在使用時自動設定正確的地點 ID。",
+                    "desc2": "**除非您清楚自己在做什麼，否則請勿變更地點 ID。**",
+                    "placeholder": "在此輸入地點 ID..."
+                },
+                "configureGame": {
+                    "title": "配置體驗",
+                    "desc1": "開啟設定，無需進入購買流程即可配置 40% 折扣方式的體驗。",
+                    "buttonText": "開啟設定"
+                },
+                "useSoberSupportDeeplinks": {
+                    "title": "使用 Roblox 深度連結支援 Sober 功能",
+                    "desc1": "此功能穩定性較差，僅應在 Sober 模式下使用。"
+                }
+            },
+            "marketplace3DRenderEnabledV2": {
+                "title": "啟用自訂 3D 市集道具渲染器",
+                "desc1": "滑鼠停留在道具上時新增試穿預覽，並為道具頁面新增功能豐富的 3D 渲染器。",
+                "desc2": "此功能得益於 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "marketplace3DRenderHoverPreviewDisabled": {
+                    "title": "停用滑鼠停留預覽",
+                    "desc1": "滑鼠停留在市集道具上時停用 3D 試穿預覽。"
+                },
+                "marketplace3DPostProcessing": {
+                    "title": "後製",
+                    "desc1": "後製可實現諸如光暈和環境光遮蔽等高級效果，但需要性能強大的裝置。"
+                }
+            },
+            "EnableRobuxAfterPurchase": {
+                "title": "購買後 Robux 餘額",
+                "desc1": "此功能會將「您在此交易後的餘額將為 X」文字恢復到新的 Roblox 購買介面（先前此文字已被移除）。"
+            },
+            "recentlyViewedEnabled": {
+                "title": "最近瀏覽道具",
+                "desc1": "在市集頂部新增一個「最近瀏覽」行，顯示您最近開啟的道具和組合包。",
+                "desc2": "您可以逐一移除道具，也可以一次全部移除。您的歷史記錄僅儲存在此裝置上。",
+                "recentlyViewedPriceChanges": {
+                    "title": "顯示價格變動",
+                    "desc1": "顯示自您瀏覽道具以來，此道具的價格是變便宜、變貴、下架還是重新上架。"
+                }
+            },
+            "bonusItemEnabled": {
+                "title": "Robux 購買獎勵道具選擇器",
+                "desc1": "為符合條件的 2,000 Robux 購買新增獎勵道具選擇器。",
+                "beta": "目前缺少遊戲通行證。"
+            },
+            "EnableItemDependencies": {
+                "title": "道具依賴",
+                "desc1": "此功能顯示道具的依賴項，這表示您可以查看紋理、網格等。"
+            },
+            "friendOwnershipEnabled": {
+                "title": "擁有此道具的好友",
+                "desc1": "顯示哪些好友擁有此道具。"
+            },
+            "priceFloorEnabled": {
+                "title": "顯示最低價格",
+                "desc1": "查看道具時將顯示最低價格，並顯示您正在查看的道具是否以等於或高於最低價格出售。",
+                "locked": "由於 Roblox 更新 API 的方式，維護起來非常麻煩。他們在更新 API 時完全不考慮向後相容性。"
+            },
+            "ParentItemsEnabled": {
+                "title": "顯示道具所屬的組合包。",
+                "desc1": "查看組合包內道具的頁面時，會顯示此道具所屬的組合包。"
+            },
+            "PreviousPriceEnabled": {
+                "title": "在道具卡和道具頁面上顯示先前的價格。",
+                "desc1": "顯示下架道具下架前的價格以及上次上架的價格。"
+            },
+            "lastEquippedEnabled": {
+                "title": "道具頁面上的上次裝備時間",
+                "desc1": "在道具頁面上顯示您上次裝備道具的時間。"
+            },
+            "ownedItemPriceEnabled": {
+                "title": "已擁有道具頁面上的價格",
+                "desc1": "即使您已擁有此道具，也會在其道具頁面上顯示此道具的價格。"
+            },
+            "itemTradingEnabled": {
+                "title": "道具交易資訊",
+                "desc1": "在道具頁面上顯示 Rolimons 的價值、需求量、趨勢、稀有、虛高價格等資訊。"
+            }
+        },
+        "experiences": {
+            "title": "體驗",
+            "gameBookmarksEnabled": {
+                "title": "遊戲書籤",
+                "desc1": "將遊戲儲存到您自己的書籤類別，以便稍後在首頁上找到它們。",
+                "gameBookmarksCardButtonsEnabled": {
+                    "title": "在遊戲卡上顯示書籤按鈕",
+                    "desc1": "當您將滑鼠停留在遊戲卡片上時，會顯示一個書籤按鈕。"
+                }
+            },
+            "PreferredRegionEnabled": {
+                "title": "首選地區遊玩按鈕",
+                "desc1": "這將新增一個遊玩按鈕，點觸即可加入您首選的地區。",
+                "desc2": "此功能也會自動切換伺服器。",
+                "desc3": "如果您同時啟用了此功能和快速遊玩，則會顯示一個首選地區的快速遊玩按鈕。",
+                "robloxPreferredRegion": {
+                    "title": "首選地區",
+                    "desc1": "選擇您首選的地區以加入遊戲。",
+                    "desc2": "**自動** 會自動嘗試尋找離您最近的地區。"
+                },
+                "preferredRegionUseRobloxLatencyv1": {
+                    "title": "使用自動模式時優先選擇最大的伺服器",
+                    "desc1": "這將使首選地區加入離您最近且玩家最多的伺服器。",
+                    "desc2": "可能會導致某些虛擬私人網路（VPN）出現問題"
+                },
+                "preferredRegionLocalSearchEnabled": {
+                    "title": "強製本地伺服器搜尋",
+                    "desc1": "在本地搜尋 Roblox 伺服器，而不是使用 RoValra 按地區尋找伺服器。",
+                    "desc2": "**不建議一般使用者使用此功能，因為它會慢很多。**"
+                }
+            },
+            "QuickPlayEnable": {
+                "title": "快速遊玩按鈕",
+                "desc1": "這將在體驗中新增一個快速遊玩按鈕，以便您無需打開體驗頁面即可快速加入體驗。",
+                "desc2": "如果您啟用了首選地區遊戲按鈕，它還會新增一個首選地區的快速遊玩按鈕，以便您快速加入您首選的地區。",
+                "desc3": "此按鈕的外觀與官方 Roblox 客戶端的快速遊玩按鈕類似。",
+                "privateservers": {
+                    "title": "在快速遊玩中顯示私人伺服器",
+                    "desc1": "這將在快速遊玩中新增一個按鈕，以便快速瀏覽和加入私人伺服器。"
+                },
+                "PaidAccessPriceBadgeEnabled": {
+                    "title": "顯示付費遊戲價格",
+                    "desc1": "這將新增一個小框，顯示付費遊戲的價格。"
+                },
+                "playbuttonpreferredregionenabled": {
+                    "title": "將普通的「開始遊戲」按鈕變更為加入您在快速遊玩中的首選地區",
+                    "desc1": "這將使快速遊玩中的 Roblox「開始遊戲」按鈕加入離您最近的伺服器，而不是隨機地區。"
+                }
+            },
+            "wideGameTileStatsEnabled": {
+                "title": "寬圖塊上的玩家數量",
+                "desc1": "在寬體驗圖塊上顯示同時線上玩家數量和評分。"
+            },
+            "whatamIJoiningEnabled": {
+                "title": "我加入的是什麼",
+                "desc1": "加入體驗時，顯示伺服器 ID、地區、是否為私人伺服器以及更多關於您加入的伺服器的資訊。",
+                "AlwaysGetInfo": {
+                    "title": "始終取得伺服器資訊",
+                    "desc1": "即使沒有伺服器資料，也會始終取得伺服器資訊。",
+                    "desc2": "取得不準確資訊的機率很小。"
+                },
+                "closeUiByClickingTheBackground": {
+                    "title": "點觸背景關閉「我加入的是什麼」介面",
+                    "desc1": "點觸背景即可關閉介面，但如果您想查看介面中提供的資訊，這可能會很麻煩"
+                }
+            },
+            "EnableImprovedEvents": {
+                "title": "改進的活動",
+                "desc1": "此功能可讓您查看過去體驗中的活動以及正在進行的活動數量。"
+            },
+            "EnableGameTrailer": {
+                "title": "體驗預告片",
+                "desc1": "此功能會將 YouTube 上沒有的體驗預告片加入網站，取代 Roblox 原有的方式。",
+                "desc2": "因此，它新增了一些便利功能，例如全螢幕播放、自動播放控制、影片長度、播放速度和畫中畫模式。",
+                "locked": "此功能已失效，Roblox 已開發了自己的版本。",
+                "Enableautoplay": {
+                    "title": "自動播放預告片",
+                    "desc1": "此功能將自動播放預告片。"
+                }
+            },
+            "EnableDevProducts": {
+                "title": "查看開發者產品",
+                "desc1": "此功能可讓您直接在商店頁面查看體驗的開發者產品。"
+            },
+            "shopWidgetsEnabled": {
+                "title": "查看遊戲內商店",
+                "desc1": "此功能會在體驗商店頁面新增一個商店標籤，將遊戲內商店帶到網站上。"
+            },
+            "QuickOutfitsEnabled": {
+                "title": "快速裝備外觀",
+                "desc1": "此功能可讓您在體驗頁面上快速切換您的虛擬人偶。"
+            },
+            "privateGameViewerEnabled": {
+                "title": "查看私人/經過審核遊戲",
+                "desc1": "這將重新建立私人/經過審核遊戲的遊戲頁面，允許您查看它們。",
+                "privateGameDetectionFallbackEnabled": {
+                    "title": "使用強大的私人/經過審核遊戲偵測",
+                    "desc1": "這將確認它能夠識別您何時嘗試查看私人或經過審核遊戲。",
+                    "desc2": "如果沒有此選項，當您直接開啟連結時，它可能無法顯示私人或經過審核遊戲的頁面。"
+                }
+            },
+            "gamePassViewerEnabled": {
+                "title": "查看私人/經過審核遊戲中的遊戲通行證",
+                "desc1": "這將重新建立私人/經過審核遊戲的遊戲通行證頁面，讓您可以查看它們。"
+            },
+            "underReviewPillEnabled": {
+                "title": "顯示全年齡審核狀態",
+                "desc1": "當 Roblox 正在審查體驗是否符合全年齡資格時，會在體驗頁面上顯示一條簡短的通知。",
+                "locked": "Roblox 已修正此功能。"
+            },
+            "botdataEnabled": {
+                "title": "機器人資料",
+                "desc1": "在體驗說明中顯示體驗中是否存在大量機器人。",
+                "desc2": "由於樣本量太小，無法提供準確的機器人數量，因此不會顯示機器人的具體數量。"
+            },
+            "subplacesEnabled": {
+                "title": "子地點",
+                "desc1": "此功能會在體驗頁面新增一個標籤頁，顯示體驗的子地點。",
+                "subplacesSortEnabled": {
+                    "title": "排序",
+                    "desc1": "此功能會在「子地點」標籤頁新增排序和順序控制項。"
+                }
+            },
+            "hiddenBadgesEnabled": {
+                "title": "隱藏徽章",
+                "desc1": "此功能會在體驗頁面新增一個「隱藏徽章」標籤頁。",
+                "desc2": "此功能僅顯示您已獲得的遊戲中的隱藏徽章。"
+            },
+            "badgeLayoutToggleEnabled": {
+                "title": "徽章版面切換",
+                "desc1": "此功能會在體驗徽章部分新增名單/網格切換。"
+            },
+            "badgeOwnershipEnabled": {
+                "title": "未擁有的徽章顏色變暗",
+                "desc1": "在徽章頁面上，將您未擁有的體驗徽章顏色變暗。（類似於 BTRoblox 的做法）"
+            },
+            "badgeEarnedDateEnabled": {
+                "title": "徽章獲得日期",
+                "desc1": "在徽章和體驗頁面上顯示您獲得徽章的時間。"
+            },
+            "gameStatTimestampsEnabled": {
+                "title": "詳細的建立/更新日期",
+                "desc1": "將體驗頁面上的建立和更新日期替換為精確的、可點觸的時間戳。"
+            },
+            "updateHistoryEnabled": {
+                "title": "更新歷史記錄",
+                "desc1": "此功能會在體驗頁面新增一個標籤頁，其中包含一個熱圖，顯示體驗的更新歷史記錄。",
+                "desc2": "此功能的設計靈感主要來自 RoPro v2 的一個功能。",
+                "beta": "此功能目前缺少更新歷史記錄資訊，我們將逐步新增。"
+            },
+            "recentServersEnabled": {
+                "title": "最近加入的伺服器",
+                "desc1": "顯示您在某個體驗下最近加入的 4 個伺服器。"
+            },
+            "TotalServersEnabled": {
+                "title": "總數伺服器",
+                "desc1": "顯示 RoValra 在此體驗下追蹤的伺服器總數。"
+            },
+            "GameVersionEnabled": {
+                "title": "體驗版本",
+                "desc1": "顯示體驗目前使用的版本。",
+                "desc2": "對開發者特別有用。"
+            },
+            "TotalSpentGamesEnabled": {
+                "title": "體驗總消費",
+                "desc1": "顯示您在此次體驗中總共消費了多少 Robux。",
+                "desc2": "此功能會在背景掃描您的交易記錄，並將總消費儲存在本地。",
+                "desc3": "首次安裝擴充功能後，可能需要幾分鐘才能生效。"
+            },
+            "OldestVersionEnabled": {
+                "title": "伺服器最舊版本",
+                "desc1": "顯示伺服器仍在運作的最舊版本。",
+                "desc2": "對開發者特別有用。"
+            },
+            "ServerFilterEnabled": {
+                "title": "伺服器篩選器",
+                "desc1": "此功能會新增篩選器至伺服器名單。",
+                "desc2": "**強烈建議啟用「伺服器名單調整」功能，以便此功能正常運作。**",
+                "RegionFiltersEnabled": {
+                    "title": "地區篩選器",
+                    "desc1": "在伺服器名單中新增地區篩選器。"
+                },
+                "UptimeFiltersEnabled": {
+                    "title": "執行時間篩選器",
+                    "desc1": "在伺服器名單中新增伺服器執行時間篩選器。"
+                },
+                "VersionFiltersEnabled": {
+                    "title": "地點版本篩選器",
+                    "desc1": "在伺服器名單中新增地點版本篩選器，可讓您按執行特定地點版本的伺服器進行篩選。"
+                }
+            },
+            "ServerlistmodificationsEnabled": {
+                "title": "伺服器名單調整",
+                "desc1": "這將為伺服器名單新增多個功能。",
+                "desc2": "這些調也將套用至「我的好友所在的伺服器」部分。",
+                "PrivateServerGridEnabled": {
+                    "title": "私人伺服器網格",
+                    "desc1": "以緊湊的響應式網格顯示私人/VIP 伺服器。",
+                    "desc2": "僅變更私人伺服器部分。"
+                },
+                "PinPrivateServersEnabled": {
+                    "title": "釘選私人伺服器",
+                    "desc1": "允許將私人/VIP 伺服器釘選到名單頂部。",
+                    "desc2": "已釘選的伺服器將保持在普通私人伺服器之上。",
+                    "desc3": "缺少一些便捷功能。"
+                },
+                "enableShareLink": {
+                    "title": "分享連結按鈕",
+                    "desc1": "此功能會在加入按鈕下方新增一個分享連結按鈕，以便您可以向伺服器傳送連結，供其他人加入。",
+                    "desc2": "此功能使用 fishstrap.app 來處理分享連結。"
+                },
+                "EnableServerUptime": {
+                    "title": "伺服器執行時間",
+                    "desc1": "此功能會在伺服器名單中顯示伺服器執行時間的預估價。",
+                    "desc2": "此功能的工作原理是 RoValra 追蹤資料庫中數十萬台伺服器，然後估算其執行時間。"
+                },
+                "EnableServerRegion": {
+                    "title": "伺服器地區",
+                    "desc1": "此功能會顯示伺服器的地區或位置。"
+                },
+                "EnablePlaceVersion": {
+                    "title": "伺服器版本",
+                    "desc1": "此功能會顯示特定伺服器正在執行的體驗版本。"
+                },
+                "EnableFullServerID": {
+                    "title": "顯示完整的伺服器 ID",
+                    "desc1": "這將顯示完整的伺服器 ID",
+                    "desc2": "預設情況下，Roblox 只顯示伺服器 ID 的一部分。",
+                    "desc3": "除非滑鼠停留，否則將隱藏您正在玩或您的好友正在玩的伺服器的伺服器 ID。"
+                },
+                "EnableFullServerIndicators": {
+                    "title": "伺服器已滿指示器",
+                    "desc1": "當伺服器已滿時，將會新增指示器。",
+                    "desc2": "如果沒有地區資料，則會顯示伺服器已滿的提示文字。"
+                },
+                "EnableServerPerformance": {
+                    "title": "顯示伺服器效能",
+                    "desc1": "這將顯示伺服器效能，如果您想避免使用效能差的伺服器，這將非常有用。"
+                },
+                "EnableMiscIndicators": {
+                    "title": "顯示其他指示器",
+                    "desc1": "顯示您無法加入的伺服器的指示器，例如有人正在私人伺服器上玩遊戲時。"
+                },
+                "EnableDatacenterandId": {
+                    "title": "顯示資料中心 ID 與伺服器 IP",
+                    "desc1": "顯示伺服器名單中伺服器的資料中心 ID 和伺服器 IP。"
+                }
+            },
+            "HidePrivateServersEnabled": {
+                "title": "隱藏私人伺服器",
+                "desc1": "新增一個選項，用於從伺服器名單中隱藏私人伺服器。",
+                "experimental": "存在一些便捷功能問題。"
+            },
+            "PrivateQuickLinkCopy": {
+                "title": "快速複製與產生私人伺服器連結",
+                "desc1": "此功能可讓您快速複製私人伺服器連結或產生新的私人伺服器連結。",
+                "privateServerFriendsToggleEnabled": {
+                    "title": "允許好友加入的開關",
+                    "desc1": "在「允許加入」下方新增一個「允許好友加入」開關，這樣您就可以在不開啟伺服器設定的情況下允許好友加入或阻止好友加入。"
+                }
+            },
+            "autoFriendsAllowedEnabled": {
+                "title": "新建私人伺服器允許好友加入",
+                "desc1": "建立私人伺服器後立即啟用「允許好友加入」功能，這樣您的好友無需您先進入伺服器設定即可加入。",
+                "desc2": "僅對新伺服器生效。您現有的伺服器將保持不變。"
+            }
+        },
+        "profile": {
+            "title": "個人檔案",
+            "userGamesEnabled": {
+                "title": "隱藏的使用者體驗",
+                "desc1": "在使用者的個人檔案中顯示已隱藏的體驗。"
+            },
+            "avatarDownloadEnabled": {
+                "title": "下載虛擬人偶",
+                "desc1": "在使用者的個人檔案中新增一個按鈕，用於將虛擬人偶儲存為 PNG 格式。"
+            },
+            "profilePronouns": {
+                "title": "個人檔案代名詞",
+                "desc1": "在您的個人檔案中，您的使用者名稱旁邊會顯示您的代名詞，供其他 RoValra 使用者查看。",
+                "desc2": "最多 15 個字元。",
+                "desc3": "允許使用表情符號和空格。特殊字元（例如 /、逗號或 ;）將自動替換為 |。",
+                "placeholder": "輸入代名詞"
+            },
+            "displayAppThemeUserProfile": {
+                "title": "顯示 App 主題使用者個人檔案",
+                "desc1": "在使用者的個人檔案中顯示 App 主題！",
+                "displayAppThemeOwnProfile": {
+                    "title": "在您的個人檔案中顯示您的 App 主題",
+                    "desc1": "向其他使用者顯示您的 App 主題！",
+                    "desc2": "若要變更此設定，您可以前往 [Roblox 設定 > 瀏覽器偏好 > App 主題](https://www.roblox.com/my/account#!/browser-preferences)",
+                    "desc3": "啟用此設定將自動開啟**免費 Roblox Plus 主題**。",
+                    "donatorReason": "需要達到捐贈者等級 1 才能在個人檔案中顯示您的 App 主題"
+                }
+            },
+            "profileNotesEnabled": {
+                "title": "個人檔案備註",
+                "desc1": "為 Roblox 個人檔案新增私人備註欄位。",
+                "desc2": "備註僅儲存在本地，絕不與 RoValra 或 Roblox 共用。",
+                "desc3": "最多 256 個字元。",
+                "profileNotesBackup": {
+                    "title": "備註備份",
+                    "desc1": "匯出所有個人檔案備註或從 .json 檔案匯入。",
+                    "desc2": "匯入的備註將與此瀏覽器中已儲存的備註合併。",
+                    "button1": "匯出備註",
+                    "button2": "匯入備註"
+                }
+            },
+            "profileViewsEnabled": {
+                "title": "個人檔案瀏覽次數",
+                "desc1": "在個人檔案頁面上顯示瀏覽次數。",
+                "desc2": "停用此功能將隱藏本機個人檔案瀏覽次數，並隱藏您對其他 RoValra 使用者的瀏覽次數。",
+                "desc3": "感謝 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "creatorStatsEnabled": {
+                "title": "創作者統計",
+                "desc1": "在使用者的個人檔案頁面上顯示目前活躍使用者（CCU）、體驗參訪次數和擁有的社群成員數量。"
+            },
+            "socialLinksEnabled": {
+                "title": "個人檔案社群連結",
+                "desc1": "在個人檔案介紹下方顯示社群連結。"
+            },
+            "profileCustomizationEnabled": {
+                "title": "個人檔案自訂",
+                "desc1": "在您的個人檔案中新增一個自訂按鈕，方便您快速切換虛擬人偶邊框。"
+            },
+            "profileShowcaseEnabled": {
+                "title": "個人檔案展示",
+                "desc1": "在個人檔案中新增一個展示標籤，用於展示您最喜歡的體驗和社群。",
+                "desc2": "感謝 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
+            },
+            "chatEligibilityTooltipEnabled": {
+                "title": "聊天資格提示",
+                "desc1": "當您將滑鼠停留在好友個人檔案上的聊天按鈕上時，會顯示您是否可以與此好友聊天，或者他們是否已完成年齡驗證。"
+            },
+            "userSniperEnabled": {
+                "title": "即時加入",
+                "desc1": "使用者進入遊戲時可立即加入，最適合多人嘗試加入的情況。",
+                "desc2": "### 要求",
+                "desc3": "- 此功能要求使用者啟用所有人可加入功能，或您是此使用者的好友。",
+                "deeplinkEnabled": {
+                    "title": "透過深度連結加入",
+                    "desc1": "此功能將使用深度連結加入使用者，速度更快，但可能不太可靠。"
+                }
+            },
+            "profile3DRenderEnabled": {
+                "title": "啟用自訂 3D 個人檔案渲染器",
+                "desc1": "將預設個人檔案虛擬人偶替換為更可自訂、功能更豐富的 3D 渲染器。",
+                "desc2": "自訂環境和其他渲染相關設定需要此功能。",
+                "desc3": "此功能得益於 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
+                "experimental": "此功能可能會導致效能問題，並且可能存在錯誤。",
+                "profileRenderEnvironment": {
+                    "title": "3D 個人檔案環境",
+                    "desc1": "為您的個人檔案 3D 渲染選擇自訂環境。",
+                    "desc2": "此功能僅在查看您自己的個人檔案時生效。",
+                    "desc3": "**此設定儲存在 RoValra 的資料庫中，因此任何擁有 RoValra 的使用者都可以查看。RoValra 的資料庫曾經是等級 1 捐贈者特權，我們正在開發替代特權。**",
+                    "option1": "無",
+                    "option2": "紫色太空",
+                    "option3": "十字路口",
+                    "option4": "底板"
+                },
+                "profileRenderRotateEnabled": {
+                    "title": "自動旋轉個人檔案虛擬人偶",
+                    "desc1": "自動旋轉個人檔案頁面上的 3D 虛擬人偶。"
+                },
+                "environmentTester": {
+                    "title": "啟用環境建立器",
+                    "desc1": "在個人檔案中顯示環境建立器工具，用於建立自訂客戶端環境。",
+                    "desc2": "這是為了準備創造社群環境。",
+                    "desc3": "這將覆蓋個人檔案中的所有環境。",
+                    "desc4": "**僅當您計劃建立環境時才應啟用此功能。**"
+                },
+                "profile3DRenderPostProcessing": {
+                    "title": "後製",
+                    "desc1": "後製可實現諸如光暈和環境光遮蔽等高級效果，但需要性能強大的裝置。"
+                }
+            },
+            "groupFiltersEnabled": {
+                "title": "社群篩選器",
+                "desc1": "在個人檔案的社群部分中新增篩選器，讓您可以按 A-Z、Z-A、最新和最舊排序，還允許您以行格式或網格格式查看群組。"
+            },
+            "trustedConnectionsEnabledv3": {
+                "title": "信任好友",
+                "desc1": "此功能可讓您透過點觸好友個人檔案上的 (...) 來接受、要求和移除信任好友。此功能僅適用於符合條件的好友。",
+                "desc2": "信任好友功能可能在某些地區無法使用。",
+                "desc3": "**注意：**Roblox 使用演算法，即使某人符合這些要求，也可能會阻止添加他們。[點觸此處瞭解更多。](https://en.help.roblox.com/hc/zh-tw/articles/46158344285204)"
+            },
+            "lastOnlineEnabled": {
+                "title": "顯示上次線上/上次出現時間",
+                "desc1": "顯示使用者上次線上/上次出現的時間。",
+                "desc2": "僅適用於好友。"
+            },
+            "friendsSinceEnabled": {
+                "title": "新增好友時間",
+                "desc1": "此功能會在對方的個人檔案和好友名單中顯示您與對方的新增好友時間。"
+            },
+            "mutualFriendsEnabled": {
+                "title": "共同好友",
+                "desc1": "在對方的個人檔案中顯示您與對方的共同好友數量。",
+                "desc2": "點觸即可在對方好友頁面的「共同好友」標籤中查看對方。"
+            },
+            "groupRoleEnabled": {
+                "title": "顯示社群角色",
+                "desc1": "在使用者的個人檔案中顯示在社群中的角色。",
+                "locked": "Roblox 發布了他們自己的版本。"
+            },
+            "groupJoinedDateEnabled": {
+                "title": "顯示社群加入日期",
+                "desc1": "在使用者個人檔案中顯示加入社群的時間。"
+            },
+            "showFriendedFromEnabled": {
+                "title": "顯示透過方式新增好友",
+                "desc1": "顯示您與使用者成為好友的方式，例如遊戲內、個人檔案等。"
+            },
+            "lastPlayedTogetherEnabled": {
+                "title": "最常一起玩的遊戲",
+                "desc1": "在好友個人檔案中顯示您與好友一起玩得最多的遊戲。"
+            },
+            "bulkUnfriendEnabled": {
+                "title": "批刪除好友",
+                "desc1": "此功能允許您從好友名單中批量刪除好友。"
+            },
+            "bulkBadgeRemoverEnabled": {
+                "title": "批量移除徽章",
+                "desc1": "此功能允許您批量刪除徽章。"
+            },
+            "unfriendDetectorEnabled": {
+                "title": "刪除好友偵測器",
+                "desc1": "追蹤您的好友名單，並在有人刪除您好友時彈出視窗提醒您，並顯示刪除好友是誰。",
+                "experimental": "可能會導致問題"
+            },
+            "PrivateServerBulkEnabled": {
+                "title": "批量移除私人伺服器",
+                "desc1": "這將在私人伺服器名單標籤頁中新增一個切換按鈕，方便您輕鬆地將多個私人伺服器設定為非活動狀態。",
+                "desc2": "此功能也適用於將非活動私人伺服器設定為活動狀態。"
+            },
+            "idVerificationBadgeEnabled": {
+                "title": "身份已驗證徽章",
+                "desc1": "顯示使用者是否已在個人檔案中已驗證了身份。",
+                "desc2": "此功能將會新增至個人檔案的「更多」標籤頁。"
+            },
+            "ageVerificationBadgeEnabled": {
+                "title": "年齡已驗證徽章",
+                "desc1": "顯示使用者是否已在個人檔案中完成 Roblox 年齡驗證。",
+                "desc2": "此功能將會新增至個人檔案的「更多」標籤頁。"
+            }
+        },
+        "home": {
+            "title": "首頁"
+        },
+        "communities": {
+            "title": "社群"
+        },
+        "avatar": {
+            "title": "虛擬人偶"
+        },
+        "transactions": {
+            "title": "交易記錄"
+        },
+        "trading": {
+            "title": "交易"
+        },
+        "robloxPlus": {
+            "title": "Roblox Plus"
+        },
+        "navigation": {
+            "title": "導航"
+        },
+        "miscellaneous": {
+            "title": "其他設定"
+        },
+        "privacy": {
+            "title": "隱私權"
+        },
+        "websiteCustomization": {
+            "title": "網站自訂"
+        },
+        "developer": {
+            "title": "開發者"
+        },
         "credits": {
             "contributorsTitle": "貢獻者",
             "translatorsTitle": "翻譯者",
@@ -886,7 +1478,9 @@
                     "madeEs": "協助進行西班牙文在地化",
                     "madeRu": "協助進行俄文在地化",
                     "madeFr": "協助進行法文在地化",
-                    "madeZh": "協助進行繁體中文/簡體中文在地化"
+                    "madeId": "協助進行印尼文在地化",
+                    "madeZh": "協助進行繁體中文/簡體中文在地化",
+                    "madeVi": "協助進行越南文在地化"
                 }
             },
             "ui": {
@@ -974,7 +1568,7 @@
             },
             "featureStatus": {
                 "title": "啟用此功能前",
-                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導致加載時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您瞭解此功能可能無法完美執行時才啟用它。",
+                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導載入時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您瞭解此功能可能無法完美執行時才啟用它。",
                 "acknowledge": "我已閱讀並同意"
             },
             "environment": {
@@ -1075,7 +1669,12 @@
                 "followTerms": "圖片必須遵守 Roblox 使用條款",
                 "joinDiscord": "加入 RoValra 的 Discord 伺服器。",
                 "agree": "同意",
-                "agreeCountdown": "同意（{{count}}）"
+                "agreeCountdown": "同意（{{count}}）",
+                "preview": "預覽",
+                "previewTitle": "預覽自訂徽章",
+                "previewDescription": "上傳一張 WEBP 圖片，即可查看它作為個人檔案徽章的效果。圖片僅儲存在記憶體中，不會上傳或儲存。當您離開或重新整理頁面時，圖片就會消失。",
+                "previewTooltip": "徽章預覽",
+                "previewDone": "完成"
             },
             "githubSponsorBadge": {
                 "title": "GitHub 贊助者個人檔案徽章",
@@ -1281,7 +1880,7 @@
         "ariaLabel": "選擇或加入首選伺服器地區",
         "tooltip": "加入首選地區",
         "tooltipWithRegion": "加入首選地區<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "加入首選地區<br><b>最佳區域（自動）</b>"
+        "tooltipBestRegion": "加入首選地區<br><b>最佳地區（自動）</b>"
     },
     "quickPlay": {
         "loading": "正在載入...",
@@ -1748,8 +2347,8 @@
     "privateGames": {
         "tabs": {
             "about": "介紹",
-            "store": "伺服器",
-            "servers": "商店"
+            "store": "商店",
+            "servers": "伺服器"
         },
         "servers": {
             "title": "你的私人伺服器",
@@ -1846,7 +2445,7 @@
         "0": "此體驗無法使用",
         "1": "此體驗可玩",
         "2": "訪客無法加入此體驗",
-        "3": "此體驗因違反 Roblox 社群準則而被審查",
+        "3": "此體驗因違反 Roblox 社群準則而被經過審核",
         "4": "此體驗配置錯誤",
         "5": "此體驗為私人",
         "6": "只有好友才能加入此體驗",
@@ -1995,7 +2594,7 @@
     },
     "profileFrame": {
         "storeTitle": "個人檔案框架商店",
-        "storeDesc": "個人檔案框架會環繞您個人檔案頁面上的整個虛擬人偶顯示區域。購買框架可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含框架，此等級僅包含虛擬人偶邊框。",
+        "storeDesc": "個人檔案框架會環繞您個人檔案頁面上的整個虛擬人偶顯示地區。購買框架可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含框架，此等級僅包含虛擬人偶邊框。",
         "tabBorders": "虛擬人偶邊框",
         "tabFrames": "框架",
         "loading": "正在載入框架...",
