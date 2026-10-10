@@ -2,6 +2,7 @@
 
 import { createDropdownContent } from './selects.js';
 import { createShimmerBlock } from './shimmer.js';
+import { ts } from '../locale/i18n.js';
 
 let openDropdowns = [];
 
@@ -373,4 +374,3 @@ export function createDropdownMenu({
 
     return { panel: contentPanel, toggle };
 }
-import { ts } from '../locale/i18n.js';
