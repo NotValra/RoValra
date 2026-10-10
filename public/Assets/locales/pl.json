@@ -1085,6 +1085,11 @@
                 "joinDiscord": "Dołącz do Discorda RoValra",
                 "agree": "Zgadzam się",
                 "agreeCountdown": "Zgadzam się ({{count}})"
+                "preview": "Podgląd",
+                "previewTitle": "Podgląd niestandardowej odznaki",
+                "previewDescription": "Prześlij obraz WEBP, aby zobaczyć, jak będzie wyglądał jako odznaka na Twoim profilu. Obraz jest przechowywany wyłącznie w pamięci i nigdy nie jest przesyłany ani zapisywany. Zniknie po opuszczeniu strony lub jej odświeżeniu.",
+                "previewTooltip": "Podgląd odznaki",
+                "previewDone": "Gotowe"
             },
             "githubSponsorBadge": {
                 "title": "Odznaka profilu GitHub Sponsors",
