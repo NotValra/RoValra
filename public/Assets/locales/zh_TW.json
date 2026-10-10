@@ -1126,6 +1126,81 @@
                     "title": "地點版本篩選器",
                     "desc1": "在伺服器名單中新增地點版本篩選器，可讓您按執行特定地點版本的伺服器進行篩選。"
                 }
+            },
+            "ServerlistmodificationsEnabled": {
+                "title": "伺服器名單調整",
+                "desc1": "這將為伺服器名單新增多個功能。",
+                "desc2": "這些調也將套用至「我的好友所在的伺服器」部分。",
+                "PrivateServerGridEnabled": {
+                    "title": "私人伺服器網格",
+                    "desc1": "以緊湊的響應式網格顯示私人/VIP 伺服器。",
+                    "desc2": "僅變更私人伺服器部分。"
+                },
+                "PinPrivateServersEnabled": {
+                    "title": "釘選私人伺服器",
+                    "desc1": "允許將私人/VIP 伺服器釘選到名單頂部。",
+                    "desc2": "已釘選的伺服器將保持在普通私人伺服器之上。",
+                    "desc3": "缺少一些便捷功能。"
+                },
+                "enableShareLink": {
+                    "title": "分享連結按鈕",
+                    "desc1": "此功能會在加入按鈕下方新增一個分享連結按鈕，以便您可以向伺服器傳送連結，供其他人加入。",
+                    "desc2": "此功能使用 fishstrap.app 來處理分享連結。"
+                },
+                "EnableServerUptime": {
+                    "title": "伺服器執行時間",
+                    "desc1": "此功能會在伺服器名單中顯示伺服器執行時間的預估價。",
+                    "desc2": "此功能的工作原理是 RoValra 追蹤資料庫中數十萬台伺服器，然後估算其執行時間。"
+                },
+                "EnableServerRegion": {
+                    "title": "伺服器地區",
+                    "desc1": "此功能會顯示伺服器的地區或位置。"
+                },
+                "EnablePlaceVersion": {
+                    "title": "伺服器版本",
+                    "desc1": "此功能會顯示特定伺服器正在執行的體驗版本。"
+                },
+                "EnableFullServerID": {
+                    "title": "顯示完整的伺服器 ID",
+                    "desc1": "這將顯示完整的伺服器 ID",
+                    "desc2": "預設情況下，Roblox 只顯示伺服器 ID 的一部分。",
+                    "desc3": "除非滑鼠懸停，否則將隱藏您正在玩或您的好友正在玩的伺服器的伺服器 ID。"
+                },
+                "EnableFullServerIndicators": {
+                    "title": "伺服器已滿指示器",
+                    "desc1": "當伺服器已滿時，將會新增指示器。",
+                    "desc2": "如果沒有地區資料，則會顯示伺服器已滿的提示文字。"
+                },
+                "EnableServerPerformance": {
+                    "title": "顯示伺服器效能",
+                    "desc1": "這將顯示伺服器效能，如果您想避免使用效能差的伺服器，這將非常有用。"
+                },
+                "EnableMiscIndicators": {
+                    "title": "顯示其他指示器",
+                    "desc1": "顯示您無法加入的伺服器的指示器，例如有人正在私人伺服器上玩遊戲時。"
+                },
+                "EnableDatacenterandId": {
+                    "title": "顯示資料中心 ID 與伺服器 IP",
+                    "desc1": "顯示伺服器名單中伺服器的資料中心 ID 和伺服器 IP。"
+                }
+            },
+            "HidePrivateServersEnabled": {
+                "title": "隱藏私人伺服器",
+                "desc1": "新增一個選項，用於從伺服器名單中隱藏私人伺服器。",
+                "experimental": "存在一些便捷功能問題。"
+            },
+            "PrivateQuickLinkCopy": {
+                "title": "快速複製與產生私人伺服器連結",
+                "desc1": "此功能可讓您快速複製私人伺服器連結或產生新的私人伺服器連結。",
+                "privateServerFriendsToggleEnabled": {
+                    "title": "允許好友加入的開關",
+                    "desc1": "在「允許加入」下方新增一個「允許好友加入」開關，這樣您就可以在不開啟伺服器設定的情況下允許好友加入或阻止好友加入。"
+                }
+            },
+            "autoFriendsAllowedEnabled": {
+                "title": "新建私人伺服器允許好友加入",
+                "desc1": "建立私人伺服器後立即啟用「允許好友加入」功能，這樣您的好友無需您先進入伺服器設定即可加入。",
+                "desc2": "僅對新伺服器生效。您現有的伺服器將保持不變。"
             }
         },
         "profile": {

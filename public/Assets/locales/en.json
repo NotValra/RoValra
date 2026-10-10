@@ -1128,6 +1128,81 @@
                     "title": "Place Version Filters",
                     "desc1": "Adds Place Version filters in the server list allowing you to filter by servers running a specific place version."
                 }
+            },
+            "ServerlistmodificationsEnabled": {
+                "title": "Server List Modifications",
+                "desc1": "This adds multiple features to the server list.",
+                "desc2": "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                "PrivateServerGridEnabled": {
+                    "title": "Private Server Grid",
+                    "desc1": "Displays private/VIP servers in a compact responsive grid.",
+                    "desc2": "Only changes the private server section."
+                },
+                "PinPrivateServersEnabled": {
+                    "title": "Pin Private Servers",
+                    "desc1": "Allows private/VIP servers to be pinned to the top of the list.",
+                    "desc2": "Pinned servers stay above normal private servers.",
+                    "desc3": "Missing a bit of quality of life."
+                },
+                "enableShareLink": {
+                    "title": "Share link button",
+                    "desc1": "This adds a share link button under the join button so you can send a link to the server for other people to join with.",
+                    "desc2": "This uses fishstrap.app for the share link."
+                },
+                "EnableServerUptime": {
+                    "title": "Server Uptime",
+                    "desc1": "This shows an estimate of a server's uptime in the server list.",
+                    "desc2": "This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime."
+                },
+                "EnableServerRegion": {
+                    "title": "Server Region",
+                    "desc1": "This shows the server's region or location."
+                },
+                "EnablePlaceVersion": {
+                    "title": "Server Version",
+                    "desc1": "This shows the version of the experience that a specific server is running."
+                },
+                "EnableFullServerID": {
+                    "title": "Show the entire ServerID",
+                    "desc1": "This shows the entire ServerID",
+                    "desc2": "By default Roblox only shows a part of it.",
+                    "desc3": "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over."
+                },
+                "EnableFullServerIndicators": {
+                    "title": "Full Server Indicators",
+                    "desc1": "This adds indicators when a server is full",
+                    "desc2": "Like text that tells you the server is full if we don't have region data."
+                },
+                "EnableServerPerformance": {
+                    "title": "Show Server Performance",
+                    "desc1": "This shows the server performance, which is useful if you want to avoid poorly performing servers."
+                },
+                "EnableMiscIndicators": {
+                    "title": "Show misc indicators",
+                    "desc1": "This shows indicators for servers you can't join, such as when someone is playing in a private server."
+                },
+                "EnableDatacenterandId": {
+                    "title": "Show Datacenter ID and Server IP",
+                    "desc1": "This shows the Datacenter ID server IP of servers in the server list."
+                }
+            },
+            "HidePrivateServersEnabled": {
+                "title": "Hide Private Servers",
+                "desc1": "Adds an option to hide private servers from the server list.",
+                "experimental": "Has a few quality of life issues."
+            },
+            "PrivateQuickLinkCopy": {
+                "title": "Quick Private Server Link Copy and Generation",
+                "desc1": "This allows you to quickly copy a private server link or generate a new private server link.",
+                "privateServerFriendsToggleEnabled": {
+                    "title": "Friends Allowed Toggle",
+                    "desc1": "Adds a Friends Allowed switch under Allow Joining, so you can let friends in or keep them out without opening the server settings."
+                }
+            },
+            "autoFriendsAllowedEnabled": {
+                "title": "Friends Allowed On New Private Servers",
+                "desc1": "Turns on Friends Allowed as soon as you create a private server, so your friends can join without you going into its settings first.",
+                "desc2": "Only new servers are changed. Servers you already have are left as they are."
             }
         },
         "profile": {

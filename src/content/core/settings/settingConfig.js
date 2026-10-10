@@ -174,7 +174,7 @@ export const SETTINGS_CONFIG = {
             EnableRobuxAfterPurchase: {
                 label: 'settings.marketplace.EnableRobuxAfterPurchase.title',
                 description:
-                    "settings.marketplace.EnableRobuxAfterPurchase.desc1",
+                    'settings.marketplace.EnableRobuxAfterPurchase.desc1',
                 type: 'checkbox',
                 default: true,
             },
@@ -209,7 +209,7 @@ export const SETTINGS_CONFIG = {
             EnableItemDependencies: {
                 label: 'settings.marketplace.EnableItemDependencies.title',
                 description: [
-                    "settings.marketplace.EnableItemDependencies.desc1",
+                    'settings.marketplace.EnableItemDependencies.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -223,7 +223,7 @@ export const SETTINGS_CONFIG = {
             priceFloorEnabled: {
                 label: 'settings.marketplace.priceFloorEnabled.title',
                 description:
-                    "settings.marketplace.priceFloorEnabled.desc1",
+                    'settings.marketplace.priceFloorEnabled.desc1',
                 type: 'checkbox',
                 default: false,
                 locked: 'settings.marketplace.priceFloorEnabled.locked',
@@ -659,137 +659,137 @@ export const SETTINGS_CONFIG = {
                 },
             },
             ServerlistmodificationsEnabled: {
-                label: 'Server List Modifications',
+                label: 'settings.experiences.ServerlistmodificationsEnabled.title',
                 description: [
-                    'This adds multiple features to the server list.',
-                    "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                    'settings.experiences.ServerlistmodificationsEnabled.desc1',
+                    'settings.experiences.ServerlistmodificationsEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     PrivateServerGridEnabled: {
-                        label: 'Private Server Grid',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.PrivateServerGridEnabled.title',
                         description: [
-                            'Displays private/VIP servers in a compact responsive grid.',
-                            'Only changes the private server section.',
+                            'settings.experiences.ServerlistmodificationsEnabled.PrivateServerGridEnabled.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.PrivateServerGridEnabled.desc2',
                         ],
                         type: 'checkbox',
                         default: false,
                         contributors: ['4632962611'],
                     },
                     PinPrivateServersEnabled: {
-                        label: 'Pin Private Servers',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.title',
                         description: [
-                            'Allows private/VIP servers to be pinned to the top of the list.',
-                            'Pinned servers stay above normal private servers.',
-                            'Missing a bit of quality of life.',
+                            'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.desc2',
+                            'settings.experiences.ServerlistmodificationsEnabled.PinPrivateServersEnabled.desc3',
                         ],
                         type: 'checkbox',
                         default: false,
                         contributors: ['4632962611'],
                     },
                     enableShareLink: {
-                        label: 'Share link button',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.enableShareLink.title',
                         description: [
-                            'This adds a share link button under the join button so you can send a link to the server for other people to join with.',
-                            'This uses fishstrap.app for the share link.',
+                            'settings.experiences.ServerlistmodificationsEnabled.enableShareLink.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.enableShareLink.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableServerUptime: {
-                        label: 'Server Uptime',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableServerUptime.title',
                         description: [
-                            "This shows an estimate of a server's uptime in the server list.",
-                            'This works by RoValra tracking hundreds of thousands of servers in a database and then estimating the uptime.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerUptime.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerUptime.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableServerRegion: {
-                        label: 'Server Region',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableServerRegion.title',
                         description: [
-                            "This shows the server's region or location.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerRegion.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnablePlaceVersion: {
-                        label: 'Server Version',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnablePlaceVersion.title',
                         description: [
-                            'This shows the version of the experience that a specific server is running.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnablePlaceVersion.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableFullServerID: {
-                        label: 'Show the entire ServerID',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.title',
                         description: [
-                            'This shows the entire ServerID',
-                            'By default Roblox only shows a part of it.',
-                            "It'll hide ServerIDs of servers that you're playing in or friends are playing in unless hovered over.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.desc2',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerID.desc3',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
 
                     EnableFullServerIndicators: {
-                        label: 'Full Server Indicators',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerIndicators.title',
                         description: [
-                            'This adds indicators when a server is full',
-                            "Like text that tells you the server is full if we don't have region data.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerIndicators.desc1',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableFullServerIndicators.desc2',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableServerPerformance: {
-                        label: 'Show Server Performance',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableServerPerformance.title',
                         description: [
-                            'This shows the server performance, which is useful if you want to avoid poorly performing servers.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableServerPerformance.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableMiscIndicators: {
-                        label: 'Show misc indicators',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableMiscIndicators.title',
                         description: [
-                            "This shows indicators for servers you can't join, such as when someone is playing in a private server.",
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableMiscIndicators.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     EnableDatacenterandId: {
-                        label: 'Show Datacenter ID and Server Ip',
+                        label: 'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.title',
                         description:
-                            'This shows the Datacenter ID server Ip of servers in the server list.',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.desc2',
                         type: 'checkbox',
                         default: false,
                     },
                 },
             },
             HidePrivateServersEnabled: {
-                label: 'Hide Private Servers',
+                label: 'settings.experiences.HidePrivateServersEnabled.title',
                 description: [
-                    'Adds an option to hide private servers from the server list.',
+                    'settings.experiences.HidePrivateServersEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 storageKey: 'hiddenFriendPrivateServers',
                 contributors: ['476449201'],
-                experimental: 'Has a few quality of life issues.',
+                experimental: '',
             },
             PrivateQuickLinkCopy: {
-                label: 'Quick Private Server Link Copy and Generation',
+                label: 'settings.experiences.PrivateQuickLinkCopy.title',
                 description: [
-                    'This allows you to quickly copy a private server link or generate a new private server link.',
+                    'settings.experiences.PrivateQuickLinkCopy.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     privateServerFriendsToggleEnabled: {
-                        label: 'Friends Allowed Toggle',
+                        label: 'settings.experiences.PrivateQuickLinkCopy.privateServerFriendsToggleEnabled.title',
                         description: [
-                            'Adds a Friends Allowed switch under Allow Joining, so you can let friends in or keep them out without opening the server settings.',
+                            'settings.experiences.PrivateQuickLinkCopy.privateServerFriendsToggleEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -798,10 +798,10 @@ export const SETTINGS_CONFIG = {
                 },
             },
             autoFriendsAllowedEnabled: {
-                label: 'Friends Allowed On New Private Servers',
+                label: 'settings.experiences.autoFriendsAllowedEnabled.title',
                 description: [
-                    'Turns on Friends Allowed as soon as you create a private server, so your friends can join without you going into its settings first.',
-                    'Only new servers are changed. Servers you already have are left as they are.',
+                    'settings.experiences.autoFriendsAllowedEnabled.desc1',
+                    'settings.experiences.autoFriendsAllowedEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: false,

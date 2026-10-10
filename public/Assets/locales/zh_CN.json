@@ -1118,6 +1118,81 @@
                     "title": "地点版本筛选器",
                     "desc1": "在服务器列表中添加地点版本筛选器，允许您按运行特定地点版本的服务器进行筛选。"
                 }
+            },
+            "ServerlistmodificationsEnabled": {
+                "title": "服务器列表修改",
+                "desc1": "这将为服务器列表添加多个功能。",
+                "desc2": "这些修改也将应用于「我的好友所在的服务器」部分。",
+                "PrivateServerGridEnabled": {
+                    "title": "私人服务器网格",
+                    "desc1": "以紧凑的响应式网格显示私人/VIP 服务器。",
+                    "desc2": "仅更改私人服务器部分。"
+                },
+                "PinPrivateServersEnabled": {
+                    "title": "置顶私人服务器",
+                    "desc1": "允许将私人/VIP服务器置顶到列表顶部。",
+                    "desc2": "已置顶的服务器将保持在普通私人服务器之上。",
+                    "desc3": "缺少一些便捷功能。"
+                },
+                "enableShareLink": {
+                    "title": "分享链接按钮",
+                    "desc1": "此功能会在加入按钮下方添加一个分享链接按钮，以便您可以向服务器发送链接，供其他人加入。",
+                    "desc2": "此功能使用 fishstrap.app 来处理分享链接。"
+                },
+                "EnableServerUptime": {
+                    "title": "服务器运行时间",
+                    "desc1": "此功能会在服务器列表中显示服务器运行时间的预估值。",
+                    "desc2": "此功能的工作原理是 RoValra 跟踪数据库中数十万台服务器，然后估算其运行时间。"
+                },
+                "EnableServerRegion": {
+                    "title": "服务器地区",
+                    "desc1": "此功能会显示服务器的地区或位置。"
+                },
+                "EnablePlaceVersion": {
+                    "title": "服务器版本",
+                    "desc1": "此功能会显示特定服务器正在运行的体验版本。"
+                },
+                "EnableFullServerID": {
+                    "title": "显示完整的服务器 ID",
+                    "desc1": "这将显示完整的服务器 ID",
+                    "desc2": "默认情况下，Roblox 只显示服务器 ID 的一部分。",
+                    "desc3": "除非鼠标悬停，否则将隐藏您正在玩或您的好友正在玩的服务器的服务器ID。"
+                },
+                "EnableFullServerIndicators": {
+                    "title": "服务器已满指示器",
+                    "desc1": "当服务器已满时，将添加指示器。",
+                    "desc2": "如果没有地区数据，则会显示服务器已满的提示文本。"
+                },
+                "EnableServerPerformance": {
+                    "title": "显示服务器性能",
+                    "desc1": "这将显示服务器性能，如果您想避免使用性能差的服务器，这将非常有用。"
+                },
+                "EnableMiscIndicators": {
+                    "title": "显示其他指示器",
+                    "desc1": "显示您无法加入的服务器的指示器，例如有人正在私人服务器上玩游戏时。"
+                },
+                "EnableDatacenterandId": {
+                    "title": "显示数据中心 ID 和服务器 IP",
+                    "desc1": "显示服务器列表中服务器的数据中心 ID 和服务器 IP。"
+                }
+            },
+            "HidePrivateServersEnabled": {
+                "title": "隐藏私人服务器",
+                "desc1": "添加一个选项，用于从服务器列表中隐藏私人服务器。",
+                "experimental": "存在一些便捷功能问题。"
+            },
+            "PrivateQuickLinkCopy": {
+                "title": "快速复制和生成私人服务器链接",
+                "desc1": "此功能允许您快速复制私人服务器链接或生成新的私人服务器链接。",
+                "privateServerFriendsToggleEnabled": {
+                    "title": "允许好友加入的开关",
+                    "desc1": "在「允许加入」下方添加一个「允许好友加入」开关，这样您就可以在不打开服务器设置的情况下允许好友加入或阻止好友加入。"
+                }
+            },
+            "autoFriendsAllowedEnabled": {
+                "title": "新建私人服务器允许好友加入",
+                "desc1": "创建私人服务器后立即启用好友加入功能，这样您的好友无需您先进入服务器设置即可加入。",
+                "desc2": "仅对新建服务器生效。您已有的服务器将保持不变。"
             }
         },
         "profile": {
