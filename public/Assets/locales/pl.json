@@ -2149,8 +2149,6 @@
                     "transferSuccessOkBtnSilly": "część druga: powrót bobuxów",
                     "userInfoFriendTime": "Znajomi od {{time, relativetime}}",
                     "userInfoMutualFriends_one": "{{count}} wspólny znajomy",
-                    "userInfoMutualFriends_few": "{{count}} wspólnych znajomych",
-                    "userInfoMutualFriends_many": "{{count}} wspólnych znajomych",
                     "userInfoMutualFriends_other": "{{count}} wspólnych znajomych",
                     "userInfoJoin": "Dołączył w {{year}}",
                     "paramPassedError": "Wystąpił nieznany błąd! Sprawdź konsolę i zgłoś problem do RoValra."
