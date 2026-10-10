@@ -545,6 +545,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            badgeSortEnabled: {
+                label: 'Badge Sorting',
+                description: [
+                    'Adds a Sort dropdown to experience badge sections.',
+                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
+            },
             badgeOwnershipEnabled: {
                 label: 'Dim Unowned Badges',
                 description: [

@@ -1,0 +1,59 @@
+.game-badges-list {
+    .container-header {
+        .rovalra-badge-sort-dropdown {
+            margin-left: auto;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .rovalra-badge-sort-dropdown + .rovalra-badge-layout-toggle {
+            margin-left: 8px;
+        }
+    }
+
+    &:not(.rovalra-badge-sorted) {
+        > .rovalra-badge-sorted-list,
+        > .rovalra-badge-sort-load-more {
+            display: none !important;
+        }
+    }
+
+    &.rovalra-badge-sorted:not(.rovalra-show-hidden-badges) {
+        > .rovalra-badge-native-list,
+        > .stack-list:not(.rovalra-badge-sorted-list):not(
+                .rovalra-hidden-badges-list
+            ),
+        > .rovalra-badge-layout-list,
+        > .rovalra-badge-grid-load-more,
+        > li:has(> .btn-full-width) {
+            display: none !important;
+        }
+    }
+
+    &.rovalra-show-hidden-badges {
+        > .rovalra-badge-sorted-list,
+        > .rovalra-badge-sort-load-more,
+        .rovalra-badge-sort-dropdown {
+            display: none !important;
+        }
+    }
+
+    .rovalra-badge-sort-load-more {
+        margin: 12px auto 0;
+        display: block;
+        width: 100%;
+
+        &.hidden {
+            display: none !important;
+        }
+    }
+
+    .rovalra-badge-sort-date {
+        font-size: 12px;
+        color: var(--rovalra-secondary-text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+}
