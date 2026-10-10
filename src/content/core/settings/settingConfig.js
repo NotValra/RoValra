@@ -761,7 +761,7 @@ export const SETTINGS_CONFIG = {
                     EnableDatacenterandId: {
                         label: 'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.title',
                         description:
-                            'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.desc2',
+                            'settings.experiences.ServerlistmodificationsEnabled.EnableDatacenterandId.desc1',
                         type: 'checkbox',
                         default: false,
                     },
