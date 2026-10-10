@@ -32,10 +32,14 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel('English', 'en'),
                         value: 'en',
+                    },                     
+                    {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
                     },
                     {
-                        label: languageLabel('French (Français)', 'fr'),
-                        value: 'fr',
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
                     },
                     {
                         label: languageLabel('Polish (Polski)', 'pl'),
