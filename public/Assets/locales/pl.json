@@ -703,6 +703,11 @@
     "lastEquipped": {
         "label": "Ostatnio założone"
     },
+    "ownedItemPrice": {
+        "label": "Cena",
+        "free": "Darmowe",
+        "offSale": "Wycofane ze sprzedaży"
+    },
     "pendingRobux": {
         "tooltip": "To szacunkowa liczba Robux z salda oczekującego, które staną się dostępne jutro, wyliczona na podstawie Twoich transakcji. Rzeczywista kwota może się różnić, a szacunek może być niedokładny.",
         "loading": "Ładowanie...",
