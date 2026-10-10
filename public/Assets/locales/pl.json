@@ -1672,8 +1672,12 @@
     },
     "unfriendDetector": {
         "title_one": "Wykryto usunięcie ze znajomych",
+        "title_few": "Wykryto usunięcia ze znajomych",
+        "title_many": "Wykryto usunięcia ze znajomych",
         "title_other": "Wykryto usunięcia ze znajomych",
         "description_one": "Ten znajomy usunął Cię od czasu Twojej ostatniej gry:",
+        "description_few": "Znajomi, którzy usunęli Cię od czasu Twojej ostatniej gry ({{count}}):",
+        "description_many": "Znajomi, którzy usunęli Cię od czasu Twojej ostatniej gry ({{count}}):",
         "description_other": "Znajomi, którzy usunęli Cię od czasu Twojej ostatniej gry ({{count}}):",
         "viewProfile": "Zobacz profil użytkownika {{name}}",
         "dismiss": "Odrzuć"
@@ -2160,6 +2164,8 @@
                     "transferSuccessOkBtnSilly": "część druga: powrót bobuxów",
                     "userInfoFriendTime": "Znajomi od {{time, relativetime}}",
                     "userInfoMutualFriends_one": "{{count}} wspólny znajomy",
+                    "userInfoMutualFriends_few": "{{count}} wspólnych znajomych",
+                    "userInfoMutualFriends_many": "{{count}} wspólnych znajomych",
                     "userInfoMutualFriends_other": "{{count}} wspólnych znajomych",
                     "userInfoJoin": "Dołączył w {{year}}",
                     "paramPassedError": "Wystąpił nieznany błąd! Sprawdź konsolę i zgłoś problem do RoValra."
