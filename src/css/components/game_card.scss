@@ -80,4 +80,35 @@
         min-height: 18px;
         flex-shrink: 0;
     }
+
+    .rovalra-game-card-sort-stat {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--rovalra-secondary-text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    a.game-tile-styles.game-card-link {
+        .rovalra-game-card-sort-stat {
+            position: relative;
+            z-index: 5;
+            transition: transform 0.15s ease-out;
+        }
+
+        &:hover,
+        &.quick-play-hover-active {
+            .rovalra-game-card-sort-stat {
+                transform: translateY(-25px);
+            }
+        }
+
+        &.quick-play-hover-superseded .rovalra-game-card-sort-stat {
+            transform: none;
+            transition: none;
+        }
+    }
 }
