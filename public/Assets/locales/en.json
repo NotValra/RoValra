@@ -2084,7 +2084,11 @@
             "newest": "Newest",
             "oldest": "Oldest"
         },
-        "tooltip": "Sort by when the user joined the community"
+        "tooltip": "Sort by when the user joined the community",
+        "view": {
+            "row": "Row",
+            "grid": "Grid"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",
