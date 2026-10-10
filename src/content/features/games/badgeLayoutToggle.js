@@ -1,7 +1,7 @@
 import { callRobloxApiJson } from '../../core/api.js';
 import { getPlaceDetails } from '../../core/apis/games.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
-import { t } from '../../core/locale/i18n.js';
+import { t, ts } from '../../core/locale/i18n.js';
 import {
     observeAttributes,
     observeChildren,
@@ -117,7 +117,7 @@ function createGridStatsElement(wonYesterday, wonEver) {
 
     const total = document.createElement('span');
     total.className = 'rovalra-badge-grid-stat';
-    total.textContent = `${formatCompactCount(wonEver)} total`;
+    total.textContent = `${formatCompactCount(wonEver)} ${ts('privateGames.badges.wonEver').toLowerCase()}`;
 
     const separator = document.createElement('span');
     separator.className = 'rovalra-badge-grid-stat-separator';
@@ -128,7 +128,7 @@ function createGridStatsElement(wonYesterday, wonEver) {
 
     const yesterday = document.createElement('span');
     yesterday.className = 'rovalra-badge-grid-stat';
-    yesterday.textContent = `${formatCompactCount(wonYesterday)} yesterday`;
+    yesterday.textContent = `${formatCompactCount(wonYesterday)} ${ts('privateGames.badges.wonYesterday').toLowerCase()}`;
 
     stats.append(yesterday, total);
 

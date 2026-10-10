@@ -1,0 +1,50 @@
+.rovalra-private-server-pin-container
+    > .rovalra-private-server-create-row {
+    order: -2 !important;
+}
+
+.rovalra-private-server-pin-container
+    > .rovalra-private-server-pinned {
+    order: -1 !important;
+}
+
+.rovalra-pin-private-server-wrapper {
+    flex: 0 0 auto !important;
+}
+
+.rovalra-pin-private-server-button {
+    width: 40px !important;
+    min-width: 40px !important;
+}
+
+.rovalra-pin-private-server-button[
+    aria-pressed='true'
+] {
+    box-shadow:
+        inset 0 0 0 2px currentColor !important;
+}
+
+
+.rovalra-private-server-grid-card[
+    data-private-server-id
+] {
+    position: relative !important;
+}
+
+.rovalra-private-server-grid-card
+    .rovalra-pin-private-server-wrapper {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 3 !important;
+
+    width: 32px !important;
+    min-width: 32px !important;
+}
+
+.rovalra-private-server-grid-card
+    .rovalra-pin-private-server-button {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+}

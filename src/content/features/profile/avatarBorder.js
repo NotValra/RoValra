@@ -1,5 +1,4 @@
 import {
-    observeChildren,
     observeElement,
     observeResize,
     startObserving,
@@ -14,8 +13,6 @@ import {
     observeUserCardElements,
 } from '../../core/profile/userCardElements.js';
 
-const BORDER_CHILD_SELECTOR =
-    '.rovalra-avatar-border, .rovalra-avatar-border-clip';
 const OVERLAY_CHILD_SELECTOR =
     '.rovalra-status-bubble-wrapper, .avatar-status, .avatar-card-label, .icon-label';
 const BORDER_SCALE = 1.24;
@@ -28,59 +25,14 @@ function setPixelStyle(element, name, value) {
     element.style[name] = `${value}px`;
 }
 
-function isInlineContainer(container) {
-    const tagName = container.tagName;
-    return tagName === 'SPAN' || tagName === 'A';
-}
-
-function isBorderManagedChild(child) {
-    return (
-        child.nodeType === Node.ELEMENT_NODE &&
-        child.matches(`${BORDER_CHILD_SELECTOR}, ${OVERLAY_CHILD_SELECTOR}`)
-    );
-}
-
-function getOrCreateClip(container) {
-    let clip = container.querySelector(':scope > .rovalra-avatar-border-clip');
-    if (clip) return clip;
-
-    clip = document.createElement(
-        isInlineContainer(container) ? 'span' : 'div',
-    );
-    clip.className = 'rovalra-avatar-border-clip';
-    container.prepend(clip);
-
-    return clip;
-}
-
-function syncBorderClipChildren(container) {
-    const clip = getOrCreateClip(container);
-
-    for (const child of [...container.childNodes]) {
-        if (child === clip || isBorderManagedChild(child)) continue;
-        clip.appendChild(child);
-    }
-
-    syncBorderMetrics(container);
-
-    return clip;
-}
-
 function syncBorderMetrics(container) {
-    const clip = container.querySelector(
-        ':scope > .rovalra-avatar-border-clip',
-    );
-    if (!clip) return;
-
     const containerBox = getLocalLayoutBox(container);
-    const clipBox = getLayoutBox(clip);
     if (!containerBox.width || !containerBox.height) return;
-    if (!clipBox.width || !clipBox.height) return;
 
     for (const border of container.querySelectorAll(
         ':scope > .rovalra-avatar-border',
     )) {
-        syncBorderImageMetrics(containerBox, clipBox, border);
+        syncBorderImageMetrics(containerBox, containerBox, border);
     }
 }
 
@@ -130,15 +82,6 @@ function getLocalLayoutBox(element) {
     return {
         left: 0,
         top: 0,
-        width: element.offsetWidth || element.clientWidth || 0,
-        height: element.offsetHeight || element.clientHeight || 0,
-    };
-}
-
-function getLayoutBox(element) {
-    return {
-        left: element.offsetLeft || 0,
-        top: element.offsetTop || 0,
         width: element.offsetWidth || element.clientWidth || 0,
         height: element.offsetHeight || element.clientHeight || 0,
     };
@@ -271,34 +214,16 @@ function removeBorderFromContainer(container) {
     )) {
         border.remove();
     }
-
-    const clip = container.querySelector(
-        ':scope > .rovalra-avatar-border-clip',
-    );
-    if (!clip) return;
-
-    while (clip.firstChild) {
-        container.insertBefore(clip.firstChild, clip);
-    }
-    clip.remove();
 }
 
 function ensureBorderStructure(container) {
     ensureBorderContainerLayout(container);
-    const clip = syncBorderClipChildren(container);
     syncOverlayStacking(container);
 
     if (!container.dataset.rovalraBorderClipObserver) {
         container.dataset.rovalraBorderClipObserver = 'true';
-        observeChildren(container, () => {
-            syncBorderClipChildren(container);
-            syncOverlayStacking(container);
-        });
         observeResize(container, () => syncBorderMetrics(container));
-        observeResize(clip, () => syncBorderMetrics(container));
     }
-
-    return clip;
 }
 
 export async function applyBorderToContainer(
@@ -376,6 +301,7 @@ export async function applyBorderToContainer(
 
     img.onload = async () => {
         delete container.dataset.rovalraBorderLoading;
+        if (!container.isConnected) return;
         if (
             container.querySelector('.rovalra-avatar-border') ||
             container.dataset.rovalraIntendedBorder !== borderUrl
@@ -387,17 +313,7 @@ export async function applyBorderToContainer(
         }
         await getBorderContentBounds(img);
 
-        const overlays = [];
-        for (const child of container.children) {
-            if (child.matches(OVERLAY_CHILD_SELECTOR)) {
-                overlays.push(child);
-            }
-        }
         ensureBorderStructure(container);
-
-        for (const overlay of overlays) {
-            container.appendChild(overlay);
-        }
         syncOverlayStacking(container);
 
         if (alwaysPlay || !animatedLink || animatedLink === staticLink) {
@@ -516,8 +432,8 @@ export async function init() {
                 '.avatar-card.profile-avatar .thumbnail-2d-container',
             ].join(', '),
             (element) => {
-                if (element.closest('#rovalra-banned-avatar-container'))
-                    return;
+                if (element.closest('.rovalra-user-card')) return;
+                if (element.closest('[data-rovalra-banned-profile]')) return;
 
                 const target = element.parentElement || element;
                 applyBorderToContainer(target, borderUrl, true);

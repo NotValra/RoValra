@@ -2,9 +2,11 @@ import { observeElement } from '../../../core/observer.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
+import { callRobloxApiJson } from '../../../core/api.js';
 import { ts } from '../../../core/locale/i18n.js';
 
 const STORAGE_KEY = 'rovalra_first_account_cache';
+const TRUSTED_CREATOR_STORAGE_KEY = 'rovalra_trusted_creator_cache';
 const ONE_HOUR_MS = 3600000;
 const pendingSections = new WeakSet();
 
@@ -114,6 +116,57 @@ function createFirstAccountElement(isFirst, creationTimestamp) {
     return container;
 }
 
+function createTrustedCreatorElement(isTrustedCreator) {
+    const container = document.createElement('div');
+    container.className =
+        'form-group settings-text-field-container rovalra-trusted-creator';
+
+    const textField = document.createElement('div');
+    textField.className = 'account-settings-text-field';
+
+    const label = document.createElement('span');
+    label.className = 'text-title-large account-info-inline-label';
+    label.textContent = ts('trustedCreator.label');
+
+    const valueContainer = document.createElement('div');
+    valueContainer.className = 'settings-text-lines-container';
+
+    const valueMetaContainer = document.createElement('div');
+    valueMetaContainer.className = 'account-settings-value-metadata-container';
+    valueMetaContainer.style.display = 'flex';
+    valueMetaContainer.style.alignItems = 'center';
+
+    const valueSpan = document.createElement('span');
+    valueSpan.className = 'settings-text-span-visible text-body-medium';
+    valueSpan.textContent = isTrustedCreator
+        ? ts('trustedCreator.yes')
+        : ts('trustedCreator.no');
+    valueMetaContainer.appendChild(valueSpan);
+
+    const assets = getAssets();
+    const icon = document.createElement('div');
+    Object.assign(icon.style, {
+        width: '16px',
+        height: '16px',
+        marginLeft: '4px',
+        cursor: 'help',
+        display: 'inline-block',
+        backgroundColor: 'var(--rovalra-secondary-text-color)',
+        webkitMask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
+        mask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
+    });
+
+    addTooltip(icon, ts('trustedCreator.tooltip'), { position: 'top' });
+    valueMetaContainer.appendChild(icon);
+
+    valueContainer.appendChild(valueMetaContainer);
+    textField.appendChild(label);
+    textField.appendChild(valueContainer);
+    container.appendChild(textField);
+
+    return container;
+}
+
 function insertFirstAccountElement(section, isFirst, creationTimestamp) {
     if (section.querySelector('.rovalra-first-account')) return;
 
@@ -132,10 +185,52 @@ function insertFirstAccountElement(section, isFirst, creationTimestamp) {
     contentContainer.appendChild(element);
 }
 
-async function loadFirstAccountInfo(section) {
+function insertTrustedCreatorElement(section, isTrustedCreator) {
+    if (section.querySelector('.rovalra-trusted-creator')) return;
+
+    const element = createTrustedCreatorElement(isTrustedCreator);
+    const firstAccountElement = section.querySelector('.rovalra-first-account');
+    if (firstAccountElement) {
+        firstAccountElement.insertAdjacentElement('afterend', element);
+        return;
+    }
+
+    getLoginMethodsContent(section).appendChild(element);
+}
+
+async function loadTrustedCreatorInfo(section) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
+
+    const result = await getLocalStorage([TRUSTED_CREATOR_STORAGE_KEY]);
+    const allCache = result[TRUSTED_CREATOR_STORAGE_KEY] || {};
+    const userCache = allCache[userId];
+
+    if (userCache && Date.now() - userCache.timestamp < ONE_HOUR_MS) {
+        insertTrustedCreatorElement(section, userCache.isTrustedCreator);
+        return;
+    }
+
+    const data = await callRobloxApiJson({
+        subdomain: 'itemconfiguration',
+        endpoint:
+            '/v1/permissions/action-allowed-for-item-type?trustedCreatorCheck=true&action=1&assetType=61',
+    });
+    const isTrustedCreator = data?.isActionAllowed === true;
+    const latestResult = await getLocalStorage([TRUSTED_CREATOR_STORAGE_KEY]);
+    const currentCache = latestResult[TRUSTED_CREATOR_STORAGE_KEY] || {};
+
+    currentCache[userId] = { isTrustedCreator, timestamp: Date.now() };
+    await setLocalStorage({ [TRUSTED_CREATOR_STORAGE_KEY]: currentCache });
+
+    insertTrustedCreatorElement(section, isTrustedCreator);
+}
+
+async function loadAccountInfo(section) {
     if (
         pendingSections.has(section) ||
-        section.querySelector('.rovalra-first-account')
+        (section.querySelector('.rovalra-first-account') &&
+            section.querySelector('.rovalra-trusted-creator'))
     ) {
         return;
     }
@@ -143,54 +238,68 @@ async function loadFirstAccountInfo(section) {
     pendingSections.add(section);
 
     try {
+        const settings = await getLocalStorage([
+            'firstAccountEnabled',
+            'trustedCreatorEnabled',
+        ]);
+        const firstAccountEnabled = settings.firstAccountEnabled !== false;
+        const trustedCreatorEnabled = settings.trustedCreatorEnabled !== false;
+
+        if (!firstAccountEnabled && !trustedCreatorEnabled) return;
+
         const userId = await getAuthenticatedUserId();
         if (!userId) return;
 
-        const result = await getLocalStorage([STORAGE_KEY]);
-        const allCache = result[STORAGE_KEY] || {};
-        const userCache = allCache[userId];
-        const now = Date.now();
+        if (firstAccountEnabled) {
+            const result = await getLocalStorage([STORAGE_KEY]);
+            const allCache = result[STORAGE_KEY] || {};
+            const userCache = allCache[userId];
+            const now = Date.now();
 
-        if (userCache && now - userCache.timestamp < ONE_HOUR_MS) {
-            insertFirstAccountElement(
-                section,
-                userCache.isOriginalUser,
-                userCache.originalAccountCreationTimestampMs,
-            );
-            return;
+            if (userCache && now - userCache.timestamp < ONE_HOUR_MS) {
+                insertFirstAccountElement(
+                    section,
+                    userCache.isOriginalUser,
+                    userCache.originalAccountCreationTimestampMs,
+                );
+            } else {
+                const response = await fetch(
+                    'https://apis.roblox.com/player-hydration-service/v1/players/signed',
+                    {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                    },
+                ); //Verified
+
+                if (!response.ok) throw new Error('API failed');
+
+                const data = await response.json();
+                if (data?.playerInfo) {
+                    const isOriginalUser = data.playerInfo.isOriginalUser;
+                    const creationTimestamp =
+                        data.playerInfo.originalAccountCreationTimestampMs;
+                    const latestResult = await getLocalStorage([STORAGE_KEY]);
+                    const currentCache = latestResult[STORAGE_KEY] || {};
+
+                    currentCache[userId] = {
+                        isOriginalUser,
+                        originalAccountCreationTimestampMs: creationTimestamp,
+                        timestamp: Date.now(),
+                    };
+
+                    await setLocalStorage({ [STORAGE_KEY]: currentCache });
+
+                    insertFirstAccountElement(
+                        section,
+                        isOriginalUser,
+                        creationTimestamp,
+                    );
+                }
+            }
         }
 
-        const response = await fetch(
-            'https://apis.roblox.com/player-hydration-service/v1/players/signed',
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            },
-        ); //Verified
-
-        if (!response.ok) throw new Error('API failed');
-
-        const data = await response.json();
-        if (!data?.playerInfo) return;
-
-        const isOriginalUser = data.playerInfo.isOriginalUser;
-        const creationTimestamp =
-            data.playerInfo.originalAccountCreationTimestampMs;
-        const latestResult = await getLocalStorage([STORAGE_KEY]);
-        const currentCache = latestResult[STORAGE_KEY] || {};
-
-        currentCache[userId] = {
-            isOriginalUser,
-            originalAccountCreationTimestampMs: creationTimestamp,
-            timestamp: Date.now(),
-        };
-
-        await setLocalStorage({ [STORAGE_KEY]: currentCache });
-
-        insertFirstAccountElement(section, isOriginalUser, creationTimestamp);
+        if (trustedCreatorEnabled) await loadTrustedCreatorInfo(section);
     } catch (err) {
         console.error('RoValra: Failed to get first account info', err);
     } finally {
@@ -203,16 +312,20 @@ export function init() {
         return;
     }
 
-    chrome.storage.local.get({ firstAccountEnabled: true }, (result) => {
-        if (!result.firstAccountEnabled) return;
-
-        observeElement(
-            '#account-change-password, #fido-registration-container, .passkey-upsell-banner',
-            (element) => {
-                const section = getLoginMethodsSection(element);
-                if (section) loadFirstAccountInfo(section);
-            },
-            { multiple: true },
-        );
-    });
+    chrome.storage.local.get(
+        { firstAccountEnabled: true, trustedCreatorEnabled: true },
+        (result) => {
+            if (!result.firstAccountEnabled && !result.trustedCreatorEnabled) {
+                return;
+            }
+            observeElement(
+                '#account-change-password, #fido-registration-container, .passkey-upsell-banner',
+                (element) => {
+                    const section = getLoginMethodsSection(element);
+                    if (section) loadAccountInfo(section);
+                },
+                { multiple: true },
+            );
+        },
+    );
 }

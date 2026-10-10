@@ -4,6 +4,7 @@ import { SETTINGS_CONFIG } from './settingConfig.js';
 import { getCurrentUserTier } from './handlesettings.js';
 import { findSettingConfig } from './generateSettings.js';
 import { showSystemAlert } from '../ui/roblox/alert.js';
+import { ts } from '../locale/i18n.js';
 
 const ROVALRA_SETTINGS_UUID = 'a1b2c3d4-e5f6-7890-1234-567890abcdef';
 const PROFILE_NOTES_EXPORT_UUID = 'rovalra-notes';
@@ -49,7 +50,7 @@ async function requireProfileNotesEnabled() {
     if (await profileNotesAreEnabled()) return true;
 
     showSystemAlert(
-        'Enable Profile Notes before importing or exporting notes.',
+        ts('settings.ui.port.enableProfileNotes'),
         'warning',
     );
     return false;
@@ -87,12 +88,12 @@ export async function exportProfileNotes() {
 
         const count = Object.keys(notes).length;
         showSystemAlert(
-            `Exported ${count} profile ${count === 1 ? 'note' : 'notes'}.`,
+            ts(count === 1 ? 'settings.ui.port.exportedOne' : 'settings.ui.port.exportedMany', { count }),
             'success',
         );
     } catch (error) {
         console.error('RoValra: Failed to export profile notes.', error);
-        showSystemAlert('Profile notes could not be exported.', 'warning');
+        showSystemAlert(ts('settings.ui.port.exportFailed'), 'warning');
     }
 }
 
@@ -112,7 +113,7 @@ export async function importProfileNotes() {
 
                 if (file.size > PROFILE_NOTES_MAX_FILE_SIZE) {
                     showSystemAlert(
-                        'The profile notes backup is too large.',
+                        ts('settings.ui.port.notesTooLarge'),
                         'warning',
                     );
                     return;
@@ -131,7 +132,7 @@ export async function importProfileNotes() {
                         Array.isArray(importedData.notes)
                     ) {
                         showSystemAlert(
-                            'This is not a valid RoValra profile notes backup.',
+                            ts('settings.ui.port.invalidNotesBackup'),
                             'warning',
                         );
                         return;
@@ -156,7 +157,7 @@ export async function importProfileNotes() {
 
                     const count = Object.keys(importedNotes).length;
                     showSystemAlert(
-                        `Imported ${count} profile ${count === 1 ? 'note' : 'notes'}.`,
+                        ts(count === 1 ? 'settings.ui.port.importedOne' : 'settings.ui.port.importedMany', { count }),
                         'success',
                     );
                 } catch (error) {
@@ -165,7 +166,7 @@ export async function importProfileNotes() {
                         error,
                     );
                     showSystemAlert(
-                        'The profile notes backup could not be read.',
+                        ts('settings.ui.port.notesReadFailed'),
                         'warning',
                     );
                 }
@@ -176,7 +177,7 @@ export async function importProfileNotes() {
         input.click();
     } catch (error) {
         console.error('RoValra: Failed to import profile notes.', error);
-        showSystemAlert('Profile notes could not be imported.', 'warning');
+        showSystemAlert(ts('settings.ui.port.importFailed'), 'warning');
     }
 }
 
@@ -189,7 +190,7 @@ export async function exportSettings() {
                     chrome.runtime.lastError,
                 );
                 alert(
-                    'Error exporting settings. Check the console for details.',
+                    ts('settings.ui.port.exportError'),
                 );
                 return;
             }
@@ -205,7 +206,7 @@ export async function exportSettings() {
             } catch (error) {
                 console.error('Failed to sanitize settings for export:', error);
                 alert(
-                    'Error sanitizing settings for export. Check the console for details.',
+                    ts('settings.ui.port.sanitizeError'),
                 );
                 return;
             }
@@ -229,7 +230,7 @@ export async function exportSettings() {
         });
     } catch (error) {
         console.error('Error in exportSettings:', error);
-        alert('An unexpected error occurred during export.');
+        alert(ts('settings.ui.port.exportUnexpectedError'));
     }
 }
 
@@ -253,7 +254,7 @@ export async function importSettings() {
 
                     if (importedData.rovalra_uuid !== ROVALRA_SETTINGS_UUID) {
                         alert(
-                            'This does not appear to be a valid RoValra settings file.',
+                            ts('settings.ui.port.invalidSettingsFile'),
                         );
                         return;
                     }
@@ -274,7 +275,7 @@ export async function importSettings() {
                                 error,
                             );
                             alert(
-                                'Error: The imported settings file contains invalid or potentially dangerous data.',
+                                ts('settings.ui.port.invalidSettingsData'),
                             );
                             return;
                         }
@@ -300,7 +301,7 @@ export async function importSettings() {
                             JSON.stringify(sanitizedSettings).length;
                         if (settingsSize > 1024 * 1024) {
                             alert(
-                                'Error: Settings file is too large. Maximum size is 1MB.',
+                                ts('settings.ui.port.settingsTooLarge'),
                             );
                             return;
                         }
@@ -312,7 +313,7 @@ export async function importSettings() {
                                     chrome.runtime.lastError,
                                 );
                                 alert(
-                                    'Error importing settings. Check the console for details.',
+                                    ts('settings.ui.port.importError'),
                                 );
                             } else {
                                 chrome.storage.local.set(
@@ -324,7 +325,7 @@ export async function importSettings() {
                             }
                         });
                     } else {
-                        alert('The settings file is malformed.');
+                        alert(ts('settings.ui.port.malformedSettings'));
                     }
                 } catch (error) {
                     console.error(
@@ -332,7 +333,7 @@ export async function importSettings() {
                         error,
                     );
                     alert(
-                        'Could not read the settings file. It might be corrupted or in the wrong format.',
+                        ts('settings.ui.port.readFailed'),
                     );
                 }
             };
@@ -342,16 +343,16 @@ export async function importSettings() {
         input.click();
     } catch (error) {
         console.error('Error in importSettings:', error);
-        alert('An unexpected error occurred during import.');
+        alert(ts('settings.ui.port.importUnexpectedError'));
     }
 }
 
 export function createExportImportButtons() {
-    const exportButton = createButton('Export Settings', 'secondary', {
+    const exportButton = createButton(ts('settings.ui.port.exportSettings'), 'secondary', {
         id: 'export-rovalra-settings',
     });
 
-    const importButton = createButton('Import Settings', 'secondary', {
+    const importButton = createButton(ts('settings.ui.port.importSettings'), 'secondary', {
         id: 'import-rovalra-settings',
     });
 

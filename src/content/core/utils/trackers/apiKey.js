@@ -2,9 +2,10 @@ import { callRobloxApi } from '../../api.js';
 import { getAuthenticatedUserId } from '../../user.js';
 
 const STORAGE_KEY = 'rovalra_api_keys';
-const API_KEY_NAME = 'RoValra API key';
+const API_KEY_NAME = 'Extension API key';
 const API_KEY_DESCRIPTION =
-    'RoValra API key, used for local API requests only.\nNever used outside your local device.';
+    'Used by RoValra for local API requests only.\nNever used outside your local device.';
+const OLD_API_KEY_NAME = 'RoValra API key';
 
 export async function getValidApiKey() {
     const userId = await getAuthenticatedUserId();
@@ -14,7 +15,11 @@ export async function getValidApiKey() {
     const allUserKeys = storage[STORAGE_KEY] || {};
     const storedData = allUserKeys[userId];
 
-    if (storedData && storedData.apiKey) {
+    if (
+        storedData &&
+        storedData.apiKey &&
+        storedData.description === API_KEY_DESCRIPTION
+    ) {
         return storedData.apiKey;
     }
 
@@ -39,6 +44,21 @@ export async function getValidApiKey() {
 
         if (!listResponse.ok) return null;
         const listData = await listResponse.json();
+
+        const oldKeys =
+            listData.cloudAuthInfo?.filter(
+                (key) =>
+                    key.cloudAuthUserConfiguredProperties?.name ===
+                    OLD_API_KEY_NAME,
+            ) || [];
+
+        for (const oldKey of oldKeys) {
+            await callRobloxApi({
+                subdomain: 'apis',
+                endpoint: `/cloud-authentication/v1/apiKey/${oldKey.id}`,
+                method: 'DELETE',
+            }).catch(() => {});
+        }
 
         const existingKey = listData.cloudAuthInfo?.find(
             (key) =>
@@ -82,6 +102,7 @@ export async function getValidApiKey() {
             allUserKeys[userId] = {
                 apiKey: apiKey,
                 id: resultData.cloudAuthInfo.id,
+                description: API_KEY_DESCRIPTION,
                 timestamp: Date.now(),
             };
 

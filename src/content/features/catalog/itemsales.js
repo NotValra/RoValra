@@ -2,6 +2,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { ts } from '../../core/locale/i18n.js';
 
 let cachedItemsData = null;
 let currentActiveItemId = null;
@@ -73,7 +74,7 @@ export function init() {
                     infoIcon.style.cursor = "pointer";
                     infoIcon.style.verticalAlign = "middle";
                     infoIcon.style.transform = "scale(0.8)";
-                    addTooltip(infoIcon, "The sales and revenue stats are from a leak and are likely inaccurate.", { position: 'top' });
+                    addTooltip(infoIcon, ts('catalogItemSales.statsTooltip'), { position: 'top' });
                     valueDiv.appendChild(infoIcon);
                 }
 
@@ -82,10 +83,10 @@ export function init() {
                 return row;
             };
 
-            const salesRow = createRow('Sales', item.sales.toLocaleString(), true);
+            const salesRow = createRow(ts('catalogItemSales.sales'), item.sales.toLocaleString(), true);
             container.appendChild(salesRow);
 
-            const revenueRow = createRow('Revenue', `<span class="icon-robux-16x16" style="vertical-align: text-bottom; margin-right: 0px;"></span>${(item.revenue / 100).toFixed(2)}`, false, true);
+            const revenueRow = createRow(ts('catalogItemSales.revenue'), `<span class="icon-robux-16x16" style="vertical-align: text-bottom; margin-right: 0px;"></span>${(item.revenue / 100).toFixed(2)}`, false, true);
             container.appendChild(revenueRow);
 
             foundElement.parentNode.insertBefore(container, foundElement.nextSibling);

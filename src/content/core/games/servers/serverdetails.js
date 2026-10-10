@@ -13,6 +13,8 @@ import {
     getServerVersion,
     formatUptime,
 } from '../../apis/serverApi.js';
+import { ts } from '../../locale/i18n.js';
+import { addTooltip } from '../../ui/tooltip.js';
 
 const CLASSES = {
     CONTAINER: 'rovalra-details-container',
@@ -31,16 +33,16 @@ const ORDERS = {
     Performance: 1,
     Uptime: 2,
     Version: 3,
-    Region: 4,
-    Purchase: 5,
-    Status: 6,
+    Region: 5,
+    Purchase: 6,
+    Status: 7,
 };
 
 const STYLES = {
     container:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; min-height: 88px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px;',
     containerFriends:
-        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%; min-height: 88px;',
+        'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 8px; width: 100%;',
     row: 'display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 400;',
     icon: 'display: flex; align-items: center; flex-shrink: 0; height: 20px;',
     text: 'line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 100%; flex: 1;',
@@ -57,6 +59,8 @@ const ICONS = {
     purchase: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     inactive: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"/> stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
 };
+
+const serverNetworkInfo = new Map();
 
 let isShareLinkEnabled = true;
 let isServerUptimeEnabled = true;
@@ -124,7 +128,7 @@ const cacheReadyPromise = new Promise((resolve) => {
                 if (!isServerListModificationsEnabled) {
                     document
                         .querySelectorAll(
-                            '.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link',
+                            '.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link, .rovalra-meta-pill',
                         )
                         .forEach((el) => el.remove());
                 } else {
@@ -138,6 +142,8 @@ const cacheReadyPromise = new Promise((resolve) => {
                 isServerRegionEnabled = changes.EnableServerRegion.newValue;
             if (changes.EnablePlaceVersion)
                 isPlaceVersionEnabled = changes.EnablePlaceVersion.newValue;
+            if (changes.EnableServerUptime || changes.EnablePlaceVersion)
+                refreshContainerMinHeights();
             if (changes.EnableFullServerID)
                 isFullServerIDEnabled = changes.EnableFullServerID.newValue;
             if (changes.EnableFullServerIndicators)
@@ -160,6 +166,84 @@ const cacheReadyPromise = new Promise((resolve) => {
         }
     });
 });
+
+export function getRowServerId(server) {
+    if (!server) return null;
+    const serverId = server.getAttribute('data-rovalra-serverid');
+    if (serverId) return serverId;
+    if (server.classList.contains('rbx-private-game-server-item')) {
+        return server.dataset.accessCode || null;
+    }
+    return null;
+}
+
+function getServerRows(serverId) {
+    if (!serverId) return [];
+    const id = CSS.escape(String(serverId));
+    return Array.from(
+        document.querySelectorAll(
+            `[data-rovalra-serverid="${id}"], .rbx-private-game-server-item[data-access-code="${id}"]`,
+        ),
+    ).filter((server) => getRowServerId(server) === String(serverId));
+}
+
+function setServerNetworkInfo(serverId, ip, dcId) {
+    if (!serverId) return;
+    const existing = serverNetworkInfo.get(serverId) || {};
+    serverNetworkInfo.set(serverId, {
+        ip: ip ?? existing.ip ?? null,
+        dcId: dcId ?? existing.dcId ?? null,
+    });
+}
+
+function restoreJoinButton(server) {
+    const joinBtn = server.querySelector(
+        '.game-server-join-btn, .rovalra-join-btn',
+    );
+    if (!joinBtn || joinBtn.dataset.rovalraOriginalLabel === undefined) return;
+
+    const joinLabel = joinBtn.querySelector('.text-no-wrap') || joinBtn;
+    joinLabel.textContent = joinBtn.dataset.rovalraOriginalLabel;
+    joinBtn.classList.replace('btn-secondary-md', 'btn-primary-md');
+    delete joinBtn.dataset.rovalraOriginalLabel;
+}
+
+function markJoinButtonFull(server) {
+    const joinBtn = server.querySelector(
+        '.game-server-join-btn, .rovalra-join-btn',
+    );
+    if (!joinBtn) return;
+
+    const joinLabel = joinBtn.querySelector('.text-no-wrap') || joinBtn;
+    if (joinBtn.dataset.rovalraOriginalLabel === undefined) {
+        joinBtn.dataset.rovalraOriginalLabel = joinLabel.textContent;
+    }
+    joinLabel.textContent = ts('common.joinServerFull');
+    joinBtn.classList.replace('btn-primary-md', 'btn-secondary-md');
+}
+
+function resetServerRow(server) {
+    server
+        .querySelectorAll(
+            `.${CLASSES.CONTAINER}, .rovalra-meta-pill, .rovalra-meta-icons, .rovalra-server-extra-details`,
+        )
+        .forEach((el) => el.remove());
+    restoreJoinButton(server);
+    server._rovalraApiData = null;
+    server.removeAttribute('data-rovalra-api');
+}
+
+function displayServerStatus(server, status) {
+    if (status === 'full') {
+        if (!isFullServerIndicatorsEnabled) return;
+        markJoinButtonFull(server);
+        displayServerFullStatus(server);
+    } else if (status === 'purchase') {
+        displayPurchaseGameStatus(server);
+    } else if (status === 'inactive') {
+        displayInactivePlaceStatus(server);
+    }
+}
 
 export function createUUID() {
     return crypto.randomUUID
@@ -232,6 +316,25 @@ function extractCountryCode(regionName) {
     return null;
 }
 
+let regionDisplayNames = null;
+
+function getCountryName(countryCode) {
+    try {
+        regionDisplayNames ??= new Intl.DisplayNames(
+            [document.documentElement.lang || navigator.language, 'en'],
+            { type: 'region' },
+        );
+        const name = regionDisplayNames.of(countryCode.toUpperCase());
+        if (name && name.toUpperCase() !== countryCode.toUpperCase())
+            return name;
+    } catch {}
+
+    const entry = datacenterList?.find(
+        (e) => (e.location || e).country?.toLowerCase() === countryCode,
+    );
+    return (entry?.location || entry)?.country_name || null;
+}
+
 function removeCountryFromRegion(regionName) {
     if (!regionName || !datacenterList) return regionName;
 
@@ -264,6 +367,24 @@ function normalizeRegionName(...values) {
     return [...new Set(parts)].join(', ') || null;
 }
 
+function applyContainerMinHeight(container, isFriends) {
+    const rows =
+        (isServerUptimeEnabled ? 1 : 0) + (isPlaceVersionEnabled ? 1 : 0);
+    if (rows === 2) container.style.minHeight = isFriends ? '48px' : '44px';
+    else if (rows === 1) container.style.minHeight = '20px';
+    else container.style.minHeight = '';
+}
+
+function refreshContainerMinHeights() {
+    document.querySelectorAll(`.${CLASSES.CONTAINER}`).forEach((container) => {
+        if (container.closest('.rbx-private-game-server-item')) return;
+        applyContainerMinHeight(
+            container,
+            !!container.closest('.rbx-friends-game-server-item'),
+        );
+    });
+}
+
 export function getOrCreateDetailsContainer(server) {
     if (!isServerListModificationsEnabled) {
         return server.querySelector(`.${CLASSES.CONTAINER}`);
@@ -284,6 +405,7 @@ export function getOrCreateDetailsContainer(server) {
         container.style.cssText = isFriends
             ? STYLES.containerFriends
             : STYLES.container;
+        applyContainerMinHeight(container, isFriends);
     }
 
     const statusNode = server.querySelector('.text-info.rbx-game-status');
@@ -371,7 +493,52 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     return element;
 }
 
-function clearExclusiveStatuses(container) {
+function getOrCreateMetaIcons(server) {
+    let meta = server.querySelector('.server-meta-icons');
+    if (meta) return meta;
+
+    const gauge = server.querySelector('.server-player-count-gauge');
+    if (!gauge) return null;
+
+    meta = document.createElement('div');
+    meta.className = 'server-meta-icons rovalra-meta-icons';
+    gauge.after(meta);
+    return meta;
+}
+
+function updateMetaPill(server, type, iconHTML, text, isVisible, tooltip = '') {
+    const className = CLASSES[type];
+    const meta = isVisible ? getOrCreateMetaIcons(server) : null;
+    let pill = server.querySelector(`.rovalra-meta-pill.${className}`);
+
+    if (!meta && !pill) {
+        const container = getOrCreateDetailsContainer(server);
+        return updateInfoElement(container, type, iconHTML, text, isVisible);
+    }
+
+    if (!pill) {
+        pill = document.createElement('span');
+        pill.className = `server-meta-badge-tip rovalra-meta-pill ${className}`;
+        pill.style.order = ORDERS[type] || ORDERS.Status;
+        pill.innerHTML = `<div class="foundation-web-badge flex items-center select-none gap-[var(--size-150)] radius-circle height-600 width-[fit-content] padding-x-small bg-shift-200 content-emphasis stroke-none"><span class="rovalra-icon-wrapper"></span><span class="rovalra-pill-text text-no-wrap text-truncate-split text-label-small padding-y-xsmall padding-right-xxsmall content-emphasis"></span></div>`;
+        addTooltip(pill, () => pill.dataset.rovalraTooltip || '', {
+            position: 'top',
+            shouldShow: () => !!pill.dataset.rovalraTooltip,
+        });
+        meta.appendChild(pill);
+    }
+
+    pill.dataset.rovalraTooltip = tooltip;
+    pill.querySelector('.rovalra-icon-wrapper').innerHTML = iconHTML;
+    pill.querySelector('.rovalra-pill-text').textContent = text;
+    pill.style.display = isVisible ? '' : 'none';
+
+    server.querySelector(`.${CLASSES.CONTAINER} > .${className}`)?.remove();
+
+    return pill;
+}
+
+function clearExclusiveStatuses(server, container) {
     [
         CLASSES.Uptime,
         CLASSES.Version,
@@ -381,6 +548,7 @@ function clearExclusiveStatuses(container) {
         CLASSES.Purchase,
         CLASSES.Inactive,
     ].forEach((cls) => container.querySelector(`.${cls}`)?.remove());
+    server.querySelector(`.rovalra-meta-pill.${CLASSES.Region}`)?.remove();
 }
 
 function injectStyles() {
@@ -401,14 +569,48 @@ function injectStyles() {
             background-color: transparent;
             color: inherit;
         }
+        .${CLASSES.CONTAINER}:not(:has(> :not([style*="display: none"]))) {
+            margin: 0 !important;
+        }
+        .rovalra-meta-icons {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .server-meta-icons:has(.rovalra-meta-pill) {
+            flex-wrap: wrap;
+            row-gap: 4px;
+        }
+        .rovalra-meta-pill {
+            display: inline-flex;
+            min-width: 0;
+            max-width: 100%;
+            cursor: default;
+        }
+        .rovalra-meta-pill .foundation-web-badge {
+            max-width: 100%;
+        }
+        .rovalra-meta-pill .rovalra-icon-wrapper {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .rovalra-meta-pill .rovalra-icon-wrapper svg {
+            width: 14px;
+            height: 14px;
+        }
+        .rovalra-meta-pill .rovalra-pill-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     `;
     document.head.appendChild(style);
 }
 
 function shouldSpoilerServerId(server) {
     return (
-        server.hasAttribute('data-rovalra-is-friend-server') ||
-        server.hasAttribute('data-rovalra-is-recent-server') ||
+        server.dataset.rovalraIsFriendServer === 'true' ||
+        server.dataset.rovalraIsRecentServer === 'true' ||
         server.classList.contains('rbx-friends-game-server-item') ||
         !!server.querySelector(
             '.player-thumbnails-container .avatar-card-link[href*="/users/"]',
@@ -427,27 +629,32 @@ function enableAvatarLinks(server) {
 
 export function displayPerformance(server, fps, serverLocations = {}) {
     if (!isServerPerformanceEnabled || !isServerListModificationsEnabled) {
-        const container = getOrCreateDetailsContainer(server);
-        updateInfoElement(container, 'Performance', '', '', false);
+        updateMetaPill(server, 'Performance', '', '', false);
         return;
     }
 
-    const container = getOrCreateDetailsContainer(server);
-    let text = 'Server Performance Unknown';
+    let text = 'Unknown';
     let icon = ICONS.performanceHigh;
     let visible = false;
 
     if (fps === 'fetching') {
-        text = 'Server Performance Loading...';
+        text = ts('serverInfo.loading');
         visible = true;
     } else if (typeof fps === 'number') {
         const percent = Math.min(100, Math.round((fps / 60) * 100));
-        text = `Server Performance ${percent}%`;
+        text = `${percent}%`;
         icon = percent < 50 ? ICONS.performanceLow : ICONS.performanceHigh;
         visible = true;
     }
 
-    updateInfoElement(container, 'Performance', icon, text, visible);
+    updateMetaPill(
+        server,
+        'Performance',
+        icon,
+        text,
+        visible,
+        ts('serverInfo.performanceTooltip'),
+    );
 }
 
 export function displayUptime(
@@ -467,7 +674,7 @@ export function displayUptime(
     let visible = true;
 
     if (uptime === 'fetching') {
-        text = 'Loading...';
+        text = ts('serverInfo.loading');
     } else if (typeof uptime === 'number') {
         text = formatUptime(uptime, isEstimate);
     } else if (uptime === 'N/A') {
@@ -487,40 +694,47 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    let text = 'Version Unknown';
+    let text = ts('serverInfo.versionUnknown');
     let visible = false;
 
     const existingVersion = container.querySelector(`.${CLASSES.Version}`);
     if (
         (!version || version === 'Unknown') &&
-        existingVersion &&
-        existingVersion.style.display !== 'none' &&
-        existingVersion.textContent.includes('Version ')
+        existingVersion?.dataset.rovalraVersion
     ) {
         return existingVersion;
     }
 
     if (version && version !== 'Unknown') {
-        text = `Version ${version}`;
+        text = ts('serverInfo.version', { version });
         const containerList = document.getElementById(
             'rbx-public-game-server-item-container',
         );
         if (containerList) {
             if (String(version) === containerList.dataset.newestVersion)
-                text += ' (Latest)';
+                text += ts('serverInfo.latest');
             else if (String(version) === containerList.dataset.oldestVersion)
-                text += ' (Oldest)';
+                text += ts('serverInfo.oldest');
         }
         visible = true;
     }
 
-    updateInfoElement(container, 'Version', ICONS.version, text, visible);
+    const element = updateInfoElement(
+        container,
+        'Version',
+        ICONS.version,
+        text,
+        visible,
+    );
+    if (element) {
+        if (visible) element.dataset.rovalraVersion = String(version);
+        else delete element.dataset.rovalraVersion;
+    }
 }
 
 export function displayRegion(server, regionName, serverLocations = {}) {
     if (!isServerRegionEnabled || !isServerListModificationsEnabled) {
-        const container = getOrCreateDetailsContainer(server);
-        updateInfoElement(container, 'Region', '', '', false);
+        updateMetaPill(server, 'Region', '', '', false);
         return;
     }
 
@@ -532,6 +746,7 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     }
 
     let text = 'Unknown';
+    let countryName = null;
     let icon = ICONS.regionDefault;
     let visible = false;
 
@@ -548,23 +763,30 @@ export function displayRegion(server, regionName, serverLocations = {}) {
             visible = false;
         } else {
             if (countryCode) {
-                icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="20" height="14" alt="${countryCode}" style="display: block;">`;
+                countryName =
+                    countryCode === 'us'
+                        ? text.split(',').pop().trim()
+                        : getCountryName(countryCode);
+                icon = `<img src="https://flagcdn.com/w40/${countryCode}.png" srcset="https://flagcdn.com/w80/${countryCode}.png 2x" width="16" height="12" alt="${countryCode}" style="display: block; border-radius: 2px;">`;
             }
             visible = true;
         }
     }
 
-    updateInfoElement(container, 'Region', icon, text, visible);
+    updateMetaPill(
+        server,
+        'Region',
+        icon,
+        countryName || text,
+        visible,
+        ts('serverInfo.regionTooltip', { region: text }),
+    );
 }
 
 function displayRegionForServerId(serverId, regionName, serverLocations) {
-    if (!serverId) return;
-
-    document
-        .querySelectorAll(`[data-rovalra-serverid="${serverId}"]`)
-        .forEach((server) =>
-            displayRegion(server, regionName, serverLocations),
-        );
+    getServerRows(serverId).forEach((server) =>
+        displayRegion(server, regionName, serverLocations),
+    );
 }
 
 export function displayIpAndDcId(server) {
@@ -591,8 +813,7 @@ export function displayIpAndDcId(server) {
 
     extraDiv.className = 'rovalra-server-extra-details text-info xsmall';
 
-    const ip = server.dataset.rovalraIp;
-    const dcId = server.dataset.rovalraDcId;
+    const { ip, dcId } = serverNetworkInfo.get(getRowServerId(server)) || {};
 
     extraDiv.style.cssText = `font-size: 9px; margin-top: 2px; display: flex; justify-content: space-between; min-height: 12px; padding: 0 8px; box-sizing: border-box;`;
     extraDiv.innerHTML = '';
@@ -616,7 +837,7 @@ export function displayServerFullStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    const regionElement = container.querySelector(`.${CLASSES.Region}`);
+    const regionElement = server.querySelector(`.${CLASSES.Region}`);
     const hasRegion =
         regionElement &&
         regionElement.style.display !== 'none' &&
@@ -629,7 +850,13 @@ export function displayServerFullStatus(server) {
         return;
     }
 
-    updateInfoElement(container, 'Full', ICONS.full, 'Server is Full', true);
+    updateInfoElement(
+        container,
+        'Full',
+        ICONS.full,
+        ts('serverInfo.serverFull'),
+        true,
+    );
 }
 
 export function displayPrivateServerStatus(server) {
@@ -640,12 +867,12 @@ export function displayPrivateServerStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    clearExclusiveStatuses(container);
+    clearExclusiveStatuses(server, container);
     updateInfoElement(
         container,
         'Private',
         ICONS.private,
-        'Playing in a private server',
+        ts('serverInfo.privateServer'),
         true,
     );
 }
@@ -658,18 +885,18 @@ export function displayPurchaseGameStatus(server) {
     }
 
     const container = getOrCreateDetailsContainer(server);
-    clearExclusiveStatuses(container);
+    clearExclusiveStatuses(server, container);
     updateInfoElement(
         container,
         'Purchase',
         ICONS.purchase,
-        'Buy game to see regions.',
+        ts('serverInfo.purchaseGame'),
         true,
     );
 }
 
 export function displayInactivePlaceStatus(server) {
-    if (server) {
+    if (server?.dataset.rovalraAddedByFilter === 'true') {
         server.remove();
     }
 }
@@ -718,15 +945,9 @@ export async function fetchServerUptime(
                 serverLocations[serverId] = normalizedRegion;
             }
 
-            const serverEls = document.querySelectorAll(
-                `[data-rovalra-serverid="${serverId}"]`,
-            );
+            setServerNetworkInfo(serverId, ipAddress, datacenterId);
 
-            serverEls.forEach((serverEl) => {
-                if (ipAddress != null) serverEl.dataset.rovalraIp = ipAddress;
-                if (datacenterId != null)
-                    serverEl.dataset.rovalraDcId = datacenterId;
-
+            getServerRows(serverId).forEach((serverEl) => {
                 displayPlaceVersion(
                     serverEl,
                     versionToDisplay,
@@ -743,10 +964,7 @@ export async function fetchServerUptime(
         validIds
             .filter((id) => !foundIds.has(id))
             .forEach((id) => {
-                const matchingEls = document.querySelectorAll(
-                    `[data-rovalra-serverid="${id}"]`,
-                );
-                matchingEls.forEach((el) => {
+                getServerRows(id).forEach((el) => {
                     displayUptime(
                         el,
                         getServerUptime(id),
@@ -760,10 +978,7 @@ export async function fetchServerUptime(
     } catch (e) {
         console.error('Failed to fetch server details:', e);
         validIds.forEach((id) => {
-            const matchingEls = document.querySelectorAll(
-                `[data-rovalra-serverid="${id}"]`,
-            );
-            matchingEls.forEach((el) => {
+            getServerRows(id).forEach((el) => {
                 displayUptime(
                     el,
                     getServerUptime(id),
@@ -782,56 +997,38 @@ export async function fetchAndDisplayRegion(
     options = {},
 ) {
     const serverStatuses = options.serverStatuses || {};
+    const showFullIfUnknown = () => {
+        if (serverLocations[serverId] || serverStatuses[serverId]) return;
+        getServerRows(serverId).forEach((row) => displayServerFullStatus(row));
+    };
+
     let placeId = server.dataset.placeid || getPlaceIdFromUrl();
     if (!placeId) {
-        if (!serverLocations[serverId] && !serverStatuses[serverId])
-            displayServerFullStatus(server);
+        showFullIfUnknown();
         return;
     }
 
     try {
         const info = await fetchServerRegion(placeId, serverId, options);
-
-        if (server.dataset.rovalraServerid !== serverId) return;
-
-        const joinBtn = server.querySelector(
-            '.game-server-join-btn, .rovalra-join-btn',
-        );
         const status = Number(info.status);
+        const joinScript = info.joinScript;
 
-        if (info.joinScript) {
-            const joinScript = info.joinScript;
-            let changed = false;
+        if (
+            joinScript?.GameId &&
+            !options.isPrivate &&
+            String(joinScript.GameId).toLowerCase() !==
+                String(serverId).toLowerCase()
+        ) {
+            return;
+        }
 
-            if (
-                joinScript.DataCenterId != null &&
-                !server.dataset.rovalraDcId
-            ) {
-                server.dataset.rovalraDcId = joinScript.DataCenterId;
-                changed = true;
-            }
-
-            if (!server.dataset.rovalraIp) {
-                let ip = null;
-                if (
-                    joinScript.UdmuxEndpoints &&
-                    joinScript.UdmuxEndpoints.length > 0 &&
-                    joinScript.UdmuxEndpoints[0].Address
-                ) {
-                    ip = joinScript.UdmuxEndpoints[0].Address;
-                } else if (joinScript.MachineAddress) {
-                    ip = joinScript.MachineAddress;
-                }
-
-                if (ip) {
-                    server.dataset.rovalraIp = ip;
-                    changed = true;
-                }
-            }
-
-            if (changed) {
-                displayIpAndDcId(server);
-            }
+        if (joinScript) {
+            const ip =
+                joinScript.UdmuxEndpoints?.[0]?.Address ||
+                joinScript.MachineAddress ||
+                null;
+            setServerNetworkInfo(serverId, ip, joinScript.DataCenterId);
+            getServerRows(serverId).forEach((row) => displayIpAndDcId(row));
         }
 
         if (status === 12) {
@@ -841,7 +1038,9 @@ export async function fetchAndDisplayRegion(
             ) {
                 if (!serverStatuses[serverId]) {
                     serverStatuses[serverId] = 'purchase';
-                    displayPurchaseGameStatus(server);
+                    getServerRows(serverId).forEach((row) =>
+                        displayServerStatus(row, 'purchase'),
+                    );
                 }
                 return;
             }
@@ -850,38 +1049,33 @@ export async function fetchAndDisplayRegion(
         if (status === 5) {
             if (!serverStatuses[serverId]) {
                 serverStatuses[serverId] = 'inactive';
-                displayInactivePlaceStatus(server);
+                getServerRows(serverId).forEach((row) =>
+                    displayServerStatus(row, 'inactive'),
+                );
             }
             return;
         }
 
         if (status === 22) {
-            if (isFullServerIndicatorsEnabled) {
-                if (joinBtn) {
-                    const joinLabel =
-                        joinBtn.querySelector('.text-no-wrap') || joinBtn;
-                    joinLabel.textContent = 'Join (Server Full)';
-                    joinBtn.classList.replace(
-                        'btn-primary-md',
-                        'btn-secondary-md',
-                    );
-                }
-                serverStatuses[serverId] = 'full';
-                displayServerFullStatus(server);
-            }
+            serverStatuses[serverId] = 'full';
+            getServerRows(serverId).forEach((row) =>
+                displayServerStatus(row, 'full'),
+            );
             return;
         }
 
-        if (info.joinScript?.PlaceVersion && !getServerVersion(serverId)) {
-            displayPlaceVersion(
-                server,
-                info.joinScript.PlaceVersion,
-                serverLocations,
+        if (joinScript?.PlaceVersion && !getServerVersion(serverId)) {
+            getServerRows(serverId).forEach((row) =>
+                displayPlaceVersion(
+                    row,
+                    joinScript.PlaceVersion,
+                    serverLocations,
+                ),
             );
         }
 
         if (!serverLocations[serverId]) {
-            const dcId = info.joinScript?.DataCenterId;
+            const dcId = joinScript?.DataCenterId;
             let locInfo =
                 dcId && serverIpMap?.[dcId] ? serverIpMap[dcId] : null;
 
@@ -894,7 +1088,7 @@ export async function fetchAndDisplayRegion(
                 const fullName = normalizeRegionName(
                     getFullLocationName(locInfo),
                 );
-                if (fullName) {
+                if (fullName && !serverLocations[serverId]) {
                     serverLocations[serverId] = fullName;
 
                     displayRegionForServerId(
@@ -906,8 +1100,7 @@ export async function fetchAndDisplayRegion(
             }
         }
     } catch (err) {
-        if (!serverLocations[serverId] && !serverStatuses[serverId])
-            displayServerFullStatus(server);
+        showFullIfUnknown();
     }
 }
 
@@ -966,16 +1159,17 @@ export async function addCopyJoinLinkButton(server, serverId) {
     const btn = document.createElement('button');
     btn.className =
         'btn-full-width btn-control-xs btn-primary-md btn-min-width rovalra-copy-join-link';
-    btn.textContent = 'Share';
+    btn.textContent = ts('common.share');
     btn.style.cssText = 'margin-top: 5px; width: 100%;';
 
     btn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
+        const currentServerId = getRowServerId(server) || serverId;
+        const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${currentServerId}`;
         navigator.clipboard.writeText(link).then(() => {
-            btn.textContent = 'Copied!';
-            setTimeout(() => (btn.textContent = 'Share'), 2000);
+            btn.textContent = ts('common.copied');
+            setTimeout(() => (btn.textContent = ts('common.share')), 2000);
         });
     };
 
@@ -1013,18 +1207,15 @@ export async function enhanceServer(server, context) {
         );
     }
 
-    let serverId = server.getAttribute('data-rovalra-serverid');
+    const serverId = getRowServerId(server);
     const isPrivate = server.classList.contains('rbx-private-game-server-item');
-
-    if (!serverId && isPrivate) {
-        serverId = server.dataset.accessCode;
-    }
 
     if (!serverId) return;
 
     const lastId = server._rovalraLastProcessedId;
     if (lastId && lastId !== serverId) {
         server.dataset.rovalraEnhanced = 'false';
+        resetServerRow(server);
         cleanupServerUI(server);
     } else if (
         server.dataset.rovalraEnhanced === 'true' &&
@@ -1040,7 +1231,11 @@ export async function enhanceServer(server, context) {
 
     if (!server._rovalraUptimeListener) {
         server._rovalraUptimeListener = (e) => {
-            if (e.detail.serverId === serverId) {
+            const currentServerId = getRowServerId(server);
+            if (
+                currentServerId &&
+                String(e.detail.serverId) === String(currentServerId)
+            ) {
                 displayUptime(
                     server,
                     e.detail.uptime,
@@ -1083,9 +1278,22 @@ export async function enhanceServer(server, context) {
 
     const cachedLocation = serverLocations[serverId];
     displayRegion(server, cachedLocation || 'Unknown', serverLocations);
+    if (serverStatuses[serverId]) {
+        displayServerStatus(server, serverStatuses[serverId]);
+    }
 
-    const apiData = server._rovalraApiData;
-    if (apiData && (apiData.server_id || apiData.id) === serverId) {
+    const cachedApiData = context.serverDataCache?.get(String(serverId));
+    const attachedApiData = server._rovalraApiData;
+    const attachedApiDataId = attachedApiData?.server_id || attachedApiData?.id;
+    const apiData =
+        cachedApiData &&
+        String(cachedApiData.server_id || cachedApiData.id) === String(serverId)
+            ? cachedApiData
+            : attachedApiData && String(attachedApiDataId) === String(serverId)
+              ? attachedApiData
+              : null;
+    if (apiData) server._rovalraApiData = apiData;
+    if (apiData) {
         if (apiData.place_version && !getServerVersion(serverId)) {
             displayPlaceVersion(server, apiData.place_version, serverLocations);
         }
@@ -1161,7 +1369,7 @@ export async function enhanceServer(server, context) {
         idDiv.innerHTML = '';
 
         const prefixSpan = document.createElement('span');
-        prefixSpan.textContent = 'ID: ';
+        prefixSpan.textContent = ts('common.id');
         prefixSpan.style.userSelect = 'none';
 
         const uuidSpan = document.createElement('span');

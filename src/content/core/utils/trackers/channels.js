@@ -1,5 +1,4 @@
 import { callRobloxApi } from '../../api.js';
-import { settings } from '../../settings/getSettings.js';
 import { getAuthenticatedUserId } from '../../user.js';
 
 const STORAGE_KEY = 'rovalra_client_channel_assignments';
@@ -154,8 +153,6 @@ export async function updateClientChannelAssignments() {
     if (activeUpdatePromise) return activeUpdatePromise;
 
     activeUpdatePromise = (async () => {
-        if (await settings.disableChannelTracking) return [];
-
         const userId = await getAuthenticatedUserId();
         if (!userId) return [];
 
@@ -201,8 +198,6 @@ export async function updateClientChannelAssignments() {
             : changedAssignments;
 
         if (assignmentsToReport.length === 0) return [];
-
-        if (await settings.disableChannelTracking) return [];
 
         await reportAssignments(assignmentsToReport);
 

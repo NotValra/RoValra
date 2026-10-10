@@ -102,8 +102,14 @@
     .rovalra-banned-friends-scroll {
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        padding: 18px 0 24px;
-        margin: -18px 0 -24px;
+        scrollbar-width: none;
+        padding: 90px 4px 14px;
+        margin: -90px -4px -14px;
+        pointer-events: none;
+    }
+
+    .rovalra-banned-friends-scroll::-webkit-scrollbar {
+        display: none;
     }
 
     .rovalra-banned-friends-list {
@@ -112,12 +118,12 @@
         gap: 35px;
         min-width: max-content;
         overflow: visible !important;
-        padding: 0 4px;
     }
 
     .rovalra-banned-friends-list > .friends-carousel-tile {
         flex: 0 0 auto;
         overflow: visible;
+        pointer-events: auto;
     }
 
     .rovalra-banned-friends-list .user-card-inner,
@@ -133,4 +139,9 @@
     .rovalra-banned-friends-list .avatar-status [data-testid='presence-icon'] {
         overflow: visible !important;
     }
+}
+
+#rovalra-banned-avatar-container img.avatar-card-image {
+    background-color: var(--rovalra-container-background-color);
+    border-radius: 50%;
 }

@@ -225,6 +225,21 @@ const applyFriendsCarouselPaddingFix = async () => {
     );
 };
 
+const applyNotificationBellMarginFix = () => {
+    const styleId = 'rovalra-notification-bell-margin-fix';
+    if (document.getElementById(styleId)) return;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+        #navbar-stream.navbar-stream.notification-margins {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+};
+
 const applyNavbarSearchWidthFix = () => {
     const setup = () => {
         const rightNavigationHeader = document.getElementById(
@@ -344,6 +359,7 @@ export function init() {
                 applyProfileGameCardFix();
                 applyFriendsCarouselPaddingFix();
                 applyNavbarSearchWidthFix();
+                applyNotificationBellMarginFix();
             }
         },
     );

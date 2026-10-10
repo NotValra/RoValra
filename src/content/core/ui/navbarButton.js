@@ -16,7 +16,7 @@ import { addTooltip } from './tooltip.js';
 export function createNavbarButton({ id, iconSvgData, iconData, tooltipText, onClick }) {
     return new Promise((resolve) => {
         const init = () => {
-            observeElement('.nav.navbar-right.rbx-navbar-icon-group', (navbar) => {
+            observeElement('ul.navbar-right.rbx-navbar-icon-group', (navbar) => {
                 if (document.getElementById(id)) {
                     resolve(document.getElementById(id).querySelector('button'));
                     return;

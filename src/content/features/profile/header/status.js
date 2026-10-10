@@ -31,16 +31,12 @@ const statusUrlPattern = /\b(?:https?:\/\/|www\.)[^\s<]+/gi;
 const trailingUrlPunctuationPattern = /[.,!?;:)\]}]+$/;
 
 function linkifyStatusContent(container) {
-    const walker = document.createTreeWalker(
-        container,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode: (node) =>
-                node.parentElement?.closest('a, code')
-                    ? NodeFilter.FILTER_REJECT
-                    : NodeFilter.FILTER_ACCEPT,
-        },
-    );
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) =>
+            node.parentElement?.closest('a, code')
+                ? NodeFilter.FILTER_REJECT
+                : NodeFilter.FILTER_ACCEPT,
+    });
     const textNodes = [];
     let node;
 
@@ -55,9 +51,8 @@ function linkifyStatusContent(container) {
         statusUrlPattern.lastIndex = 0;
         while ((match = statusUrlPattern.exec(text))) {
             let urlText = match[0];
-            const trailingPunctuation = urlText.match(
-                trailingUrlPunctuationPattern,
-            )?.[0] || '';
+            const trailingPunctuation =
+                urlText.match(trailingUrlPunctuationPattern)?.[0] || '';
             if (trailingPunctuation) {
                 urlText = urlText.slice(0, -trailingPunctuation.length);
             }
@@ -73,9 +68,7 @@ function linkifyStatusContent(container) {
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
             link.style.textDecoration = 'underline';
-            link.addEventListener('click', (event) =>
-                event.stopPropagation(),
-            );
+            link.addEventListener('click', (event) => event.stopPropagation());
             fragment.append(link, trailingPunctuation);
             lastIndex = match.index + match[0].length;
         }
@@ -106,7 +99,7 @@ function cleanupStatusElements(container) {
                 element.load();
             }
             element.remove();
-        } catch (e) { }
+        } catch (e) {}
     }
 }
 
@@ -132,7 +125,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
                 currentNode.style.cursor = 'text';
                 currentNode.style.pointerEvents = 'none';
             }
-        } catch (e) { }
+        } catch (e) {}
     }
 
     if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
@@ -146,7 +139,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
             ) {
                 currentNode.removeAttribute('src');
             }
-        } catch (e) { }
+        } catch (e) {}
     }
 });
 
@@ -252,6 +245,7 @@ function openEditStatusOverlay(currentStatus, onSave) {
 
 async function addStatusBubble(avatarContainer) {
     if (avatarContainer.querySelector('.rovalra-status-bubble-wrapper')) return;
+    if (avatarContainer.closest('[data-rovalra-banned-profile]')) return;
 
     try {
         avatarContainer.classList.add('rovalra-status-bubble-host');
@@ -540,7 +534,7 @@ async function addHomeStatusHover(tile, card) {
                     video.muted = true;
                     video.volume = 0;
 
-                    video.play().catch(() => { });
+                    video.play().catch(() => {});
                 }
             }
         },
@@ -570,16 +564,20 @@ export async function init() {
     startObserving();
 
     injectStylesheet('css/thinkingbubble.css', 'rovalra-profile-status-css');
-    const selector = '.user-profile-header-details-avatar-container:not(.rovalra-sendrobux-avatar)';
+    const selector =
+        '.user-profile-header-details-avatar-container:not(.rovalra-sendrobux-avatar):not(.rovalra-user-card-avatar)';
     observeElement(selector, (el) => addStatusBubble(el), {
         multiple: true,
-
     });
 
     if (await settings.statusBubbleHomePage) {
         observeUserCardElements();
         onUserCardElement(addHomeStatusHover, {
-            exclude: ['.rovalra-donator-card', '.user-item-clickable', '.rovalra-sendrobux-profile'],
+            exclude: [
+                '.rovalra-donator-card',
+                '.user-item-clickable',
+                '.rovalra-sendrobux-profile',
+            ],
         });
     }
 }

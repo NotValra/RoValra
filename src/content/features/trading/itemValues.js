@@ -20,6 +20,7 @@ import {
     queueRiskFetch,
 } from '../../core/trade/itemHandler.js';
 import { RISK_COLORS } from '../../core/trade/riskCalculator.js';
+import { ts } from '../../core/locale/i18n.js';
 import {
     createRapDiffPill,
     createValueDiffPill,
@@ -261,6 +262,23 @@ function getRolimonsUrl(card, assetId, options = {}) {
     return `https://www.rolimons.com/item/${assetId}`;
 }
 
+let rolimonsItemLinksListening = false;
+
+function onRolimonsItemLinkClick(event) {
+    const link = event.target.closest?.('.rovalra-rolimons-item-link');
+    if (!link) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.open(link.dataset.rovalraHref, '_blank');
+}
+
+function listenForRolimonsItemLinks() {
+    if (rolimonsItemLinksListening) return;
+    rolimonsItemLinksListening = true;
+    window.addEventListener('click', onRolimonsItemLinkClick, true);
+}
+
 function addUserTradeItemCardsBottomPadding(card) {
     if (
         !featureSettings.tradeShowItemValues ||
@@ -368,39 +386,43 @@ export function updateItemCard(card, assetId, options = {}) {
                 <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
             `; // verified
 
-            if (!priceDiv.closest('a') || options.forceLink) {
-                let rolimonsLink;
-                const rolimonsUrl = getRolimonsUrl(card, assetId, options);
-                const rolimonsTargetType = isRolimonsBundle(card, options)
-                    ? 'bundle'
-                    : 'item';
-                if (options.forceLink) {
-                    rolimonsLink = document.createElement('span');
-                    rolimonsLink.style.cursor = 'pointer';
-                    rolimonsLink.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        window.open(rolimonsUrl, '_blank');
-                    });
-                } else {
-                    rolimonsLink = document.createElement('a');
-                    rolimonsLink.href = rolimonsUrl;
-                    rolimonsLink.target = '_blank';
-                }
-                rolimonsLink.style.display = 'flex';
-                rolimonsLink.style.alignItems = 'center';
-                rolimonsLink.style.marginLeft = '4px';
-                rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
-                addTooltip(
-                    rolimonsLink,
-                    `Open ${rolimonsTargetType} on Rolimons`,
-                    {
-                        position: 'top',
-                    },
-                );
-
-                valDiv.appendChild(rolimonsLink);
+            let rolimonsLink;
+            const rolimonsUrl = getRolimonsUrl(card, assetId, options);
+            const rolimonsTargetType = isRolimonsBundle(card, options)
+                ? 'bundle'
+                : 'item';
+            if (priceDiv.closest('a') && !options.forceLink) {
+                rolimonsLink = document.createElement('span');
+                rolimonsLink.className = 'rovalra-rolimons-item-link';
+                rolimonsLink.dataset.rovalraHref = rolimonsUrl;
+                rolimonsLink.style.cursor = 'pointer';
+                listenForRolimonsItemLinks();
+            } else if (options.forceLink) {
+                rolimonsLink = document.createElement('span');
+                rolimonsLink.style.cursor = 'pointer';
+                rolimonsLink.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.open(rolimonsUrl, '_blank');
+                });
+            } else {
+                rolimonsLink = document.createElement('a');
+                rolimonsLink.href = rolimonsUrl;
+                rolimonsLink.target = '_blank';
             }
+            rolimonsLink.style.display = 'flex';
+            rolimonsLink.style.alignItems = 'center';
+            rolimonsLink.style.marginLeft = '4px';
+            rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
+            addTooltip(
+                rolimonsLink,
+                ts('trading.openOnRolimons', { type: rolimonsTargetType }),
+                {
+                    position: 'top',
+                },
+            );
+
+            valDiv.appendChild(rolimonsLink);
             priceDiv.parentNode.insertBefore(valDiv, priceDiv.nextSibling);
         }
 
@@ -437,7 +459,7 @@ export function updateItemCard(card, assetId, options = {}) {
                 projIconStyle.right = '4px';
             }
             Object.assign(projIcon.style, projIconStyle);
-            addTooltip(projIcon, 'Projected Item', { position: 'top' });
+            addTooltip(projIcon, ts('trading.projectedItem'), { position: 'top' });
             if (!card.classList.contains('trade-request-item'))
                 thumbContainer.style.position = 'relative';
             thumbContainer.appendChild(projIcon);
@@ -472,7 +494,7 @@ export function updateItemCard(card, assetId, options = {}) {
                 rareIconStyle.right = data.is_projected ? '26px' : '4px';
             }
             Object.assign(rareIcon.style, rareIconStyle);
-            addTooltip(rareIcon, 'Rare Item', { position: 'top' });
+            addTooltip(rareIcon, ts('trading.rareItem'), { position: 'top' });
             if (!card.classList.contains('trade-request-item'))
                 thumbContainer.style.position = 'relative';
             thumbContainer.appendChild(rareIcon);
@@ -758,7 +780,7 @@ function injectTotalValueLine(offer, totalValue) {
         const label = valueLine.querySelector('.text-lead');
         if (label) {
             label.removeAttribute('ng-bind');
-            label.innerText = 'Value:';
+            label.innerText = ts('trading.value');
         }
 
         const amountContainer = valueLine.querySelector('.robux-line-amount');
@@ -826,7 +848,7 @@ function injectTotalDemandLine(offer, totalDemand, itemCount) {
 
         const label = demandLine.querySelector('.text-lead');
         if (label) {
-            label.innerText = 'Demand:';
+            label.innerText = ts('trading.demand');
         }
 
         const amountContainer = demandLine.querySelector('.robux-line-amount');
@@ -942,7 +964,7 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         });
 
         const toggleLabel = document.createElement('span');
-        toggleLabel.innerText = 'Include Robux';
+        toggleLabel.innerText = ts('trading.includeRobux');
 
         toggleContainer.appendChild(robuxToggle);
         toggleContainer.appendChild(toggleLabel);

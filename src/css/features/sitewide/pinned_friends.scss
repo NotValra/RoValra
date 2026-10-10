@@ -1,0 +1,10 @@
+/* The carousel row is already flex, so a pinned friend is pulled forward with
+   order instead of by moving the tile. Anything else sorting the row is left
+   alone and still decides the order of everyone who is not pinned. */
+.rovalra-pinned-friend {
+    order: -1;
+}
+
+.friends-carousel-tile:has(.add-friends-icon-container) {
+    order: -2;
+}

@@ -1,3 +1,4 @@
+import './core/firefoxCompat.js';
 import { initializeObserver, startObserving } from './core/observer.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
 import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
@@ -12,6 +13,7 @@ import { init as initBetaPrograms } from './features/navigation/betaprograms.js'
 import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js';
+import { init as initPrivateApiDocs } from './features/developer/privateApiDocs.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
@@ -22,17 +24,19 @@ import { initTransactionsTracking } from './core/utils/trackers/transactions.js'
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initAvatarInventoryTracking } from './core/utils/trackers/avatarInventory.js';
 import { initUserCurrencyTracking } from './core/utils/trackers/currency.js';
-import { init as initClientChannelTracker } from './core/utils/trackers/channels.js';
+import { initAuthenticatedUserLanguageTracking } from './core/utils/trackers/language.js';
+import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
-import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
+import { init as initRichRobloxLinks } from './features/sitewide/richRobloxLinks.js';
 import { init as initViewIds } from './features/sitewide/viewid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
+import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
@@ -45,6 +49,7 @@ import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
+import { init as initSidebarVerifiedBadge } from './features/sitewide/sidebarVerifiedBadge.js';
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
@@ -53,6 +58,8 @@ import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndic
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
+import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
+import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -70,8 +77,10 @@ import { init as initPriceFloor } from './features/catalog/pricefloor.js';
 import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js';
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
+import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
+import { init as initOwnedItemPrice } from './features/catalog/ownedItemPrice.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
 import { init as initFriendOwnership } from './features/catalog/friendOwnership.js';
 
@@ -82,6 +91,7 @@ import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initBadgeLayoutToggle } from './features/games/badgeLayoutToggle.js';
 import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
 import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
+import { init as initGameStatTimestamps } from './features/games/gameStatTimestamps.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
@@ -113,6 +123,9 @@ import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
 import { init as initBlockUser } from './features/trading/blockUser.js';
+import { init as initSendTrade } from './features/trading/sendTrade.js';
+import { init as initRecentTradeItems } from './features/trading/recentTradeItems.js';
+import { init as initTradeQuickActions } from './features/trading/tradeQuickActions.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initViewGroupBadges } from './features/groups/viewGroupBadges.js';
@@ -126,6 +139,7 @@ import { init as initGroupPendingFunds } from './features/groups/groupPendingFun
 // Plus
 import { init as initRobloxPlusStats } from './features/plus/stats.js';
 import { init as initRobloxPlusTransferLimits } from './features/plus/transferLimits.js';
+import { init as initRobloxPlusReferral } from './features/plus/referral.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -137,7 +151,10 @@ import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initViewBadges } from './features/profile/viewBadges.js';
 import { init as initGroupRole } from './features/profile/grouprole.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
+import { init as initHidePrivateServers } from './features/games/hidePrivateServers.js';
+import { init as initPinPrivateServers } from './features/games/pinPrivateServers.js';
 import { init as initPlusPrivateServerTooltip } from './features/games/plusPrivateServerTooltip.js';
+import { init as initAutoFriendsAllowed } from './features/games/autoFriendsAllowed.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
 import { init as initBannedUsers } from './features/profile/bannedusers.js';
@@ -155,8 +172,10 @@ import { init as initCurrentlyPlayingSubplace } from './features/profile/header/
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
 import { init as initAgeVerificationBadge } from './features/profile/header/ageVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initMutualFriends } from './features/profile/friends/mutualFriends.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
+import { init as initBulkBadgeRemover } from './features/profile/badges/bulkRemover.js';
 import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initAvatarDownload } from './features/profile/header/avatarDownload.js';
 import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
@@ -172,6 +191,7 @@ import { init as initDisplayNameGradient } from './features/profile/header/displ
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
+import './features/profile/profileBadges.js';
 import { init as initSocialLinks } from './features/profile/socialLinks.js';
 import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 import { initProfile as initProfileAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
@@ -188,8 +208,10 @@ import { init as initFriendLabels } from './features/home/friendLabels.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
 import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
+import { init as initPlaytime } from './features/home/playtime.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
+import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
@@ -222,6 +244,7 @@ const featureRoutes = [
             initVideoTest,
             initStreamerMode,
             initMarkDownTest,
+            initPrivateApiDocs,
             initTests,
             initBirthdayTracker,
             initServerTracker,
@@ -232,9 +255,10 @@ const featureRoutes = [
             initBadgesTracking,
             initAvatarInventoryTracking,
             initUserCurrencyTracking,
-            initClientChannelTracker,
-            initQoLToggles,
+            initAuthenticatedUserLanguageTracking,
+            initPlaytimeTracker,
             initCopyId,
+            initRichRobloxLinks,
             initViewIds,
             initBetaPrograms,
             initPreviousPrice,
@@ -246,6 +270,7 @@ const featureRoutes = [
             initTransactionsLink,
             initStatus,
             initCustomFont,
+            initCyrillicFont,
             initCustomFavicon,
             initRobuxIcons,
             initMoreRobuxDigits,
@@ -265,6 +290,7 @@ const featureRoutes = [
             initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,
+            initSidebarVerifiedBadge,
             initWideTilePlayerCounts,
             initBackgroundImage,
             initFreeRobloxPlusThemes,
@@ -273,6 +299,8 @@ const featureRoutes = [
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initCustomScrollbar,
+            initRoValraIncidentTracker,
         ],
     },
     // pretty much just the 40% method
@@ -300,9 +328,11 @@ const featureRoutes = [
             initParentItem,
             initItemTrading,
             initLastEquipped,
+            initOwnedItemPrice,
             initItemRender,
             initFriendOwnership,
             initCatalogExplorer,
+            initRecentlyViewed,
         ],
     },
     // Avatar pages
@@ -345,10 +375,14 @@ const featureRoutes = [
             quickOutfits,
             initRecentServers,
             initPrivateServerControls,
+            initHidePrivateServers,
+            initPinPrivateServers,
             initHeatmap,
             initPlusPrivateServerTooltip,
+            initAutoFriendsAllowed,
             initCatalogExplorer,
             initUnderReviewPill,
+            initGameStatTimestamps,
         ],
     },
     // private games and game pages
@@ -393,7 +427,11 @@ const featureRoutes = [
     // Roblox Plus Page
     {
         paths: ['/plus'],
-        features: [initRobloxPlusStats, initRobloxPlusTransferLimits],
+        features: [
+            initRobloxPlusStats,
+            initRobloxPlusTransferLimits,
+            initRobloxPlusReferral,
+        ],
     },
     // User profile pages
     {
@@ -415,7 +453,9 @@ const featureRoutes = [
             initIdVerificationBadge,
             initAgeVerificationBadge,
             initFriendsSince,
+            initMutualFriends,
             initUnfriend,
+            initBulkBadgeRemover,
             initLastPlayed,
             initProfilePronouns,
             initProfileNotes,
@@ -472,6 +512,9 @@ const featureRoutes = [
             initTradeSearch,
             initTradeProof,
             initBlockUser,
+            initSendTrade,
+            initRecentTradeItems,
+            initTradeQuickActions,
         ],
     },
 
@@ -483,18 +526,20 @@ const featureRoutes = [
     // create
     {
         paths: ['/store/asset'],
-        features: [initCreateDownload],
+        features: [initCreateDownload, initCatalogExplorer],
     },
     {
         paths: ['/home'],
         features: [
             initHomeLayout,
             initBookmarkedGames,
+            initPlaytime,
             initUnderratedGamesHome,
             initAccurateContinue,
             initHideAddFriendsButton,
             initFriendLabels,
             initFriendsCarouselRedesign,
+            initPinnedFriends,
         ],
     },
     {
