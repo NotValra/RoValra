@@ -1231,6 +1231,19 @@
                     "desc3": "啟用此設定將自動開啟**免費 Roblox Plus 主題**。",
                     "donatorReason": "需要達到捐贈者等級 1 才能在個人檔案中顯示您的 App 主題"
                 }
+            },
+            "profileNotesEnabled": {
+                "title": "個人檔案備註",
+                "desc1": "為 Roblox 個人檔案新增私人備註欄位。",
+                "desc2": "備註僅儲存在本地，絕不與 RoValra 或 Roblox 共用。",
+                "desc3": "最多 256 個字元。",
+                "profileNotesBackup": {
+                    "title": "備註備份",
+                    "desc1": "匯出所有個人檔案備註或從 .json 檔案匯入。",
+                    "desc2": "匯入的備註將與此瀏覽器中已儲存的備註合併。",
+                    "button1": "匯出備註",
+                    "button2": "匯入備註"
+                }
             }
         },
         "home": {

@@ -1231,6 +1231,19 @@
                     "desc3": "启用此设置将自动开启**免费 Roblox Plus 主题**。",
                     "donatorReason": "需要达到捐赠者等级 1 才能在个人资料中显示您的 App 主题"
                 }
+            },
+            "profileNotesEnabled": {
+                "title": "个人资料备注",
+                "desc1": "为 Roblox 个人资料添加私密备注字段。",
+                "desc2": "备注仅存储在本地，绝不会与 RoValra 或 Roblox 共享。",
+                "desc3": "最多 256 个字符。",
+                "profileNotesBackup": {
+                    "title": "备注备份",
+                    "desc1": "导出所有个人资料备注或从 .json 文件导入。",
+                    "desc2": "导入的备注将与此浏览器中已存储的备注合并。",
+                    "button1": "导出备注",
+                    "button2": "导入备注"
+                }
             }
         },
         "home": {

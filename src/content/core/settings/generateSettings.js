@@ -1045,7 +1045,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         for (const buttonConfig of setting.buttons || []) {
             const button = createButton(
-                buttonConfig.text || ts('settings.ui.controls.clickMe'),
+                ts(buttonConfig.text) || ts('settings.ui.controls.clickMe'),
                 buttonConfig.type || 'secondary',
                 { id: buttonConfig.id },
             );

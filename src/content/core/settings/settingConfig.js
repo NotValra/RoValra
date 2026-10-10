@@ -873,11 +873,11 @@ export const SETTINGS_CONFIG = {
                 dependedBy: ['displayAppThemeOwnProfile'],
             },
             profileNotesEnabled: {
-                label: 'Profile Notes',
+                label: 'settings.profile.profileNotesEnabled.title',
                 description: [
-                    'Adds a private note field to Roblox profiles.',
-                    'Notes are stored only locally and are never shared to RoValra or Roblox.',
-                    'Maximum 256 characters.',
+                    'settings.profile.profileNotesEnabled.desc1',
+                    'settings.profile.profileNotesEnabled.desc2',
+                    'settings.profile.profileNotesEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -885,20 +885,20 @@ export const SETTINGS_CONFIG = {
                 contributors: ['10646979010'],
                 childSettings: {
                     profileNotesBackup: {
-                        label: 'Notes Backup',
+                        label: 'settings.profile.profileNotesEnabled.profileNotesBackup.title',
                         description: [
-                            'Export all profile notes or import them from a .json file.',
-                            'Imported notes are merged with notes already stored in this browser.',
+                            'settings.profile.profileNotesEnabled.profileNotesBackup.desc1',
+                            'settings.profile.profileNotesEnabled.profileNotesBackup.desc2',
                         ],
                         type: 'buttonGroup',
                         buttons: [
                             {
                                 id: 'export-rovalra-profile-notes',
-                                text: 'Export Notes',
+                                text: 'settings.profile.profileNotesEnabled.profileNotesBackup.button1',
                             },
                             {
                                 id: 'import-rovalra-profile-notes',
-                                text: 'Import Notes',
+                                text: 'settings.profile.profileNotesEnabled.profileNotesBackup.button2',
                             },
                         ],
                     },

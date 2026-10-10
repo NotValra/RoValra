@@ -1233,6 +1233,19 @@
                     "desc3": "Enabling this setting will automatically turn on **Free Roblox Plus Themes**.",
                     "donatorReason": "Donator Tier 1 is required to display your app theme on your own profile"
                 }
+            },
+            "profileNotesEnabled": {
+                "title": "Profile Notes",
+                "desc1": "Adds a private note field to Roblox profiles.",
+                "desc2": "Notes are stored only locally and are never shared to RoValra or Roblox.",
+                "desc3": "Maximum 256 characters.",
+                "profileNotesBackup": {
+                    "title": "Notes Backup",
+                    "desc1": "Export all profile notes or import them from a .json file.",
+                    "desc2": "Imported notes are merged with notes already stored in this browser.",
+                    "button1": "Export Notes",
+                    "button2": "Import Notes"
+                }
             }
         },
         "home": {
