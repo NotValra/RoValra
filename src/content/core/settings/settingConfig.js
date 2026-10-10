@@ -34,6 +34,10 @@ export const SETTINGS_CONFIG = {
                         value: 'en',
                     },
                     {
+                        label: languageLabel('Brazilian Portuguese (Português (Brasil))', 'pt'),
+                        value: 'pt',
+                    },
+                    {
                         label: languageLabel('French (Français)', 'fr'),
                         value: 'fr',
                     },
