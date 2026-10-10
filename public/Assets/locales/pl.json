@@ -634,7 +634,7 @@
         "setActive": "Ustaw jako aktywne",
         "noServersFound": "Nie znaleziono serwerów prywatnych o statusie: {{status}}.",
         "byCreator": "Autor: ",
-        "allowJoining": "Zezwól na dołączanie"
+        "allowJoining": "Zezwól na dołączanie",
         "friendsAllowed": "Dozwoleni znajomi"
     },
     "firstAccount": {
@@ -904,7 +904,7 @@
                     "madeEs": "Pomoc przy tworzeniu wersji hiszpańskiej",
                     "madeRu": "Pomoc przy tworzeniu wersji rosyjskiej",
                     "madeFr": "Pomoc przy tworzeniu wersji francuskiej",
-                    "madeZh": "Pomoc przy tworzeniu wersji chińskiej"
+                    "madeZh": "Pomoc przy tworzeniu wersji chińskiej",
                     "madeVi": "Pomoc przy tworzeniu wersji wietnamskiej"
                 }
             },
@@ -1094,7 +1094,7 @@
                 "followTerms": "Obrazy muszą być zgodne z Warunkami Roblox",
                 "joinDiscord": "Dołącz do Discorda RoValra",
                 "agree": "Zgadzam się",
-                "agreeCountdown": "Zgadzam się ({{count}})"
+                "agreeCountdown": "Zgadzam się ({{count}})",
                 "preview": "Podgląd",
                 "previewTitle": "Podgląd niestandardowej odznaki",
                 "previewDescription": "Prześlij obraz WEBP, aby zobaczyć, jak będzie wyglądał jako odznaka na Twoim profilu. Obraz jest przechowywany wyłącznie w pamięci i nigdy nie jest przesyłany ani zapisywany. Zniknie po opuszczeniu strony lub jej odświeżeniu.",
