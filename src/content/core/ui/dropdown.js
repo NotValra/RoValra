@@ -136,7 +136,7 @@ export function createDropdown({
                 }
             }
 
-            const textNode = document.createTextNode(selectedItem.label);
+            const textNode = document.createTextNode(ts(selectedItem.label));
             triggerValueSpan.appendChild(textNode);
             trigger.removeAttribute('data-placeholder');
         } else {
