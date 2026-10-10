@@ -7,6 +7,12 @@ import { ts } from '../../core/locale/i18n.js';
 
 const joinDateCache = new Map();
 const joinDatePromises = new Map();
+const hiddenJoinDates = new Set();
+const HIDDEN_JOIN_DATE = 'hidden';
+const joinDateQueue = [];
+const JOIN_DATE_CONCURRENCY = 4;
+const JOIN_DATE_MAX_ATTEMPTS = 4;
+let activeJoinDateRequests = 0;
 const VIEW_PREFERENCE_KEY = 'rovalra_group_filters_view';
 const DEFAULT_VIEW = 'default';
 
@@ -19,33 +25,99 @@ function getStoredViewPreference() {
         .catch(() => DEFAULT_VIEW);
 }
 
+function runJoinDateRequest(task) {
+    const start = async () => {
+        try {
+            return await task();
+        } finally {
+            const next = joinDateQueue.shift();
+            if (next) next();
+            else activeJoinDateRequests--;
+        }
+    };
+
+    if (activeJoinDateRequests < JOIN_DATE_CONCURRENCY) {
+        activeJoinDateRequests++;
+        return start();
+    }
+    return new Promise((resolve) => joinDateQueue.push(resolve)).then(start);
+}
+
+function isTransientError(status, attempt) {
+    if (status === 401) return attempt === 0;
+    return !status || status === 429 || status >= 500;
+}
+
+function getCachedJoinDate(groupId, userId) {
+    return joinDateCache.get(`${userId}_${groupId}`);
+}
+
+function isMemberListHidden(error) {
+    return (
+        error.status === 403 &&
+        error.response?.code === 'PERMISSION_DENIED' &&
+        /not visible/i.test(error.response?.message || '')
+    );
+}
+
+export function isJoinDateHidden(groupId, userId) {
+    return hiddenJoinDates.has(`${userId}_${groupId}`);
+}
+
+async function fetchMembership(groupId, userId) {
+    const filter = encodeURIComponent(`user == 'users/${userId}'`);
+
+    for (let attempt = 0; ; attempt++) {
+        try {
+            return await runJoinDateRequest(() =>
+                callRobloxApiJson({
+                    subdomain: 'apis',
+                    endpoint: `/cloud/v2/groups/${groupId}/memberships?filter=${filter}`,
+                    useApiKey: true,
+                    useBackground: true,
+                }),
+            );
+        } catch (e) {
+            if (
+                attempt + 1 >= JOIN_DATE_MAX_ATTEMPTS ||
+                !isTransientError(e.status, attempt)
+            ) {
+                throw e;
+            }
+            await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+        }
+    }
+}
+
 export async function getJoinDate(groupId, userId) {
     if (!groupId || !userId) return new Date(0);
-    if (joinDateCache.has(groupId)) return joinDateCache.get(groupId);
-    if (joinDatePromises.has(groupId)) return joinDatePromises.get(groupId);
+    const memoryKey = `${userId}_${groupId}`;
+    if (joinDateCache.has(memoryKey)) return joinDateCache.get(memoryKey);
+    if (joinDatePromises.has(memoryKey)) return joinDatePromises.get(memoryKey);
 
     const promise = (async () => {
-        const cacheKey = `join_date_${userId}_${groupId}`;
+        const cacheKey = `join_date_v3_${userId}_${groupId}`;
         const cached = await CacheHandler.get(
             'group_filters',
             cacheKey,
             'local',
         );
 
+        if (cached === HIDDEN_JOIN_DATE) {
+            const unknownDate = new Date(0);
+            hiddenJoinDates.add(memoryKey);
+            joinDateCache.set(memoryKey, unknownDate);
+            return unknownDate;
+        }
+
         if (cached) {
             const date = new Date(cached);
-            joinDateCache.set(groupId, date);
+            joinDateCache.set(memoryKey, date);
             return date;
         }
 
         try {
-            const filter = encodeURIComponent(`user == 'users/${userId}'`);
-            const res = await callRobloxApiJson({
-                subdomain: 'apis',
-                endpoint: `/cloud/v2/groups/${groupId}/memberships?filter=${filter}`,
-                useApiKey: true,
-                useBackground: true,
-            });
+            const res = await fetchMembership(groupId, userId);
 
             const createTime = res?.groupMemberships?.[0]?.createTime;
             if (createTime) {
@@ -56,11 +128,28 @@ export async function getJoinDate(groupId, userId) {
                     createTime,
                     'local',
                 );
-                joinDateCache.set(groupId, date);
+                joinDateCache.set(memoryKey, date);
                 return date;
             }
         } catch (e) {
-            if (e.status === 403 || e.response?.code === 'PERMISSION_DENIED') {
+            if (isMemberListHidden(e)) {
+                CacheHandler.set(
+                    'group_filters',
+                    cacheKey,
+                    HIDDEN_JOIN_DATE,
+                    'local',
+                );
+                hiddenJoinDates.add(memoryKey);
+                const unknownDate = new Date(0);
+                joinDateCache.set(memoryKey, unknownDate);
+                return unknownDate;
+            }
+
+            if (
+                e.status === 403 ||
+                e.status === 404 ||
+                e.response?.code === 'PERMISSION_DENIED'
+            ) {
                 const unknownDate = new Date(0);
                 CacheHandler.set(
                     'group_filters',
@@ -68,7 +157,7 @@ export async function getJoinDate(groupId, userId) {
                     unknownDate.toISOString(),
                     'local',
                 );
-                joinDateCache.set(groupId, unknownDate);
+                joinDateCache.set(memoryKey, unknownDate);
                 return unknownDate;
             }
 
@@ -76,24 +165,16 @@ export async function getJoinDate(groupId, userId) {
                 `RoValra: Failed to fetch join date for group ${groupId}`,
                 e,
             );
-
-            const fallbackDate = new Date(0);
-            CacheHandler.set(
-                'group_filters',
-                cacheKey,
-                fallbackDate.toISOString(),
-                'local',
-            );
-            joinDateCache.set(groupId, fallbackDate);
-            return fallbackDate;
+            return new Date(0);
         }
     })();
 
-    joinDatePromises.set(groupId, promise);
-    const result = await promise;
-    joinDatePromises.delete(groupId);
-
-    return result;
+    joinDatePromises.set(memoryKey, promise);
+    try {
+        return await promise;
+    } finally {
+        joinDatePromises.delete(memoryKey);
+    }
 }
 
 export function init() {
@@ -168,7 +249,10 @@ export function init() {
                         { text: 'Grid', value: 'grid' },
                     ];
 
-                    const applyView = (value, activeCarousel = getCarousel()) => {
+                    const applyView = (
+                        value,
+                        activeCarousel = getCarousel(),
+                    ) => {
                         if (!activeCarousel) return;
 
                         currentView = value === 'grid' ? 'grid' : DEFAULT_VIEW;
@@ -229,7 +313,8 @@ export function init() {
                         initialValue: 'default',
                         onChange: async (value) => {
                             const activeCarousel = getCarousel();
-                            const rowButtons = document.querySelector('.scroll-arrow.next');
+                            const rowButtons =
+                                document.querySelector('.scroll-arrow.next');
                             if (!activeCarousel) return;
 
                             const currentItems = Array.from(
@@ -284,10 +369,10 @@ export function init() {
                                                 ?.getAttribute('href'),
                                         );
                                         const dateA =
-                                            joinDateCache.get(idA) ||
+                                            getCachedJoinDate(idA, userId) ||
                                             new Date(0);
                                         const dateB =
-                                            joinDateCache.get(idB) ||
+                                            getCachedJoinDate(idB, userId) ||
                                             new Date(0);
                                         return dateB - dateA;
                                     }
@@ -303,10 +388,10 @@ export function init() {
                                                 ?.getAttribute('href'),
                                         );
                                         const dateA =
-                                            joinDateCache.get(idA) ||
+                                            getCachedJoinDate(idA, userId) ||
                                             new Date(0);
                                         const dateB =
-                                            joinDateCache.get(idB) ||
+                                            getCachedJoinDate(idB, userId) ||
                                             new Date(0);
                                         return dateA - dateB;
                                     }
@@ -320,13 +405,16 @@ export function init() {
                                 activeCarousel.style.flexWrap = 'nowrap';
                                 activeCarousel.style.gridTemplateColumns = '';
 
-                                if (rowButtons) rowButtons.style.display = 'block';
+                                if (rowButtons)
+                                    rowButtons.style.display = 'block';
                             } else {
                                 activeCarousel.style.display = 'grid';
-                                activeCarousel.style.gridTemplateColumns = 'repeat(6, 1fr)'; // 6 items per row, Roblox's default
+                                activeCarousel.style.gridTemplateColumns =
+                                    'repeat(6, 1fr)'; // 6 items per row, Roblox's default
                                 activeCarousel.style.flexWrap = '';
 
-                                if (rowButtons) rowButtons.style.display = 'none';
+                                if (rowButtons)
+                                    rowButtons.style.display = 'none';
                             }
 
                             currentItems.forEach((item) =>

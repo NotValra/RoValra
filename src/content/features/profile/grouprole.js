@@ -2,7 +2,8 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { observeElement, observeChildren } from '../../core/observer.js';
 import { getUserIdFromUrl, getGroupIdFromUrl } from '../../core/idExtractor.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
-import { getJoinDate } from './groupFilters.js';
+import { getJoinDate, isJoinDateHidden } from './groupFilters.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
 import { ts } from '../../core/locale/i18n.js';
 
 let rolesPromise = null;
@@ -150,6 +151,11 @@ export function init() {
                             joinDiv.appendChild(
                                 createInteractiveTimestamp(joinedDate),
                             );
+                        } else if (isJoinDateHidden(groupId, userId)) {
+                            const hiddenSpan = document.createElement('span');
+                            hiddenSpan.textContent = ts('groups.hidden');
+                            joinDiv.appendChild(hiddenSpan);
+                            addTooltip(hiddenSpan, ts('groups.hiddenTooltip'));
                         } else {
                             const unknownSpan = document.createElement('span');
                             unknownSpan.textContent = ts('groups.unknown');

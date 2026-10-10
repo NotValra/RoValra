@@ -1937,7 +1937,9 @@
     "groups": {
         "createdLabel": "Created",
         "joinedLabel": "Joined",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "hidden": "Hidden",
+        "hiddenTooltip": "This community hides its member list, so join dates can only be seen by its members."
     },
     "showcase": {
         "tab": "Showcase",
