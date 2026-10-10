@@ -821,6 +821,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['8345351117', '447170745', '3050364170'],
             },
+            viewBadgesEnabled: {
+                label: 'View All Badges',
+                description: [
+                    'Adds a button to a profile or community that shows every badge across all of their experiences, including hidden ones.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
+            },
             avatarDownloadEnabled: {
                 label: 'Download Avatar',
                 description: [

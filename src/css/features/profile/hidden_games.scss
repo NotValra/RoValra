@@ -63,3 +63,82 @@
         font-weight: 500;
     }
 }
+
+.rovalra-badge-card {
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 150px;
+
+    .rovalra-badge-card-link {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-badge-card-thumb-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        background-color: var(--rovalra-container-background-color);
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+
+        .rovalra-badge-card-thumb,
+        img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-2d-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .rovalra-badge-card-name {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.2;
+        margin-top: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        min-height: 34px;
+    }
+
+    .rovalra-badge-card-game {
+        font-size: 12px;
+        color: var(--rovalra-secondary-text-color);
+        text-decoration: none;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .rovalra-badge-card-stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--rovalra-secondary-text-color);
+        margin-top: 4px;
+    }
+}

@@ -546,6 +546,47 @@
         "noMatches": "No hidden experiences match the current filters.",
         "loadingMore": "Loading more games..."
     },
+    "viewBadgesProfile": {
+        "buttonText": "View Badges",
+        "overlayText": "All Badges",
+        "noBadges": "This user has no badges yet.",
+        "noMatches": "No badges match filters.",
+        "fallbackName": "Badge {{id}}",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "default": "Recently Updated",
+            "rarity": "Rarity",
+            "awarded": "Times Awarded",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        }
+    },
+    "viewGroupBadges": {
+        "buttonText": "View Badges",
+        "overlayText": "All Badges",
+        "noBadges": "This community has no badges yet.",
+        "noMatches": "No badges match filters.",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "default": "Recently Updated",
+            "rarity": "Rarity",
+            "awarded": "Times Awarded",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        }
+    },
     "userOutfits": {
         "loading": "Loading outfits...",
         "back": "Back",
