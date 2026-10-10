@@ -1313,6 +1313,75 @@
                     "title": "后期处理",
                     "desc1": "后期处理可实现诸如光晕和环境光遮蔽等高级效果，但需要性能强大的设备。"
                 }
+            },
+            "groupFiltersEnabled": {
+                "title": "社区筛选器",
+                "desc1": "在个人资料的社区部分添加筛选器，允许您按 A-Z、Z-A、最新和最旧排序，还允许您以行格式或网格格式查看群组。"
+            },
+            "trustedConnectionsEnabledv3": {
+                "title": "可信赖好友",
+                "desc1": "此功能允许您通过点击好友个人资料上的 (...) 来接受、请求和移除可信赖好友。此功能仅适用于符合条件的好友。",
+                "desc2": "可信赖好友功能可能在某些地区无法使用。",
+                "desc3": "**注意：**Roblox 使用算法，即使某人符合这些要求，也可能会阻止添加他们。[点击此处了解更多信息。](https://en.help.roblox.com/hc/zh-cn/articles/46158344285204)"
+            },
+            "lastOnlineEnabled": {
+                "title": "显示上次在线/上次出现时间",
+                "desc1": "显示用户上次在线/上次出现的时间。",
+                "desc2": "仅适用于好友。"
+            },
+            "friendsSinceEnabled": {
+                "title": "添加好友时间",
+                "desc1": "此功能会在对方的个人资料和好友列表中显示您与对方的添加好友时间。"
+            },
+            "mutualFriendsEnabled": {
+                "title": "共同好友",
+                "desc1": "在对方的个人资料中显示您与对方的共同好友数量。",
+                "desc2": "点击即可在对方好友页面的「共同好友」选项卡中查看对方。"
+            },
+            "groupRoleEnabled": {
+                "title": "显示社区角色",
+                "desc1": "在用户的个人资料中显示其在社区中的角色。",
+                "locked": "Roblox 发布了他们自己的版本。"
+            },
+            "groupJoinedDateEnabled": {
+                "title": "显示社群加入日期",
+                "desc1": "在用户个人资料中显示其加入社群的时间。"
+            },
+            "showFriendedFromEnabled": {
+                "title": "显示通过方式添加好友",
+                "desc1": "显示您与用户成为好友的方式，例如游戏内、个人资料等。"
+            },
+            "lastPlayedTogetherEnabled": {
+                "title": "最常一起玩的游戏",
+                "desc1": "在好友个人资料中显示您与好友一起玩得最多的游戏。"
+            },
+            "bulkUnfriendEnabled": {
+                "title": "批量删除好友",
+                "desc1": "此功能允许您从好友列表中批量删除好友。"
+            },
+            "bulkBadgeRemoverEnabled": {
+                "title": "批量移除徽章",
+                "desc1": "此功能允许您批量删除徽章。"
+            },
+            "unfriendDetectorEnabled": {
+                "title": "删除好友检测器",
+                "desc1": "跟踪您的好友列表，并在有人删除您好友时弹出窗口提醒您，并显示删除好友是谁。",
+                "experimental": "可能会导致问题"
+            },
+            "PrivateServerBulkEnabled": {
+                "title": "批量移除私人服务器",
+                "desc1": "这将在私人服务器列表标签页中添加一个切换按钮，方便您轻松地将多个私人服务器设置为非活动状态。",
+                "desc2": "此功能也适用于将非活动私人服务器设置为活动状态。"
+            },
+            "idVerificationBadgeEnabled": {
+                "title": "身份已验证徽章",
+                "desc1": "显示用户是否已在个人资料中已验证了身份。",
+                "desc2": "此功能将添加到个人资料的「更多」标签页。"
+            },
+            "ageVerificationBadgeEnabled": {
+                "title": "年龄已验证徽章",
+                "desc1": "显示用户是否已在个人资料中完成 Roblox 年龄验证。",
+                "desc2": "此功能将添加到个人资料的「更多」标签页。"
             }
         },
         "home": {

@@ -1315,6 +1315,75 @@
                     "title": "Post Processing",
                     "desc1": "Post processing allows for advanced effects such as bloom and ambient occlusion, but requires a powerful device."
                 }
+            },
+            "groupFiltersEnabled": {
+                "title": "Community Filters",
+                "desc1": "Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest, also allows you to view groups in a row format or grid format."
+            },
+            "trustedConnectionsEnabledv3": {
+                "title": "Trusted Friends",
+                "desc1": "This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.",
+                "desc2": "Trusted Friends might not be available in some regions.",
+                "desc3": "**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)"
+            },
+            "lastOnlineEnabled": {
+                "title": "Show Last Online / Last Seen",
+                "desc1": "Shows when a user was last online / seen on their profile.",
+                "desc2": "Only works for friends."
+            },
+            "friendsSinceEnabled": {
+                "title": "Friends Since",
+                "desc1": "This feature shows how long you have been friends with someone on their profile and in your friends list."
+            },
+            "mutualFriendsEnabled": {
+                "title": "Mutual Friends",
+                "desc1": "Shows how many friends you have in common with a user on their profile.",
+                "desc2": "Click it to see them in a Mutuals tab on their friends page."
+            },
+            "groupRoleEnabled": {
+                "title": "Show Community Roles",
+                "desc1": "Shows a user's role in a community on their profile.",
+                "locked": "Roblox released their own version of this."
+            },
+            "groupJoinedDateEnabled": {
+                "title": "Show Community Joined Date",
+                "desc1": "Shows when a user joined a community on their profile."
+            },
+            "showFriendedFromEnabled": {
+                "title": "Show Friended From",
+                "desc1": "This shows where you became friends with a user, e.g., in game, profile, etc."
+            },
+            "lastPlayedTogetherEnabled": {
+                "title": "Most Frequent Played Together",
+                "desc1": "Shows the experience you played the most with a friend on their profile."
+            },
+            "bulkUnfriendEnabled": {
+                "title": "Bulk Unfriend",
+                "desc1": "This allows you to unfriend people from your friends list in bulk."
+            },
+            "bulkBadgeRemoverEnabled": {
+                "title": "Bulk Badge Removal",
+                "desc1": "This allows you to delete your badges in bulk."
+            },
+            "unfriendDetectorEnabled": {
+                "title": "Unfriend Detector",
+                "desc1": "Tracks your friends list and alerts you with a popup if someone unfriends you, showing who unfriended you.",
+                "experimental": "May cause issues"
+            },
+            "PrivateServerBulkEnabled": {
+                "title": "Private Server Bulk Removal",
+                "desc1": "This will add a toggle to the private server inventory tab that allows you to easily set a bunch of private servers as inactive.",
+                "desc2": "This also works for setting inactive private servers as active"
+            },
+            "idVerificationBadgeEnabled": {
+                "title": "ID Verification Badge",
+                "desc1": "Shows if a user has verified their ID on their profile.",
+                "desc2": "This is added to the \"more\" tab of the profile."
+            },
+            "ageVerificationBadgeEnabled": {
+                "title": "Age Checked Badge",
+                "desc1": "Shows whether a user has completed Roblox age check on their profile.",
+                "desc2": "This is added to the \"more\" tab of the profile."
             }
         },
         "home": {
