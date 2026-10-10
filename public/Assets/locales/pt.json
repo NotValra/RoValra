@@ -1,6 +1,6 @@
 {
     "localizationFallbacks": {
-        "serverShare": "Compartilhar // Parei na linha 545",
+        "serverShare": "Compartilhar",
         "serverCopied": "Copiado!",
         "recentServerTitle": "Servidor",
         "decalOptions": "Opções de imagem"
@@ -592,10 +592,10 @@
         "private": "Privado",
         "openInRolimons": "Abrir no Rolimon's",
         "thisUser": "esse usuário",
-        "rolimonsRedirect": "You are about to be redirected to {{username}}'s profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?",
-        "continueToRolimons": "Continue to Rolimon's",
-        "user": "User",
-        "loadingItems": "Loading more items...",
+        "rolimonsRedirect": "Você está prestes a ser redirecionado para o perfil de {{username}} no Rolimon's, um site externo para trocas e valores de itens.<br><br>Deseja continuar?",
+        "continueToRolimons": "Continuar e acessar o Rolimon's",
+        "user": "Usuário",
+        "loadingItems": "Carregando mais itens...",
         "noItemsMatch": "No items match your search.",
         "collectiblesTitle": "{{displayName}}'s Collectibles ({{totalRapString}} RAP)",
         "collectiblesTitleValue": "{{displayName}}'s Collectibles ({{totalRapString}} Value)",
