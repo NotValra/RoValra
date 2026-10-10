@@ -631,6 +631,7 @@
         "noServersFound": "Nie znaleziono serwerów prywatnych o statusie: {{status}}.",
         "byCreator": "Autor: ",
         "allowJoining": "Zezwól na dołączanie"
+        "friendsAllowed": "Dozwoleni znajomi"
     },
     "firstAccount": {
         "label": "Pierwsze konto",
