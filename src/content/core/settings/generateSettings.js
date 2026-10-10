@@ -587,7 +587,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         document.body.appendChild(tempDiv);
         let maxItemWidth = 0;
         dropdownOptions.forEach((item) => {
-            tempDiv.textContent = item.label;
+            tempDiv.textContent = ts(item.label);
             maxItemWidth = Math.max(maxItemWidth, tempDiv.clientWidth);
         });
         document.body.removeChild(tempDiv);
