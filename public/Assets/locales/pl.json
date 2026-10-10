@@ -381,6 +381,10 @@
         "disabled": "Wyłączone",
         "show": "Pokaż",
         "hide": "Ukryj"
+        "add": "Dodaj",
+        "addButton": "Dodaj przycisk",
+        "buttonPlaceholder1": "Nazwa",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra nie może znaleźć żadnych obsługiwanych elementów górnego paska.",
