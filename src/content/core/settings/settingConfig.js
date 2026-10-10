@@ -463,7 +463,7 @@ export const SETTINGS_CONFIG = {
             privateGameViewerEnabled: {
                 label: 'settings.experiences.privateGameViewerEnabled.title',
                 description: [
-                    'settings.experiences.privateGameViewerEnabled.desc',
+                    'settings.experiences.privateGameViewerEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -813,32 +813,32 @@ export const SETTINGS_CONFIG = {
         title: 'settings.profile.title',
         settings: {
             userGamesEnabled: {
-                label: 'Hidden User Experiences',
+                label: 'settings.profile.userGamesEnabled.title',
                 description: [
-                    "Shows a user's hidden experiences on their profile.",
+                    'settings.profile.userGamesEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['8345351117', '447170745', '3050364170'],
             },
             avatarDownloadEnabled: {
-                label: 'Download Avatar',
+                label: 'settings.profile.avatarDownloadEnabled.title',
                 description: [
-                    'Adds a button to save avatar as a PNG on their profile.',
+                    'settings.profile.avatarDownloadEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['9502859424'],
             },
             profilePronouns: {
-                label: 'Profile Pronouns',
+                label: 'settings.profile.profilePronouns.title',
                 description: [
-                    'Displays your pronouns beside your username on your profile for other RoValra users.',
-                    'Maximum 15 characters.',
-                    'Emojis and spaces are allowed. Special characters such as /, comma, or ; are changed to |.',
+                    'settings.profile.profilePronouns.desc1',
+                    'settings.profile.profilePronouns.desc2',
+                    'settings.profile.profilePronouns.desc3',
                 ],
                 type: 'input',
-                placeholder: 'Enter Pronouns',
+                placeholder: 'settings.profile.profilePronouns.placeholder',
                 maxLength: 15,
                 showCharacterCount: true,
                 useGraphemeLength: true,
@@ -849,23 +849,23 @@ export const SETTINGS_CONFIG = {
                 contributors: ['10646979010'],
             },
             displayAppThemeUserProfile: {
-                label: 'Display app theme user profiles',
-                description: ['Displays users app theme on their profile!'],
+                label: 'settings.profile.displayAppThemeUserProfile.title',
+                description: ['settings.profile.displayAppThemeUserProfile.desc1'],
                 type: 'checkbox',
                 default: false,
                 childSettings: {
                     displayAppThemeOwnProfile: {
-                        label: 'Display your app theme on your profile',
+                        label: 'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.title',
                         description: [
-                            'Displays your app theme on your profile to other users!',
-                            'To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)',
-                            'Enabling this setting will automatically turn on **Free Roblox Plus Themes**.',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.desc1',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.desc2',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.desc3',
                         ],
                         type: 'checkbox',
                         default: false,
                         donatorTier: 1,
                         donatorReason:
-                            'Donator Tier 1 is required to display your app theme on your own profile',
+                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.donatorReason',
                         dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },

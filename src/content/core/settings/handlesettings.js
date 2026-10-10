@@ -1463,8 +1463,8 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         name,
                         settingsContent,
                         isLocked,
-                        conf.donatorReason ||
-                            'This is a donator-exclusive feature.',
+                        ts(conf.donatorReason) ||
+                            ts(settings.donatorExclusive),
                         true,
                     );
                     if (isLocked) return true;

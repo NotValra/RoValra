@@ -843,6 +843,7 @@
             "desc2": "The page will reload to apply changes. Might not work immediately on the settings page.",
             "desc3": "We do not promise up to date translations. These translations are translated by the community, we cannot promise 100% accuracy."
         },
+        "donatorExclusive": "This is a donator-exclusive feature.",
         "contributed": "{{username}} contributed in the making of this feature.",
         "marketplace": {
             "title": "Marketplace",
@@ -1206,7 +1207,33 @@
             }
         },
         "profile": {
-            "title": "Profile"
+            "title": "Profile",
+            "userGamesEnabled": {
+                "title": "Hidden User Experiences",
+                "desc1": "Shows a user's hidden experiences on their profile."
+            },
+            "avatarDownloadEnabled": {
+                "title": "Download Avatar",
+                "desc1": "Adds a button to save avatar as a PNG on their profile."
+            },
+            "profilePronouns": {
+                "title": "Profile Pronouns",
+                "desc1": "Displays your pronouns beside your username on your profile for other RoValra users.",
+                "desc2": "Maximum 15 characters.",
+                "desc3": "Emojis and spaces are allowed. Special characters such as /, comma, or ; are changed to |.",
+                "placeholder": "Enter Pronouns"
+            },
+            "displayAppThemeUserProfile": {
+                "title": "Display app theme user profiles",
+                "desc1": "Displays users app theme on their profile!",
+                "displayAppThemeOwnProfile": {
+                    "title": "Display your app theme on your profile",
+                    "desc1": "Displays your app theme on your profile to other users!",
+                    "desc2": "To change this setting, you can go to [Roblox Settings > Browser preferences > App theme](https://www.roblox.com/my/account#!/browser-preferences)",
+                    "desc3": "Enabling this setting will automatically turn on **Free Roblox Plus Themes**.",
+                    "donatorReason": "Donator Tier 1 is required to display your app theme on your own profile"
+                }
+            }
         },
         "home": {
             "title": "Home"

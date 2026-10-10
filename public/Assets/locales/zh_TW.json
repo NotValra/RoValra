@@ -841,6 +841,7 @@
             "desc2": "頁面將重新載入以套用變更。設定頁面上的變更可能不會立即生效。",
             "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
         },
+        "donatorExclusive": "這是一項捐贈者專屬功能。",
         "contributed": "{{username}} 為此功能的製作做出了貢獻。",
         "marketplace": {
             "title": "市集",
@@ -1204,7 +1205,33 @@
             }
         },
         "profile": {
-            "title": "個人檔案"
+            "title": "個人檔案",
+            "userGamesEnabled": {
+                "title": "隱藏的使用者體驗",
+                "desc1": "在使用者的個人檔案中顯示已隱藏的體驗。"
+            },
+            "avatarDownloadEnabled": {
+                "title": "下載虛擬人偶",
+                "desc1": "在使用者的個人檔案中新增一個按鈕，用於將虛擬人偶儲存為 PNG 格式。"
+            },
+            "profilePronouns": {
+                "title": "個人檔案代名詞",
+                "desc1": "在您的個人檔案中，您的使用者名稱旁邊會顯示您的代名詞，供其他 RoValra 使用者查看。",
+                "desc2": "最多 15 個字元。",
+                "desc3": "允許使用表情符號和空格。特殊字元（例如 /、逗號或 ;）將自動替換為 |。",
+                "placeholder": "輸入代名詞"
+            },
+            "displayAppThemeUserProfile": {
+                "title": "顯示 App 主題使用者個人檔案",
+                "desc1": "在使用者的個人檔案中顯示其 App 主題！",
+                "displayAppThemeOwnProfile": {
+                    "title": "在您的個人檔案中顯示您的 App 主題",
+                    "desc1": "向其他使用者顯示您的 App 主題！",
+                    "desc2": "若要變更此設定，您可以前往 [Roblox 設定 > 瀏覽器偏好 > App 主題](https://www.roblox.com/my/account#!/browser-preferences)",
+                    "desc3": "啟用此設定將自動開啟**免費 Roblox Plus 主題**。",
+                    "donatorReason": "需要達到捐贈者等級 1 才能在個人檔案中顯示您的 App 主題"
+                }
+            }
         },
         "home": {
             "title": "首頁"

@@ -449,6 +449,14 @@
         "hours": "{{value}} 小时",
         "minutes": "{{value}} 分钟"
     },
+    "mutualFriends": {
+        "pill_one": "{{count}} 位共同好友",
+        "pill_other": "{{count}} 位共同好友",
+        "tooltip": "你与这位用户有哪些共同好友。",
+        "tab": "共同好友",
+        "title": "共同好友 ({{count}})",
+        "empty": "你与这位用户没有共同好友。"
+    },
     "trustedFriends": {
         "pendingConnection": "待处理信赖好友",
         "pendingRequest": "待处理信赖好友请求",
@@ -833,6 +841,7 @@
             "desc2": "页面将重新加载以应用更改。设置页面上的更改可能不会立即生效。",
             "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
         },
+        "donatorExclusive": "这是一项捐赠者专属功能。",
         "contributed": "{{username}} 为此功能的制作做出了贡献。",
         "marketplace": {
             "title": "商城",
@@ -1196,7 +1205,33 @@
             }
         },
         "profile": {
-            "title": "个人资料"
+            "title": "个人资料",
+            "userGamesEnabled": {
+                "title": "隐藏的用户体验",
+                "desc1": "在用户的个人资料中显示其隐藏的体验。"
+            },
+            "avatarDownloadEnabled": {
+                "title": "下载虚拟形象",
+                "desc1": "在用户的个人资料中添加一个按钮，用于将虚拟形象保存为 PNG 格式。"
+            },
+            "profilePronouns": {
+                "title": "个人资料代词",
+                "desc1": "在您的个人资料中，您的用户名旁边会显示您的代词，供其他 RoValra 用户查看。",
+                "desc2": "最多 15 个字符。",
+                "desc3": "允许使用表情符号和空格。特殊字符（例如 /、逗号或 ;）将自动替换为 |。",
+                "placeholder": "输入代词"
+            },
+            "displayAppThemeUserProfile": {
+                "title": "显示 App 主题用户个人资料",
+                "desc1": "在用户的个人资料中显示其 App 主题！",
+                "displayAppThemeOwnProfile": {
+                    "title": "在您的个人资料中显示您的 App 主题",
+                    "desc1": "向其他用户显示您的 App 主题！",
+                    "desc2": "要更改此设置，您可以前往 [Roblox 设置 > 浏览器首选项 > App 主题](https://www.roblox.com/my/account#!/browser-preferences)",
+                    "desc3": "启用此设置将自动开启**免费 Roblox Plus 主题**。",
+                    "donatorReason": "需要达到捐赠者等级 1 才能在个人资料中显示您的 App 主题"
+                }
+            }
         },
         "home": {
             "title": "首页"
@@ -1230,14 +1265,6 @@
         },
         "developer": {
             "title": "开发者"
-        },
-        "mutualFriends": {
-            "pill_one": "{{count}} 位共同好友",
-            "pill_other": "{{count}} 位共同好友",
-            "tooltip": "你与这位用户有哪些共同好友。",
-            "tab": "共同好友",
-            "title": "共同好友 ({{count}})",
-            "empty": "你与这位用户没有共同好友。"
         },
         "credits": {
             "contributorsTitle": "贡献者",
