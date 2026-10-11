@@ -1,0 +1,38 @@
+#rovalra-public-game-discovery {
+    margin-bottom: 16px;
+}
+
+.rovalra-public-game-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .rovalra-catalog-input-wrapper {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.rovalra-public-game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 20px 12px;
+    margin-bottom: 16px;
+
+    .rovalra-game-card {
+        height: auto;
+        min-height: 240px;
+    }
+
+    .game-card-info {
+        top: auto;
+        bottom: auto;
+    }
+}
+
+.rovalra-public-game-maturity {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--rovalra-secondary-text-color);
+}

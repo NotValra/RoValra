@@ -51,6 +51,28 @@
         "confirm": "Confirm",
         "cancel": "Cancel"
     },
+    "publicGameDiscovery": {
+        "settingLabel": "Public Game Discovery",
+        "settingDescription": "Adds a public game browser to Charts with search and maturity filters. Results are not personalized to your account; Roblox still enforces age and parental restrictions when you open or play a game.",
+        "title": "Browse public games",
+        "notice": "Public results may include games your account cannot play. Roblox's age requirements and parental settings still apply.",
+        "maturity": "Maturity",
+        "maturityLabel": "Maturity: {{maturity}}",
+        "maturities": {
+            "all": "All maturities",
+            "minimal": "Minimal",
+            "mild": "Mild",
+            "moderate": "Moderate",
+            "restricted": "Restricted",
+            "unknown": "Unrated"
+        },
+        "popularGames": "Popular public games",
+        "searchResults": "Public search results",
+        "loading": "Loading games...",
+        "empty": "No games match this maturity on the loaded pages. Try another maturity or load more results.",
+        "error": "Games could not be loaded. Search again to retry.",
+        "loadMore": "Load more"
+    },
     "regionSelector": {
         "gilbertsInYourArea": "Gilberts In Your Area",
         "title": "RoValra Region Selector",

@@ -44,6 +44,7 @@ import { init as initLoginBanner } from './features/scamprevention/loginBanner.j
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js';
+import { init as initPublicGameDiscovery } from './features/charts/publicGameDiscovery.js';
 import { init as initCustomRobloxBanner } from './features/sitewide/customRobloxBanner.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
@@ -300,6 +301,11 @@ const featureRoutes = [
             initCustomScrollbar,
             initRoValraIncidentTracker,
         ],
+    },
+    // Charts and discovery
+    {
+        paths: ['/charts', '/discover'],
+        features: [initPublicGameDiscovery],
     },
     // pretty much just the 40% method
     {
