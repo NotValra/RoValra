@@ -1187,79 +1187,79 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             statusBubbleEnabled: {
-                label: 'Status Bubble',
+                label: 'settings.profile.statusBubbleEnabled.title',
                 description: [
-                    'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
-                    "Also allows you to view other RoValra users' status bubbles.",
-                    '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
+                    'settings.profile.statusBubbleEnabled.desc1',
+                    'settings.profile.statusBubbleEnabled.desc2',
+                    'settings.profile.statusBubbleEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     statusBubbleHomePage: {
-                        label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
+                        label: 'settings.profile.statusBubbleEnabled.statusBubbleHomePage.title',
                         type: 'checkbox',
                         default: true,
                     },
                 },
             },
             donationbuttonEnable: {
-                label: 'Donation Button',
+                label: 'settings.profile.donationbuttonEnable.title',
                 description: [
-                    "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
+                    'settings.profile.donationbuttonEnable.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '8345351117'],
-                locked: 'Roblox made this impossible.',
+                locked: 'settings.profile.donationbuttonEnable.locked',
                 isPermanent: true,
             },
 
             categorizeWearingEnabled: {
-                label: 'Improved Currently Wearing',
+                label: 'settings.profile.categorizeWearingEnabled.title',
                 description: [
-                    "Separates the 'Currently Wearing' section on profiles into categories like Items, Emotes, Body Parts and Animations.",
-                    'Also improves the item cards making them look a bit better and adds total outfit price.',
-                    'This feature was heavily inspired by a [roseal](https://www.roseal.live/) feature.',
+                    'settings.profile.categorizeWearingEnabled.desc1',
+                    'settings.profile.categorizeWearingEnabled.desc2',
+                    'settings.profile.categorizeWearingEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     CategorizeBodyParts: {
-                        label: 'Body Parts in their own category',
+                        label: 'settings.profile.categorizeWearingEnabled.CategorizeBodyParts.title',
                         description:
-                            'This puts Body Parts into their own category.',
+                            'settings.profile.categorizeWearingEnabled.CategorizeBodyParts.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                     CategorizeEmotes: {
-                        label: 'Emotes in their own category',
+                        label: 'settings.profile.categorizeWearingEnabled.CategorizeEmotes.title',
                         description:
-                            'This puts Emotes into their own category.',
+                            'settings.profile.categorizeWearingEnabled.CategorizeEmotes.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                     CategorizeAnimations: {
-                        label: 'Animations in their own category',
+                        label: 'settings.profile.categorizeWearingEnabled.CategorizeAnimations.title',
                         description:
-                            'This puts Animations into their own category.',
+                            'settings.profile.categorizeWearingEnabled.CategorizeAnimations.desc1',
                         type: 'checkbox',
                         default: true,
                     },
                 },
             },
             userRapEnabled: {
-                label: 'User RAP/Value',
+                label: 'settings.profile.userRapEnabled.title',
                 description: [
-                    "This shows a user's total RAP/Value on their profile.",
+                    'settings.profile.userRapEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     HideSerial: {
-                        label: 'Hide Serial Numbers',
+                        label: 'settings.profile.userRapEnabled.HideSerial.title',
                         description: [
-                            'This hides serial numbers on limiteds unless you hover over them.',
+                            'settings.profile.userRapEnabled.HideSerial.desc1',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -1267,25 +1267,25 @@ export const SETTINGS_CONFIG = {
                 },
             },
             useroutfitsEnabled: {
-                label: 'User Outfits',
+                label: 'settings.profile.useroutfitsEnabled.title',
                 description: [
-                    "This allows you to view a user's saved outfits on their profile.",
+                    'settings.profile.useroutfitsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             RoValraBadgesEnable: {
-                label: 'RoValra Badges',
+                label: 'settings.profile.RoValraBadgesEnable.title',
                 description: [
-                    'Disabling this will hide any RoValra badges from profiles.',
+                    'settings.profile.RoValraBadgesEnable.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     robloxGroupFeaturesEnabled: {
-                        label: 'Roblox Group Badges',
+                        label: 'settings.profile.RoValraBadgesEnable.robloxGroupFeaturesEnabled.title',
                         description: [
-                            'Enables Badges for groups, like star creator program, Roblox Community feedback Program etc.',
+                            'settings.profile.RoValraBadgesEnable.robloxGroupFeaturesEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1293,22 +1293,22 @@ export const SETTINGS_CONFIG = {
                 },
             },
             profileBackgroundGradientEnabled: {
-                label: 'Custom Profile Background Gradient',
+                label: 'settings.profile.profileBackgroundGradientEnabled.title',
                 description: [
-                    "Shows a user's selected gradient on their profile.",
+                    'settings.profile.profileBackgroundGradientEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     profileGradient: {
-                        label: 'Profile Gradient',
+                        label: 'settings.profile.profileBackgroundGradientEnabled.profileGradient.title',
                         description:
-                            'Set your own gradient for your own profile',
+                            'settings.profile.profileBackgroundGradientEnabled.profileGradient.desc1',
                         type: 'gradient',
                         avatarPreview: true,
                         donatorTier: 2,
                         donatorReason:
-                            'Donator Tier 2 is required to set a custom profile gradient. This feature is purely cosmetic and rewards donors.',
+                            'settings.profile.profileBackgroundGradientEnabled.profileGradient.donatorReason',
                         default: {
                             enabled: false,
                             color1: '#667eea',
@@ -1318,9 +1318,9 @@ export const SETTINGS_CONFIG = {
                         },
                     },
                     applyGradientToAvatarTile: {
-                        label: 'Apply Gradient Background to Profile Thumbnails',
+                        label: 'settings.profile.profileBackgroundGradientEnabled.applyGradientToAvatarTile.title',
                         description: [
-                            'This adds the Gradient Background to profile thumbnails across the site like on the home page',
+                            'settings.profile.profileBackgroundGradientEnabled.applyGradientToAvatarTile.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1328,16 +1328,16 @@ export const SETTINGS_CONFIG = {
                 },
             },
             bannedUserViewerEnabled: {
-                label: 'View Banned Users Profile',
-                description: ["Allows you to view banned users' profiles."],
+                label: 'settings.profile.bannedUserViewerEnabled.title',
+                description: ['settings.profile.bannedUserViewerEnabled.desc1'],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     bannedUserDetectionFallbackEnabled: {
-                        label: 'Use Robust Banned User Detection',
+                        label: 'settings.profile.bannedUserViewerEnabled.bannedUserDetectionFallbackEnabled.title',
                         description: [
-                            "This makes sure it never fails to identify when you're trying to view a banned user.",
-                            'Without this it would fail to show banned user profiles if you open their link directly',
+                            'settings.profile.bannedUserViewerEnabled.bannedUserDetectionFallbackEnabled.desc1',
+                            'settings.profile.bannedUserViewerEnabled.bannedUserDetectionFallbackEnabled.desc2',
                         ],
                         type: 'checkbox',
                         default: false,

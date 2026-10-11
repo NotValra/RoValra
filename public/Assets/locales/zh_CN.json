@@ -1322,7 +1322,7 @@
                 "title": "可信赖好友",
                 "desc1": "此功能允许您通过点击好友个人资料上的 (...) 来接受、请求和移除可信赖好友。此功能仅适用于符合条件的好友。",
                 "desc2": "可信赖好友功能可能在某些地区无法使用。",
-                "desc3": "**注意：**Roblox 使用算法，即使某人符合这些要求，也可能会阻止添加他们。[点击此处了解更多信息。](https://en.help.roblox.com/hc/zh-cn/articles/46158344285204)"
+                "desc3": "**注意：** Roblox 使用算法，即使某人符合这些要求，也可能会阻止添加他们。[点击此处了解更多信息。](https://en.help.roblox.com/hc/zh-cn/articles/46158344285204)"
             },
             "lastOnlineEnabled": {
                 "title": "显示上次在线/上次出现时间",
@@ -1382,6 +1382,80 @@
                 "title": "年龄已验证徽章",
                 "desc1": "显示用户是否已在个人资料中完成 Roblox 年龄验证。",
                 "desc2": "此功能将添加到个人资料的「更多」标签页。"
+            },
+            "statusBubbleEnabled": {
+                "title": "状态气泡",
+                "desc1": "此功能允许您在个人资料中设置状态气泡，任何拥有 RoValra 的用户都可以看到。",
+                "desc2": "同时允许您查看其他 RoValra 用户的状态气泡。",
+                "desc3": "**此设置保存在 RoValra 的数据库中，因此任何拥有 RoValra 的用户都可以查看。RoValra 的数据库曾经是等级 1 捐赠者福利，我们正在开发替代福利。**",
+                "statusBubbleHomePage": {
+                    "title": "好友在首页以及网站其他可能显示好友的位置的状态气泡。"
+                }
+            },
+            "donationbuttonEnable": {
+                "title": "捐赠按钮",
+                "desc1": "这将在用户个人资料中添加一个捐赠按钮，允许您直接从他们的个人资料进行捐赠，而无需加入游戏。",
+                "locked": "Roblox 已阻止此功能。"
+            },
+            "categorizeWearingEnabled": {
+                "title": "改进当前穿着",
+                "desc1": "将个人资料中的「当前穿着」部分分为道具、表情动作、身体部位和动画等类别。",
+                "desc2": "同时改进了道具卡片，使其看起来更美观，并添加了整套形象的总价。",
+                "desc3": "此功能的设计灵感主要来自 [RoSeal](https://www.roseal.live/) 的一个功能。",
+                "CategorizeBodyParts": {
+                    "title": "将身体部位归入单独的类别",
+                    "desc1": "此功能将身体部位归入单独的类别。"
+                },
+                "CategorizeEmotes": {
+                    "title": "将表情动作归入单独的类别",
+                    "desc1": "此功能将表情动作归入单独的类别。"
+                },
+                "CategorizeAnimations": {
+                    "title": "将动画归入单独的类别",
+                    "desc1": "此功能将动画归入单独的类别。"
+                }
+            },
+            "userRapEnabled": {
+                "title": "用户近期平均价格(RAP)/价值",
+                "desc1": "此选项显示用户个人资料中的近期平均价格(RAP)/价值总额。",
+                "HideSerial": {
+                    "title": "隐藏序列号",
+                    "desc1": "此功能隐藏限量道具的序列号，除非您将鼠标悬停在其上。"
+                }
+            },
+            "useroutfitsEnabled": {
+                "title": "用户形象",
+                "desc1": "此功能可以在用户的​​个人资料中查看已保存的形象。"
+            },
+            "RoValraBadgesEnable": {
+                "title": "RoValra 徽章",
+                "desc1": "禁用此功能后，个人资料中将显示所有 RoValra 徽章。",
+                "robloxGroupFeaturesEnabled": {
+                    "title": "Roblox 群组徽章",
+                    "desc1": "启用群组徽章，例如明星创作者计划、Roblox 社区反馈计划等。"
+                }
+            },
+            "profileBackgroundGradientEnabled": {
+                "title": "自定义个人资料背景渐变",
+                "desc1": "在个人资料中显示用户选择的渐变。",
+                "profileGradient": {
+                    "title": "个人资料渐变",
+                    "desc1": "为您的个人资料设置自定义渐变。",
+                    "donatorReason": "需要达到捐赠者等级 2 才能设置自定义个人资料渐变。此功能纯粹用于装饰，并奖励捐赠者。"
+                },
+                "applyGradientToAvatarTile": {
+                    "title": "为个人资料缩略图应用渐变背景",
+                    "desc1": "此功能会将渐变背景添加到网站上的个人资料缩略图，例如首页上的缩略图。"
+                }
+            },
+            "bannedUserViewerEnabled": {
+                "title": "查看已被封禁用户的个人资料",
+                "desc1": "允许您查看已被封禁用户的个人资料。",
+                "bannedUserDetectionFallbackEnabled": {
+                    "title": "使用强大的被封禁用户检测功能",
+                    "desc1": "此功能可确保始终能够识别您何时尝试查看已被封禁的用户。",
+                    "desc2": "如果没有此功能，如果您直接打开被封禁用户的链接，则无法显示他们的个人资料。"
+                }
             }
         },
         "home": {

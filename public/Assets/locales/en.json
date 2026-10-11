@@ -1384,6 +1384,80 @@
                 "title": "Age Checked Badge",
                 "desc1": "Shows whether a user has completed Roblox age check on their profile.",
                 "desc2": "This is added to the \"more\" tab of the profile."
+            },
+            "statusBubbleEnabled": {
+                "title": "Status Bubble",
+                "desc1": "This allows you to set a status bubble on your profile that anyone with RoValra can see.",
+                "desc2": "Also allows you to view other RoValra users' status bubbles.",
+                "desc3": "**This is saved on RoValra's database so anyone with RoValra can view it. It being saved on RoValra's database used to be a tier 1 Donator perk, we are working on a replacement perk.**",
+                "statusBubbleHomePage": {
+                    "title": "Status bubble for friends on home page, and other parts of the site where friends might show."
+                }
+            },
+            "donationbuttonEnable": {
+                "title": "Donation Button",
+                "desc1": "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
+                "locked": "Roblox made this impossible."
+            },
+            "categorizeWearingEnabled": {
+                "title": "Improved Currently Wearing",
+                "desc1": "Separates the 'Currently Wearing' section on profiles into categories like Items, Emotes, Body Parts and Animations.",
+                "desc2": "Also improves the item cards making them look a bit better and adds total outfit price.",
+                "desc3": "This feature was heavily inspired by a [RoSeal](https://www.roseal.live/) feature.",
+                "CategorizeBodyParts": {
+                    "title": "Body Parts in their own category",
+                    "desc1": "This puts Body Parts into their own category."
+                },
+                "CategorizeEmotes": {
+                    "title": "Emotes in their own category",
+                    "desc1": "This puts Emotes into their own category."
+                },
+                "CategorizeAnimations": {
+                    "title": "Animations in their own category",
+                    "desc1": "This puts Animations into their own category."
+                }
+            },
+            "userRapEnabled": {
+                "title": "User RAP/Value",
+                "desc1": "This shows a user's total RAP/Value on their profile.",
+                "HideSerial": {
+                    "title": "Hide Serial Numbers",
+                    "desc1": "This hides serial numbers on limiteds unless you hover over them."
+                }
+            },
+            "useroutfitsEnabled": {
+                "title": "User Outfits",
+                "desc1": "This allows you to view a user's saved outfits on their profile."
+            },
+            "RoValraBadgesEnable": {
+                "title": "RoValra Badges",
+                "desc1": "Disabling this will hide any RoValra badges from profiles.",
+                "robloxGroupFeaturesEnabled": {
+                    "title": "Roblox Group Badges",
+                    "desc1": "Enables Badges for groups, like star creator program, Roblox Community feedback Program etc."
+                }
+            },
+            "profileBackgroundGradientEnabled": {
+                "title": "Custom Profile Background Gradient",
+                "desc1": "Shows a user's selected gradient on their profile.",
+                "profileGradient": {
+                    "title": "Profile Gradient",
+                    "desc1": "Set your own gradient for your own profile",
+                    "donatorReason": "Donator Tier 2 is required to set a custom profile gradient. This feature is purely cosmetic and rewards donors."
+                },
+                "applyGradientToAvatarTile": {
+                    "title": "Apply Gradient Background to Profile Thumbnails",
+                    "desc1": "This adds the Gradient Background to profile thumbnails across the site like on the home page"
+                }
+            },
+            "bannedUserViewerEnabled": {
+                "title": "View Banned Users Profile",
+                "desc1": "Allows you to view banned users' profiles.",
+                "bannedUserDetectionFallbackEnabled": {
+                    "title": "Use Robust Banned User Detection",
+                    "desc1": "This makes sure it never fails to identify when you're trying to view a banned user.",
+                    "desc2": "Without this it would fail to show banned user profiles if you open their link directly"
+                }
             }
         },
         "home": {

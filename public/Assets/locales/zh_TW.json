@@ -1322,7 +1322,7 @@
                 "title": "信任好友",
                 "desc1": "此功能可讓您透過點觸好友個人檔案上的 (...) 來接受、要求和移除信任好友。此功能僅適用於符合條件的好友。",
                 "desc2": "信任好友功能可能在某些地區無法使用。",
-                "desc3": "**注意：**Roblox 使用演算法，即使某人符合這些要求，也可能會阻止添加他們。[點觸此處瞭解更多。](https://en.help.roblox.com/hc/zh-tw/articles/46158344285204)"
+                "desc3": "**注意：** Roblox 使用演算法，即使某人符合這些要求，也可能會阻止新增他們。[點觸此處瞭解更多。](https://en.help.roblox.com/hc/zh-tw/articles/46158344285204)"
             },
             "lastOnlineEnabled": {
                 "title": "顯示上次線上/上次出現時間",
@@ -1382,6 +1382,80 @@
                 "title": "年齡已驗證徽章",
                 "desc1": "顯示使用者是否已在個人檔案中完成 Roblox 年齡驗證。",
                 "desc2": "此功能將會新增至個人檔案的「更多」標籤頁。"
+            },
+            "statusBubbleEnabled": {
+                "title": "狀態氣泡",
+                "desc1": "此功能可讓您在個人檔案中設定狀態氣泡，任何擁有 RoValra 的使用者都可以看到。",
+                "desc2": "同時允許您查看其他 RoValra 使用者的狀態氣泡。",
+                "desc3": "**此設定儲存在 RoValra 的資料庫中，因此任何擁有 RoValra 的使用者都可以查看。RoValra 的資料庫曾經是等級 1 捐贈者特權，我們正在開發替代特權。**",
+                "statusBubbleHomePage": {
+                    "title": "好友在首頁以及網站其他可能顯示好友的位置的狀態氣泡。"
+                }
+            },
+            "donationbuttonEnable": {
+                "title": "捐贈按鈕",
+                "desc1": "這將在使用者個人檔案中新增一個捐贈按鈕，允許您直接從他們的個人檔案進行捐贈，而無需加入遊戲。",
+                "locked": "Roblox 已封鎖此功能。"
+            },
+            "categorizeWearingEnabled": {
+                "title": "改進的目前穿戴",
+                "desc1": "將個人檔案中的「目前穿戴」部分分為道具、動作、身體部位和動畫等類別",
+                "desc2": "同時改進了道具卡片，使其看起來更好一些，並新增了整套外觀的總價格。",
+                "desc3": "此功能的設計靈感主要來自 [RoSeal](https://www.roseal.live/) 的一個功能。",
+                "CategorizeBodyParts": {
+                    "title": "將身體部位歸入單獨的類別",
+                    "desc1": "此功能將身體部位歸入單獨的類別。"
+                },
+                "CategorizeEmotes": {
+                    "title": "將動作歸入單獨的類別",
+                    "desc1": "此功能將動作歸入單獨的類別。"
+                },
+                "CategorizeAnimations": {
+                    "title": "將動畫歸入單獨的類別",
+                    "desc1": "此功能將動畫歸入單獨的類別。"
+                }
+            },
+            "userRapEnabled": {
+                "title": "使用者近期平均價格(RAP)/價值",
+                "desc1": "此選項顯示使用者個人檔案中的近期平均價格(RAP)/價值總額。",
+                "HideSerial": {
+                    "title": "隱藏序號",
+                    "desc1": "此功能隱藏限量道具的序號，除非您將滑鼠停留在其上。"
+                }
+            },
+            "useroutfitsEnabled": {
+                "title": "使用者外觀",
+                "desc1": "此功能可以在使用者的個人檔案中查看已儲存的外觀。"
+            },
+            "RoValraBadgesEnable": {
+                "title": "RoValra 徽章",
+                "desc1": "停用此功能後，個人檔案中將顯示所有 RoValra 徽章。",
+                "robloxGroupFeaturesEnabled": {
+                    "title": "Roblox 群組徽章",
+                    "desc1": "啟用群組徽章，例如明星創作者計畫、Roblox 社群回饋計畫等。"
+                }
+            },
+            "profileBackgroundGradientEnabled": {
+                "title": "自訂個人檔案背景漸層",
+                "desc1": "在個人檔案中顯示使用者選擇的漸層。",
+                "profileGradient": {
+                    "title": "個人檔案漸層",
+                    "desc1": "為您的個人檔案設定自訂漸層。",
+                    "donatorReason": "需要達到捐贈者等級 2 才能設定自訂個人檔案漸層。此功能純粹用於裝飾，並獎勵捐贈者。"
+                },
+                "applyGradientToAvatarTile": {
+                    "title": "為個人檔案縮圖套用漸層背景",
+                    "desc1": "此功能會將漸層背景新增至網站上的個人檔案縮圖，例如首頁上的縮圖。"
+                }
+            },
+            "bannedUserViewerEnabled": {
+                "title": "查看已被停權使用者的個人檔案",
+                "desc1": "允許您查看已被停權使用者的個人檔案。",
+                "bannedUserDetectionFallbackEnabled": {
+                    "title": "使用強大的被停權使用者偵測",
+                    "desc1": "此功能可確認隨時能夠識別您何時嘗試查看已被停權的使用者。",
+                    "desc2": "如果沒有此功能，如果您直接打開已被停權使用者的連結，則無法顯示他們的個人檔案。"
+                }
             }
         },
         "home": {
