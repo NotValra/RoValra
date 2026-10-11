@@ -1498,13 +1498,13 @@ export const SETTINGS_CONFIG = {
             pinnedFriendsEnabled: {
                 label: 'Pin Friends',
                 description: [
-                    'Adds an entry to the friend menu on the Home page that keeps someone at the front of the friends row.',
+                    'Adds an entry to the friend menu on the Home page and to friends\' profile menus that keeps someone at the front of the friends row.',
                     'Pinned friends stay first whatever their status is, so the people you actually play with are not buried behind everyone who happens to be online.',
                 ],
                 type: 'checkbox',
                 default: false,
                 storageKey: ['rovalra_pinned_friends'],
-                contributors: ['4489102289'],
+                contributors: ['4489102289', '302339444'],
             },
             underratedGamesEnabled: {
                 label: 'Underrated Games',
