@@ -821,7 +821,7 @@
             "store": "商店"
         },
         "info": {
-            "title": "RoValra 信息!",
+            "title": "RoValra 信息！",
             "desc1": "《RoValra》是一款永久免费的 Roblox 扩展程序，致力于提升所有玩家的游戏体验！并且完全开源。",
             "desc2": "部分免费功能仍然依赖于 RoValra 服务器，运行需要付费。",
             "desc3": "支持者的捐赠有助于支付这些费用，使 RoValra 能够为所有人提供更多免费功能，并不断改进。<icon style=\"color:#c13ad9\" filled>heart</icon>",
@@ -2771,13 +2771,15 @@
         "donatorPerks": "捐赠者福利",
         "usernameCustomizations": "用户名自定义"
     },
+    "profileViews": {
+        "label": "{{views}} 次个人资料浏览",
+        "tooltip": "来自 RoValra 用户的个人资料浏览次数。此数据统计的是个人资料浏览次数的总数，而非独立用户数。"
+    },
     "profile": {
         "socialLinks": "社交链接",
         "currencyTransfer": "发送 Robux",
         "currencyTransferConfirmation": "这将打开 Roblox 用户端，允许您发送 Robux。",
-        "openClient": "打开用户端",
-        "profileViews": "{{views}} 次个人资料浏览",
-        "profileViewsTooltip": "来自 RoValra 用户的个人资料浏览次数。此数据统计的是个人资料浏览次数的总数，而非独立用户数。"
+        "openClient": "打开用户端"
     },
     "animations": {
         "idle": "闲置",

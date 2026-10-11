@@ -2761,13 +2761,15 @@
         "donatorPerks": "Donator Perks",
         "usernameCustomizations": "Username Customizations"
     },
+    "profileViews": {
+        "label": "{{views}} Profile Views",
+        "tooltip": "Profile views from RoValra users. This counts total profile views, not unique users."
+    },
     "profile": {
         "socialLinks": "Social links",
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
-        "openClient": "Open Client",
-        "profileViews": "{{views}} Profile Views",
-        "profileViewsTooltip": "Profile views from RoValra users. This counts total profile views, not unique users."
+        "openClient": "Open Client"
     },
     "animations": {
         "idle": "Idle",

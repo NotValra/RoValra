@@ -15,7 +15,7 @@ function createProfileViewsContent(views) {
     content.className = 'rovalra-profile-views-content';
 
     const text = document.createElement('span');
-    text.textContent = ts('profile.profileViews', { views: views.toLocaleString() }); 
+    text.textContent = ts('profileViews.label', { views: views.toLocaleString() }); 
 
     content.append(text);
     return content;
@@ -106,7 +106,7 @@ async function initProfileViews() {
 
             const pill = createPill(
                 createProfileViewsContent(views),
-                ts('profile.profileViewsTooltip'),
+                ts('profileViews.tooltip'),
                 { size: 'small' },
             );
             pill.classList.add('rovalra-profile-views-pill');
