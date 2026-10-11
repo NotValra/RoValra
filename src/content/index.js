@@ -855,14 +855,7 @@ function setupUrlChangeListeners() {
     window.addEventListener('popstate', handleUrlChange);
     window.addEventListener('hashchange', normalizeGamePageHash);
 
-    setInterval(() => {
-        if (
-            window.location.pathname.toLowerCase() !== lastPath ||
-            window.location.search !== lastSearch
-        ) {
-            handleUrlChange();
-        }
-    }, 500);
+    setInterval(handleUrlChange, 500);
 
     normalizeGamePageHash();
 }

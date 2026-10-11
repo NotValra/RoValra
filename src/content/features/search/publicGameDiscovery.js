@@ -76,7 +76,7 @@ function createSearchView(root, initialQuery) {
     let loading = false;
     let failed = false;
 
-    function render() {
+    function renderResults() {
         const focused = document.activeElement;
         const focusedHref = grid.contains(focused)
             ? focused.closest('.game-card-link')?.href
@@ -98,6 +98,18 @@ function createSearchView(root, initialQuery) {
             card.querySelector('.game-card-link').appendChild(label);
             grid.appendChild(card);
         }
+
+        updateStatus();
+        if (focusedHref) {
+            const link = [...grid.querySelectorAll('.game-card-link')].find(
+                (link) => link.href === focusedHref,
+            );
+            (link || status).focus({ preventScroll: true });
+        }
+    }
+
+    function updateStatus() {
+        const focused = document.activeElement;
         let statusKey = 'empty';
         if (loading) statusKey = 'loading';
         else if (failed) statusKey = 'error';
@@ -108,12 +120,7 @@ function createSearchView(root, initialQuery) {
         more.setAttribute('aria-disabled', String(loading));
         retry.hidden = !failed && !(loading && focused === retry);
         retry.setAttribute('aria-disabled', String(loading));
-        if (focusedHref) {
-            const link = [...grid.querySelectorAll('.game-card-link')].find(
-                (link) => link.href === focusedHref,
-            );
-            (link || status).focus({ preventScroll: true });
-        } else if (
+        if (
             (focused === more && more.hidden) ||
             (focused === retry && retry.hidden)
         ) {
@@ -130,7 +137,7 @@ function createSearchView(root, initialQuery) {
         placeholder: ts('publicGameDiscovery.maturities.all'),
         onValueChange(value) {
             maturity = value;
-            render();
+            renderResults();
             filter.trigger.focus();
         },
     });
@@ -161,7 +168,8 @@ function createSearchView(root, initialQuery) {
         if (!append) resetResults();
         loading = true;
         failed = false;
-        render();
+        if (append) updateStatus();
+        else renderResults();
 
         const params = new URLSearchParams({
             sessionId,
@@ -230,7 +238,8 @@ function createSearchView(root, initialQuery) {
         } finally {
             if (!signal.aborted) {
                 loading = false;
-                render();
+                if (failed) updateStatus();
+                else renderResults();
             }
         }
     }
@@ -262,7 +271,7 @@ function createSearchView(root, initialQuery) {
             controller?.abort();
             resetResults();
             if (publicMode) load();
-            else render();
+            else renderResults();
         },
         destroy() {
             controller?.abort();
