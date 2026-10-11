@@ -1,10 +1,8 @@
 Project Licensing Notice
 
-Unless otherwise stated, the source code in this repository is licensed under
-the GNU General Public License version 3.0, reproduced below.
+Unless otherwise stated, the source code in this repository is licensed under the GNU General Public License v3.0 (GPL-3.0), reproduced below.
 
-The following image assets are not licensed under the GNU General Public
-License version 3.0 and are not open-source assets:
+The following image assets are excluded from the GPL-3.0 license and are not open-source assets:
 
 - public/Assets/Contributor.png
 - public/Assets/icon-16.png
@@ -13,12 +11,15 @@ License version 3.0 and are not open-source assets:
 - public/Assets/RoValraLogo.png
 - public/Assets/DonatorTiers/
 
-These images, including the RoValra logo and related logo/icon artwork, are
-fully copyrighted by Valra. All rights, title, and ownership in the RoValra
-logo belong to Valra. No permission is granted to copy, redistribute, modify,
-publish, use, or include these images in any other project, product, service,
-website, extension, fork, or derivative work unless Valra gives prior written
-permission.
+These assets, including the RoValra logo and associated branding artwork, are copyrighted by Valra. All rights, title, and ownership in these assets remain with Valra. No license or permission to use these assets is granted except as expressly stated below.
+
+Forks and Contributions
+
+Forking, modifying, and redistributing the source code of this project is permitted under the terms of the GPL-3.0 license.
+Contributors and fork maintainers may create, publish, distribute, and maintain forks of this project. However, the excluded assets listed above are not covered by the GPL-3.0 license. Fork maintainers must remove or replace these assets with their own original or appropriately licensed alternatives before redistributing their forks, unless they obtain prior written permission from Valra to use them.
+Forks may not imply official endorsement by, affiliation with, or ownership by Valra. The RoValra name, logo, and other protected branding may not be used in a way that misrepresents a fork as the official project.
+Nothing in this notice restricts the rights granted by the GPL-3.0 license to the source code covered by that license.
+For permission to use the excluded assets, contact Valra directly.
 
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
