@@ -2776,7 +2776,7 @@
         "currencyTransfer": "发送 Robux",
         "currencyTransferConfirmation": "这将打开 Roblox 用户端，允许您发送 Robux。",
         "openClient": "打开用户端",
-        "profileViews": "{{views}} 个人资料浏览次数",
+        "profileViews": "{{views}} 次个人资料浏览",
         "profileViewsTooltip": "来自 RoValra 用户的个人资料浏览次数。此数据统计的是个人资料浏览次数的总数，而非独立用户数。"
     },
     "animations": {
