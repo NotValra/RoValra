@@ -1456,6 +1456,36 @@
                     "desc1": "此功能可確認隨時能夠識別您何時嘗試查看已被停權的使用者。",
                     "desc2": "如果沒有此功能，如果您直接打開已被停權使用者的連結，則無法顯示他們的個人檔案。"
                 }
+            },
+            "avatarBorderEnabled": {
+                "title": "顯示使用者的虛擬人偶邊框",
+                "desc1": "在好友圖塊和個人檔案頁面上的虛擬人偶周圍顯示裝飾邊框。",
+                "desc2": "**您選擇的邊框將儲存到 RoValra 的資料庫中，以便其他 RoValra 使用者可以看到它。**",
+                "avatarBorderChoice": {
+                    "title": "免費取得所有虛擬人偶邊框",
+                    "desc1": "允許您完全免費使用任何虛擬人偶邊框。",
+                    "buttonText": "開啟邊框商店",
+                    "donatorReason": "等級 3 捐贈者可免費獲得所有虛擬人偶邊框。"
+                }
+            },
+            "profileFrameEnabled": {
+                "title": "顯示使用者的個人檔案框架",
+                "desc1": "在個人檔案頁面的虛擬人偶周圍繪製框架。",
+                "desc2": "框架與虛擬人偶邊框不同，它們包裹整個虛擬人偶縮圖容器，而不是虛擬人偶圖塊。",
+                "desc3": "**您選擇的框架將儲存到 RoValra 的資料庫中，以便其他 RoValra 使用者可以看到它。**",
+                "childSettings": {
+                    "title": "個人檔案框架",
+                    "desc1": "從 RoValra 商店的「框架」標籤中選擇個人檔案框架。",
+                    "buttonText": "開啟框架商店"
+                }
+            },
+            "improvedAvatarCard": {
+                "title": "改進的虛擬人偶卡",
+                "desc1": "在個人檔案虛擬人偶周圍新增間隙，使其看起來更美觀、更現代。"
+            },
+            "usernameColor": {
+                "title": "使用者名稱顏色預覽",
+                "desc1": "將使用者個人檔案中的使用者名稱顏色變更為 Roblox 在遊戲內聊天中顯示的顏色。靈感來自 https://github.com/RyloRiz/rblx-name-color。"
             }
         },
         "home": {

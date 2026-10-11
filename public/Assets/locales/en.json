@@ -1458,6 +1458,36 @@
                     "desc1": "This makes sure it never fails to identify when you're trying to view a banned user.",
                     "desc2": "Without this it would fail to show banned user profiles if you open their link directly"
                 }
+            },
+            "avatarBorderEnabled": {
+                "title": "Shows a user's Avatar Border",
+                "desc1": "Shows a decorative border around avatars on friend tiles and profile pages.",
+                "desc2": "**Your selected border is saved to RoValra's database so other RoValra users can see it.**",
+                "avatarBorderChoice": {
+                    "title": "Get all Avatar borders for free",
+                    "desc1": "Allows you to use any avatar border completely free of charge.",
+                    "buttonText": "Open Border Store",
+                    "donatorReason": "Donator Tier 3 gets all avatar borders for free."
+                }
+            },
+            "profileFrameEnabled": {
+                "title": "Shows a user's Profile Frame",
+                "desc1": "Draws a frame around the avatar display on profile pages.",
+                "desc2": "Frames are separate from avatar borders, they wrap the whole avatar thumbnail holder instead of the avatar tile.",
+                "desc3": "**Your selected frame is saved to RoValra's database so other RoValra users can see it.**",
+                "childSettings": {
+                    "title": "Profile Frames",
+                    "desc1": "Pick a profile frame from the Frames tab of the RoValra store.",
+                    "buttonText": "Open Frame Store"
+                }
+            },
+            "improvedAvatarCard": {
+                "title": "Improved Avatar Card",
+                "desc1": "Adds a gap around the profile avatar making it look a bit nicer and modern."
+            },
+            "usernameColor": {
+                "title": "Username Color Preview",
+                "desc1": "Changes the user's username color on their profile to the color Roblox would give them in in-game chats. Inspired by https://github.com/RyloRiz/rblx-name-color."
             }
         },
         "home": {

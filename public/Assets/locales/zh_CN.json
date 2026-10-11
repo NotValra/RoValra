@@ -1456,6 +1456,36 @@
                     "desc1": "此功能可确保始终能够识别您何时尝试查看已被封禁的用户。",
                     "desc2": "如果没有此功能，如果您直接打开被封禁用户的链接，则无法显示他们的个人资料。"
                 }
+            },
+            "avatarBorderEnabled": {
+                "title": "显示用户的虚拟形象边框",
+                "desc1": "在好友图块和个人资料页面上的虚拟形象周围显示装饰边框。",
+                "desc2": "**您选择的边框将保存到 RoValra 的数据库中，以便其他 RoValra 用户可以看到它。**",
+                "avatarBorderChoice": {
+                    "title": "免费获取所有虚拟形象边框",
+                    "desc1": "允许您完全免费使用任何虚拟形象边框。",
+                    "buttonText": "打开边框商店",
+                    "donatorReason": "等级 3 捐赠者可免费获得所有虚拟形象边框。"
+                }
+            },
+            "profileFrameEnabled": {
+                "title": "显示用户的个人资料框架",
+                "desc1": "在个人资料页面的虚拟形象周围绘制框架。",
+                "desc2": "框架与虚拟形象边框不同，它们包裹整个虚拟形象缩略图容器，而不是虚拟形象图块。",
+                "desc3": "**您选择的框架将保存到 RoValra 的数据库中，以便其他 RoValra 用户可以看到它。**",
+                "childSettings": {
+                    "title": "个人资料框架",
+                    "desc1": "从 RoValra 商店的「框架」选项卡中选择个人资料边框。",
+                    "buttonText": "打开框架商店"
+                }
+            },
+            "improvedAvatarCard": {
+                "title": "改进的虚拟形象卡片",
+                "desc1": "在个人资料虚拟形象周围添加间隙，使其看起来更美观、更现代。"
+            },
+            "usernameColor": {
+                "title": "用户名颜色预览",
+                "desc1": "将用户个人资料中的用户名颜色更改为 Roblox 在游戏内聊天中显示的颜色。灵感来自 https://github.com/RyloRiz/rblx-name-color。"
             }
         },
         "home": {
