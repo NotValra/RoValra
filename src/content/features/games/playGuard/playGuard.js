@@ -12,6 +12,7 @@ const PLAY_BUTTONS = [
     '.play-button-overlay button',
     '.rovalra-quick-play-btn',
     '.private-server-join-btn',
+    '[data-radix-popper-content-wrapper] .foundation-web-button.bg-action-emphasis',
 ].join(', ');
 const IGNORED = [
     '.group-join-button',
@@ -20,13 +21,7 @@ const IGNORED = [
     '[data-testid="group-button"]',
 ].join(', ');
 const PLAY_ICON = '.icon-common-play, svg, span[class*="icon"], icon';
-const GUARDED_EVENTS = [
-    'pointerdown',
-    'pointerup',
-    'mousedown',
-    'mouseup',
-    'click',
-];
+const GUARDED_EVENTS = ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click'];
 
 const STORAGE_KEY = 'playGuardPausedUntil';
 const PAUSE_HOURS = { '1h': 1, '8h': 8 };
@@ -41,7 +36,9 @@ const STYLE = `
     display: flex; align-items: center; justify-content: center;
     background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(3px);
     font-family: 'Builder Sans', 'Gotham SSm', Arial, sans-serif;
+    animation: rovalra-pg-fade 0.2s ease-out;
 }
+@keyframes rovalra-pg-fade { from { opacity: 0; } }
 .rovalra-pg-popup {
     width: min(92vw, 400px); box-sizing: border-box; padding: 16px 20px 20px;
     color: #fff; background: #1f2125; border: 1px solid #393b3d;
@@ -61,7 +58,7 @@ const STYLE = `
     margin-bottom: 10px; font-size: 12px; font-weight: 700;
     letter-spacing: 0.4px; text-transform: uppercase;
 }
-.rovalra-pg-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.rovalra-pg-actions { display: flex; justify-content: center; gap: 10px; }
 .rovalra-pg-btn {
     height: 36px; padding: 0 16px; border-radius: 8px; cursor: pointer;
     font: inherit; font-size: 14px; font-weight: 700; color: #fff;
@@ -89,9 +86,7 @@ const isLocked = () => inGame && !isPaused();
 
 function shouldSkip(button) {
     // RoValra's own private servers button (server icon) should stay as is
-    return (
-        button.closest(IGNORED) || button.querySelector('path[d^="M20 13H4"]')
-    );
+    return button.closest(IGNORED) || button.querySelector('path[d^="M20 13H4"]');
 }
 
 async function refreshPresence(force = false) {
@@ -193,11 +188,7 @@ function openPopup(button) {
     const back = el('button', 'rovalra-pg-link', ts('playGuard.back'));
     const choices = el('div', 'rovalra-pg-actions');
     for (const [key, hours] of Object.entries(PAUSE_HOURS)) {
-        const choice = el(
-            'button',
-            'rovalra-pg-btn',
-            ts(`playGuard.pause${key}`),
-        );
+        const choice = el('button', 'rovalra-pg-btn', ts(`playGuard.pause${key}`));
         choice.onclick = async () => {
             pausedUntil = Date.now() + hours * 36e5;
             await chrome.storage.local.set({ [STORAGE_KEY]: pausedUntil });
@@ -207,11 +198,7 @@ function openPopup(button) {
         };
         choices.append(choice);
     }
-    pause.append(
-        el('div', 'rovalra-pg-label', ts('playGuard.pauseTitle')),
-        choices,
-        back,
-    );
+    pause.append(el('div', 'rovalra-pg-label', ts('playGuard.pauseTitle')), choices, back);
 
     cancel.onclick = closePopup;
     go.onclick = () => {
@@ -230,6 +217,9 @@ function openPopup(button) {
 
     overlay = el('div', 'rovalra-pg-overlay');
     overlay.onclick = (e) => e.target === overlay && closePopup();
+    ['pointerdown', 'focusin'].forEach((type) =>
+        overlay.addEventListener(type, (e) => e.stopPropagation()),
+    );
     overlay.append(popup);
     document.body.append(overlay);
 }
@@ -245,8 +235,7 @@ async function askBeforeLaunch(button) {
 function guard(event) {
     if (allowClick || isPaused()) return;
 
-    const button =
-        event.target instanceof Element && event.target.closest(PLAY_BUTTONS);
+    const button = event.target instanceof Element && event.target.closest(PLAY_BUTTONS);
     if (!button || shouldSkip(button)) return;
 
     if (event.type !== 'click') {
@@ -276,9 +265,7 @@ export async function init() {
     style.textContent = STYLE;
     document.head.append(style);
 
-    GUARDED_EVENTS.forEach((type) =>
-        window.addEventListener(type, guard, true),
-    );
+    GUARDED_EVENTS.forEach((type) => window.addEventListener(type, guard, true));
     observeElement(PLAY_BUTTONS, updateButton, { multiple: true });
 
     chrome.storage.onChanged.addListener((changes, area) => {
