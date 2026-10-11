@@ -208,7 +208,7 @@ function poll() {
 }
 
 export async function init() {
-    if (!(await settings.PlayGuard)) return;
+    if (!(await settings.playGuardEnabled)) return;
 
     const stored = await chrome.storage.local.get(KEY);
     pausedUntil = stored[KEY] || 0;
