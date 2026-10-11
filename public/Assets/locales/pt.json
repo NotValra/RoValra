@@ -101,17 +101,17 @@
         "versionLabel": "Versão",
         "regionTooltip": "Região do servidor: {{region}}",
         "performanceTooltip": "Desempenho do servidor",
-        "latest": " (Mais novo)",
-        "oldest": " (Mais velho)",
+        "latest": " (Mais nova)",
+        "oldest": " (Mais velha)",
         "serverFull": "O servidor está cheio",
         "privateServer": "Jogando em um servidor privado",
         "purchaseGame": "Adquira o jogo para ver as regiões.",
         "currentVersionTooltip": "A versão atual publicada do jogo."
     },
     "serverStats": {
-        "totalServers": "Total de servidores",
+        "totalServers": "servidores totais",
         "totalServersTooltip": "Quantidade de servidores desse jogo que a RoValra está monitorando",
-        "oldest": "Mais velho",
+        "oldest": "Vers. mais velha",
         "oldestTooltip": "A versão mais velha que algum servidor está rodando."
     },
     "preferredRegion": {
@@ -823,7 +823,7 @@
             "store": "Loja"
         },
         "info": {
-            "title": "Informação da RoValra!",
+            "title": "Informações da RoValra!",
             "desc1": "A RoValra é uma extensão que está tentando trazer recursos básicos de praticidade de forma gratuita e acessível para todos, fazendo completamente tudo em código aberto.",
             "desc2": "Alguns recursos gratuitos ainda dependem dos servidores da RoValra e custam dinheiro para serem mantidos.",
             "desc3": "Doações de apoiadores nos ajudam a cobrir esses custos, permitindo que a RoValra mantenha mais recursos grátis para todos e melhore a cada dia. <icon style=\"color:#c13ad9\" filled>heart</icon>",
