@@ -1473,7 +1473,7 @@
                 "desc1": "在个人资料页面的虚拟形象周围绘制框架。",
                 "desc2": "框架与虚拟形象边框不同，它们包裹整个虚拟形象缩略图容器，而不是虚拟形象图块。",
                 "desc3": "**您选择的框架将保存到 RoValra 的数据库中，以便其他 RoValra 用户可以看到它。**",
-                "childSettings": {
+                "profileFrameChoice": {
                     "title": "个人资料框架",
                     "desc1": "从 RoValra 商店的「框架」选项卡中选择个人资料边框。",
                     "buttonText": "打开框架商店"

@@ -1473,7 +1473,7 @@
                 "desc1": "在個人檔案頁面的虛擬人偶周圍繪製框架。",
                 "desc2": "框架與虛擬人偶邊框不同，它們包裹整個虛擬人偶縮圖容器，而不是虛擬人偶圖塊。",
                 "desc3": "**您選擇的框架將儲存到 RoValra 的資料庫中，以便其他 RoValra 使用者可以看到它。**",
-                "childSettings": {
+                "profileFrameChoice": {
                     "title": "個人檔案框架",
                     "desc1": "從 RoValra 商店的「框架」標籤中選擇個人檔案框架。",
                     "buttonText": "開啟框架商店"

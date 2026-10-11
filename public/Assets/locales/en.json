@@ -1475,7 +1475,7 @@
                 "desc1": "Draws a frame around the avatar display on profile pages.",
                 "desc2": "Frames are separate from avatar borders, they wrap the whole avatar thumbnail holder instead of the avatar tile.",
                 "desc3": "**Your selected frame is saved to RoValra's database so other RoValra users can see it.**",
-                "childSettings": {
+                "profileFrameChoice": {
                     "title": "Profile Frames",
                     "desc1": "Pick a profile frame from the Frames tab of the RoValra store.",
                     "buttonText": "Open Frame Store"
