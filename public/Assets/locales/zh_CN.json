@@ -1486,6 +1486,28 @@
             "usernameColor": {
                 "title": "用户名颜色预览",
                 "desc1": "将用户个人资料中的用户名颜色更改为 Roblox 在游戏内聊天中显示的颜色。灵感来自 https://github.com/RyloRiz/rblx-name-color。"
+            },
+            "displayNameGradientEnabled": {
+                "title": "渐变显示名称",
+                "desc1": "向所有 RoValra 用户显示个人资料上的三色渐变显示名称。",
+                "desc2": "需要达到捐赠者等级 3 才能设置您自己的渐变显示名称。",
+                "displayNameGradient": {
+                    "title": "显示名称渐变",
+                    "desc1": "选择显示名称渐变中使用的三种颜色。",
+                    "donatorReason": "需要达到捐赠者等级 3 才能自定义显示名称渐变。"
+                },
+                "displayNameGradientEffect": {
+                    "title": "显示名称效果",
+                    "desc1": "为您的渐变显示名称添加可选的光泽、滚动或光晕效果。",
+                    "donatorReason": "需要达到捐赠者等级 3 才能使用显示名称效果。",
+                    "option1": "无",
+                    "option2": "光泽",
+                    "option3": "光泽 + 光晕",
+                    "option4": "渐变滚动",
+                    "option5": "渐变滚动 + 光晕",
+                    "option6": "光晕",
+                    "option7": "绽放光晕"
+                }
             }
         },
         "home": {

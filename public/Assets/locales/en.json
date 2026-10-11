@@ -1488,6 +1488,28 @@
             "usernameColor": {
                 "title": "Username Color Preview",
                 "desc1": "Changes the user's username color on their profile to the color Roblox would give them in in-game chats. Inspired by https://github.com/RyloRiz/rblx-name-color."
+            },
+            "displayNameGradientEnabled": {
+                "title": "Gradient Display Name",
+                "desc1": "Shows three-color gradient display names on profiles to all RoValra users.",
+                "desc2": "Donator Tier 3 is required to set your own gradient display name.",
+                "displayNameGradient": {
+                    "title": "Display Name Gradient",
+                    "desc1": "Choose the three colors used on your display name gradient.",
+                    "donatorReason": "Donator Tier 3 is required to customize your display name gradient."
+                },
+                "displayNameGradientEffect": {
+                    "title": "Display Name Effect",
+                    "desc1": "Adds an optional shine, roll, or bloom effect to your gradient display name.",
+                    "donatorReason": "Donator Tier 3 is required to use display name effects.",
+                    "option1": "None",
+                    "option2": "Shine",
+                    "option3": "Shine + Bloom",
+                    "option4": "Gradient Roll",
+                    "option5": "Gradient Roll + Bloom",
+                    "option6": "Bloom",
+                    "option7": "Blooming Bloom"
+                }
             }
         },
         "home": {

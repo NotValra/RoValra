@@ -1416,23 +1416,23 @@ export const SETTINGS_CONFIG = {
                 contributors: ['3602693727'],
             },
             displayNameGradientEnabled: {
-                label: 'Gradient Display Name',
+                label: 'settings.profile.displayNameGradientEnabled.title',
                 description: [
-                    'Shows three-color gradient display names on profiles to all RoValra users.',
-                    'Donator Tier 3 is required to set your own gradient display name.',
+                    'settings.profile.displayNameGradientEnabled.desc1',
+                    'settings.profile.displayNameGradientEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     displayNameGradient: {
-                        label: 'Display Name Gradient',
+                        label: 'settings.profile.displayNameGradientEnabled.displayNameGradient.title',
                         description:
-                            'Choose the three colors used on your display name gradient.',
+                            'settings.profile.displayNameGradientEnabled.displayNameGradient.desc1',
                         type: 'gradient',
                         colorCount: 3,
                         donatorTier: 3,
                         donatorReason:
-                            'Donator Tier 3 is required to customize your display name gradient.',
+                            'settings.profile.displayNameGradientEnabled.displayNameGradient.donatorReason',
                         default: {
                             enabled: false,
                             color1: '#ff4ecd',
@@ -1443,35 +1443,35 @@ export const SETTINGS_CONFIG = {
                         },
                     },
                     displayNameGradientEffect: {
-                        label: 'Display Name Effect',
+                        label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.title',
                         description:
-                            'Adds an optional shine, roll, or bloom effect to your gradient display name.',
+                            'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.desc1',
                         type: 'select',
                         options: [
-                            { value: 'none', label: 'None' },
-                            { value: 'shine', label: 'Shine' },
+                            { value: 'none', label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option1' },
+                            { value: 'shine', label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option2' },
                             {
                                 value: 'shine-bloom',
-                                label: 'Shine + Bloom',
+                                label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option3',
                             },
                             {
                                 value: 'roll',
-                                label: 'Gradient Roll',
+                                label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option4',
                             },
                             {
                                 value: 'roll-bloom',
-                                label: 'Gradient Roll + Bloom',
+                                label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option5',
                             },
-                            { value: 'sparkles', label: 'Bloom' },
+                            { value: 'sparkles', label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option6' },
                             {
                                 value: 'blooming-bloom',
-                                label: 'Blooming Bloom',
+                                label: 'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.option7',
                             },
                         ],
                         default: 'none',
                         donatorTier: 3,
                         donatorReason:
-                            'Donator Tier 3 is required to use display name effects.',
+                            'settings.profile.displayNameGradientEnabled.displayNameGradientEffect.donatorReason',
                     },
                 },
             },
