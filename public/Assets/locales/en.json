@@ -2212,7 +2212,9 @@
     },
     "pinnedFriends": {
         "pin": "Pin to top",
-        "unpin": "Unpin"
+        "unpin": "Unpin",
+        "pinToFriendsList": "Pin to friends list",
+        "unpinFromFriendsList": "Unpin from friends list"
     },
     "richLinks": {
         "by": "By {{name}}",

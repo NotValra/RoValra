@@ -29,8 +29,8 @@ async function isFriend(userId) {
 async function refreshPinButtonLabel(button, titleSpan, userId) {
     const pinnedFriends = await loadPinnedFriends();
     titleSpan.textContent = pinnedFriends.has(userId)
-        ? await t('pinnedFriends.unpinFromFriendsList', { defaultValue: 'Unpin from friends list' })
-        : await t('pinnedFriends.pinToFriendsList', { defaultValue: 'Pin to friends list' });
+        ? await t('pinnedFriends.unpinFromFriendsList')
+        : await t('pinnedFriends.pinToFriendsList');
     button.dataset.userId = userId;
 }
 
