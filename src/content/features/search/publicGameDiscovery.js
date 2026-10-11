@@ -89,10 +89,11 @@ function createSearchView(root, initialQuery) {
             const card = createGameCard({ game, stats });
             const label = document.createElement('div');
             label.className = 'rovalra-public-game-maturity';
+            const maturityKey = MATURITIES.includes(game.contentMaturity)
+                ? game.contentMaturity
+                : 'unknown';
             label.textContent = ts('publicGameDiscovery.maturityLabel', {
-                maturity: ts(
-                    `publicGameDiscovery.maturities.${MATURITIES.includes(game.contentMaturity) ? game.contentMaturity : 'unknown'}`,
-                ),
+                maturity: ts(`publicGameDiscovery.maturities.${maturityKey}`),
             });
             card.querySelector('.game-card-link').appendChild(label);
             grid.appendChild(card);
@@ -170,7 +171,7 @@ function createSearchView(root, initialQuery) {
         });
 
         try {
-            // Public discovery never uses the account's credentials or play endpoints.
+            // Omit account credentials so search results are not personalized.
             const data = await callRobloxApiJson({
                 subdomain: 'apis',
                 endpoint: `/search-api/omni-search?${params}`,
