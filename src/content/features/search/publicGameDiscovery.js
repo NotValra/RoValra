@@ -52,6 +52,7 @@ function createSearchView(root, initialQuery) {
 
     const status = document.createElement('p');
     status.setAttribute('role', 'status');
+    status.tabIndex = -1;
     const grid = document.createElement('div');
     grid.className = 'rovalra-public-game-grid';
     const more = createButton(ts('publicGameDiscovery.loadMore'));
@@ -76,6 +77,10 @@ function createSearchView(root, initialQuery) {
     let failed = false;
 
     function render() {
+        const focused = document.activeElement;
+        const focusedHref = grid.contains(focused)
+            ? focused.closest('.game-card-link')?.href
+            : null;
         grid.replaceChildren();
         for (const game of games.values()) {
             if (maturity !== 'all' && game.contentMaturity !== maturity)
@@ -99,8 +104,20 @@ function createSearchView(root, initialQuery) {
         status.textContent = ts(`publicGameDiscovery.${statusKey}`);
         grid.setAttribute('aria-busy', String(loading));
         more.hidden = !nextPageToken;
-        more.disabled = loading;
-        retry.hidden = !failed;
+        more.setAttribute('aria-disabled', String(loading));
+        retry.hidden = !failed && !(loading && focused === retry);
+        retry.setAttribute('aria-disabled', String(loading));
+        if (focusedHref) {
+            const link = [...grid.querySelectorAll('.game-card-link')].find(
+                (link) => link.href === focusedHref,
+            );
+            (link || status).focus({ preventScroll: true });
+        } else if (
+            (focused === more && more.hidden) ||
+            (focused === retry && retry.hidden)
+        ) {
+            (grid.querySelector('.game-card-link') || status).focus();
+        }
     }
 
     const filter = createDropdown({
@@ -218,7 +235,9 @@ function createSearchView(root, initialQuery) {
     }
 
     more.addEventListener('click', () => load(true));
-    retry.addEventListener('click', () => load(Boolean(nextPageToken)));
+    retry.addEventListener('click', () => {
+        if (!loading) load(Boolean(nextPageToken));
+    });
 
     function setMode(usePublic) {
         publicMode = usePublic;

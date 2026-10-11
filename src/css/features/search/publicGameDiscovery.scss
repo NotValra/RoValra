@@ -4,6 +4,11 @@
     [hidden] {
         display: none !important;
     }
+
+    button[aria-disabled='true'] {
+        opacity: 0.5;
+        cursor: default;
+    }
 }
 
 .rovalra-public-search-hidden {

@@ -173,6 +173,12 @@ async function run() {
                     }
                     if (query === 'error' && !window.__retry)
                         throw new Error('Fixture network failure');
+                    if (window.__deferNext) {
+                        window.__deferNext = false;
+                        return new Promise((resolve) =>
+                            window.__pending.set('next', resolve),
+                        );
+                    }
                     if (query === 'empty')
                         return { searchResults: [], nextPageToken: '' };
                     if (query === 'unknown')
@@ -343,6 +349,95 @@ async function run() {
             await cards.first().textContent(),
             /<img src=x onerror=alert\(1\)>/,
         );
+        const more = page.getByRole('button', {
+            name: 'Load more',
+            exact: true,
+        });
+        const retry = page.getByRole('button', {
+            name: 'Try again',
+            exact: true,
+        });
+        const deferNext = () =>
+            page.evaluate(() => {
+                window.__pending.delete('next');
+                window.__deferNext = true;
+            });
+        const waitForPending = () =>
+            page.waitForFunction(() => window.__pending.has('next'));
+        const finishPending = (response) =>
+            page.evaluate(
+                (response) => window.__pending.get('next')(response),
+                response,
+            );
+        const lastPage = searchResponse([
+            results[1],
+            game(5, 'More Cart Rides', 'mild'),
+        ]);
+        await deferNext();
+        await more.focus();
+        await page.keyboard.press('Enter');
+        await waitForPending();
+        assert.equal(
+            await more.evaluate(
+                (element) => element === document.activeElement,
+            ),
+            true,
+            'Load more must keep keyboard focus while loading',
+        );
+        assert.equal(await more.getAttribute('aria-disabled'), 'true');
+        await finishPending(lastPage);
+        await page.waitForFunction(() =>
+            document.activeElement.matches('.game-card-link'),
+        );
+        assert.equal(await cards.count(), 3);
+        assert.equal(await more.isVisible(), false);
+
+        await search('pagination card focus');
+        await more.waitFor();
+        await deferNext();
+        await more.click();
+        await waitForPending();
+        const firstLink = cards.first().locator('a');
+        await firstLink.focus();
+        await finishPending(lastPage);
+        await page.waitForFunction(
+            () =>
+                document.querySelectorAll(
+                    '.rovalra-public-game-grid .rovalra-game-card',
+                ).length === 3,
+        );
+        assert.equal(
+            await firstLink.evaluate(
+                (element) => element === document.activeElement,
+            ),
+            true,
+            'Updating results must preserve focus on an existing game',
+        );
+
+        await search('pagination outside focus');
+        await more.waitFor();
+        await deferNext();
+        await more.click();
+        await waitForPending();
+        const navbarSearch = page.locator('#navbar-search-input');
+        await navbarSearch.focus();
+        await finishPending(lastPage);
+        await page.waitForFunction(
+            () =>
+                document.querySelectorAll(
+                    '.rovalra-public-game-grid .rovalra-game-card',
+                ).length === 3,
+        );
+        assert.equal(
+            await navbarSearch.evaluate(
+                (element) => element === document.activeElement,
+            ),
+            true,
+            'Finishing a request must not override focus moved elsewhere',
+        );
+
+        await search('cart ride');
+        await more.waitFor();
         await page.evaluate(() => {
             window.__failMore = true;
         });
@@ -360,9 +455,28 @@ async function run() {
         await page.evaluate(() => {
             window.__failMore = false;
         });
-        await page
-            .getByRole('button', { name: 'Try again', exact: true })
-            .click();
+        await deferNext();
+        await retry.focus();
+        await page.keyboard.press('Enter');
+        await waitForPending();
+        assert.equal(await retry.isVisible(), true);
+        assert.equal(await retry.getAttribute('aria-disabled'), 'true');
+        assert.equal(
+            await retry.evaluate(
+                (element) => element === document.activeElement,
+            ),
+            true,
+            'Try again must keep keyboard focus while loading',
+        );
+        const requestCount = await page.evaluate(
+            () => window.__requests.length,
+        );
+        await page.keyboard.press('Enter');
+        assert.equal(
+            await page.evaluate(() => window.__requests.length),
+            requestCount,
+        );
+        await finishPending(lastPage);
         await page.waitForFunction(
             () =>
                 document.querySelectorAll(
@@ -374,6 +488,14 @@ async function run() {
                 .getByRole('button', { name: 'Load more', exact: true })
                 .isVisible(),
             false,
+        );
+        assert.equal(
+            await cards
+                .first()
+                .locator('a')
+                .evaluate((element) => element === document.activeElement),
+            true,
+            'A disappearing retry control must move focus to a result',
         );
         const links = await cards
             .locator('a')
@@ -442,13 +564,30 @@ async function run() {
         await page.evaluate(() => {
             window.__retry = true;
         });
-        await page
-            .getByRole('button', { name: 'Try again', exact: true })
-            .click();
+        await deferNext();
+        await retry.focus();
+        await page.keyboard.press('Enter');
+        await waitForPending();
+        const retryRequestCount = await page.evaluate(
+            () => window.__requests.length,
+        );
+        await page.keyboard.press('Enter');
+        assert.equal(
+            await page.evaluate(() => window.__requests.length),
+            retryRequestCount,
+        );
+        await finishPending(searchResponse([]));
         await page.waitForFunction(
             () =>
                 document.querySelector('[role="status"]').textContent ===
-                'Public search results',
+                'No games match this maturity on the loaded pages. Try another maturity or load more results.',
+        );
+        assert.equal(
+            await page
+                .getByRole('status')
+                .evaluate((element) => element === document.activeElement),
+            true,
+            'An empty retry must move focus to its status message',
         );
         await search('slow');
         await page.waitForFunction(() => window.__pending.has('slow'));
