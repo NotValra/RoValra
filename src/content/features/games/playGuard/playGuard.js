@@ -14,22 +14,17 @@ const PLAY_BUTTONS = [
     '.private-server-join-btn',
     '[data-radix-popper-content-wrapper] .foundation-web-button.bg-action-emphasis',
 ].join(', ');
-const IGNORED = [
-    '.group-join-button',
-    '.notification-option',
-    '.favorite-button',
-    '[data-testid="group-button"]',
-].join(', ');
+const IGNORED = '.group-join-button, .notification-option, .favorite-button, [data-testid="group-button"]';
 const PLAY_ICON = '.icon-common-play, svg, span[class*="icon"], icon';
-const GUARDED_EVENTS = ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click'];
+const EVENTS = ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click'];
 
-const STORAGE_KEY = 'playGuardPausedUntil';
-const PAUSE_HOURS = { '1h': 1, '8h': 8 };
+const KEY = 'playGuardPausedUntil';
+const PAUSES = { '1h': 1, '8h': 8 };
 const CACHE_MS = 2500;
 const POLL_MS = 8000;
 const IN_GAME = 2;
 
-const STYLE = `
+const CSS = `
 .rovalra-pg-hidden { display: none !important; }
 .rovalra-pg-overlay {
     position: fixed; inset: 0; z-index: 2147483647;
@@ -47,17 +42,11 @@ const STYLE = `
 .rovalra-pg-header { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; }
 .rovalra-pg-header img { width: 28px; height: 28px; }
 .rovalra-pg-header h2 { flex: 1; margin: 0; font-size: 20px; font-weight: 700; }
-.rovalra-pg-close {
-    display: flex; padding: 4px; border: 0; background: none;
-    color: #bdbebe; cursor: pointer;
-}
+.rovalra-pg-close { display: flex; padding: 4px; border: 0; background: none; color: #bdbebe; cursor: pointer; }
 .rovalra-pg-close:hover { color: #fff; }
 .rovalra-pg-popup hr { margin: 0 0 14px; border: 0; border-top: 1px solid #393b3d; }
 .rovalra-pg-popup p { margin: 0 0 20px; font-size: 14px; line-height: 1.45; color: #bdbebe; }
-.rovalra-pg-label {
-    margin-bottom: 10px; font-size: 12px; font-weight: 700;
-    letter-spacing: 0.4px; text-transform: uppercase;
-}
+.rovalra-pg-label { margin-bottom: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
 .rovalra-pg-actions { display: flex; justify-content: center; gap: 10px; }
 .rovalra-pg-btn {
     height: 36px; padding: 0 16px; border-radius: 8px; cursor: pointer;
@@ -81,26 +70,24 @@ let allowClick = false;
 let deciding = false;
 let overlay = null;
 
-const isPaused = () => Date.now() < pausedUntil;
-const isLocked = () => inGame && !isPaused();
+const paused = () => Date.now() < pausedUntil;
+const locked = () => inGame && !paused();
 
-function shouldSkip(button) {
-    // RoValra's own private servers button (server icon) should stay as is
-    return button.closest(IGNORED) || button.querySelector('path[d^="M20 13H4"]');
-}
+// the private servers button (server icon) stays untouched
+const skip = (btn) => btn.closest(IGNORED) || btn.querySelector('path[d^="M20 13H4"]');
 
-async function refreshPresence(force = false) {
+async function refreshPresence(force) {
     if (!force && Date.now() - checkedAt < CACHE_MS) return inGame;
 
     try {
-        const userId = await getAuthenticatedUserId();
-        if (!userId) return inGame;
+        const id = await getAuthenticatedUserId();
+        if (!id) return inGame;
 
         const res = await callRobloxApi({
             subdomain: 'presence',
             endpoint: '/v1/presence/users',
             method: 'POST',
-            body: { userIds: [Number(userId)] },
+            body: { userIds: [Number(id)] },
             noCache: true,
         });
         const { userPresences } = await res.json();
@@ -108,50 +95,40 @@ async function refreshPresence(force = false) {
         inGame = userPresences[0].userPresenceType === IN_GAME;
         checkedAt = Date.now();
         updateButtons();
-    } catch (err) {
-        console.warn('RoValra: Play Guard presence check failed', err);
+    } catch (e) {
+        console.warn('RoValra: Play Guard presence check failed', e);
     }
     return inGame;
 }
 
-function updateButton(button) {
-    if (shouldSkip(button)) return;
+function updateButton(btn) {
+    if (skip(btn)) return;
 
-    const lock = button.querySelector('.rovalra-pg-lock');
-    if (isLocked() && !lock) {
-        button.querySelector(PLAY_ICON)?.classList.add('rovalra-pg-hidden');
-        button.prepend(
-            Icon({
-                icon: 'lock',
-                material: true,
-                filled: true,
-                size: 'large',
-                classes: ['rovalra-pg-lock'],
-            }),
+    const lock = btn.querySelector('.rovalra-pg-lock');
+    if (locked() && !lock) {
+        btn.querySelector(PLAY_ICON)?.classList.add('rovalra-pg-hidden');
+        btn.prepend(
+            Icon({ icon: 'lock', material: true, filled: true, size: 'large', classes: ['rovalra-pg-lock'] }),
         );
-    } else if (!isLocked()) {
+    } else if (!locked()) {
         lock?.remove();
-        button
-            .querySelectorAll('.rovalra-pg-hidden')
-            .forEach((el) => el.classList.remove('rovalra-pg-hidden'));
+        btn.querySelectorAll('.rovalra-pg-hidden').forEach((e) => e.classList.remove('rovalra-pg-hidden'));
     }
 }
 
-function updateButtons() {
-    document.querySelectorAll(PLAY_BUTTONS).forEach(updateButton);
-}
+const updateButtons = () => document.querySelectorAll(PLAY_BUTTONS).forEach(updateButton);
 
-function launch(button) {
+function launch(btn) {
     allowClick = true;
-    button.click();
+    btn.click();
     allowClick = false;
 }
 
-function el(tag, className, text) {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text) node.textContent = text;
-    return node;
+function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
 }
 
 function closePopup() {
@@ -160,19 +137,19 @@ function closePopup() {
     deciding = false;
 }
 
-function openPopup(button) {
+function openPopup(btn) {
     const logo = el('img');
     logo.src = chrome.runtime.getURL('public/Assets/RoValraLogo.png');
     logo.alt = 'RoValra';
     logo.onerror = () => logo.remove();
 
-    const close = el('button', 'rovalra-pg-close');
-    close.ariaLabel = ts('playGuard.close');
-    close.append(Icon({ icon: 'close', material: true, size: 'medium' }));
-    close.onclick = closePopup;
+    const x = el('button', 'rovalra-pg-close');
+    x.ariaLabel = ts('playGuard.close');
+    x.append(Icon({ icon: 'close', material: true, size: 'medium' }));
+    x.onclick = closePopup;
 
     const header = el('div', 'rovalra-pg-header');
-    header.append(logo, el('h2', '', ts('playGuard.title')), close);
+    header.append(logo, el('h2', '', ts('playGuard.title')), x);
 
     const cancel = el('button', 'rovalra-pg-btn', ts('playGuard.cancel'));
     const go = el('button', 'rovalra-pg-btn primary', ts('playGuard.launch'));
@@ -187,23 +164,23 @@ function openPopup(button) {
     pause.hidden = true;
     const back = el('button', 'rovalra-pg-link', ts('playGuard.back'));
     const choices = el('div', 'rovalra-pg-actions');
-    for (const [key, hours] of Object.entries(PAUSE_HOURS)) {
-        const choice = el('button', 'rovalra-pg-btn', ts(`playGuard.pause${key}`));
-        choice.onclick = async () => {
+    for (const [key, hours] of Object.entries(PAUSES)) {
+        const b = el('button', 'rovalra-pg-btn', ts(`playGuard.pause${key}`));
+        b.onclick = async () => {
             pausedUntil = Date.now() + hours * 36e5;
-            await chrome.storage.local.set({ [STORAGE_KEY]: pausedUntil });
+            await chrome.storage.local.set({ [KEY]: pausedUntil });
             closePopup();
             updateButtons();
-            launch(button);
+            launch(btn);
         };
-        choices.append(choice);
+        choices.append(b);
     }
     pause.append(el('div', 'rovalra-pg-label', ts('playGuard.pauseTitle')), choices, back);
 
     cancel.onclick = closePopup;
     go.onclick = () => {
         closePopup();
-        launch(button);
+        launch(btn);
     };
     more.onclick = back.onclick = () => {
         main.hidden = !main.hidden;
@@ -217,60 +194,58 @@ function openPopup(button) {
 
     overlay = el('div', 'rovalra-pg-overlay');
     overlay.onclick = (e) => e.target === overlay && closePopup();
-    ['pointerdown', 'focusin'].forEach((type) =>
-        overlay.addEventListener(type, (e) => e.stopPropagation()),
-    );
+    ['pointerdown', 'focusin'].forEach((type) => overlay.addEventListener(type, (e) => e.stopPropagation()));
     overlay.append(popup);
     document.body.append(overlay);
 }
 
-async function askBeforeLaunch(button) {
+async function askBeforeLaunch(btn) {
     deciding = true;
-    if (await refreshPresence()) return openPopup(button);
+    if (await refreshPresence()) return openPopup(btn);
 
     deciding = false;
-    launch(button);
+    launch(btn);
 }
 
-function guard(event) {
-    if (allowClick || isPaused()) return;
+function guard(e) {
+    if (allowClick || paused()) return;
 
-    const button = event.target instanceof Element && event.target.closest(PLAY_BUTTONS);
-    if (!button || shouldSkip(button)) return;
+    const btn = e.target instanceof Element && e.target.closest(PLAY_BUTTONS);
+    if (!btn || skip(btn)) return;
 
-    if (event.type !== 'click') {
-        if (inGame) event.stopImmediatePropagation();
+    if (e.type !== 'click') {
+        if (inGame) e.stopImmediatePropagation();
         return;
     }
     if (!inGame && Date.now() - checkedAt < CACHE_MS) return;
 
     // hold the click until we know if the user is in a game
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    if (!deciding) askBeforeLaunch(button);
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (!deciding) askBeforeLaunch(btn);
 }
 
 function poll() {
-    if (!document.hidden && !isPaused()) refreshPresence(true);
+    if (!document.hidden && !paused()) refreshPresence(true);
 }
 
 export async function init() {
     if (!(await settings.PlayGuard)) return;
 
-    const stored = await chrome.storage.local.get(STORAGE_KEY);
-    pausedUntil = stored[STORAGE_KEY] || 0;
+    const stored = await chrome.storage.local.get(KEY);
+    pausedUntil = stored[KEY] || 0;
     await t('playGuard.title');
 
     const style = document.createElement('style');
-    style.textContent = STYLE;
+    style.textContent = CSS;
     document.head.append(style);
 
-    GUARDED_EVENTS.forEach((type) => window.addEventListener(type, guard, true));
+    EVENTS.forEach((type) => window.addEventListener(type, guard, true));
     observeElement(PLAY_BUTTONS, updateButton, { multiple: true });
 
     chrome.storage.onChanged.addListener((changes, area) => {
-        if (area !== 'local' || !changes[STORAGE_KEY]) return;
-        pausedUntil = changes[STORAGE_KEY].newValue || 0;
+        if (area !== 'local' || !changes[KEY]) return;
+        pausedUntil = changes[KEY].newValue || 0;
         updateButtons();
     });
 
