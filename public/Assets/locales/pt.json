@@ -1,0 +1,2289 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Compartilhar",
+        "serverCopied": "Copiado!",
+        "recentServerTitle": "Servidor",
+        "decalOptions": "Opções de imagem"
+    },
+    "common": {
+        "select": "Selecionar...",
+        "search": "Pesquisar",
+        "rovalraSettings": "Configurações da RoValra",
+        "filterItems": "Filtrar itens",
+        "applyFilter": "Aplicar filtro",
+        "uploadFile": "Carregar arquivo",
+        "change": "Alterar",
+        "invalidFileFormat": "Formato de arquivo invalido.",
+        "invalidImageFile": "Formato de arquivo invalido. Carregue uma imagem válida.",
+        "fileProcessingFailed": "O processamento do arquivo falhou. Tente utilizar outro arquivo.",
+        "errorProcessingFile": "Erro processando o arquivo. Tente utilizar outro arquivo.",
+        "less": "Menos",
+        "more": "Mais",
+        "pastYear": "Último ano",
+        "past6Months": "Últimos 6 meses",
+        "past3Months": "Últimos 3 meses",
+        "pastMonth": "Último mês",
+        "pastWeek": "Última semana",
+        "unnamedProduct": "Produto sem nome",
+        "offSale": "Fora de venda",
+        "robloxExperience": "Jogo do Roblox",
+        "subplace": "Subplace",
+        "subplaceUpper": "SUBPLACE",
+        "offline": "Offline",
+        "website": "No site",
+        "playing": "Jogando",
+        "playingGame": "Jogando {{gameName}}",
+        "studio": "Studio",
+        "share": "Compartilhar",
+        "copied": "Copiado!",
+        "free": "Grátis",
+        "unknown": "Desconhecido",
+        "somethingWentWrong": "Algo deu errado",
+        "robloxPlusSubscriber": "Assinante da Roblox Plus",
+        "joinServerFull": "Entrar (Servidor cheio)",
+        "id": "ID: ",
+        "profile": "Perfil",
+        "error": "Erro",
+        "rovalraDeveloper": "Dev da RoValra",
+        "close": "Fechar",
+        "confirmAction": "Confirmar ação",
+        "areYouSure": "Tem certeza de que deseja continuar?",
+        "confirm": "Confirmar",
+        "cancel": "Cancelar"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Gilberts na sua região",
+        "title": "Seletor de região da RoValra",
+        "automatic": "Automático",
+        "servers": "Servidores: ",
+        "datacenters": "Datacenters: ",
+        "filterByRegion": "Filtrar servidores por região",
+        "filterByRegionItem": "Filtrar por {{region}} ({{count}} servidores)",
+        "filterByUptime": "Filtrar servidores por tempo de atividade (mais novos/velhos)",
+        "filterByVersion": "Filtrar servidores pela versão do jogo"
+    },
+    "guidelines": {
+        "title": "Diretrizes da RoValra",
+        "message": "Ao utilizar a RoValra, você concorda em seguir nossos Termos de Uso. O não-cumprimento dessas regras pode resultar na suspensão do acesso a recursos específicos, incluindo bolhas de status e pronomes.<br><br><b>Principais pontos:</b><br>• Você não pode direcionar usuários para fora da plataforma.<br>• Você não pode fazer nada inapropriado.<br>• Você não pode violar os Termos de Serviço da Roblox.<br><br>Leia mais em <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "Entendi"
+    },
+    "review": {
+        "requestMessage": "Parece que você está aproveitando bem a RoValra!\n Você se importaria em deixar uma avaliação para nós?\n Ela nos ajudaria a manter a RoValra gratuita para todos, sem recursos pagos.",
+        "leaveReview": "Deixar uma avaliação",
+        "notNow": "Agora não",
+        "doNotShowAgain": "Não exibir novamente",
+        "rateTitle": "Avaliar a RoValra",
+        "donationMessage": "Manter recursos como o seletor de servidores não é algo gratuito e a RoValra depende completamente de doações para cobrir esses custos.\n\nSua doação nos ajuda a manter nossos servidores rodando, para que recursos como esse permaneçam grátis para todos.",
+        "donate": "Doar",
+        "donationTitle": "Quer apoiar a RoValra?"
+    },
+    "heatmap": {
+        "updatesBetween": "Atualizações entre {{start}} - {{end}} em {{date}}",
+        "updatesOn": "Atualizações em {{date}}",
+        "trackingSince": "O histórico de atualizações está sendo monitorado desde 15 de fevereiro de 2026"
+    },
+    "profileFeatures": {
+        "title": "Recursos da RoValra"
+    },
+    "serverFilters": {
+        "newest": "Servidores mais novos",
+        "oldest": "Servidores mais velhos",
+        "uptime": "Tempo de atividade",
+        "version": "Versão",
+        "enterVersion": "Inserir versão",
+        "region": "Região",
+        "versionPlaceholder": "Versão"
+    },
+    "serverInfo": {
+        "loading": "Carregando...",
+        "versionUnknown": "Versão desconhecida",
+        "version": "Versão {{version}}",
+        "versionLabel": "Versão",
+        "regionTooltip": "Região do servidor: {{region}}",
+        "performanceTooltip": "Desempenho do servidor",
+        "latest": " (Mais nova)",
+        "oldest": " (Mais velha)",
+        "serverFull": "O servidor está cheio",
+        "privateServer": "Jogando em um servidor privado",
+        "purchaseGame": "Adquira o jogo para ver as regiões.",
+        "currentVersionTooltip": "A versão atual publicada do jogo."
+    },
+    "serverStats": {
+        "totalServers": "servidores totais",
+        "totalServersTooltip": "Quantidade de servidores desse jogo que a RoValra está monitorando",
+        "oldest": "Vers. mais velha",
+        "oldestTooltip": "A versão mais velha que algum servidor está rodando."
+    },
+    "preferredRegion": {
+        "criticalError": "A API de Join (Entrar) do Roblox falhou em responder. Você pode ter que esperar um momento.\nIsso geralmente é causado por um problema na rede ou nos servidores da Roblox. Se o problema persistir, tente desativar a [região preferida.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) ou limpar o cache do seu navegador.\nSe o problema persistir, reporte ele no servidor do Discord da RoValra.\n\n---\n**Detalhes do erro:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "O Roblox pode estar deixando de usar a API de gamejoin. Isso está fora do controle da RoValra e irá afetar os seletores de servidor por um tempo; estamos trabalhando em corrigir o mais rápido possível!\n\n---\n**Detalhes do erro:**\n{{detailMsg}}",
+        "detectingLocation": "Detectando sua região...",
+        "closestRegion": "região mais próxima",
+        "inactiveRegion": "{{region}} não tem mais servidores usados pela Roblox.",
+        "scanningLocally": "Escaneando localmente por {{region}}...",
+        "regionApiUnavailable": "API de região indisponível. Escaneando por {{region}}...",
+        "findingLowestLatency": "Encontrando o servidor com a menor latência...",
+        "searchingInRegion": "Procurando em {{region}}...",
+        "fallbackInactive": "Os próximos melhores servidores pela API estão inativos. Escaneando localmente por {{region}}...",
+        "noServersApi": "A API não encontrou nenhum servidor em {{region}}. Escaneando localmente...",
+        "loadBalancing": "Os servidores em {{region}} são utilizados para balanceamento de carga e provavelmente só serão ativos sob alta demanda. Escaneando...",
+        "foundJoining": "Servidor em {{region}} encontrado! Entrando...",
+        "foundContinuing": "Encontrado: {{region}}. Continuando a procura por {{targetRegion}}...",
+        "foundVerifying": "Servidor em {{region}} encontrado! Verificando...",
+        "verifyingStatus": "Verificando status do servidor...",
+        "searchingClosest": "Procurando pelos servidores mais próximos de {{region}}...",
+        "noServersRunning": "Nenhum servidor de {{region}} rodando.",
+        "joinRegion": "Entrar {{region}}",
+        "couldNotFindServers": "Nenhum servidor encontrado."
+    },
+    "purchaseModal": {
+        "title": "Comprar item",
+        "buy": "Comprar",
+        "savingWithPlus": "Economizando <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> com o Plus",
+        "subtotal": "Subtotal",
+        "plusBenefit": "Benefício do Plus ({{percent}}% de desconto)",
+        "total": "Total",
+        "insufficientRobux": "Robux insuficiente",
+        "purchasing": "Comprando...",
+        "purchaseComplete": "Compra completa",
+        "successMessage": "Você comprou <b>{{itemName}}</b> com sucesso",
+        "ok": "Ok",
+        "purchaseError": "Erro na compra",
+        "purchaseFailed": "A compra falhou",
+        "unknownError": "Erro desconhecido",
+        "errorLoadingTitle": "Erro carregando o item",
+        "errorLoadingMessage": "Não foi possível encontrar as informações desse item. Detalhes: {{errorMessage}}. Tente novamente mais tarde."
+    },
+    "avatarRotator": {
+        "stop": "Parar rodízio",
+        "button": "Rodízio de avatares",
+        "selectMinimum": "Selecione pelo menos 2 avatares",
+        "setRotators": "Definir como parte do rodízio ({{count}})",
+        "selectedStatus": "Selecione os avatares que ficarão se alternando. ({{count}} selecionado(s))",
+        "loading": "Carregando...",
+        "loadMore": "Carregar mais",
+        "interval": "Intervalo (em segundos)",
+        "loadingDetails": "Carregando detalhes dos trajes...",
+        "active": "Rodízio ligado!",
+        "disable": "Desligar",
+        "clearSelection": "Limpar seleção",
+        "title": "Rodízio de avatares"
+    },
+    "avatarFilters": {
+        "filterItems": "Filtrar itens",
+        "filtering": "Filtrando...",
+        "loading": "Carregando...",
+        "creatorName": "Nome do criador",
+        "minPrice": "Preço min",
+        "maxPrice": "Preço máx",
+        "availability": "Disponibilidade",
+        "showAll": "Mostrar tudo",
+        "onsaleOnly": "Só à venda",
+        "offsaleOnly": "Só fora de venda",
+        "effects": "Efeitos",
+        "limiteds": "Limiteds"
+    },
+    "trading": {
+        "searchInventory": "Pesquisar no inventário",
+        "continueSearch": "Continuar pesquisa",
+        "filterTrades": "Filtrar trocas",
+        "noResults": "Nenhum resultado encontrado",
+        "copyProof": "Copiar prova",
+        "copied": "Copiado!",
+        "value": "Valor:",
+        "demand": "Demanda:",
+        "includeRobux": "Incluir Robux",
+        "openUserOnRolimons": "Abrir perfil no Rolimons",
+        "openOnRolimons": "Open {{type}} no Rolimons",
+        "projectedItem": "Item projetado",
+        "projected": "Projetado",
+        "rareItem": "Item raro",
+        "rap": "RAP",
+        "valueLabel": "Valor",
+        "demandLabel": "Demanda",
+        "bundle": "pacote",
+        "item": "item",
+        "serial": "N° de série",
+        "afterTax": "Depois da taxa",
+        "beforeTax": "Antes da taxa",
+        "youGive": "Você dá",
+        "youGet": "Você recebe"
+    },
+    "onboarding": {
+        "title": "Boas-vindas à RoValra!",
+        "thankYou": "Obrigada por instalar a <strong>RoValra</strong>!",
+        "exploreFeatures": "Para mudar as configurações e explorar todos os recursos, você pode:",
+        "settingsInstruction": "Clicar no <strong>ícone de engrenagem</strong> no topo da página, e então clicar em \"Configurações da RoValra\".",
+        "imageAlt": "Um guia mostrando onde encontrar o botão de configurações da RoValra no site do Roblox.",
+        "description": "RoValra é uma extensão eternamente gratuita tentando fornecer uma experiência melhor a todos!",
+        "gotIt": "Entendi!"
+    },
+    "catalogDependencies": {
+        "scan": "Escanear dependências",
+        "loading": "Carregando info ({{count}})...",
+        "title": "Dependências",
+        "unknown": "Desconhecido",
+        "assetFallback": "Asset {{id}}",
+        "verifiedBadge": "Emblema de verificado",
+        "by": "De"
+    },
+    "catalogItemSales": {
+        "sales": "Vendas",
+        "revenue": "Receita",
+        "statsTooltip": "Os dados de vendas e receita gerada vieram de um vazamento e provavelmente estão imprecisos."
+    },
+    "fortyMethod": {
+        "loginRequired": "Não conseguimos identificar seu ID de usuário. Você está logado à uma conta?",
+        "setupExperience": "Configurar um jogo",
+        "specificTemplate": "Apenas um template específico funciona",
+        "selectGroup": "Selecione um grupo no qual você tem permissão de gerenciar os jogos. <br>A extensão criará o jogo para você.",
+        "or": "OU",
+        "manualPlaceId": "Insira manualmente o ID de uma place <br> (Apenas faça isso caso você saiba o que está fazendo.)",
+        "donateSavedRobux": "Doar Robux economizado para a RoValra",
+        "estimatedSavings": "As estimativas de Robux economizado exibidas posteriormente são aproximadas e podem ser imprecisas.",
+        "importantInformation": "Informação importante",
+        "acknowledge": "Eu compreendi",
+        "groupRequired": "Grupo necessário",
+        "goBack": "Voltar",
+        "ownershipDetected": "Propriedade detectada",
+        "understandContinue": "Eu entendi e desejo continuar",
+        "createExperience": "Criar jogo",
+        "createNewExperience": "Criar novo jogo",
+        "findingExperience": "Encontrando seu jogo",
+        "findingExperienceWait": "Aguarde enquanto procuramos por seu jogo novo publicado...",
+        "donateToRoValra": "Doar à RoValra",
+        "back": "Voltar",
+        "validationWarning": "Aviso de validação",
+        "updateExperience": "Atualizar jogo",
+        "useAnyway": "Usar de qualquer maneira",
+        "permissionRequired": "Permissão necessária",
+        "backToGroupSelection": "Voltar à seleção de grupo",
+        "experience": "Jogo",
+        "loading": "Carregando...",
+        "setupGame": "Configurar seu jogo",
+        "saveContinue": "Salvar e continuar",
+        "creating": "Criando...",
+        "uploadingTemplate": "Atualizando template...",
+        "configuring": "Configurando...",
+        "done": "Pronto!",
+        "updating": "Atualizando...",
+        "purchaseFailed": "A compra falhou",
+        "gotIt": "Entendi",
+        "confirmMethodPurchase": "Confirmar compra com o método dos 40%",
+        "confirmCartPurchase": "Confirmar compra do carrinho",
+        "cancel": "Cancelar",
+        "alreadyOwned": "Já possuído",
+        "joinToPurchase": "Entre no jogo para comprar",
+        "confirmPurchase": "Confirmar compra",
+        "purchaseError": "Erro na compra",
+        "ownerAccount": "<strong>Conta do dono:</strong> O dono do grupo NÃO PODE ser a mesma conta que está comprando os itens. O dono deve ser uma conta alternativa e segura com Verificação de Duas Etapas ativada e uma senha forte e única.",
+        "payouts": "<strong>Pagamentos:</strong> Apenas o dono do grupo pode lhe pagar o Robux economizado, por meio dos fundos do grupo.",
+        "pendingRobux": "<strong>Robux pendente:</strong> Fique ciente que após utilizar esse recurso, o Robux ficará pendente por aproximadamente um mês até que ele possa ser devolvido.",
+        "groupRequiredBody": "Para utilizad o método dos 40% com seu próprio grupo, você precisa de um grupo no qual você tem permissão de gerenciar os jogos dele.",
+        "groupRequiredImportant": "<strong>Importante:</strong> Para que isso funcione corretamente, o dono do grupo deve ser uma conta alternativa segura. Sua conta principal (a que você está usando para comprar os itens) deve ter um cargo com permissão para criar e editar jogos desse grupo.",
+        "groupRequiredDonate": "Caso você não tenha um grupo, você optar por apoiar a RoValra, utilizando nosso jogo para processar a compra, o que doará os Robux economizados à RoValra ❤️",
+        "ownershipBody": "O método dos 40% não irá funcionar se você for o dono desse grupo. Selecione um grupo diferente ou transfira a posse desse grupo para uma conta alternativa segura.",
+        "experienceAccepted": "Jogo aceito",
+        "experienceAcceptedSpecific": "<strong>Apenas jogos específicos funcionam.</strong> Garanta que esse jogo está configurada com os scripts necessários para lidar com compras no jogo.",
+        "experienceAcceptedGroup": "Certifique-se que o jogo é de um grupo <strong>que você controla, mas que não é possuída por essa conta</strong>. De preferência, a posse do grupo deve ser de uma alt. Se você é dono do grupo, o método dos 40% não funcionará.",
+        "experienceAcceptedPending": "O Robux economizado ficará pendente por aproximadamente um mês antes de liberar o pagamento. Use uma conta alt segura como dona do grupo para receber o Robux de volta.",
+        "createExperienceBody": "Crie um novo jogo nesse grupo para usar o método dos 40%.",
+        "createNewExperienceBody": "Para criar um novo jogo para esse método:",
+        "createStepOne": "Abra o jogo que tem cópia liberada (uncopylocked) no Studio:",
+        "openStudio": "Abra o Studio",
+        "createStepTwo": "No Studio, vá para <strong>Arquivo > Configurações de experiência > Segurança > Ligue a opção \"Permitir vendas de terceiros\" > Salvar > Arquivo > Publicar na Roblox como...</strong>",
+        "createStepThree": "Selecione esse grupo na lista de Criador.",
+        "createStepFour": "Clique em <strong>Criar</strong> e o jogo será publicado",
+        "createPublishedBody": "Assim publicada, clique no botão abaixo e nós automaticamente encontraremos e selecionaremos ela para você.",
+        "publishedGame": "Terminei de publicar o jogo",
+        "saveSettingsUnavailable": "Falha ao salvar configurações. API de armazenamento indisponível.",
+        "groupsLoadFailed": "Falha ao carregar grupos. Atualize a página e tente novamente.",
+        "noGroupSelected": "Nenhum grupo selecionado. Tente novamente."
+    },
+    "risk": {
+        "projected": "O item está marcado como projetado.",
+        "rapMuchHigher": "O RAP (preço médio recente) é muito maior que o Valor, o valor pode subir.",
+        "rapHigher": "O RAP (preço médio recente) é maior que o Valor, o valor pode subir.",
+        "rapMuchLower": "O RAP (preço médio recente) é muito mais baixo que o Valor, o valor pode cair.",
+        "rapHigherSales": "O RAP (preço médio recente) é maior que as vendas, mas o Melhor Preço valida ele.",
+        "rapUnusuallyHigh": "O RAP (preço médio recente) está excepcionalmente alto em comparação com o preço de venda estável recente.",
+        "rapHigherStable": "O RAP (preço médio recente) está maior que o preço estável (gradualmente aumentando).",
+        "bestPriceMuchLower": "O Melhor Preço está significativamente menor que o RAP.",
+        "bestPriceLower": "O Melhor Preço está menor que o RAP.",
+        "bestPriceHigher": "O Melhor Preço está maior que o RAP.",
+        "bestPriceSlightlyHigher": "O Melhor Preço está significativamente maior que o RAP.",
+        "sufferingProjection": "O item está sofrendo de projeção.",
+        "stableTrend": "Tendência de preços estável."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Selecione e use qualquer tema sem assinar o Roblox Plus"
+    },
+    "items": {
+        "hiddenFromMarketplace": "Esse item está oculto do mercado",
+        "notFound": "Não encontrado",
+        "failedToLoad": "Falha ao carregar",
+        "onHold": "Em retenção",
+        "faeItem": "Item de verificação de idade"
+    },
+    "inventory": {
+        "openRolimons": "Abrir no Rolimon's",
+        "searchPlaceholder": "Pesquisar por nome do item..."
+    },
+    "games": {
+        "failedToLoad": "Falha ao entrar no jogo"
+    },
+    "gameBookmarks": {
+        "bookmark": "Salvar",
+        "saved": "Salvo",
+        "title": "Jogos salvos",
+        "uncategorized": "Não categorizados",
+        "create": "+ Criar nova categoria",
+        "categoryName": "Nome da categoria",
+        "createSave": "Criar e salvar",
+        "save": "Salvar alterações",
+        "deleteCategory": "Excluir categoria",
+        "deleteCategoryConfirm": "Tem certeza? Isso excluirá a categoria e removerá ela de todos os jogos salvos.",
+        "confirm": "Excluir",
+        "cancel": "Cancelar",
+        "remove": "Remover dos salvos",
+        "error": "Falhar ao salvar. Tente novamente.",
+        "loading": "Carregando jogo…",
+        "all": "Tudo",
+        "topic": "Jogos salvos",
+        "empty": "Nenhum jogo salvo nessa categoria."
+    },
+    "homeLayout": {
+        "untitled": "Sem título",
+        "empty": "A RoValra não conseguiu encontrar o layout. Atualize a página e tente novamente.",
+        "reset": "Reiniciar",
+        "save": "Salvar",
+        "overlayTitle": "Layout da página inicial",
+        "button": "Customizar layout",
+        "edit": "Editar",
+        "settingsTitle": "Configurações das categorias",
+        "visibility": "Visibilidade",
+        "visibilityDescription": "Defina se essa categoria aparece na Página Inicial.",
+        "accurateContinue": "Corrigir o \"Continuar\"",
+        "accurateContinueDescription": "Ordenar o \"Continuar\" para exibir primeiro os jogos que você jogou por último.",
+        "enable": "Ativar",
+        "disable": "Desativar",
+        "show": "Exibir",
+        "hide": "Esconder"
+    },
+    "sidebarLayout": {
+        "untitled": "Sem título",
+        "empty": "A RoValra não conseguiu encontrar nenhum botão para o menu lateral.",
+        "reset": "Reiniciar",
+        "save": "Salvar",
+        "overlayTitle": "Layout do menu lateral",
+        "button": "Customizar layout",
+        "myProfile": "Meu perfil",
+        "disabled": "Desativado",
+        "show": "Exibir",
+        "hide": "Esconder",
+        "add": "Adicionar",
+        "addButton": "Adicionar botão",
+        "buttonPlaceholder1": "Nome",
+        "buttonPlaceholder2": "Link"
+    },
+    "topbarLayout": {
+        "empty": "A RoValra não conseguiu encontrar nenhum botão para o menu superior.",
+        "reset": "Reiniciar",
+        "save": "Salvar",
+        "overlayTitle": "Layout da barra superior",
+        "button": "Layout da barra superior",
+        "disabled": "Obrigatório",
+        "show": "Exibir",
+        "hide": "Esconder",
+        "labels": {
+            "logo": "Logo da Roblox",
+            "charts": "Destaques",
+            "marketplace": "Mercado",
+            "create": "Criar",
+            "robux": "Robux",
+            "search": "Pesquisar",
+            "profile": "Perfil",
+            "qol": "Status",
+            "topbarLayout": "Layout da barra superior",
+            "notifications": "Notificações",
+            "robuxBalance": "Saldo de Robux",
+            "settings": "Configurações"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Amigos anteriores",
+        "nextFriends": "Mais amigos",
+        "isPlaying": "{{name}} está jogando",
+        "online": "Online",
+        "inStudio": "No Studio",
+        "offline": "Offline",
+        "friendFallback": "Amizade",
+        "join": "Entrar",
+        "chat": "Conversar",
+        "viewProfile": "Ver perfil"
+    },
+    "friendLabels": {
+        "menuAction": "Definir uma categoria de amizade",
+        "dialogTitle": "Categorizar {{displayName}}",
+        "inputLabel": "Categoria de amizade",
+        "inputPlaceholder": "Amigos próximos, Escola..",
+        "existingLabels": "Categorias existentes",
+        "friendFallback": "Amizade",
+        "save": "Salvar",
+        "remove": "Remover",
+        "cancel": "Cancelar"
+    },
+    "underratedGames": {
+        "topic": "Jogos subestimados",
+        "subtitle": "Jogos subestimados escolhidos à dedo pela comunidade da RoValra.",
+        "rotates": "Variar",
+        "suggestOnDiscord": "Sugira jogos subestimados em {{discord}}",
+        "ageRestrictionWarning": "Alguns desses jogos podem ser exclusivos para maiores de 16 anos pela exigência de um certo número de Jogadores Altamente Engajados."
+    },
+    "playtime": {
+        "topic": "Tempo de jogo",
+        "period": "Período de tempo de jogo",
+        "today": "Hoje",
+        "thisWeek": "Essa semana",
+        "thisMonth": "Esse mês",
+        "thisYear": "Esse ano",
+        "allTime": "Desde sempre",
+        "hours": "{{value}} horas",
+        "minutes": "{{value}} minutos"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} amizade em comum",
+        "pill_other": "{{count}} amizades em comum",
+        "tooltip": "Amizades mútuas que você tem com esse usuário",
+        "tab": "Amigos em comum",
+        "title": "Amigos em comum ({{count}})",
+        "empty": "Você não tem amigos em comum com esse usuário"
+    },
+    "trustedFriends": {
+        "pendingConnection": "Amizade Confiável pendente",
+        "pendingRequest": "Pedido de Amizade Confiável pendente",
+        "addConnection": "Adicionar como Amizade Confiável",
+        "addConfirmation": "Tem certeza de que deseja enviar um pedido de Amizade Confiável?",
+        "sendRequest": "Enviar pedido",
+        "sending": "Enviando...",
+        "requestSent": "Pedido de amizade confiável enviado!",
+        "requestFailed": "Falha ao enviar pedido de Amizade Confiável.",
+        "errorSending": "Falha enviando",
+        "acceptConnection": "Aceitar amizade confiável",
+        "acceptConfirmation": "Tem certeza de que deseja aceitar esse pedido de Amizade Confiável?",
+        "accept": "Aceitar",
+        "accepting": "Aceitando...",
+        "requestAccepted": "Pedido de Amizade Confiável aceitado!",
+        "acceptFailed": "Falha ao aceitar pedido de Amizade Confiável.",
+        "errorAccepting": "Falha aceitando",
+        "removeConnection": "Remover Amizade Confiável",
+        "removeConfirmation": "Tem certeza de que deseja remover essa Amizade Confiável?",
+        "remove": "Remover",
+        "removing": "Removendo...",
+        "connectionRemoved": "Amizade Confiável removida!",
+        "removeFailed": "Falha ao remover amizade confiável.",
+        "errorRemoving": "Falha removendo"
+    },
+    "chatEligibility": {
+        "canChat": "Você pode conversar com esse jogador.",
+        "cannotChat": "Esse jogador está fora da sua faixa de idade.",
+        "ageCheckRequired": "Esse jogador não verificou sua idade."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Atualmente vestindo",
+        "items": "Itens",
+        "cosmetics": "Cosméticos",
+        "bodyParts": "Partes do corpo",
+        "animations": "Animações",
+        "emotes": "Emotes"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "O jogador não tem jogos públicos.",
+        "overlayText": "Jogos ocultos",
+        "noHiddenGames": "O jogador não tem jogos ocultos.",
+        "buttonText": "Jogos ocultos",
+        "labels": {
+            "sort": "Classificar",
+            "order": "Ordenar",
+            "showAll": "Exibir todos os jogos"
+        },
+        "sort": {
+            "default": "Padrão",
+            "likeRatio": "Taxa de likes",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Jogadores",
+            "name": "Nome (Z-A)"
+        },
+        "order": {
+            "descending": "Decrescente",
+            "ascending": "Crescente"
+        },
+        "noMatches": "Nenhum jogo se encaixa aos filtros.",
+        "loading": "Carregando..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Jogos ocultos do grupo (Total de {{count}})",
+        "noHiddenGames": "Esse grupo não possui jogos ocultos.",
+        "buttonText": "Jogos ocultos",
+        "labels": {
+            "sort": "Classificar",
+            "order": "Ordenar",
+            "showAll": "Exibir todos os jogos"
+        },
+        "sort": {
+            "recentlyUpdated": "Atualizado recentemente",
+            "likeRatio": "Taxa de likes",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Jogadores",
+            "name": "Nome (Z-A)"
+        },
+        "order": {
+            "descending": "Decrescente",
+            "ascending": "Crescente"
+        },
+        "noMatches": "Nenhum jogo oculto se encaixa aos filtros.",
+        "loadingMore": "Carregando mais jogos..."
+    },
+    "userOutfits": {
+        "loading": "Carregando outfits...",
+        "back": "Voltar",
+        "totalPrice": "Preço total:",
+        "loadingItems": "Carregando itens...",
+        "noItems": "Esse traje não tem nenhum item.",
+        "errorLoadingItems": "Não foi possível carregar itens.",
+        "buttonText": "Mostrar trajes",
+        "overlayTitle": "Trajes do usuário",
+        "overlayTitleUser": "Trajes de {{displayName}}",
+        "noOutfits": "Esse usuário não tem nenhum traje.",
+        "inventoryPrivate": "O inventário desse usuário é privado.",
+        "errorNoUserId": "Não foi possível determinar o ID de usuário pela página.",
+        "errorFetch": "Não foi possível buscar trajes."
+    },
+    "donationLink": {
+        "donate": "Doar",
+        "overlayTitle": "Pls Donate",
+        "description": "Isso vai abrir o \"PLS DONATE\", onde você pode fazer uma doação offline.\n\nDevido as taxas do Roblox (30%) e do jogo (10%), o usuário só receberá 60% da quantia doada.\n\nAssim que você entrar, a tela de \"Doações Offline\" vai aparecer com o nome de usuário pré-preenchido. Basta clicar no botão de presente para abrir a estande do usuário e comprar uma gamepass para doar.",
+        "joinButton": "Entrar no Pls Donate",
+        "goBackButton": "Voltar",
+        "loadingGamePasses": "Carregando gamepasses...",
+        "priceLowToHigh": "Preço (Menor pro maior)",
+        "priceHighToLow": "Preço (Maior pro menor)",
+        "userGamePasses": "Gamepasses de {{username}}",
+        "copyDonationLink": "Copiar link de doação",
+        "copyLinkDescription": "Isso copia um link especial para esse perfil. Quando um usuário da RoValra abrir ele, esse menu de doação aparecerá automaticamente.<br><br><strong>Nota:</strong> Apenas usuários da RoValra vão ver a tela de doação, os outros verão a página de perfil normal.",
+        "copyLinkButton": "Copiar link",
+        "copySuccess": "Link de doação copiado com sucesso!",
+        "noGamePassesFound": "Nenhuma gamepass encontrada nos jogos de {{username}}.",
+        "errorLoading": "Error carregando as gamepasses: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Entrar instantâneamente",
+        "stopJoining": "Parar de entrar",
+        "description": "Com isso, você pode tentar entrar no jogo de um usuário assim que ele entrar.<br><br>Isso exige que o usuário tenha a configuração de join aberto para todos, ou que você seja amigo da pessoa.",
+        "searchPlaceholder": "Pesquisar por um jogo ou inserir o ID da Place (Opcional)",
+        "continue": "Continuar",
+        "cancel": "Cancelar",
+        "confirmTitle": "Confirmar ação"
+    },
+    "rap": {
+        "error": "Erro",
+        "private": "Privado",
+        "openInRolimons": "Abrir no Rolimon's",
+        "thisUser": "esse usuário",
+        "rolimonsRedirect": "Você está prestes a ser redirecionado para o perfil de {{username}} no Rolimon's, um site externo para trocas e valores de itens.<br><br>Deseja continuar?",
+        "continueToRolimons": "Continuar e acessar o Rolimon's",
+        "user": "Usuário",
+        "loadingItems": "Carregando mais itens...",
+        "noItemsMatch": "Nenhum item ",
+        "collectiblesTitle": "Colecionáveis de {{displayName}} (RAP {{totalRapString}})",
+        "collectiblesTitleValue": "Colecionáveis de {{displayName}} (Valor {{totalRapString}})",
+        "inventoryPrivateOrNoLimiteds": "O inventário desse usuário é privado ou não tem limiteds.",
+        "searchByName": "Pesquisar por nome do item",
+        "itemAmount": "Quantidade desse item possuído: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Enviar"
+    },
+    "privateServer": {
+        "processingTitle": "Processando servidores",
+        "starting": "Iniciando...",
+        "cancel": "Cancelar",
+        "cancelling": "Cancelando...",
+        "activating": "Ativando",
+        "inactivating": "Inativando",
+        "progressText": "Servidor {{actionText}} {{current}} de {{total}}...",
+        "unknownApiError": "Um erro de API desconhecido aconteceu.",
+        "processCancelled": "Processo cancelado. <span class=\"success-text\">{{count}} servidor(es) processado(s).</span>",
+        "completed": "Completo: <span class=\"success-text\">{{successCount}} com sucesso</span>, <span class=\"error-text\">{{errorCount}} falharam</span>.",
+        "processingComplete": "Processamento completo",
+        "confirmationTitle": "Confirmar ação",
+        "confirmationMessage": "Você esta prestes a definir {{count}} servidor(es) privado(s) como {{action}}.",
+        "confirmationJoinable": "Isso abrirá o acesso ao servidor privado.",
+        "confirmationUnjoinable": "Isso fechará o acesso ao servidor privado.",
+        "confirmationReversible": "Você pode alterar isso depois.",
+        "confirm": "Confirmar",
+        "deselectAll": "Desmarcar todos",
+        "selectAll": "Marcar todos",
+        "bulkInactivate": "Desativar vários",
+        "bulkActivate": "Ativar vários",
+        "setInactive": "Definir como inativo",
+        "setActive": "Definir como ativo",
+        "noServersFound": "Nenhum servidor privado {{status}} encontrado.",
+        "byCreator": "De",
+        "allowJoining": "Permitir entrada",
+        "friendsAllowed": "Permitir amizades"
+    },
+    "firstAccount": {
+        "label": "Primeira conta",
+        "yes": "Sim",
+        "no": "Não",
+        "tooltip": "Isso mostra se o Roblox acha que essa conta é a sua primeira conta criada. <br>Essa informação vem diretamente da Roblox, mas pode não ser precisa.",
+        "createdDate": "Primeira conta criada em: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "No programa de Trusted Creator",
+        "yes": "Sim",
+        "no": "Não",
+        "tooltip": "Encontrei um jeito de ver isso e achei legal :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Tema",
+        "light": "Claro",
+        "dark": "Escuro"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Configurações de personalizar imagem",
+            "source": "Fonte da imagem",
+            "opacity": "Opacidade da imagem",
+            "customSize": "Escala personalizada",
+            "blur": "Desfoque",
+            "overrideTopbarSidebar": "Modo transparente",
+            "size": {
+                "label": "Tamanho do fundo",
+                "cover": "Capa",
+                "contain": "Conter",
+                "auto": "Automático",
+                "custom": "Personalizado"
+            },
+            "position": {
+                "label": "Posição do fundo",
+                "center": "Centro",
+                "top": "Topo",
+                "bottom": "Baixo",
+                "left": "Esquerda",
+                "right": "Direita",
+                "topleft": "Superior esquerdo",
+                "topright": "Superior direito",
+                "bottomleft": "Inferior esquerdo",
+                "bottomright": "Inferior direito"
+            },
+            "overlay": {
+                "color": "Cor da sobreposição",
+                "opacity": "Opacidade da sobreposição"
+            },
+            "errors": {
+                "invalidUrl": "Insira um link https válido de imagem."
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Fora de venda",
+        "text": "Preço anterior:",
+        "lastOnSale": "Última vez à venda",
+        "for": "por"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Conquistado"
+    },
+    "lastEquipped": {
+        "label": "Última vez equipado"
+    },
+    "ownedItemPrice": {
+        "label": "Preço",
+        "free": "Grátis",
+        "offSale": "Fora de venda"
+    },
+    "pendingRobux": {
+        "tooltip": "Isso é uma estimativa de quantos Robux pendentes do seu saldo ficarão disponíveis amanhã, baseado nos seus dados de transação. A quantidade real pode variar, e a contagem pode estar imprecisa.",
+        "loading": "Carregando...",
+        "error": "Erro: {{message}}",
+        "insufficientData": "Dados insuficientes",
+        "insufficientDataTooltip": "Histórico de transações insuficiente para calcular uma estimativa precisa. Aguarde mais transações para completar.",
+        "label": "Robux deixando de estar pendente amanhã"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Calcular ganhos",
+        "calculateEarned": "Calcular ganhado",
+        "pausedMessage": "Cálculo pausado. Retome para continuar a contagem",
+        "resumeCalculation": "Retomar cálculo",
+        "startNewCalculation": "Iniciar novo cálculo",
+        "description": "Calcule o total de Robux que você ganhou de Vendas e Pagamentos de Grupos.",
+        "startCalculation": "Iniciar cálculo",
+        "transactionsScanned": "Transações escaneadas",
+        "totalRobuxEarned": "Total de Robux ganho",
+        "breakdownLabel": "Detalhamento da origem dos ganhos",
+        "calculatingTitle": "Calculando total de Robux ganhado",
+        "scanningHistory": "Calculando total de Robux ganhado...",
+        "rateLimited": "Rate limit da API atingido. Ainda contando...",
+        "calculationComplete": "Cálculo completo",
+        "allScanned": "Escaneamento do total de Robux ganho finalizado.",
+        "newCalculation": "Novo cálculo",
+        "errorTitle": "Um erro aconteceu",
+        "retry": "Tentar novamente",
+        "robloxLimitError": "A Roblox retornou um erro interno de servidor. Provavelmente não será possível escanear mais transações por conta das limitações da Roblox.",
+        "noEarnings": "Nenhum ganho encontrado ainda.",
+        "other": "Outros",
+        "groupPayout": "Pagamentos de grupos"
+    },
+    "totalSpent": {
+        "other": "Outros",
+        "na": "N/A",
+        "calculatingTitle": "Calculando",
+        "calculatingRobuxTitle": "Calculando total de Robux gasto",
+        "calculatingMoneyTitle": "Calculando total de dinheiro gasto",
+        "calculatingText": "Calculando...",
+        "calculatingRobuxText": "Calculando quanto Robux você já gastou...",
+        "calculatingMoneyText": "Calculando quanto dinheiro você já gastou...",
+        "rateLimited": "Rate limit da API atingido. Ainda contando...",
+        "calculationComplete": "Cálculo completo",
+        "allScanned": "Todas as transações relevantes foram escaneadas.",
+        "robuxAllScanned": "Escaneamento do total de Robux gasto finalizado.",
+        "moneyAllScanned": "Escaneamento do total de dinheiro gasto finalizado.",
+        "newCalculation": "Novo cálculo",
+        "errorTitle": "Um erro aconteceu",
+        "retry": "Tentar novamente",
+        "calculateSpend": "Calcular gastos",
+        "pausedMessage": "Cálculo pausado. Retome para continuar a contagem",
+        "resumeCalculation": "Retomar cálculo",
+        "startNewCalculation": "Iniciar novo cálculo",
+        "description": "Selecione um modo para calcular de seu histórico de transações.",
+        "calculateRobux": "Calcular Robux gasto",
+        "calculateMoney": "Calcular dinheiro gasto",
+        "transactionsScanned": "Transações escaneadas",
+        "totalRobuxSpent": "Total de Robux gasto",
+        "totalMoneySpent": "Total gasto (aprox.)",
+        "itemTypeBreakdown": "Detalhamento por tipo de item",
+        "premiumBreakdown": "Detalhamento de assinatura Premium",
+        "purchaseBreakdown": "Detalhamento de compras de Robux",
+        "noItems": "Nenhum item encontrado ainda.",
+        "pack": "Pack",
+        "stipend": "Stipend",
+        "errorUserId": "Não foi possível identificar o ID do usuário.",
+        "robloxLimitError": "A Roblox retornou um erro interno de servidor. Provavelmente não será possível escanear mais transações por conta das limitações da Roblox.",
+        "errorRetries": "Falhas após diversas tentativas. Último erro: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Total gasto",
+        "loading": "Carregando...",
+        "failedToLoad": "Falha ao carregar",
+        "singlePurchase": "1 compra",
+        "multiplePurchases": "{{count}} compras",
+        "stillCalculating": "O total gasto ainda está sendo calculado."
+    },
+    "spentPerGame": {
+        "title": "Quanto você gastou por jogo",
+        "disclaimer": "Isso pode estar impreciso devido a limitações do Roblox",
+        "mostSpent": "Mais gastos",
+        "mostPurchases": "Mais compras",
+        "noPurchases": "Nenhuma compra em jogo encontrada.",
+        "singlePurchase": "1 compra",
+        "multiplePurchases": "{{count}} compras",
+        "loadMore": "Carregar mais ({{remaining}} restantes)",
+        "searchPlaceholder": "Pesquisar jogos",
+        "loading": "Pesquisar gastos no jogo...",
+        "scanInProgress": "Escaneamento de transações em progresso. Isso por demorar um pouco.",
+        "loadError": "Não foi possível carregar os gastos no jogo."
+    },
+    "spentPerCreator": {
+        "title": "Quanto você gastou por criador",
+        "disclaimer": "Isso pode estar impreciso devido a limitações do Roblox",
+        "mostSpent": "Mais gastos",
+        "mostPurchases": "Mais compras",
+        "noPurchases": "Nenhuma compra à criador encontrada.",
+        "unknownCreator": "Criador desconhecido",
+        "includeGameCreators": "Incluir criadores de jogos",
+        "singlePurchase": "1 compra",
+        "multiplePurchases": "{{count}} compras",
+        "loadMore": "Carregar mais ({{remaining}} restantes)",
+        "searchPlaceholder": "Pesquisar criadores",
+        "loading": "Pesquisar gastos com o criador...",
+        "scanInProgress": "Escaneamento de transações em progresso. Isso por demorar um pouco.",
+        "loadError": "Não foi possível carregar os gastos com o criador."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Info",
+            "credits": "Colaboradores",
+            "donatorPerks": "Benefícios aos apoiadores",
+            "settings": "Configurações",
+            "accountStanding": "Situação da conta",
+            "store": "Loja"
+        },
+        "info": {
+            "title": "Informações da RoValra!",
+            "desc1": "A RoValra é uma extensão que está tentando trazer recursos básicos de praticidade de forma gratuita e acessível para todos, fazendo completamente tudo em código aberto.",
+            "desc2": "Alguns recursos gratuitos ainda dependem dos servidores da RoValra e custam dinheiro para serem mantidos.",
+            "desc3": "Doações de apoiadores nos ajudam a cobrir esses custos, permitindo que a RoValra mantenha mais recursos grátis para todos e melhore a cada dia. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "A RoValra é um projeto de paixão, e sempre foi.",
+            "suggestions": "Se você tem alguma sugestão de recursos, você pode sugerir no meu servidor do Discord ou no GitHub",
+            "bugs": "Se você encontrar algum bug, você pode reportar no meu servidor do Discord ou no GitHub",
+            "review": "Se você gostar da extensão, considere <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">deixar uma avaliação</a>, elas nos ajudam muito <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Servidor do Discord",
+            "github": "Repositório no GitHub",
+            "support": "Apoiar a RoValra",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Colaboradores",
+            "translatorsTitle": "Tradutores",
+            "featureCount_one": "{{count}} recurso",
+            "featureCount_other": "{{count}} recursos",
+            "contributorTooltips": {
+                "146089324": "WoozyNate é quem criou o fisch, de onde a logo antiga do RoValra veio. Você deveria dar uma olhada no fisch!",
+                "170038374": "Criou conceitos que basearam alguns recursos da RoValra.",
+                "795922138": "Teve a ideia do nome 'RoValra' como uma piada, que era muito engraçada pra não ser usada.",
+                "1337447242": "Fez a nova logo e todas as imagens da página da loja.",
+                "2974594300": "Melhorias na UI, correções de bugs, e outras contribuições."
+            },
+            "sortLabel": "Ordenar colaboradores",
+            "sortMost": "Mais",
+            "sortLeast": "Menos",
+            "contributionCount_one": "Contribuiu para {{count}} recurso",
+            "contributionCount_other": "Contribuiu para {{count}} recursos",
+            "backendContributorsNote": "Essas pessoas ajudaram com coisas não relacionadas a recursos.",
+            "loadingContributors": "Carregando...",
+            "failedToLoadContributors": "Falha ao carregar colaboradores.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Adicionou o emblema de tradutor e do WoozyNate",
+                    "nateGilbertFix": "Corrigiu o emblema do nate pra voltar a ser o gilbert"
+                },
+                "caching": {
+                    "hashmap": "Adicionou hashmap para o handler de cache"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Corrigiu a barra lateral de uma atualização do Roblox"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "Corrigiu o dessincronismo do parser RBXM e o formato CFRAME"
+                },
+                "markdown": {
+                    "untrustedMd": "Adicionou o analisador de markdown limitado para usuários não confiados"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Adicionou a API de configurações unificadas"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Melhorou os créditos na lista de colaboradores",
+                    "nonSettingCredits": "Adicionou créditos para os recursos e melhorias que não tem suas próprias configurações"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Adicionou novos indicadores para níveis de apoiador"
+                },
+                "iconElement": {
+                    "addIcons": "Adicionou o elemento `<icon>` que permitiu usar ícones da Builder, Material e da RoValra",
+                    "addElement": "Adicionou o elemento base `<icon>` que permitiu usar os icones da Builder. Antes, usávamos o elemento nativo `<i>` com classes.",
+                    "makeRoValraIcons": "Adicionou uma fonte para os ícones da RoValra + um novo método de construção para o site.",
+                    "addBuilderIconsWOFF": "Adicionou a hospedagem para os ícones da Builder no site da RoValra, além de diferentes arquivos de fontes com tamanho menor."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Adicionou o índice de temas plus para o site para que os usuários só pudessem utilizar os temas corretos e especificados."
+                },
+                "locales": {
+                    "madeRo": "Ajudou a traduzir a extensão pra Romeno",
+                    "madeEs": "Ajudou a traduzir a extensão pra Espanhol",
+                    "madeRu": "Ajudou a traduzir a extensão pra Russo",
+                    "madeFr": "Ajudou a traduzir a extensão pra Francês",
+                    "madeZh": "Ajudou a traduzir a extensão pra Chinês",
+                    "madeVi": "Ajudou a traduzir a extensão pra Vietnamita"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "Contribuições de {{user}}",
+                    "contributor": "Colaboradores",
+                    "featureName": "Recurso",
+                    "featureKey": "(Dev) Chave do recurso"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "Benefícios dos apoiadores!",
+            "subtitle": "Apoie o desenvolvimento da RoValra e ganhe benefícios exclusivos!",
+            "howToGet": "Como conseguir benefícios",
+            "howToGetDesc": "Você pode doar comprando uma gamepass no noso jogo de apoio.",
+            "goToGame": "Ir para o jogo de doação",
+            "perkTiers": "Níveis de apoiadores",
+            "perk": "Benefício",
+            "currentTier": "Nível atual",
+            "tier1": "Nível 1: Apoiador",
+            "tier1Desc": "Doe <strong>qualquer quantia</strong>",
+            "tier1Reward": "Emblema de Doador 1",
+            "tier1DiscordRole": "Cargo no Discord de Doador 1 + benefícios extras no Discord.",
+            "tier1Feature": "Definir status e ambientes sem adicionar um texto para o seu \"Sobre mim\".",
+            "tier2": "Nível 2: Apoiador",
+            "tier2Desc": "Doe <strong>200+ Robux</strong>",
+            "tier2Reward": "Emblema de Doador 2",
+            "tier2DiscordRole": "Cargo no Discord de Doador 2 + benefícios atualizados no Discord.",
+            "tier3": "Nível 3: Apoiador",
+            "tier3Desc": "Doe <strong>500+ Robux</strong>",
+            "tier3Reward": "Emblema de Doador 3",
+            "tier3DiscordRole": "Cargo no Discord de Doador 3 + benefícios extras no Discord.",
+            "previousRewards": "+ Todos os benefícios dos níveis anteriores",
+            "moreComingSoon": "Mais em breve.",
+            "note": "Nota\n- Emblemas podem demorar alguns minutos para aparecer após sua doação.\n- Para configurar a visibilidade do emblema, vá para a aba de \"Perfil\" nas configurações.\n- Doar por meio de comissões infelizmente não dará os benefícios de doador, isso é uma limitação da Roblox.\n- Ao doar, você concorda com os [Termos de Uso da RoValra](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "Insira ao menos 2 caracteres para pesquisar.",
+            "noResults": "Nenhuma configuração encontrada para \"{{query}}\"."
+        },
+        "ui": {
+            "common": {
+                "cancel": "Cancelar",
+                "okay": "Certo",
+                "ok": "Ok",
+                "pleaseWait": "Por favor, aguarde...",
+                "loading": "Carregando...",
+                "unknown": "Desconhecido",
+                "user": "Usuário",
+                "unavailable": "Indisponível",
+                "notAvailable": "N/A"
+            },
+            "levels": {
+                "allGood": "Ficha limpa",
+                "limited": "Limitado",
+                "veryLimited": "Bem limitado",
+                "atRisk": "Em risco",
+                "suspended": "Suspenso"
+            },
+            "search": {
+                "placeholder": "Pesquisar configurações..."
+            },
+            "controls": {
+                "clearStorage": "Limpar armazenamento",
+                "preview": "Prévia",
+                "fadeStrength": "Força do fade",
+                "clickMe": "Clique em mim",
+                "enterValue": "Inserir valor",
+                "remove": "Remover",
+                "add": "Adicionar",
+                "experimental": "Experimental",
+                "beta": "Beta",
+                "deprecated": "Descontinuado",
+                "invalidImageUrl": "Insira um link http:// ou https:// válido de imagem.",
+                "enablePermission": "Ativar a permissão {{permission}}"
+            },
+            "badges": {
+                "visibility": "Ativar a visibilidade dos seus emblemas de apoiador"
+            },
+            "locks": {
+                "donatorTierRequired": "Requer o nível {{tier}} de apoiador da RoValra",
+                "donatorPerk": "Recurso de apoiador da RoValra (Nível {{tier}})",
+                "featureDisabled": "Esse recurso foi desativado {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "Antes de ativar esse recurso",
+                "message": "Recursos com essa marcação podem ser instáveis e mudar ao longo do tempo. Eles podem deixar o carregamento mais lento, UI inconsistente, causar problemas no site e outros comportamentos inesperados.<br><br>Apenas ative isso se você entender que pode não funcionar perfeitamente.",
+                "acknowledge": "Eu entendi"
+            },
+            "environment": {
+                "exported": "O JSON do ambiente foi imprimido no console (F12)",
+                "imported": "A configuração do ambiente foi importada com sucesso. A página será recarregada para aplicar as alterações.",
+                "parseFailed": "Falha ao analisar o arquivo JSON.",
+                "storageUsed": "Total de armazenamento local usado: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Pronomes devem conter no máximo 15 caracteres.",
+                "filterRejected": "O filtro do Roblox rejeitou esses pronomes. Tente escrever de forma diferente.",
+                "checkFailed": "Os pronomes não puderam ser checados pelo filtro da Roblox. Tente novamente.",
+                "filterBusy": "O filtro de pronomes da Roblox está ocupado. Tente novamente em poucos instantes."
+            },
+            "port": {
+                "enableProfileNotes": "Ativar as Notas de Perfil antes de importar ou exportar notas",
+                "exportedOne": "{{count}} nota de perfil exportada.",
+                "exportedMany": "{{count}} notas de perfil exportadas.",
+                "exportFailed": "Não foi possível exportar as notas de perfil.",
+                "notesTooLarge": "O backup de notas de perfil é muito grande",
+                "invalidNotesBackup": "Esse não é um backup válido de notas de perfil da RoValra.",
+                "importedOne": "{{count}} nota de perfil importada.",
+                "importedMany": "{{count}} notas de perfil importadas.",
+                "notesReadFailed": "Não foi possível ler as notas de perfil.",
+                "importFailed": "Não foi possível importar as notas de perfil.",
+                "exportUnexpectedError": "Um erro inesperado ocorreu durante a exportação",
+                "exportError": "Erro ao exportar configurações. Olhe o console para mais detalhes.",
+                "sanitizeError": "Erro ao higienizar configurações para exportação. Olhe o console para mais detalhes.",
+                "invalidSettingsFile": "Isso não parece ser um arquivo de configurações da RoValra válido.",
+                "invalidSettingsData": "Erro: O arquivo de configurações importado contém dados inválidos ou potencialmente perigosos.",
+                "settingsTooLarge": "Erro: O arquivo de configurações é muito grande. O tamanho máximo é de 1MB.",
+                "importError": "Erro ao importar configurações. Olhe o console para mais detalhes.",
+                "malformedSettings": "O arquivo de configurações está mal formatado.",
+                "readFailed": "Não foi possível ler o arquivo de configurações. Ele pode estar corrompido ou no formato errado.",
+                "importUnexpectedError": "Um erro inesperado ocorreu durante a importação",
+                "exportSettings": "Exportar configurações",
+                "importSettings": "Importar configurações"
+            },
+            "changelogs": {
+                "title": "Histórico de mudanças",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Lançamento sem título",
+                "current": "Sua versão",
+                "noNotes": "Nenhuma nota de mudança foi fornecido para essa versão.",
+                "loading": "Carregando histórico de mudanças...",
+                "empty": "Nenhum histórico de mudança está disponível no momento.",
+                "loadFailed": "Falha ao carregar histórico de mudanças. Tente novamente mais tarde."
+            },
+            "parentRequest": {
+                "sendingTitle": "Enviando pedido",
+                "sentTitle": "Pedido enviado!",
+                "sentBody": "Seu pedido foi enviado para seus pais e responsáveis via email.",
+                "experienceName": "O nome do jogo é",
+                "sendFailedTitle": "Falha ao enviar pedido",
+                "sendFailedBody": "Seu pedido falhou ao ser enviado por um motivo desconhecido. Talvez você tenha sido ratelimited. Olhe o console para mais detalhes.",
+                "cancelingTitle": "Cancelando pedido",
+                "canceledTitle": "Pedido cancelado",
+                "canceledBody": "Seu pedido para seus pais e responsáveis foi cancelado.",
+                "cancelFailedTitle": "Falha no cancelamento de pedido",
+                "cancelFailedBody": "O cancelamento do seu pedido de desbloqueio falhou. Talvez você tenha sido ratelimited. Olhe o console para mais detalhes.",
+                "sendUnblock": "Enviar pedido de desbloqueio",
+                "alreadyRequestedTitle": "Já solicitado",
+                "alreadyRequestedBody": "Ei, você já enviou um pedido pra esse jogo!"
+            },
+            "donation": {
+                "donateUsd": "Doar (mínimo de US$ 1)",
+                "donateRobux": "Doar (mínimo de 5 Robux)",
+                "parentApprovalTitle": "Apoie mais a RoValra!",
+                "parentApprovalMessage": "A RoValra consegue uma porcentagem maior da doação ao utilizar gamepasses. Percebemos que você tem pelo menos 1 conta parental ligada. Você pode solicitar ao responsável que desbloqueie o jogo para que a RoValra consiga uma % maior em comparação às roupas 2D (e 3D).",
+                "useMarketplace": "Usar o mercado",
+                "currencyLabel": "Moeda da doação",
+                "donateWith": "Doar com",
+                "supportTitle": "Apoie a RoValra",
+                "supportDescription": "Consiga benefícios exclusivos ao doar",
+                "githubSponsors": "Patrocinadores do GitHub",
+                "included": "Incluído",
+                "notIncluded": "Não incluído",
+                "totalDonated": "Seu total já doado à RoValra: {{amount}}",
+                "tierTooltip": "Seu nível de apoiador",
+                "topDonators": "Maiores doadores (Robux)"
+            },
+            "profileBadge": {
+                "title": "Emblema de perfil customizado da RoValra",
+                "description": "Consiga um emblema customizado para seu perfil",
+                "iconLabel": "Ícone de emblema de perfil customizado",
+                "getUsd": "Adquirir (US$ 5)",
+                "getRobux": "Adquirir (4.000 Robux)",
+                "purchaseIntro": "Essa compra é para as pessoas que realmente querem apoiar a RoValra.",
+                "createTicket": "Após comprar esse item, vá ao Discord da RoValra e crie um ticket. SUA CONTA DO DISCORD DEVE TER PELO MENOS 30 DIAS DE IDADE PARA REGATAR",
+                "provideDetails": "Dê aos membros da equipe a imagem e o nome que você quer que seu emblema personalizado tenha.",
+                "countsTowardTier": "Comprar esse item contará para os níveis de apoiador da RoValra",
+                "visibility": "Esses emblemas personalizados são visíveis apenas para usuários da RoValra.",
+                "imageRequirements": "Requisitos para a imagem",
+                "webpRequirement": "A imagem deve ser um arquivo <strong>WEBP</strong> menor que <strong>1 MB</strong>.",
+                "noRobloxBadges": "SVGs e emblemas oficiais da Roblox não podem ser usados.",
+                "noOfficialRoValraBadges": "Emblemas oficiais da RoValra como de colaboradores ou artistas não são permitidos.",
+                "followTerms": "As imagens devem seguir aos Termos da Roblox",
+                "joinDiscord": "Entre no Discord da RoValra",
+                "agree": "Aceitar",
+                "agreeCountdown": "Aceitar ({{count}})",
+                "preview": "Prévia",
+                "previewTitle": "Prévia do emblema personalizado",
+                "previewDescription": "Carregue uma imagem WEBP para que você veja como ela ficaria como um emblema no seu perfil. A imagem só é mantida na memória e nunca é carregada ou salva, ela desaparece quando você sai ou atualiza a página.",
+                "previewTooltip": "Prévia do emblema",
+                "previewDone": "Feito"
+            },
+            "githubSponsorBadge": {
+                "title": "Emblema de perfil dos patrocinadores do GitHub",
+                "description": "Emblema de coração colorido. Apenas para os patrocinadores do GitHub",
+                "get": "Adquirir (mínimo de US$ 1)"
+            },
+            "store": {
+                "artist": "Artista",
+                "artistTooltip": "{{name}} criou essa borda de perfil.",
+                "free": "Grátis",
+                "owned": "Possuído",
+                "equipped": "Equipado",
+                "equip": "Equipar",
+                "buy": "Comprar",
+                "buyFor": "Comprar por {{price}}",
+                "viewGamepass": "Ver gamepass",
+                "all": "Tudo",
+                "new": "Novo",
+                "static": "ESTÁTICO",
+                "animated": "ANIMADO",
+                "borderTitle": "Loja de bordas de avatar",
+                "borderDescription": "Loja de bordas de avatar para apoiar diretamente a RoValra e os artistas. <strong>Nível 3 de apoiador garante todas as bordas de graça.</strong> Comprar bordas de avatar contam para seu nível de apoiador!",
+                "loadingBorders": "Carregando bordas ..."
+            },
+            "border": {
+                "bundleNotice": "(Inclui ambas as variantes estática e animada)",
+                "freeTier3Tooltip": "Grátis pois você é um apoiador de Nível 3!",
+                "ownedTooltip": "Você possui essa borda!",
+                "freeTooltip": "Essa borda é gratuita para equipar.",
+                "supportNotice": "Comprar cosméticos diretamente apoiará o artista e a RoValra",
+                "purchaseDelay": "Pode demorar um minuto para a borda aparecer após a compra",
+                "parentApprovalTitle": "Ação parental necessária",
+                "parentApprovalMessage": "Para comprar bordas de avatar, você precisa de permissão parental.",
+                "noParentTitle": "Você não pode utilizar bordas de avatar",
+                "noParentBody": "O Roblox exige que você tenha permissão de um responsável, mas você não tem nenhum responsável ligado a sua conta. Se você deseja utilizar bordas de avatar, você precisará conectar sua conta à de um responsável e pedir que ele desbloqueie o jogo de compra.",
+                "noBorders": "Nenhuma borda disponível.",
+                "currentPreview": "Prévia da seleção atual",
+                "signInPreview": "Entre em uma conta para ter uma prévia das bordas no seu avatar.",
+                "noBordersInTab": "Nenhuma borda encontrada nessa aba.",
+                "loadFailed": "Falha ao carregar bordas. Tente novamente mais tarde.",
+                "unequipTooltip": "Clique para desequipar essa borda",
+                "equipTooltip": "Equipar essa borda",
+                "buyTooltip": "Comprar essa borda"
+            },
+            "appeal": {
+                "messageLabel": "Insira sua mensagem de apelo (20-3000 caracteres)",
+                "title": "Enviar apelo",
+                "submit": "Enviar apelo",
+                "invalidLength": "Mensagens de apelo devem ter entre 20 e 3000 caracteres.",
+                "submitFailed": "Falha ao enviar apelo. Tente novamente mais tarde."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Ficha limpa",
+                    "none": "Nada / Sem restrições",
+                    "limited": "Limitado",
+                    "veryLimited": "Bem limitado",
+                    "atRisk": "Em risco",
+                    "suspended": "Suspenso"
+                },
+                "appealStatuses": {
+                    "notAppealed": "Não apelado",
+                    "pending": "Apelo pendente",
+                    "denied": "Apelo recusado",
+                    "accepted": "Apelo aceitado"
+                },
+                "goodTitle": "Sua conta está em bom estado.",
+                "goodDescription": "Você não tem nenhuma violação ou restrição ativa do time de segurança da RoValra.",
+                "temporaryTitle": "Sua conta está temporariamente limitada.",
+                "violationTitle": "Encontramos uma violação na sua conta.",
+                "statusDescription": "O estado da sua conta foi definido para: {{status}}",
+                "policyTitle": "Política de Segurança da RoValra",
+                "policyDescription": "Contas em contradas em violação dos {{- termsLink}} ou consideradas perigosas por detecções de terceiros terão certos recursos desativados. Note que enquanto capacidades específicas podem ser restritas, o time de segurança da RoValra <strong>nunca</strong> desativará a extensão inteira ou recursos completamente locais.",
+                "automatedAction": "Ação automatizada",
+                "manualReview": "Revisão manual",
+                "disabledFeatures": "Recursos desativados",
+                "moderatedContent": "Conteúdo moderado",
+                "violationDetails": "Detalhes da violação",
+                "unknownReason": "Motivo desconhecido",
+                "moderated": "Moderado",
+                "temporaryExpires": "A restrição temporária espira",
+                "appealCase": "Apelar caso",
+                "status": "Status",
+                "yourMessage": "Sua mensagem",
+                "response": "Resposta",
+                "reviewingAppeal": "Nosso time está revisando seu apelo.",
+                "appealDecision": "Apelar essa decisão"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "RoValra pode não funcionar corretamente com {{extensions}} ativada.",
+            "description": "Nós não prometemos suporte para {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Configurações de privacidade"
+        },
+        "noTogglesEnabled": "Nenhuma configuração foi ativada! Vá às Configurações da RoValra para ativar as configurações de privacidade.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Todos",
+                "friendsFollowingFollowers": "Amigos, seguindo e seguidores",
+                "friendsFollowing": "Amigos e seguindo",
+                "friends": "Amigos",
+                "trustedFriends": "Amizades confiáveis",
+                "noOne": "Ninguém"
+            },
+            "onlineStatus": {
+                "name": "Status de online"
+            },
+            "joinStatus": {
+                "name": "Status de jogo"
+            },
+            "privateServerPrivacy": {
+                "name": "Privacidade do servidor privado"
+            },
+            "inventoryPrivacy": {
+                "name": "Privacidade do inventário"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "Carregando...",
+        "pending": "Pendente:",
+        "noPermissions": "Sem permissão"
+    },
+    "navigation": {
+        "transactions": "Transações",
+        "apiDocs": "Documentações da API",
+        "incidentLearnMore": "Clique aqui para saber mais.",
+        "incidentHideNotice": "Você pode esconder esse aviso aqui",
+        "rovalraApi": "API da RoValra"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Fechar barra lateral",
+        "expandSidebar": "Expandir barra lateral"
+    },
+    "voiceBanIndicator": {
+        "title": "Banido do chat de voz",
+        "liftsIn": "Fim da suspensão em",
+        "noExpiry": "Sem expiração definida"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Tema da idade",
+        "options": {
+            "normal": "Roblox normal",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Roblox Select vazado (modo Start)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Ativar programas beta",
+        "noPrograms": "Você não está em nenhum programa beta.",
+        "allowlist": "Em uma lista de permissão",
+        "previousProgramsTitle": "Programas beta participados anteriormente",
+        "previousProgramTooltip": "Esse programa beta não está mais disponível."
+    },
+    "quickSearch": {
+        "aborted": "Abortado",
+        "apiRequestFailed": "Requisição da API falhou com status {{status}}",
+        "friendSearchError": "RoValra: Erro na busca por amizade",
+        "userSearchError": "RoValra: Erro na busca por usuário",
+        "gameSearchError": "RoValra: Erro na busca por jogo",
+        "trustedConnection": "Vocês são amizades confiáveis",
+        "connection": "Vocês são amigos",
+        "playing": "Jogando {{gameName}}",
+        "verifiedBadge": "Emblema de verificado",
+        "verified": "Verificado",
+        "permanentlyBanned": "Esse usuário foi banido permanentemente ou desativou sua conta.",
+        "joinPreferredRegion": "Entrar na sua região de preferência",
+        "bestRegionAuto": "Melhor região (auto)",
+        "searchHistory": "Histórico de busca",
+        "noSearchHistory": "Você não tem nada no histórico de busca.",
+        "deleteSearchHistoryTitle": "Excluir histórico de busca",
+        "deleteSearchHistoryMessage": "Tem certeza de que deseja excluir essa entrada no histórico de busca?",
+        "delete": "Excluir"
+    },
+    "friendOwnership": {
+        "pillLabel": "{{count}} amigos possuem",
+        "pillTooltip": "Ver quantos amigos possuem esse item",
+        "overlayTitle": "{{count}} amizades possuem esse item",
+        "unknownUser": "Usuário {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Selecionar ou entrar na região preferida de servidor",
+        "tooltip": "Entrar na região de preferência",
+        "tooltipWithRegion": "Entrar na sua região de preferência <br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Entrar na sua região de preferência <br><b>Melhor região (auto)</b>"
+    },
+    "quickPlay": {
+        "loading": "Carregando...",
+        "rateLimited": "Limite de tentativas excedido. Tentando novamente...",
+        "loadError": "Não foi possível carregar os servidores.",
+        "noPrivateServers": "Nenhum servidor privado encontrado.",
+        "configure": "Configurar",
+        "copyLink": "Copiar link",
+        "copied": "Copiado!",
+        "error": "Erro!",
+        "generateLink": "Gerar novo link",
+        "joinClosestServer": "Entrar no servidor mais próximo",
+        "selectPreferredRegion": "Selecionar região de preferência",
+        "privateServers": "Servidores privados"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Gerar link",
+        "regenerated": "Gerado!"
+    },
+    "devProducts": {
+        "noProducts": "Nenhum produto de desenvolvedor encontrado.",
+        "loadError": "Falha ao carregar produtos de desenvolvedor para esse jogo.",
+        "passes": "Passes",
+        "developerProducts": "Produtos de desenvolvedor",
+        "search": "Pesquisar",
+        "sort": {
+            "created": "Ordenar por criação",
+            "price": "Ordenar por preço",
+            "updated": "Ordenar por atualização",
+            "name": "Ordenar por nome"
+        },
+        "order": {
+            "ascending": "Ordem crescente",
+            "descending": "Ordem descrescente"
+        }
+    },
+    "shop": {
+        "tab": "Loja",
+        "all": "Tudo",
+        "category": "Categoria",
+        "product": "Produto",
+        "gamePass": "Gamepass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bônus: {{item}}",
+        "bonusItemFallback": "Inclui um item bônus",
+        "noItems": "Nenhum item encontrado na loja.",
+        "failedToLoad": "Falha ao carregar itens da loja.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Produto",
+            "GamePass": "Gamepass",
+            "Robux": "Pacote de Robux"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Subplaces",
+        "searchPlaceholder": "Pesquisar subplaces",
+        "loadMore": "Carregar mais",
+        "rootPlace": "Place raiz",
+        "noSubplaces": "Nenhuma subplace encontrada.",
+        "failedToLoad": "Falha ao carregar subplaces.",
+        "labels": {
+            "sort": "Classificar",
+            "order": "Ordenar"
+        },
+        "sort": {
+            "default": "Padrão",
+            "updated": "Atualizado recentemente",
+            "created": "Criado recentemente",
+            "name": "Nome (Z-A)"
+        },
+        "order": {
+            "descending": "Decrescente",
+            "ascending": "Crescente"
+        },
+        "banner": {
+            "title": "Você está vendo uma subplace de [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Alguns jogos podem não permitir que você entre nas subplaces.",
+            "descriptionRestricted": "Você não consegue entrar nessa subplace devido a restrições de entrada.",
+            "descriptionJoinable": "Você pode entrar nessa subplace.",
+            "mainExperience": "o jogo principal"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Atualizações",
+        "title": "Histórico de atualizações",
+        "blocked": {
+            "eighteenPlus": "O histórico de atualizações não funciona em jogos +18",
+            "paidAccess": "O histórico de atualizações não funciona em jogos de acesso pago",
+            "subplace": "O histórico de atualizações não funciona em subplaces com restrições de entrada",
+            "noDesktopSupport": "O histórico de atualizações não tem suporte para jogos que não estejam liberados para computador"
+        }
+    },
+    "serverList": {
+        "clear": "Limpar",
+        "noServersApi": "Nenhum servidor encontrado pela API da RoValra",
+        "allServersInactive": "Todos os servidores dessa região estão inativos",
+        "loadErrorApi": "Falha ao carregar servidores da API da RoValra.",
+        "hide": "Esconder",
+        "join": "Entrar",
+        "peopleMax": "{{playing}} de no máximo {{maxPlayers}} pessoas",
+        "pinPrivateServer": "Fixar servidor privado",
+        "unpinPrivateServer": "Desfixar servidor privado",
+        "playerCountUnknownTooltip": "A quantidade de jogadores é desconhecida, isso é uma limitação da Roblox. As fotos de perfil não representam as pessoas nesse jogo.",
+        "playerCountUnknownLabel": "Número de jogadores desconhecido"
+    },
+    "recentServers": {
+        "title": "Servidores recentes",
+        "refresh": "Recarregar",
+        "noneFound": "Nenhum servidor recente encontrado.",
+        "noActiveFound": "Nenhum servidor recente ativo encontrado.",
+        "lastJoined": "Entrou pela última vez: {{time}}",
+        "meAlt": "Eu",
+        "secondsAgo": "{{count}}s atrás",
+        "minutesAgo": "{{count}} min atrás",
+        "hoursAgo": "{{count}}h atrás",
+        "daysAgo": "{{count}} dia(s) atrás",
+        "description": "Servidores que você esteve recentemente"
+    },
+    "quickOutfits": {
+        "errorFetching": "Erro ao buscar trajes",
+        "equipping": "Equipando...",
+        "equipped": "Equipado!",
+        "failed": "Falhou",
+        "error": "Erro:",
+        "noUserId": "ID de usuário autenticado não foi encontrado para a função de trajes rápidos.",
+        "loading": "Carregando outfits...",
+        "title": "Trajes rápidos",
+        "noneFound": "Nenhum traje encontrado.",
+        "success": "Traje equipado com sucesso."
+    },
+    "btrDonationWarning": {
+        "title": "IMPORTANTE: desative a BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">A BTRoblox foi detectada. Ela pode interferir com o sistema de compras da Roblox. Se você tiver algum problema com compras, tente desativar a BTRoblox temporariamente e recarregar a página.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Por favor, desative a BTRoblox, recarregue essa página e tente realizar sua compra novamente.</p>",
+        "continue": "Continuar de qualquer forma"
+    },
+    "botDetector": {
+        "tooltip": "Bots são contas executando scripts automaticamente para farmar itens. Um único usuário as vezes roda mais de 50 bots. É importante lembrar que isso não é culpa dos desenvolvedores do jogo. Essa informação pode ser imprecisa se o jogo for jogado principalmente por contas novas do Roblox.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> tem muitos bots",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> tem alguns bots mas a maioria de seus jogadores são reais",
+        "thisGame": "Esse jogo"
+    },
+    "events": {
+        "title": "Eventos",
+        "tabs": {
+            "upcoming": "Em breve",
+            "past": "Passados"
+        },
+        "buttons": {
+            "viewEvent": "Ver evento",
+            "joinEvent": "Entrar no evento",
+            "unfollowEvent": "Deixar de seguir o evento",
+            "notifyMe": "Notificar-me"
+        },
+        "loadMore": "Carregar mais",
+        "releaseDate": "Data de lançamento do eento",
+        "empty": {
+            "active": "Nenhum evento ocorrendo ou planejado para acontecer.",
+            "past": "Nenhum evento passado.",
+            "all": "Nenhum evento encontrado."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Emblemas",
+            "hiddenBadges": "Emblemas ocultos"
+        },
+        "hiddenOwnedNotice": "Apenas emblemas ocultos que você possui são exibidos aqui",
+        "unableToDetectPlace": "Não foi possível detectar essa place.",
+        "unableToDetectUniverse": "Não foi possível detectar esse universo.",
+        "stillScanning": "Ainda escaneando seus emblemas. Emblemas ocultos que você possui devem aparecer em breve.",
+        "noneOwnedFound": "Não foi encontrad nenhum emblema oculto que você possui nesse jogo.",
+        "failedToLoad": "Falha ao carregar seus emblemas ocultos."
+    },
+    "antiBots": {
+        "reviewMembers": "Revisar {{count}} membros selecionados:",
+        "botWarning": "<strong>Aviso:</strong> Certifique-se que esses são bots antes de agir.",
+        "banMembers": "Banir membros",
+        "kickMembers": "Expulsar membros",
+        "cancel": "Cancelar",
+        "actionRequired": "Ação necessária ({{count}})",
+        "noPermission": "Você não tem permissão para banir ou expulsar crianças.",
+        "confirmBan": "Você está prestes a <strong>banir {{count}} membro(s)</strong>. Eles serão permanentemente bloqueados.",
+        "confirmKick": "Você está prestes a <strong>expulsar {{count}} membro(s)</strong>. Eles podem reentrar a qualquer momento.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Lembrete:</strong> Verifique a pontuação de bot antes de banir.</div>",
+        "yesAction": "Sim, {{action}}",
+        "confirmAction": "Confirmar ação",
+        "processing": "Processando {{current}} de {{total}}: {{displayName}}... Tempo estimado restante: {{time}}s",
+        "rateLimited": "Limite de tentativas excedido. Tentando novamente em {{delay}}s...",
+        "apiError": "Erro {{status}} na API ",
+        "unknownError": "Erro desconhecido",
+        "processComplete": "{{successCount}} de {{totalMembers}} membros foram {{actionType}} com sucesso",
+        "processFailed": "{{failedCount}} falhou.",
+        "close": "Fechar",
+        "score": "Pontuação: {{score}}/100",
+        "actionCount": "Ação ({{count}})",
+        "unselectAll": "Desmarcar todos",
+        "selectAll": "Marcar todos",
+        "antiBots": "Anti Bots",
+        "banByScore": "Banir por pontuação",
+        "quickAction": "Ação rápida",
+        "members": "Membros",
+        "loadingMembers": "Carregando membros...",
+        "selectMembersForAction": "Selecionando membros para ação ({{count}} carregado)",
+        "noMembersFound": "Nenhum membro encontrado.",
+        "initializingScan": "Inicializando scan...",
+        "scanStatus": "Escaneado: {{loaded}} ({{percent}}%) | Analizado {{processed}}",
+        "finalizingAnalysis": "Finalizando analise...",
+        "botsFound": "{{count}} possíveis bots encontrados",
+        "noBotsFound": "Nenhum possível bot encontrado",
+        "noBotsDetected": "Nenhum bot detectado",
+        "errorRetry": "Erro - Tentar novamente",
+        "errorDuringScan": "Erro durante o scan.",
+        "minBotScore": "Pontuação mínima de bot: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Isso selecionará aproximadamente <span id=\"rovalra-score-ban-count\">0</span> membros",
+        "confirm": "Confirmar",
+        "banKickByScore": "Banir ou expulsar por pontuação",
+        "confirmCount": "Confirmar ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Divirta-se!",
+        "close": "Fechar",
+        "robloxExperience": "Jogo do Roblox",
+        "unknownExperience": "Jogo desconhecido",
+        "serverId": "ID do Servidor:",
+        "privateServer": "Servidor privado",
+        "owner": "Dono:",
+        "version": "Versão:",
+        "uptime": "Tempo de atividade:",
+        "rcc": "RCC:",
+        "serverChannel": "Canal do servidor:",
+        "production": "Produção",
+        "launchingRoblox": "Abrindo a Roblox",
+        "downloadRoblox": "Baixar a Roblox",
+        "thanksDownloading": "Obrigado por baixar o Roblox",
+        "downloadInstructions": "Basta seguir esses passos abaixo para instalar o Roblox. O download deve começar em alguns segundos. Caso contrário, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">reinicie o download</a>.",
+        "installInstructions": "Instalar instruções",
+        "step1": "Assim que baixado, clique duas vezes no arquivo <b>RobloxPlayerInstaller.exe</b> na sua pasta de Downloads.",
+        "step2": "Clique duas vezes em <b>RobloxPlayerInstaller</b> para instalar o app.",
+        "step3": "Siga as instruções para instalar o Roblox em seu computador.",
+        "step4": "Agora que você instalou, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">entre no jogo</a>.",
+        "mobileApp": "Não se esqueça do app para celular",
+        "scanCode": "Aponte a câmera do seu celular para esse QR para baixar o Roblox.",
+        "joiningServer": "Entrando no servidor...",
+        "errorParsingUrl": "Erro ao encontrar URL",
+        "findingUser": "Buscando usuário...",
+        "fetchingServerInfo": "Buscando informações do servidor...",
+        "nonRootPlaceRestrictions": "Não é possível entrar: Restrições da subplace.",
+        "waitingForRoblox": "Aguardando a Roblox...",
+        "launching": "Abrindo..."
+    },
+    "createRoblox": {
+        "download": "Baixar",
+        "downloadMesh": "Baixar .mesh",
+        "downloadObj": "Baixar .obj",
+        "explorer": {
+            "button": "Explorador",
+            "title": "Explorador",
+            "loading": "Carregando...",
+            "selectInstance": "Selecione uma instância para ver suas propriedades",
+            "noProperties": "Sem propriedades",
+            "viewSource": "Ver fonte",
+            "closePreview": "Fechar prévia",
+            "defaultDevice": "Padrão (1280x720)",
+            "fitToWindow": "Encaixar na janela",
+            "actualResolution": "Resolução real",
+            "physicalSize": "Tamanho físico",
+            "rotate": "Girar",
+            "loadingPreview": "Carregando prévia da GUI...",
+            "searchInstances": "Pesquisar instâncias... (2+ caract.)",
+            "searchProperties": "Pesquisar propriedades...",
+            "previewGui": "Prévia da GUI",
+            "togglePreviewVisibility": "Ativar a visibilidade na prévia",
+            "noMatchingInstances": "Nenhuma instância correspondente encontrada",
+            "loadError": "Falha ao carregar."
+        }
+    },
+    "priceFloor": {
+        "label": "Preço mínimo:",
+        "status": "Esse item está {{status}} do preço mínimo{{difference}}.",
+        "statusTypes": {
+            "above": "acima",
+            "below": "abaixo",
+            "at": "em"
+        },
+        "difference": " por {{diff}}",
+        "description": "O preço mínimo é o menor preço que esse tipo de item pode ser vendido, e atualiza dinamicamente."
+    },
+    "parentItem": {
+        "multipleBundles": "Esse item faz parte de vários pacotes",
+        "multipleBundlesDescription": "Esse item provavelmente é usado como template e é incluído em diversos pacotes.",
+        "partOfBundle": "Esse item é parte do pacote [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Você está vendo um item que faz parte de um pacote."
+    },
+    "rovalraBadges": {
+        "userVerified": "Usuário tem a identidade verificada.",
+        "userNotVerified": "Usuário não teve a identidade verificada.",
+        "userAgeVerified": "Usuário tem a idade verificada.",
+        "userNotAgeVerified": "Usuário não teve a idade verificada.",
+        "userAgeVerificationMayBeInaccurate": "Isso pode não estar preciso"
+    },
+    "friendsSince": {
+        "friended": "Amigos",
+        "lastSeen": "Visto por último",
+        "age": "Idade",
+        "friendedVia": "Viraram amigos via",
+        "originFrom": "De",
+        "originSearch": "Pesquisa",
+        "originInGame": "Um jogo",
+        "originProfile": "Perfil",
+        "originQQContacts": "Contatos da QQ",
+        "originWeChatContacts": "Contatos da WeChat",
+        "originQrCode": "QR Code",
+        "originProfileShare": "Compartilhamento do perfil",
+        "originPhoneContacts": "Contatos do telefone",
+        "originPeopleYouMayKnow": "Pessoas que você talvez conheça",
+        "originschoolmemberlist": "Lista de membros da escola",
+        "originFriendLink": "Link de amizade",
+        "originSocialTabsPage": "Página de abas sociais",
+        "originUnknown": "Desconhecido"
+    },
+    "lastPlayed": {
+        "together": "Mais jogado juntos"
+    },
+    "avatarDownload": {
+        "button": "Baixar avatar",
+        "title": "Baixar avatar",
+        "size": "Resolução:",
+        "downloadPortrait": "PNG retrato",
+        "downloadBust": "PNG de busto",
+        "downloadAvatar": "PNG do avatar",
+        "downloading": "Baixando...",
+        "failed": "Falha ao baixar avatar. Tente novamente mais tarde."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Confirmar remoção de amizade",
+        "confirmUnfriends": "Confirmar remoções de amizade",
+        "descriptionSingle": "Você está prestes a remover 1 amizade. Essa ação não poderá ser desfeita.",
+        "descriptionPlural": "Você está prestes a remover {{count}} amizades. Essa ação não poderá ser desfeita.",
+        "cancel": "Cancelar",
+        "unfriend": "Remover amizade",
+        "unfriendCount": "Remover amizades ({{count}})",
+        "unfriendCountAction": "Remover {{count}} amizade",
+        "unfriendCountActionPlural": "Remover {{count}} amizades",
+        "unfriending": "Removendo amizade(s)...",
+        "bulkUnfriend": "Remover várias amizades",
+        "exitBulkMode": "Sair do modo de remoção em massa",
+        "successMessage": "{{successCount}} de {{totalCount}} amizades removidas com sucesso!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Remover vários emblemas",
+        "exit": "Sair do modo de remoção em massa",
+        "delete": "Excluir emblemas",
+        "deleteCount": "Excluir emblemas ({{count}})",
+        "confirmTitle": "Confirmar exclusão de emblemas",
+        "finalTitle": "Você realmente tem certeza?",
+        "finalDescription": "Isso excluirá {{count}} emblemas permanentemente do seu inventário.",
+        "descriptionSingle": "Você está prestes a excluir 1 emblema do seu inventário. Essa ação não poderá ser desfeita.",
+        "descriptionPlural": "Você está prestes a excluir {{count}} emblemas do seu inventário. Essa ação não poderá ser desfeita.",
+        "deletingProgress": "Excluindo emblemas... {{current}} de {{total}}",
+        "cancel": "Cancelar",
+        "success": "{{successCount}} de {{totalCount}} emblemas excluídos."
+    },
+    "blockUser": {
+        "block": "Bloquear",
+        "unblock": "Desbloquear",
+        "blockTitle": "Bloquear {{username}}",
+        "unblockTitle": "Desbloquear {{username}}",
+        "blockTitleGeneric": "Bloquear usuário",
+        "unblockTitleGeneric": "Desbloquear usuário",
+        "blockMessage": "O usuário não poderá mais lhe enviar pedidos de trocas. Você ainda poderá recusar qualquer troca existente, mas não poderá aceitar ou fazer uma contraproposta.",
+        "unblockMessage": "O usuário voltará a poder te enviar pedidos de troca, e você poderá aceitar ou enviar uma contraproposta para qualquer troca existente.",
+        "cancel": "Cancelar"
+    },
+    "unfriendDetector": {
+        "title_one": "Amizade removida detectada",
+        "title_other": "Amizade removida detectada",
+        "description_one": "Essa pessoa te removeu de amizade desde a última vez que você jogou:",
+        "description_other": "Essas {{count}} pessoas te removeram de amizade desde a última vez que você jogou:",
+        "viewProfile": "Ver perfil de {{name}}",
+        "dismiss": "Ignorar"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Confirmar saída",
+        "confirmLeaves": "Confirmar saídas",
+        "descriptionSingle": "Você está prestes a sair de 1 comunidade. Essa ação não poderá ser desfeita.",
+        "descriptionPlural": "Você está prestes a sair de {{count}} comunidades. Essa ação não poderá ser desfeita.",
+        "cancel": "Cancelar",
+        "leave": "Sair",
+        "leaveCount": "Sair ({{count}})",
+        "leaveCountAction": "Sair de {{count}} comunidade",
+        "leaveCountActionPlural": "Sair de {{count}} comunidades",
+        "leaving": "Saindo...",
+        "bulkLeave": "Sair de várias",
+        "exitBulkMode": "Sair desse modo",
+        "successMessage": "Você saiu de {{successCount}} de {{totalCount}} comunidades com sucesso!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Seu saldo após essa transição será de"
+    },
+    "recentlyViewed": {
+        "title": "Visto recentemente",
+        "clear": "Limpar",
+        "remove": "Remover",
+        "cheaper": "{{value}} Robux mais barato desde a última vez que você viu",
+        "pricier": "{{value}} Robux mais caro desde a última vez que você viu",
+        "offSale": "Saiu de venda",
+        "backOnSale": "Voltou à venda"
+    },
+    "tradeRecentItems": {
+        "offer": "Oferecido recentemente",
+        "request": "Pedido recentemente",
+        "clear": "Limpar"
+    },
+    "tradeQuickActions": {
+        "minValue": "Valor min. que eles dão",
+        "hideLosses": "Ocultar perdas",
+        "bulkTitle": "Fazer algo em vários",
+        "bulkHint": "Recusa toda troca que fizer você perder valor. Você confirma antes.",
+        "declineLosses": "Recusar trocas que te façam perder",
+        "loadingTrades": "Carregando trocas recebidas...",
+        "checking": "Analisando trocas {{done}} de {{total}}...",
+        "noLosses": "Nenhuma troca recebida que lhe faça perder valor encontrada",
+        "confirmTitle": "Recusar trocas que te façam perder",
+        "confirmMessage": "{{count}} de suas {{total}} trocas recebidas te fariam perder valor (total de {{value}}). Recusar todas elas? Isso não poderá ser desfeito.",
+        "declineConfirm": "Recusar",
+        "declining": "Recusando {{done}} de {{total}}...",
+        "declined": "{{count}} trocas recusadas",
+        "declinedWithFailures": "{{count}} trocas recusadas, {{failed}} falhou/falharam"
+    },
+    "time": {
+        "justNow": "agora",
+        "secondsAgo": "{{count}}s atrás",
+        "minutesAgo": "{{count}} min atrás",
+        "hoursAgo": "{{count}}h atrás",
+        "daysAgo": "{{count}} dia(s) atrás",
+        "weeksAgo": "{{count}} semana(s) atrás",
+        "monthsAgo": "{{count}} mes(es) atrás",
+        "yearsAgo": "{{count}} ano(s) atrás",
+        "secondsFromNow": "em {{count}}s",
+        "minutesFromNow": "em {{count}} min",
+        "hoursFromNow": "em {{count}}h",
+        "daysFromNow": "em {{count}} dia(s)",
+        "weeksFromNow": "em {{count}} semana(s)",
+        "monthsFromNow": "em {{count}} mes(es)",
+        "yearsFromNow": "em {{count}} ano(s)",
+        "months": {
+            "jan": "Jan",
+            "feb": "Fev",
+            "mar": "Mar",
+            "apr": "Abr",
+            "may": "Mai",
+            "jun": "Jun",
+            "jul": "Jul",
+            "aug": "Ago",
+            "sep": "Set",
+            "oct": "Out",
+            "nov": "Nov",
+            "dec": "Dez"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Sobre",
+            "store": "Loja",
+            "servers": "Servidores"
+        },
+        "servers": {
+            "title": "Seus servidores privados",
+            "description": "Jogue no seu próprio espaço, sozinho ou com pessoas que você convidar",
+            "friendsTitle": "Servidores que minhas amizades estão",
+            "publicTitle": "Outros servidores",
+            "privateServer": "Servidor privado",
+            "players": "{{playing}} de {{maxPlayers}} jogadores",
+            "join": "Entrar",
+            "loadMore": "Carregar mais",
+            "loading": "Carregando servidores...",
+            "noServers": "Nenhum servidor encontrado.",
+            "loadError": "Não foi possível carregar os servidores.",
+            "ownerAvatar": "Dono do servidor",
+            "playerAvatar": "Jogador",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Jogo privado",
+        "experienceIsPrivate": "Esse jogo é privado.",
+        "unknown": "Desconhecido",
+        "rovalraNotice": "Apenas usuários da RoValra podem ver essa página.",
+        "unavailable": "Indisponível",
+        "favorite": {
+            "add": "Adicionar aos favoritos",
+            "remove": "Remover dos favoritos",
+            "favorited": "Favoritado",
+            "favorite": "Favoritar"
+        },
+        "notify": {
+            "tooltip": "Ativar as notificações",
+            "label": "Notificar"
+        },
+        "description": {
+            "title": "Descrição",
+            "noDescription": "Sem descrição disponível."
+        },
+        "stats": {
+            "active": "Jogadores",
+            "favorites": "Favoritos",
+            "visits": "Visitas",
+            "maxPlayers": "Tamanho do servidor",
+            "genre": "Gênero",
+            "subgenre": "Subgênero",
+            "created": "Criado",
+            "updated": "Atualizado",
+            "voiceChat": "Chat de voz",
+            "supported": "Suporte",
+            "unsupported": "Sem suporte"
+        },
+        "reportAbuse": "Denunciar abuso",
+        "badges": {
+            "title": "Emblemas",
+            "noBadges": "Sem emblemas no momento",
+            "rarity": "Raridade",
+            "wonYesterday": "Ganharam ontem",
+            "wonEver": "Ganharam desde sempre"
+        },
+        "subscriptions": {
+            "title": "Assinaturas",
+            "subscribe": "Assinar"
+        },
+        "passes": {
+            "title": "Passes",
+            "showOffSale": "Mostrar fora de venda",
+            "noPasses": "Nenhum passe disponível",
+            "offSale": "Fora de venda",
+            "owned": "Possuído",
+            "buy": "Comprar"
+        },
+        "disabled": "A opção de ver os jogos privados/moderados está desativada",
+        "disabledDescription": "Para ver jogos privados e moderados, você precisa ativar a configuração aqui:",
+        "disabledLinkText": "Ver jogos privados/moderados",
+        "products": {
+            "title": "Produtos",
+            "buy": "Comprar"
+        },
+        "moderated": "Moderado"
+    },
+    "gamePassViewer": {
+        "type": "Tipo",
+        "typeValue": "Passe",
+        "productId": "ID do Produto",
+        "price": "Preço",
+        "owned": "Possuído",
+        "ownedItem": "Item possuído",
+        "free": "Grátis",
+        "ownedNotice": "Esse item está disponível no seu inventário.",
+        "inventory": "Inventário",
+        "by": "De",
+        "usePassIn": "Use esse passe em: ",
+        "rovalraNoticeDescription": "Essa gamepass está inativa e não pode ser comprada devido a limitações da Roblox, possivelmente relacionadas à idade da conta ou a visibilidade do jogo."
+    },
+    "playabilityStatus": {
+        "0": "Esse jogo está indisponível",
+        "1": "Esse jogo pode ser jogado",
+        "2": "Guests não podem jogar esse jogo",
+        "3": "Esse jogo foi moderado pois violou os Padrões da Comunidade da Roblox",
+        "4": "Esse jogo foi incorretamente configurado",
+        "5": "Esse jogo é privado",
+        "6": "Apenas amizades podem entrar nesse jogo",
+        "7": "Apenas membros da comunidade podem entrar nesse jogo",
+        "8": "Esse jogo é restrito no seu dispositivo",
+        "9": "Esse jogo está sob revisão pois pode ter quebrado os Padrões da Comunidade da Roblox",
+        "10": "Compra necessária para jogar",
+        "11": "Sua conta está restrita",
+        "12": "Esse jogo está temporariamente indisponível",
+        "13": "Esse jogo não tem nenhuma versão publicada",
+        "14": "Esse jogo foi bloqueado por motivos de conformidade",
+        "15": "Esse jogo não está disponível na sua região",
+        "16": "Esse jogo foi bloqueado por motivos de conformidade regional",
+        "17": "Esse jogo foi restrito pelos controles parentais",
+        "18": "Esse jogo foi bloqueado por meio dos controles parentais",
+        "19": "Esse jogo não está disponível para todas as idades",
+        "20": "Verificação necessária para jogos +18",
+        "21": "Compra necessária para jogar",
+        "22": "Compra restrita nesse dispositivo",
+        "23": "Esse jogo não foi avaliado",
+        "24": "Esse jogo não está disponível para todas as idades com base na classificação do conteúdo",
+        "25": "Esse jogo foi moderado por ter uma classificação indicativa incorreta.",
+        "unknown": "Esse jogo está indisponível"
+    },
+    "bannedUsers": {
+        "connections": "Amigos",
+        "followers": "Seguidores",
+        "following": "Seguindo",
+        "about": "Sobre",
+        "creations": "Criações",
+        "experiences": "Jogos",
+        "bannedStatus": "Banido",
+        "seeAll": "Ver tudo",
+        "hiddenUser": "Usuário oculto",
+        "communities": "Comunidades",
+        "badges": "Emblemas",
+        "noExperiences": "O jogador não tem jogos públicos.",
+        "favorites": "Favoritos",
+        "joinedDate": "Se juntou",
+        "store": "Loja",
+        "members": "Membros",
+        "accountForgotten": "Conta esquecida"
+    },
+    "copyId": {
+        "copyId": "Copiar ID de {{type}}",
+        "copyUniverseId": "Copiar ID de Universo",
+        "types": {
+            "bundle": "Pacote",
+            "asset": "Asset",
+            "gamePass": "Gamepass",
+            "badge": "Emblema",
+            "community": "Comunidade",
+            "event": "Evento",
+            "developerProduct": "Produto de desenvolvedor",
+            "place": "Place",
+            "universe": "Universo",
+            "user": "Usuário"
+        }
+    },
+    "viewid": {
+        "viewId": "Ver IDs",
+        "popup": {
+            "title": "IDs de item",
+            "button": {
+                "copy": "Copiar dados",
+                "copyMd": "Copiar dados em 'Markdown'"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Amizades jogando {{gameName}}",
+        "join": "Entrar"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Nome de usuário: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} visitas na place",
+        "tooltip": "Total de visitas em jogos da comunidade"
+    },
+    "groups": {
+        "createdLabel": "Criado",
+        "joinedLabel": "Se juntou",
+        "unknown": "Desconhecido"
+    },
+    "showcase": {
+        "tab": "Showcase",
+        "favoriteGame": "Jogos favoritos",
+        "favoriteGroup": "Comunidades favoritas",
+        "favoriteDecal": "Vitrine de artes",
+        "chooseGame": "Escolha um jogo para destacar no seu perfil.",
+        "noFeaturedGame": "Nenhum jogo destacado ainda. :C",
+        "chooseGroup": "Escolha uma comunidade para destacar no seu perfil.",
+        "noFeaturedGroup": "Nenhuma comunidade destacada ainda. :C",
+        "chooseDecal": "Insira o ID de uma decal para exibir uma imagem no seu perfil.",
+        "noFeaturedDecal": "Nenhuma imagem destacada ainda. :C",
+        "searchGame": "Pesquisar por um jogo para destacar",
+        "searchGroup": "Pesquisar por uma comunidade para destacar",
+        "clearGame": "Limpar jogo favorito",
+        "clearGroup": "Limpar comunidade favorita",
+        "gameOptions": "Opções de favoritar jogo",
+        "groupOptions": "Opções de favoritar comunidade",
+        "decalId": "ID da decal",
+        "decalImageOptions": "Opções de imagem",
+        "openImagePage": "Abrir página da imagem",
+        "report": "Denunciar",
+        "clearDecal": "Limpar imagem",
+        "by": "De",
+        "maturity": "Maturidade",
+        "maturityUnavailable": "Maturidade indisponível",
+        "members": "{{count}} membros",
+        "noResultsGame": "Não foi possível encontrar o jogo.",
+        "noResultsGroup": "Não foi possível encontrar a comunidade.",
+        "unknownExperience": "Jogo desconhecido",
+        "unknownCommunity": "Comunidade desconhecida",
+        "verifiedBadge": "Emblema de verificado"
+    },
+    "profileCustomization": {
+        "pill": "Personalização",
+        "pillTooltip": "Altere suas bordas de avatar",
+        "title": "Personalização do perfil",
+        "tabBorders": "Bordas de avatar",
+        "tabFrames": "Molduras",
+        "currentPreview": "Prévia da seleção atual",
+        "unequip": "Desequipar",
+        "unequipTooltip": "Clique para desequipar essa borda",
+        "equip": "Equipar",
+        "equipTooltip": "Equipar essa borda",
+        "equipped": "Equipado",
+        "getMore": "Adquirir mais",
+        "owned": "Possuído",
+        "unowned": "Não possuído",
+        "unownedTooltip": "Você não possui essa borda ainda.",
+        "all": "Tudo",
+        "new": "Novo",
+        "static": "ESTÁTICO",
+        "animated": "ANIMADO",
+        "free": "Grátis",
+        "noBorders": "Nenhuma borda encontrada.",
+        "noBordersInTab": "Nenhuma borda encontrada nessa aba.",
+        "noFrames": "Nenhuma moldura encontrada",
+        "noFramesInTab": "Nenhuma moldura encontrada nessa aba.",
+        "none": "Nenhum",
+        "failedToLoad": "Falha ao carregar suas bordas. Tente novamente mais tarde."
+    },
+    "profileFrame": {
+        "storeTitle": "Loja de molduras de perfil",
+        "storeDesc": "Molduras de perfil contornam todo o seu avatar no seu perfil. Comprar bordas é uma forma de apoiar diretamente a RoValra e os artistas, e conta para seu Nível de Apoiador. Molduras não são incluídas no Nível 3 de Apoiador, que cobre apenas bordas de avatar.",
+        "tabBorders": "Bordas de avatar",
+        "tabFrames": "Molduras",
+        "loading": "Carregando molduras...",
+        "currentPreview": "Prévia da moldura atual",
+        "all": "Tudo",
+        "new": "Novo",
+        "static": "ESTÁTICO",
+        "animated": "ANIMADO",
+        "equip": "Equipar",
+        "equipTooltip": "Equipar essa moldura",
+        "equipped": "Equipado",
+        "unequipTooltip": "Clique para desequipar essa moldura",
+        "unequip": "Desequipar",
+        "buy": "Comprar",
+        "buyFor": "Comprar por {{price}}",
+        "viewItem": "Ver item",
+        "buyTooltip": "Comprar essa moldura",
+        "owned": "Possuído",
+        "ownedTooltip": "Você não possui essa moldura!",
+        "free": "Grátis",
+        "freeTooltip": "Essa moldura é gratuita para equipar.",
+        "localOnly": "Salvo localmente",
+        "localOnlyTooltip": "A RoValra não conseguiu salvar essa moldura na sua conta ainda. Por isso, ela está visível apenas para você nesse navegador.",
+        "noFrames": "Nenhuma moldura disponível",
+        "noFramesInTab": "Nenhuma moldura encontrada nessa aba.",
+        "failedToLoad": "Falha ao carregar molduras. Tente novamente mais tarde."
+    },
+    "profileNotes": {
+        "ariaLabel": "Nota privada do perfil",
+        "heading": "Nota (visível apenas para você)",
+        "headingTooltip": "Essa nota é salva apenas no seu navegador e nunca será enviada para a Roblox ou a RoValra.",
+        "addNote": "Clique para adicionar uma nota",
+        "editAriaLabel": "Editar nota privada de perfil",
+        "addAriaLabel": "Adicionar nota privada no perfil",
+        "displayTooltip": "Clique para editar. Notas são salvas apenas nesse navegador.",
+        "inputPlaceholder": "Adicionar uma nota privada",
+        "inputTooltip": "Salvo quando você clicar fora. Aperte Esc para cancelar ou Ctrl+Enter para salvar."
+    },
+    "profilePronouns": {
+        "label": "Pronomes",
+        "ariaLabel": "Pronomes: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "Recursos da RoValra",
+        "profilePronouns": "Pronomes no perfil",
+        "profileBadges": "Emblemas do perfil",
+        "pronounsPlaceholder": "Insira seus pronomes",
+        "donatorPerks": "Benefícios aos apoiadores",
+        "usernameCustomizations": "Personalização de nome de usuário"
+    },
+    "profile": {
+        "socialLinks": "Links sociais",
+        "currencyTransfer": "Enviar Robux",
+        "currencyTransferConfirmation": "Isso abrirá o app da Roblox, permitindo que você envie robux.",
+        "openClient": "Abrir app"
+    },
+    "animations": {
+        "idle": "Parado",
+        "walk": "Andar",
+        "fall": "Cair",
+        "climb": "Escalar",
+        "run": "Correr",
+        "jump": "Pular",
+        "swim": "Nadar"
+    },
+    "itemRender": {
+        "renderOptions": "Opções de renderização",
+        "darkLighting": "Iluminação escura",
+        "baseplate": "Baseplate",
+        "rotatePreview": "Rotacionar prévia",
+        "itemOnly": "Mostrar apenas o item"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Padrão",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Mais novo",
+            "oldest": "Mais velho"
+        },
+        "tooltip": "Ordenar por quando o usuário entrou na comunidade"
+    },
+    "creatorStats": {
+        "ccu": "Jogadores ativos",
+        "visits": "Visitas",
+        "members": "Membros",
+        "ccuTooltip": "Usuários ativos no momento nos jogos públicos criados por esse usuário.",
+        "visitsTooltip": "Total de visitas nos jogos públicos criados por esse usuário.",
+        "membersTooltip": "Membros nas comunidades possuídas por esse usuário."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Você economizou {{robux}} quando você tinha o Plus",
+            "percentOffSmall": "Itens em jogos, avatares e mais",
+            "percentOff": "{{percent}} off",
+            "itemsBoughtSmall": "Itens comprados com desconto de Plus",
+            "privateServersCreatedSmall": "Servidores privados criados de graça",
+            "robuxSentSmall": "Robux enviado para amizades",
+            "delayNotice": "Todas as informações exibidas aqui tem um atraso de 1 dia"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Limite diário restante",
+            "monthlyLimitLeft": "Limite mensal restante",
+            "sentToday": "Enviado hoje",
+            "sentThisMonth": "Enviado esse mês",
+            "nextRefill": "Limite reinicia em",
+            "leftAfter": "{{amount}} restante(s)",
+            "refillNote": "Cada transferência conta para seu limite mensal de 30 dias, então, esse Robux fica disponível de novo.",
+            "caption": "O limite diário é de {{dailyLimit}}. O limite mensal é de {{monthlyLimit}}. Atualiza a cada 5 minutos. O restante é uma estimativa e pode estar imprecisa."
+        },
+        "referral": {
+            "reward": "Consiga 100 Robux grátis e apoie a RoValra!",
+            "details": "Apenas assinantes novos da Roblox Plus podem participar. A RoValra também receberá 100 Robux quando você assinar utilizando nosso código de indicação.",
+            "button": "Assine utilizando o código de indicação da RoValra"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Preço original: <b>{{originalPrice}} Robux</b><br>Atualmente mostrado como <b>Grátis</b> por conta do Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Enviar Robux",
+                "openInApp": "Abrir no app"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Não foi possível enviar o Robux",
+                "deletedAccountBody": "A conta desse usuário foi excluída, ela não pode receber Robux"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Enviar Robux",
+                    "titleSilly": "enviar bobux :3",
+                    "okBtn": "Ok"
+                },
+                "step1": {
+                    "robuxInputName": "Quantidade de Robux para enviar",
+                    "mutedNotice": "O Robux é enviado instantaneamente sem taxas",
+                    "minRobux": "Você deve mandar no mínimo {{robuxAmount}} Robux",
+                    "maxRobux": "Você não pode enviar mais que {{robuxAmount}} Robux",
+                    "notEnoughRobux": "Você não tem Robux o suficiente",
+                    "nextBtn": "Próximo"
+                },
+                "step2": {
+                    "sendBtn": "Enviar",
+                    "editBtn": "Editar",
+                    "mutedNotice": "Sem cancelamentos. Você pode precisar verificar sua idade ou obter permissão parental.",
+                    "transferErrorGeneric": "Um erro desconhecido aconteceu.",
+                    "transferErrorNoMessage": "Ocorreu um erro desconhecido sem nenhuma mensagem fornecida",
+                    "transferSuccessBody": "Transferência concluída com sucesso!",
+                    "transferSuccessBodySilly": "a transferencia deu certo! daora",
+                    "transferSuccessOkBtnSilly": "ta bom ta bom",
+                    "userInfoFriendTime": "Amizade {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} amizade em comum",
+                    "userInfoMutualFriends_other": "{{count}} amizades em comum",
+                    "userInfoJoin": "Entrou em {{year}}",
+                    "paramPassedError": "Um erro desconhecido aconteceu! Olhe o console e reporte o problema para a RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Pedir",
+                    "sendRobuxBody": "Para enviar Robux, você precisa de permissão parental",
+                    "receiveRobuxBody": "Para receber Robux, você precisa de permissão parental",
+                    "askTitle": "Pedir permissão",
+                    "askTitleSilly": "pedir pro papai ou mamae",
+                    "errorSending": "Um erro desconhecido aconteceu, olhe o console e reporte para a RoValra.",
+                    "errorReceivingTitle": "Um erro ocorreu ao aceitar o Robux",
+                    "errorReceivingBody": "Um erro desconhecido aconteceu. Talvez você já tenha aceitado essa transferência de Robux. Olhe o console para mais detalhes.",
+                    "errorReceivingOkBtnSilly": "ai",
+                    "successfulAskTitle": "Pedido enviado",
+                    "successfulAskTitleSilly": "nós avisamos seus pais, se prepare...",
+                    "successfulAskBody": "Enviamos o pedido para seus pais/responsáveis via email!",
+                    "successfulAskOkBtnSilly": "legal, valeu obg"
+                },
+                "plusNeeded": {
+                    "body": "Infelizmente, você precisa de uma assinatura do Roblox Plus para enviar Robux, pois é um dos benefícios dela.",
+                    "bodySilly": "vc n tem bobloc plus :c ent n da pra manda robux pros outro pq eh obriwgatorio 3:",
+                    "buyPlusBtn": "Assinar Roblox Plus",
+                    "buyPlusBtnSilly": "comprar the bobloc plus c:",
+                    "okBtnSilly": "ahhhh q pena, ta bom :c"
+                }
+            }
+        }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Algumas configurações foram removidas/movidas"
+            },
+            "deleted": "As seguintes configurações foram recentemente removidas, bloqueadas ou descontinuadas:",
+            "replaced": "As seguintes configurações foram recentemente movidas ou alteradas:"
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Avatares para jogos",
+            "title": "Avatares para jogos",
+            "hint": "Escolha o avatar que será equipado quando você jogar um jogo R6 ou R15.",
+            "r6": "Jogos R6",
+            "r15": "Jogos R15",
+            "none": "Não mudar",
+            "gameTitle": "Avatar para usar nesse jogo",
+            "gameHint": "Isso sobrescreverá o avatar definido para ser usado em jogos R6 e R15.",
+            "useGlobal": "Usar meu avatar padrão"
+        },
+        "bodyColors": {
+            "addCustom": "Escolher uma cor personalizada",
+            "savedColor": "{{hex}}, clique para remover",
+            "applyFailed": "Não foi possível atualizar a cor de pele. Tente novamente em um momento."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "Fixar no topo",
+        "unpin": "Desfixar"
+    },
+    "richLinks": {
+        "by": "De {{name}}",
+        "members": "{{count}} membros",
+        "playing": "{{count}} jogando",
+        "visits": "{{count}} visitas",
+        "loading": "Carregando...",
+        "free": "Grátis",
+        "offSale": "Fora de venda"
+    },
+    "privateApiDocs": {
+        "title": "API da RoValra",
+        "loading": "Carregando documentação da API...",
+        "loadFailed": "Falha ao carregar a documentação da API: {{error}}",
+        "noAccess": "Você não tem acesso a essa documentação.",
+        "serverError": "O servidor respondeu com {{status}}.",
+        "invalidSpec": "O servidor retornou uma documentação OpenAPI inválida.",
+        "baseUrl": "URL base: {{url}}",
+        "apiVersion": "Versão da API",
+        "openApiVersion": "Versão OpenAPI",
+        "server": "Servidor",
+        "sendToken": "Enviar meu token de acesso da RoValra",
+        "filterLabel": "Filtrar endpoints",
+        "filterPlaceholder": "Path, summary ou tag",
+        "hideDeprecated": "Esconder os descontinuados",
+        "noEndpoints": "Nenhuma endpoint encontrada.",
+        "deprecated": "Descontinuado",
+        "deprecatedTooltip": "Essa endpoint foi descontinuada.",
+        "authRequired": "Autenticação necessária",
+        "authOptional": "Autenticação opcional",
+        "schemeNotSent": "{{name}} é obrigatório, o que a página não envia.",
+        "operationId": "ID da operação",
+        "security": "Auth: {{schemes}}",
+        "securityOptional": "Auth: {{schemes}} (opcional)",
+        "securityTooltip": "Requisitos de segurança",
+        "parameters": "Parâmetros",
+        "noParameters": "Sem parâmetros",
+        "tryItOut": "Tentar",
+        "name": "Nome",
+        "description": "Descrição",
+        "required": "obrigatório",
+        "availableValues": "Valores disponíveis: {{values}}",
+        "requestBody": "Corpo da request",
+        "requestContentType": "Tipo de conteúdo da request",
+        "exampleValue": "Valor de exemplo",
+        "schema": "Esquema",
+        "responses": "Respostas",
+        "noResponses": "Nenhuma resposta documentada",
+        "code": "Código",
+        "details": "Detalhes",
+        "execute": "Executar",
+        "clear": "Limpar",
+        "missingParams": "Os seguintes parâmetros estão faltando: {{params}}",
+        "invalidJson": "O corpo da request não é um JSON válido: {{error}}",
+        "bodyRequired": "Um corpo da request é necessário.",
+        "confirmTitle": "Enviar pedido?",
+        "confirmMessage": "Isso enviará um pedido de {{method}} para {{path}}. Apenas continue se você sabe o que está fazendo.",
+        "send": "Enviar",
+        "sending": "Enviando pedido...",
+        "requestFailed": "Pedido falhou: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "URL da request",
+        "serverResponse": "Resposta do servidor",
+        "responseBody": "Corpo da resposta",
+        "responseHeaders": "Headers da resposta",
+        "emptyResponse": "(resposta vazia)",
+        "responseImage": "Imagem da resposta",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Duração da request",
+        "contentType": "Tipo de conteúdo",
+        "redirected": "Redirecionado",
+        "copy": "Copiar"
+    }
+}
