@@ -2765,7 +2765,9 @@
         "socialLinks": "Social links",
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
-        "openClient": "Open Client"
+        "openClient": "Open Client",
+        "profileViews": "{{views}} Profile Views",
+        "profileViewsTooltip": "Profile views from RoValra users. This counts total profile views, not unique users."
     },
     "animations": {
         "idle": "Idle",

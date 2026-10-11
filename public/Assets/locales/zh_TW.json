@@ -2775,7 +2775,9 @@
         "socialLinks": "社群連結",
         "currencyTransfer": "傳送 Robux",
         "currencyTransferConfirmation": "這將開啟 Roblox 客戶端，允許您傳送 Robux。",
-        "openClient": "開啟客戶端"
+        "openClient": "開啟客戶端",
+        "profileViews": "{{views}} 個人檔案瀏覽次數",
+        "profileViewsTooltip": "來自 RoValra 使用者的個人檔案瀏覽次數。此資料統計的是個人檔案瀏覽次數的總數，而非獨立使用者數。"
     },
     "animations": {
         "idle": "閒置",
