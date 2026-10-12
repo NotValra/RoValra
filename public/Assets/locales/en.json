@@ -894,6 +894,7 @@
                     "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
                 },
                 "locales": {
+                    "madeDe": "Helped make the German locale",
                     "madeRo": "Helped make the Romanian locale",
                     "madeEs": "Helped make the Spanish locale",
                     "madeRu": "Helped make the Russian locale",

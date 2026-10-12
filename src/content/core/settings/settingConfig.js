@@ -32,6 +32,14 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel('English', 'en'),
                         value: 'en',
+                    },                     
+                    {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
+                    },
+                    {
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
                     },
                     {
                         label: languageLabel('Brazilian Portuguese (Português (Brasil))', 'pt'),
@@ -57,13 +65,14 @@ export const SETTINGS_CONFIG = {
                         value: 'id',
                     },
                     {
-                        label: languageLabel('Russian (Русский)', 'ru'),
-                        value: 'ru',
-                    },
-                    {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+                    
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
