@@ -91,6 +91,7 @@ import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initBadgeLayoutToggle } from './features/games/badgeLayoutToggle.js';
 import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
 import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
+import { init as initBadgeSort } from './features/games/badgeSort.js';
 import { init as initGameStatTimestamps } from './features/games/gameStatTimestamps.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
@@ -394,6 +395,7 @@ const featureRoutes = [
             initBadgeLayoutToggle,
             initBadgeOwnership,
             initBadgeEarnedDate,
+            initBadgeSort,
         ],
     },
     {

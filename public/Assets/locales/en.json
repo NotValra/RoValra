@@ -1452,6 +1452,24 @@
             "all": "No events found."
         }
     },
+    "badgeSort": {
+        "label": "Sort badges",
+        "seeMore": "See More",
+        "updated": "Updated",
+        "created": "Created",
+        "options": {
+            "default": "Default",
+            "updated": "Recently Updated",
+            "newest": "Newest",
+            "oldest": "Oldest",
+            "mostWon": "Most Won",
+            "leastWon": "Least Won",
+            "wonYesterday": "Most Won Yesterday",
+            "rarest": "Rarest",
+            "easiest": "Easiest",
+            "name": "Name (A-Z)"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "Badges",
