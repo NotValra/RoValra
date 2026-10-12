@@ -1,0 +1,15 @@
+html.rovalra-theme-scrollbar {
+    &:has(> body.dark-theme) {
+        color-scheme: dark;
+        scrollbar-color: rgba(208, 217, 251, 0.3) transparent;
+    }
+
+    &:has(> body.light-theme) {
+        color-scheme: light;
+        scrollbar-color: rgba(27, 37, 75, 0.3) transparent;
+    }
+
+    body {
+        scrollbar-color: auto;
+    }
+}
