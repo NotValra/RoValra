@@ -42,6 +42,14 @@ export const SETTINGS_CONFIG = {
                         value: 'de',
                     },
                     {
+                        label: languageLabel('Brazilian Portuguese (Português (Brasil))', 'pt'),
+                        value: 'pt',
+                    },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+                    {
                         label: languageLabel('Polish (Polski)', 'pl'),
                         value: 'pl',
                     },
@@ -549,6 +557,16 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            badgeSortEnabled: {
+                label: 'Badge Sorting',
+                description: [
+                    'Adds a Sort dropdown to experience badge sections.',
+                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
             },
             badgeOwnershipEnabled: {
                 label: 'Dim Unowned Badges',
@@ -1068,6 +1086,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_group_filters_view',
             },
             trustedConnectionsEnabledv3: {
                 label: 'Trusted Friends',
@@ -1124,6 +1143,7 @@ export const SETTINGS_CONFIG = {
                     'Shows when a user joined a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
             },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
@@ -3166,6 +3186,46 @@ export const SETTINGS_CONFIG = {
                         step: 10,
                         default: 100,
                         hidden: true,
+                    },
+                },
+            },
+            cursorBuddyEnabled: {
+                label: 'Cursor Buddy',
+                description: [
+                    'A cute little buddy follows your cursor around Roblox.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    cursorBuddyCompanion: {
+                        label: 'Buddy',
+                        type: 'select',
+                        options: [
+                            { label: 'Oneko', value: 'cat' },
+                            { label: 'Kitten', value: 'kitten' },
+                        ],
+                        default: 'cat',
+                    },
+                    cursorBuddySize: {
+                        label: 'Size',
+                        description: 'Choose how big your buddy looks.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 24,
+                        max: 128,
+                        step: 1,
+                        default: 32,
+                    },
+                    cursorBuddyFollowSpeed: {
+                        label: 'Follow Speed',
+                        description: 'Choose how quickly your buddy follows your cursor.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 40,
+                        max: 600,
+                        step: 10,
+                        default: 240,
                     },
                 },
             },

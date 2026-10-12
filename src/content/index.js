@@ -38,6 +38,7 @@ import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
+import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
@@ -91,6 +92,7 @@ import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initBadgeLayoutToggle } from './features/games/badgeLayoutToggle.js';
 import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
 import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
+import { init as initBadgeSort } from './features/games/badgeSort.js';
 import { init as initGameStatTimestamps } from './features/games/gameStatTimestamps.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
@@ -270,6 +272,7 @@ const featureRoutes = [
             initCustomFont,
             initCyrillicFont,
             initCustomFavicon,
+            initCursorBuddy,
             initRobuxIcons,
             initMoreRobuxDigits,
             initProfileBackground,
@@ -394,6 +397,7 @@ const featureRoutes = [
             initBadgeLayoutToggle,
             initBadgeOwnership,
             initBadgeEarnedDate,
+            initBadgeSort,
         ],
     },
     {

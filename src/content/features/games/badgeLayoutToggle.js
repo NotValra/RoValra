@@ -30,7 +30,7 @@ let initialized = false;
 const universeBadgeCache = new Map();
 const observedBadgeLists = new WeakSet();
 
-async function getLocaleText() {
+export async function getLocaleText() {
     const [rarity, wonYesterday, wonEver] = await Promise.all([
         t('privateGames.badges.rarity'),
         t('privateGames.badges.wonYesterday'),
@@ -139,7 +139,7 @@ function getBadgeName(badge) {
     return badge.displayName || badge.name || `Badge ${badge.id}`;
 }
 
-async function getUniverseId() {
+export async function getUniverseId() {
     const placeId = getPlaceIdFromUrl();
     if (!placeId) return null;
 
@@ -147,7 +147,7 @@ async function getUniverseId() {
     return placeDetails?.universeId || null;
 }
 
-async function fetchUniverseBadges(universeId) {
+export async function fetchUniverseBadges(universeId) {
     const cacheKey = String(universeId);
     if (universeBadgeCache.has(cacheKey)) {
         return universeBadgeCache.get(cacheKey);
@@ -173,7 +173,7 @@ async function fetchUniverseBadges(universeId) {
     return badges;
 }
 
-function createBadgeRow(badge, thumb, localeText) {
+export function createBadgeRow(badge, thumb, localeText) {
     const row = document.createElement('li');
     hydrateBadgeRow(row, badge, thumb, localeText);
     return row;
