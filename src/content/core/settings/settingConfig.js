@@ -2256,6 +2256,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            hideFriendRequestCountEnabled: {
+                label: 'Hide Friend Request Count',
+                description: [
+                    'Hides the friend request count beside Friends in the sidebar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+            },
             sidebarLayoutEnabled: {
                 label: 'Sidebar Layout',
                 description: [

@@ -1,0 +1,26 @@
+html[data-rovalra-hide-friend-request-count='true'] {
+    .left-nav nav a[href*='/users/friends'] {
+        .foundation-web-badge,
+        .notification,
+        .nav-item-badge {
+            display: none !important;
+        }
+    }
+
+    .left-nav nav
+        :is(li, .roseal-left-nav-item):has(a[href*='/users/friends']) {
+        .foundation-web-badge,
+        .notification,
+        .nav-item-badge {
+            display: none !important;
+        }
+    }
+    // this is the legacy one sidebar
+    #nav-friends {
+        .foundation-web-badge,
+        .notification,
+        .nav-item-badge {
+            display: none !important;
+        }
+    }
+}
