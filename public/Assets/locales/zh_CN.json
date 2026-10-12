@@ -1556,7 +1556,7 @@
             "homeLayoutEnabled": {
                 "title": "首页布局",
                 "desc1": "允许您保存首页行的自定义顺序。",
-                "childSettings": {
+                "homeLayoutButtonEnabled": {
                     "title": "显示首页布局按钮",
                     "desc1": "将 RoValra 布局按钮添加到首页。"
                 }

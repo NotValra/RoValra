@@ -1556,7 +1556,7 @@
             "homeLayoutEnabled": {
                 "title": "首頁版面",
                 "desc1": "允許您儲存首頁行的自訂順序。",
-                "childSettings": {
+                "homeLayoutButtonEnabled": {
                     "title": "顯示首頁版面按鈕",
                     "desc1": "將 RoValra 版面配置按鈕新增至首頁。"
                 }

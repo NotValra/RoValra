@@ -1558,7 +1558,7 @@
             "homeLayoutEnabled": {
                 "title": "Home Layout",
                 "desc1": "Lets you save a custom order for the rows on the Home page.",
-                "childSettings": {
+                "homeLayoutButtonEnabled": {
                     "title": "Show Home Layout Button",
                     "desc1": "Adds the RoValra Layout button to the Home page."
                 }
