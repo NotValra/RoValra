@@ -176,6 +176,7 @@ import { init as initMutualFriends } from './features/profile/friends/mutualFrie
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
 import { init as initBulkBadgeRemover } from './features/profile/badges/bulkRemover.js';
+import { init as initInventorySort } from './features/profile/inventorySort.js';
 import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initAvatarDownload } from './features/profile/header/avatarDownload.js';
 import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
@@ -456,6 +457,7 @@ const featureRoutes = [
             initMutualFriends,
             initUnfriend,
             initBulkBadgeRemover,
+            initInventorySort,
             initLastPlayed,
             initProfilePronouns,
             initProfileNotes,

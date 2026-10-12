@@ -1,0 +1,35 @@
+.rovalra-inventory-sort {
+    clear: both;
+    display: flex;
+    justify-content: flex-end;
+    margin: 8px 0;
+
+    .rovalra-dropdown-container {
+        min-width: 220px;
+    }
+}
+
+.rovalra-inventory-sort-unavailable {
+    display: none;
+}
+
+.current-items.rovalra-inventory-sorted {
+    > #assetsItems,
+    > .item-cards:not(.rovalra-inventory-sort-list),
+    > .pager-holder {
+        display: none !important;
+    }
+}
+
+.rovalra-inventory-sort-loading {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px 12px;
+}
+
+.rovalra-inventory-sort-is-loading {
+    .rovalra-inventory-sort-list,
+    .rovalra-inventory-sort-pager {
+        display: none;
+    }
+}

@@ -329,6 +329,24 @@
         "openRolimons": "Open in Rolimon's",
         "searchPlaceholder": "Search by item name..."
     },
+    "inventorySort": {
+        "default": "Default",
+        "newest": "Recently Acquired",
+        "oldest": "Oldest Acquired",
+        "nameAsc": "Name (A-Z)",
+        "nameDesc": "Name (Z-A)",
+        "priceDesc": "Price (High to Low)",
+        "priceAsc": "Price (Low to High)",
+        "rapDesc": "RAP (High to Low)",
+        "rapAsc": "RAP (Low to High)",
+        "newestEarned": "Recently Earned",
+        "oldestEarned": "Oldest Earned",
+        "rarest": "Rarest First",
+        "mostCommon": "Most Common First",
+        "by": "By",
+        "free": "Free",
+        "page": "Page {{page}} of {{total}}"
+    },
     "games": {
         "failedToLoad": "Failed to load game"
     },
