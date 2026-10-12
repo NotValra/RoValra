@@ -432,10 +432,10 @@
         "cancel": "取消"
     },
     "underratedGames": {
-        "topic": "比较低估的游戏",
-        "subtitle": "RoValra 社区精选的比较低估的游戏。",
+        "topic": "被低估的游戏",
+        "subtitle": "RoValra 社区精选的被低估的游戏。",
         "rotates": "轮换",
-        "suggestOnDiscord": "在 {{discord}} 上建议比较低估的游戏",
+        "suggestOnDiscord": "在 {{discord}} 上建议被低估的游戏",
         "ageRestrictionWarning": "由于 Roblox 要求至少有 250 名高参与度玩家，部分游戏可能仅限 16 岁以上玩家游玩。"
     },
     "playtime": {
@@ -1511,7 +1511,70 @@
             }
         },
         "home": {
-            "title": "首页"
+            "title": "首页",
+            "AccurateContinueEnabled": {
+                "title": "准确继续",
+                "desc1": "根据您上次玩游戏的时间准确排序继续列表。",
+                "accurateContinueAutoRefreshEnabled": {
+                    "title": "自动刷新继续列表",
+                    "desc1": "游戏启动后自动更新继续列表，无需重新加载页面。"
+                }
+            },
+            "pinnedFriendsEnabled": {
+                "title": "置顶好友",
+                "desc1": "在首页的好友菜单中添加一个条目，将某人置于好友列表的最前面。",
+                "desc2": "无论在线状态如何，置顶好友始终保持在最前面，因此您实际一起玩游戏的人不会被其他在线玩家淹没。"
+            },
+            "underratedGamesEnabled": {
+                "title": "被低估的游戏",
+                "desc1": "将 RoValra 社区精选的被低估的游戏添加到首页。"
+            },
+            "friendsSecondRowEnabled": {
+                "title": "第二行好友",
+                "desc1": "在首页好友列表中显示第二行好友，而不是只有一行。",
+                "desc2": "某些扩展程序可能会覆盖此功能。",
+                "locked": "与其他扩展程序存在兼容性问题。"
+            },
+            "HideAddFriendsButton": {
+                "title": "隐藏「添加好友」按钮",
+                "desc1": "隐藏首页的「添加好友」按钮，并将释放的空间用于显示好友卡片。"
+            },
+            "friendsCarouselRedesignEnabled": {
+                "title": "App 风格的好友列表",
+                "desc1": "将首页好友列表替换为 Roblox App 中的箭头导航列表。"
+            },
+            "friendLabelsEnabled": {
+                "title": "好友标签",
+                "desc1": "允许您在首页为好友添加标签。"
+            },
+            "friendUsernamesEnabled": {
+                "title": "在好友卡片上显示用户名",
+                "desc1": "在首页好友的显示名称下方同时显示 @用户名。",
+                "desc2": "在「我的好友所在的服务器」中，好友会显示为「显示名称 (@用户名)」，并且在鼠标悬停在虚拟形象上时，也会在工具提示中显示用户名。",
+                "desc3": "某些扩展程序可能会覆盖此功能。"
+            },
+            "homeLayoutEnabled": {
+                "title": "首页布局",
+                "desc1": "允许您保存首页行的自定义顺序。",
+                "childSettings": {
+                    "title": "显示首页布局按钮",
+                    "desc1": "将 RoValra 布局按钮添加到首页。"
+                }
+            },
+            "currentlyPlayingSubplaceEnabled": {
+                "title": "当前正在游玩的子地点",
+                "desc1": "用于显示用户正在玩的确切子地点和根地点的主开关。",
+                "desc2": "关闭此选项可禁用首页子地点用户界面和个人资料子地点用户界面。",
+                "experimental": "可能会导致问题",
+                "currentlyPlayingSubplaceHomeEnabled": {
+                    "title": "首页子地点",
+                    "desc1": "在 Roblox 主页/好友卡片中显示子地点部分。"
+                },
+                "currentlyPlayingSubplaceProfileEnabled": {
+                    "title": "个人资料页面子地点",
+                    "desc1": "在个人资料页面上显示子地点的用户界面和详细信息。"
+                }
+            }
         },
         "communities": {
             "title": "社区"

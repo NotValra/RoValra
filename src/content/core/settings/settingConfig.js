@@ -1481,17 +1481,17 @@ export const SETTINGS_CONFIG = {
         title: 'settings.home.title',
         settings: {
             AccurateContinueEnabled: {
-                label: 'Accurate Continue',
+                label: 'settings.home.AccurateContinueEnabled.title',
                 description: [
-                    'This sorts the continue accurately based off when you last played the game.',
+                    'settings.home.AccurateContinueEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 childSettings: {
                     accurateContinueAutoRefreshEnabled: {
-                        label: 'Auto Refresh Continue',
+                        label: 'settings.home.AccurateContinueEnabled.accurateContinueAutoRefreshEnabled.title',
                         description: [
-                            'Updates the Continue row after a game launches, without reloading the page.',
+                            'settings.home.AccurateContinueEnabled.accurateContinueAutoRefreshEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: false, // Not on by default cuz people are used to it not updating, so it randomly uipdating will get annoying.
@@ -1500,10 +1500,10 @@ export const SETTINGS_CONFIG = {
                 },
             },
             pinnedFriendsEnabled: {
-                label: 'Pin Friends',
+                label: 'settings.home.pinnedFriendsEnabled.title',
                 description: [
-                    'Adds an entry to the friend menu on the Home page that keeps someone at the front of the friends row.',
-                    'Pinned friends stay first whatever their status is, so the people you actually play with are not buried behind everyone who happens to be online.',
+                    'settings.home.pinnedFriendsEnabled.desc1',
+                    'settings.home.pinnedFriendsEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -1511,38 +1511,38 @@ export const SETTINGS_CONFIG = {
                 contributors: ['4489102289'],
             },
             underratedGamesEnabled: {
-                label: 'Underrated Games',
+                label: 'settings.home.underratedGamesEnabled.title',
                 description: [
-                    'Adds RoValra community-picked underrated games to the Home page.',
+                    'settings.home.underratedGamesEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             friendsSecondRowEnabled: {
-                label: 'Second Friends Row',
+                label: 'settings.home.friendsSecondRowEnabled.title',
                 description: [
-                    'Shows a second row of friends in the Home page friends carousel instead of only one row.',
-                    'Some extensions may overwrite this feature.',
+                    'settings.home.friendsSecondRowEnabled.desc1',
+                    'settings.home.friendsSecondRowEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['2830488781'],
-                locked: 'Caused issues with other extensions.',
+                locked: 'settings.home.friendsSecondRowEnabled.locked',
                 isPermanent: false,
             },
             HideAddFriendsButton: {
-                label: 'Hide Add Friends Button',
+                label: 'settings.home.HideAddFriendsButton.title',
                 description: [
-                    'Hides the Add Friends button from the Home page and allows friend cards to use the freed space.',
+                    'settings.home.HideAddFriendsButton.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['476449201'],
             },
             friendsCarouselRedesignEnabled: {
-                label: 'App-Style Friends Carousel',
+                label: 'settings.home.friendsCarouselRedesignEnabled.title',
                 description: [
-                    'Replaces the Home page friends carousel with the arrow-navigated carousel from the Roblox app.',
+                    'settings.home.friendsCarouselRedesignEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -1550,9 +1550,9 @@ export const SETTINGS_CONFIG = {
             },
 
             friendLabelsEnabled: {
-                label: 'Friend Labels',
+                label: 'settings.home.friendLabelsEnabled.title',
                 description: [
-                    'Lets you assign a label to your friends on the Home page.',
+                    'settings.home.friendLabelsEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -1561,28 +1561,28 @@ export const SETTINGS_CONFIG = {
             },
 
             friendUsernamesEnabled: {
-                label: 'Show Usernames On Friend Cards',
+                label: 'settings.home.friendUsernamesEnabled.title',
                 description: [
-                    "Shows a friend's @username below their display name on the Home page.",
-                    "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
-                    'Other extensions may overwrite this feature.',
+                    'settings.home.friendUsernamesEnabled.desc1',
+                    'settings.home.friendUsernamesEnabled.desc2',
+                    'settings.home.friendUsernamesEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['760897332', '3598865306'],
             },
             homeLayoutEnabled: {
-                label: 'Home Layout',
+                label: 'settings.home.homeLayoutEnabled.title',
                 description: [
-                    'Lets you save a custom order for the rows on the Home page.',
+                    'settings.home.homeLayoutEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     homeLayoutButtonEnabled: {
-                        label: 'Show Home Layout Button',
+                        label: 'settings.home.homeLayoutEnabled.homeLayoutButtonEnabled.title',
                         description: [
-                            'Adds the RoValra Layout button to the Home page.',
+                            'settings.home.homeLayoutEnabled.homeLayoutButtonEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1590,28 +1590,28 @@ export const SETTINGS_CONFIG = {
                 },
             },
             currentlyPlayingSubplaceEnabled: {
-                label: 'Currently Playing Subplace',
+                label: 'settings.home.currentlyPlayingSubplaceEnabled.title',
                 description: [
-                    'Master toggle for showing the exact subplace and rootplace a user is playing.',
-                    'Turn this off to disable both the home subplace UI and the profile subplace UI.',
+                    'settings.home.currentlyPlayingSubplaceEnabled.desc1',
+                    'settings.home.currentlyPlayingSubplaceEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: false,
-                experimental: 'May cause issues',
+                experimental: 'settings.home.currentlyPlayingSubplaceEnabled.experimental',
                 contributors: ['10646979010'],
                 childSettings: {
                     currentlyPlayingSubplaceHomeEnabled: {
-                        label: 'Home Subplace',
+                        label: 'settings.home.currentlyPlayingSubplaceEnabled.currentlyPlayingSubplaceHomeEnabled.title',
                         description: [
-                            'Shows the subplace section inside Roblox home/friends cards.',
+                            'settings.home.currentlyPlayingSubplaceEnabled.currentlyPlayingSubplaceHomeEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,
                     },
                     currentlyPlayingSubplaceProfileEnabled: {
-                        label: 'Profile Page Subplace',
+                        label: 'settings.home.currentlyPlayingSubplaceEnabled.currentlyPlayingSubplaceProfileEnabled.title',
                         description: [
-                            'Shows the subplace UI and details on profile pages.',
+                            'settings.home.currentlyPlayingSubplaceEnabled.currentlyPlayingSubplaceProfileEnabled.desc1',
                         ],
                         type: 'checkbox',
                         default: true,

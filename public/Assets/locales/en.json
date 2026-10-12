@@ -1513,7 +1513,70 @@
             }
         },
         "home": {
-            "title": "Home"
+            "title": "Home",
+            "AccurateContinueEnabled": {
+                "title": "Accurate Continue",
+                "desc1": "This sorts the continue accurately based off when you last played the game.",
+                "accurateContinueAutoRefreshEnabled": {
+                    "title": "Auto Refresh Continue",
+                    "desc1": "Updates the Continue row after a game launches, without reloading the page."
+                }
+            },
+            "pinnedFriendsEnabled": {
+                "title": "Pin Friends",
+                "desc1": "Adds an entry to the friend menu on the Home page that keeps someone at the front of the friends row.",
+                "desc2": "Pinned friends stay first whatever their status is, so the people you actually play with are not buried behind everyone who happens to be online."
+            },
+            "underratedGamesEnabled": {
+                "title": "Underrated Games",
+                "desc1": "Adds RoValra community-picked underrated games to the Home page."
+            },
+            "friendsSecondRowEnabled": {
+                "title": "Second Friends Row",
+                "desc1": "Shows a second row of friends in the Home page friends carousel instead of only one row.",
+                "desc2": "Some extensions may overwrite this feature.",
+                "locked": "Caused issues with other extensions."
+            },
+            "HideAddFriendsButton": {
+                "title": "Hide Add Friends Button",
+                "desc1": "Hides the Add Friends button from the Home page and allows friend cards to use the freed space."
+            },
+            "friendsCarouselRedesignEnabled": {
+                "title": "App-Style Friends Carousel",
+                "desc1": "Replaces the Home page friends carousel with the arrow-navigated carousel from the Roblox app."
+            },
+            "friendLabelsEnabled": {
+                "title": "Friend Labels",
+                "desc1": "Lets you assign a label to your friends on the Home page."
+            },
+            "friendUsernamesEnabled": {
+                "title": "Show Usernames On Friend Cards",
+                "desc1": "Shows a friend's @username below their display name on the Home page.",
+                "desc2": "In 'Servers My Friends Are In' it shows friends as 'DisplayName (@Username)', and also shows the username in a tooltip when hovering their avatar.",
+                "desc3": "Some extensions may overwrite this feature."
+            },
+            "homeLayoutEnabled": {
+                "title": "Home Layout",
+                "desc1": "Lets you save a custom order for the rows on the Home page.",
+                "childSettings": {
+                    "title": "Show Home Layout Button",
+                    "desc1": "Adds the RoValra Layout button to the Home page."
+                }
+            },
+            "currentlyPlayingSubplaceEnabled": {
+                "title": "Currently Playing Subplace",
+                "desc1": "Master toggle for showing the exact subplace and rootplace a user is playing.",
+                "desc2": "Turn this off to disable both the home subplace UI and the profile subplace UI.",
+                "experimental": "May cause issues",
+                "currentlyPlayingSubplaceHomeEnabled": {
+                    "title": "Home Subplace",
+                    "desc1": "Shows the subplace section inside Roblox home/friends cards."
+                },
+                "currentlyPlayingSubplaceProfileEnabled": {
+                    "title": "Profile Page Subplace",
+                    "desc1": "Shows the subplace UI and details on profile pages."
+                }
+            }
         },
         "communities": {
             "title": "Communities"
