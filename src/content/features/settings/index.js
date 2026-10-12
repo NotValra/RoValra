@@ -1537,7 +1537,7 @@ function getDonatorSettingsPerkRows() {
         )) {
             if (setting.donatorTier) {
                 rows.push({
-                    label: createDonatorPerkLink(settingName, setting.label),
+                    label: createDonatorPerkLink(settingName, ts(setting.label)),
                     minTier: setting.donatorTier,
                 });
             }
@@ -1549,7 +1549,7 @@ function getDonatorSettingsPerkRows() {
                         rows.push({
                             label: createDonatorPerkLink(
                                 childName,
-                                childSetting.label,
+                                ts(childSetting.label),
                             ),
                             minTier: childSetting.donatorTier,
                         });
