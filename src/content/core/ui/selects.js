@@ -286,6 +286,10 @@ export function createDropdownContent(
         }px`;
     };
 
+    const repositionOnScroll = (event) => {
+        if (!contentPanel.contains(event.target)) positionContent();
+    };
+
     const toggleContentVisibility = (forceOpen) => {
         const isOpen =
             forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
@@ -295,8 +299,9 @@ export function createDropdownContent(
         if (isOpen) {
             document.body.appendChild(contentPanel);
             positionContent();
-            window.addEventListener('scroll', positionContent, {
+            window.addEventListener('scroll', repositionOnScroll, {
                 passive: true,
+                capture: true,
             });
             window.addEventListener('resize', positionContent, {
                 passive: true,
@@ -305,7 +310,9 @@ export function createDropdownContent(
             if (contentPanel.parentNode === document.body) {
                 document.body.removeChild(contentPanel);
             }
-            window.removeEventListener('scroll', positionContent);
+            window.removeEventListener('scroll', repositionOnScroll, {
+                capture: true,
+            });
             window.removeEventListener('resize', positionContent);
         }
     };

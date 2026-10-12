@@ -4963,6 +4963,7 @@ export async function handleSearch(event) {
 
     const contentContainer = document.querySelector('#content-container');
     if (!contentContainer) return;
+    contentContainer.scrollTop = 0;
 
     const url = new URL(window.location.href);
     if (query) {
