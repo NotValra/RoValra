@@ -1458,6 +1458,24 @@
             "all": "Nie znaleziono wydarzeń."
         }
     },
+    "badgeSort": {
+        "label": "Sortuj odznaki",
+        "seeMore": "Zobacz więcej",
+        "updated": "Zaktualizowano",
+        "created": "Utworzono",
+        "options": {
+            "default": "Domyślnie",
+            "updated": "Ostatnio zaktualizowane",
+            "newest": "Najnowsze",
+            "oldest": "Najstarsze",
+            "mostWon": "Najczęściej zdobywane",
+            "leastWon": "Najrzadziej zdobywane",
+            "wonYesterday": "Najczęściej zdobywane wczoraj",
+            "rarest": "Najrzadsze",
+            "easiest": "Najłatwiejsze",
+            "name": "Nazwa (A–Z)"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "Odznaki",
