@@ -33,6 +33,14 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel('English', 'en'),
                         value: 'en',
+                    },                     
+                    {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
+                    },
+                    {
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
                     },
                     {
                         label: languageLabel('Brazilian Portuguese (Português (Brasil))', 'pt'),
@@ -58,13 +66,14 @@ export const SETTINGS_CONFIG = {
                         value: 'id',
                     },
                     {
-                        label: languageLabel('Russian (Русский)', 'ru'),
-                        value: 'ru',
-                    },
-                    {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+                    
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
@@ -548,6 +557,16 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            badgeSortEnabled: {
+                label: 'Badge Sorting',
+                description: [
+                    'Adds a Sort dropdown to experience badge sections.',
+                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
             },
             badgeOwnershipEnabled: {
                 label: 'settings.experiences.badgeOwnershipEnabled.title',
@@ -1067,6 +1086,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_group_filters_view',
             },
             trustedConnectionsEnabledv3: {
                 label: 'settings.profile.trustedConnectionsEnabledv3.title',
@@ -1123,6 +1143,7 @@ export const SETTINGS_CONFIG = {
                     'settings.profile.groupJoinedDateEnabled.desc1',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
             },
             showFriendedFromEnabled: {
                 label: 'settings.profile.showFriendedFromEnabled.title',
@@ -3165,6 +3186,46 @@ export const SETTINGS_CONFIG = {
                         step: 10,
                         default: 100,
                         hidden: true,
+                    },
+                },
+            },
+            cursorBuddyEnabled: {
+                label: 'Cursor Buddy',
+                description: [
+                    'A cute little buddy follows your cursor around Roblox.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    cursorBuddyCompanion: {
+                        label: 'Buddy',
+                        type: 'select',
+                        options: [
+                            { label: 'Oneko', value: 'cat' },
+                            { label: 'Kitten', value: 'kitten' },
+                        ],
+                        default: 'cat',
+                    },
+                    cursorBuddySize: {
+                        label: 'Size',
+                        description: 'Choose how big your buddy looks.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 24,
+                        max: 128,
+                        step: 1,
+                        default: 32,
+                    },
+                    cursorBuddyFollowSpeed: {
+                        label: 'Follow Speed',
+                        description: 'Choose how quickly your buddy follows your cursor.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 40,
+                        max: 600,
+                        step: 10,
+                        default: 240,
                     },
                 },
             },

@@ -37,15 +37,22 @@
             display: none !important;
         }
 
-
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list) {
+        > :is(
+            .rovalra-badge-layout-list,
+            .rovalra-hidden-badges-list,
+            .rovalra-badge-sorted-list
+        ) {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
             gap: 6px;
             align-items: start;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row {
             display: flex;
             flex-direction: column;
@@ -60,14 +67,26 @@
             margin-bottom: 0px;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-image,
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-image
             a,
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-image-container {
             width: 150px;
@@ -75,7 +94,11 @@
             display: block;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-image-container
             img {
@@ -84,7 +107,11 @@
             object-fit: contain;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-content {
             width: 100%;
@@ -93,14 +120,22 @@
             display: block;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-data-container {
             width: 100%;
             min-width: 0;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-name {
             font-size: 14px;
@@ -113,7 +148,11 @@
             white-space: nowrap;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .rovalra-badge-grid-stats {
             display: flex;
@@ -128,7 +167,11 @@
             white-space: nowrap;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .rovalra-badge-grid-stat {
             min-width: 0;
@@ -141,19 +184,31 @@
             color: var(--rovalra-secondary-text-color);
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .rovalra-badge-grid-stat:first-child {
             text-align: left;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .rovalra-badge-grid-stat:last-child {
             text-align: right;
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .rovalra-badge-grid-stat-separator {
             flex: 0 0 auto;
@@ -162,10 +217,18 @@
             color: var(--rovalra-secondary-text-color);
         }
 
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .para-overflow,
-        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+        > :is(
+                .rovalra-badge-layout-list,
+                .rovalra-hidden-badges-list,
+                .rovalra-badge-sorted-list
+            )
             > .stack-row.badge-row
             .badge-stats-container {
             display: none;
