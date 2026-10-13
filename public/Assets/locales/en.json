@@ -894,6 +894,7 @@
                     "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
                 },
                 "locales": {
+                    "madeDe": "Helped make the German locale",
                     "madeRo": "Helped make the Romanian locale",
                     "madeEs": "Helped make the Spanish locale",
                     "madeRu": "Helped make the Russian locale",
@@ -1275,7 +1276,9 @@
         "noSearchHistory": "You don't have any search history.",
         "deleteSearchHistoryTitle": "Delete Search History",
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
-        "delete": "Delete"
+        "delete": "Delete",
+        "itemValue": "Value",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "{{count}} Friends own",
@@ -1450,6 +1453,24 @@
             "active": "No ongoing or upcoming events.",
             "past": "No past events.",
             "all": "No events found."
+        }
+    },
+    "badgeSort": {
+        "label": "Sort badges",
+        "seeMore": "See More",
+        "updated": "Updated",
+        "created": "Created",
+        "options": {
+            "default": "Default",
+            "updated": "Recently Updated",
+            "newest": "Newest",
+            "oldest": "Oldest",
+            "mostWon": "Most Won",
+            "leastWon": "Least Won",
+            "wonYesterday": "Most Won Yesterday",
+            "rarest": "Rarest",
+            "easiest": "Easiest",
+            "name": "Name (A-Z)"
         }
     },
     "hiddenBadges": {
@@ -1937,7 +1958,9 @@
     "groups": {
         "createdLabel": "Created",
         "joinedLabel": "Joined",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "hidden": "Hidden",
+        "hiddenTooltip": "This community hides its member list, so join dates can only be seen by its members."
     },
     "showcase": {
         "tab": "Showcase",
@@ -2074,6 +2097,11 @@
         "rotatePreview": "Rotate preview",
         "itemOnly": "Show item only"
     },
+    "freeBadgeQuota": {
+        "label": "Free Badges",
+        "value": "{{count}} left today",
+        "tooltip": "Badges this experience can still create for free. Roblox allows 5 free badges per experience every 24 hours."
+    },
     "groupFilters": {
         "sort": {
             "default": "Default",
@@ -2082,7 +2110,11 @@
             "newest": "Newest",
             "oldest": "Oldest"
         },
-        "tooltip": "Sort by when the user joined the community"
+        "tooltip": "Sort by when the user joined the community",
+        "view": {
+            "row": "Row",
+            "grid": "Grid"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",

@@ -34,6 +34,21 @@ export const SETTINGS_CONFIG = {
                         value: 'en',
                     },
                     {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
+                    },
+                    {
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
+                    },
+                    {
+                        label: languageLabel(
+                            'Brazilian Portuguese (Português (Brasil))',
+                            'pt',
+                        ),
+                        value: 'pt',
+                    },
+                    {
                         label: languageLabel('French (Français)', 'fr'),
                         value: 'fr',
                     },
@@ -53,13 +68,14 @@ export const SETTINGS_CONFIG = {
                         value: 'id',
                     },
                     {
-                        label: languageLabel('Russian (Русский)', 'ru'),
-                        value: 'ru',
-                    },
-                    {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
@@ -545,6 +561,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            badgeSortEnabled: {
+                label: 'Badge Sorting',
+                description: [
+                    'Adds a Sort dropdown to experience badge sections.',
+                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
+            },
             badgeOwnershipEnabled: {
                 label: 'Dim Unowned Badges',
                 description: [
@@ -562,6 +588,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: [476449201],
+            },
+            freeBadgeQuotaEnabled: {
+                label: 'Free Badge Quota',
+                description: [
+                    'Shows how many badges an experience can still create for free today in its stats.',
+                    'Roblox lets each experience create 5 free badges every 24 hours.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
             },
             gameStatTimestampsEnabled: {
                 label: 'Detailed Created / Updated Dates',
@@ -1063,6 +1099,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_group_filters_view',
             },
             trustedConnectionsEnabledv3: {
                 label: 'Trusted Friends',
@@ -1119,6 +1156,7 @@ export const SETTINGS_CONFIG = {
                     'Shows when a user joined a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
             },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
@@ -2442,6 +2480,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    itemSearchEnabled: {
+                        label: 'Quick Item Search',
+                        description:
+                            'Shows limited items whose Rolimons acronym matches what you searched, like 8BRC for the 8-Bit Royal Crown.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             searchHistoryEnabled: {
@@ -2625,6 +2670,14 @@ export const SETTINGS_CONFIG = {
                             "Prevents your username from being moved up to a place where it's harder to read because of extensions adding features.",
                         type: 'checkbox',
                         default: true,
+                    },
+                    themeScrollbarFixEnabled: {
+                        label: 'Match the scrollbar to your theme',
+                        description:
+                            'Fixes the page scrollbar showing up light on dark theme, or dark on light theme, and makes it blend in with the page.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['74884'],
                     },
                 },
             },
@@ -3164,11 +3217,50 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            cursorBuddyEnabled: {
+                label: 'Cursor Buddy',
+                description: [
+                    'A cute little buddy follows your cursor around Roblox.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    cursorBuddyCompanion: {
+                        label: 'Buddy',
+                        type: 'select',
+                        options: [
+                            { label: 'Oneko', value: 'cat' },
+                            { label: 'Kitten', value: 'kitten' },
+                        ],
+                        default: 'cat',
+                    },
+                    cursorBuddySize: {
+                        label: 'Size',
+                        description: 'Choose how big your buddy looks.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 24,
+                        max: 128,
+                        step: 1,
+                        default: 32,
+                    },
+                    cursorBuddyFollowSpeed: {
+                        label: 'Follow Speed',
+                        description:
+                            'Choose how quickly your buddy follows your cursor.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 40,
+                        max: 600,
+                        step: 10,
+                        default: 240,
+                    },
+                },
+            },
             customScrollbarEnabled: {
                 label: 'Customize Scroll Bar',
-                description: [
-                    'Make Roblox scrollbars look the way you want.',
-                ],
+                description: ['Make Roblox scrollbars look the way you want.'],
                 type: 'checkbox',
                 default: false,
                 contributors: ['476449201'],
@@ -3181,7 +3273,8 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarWidth: {
                         label: 'Width',
-                        description: 'Set the scrollbar width in pixels (1-24).',
+                        description:
+                            'Set the scrollbar width in pixels (1-24).',
                         type: 'input',
                         inputType: 'number',
                         min: 1,
@@ -3190,7 +3283,8 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarRadius: {
                         label: 'Border Radius',
-                        description: 'Set the scrollbar corner radius in pixels (0-24).',
+                        description:
+                            'Set the scrollbar corner radius in pixels (0-24).',
                         type: 'input',
                         inputType: 'number',
                         min: 0,
@@ -3199,13 +3293,15 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarThumbColor: {
                         label: 'Thumb Color',
-                        description: 'Set the color of the moving scrollbar thumb.',
+                        description:
+                            'Set the color of the moving scrollbar thumb.',
                         type: 'color',
                         default: '#4f545c',
                     },
                     customScrollbarTrackColor: {
                         label: 'Track Color',
-                        description: 'Set the background color of the scrollbar.',
+                        description:
+                            'Set the background color of the scrollbar.',
                         type: 'color',
                         default: '#202124',
                     },
