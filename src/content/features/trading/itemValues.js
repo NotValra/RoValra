@@ -416,7 +416,7 @@ export function updateItemCard(card, assetId, options = {}) {
             rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
             addTooltip(
                 rolimonsLink,
-                ts('trading.openOnRolimons', { type: rolimonsTargetType }),
+                ts('trading.openOnRolimons', { type: ts(rolimonsTargetType) }),
                 {
                     position: 'top',
                 },
