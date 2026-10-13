@@ -900,6 +900,7 @@
                     "addedToWebsite": "Dodano indeks motywów Plus do strony, aby użytkownicy mogli używać tylko poprawnych i określonych motywów."
                 },
                 "locales": {
+                    "madeDe": "Pomoc przy tworzeniu wersji niemieckiej",
                     "madeRo": "Pomoc przy tworzeniu wersji rumuńskiej",
                     "madeEs": "Pomoc przy tworzeniu wersji hiszpańskiej",
                     "madeRu": "Pomoc przy tworzeniu wersji rosyjskiej",
@@ -1458,6 +1459,24 @@
             "all": "Nie znaleziono wydarzeń."
         }
     },
+    "badgeSort": {
+        "label": "Sortuj odznaki",
+        "seeMore": "Zobacz więcej",
+        "updated": "Zaktualizowano",
+        "created": "Utworzono",
+        "options": {
+            "default": "Domyślnie",
+            "updated": "Ostatnio zaktualizowane",
+            "newest": "Najnowsze",
+            "oldest": "Najstarsze",
+            "mostWon": "Najczęściej zdobywane",
+            "leastWon": "Najrzadziej zdobywane",
+            "wonYesterday": "Najczęściej zdobywane wczoraj",
+            "rarest": "Najrzadsze",
+            "easiest": "Najłatwiejsze",
+            "name": "Nazwa (A–Z)"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "Odznaki",
@@ -1948,6 +1967,8 @@
         "createdLabel": "Utworzono",
         "joinedLabel": "Dołączono",
         "unknown": "Nieznane"
+        "hidden": "Ukryte",
+        "hiddenTooltip": "Ta społeczność ukrywa listę członków, dlatego daty dołączenia mogą zobaczyć tylko jej członkowie."
     },
     "showcase": {
         "tab": "Wizytówka",
@@ -2092,7 +2113,11 @@
             "newest": "Najnowsze",
             "oldest": "Najstarsze"
         },
-        "tooltip": "Sortuj według daty dołączenia użytkownika do społeczności"
+        "tooltip": "Sortuj według daty dołączenia użytkownika do społeczności",
+        "view": {
+            "row": "Lista",
+            "grid": "Siatka"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",

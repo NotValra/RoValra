@@ -32,7 +32,7 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel('English', 'en'),
                         value: 'en',
-                    },                     
+                    },
                     {
                         label: languageLabel('Russian (Русский)', 'ru'),
                         value: 'ru',
@@ -42,7 +42,10 @@ export const SETTINGS_CONFIG = {
                         value: 'de',
                     },
                     {
-                        label: languageLabel('Brazilian Portuguese (Português (Brasil))', 'pt'),
+                        label: languageLabel(
+                            'Brazilian Portuguese (Português (Brasil))',
+                            'pt',
+                        ),
                         value: 'pt',
                     },
                     {
@@ -72,7 +75,7 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('French (Français)', 'fr'),
                         value: 'fr',
                     },
-                    
+
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
@@ -585,6 +588,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: [476449201],
+            },
+            freeBadgeQuotaEnabled: {
+                label: 'Free Badge Quota',
+                description: [
+                    'Shows how many badges an experience can still create for free today in its stats.',
+                    'Roblox lets each experience create 5 free badges every 24 hours.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
             },
             gameStatTimestampsEnabled: {
                 label: 'Detailed Created / Updated Dates',
@@ -2476,6 +2489,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    itemSearchEnabled: {
+                        label: 'Quick Item Search',
+                        description:
+                            'Shows limited items whose Rolimons acronym matches what you searched, like 8BRC for the 8-Bit Royal Crown.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             searchHistoryEnabled: {
@@ -2527,6 +2547,31 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            browserNotificationsEnabled: {
+                label: 'Browser Notifications',
+                description:
+                    'Sends browser notifications for the things you pick below.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['notifications'],
+                storageKey: ['rovalra_notifications_state'],
+                contributors: ['2239549101'],
+                childSettings: {
+                    tradeNotificationsEnabled: {
+                        label: 'Trades',
+                        description: 'Notifies you when you get a new trade.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    friendNotificationsEnabled: {
+                        label: 'Pinned Friends',
+                        description:
+                            'Notifies you when a pinned friend joins an experience.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
                 description: [
@@ -2659,6 +2704,14 @@ export const SETTINGS_CONFIG = {
                             "Prevents your username from being moved up to a place where it's harder to read because of extensions adding features.",
                         type: 'checkbox',
                         default: true,
+                    },
+                    themeScrollbarFixEnabled: {
+                        label: 'Match the scrollbar to your theme',
+                        description:
+                            'Fixes the page scrollbar showing up light on dark theme, or dark on light theme, and makes it blend in with the page.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['74884'],
                     },
                 },
             },
@@ -3228,7 +3281,8 @@ export const SETTINGS_CONFIG = {
                     },
                     cursorBuddyFollowSpeed: {
                         label: 'Follow Speed',
-                        description: 'Choose how quickly your buddy follows your cursor.',
+                        description:
+                            'Choose how quickly your buddy follows your cursor.',
                         type: 'input',
                         inputType: 'number',
                         min: 40,
@@ -3240,9 +3294,7 @@ export const SETTINGS_CONFIG = {
             },
             customScrollbarEnabled: {
                 label: 'Customize Scroll Bar',
-                description: [
-                    'Make Roblox scrollbars look the way you want.',
-                ],
+                description: ['Make Roblox scrollbars look the way you want.'],
                 type: 'checkbox',
                 default: false,
                 contributors: ['476449201'],
@@ -3255,7 +3307,8 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarWidth: {
                         label: 'Width',
-                        description: 'Set the scrollbar width in pixels (1-24).',
+                        description:
+                            'Set the scrollbar width in pixels (1-24).',
                         type: 'input',
                         inputType: 'number',
                         min: 1,
@@ -3264,7 +3317,8 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarRadius: {
                         label: 'Border Radius',
-                        description: 'Set the scrollbar corner radius in pixels (0-24).',
+                        description:
+                            'Set the scrollbar corner radius in pixels (0-24).',
                         type: 'input',
                         inputType: 'number',
                         min: 0,
@@ -3273,13 +3327,15 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarThumbColor: {
                         label: 'Thumb Color',
-                        description: 'Set the color of the moving scrollbar thumb.',
+                        description:
+                            'Set the color of the moving scrollbar thumb.',
                         type: 'color',
                         default: '#4f545c',
                     },
                     customScrollbarTrackColor: {
                         label: 'Track Color',
-                        description: 'Set the background color of the scrollbar.',
+                        description:
+                            'Set the background color of the scrollbar.',
                         type: 'color',
                         default: '#202124',
                     },

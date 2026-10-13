@@ -11,6 +11,7 @@ import {
 } from '../../../features/settings/index.js';
 import { createBadgeSettings } from '../badgeSettings.js';
 import DOMPurify from '../../packages/dompurify.js';
+import { ts } from '../../locale/i18n.js';
 
 let isSettingsPage = false;
 

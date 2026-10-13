@@ -46,6 +46,10 @@ export function getCachedRolimonsItem(assetId) {
     return rolimonsCache.get(String(assetId));
 }
 
+export function getCachedRolimonsItems() {
+    return rolimonsCache;
+}
+
 export function getCachedRisk(assetId) {
     return riskCache.get(String(assetId));
 }
