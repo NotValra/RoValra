@@ -556,9 +556,9 @@ export function updateItemCard(card, assetId, options = {}) {
             }
 
             if (featureSettings.tradeRiskEnabled && riskData) {
-                const color = RISK_COLORS[riskData.level] || '#fff';
+                const color = RISK_COLORS[riskData.level] || '#fff';''
                 tooltipParts.push(
-                    ts('trading.riskTooltip', { value: ts(riskData.level) })
+                    ts('trading.riskTooltip', { value: `<span style="color:${color};font-weight:bold;">${ts(riskData.level)}</span>` })
                     // `Risk: <span style="color:${color};font-weight:bold;">${ts(riskData.level)}</span>`,
                 );
 
