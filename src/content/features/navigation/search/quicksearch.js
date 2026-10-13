@@ -1319,7 +1319,16 @@ function formatRobux(value) {
     }).format(value || 0);
 }
 
-function createItemStat(label, value) {
+function createRolimonsIcon(size) {
+    const icon = document.createElement('img');
+    icon.src = getAssets().rolimonsIcon;
+    icon.alt = '';
+    icon.style.width = size;
+    icon.style.height = size;
+    return icon;
+}
+
+function createItemStat(label, value, icon) {
     const stat = document.createElement('span');
     stat.className = 'rovalra-item-search-stat';
     const labelEl = document.createElement('span');
@@ -1327,7 +1336,7 @@ function createItemStat(label, value) {
     const amount = document.createElement('span');
     amount.className = 'rovalra-item-search-amount';
     amount.textContent = formatRobux(value);
-    stat.append(labelEl, createRobuxIcon({ size: '14px' }), amount);
+    stat.append(labelEl, icon, amount);
     return stat;
 }
 
@@ -1384,8 +1393,16 @@ function createItemResult(item, thumbnailUrl) {
     acronym.textContent = item.acronym;
     info.append(
         acronym,
-        createItemStat(ts('quickSearch.itemValue'), item.default_price),
-        createItemStat(ts('quickSearch.itemRap'), item.rap),
+        createItemStat(
+            ts('quickSearch.itemValue'),
+            item.default_price,
+            createRolimonsIcon('14px'),
+        ),
+        createItemStat(
+            ts('quickSearch.itemRap'),
+            item.rap,
+            createRobuxIcon({ size: '14px' }),
+        ),
     );
 
     text.append(name, info);
