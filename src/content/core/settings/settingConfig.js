@@ -2269,6 +2269,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            hideFriendRequestCountEnabled: {
+                label: 'Hide Friend Request Count',
+                description: [
+                    'Hides the friend request count beside Friends in the sidebar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
+            },
             sidebarLayoutEnabled: {
                 label: 'Sidebar Layout',
                 description: [
@@ -2480,6 +2489,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    itemSearchEnabled: {
+                        label: 'Quick Item Search',
+                        description:
+                            'Shows limited items whose Rolimons acronym matches what you searched, like 8BRC for the 8-Bit Royal Crown.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             searchHistoryEnabled: {
@@ -2531,6 +2547,31 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'settings.miscellaneous.title',
         settings: {
+            browserNotificationsEnabled: {
+                label: 'Browser Notifications',
+                description:
+                    'Sends browser notifications for the things you pick below.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['notifications'],
+                storageKey: ['rovalra_notifications_state'],
+                contributors: ['2239549101'],
+                childSettings: {
+                    tradeNotificationsEnabled: {
+                        label: 'Trades',
+                        description: 'Notifies you when you get a new trade.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    friendNotificationsEnabled: {
+                        label: 'Pinned Friends',
+                        description:
+                            'Notifies you when a pinned friend joins an experience.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
                 description: [
