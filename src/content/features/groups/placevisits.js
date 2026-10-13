@@ -55,7 +55,10 @@ export function init() {
 
                 const formattedVisits = totalVisits.toLocaleString();
                 const pill = createPill(
-                    await t('placeVisits.label', { count: formattedVisits }),
+                    await t('placeVisits.label', {
+                        count: totalVisits,
+                        replace: { count: formattedVisits },
+                    }),
                     await t('placeVisits.tooltip'),
                     { size: 'small', isButton: true },
                 );

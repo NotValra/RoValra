@@ -138,6 +138,7 @@ async function createBadgeOverlay() {
 registerProfileEditCategory({
     id: 'rovalra',
     label: 'RoValra Features',
+    labelKey: 'profileFeatures.title',
 });
 registerProfileEditFeature('rovalra', {
     id: BADGE_FEATURE_ID,

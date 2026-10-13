@@ -2046,7 +2046,7 @@
         "stats": {
             "robux": "لقد وفّرت {{robux}} عندما كان لديك Plus",
             "percentOffSmall": "عناصر داخل اللعبة، أفاتارات والمزيد",
-            "percentOff": "خصم {{percent}}%",
+            "percentOff": "خصم {{percent}}",
             "itemsBoughtSmall": "العناصر المشتراة بخصم Plus",
             "privateServersCreatedSmall": "خوادم خاصة تم إنشاؤها مجانًا",
             "robuxSentSmall": "Robux المُرسل إلى الأصدقاء",

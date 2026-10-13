@@ -92,6 +92,7 @@ export async function setProfilePronounsForUser(userId, pronouns) {
 registerProfileEditCategory({
     id: 'rovalra',
     label: ts('profileFeatures.title'),
+    labelKey: 'profileFeatures.title',
 });
 registerProfileEditFeature('rovalra', {
     id: 'profilePronouns',

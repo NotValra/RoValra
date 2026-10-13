@@ -56,7 +56,7 @@
         "loading": "Se încarcă..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "Experiențe de grup ascunse ({count} în total)",
+        "overlayTitle": "Experiențe de grup ascunse ({{count}} în total)",
         "noHiddenGames": "Acest grup nu are experiențe ascunse.",
         "buttonText": "Experiențe Ascunse",
         "labels": {
@@ -279,7 +279,7 @@
             "previousRewards": "+ Toate avantajele nivelelor mai joase",
             "moreComingSoon": "Mai multe apar în curând.",
             "availableBadges": "Insigne disponibile",
-            "note": "Note: Insignele pot lua câteva minute să apară după donație. TPentru a gestiona vizibilitatea insignei, accesați tab-ul de setări „Profil”. Dacă aveți sub 13 ani și donați, nu veți putea activa/dezactiva vizibilitatea insignei voastre de donator. Din păcate, donațiile prin comisioane nu oferă beneficii — aceasta este o limitare de la Roblox."
+            "note": "Note: Insignele pot lua câteva minute să apară după donație. Pentru a gestiona vizibilitatea insignei, accesați tab-ul de setări „Profil”. Dacă aveți sub 13 ani și donați, nu veți putea activa/dezactiva vizibilitatea insignei voastre de donator. Din păcate, donațiile prin comisioane nu oferă beneficii — aceasta este o limitare de la Roblox.\n[rovalra.com/tou](https://www.rovalra.com/tou/)"
         },
         "search": {
             "minLength": "Vă rugăm să introduceți măcar două caractere pentru a căuta.",

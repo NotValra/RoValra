@@ -29,7 +29,7 @@ export function loadTranslationProgress() {
         )
             .then((response) => response.json())
             .then((localeCodes) =>
-                Promise.all(
+                Promise.allSettled(
                     localeCodes.map(async (language) => {
                         const response = await fetch(
                             chrome.runtime.getURL(
@@ -45,6 +45,16 @@ export function loadTranslationProgress() {
                     }),
                 ),
             )
+            .then((results) => {
+                for (const result of results) {
+                    if (result.status === 'rejected') {
+                        console.warn(
+                            'RoValra: Failed to load translation progress',
+                            result.reason,
+                        );
+                    }
+                }
+            })
             .catch((error) => {
                 console.warn(
                     'RoValra: Failed to load translation progress',

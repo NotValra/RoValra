@@ -5073,7 +5073,7 @@ export async function handleSearch(event) {
     }
 
     if (searchResults.length === 0) {
-        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">${ts('settings.search.noResults', { query })}</div>`;
+        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">${ts('settings.search.noResults', { query, interpolation: { escapeValue: false } })}</div>`;
     } else {
         const groupedResults = searchResults.reduce((acc, setting) => {
             if (!acc[setting.category]) acc[setting.category] = [];

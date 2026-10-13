@@ -152,6 +152,7 @@
     "unknownError": "Unbekannter Fehler",
     "errorLoadingTitle": "Fehler beim Laden des Artikels",
     "errorLoadingMessage": "Wir konnten die Informationen zu diesem Artikel nicht abrufen. Details: {{errorMessage}}. Bitte versuche es später erneut."
+  },
   "avatarRotator": {
     "stop": "Rotation stoppen",
     "button": "Avatar-Rotation",
@@ -1365,7 +1366,7 @@
       "ascending": "Aufsteigend"
     },
     "banner": {
-      "title": "Du sind currently viewing a subplace of [{{rootOrtName}}]({{rootOrtUrl}}).",
+      "title": "Du sind currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
       "descriptionDefault": "Some Experiences may deaktivieren joining subplaces.",
       "descriptionRestricted": "This subplace kann nicht be joined due to beitreten restrictions.",
       "descriptionJoinable": "This subplace kann be joined.",
@@ -2279,7 +2280,7 @@
     "responseHeaders": "Response headers",
     "emptyResponse": "(empty response)",
     "responseImage": "Antwort ",
-    "duration": "Dauer",
+    "duration": "{{ms}} ms",
     "durationTooltip": "Anfrage duration",
     "contentType": "Content Typ",
     "redirected": "Redirektiert",

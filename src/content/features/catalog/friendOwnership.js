@@ -67,7 +67,8 @@ function createPillContent(owners, thumbnailMap, totalCount) {
 
     const text = document.createElement('span');
     text.textContent = ts('friendOwnership.pillLabel', {
-        count: totalCount.toLocaleString(),
+        count: totalCount,
+        replace: { count: totalCount.toLocaleString() },
     });
 
     content.append(avatars, text);
@@ -130,7 +131,8 @@ async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
 
     createOverlay({
         title: ts('friendOwnership.overlayTitle', {
-            count: totalCount.toLocaleString(),
+            count: totalCount,
+            replace: { count: totalCount.toLocaleString() },
         }),
         bodyContent: body,
         maxWidth: '420px',

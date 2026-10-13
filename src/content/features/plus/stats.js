@@ -56,7 +56,7 @@ async function makeHtml() {
         containerObserver.disconnect();
     const containerDiv = document.createElement('div');
     const translations = await getTranslations();
-    const robuxSavedTranslationParts = translations.robux.split(' {{robux}} ');
+    const robuxSavedTranslationParts = translations.robux.split('{{robux}}');
     const parent = document.querySelector(parentElementQuerySelector);
     let plusBenefits = null;
 

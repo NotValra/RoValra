@@ -938,6 +938,7 @@ function createUserResultHtml(
     if (presence && presence.userPresenceType === 2 && presence.lastLocation) {
         statusText = ts('quickSearch.playing', {
             gameName: presence.lastLocation,
+            interpolation: { escapeValue: false },
         });
     } else if (isFriend) {
         statusText = isTrusted

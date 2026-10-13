@@ -10,9 +10,9 @@ let isInitialized = false;
 let currentDropdownInstance = null;
 let currentCursor = null;
 
-const LABELS = {
-    newest: ts('serverFilters.newest'),
-    oldest: ts('serverFilters.oldest'),
+const LABEL_KEYS = {
+    newest: 'serverFilters.newest',
+    oldest: 'serverFilters.oldest',
 };
 
 function getPlaceIdFromUrl() {
@@ -60,11 +60,11 @@ async function onFilterChange(value) {
 
     currentCursor = null;
 
-    if (currentDropdownInstance && LABELS[value]) {
+    if (currentDropdownInstance && LABEL_KEYS[value]) {
         const trigger = currentDropdownInstance.element.querySelector(
             '.rovalra-dropdown-trigger .content-emphasis',
         );
-        if (trigger) trigger.textContent = LABELS[value];
+        if (trigger) trigger.textContent = ts(LABEL_KEYS[value]);
     }
 
     document.dispatchEvent(new CustomEvent('rovalraUptimeSelected'));
