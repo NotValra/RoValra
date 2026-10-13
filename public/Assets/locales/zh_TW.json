@@ -841,6 +841,7 @@
             "desc2": "頁面將重新載入以套用變更。設定頁面上的變更可能不會立即生效。",
             "desc3": "我們無法保證翻譯永遠是最新版本。這些譯本由社群成員翻譯，我們無法保證百分之百的準確。"
         },
+        "version": "RoValra 版本：{{version}}",
         "donatorExclusive": "這是一項捐贈者專屬功能。",
         "contributed": "{{username}} 為此功能的製作做出了貢獻。",
         "marketplace": {

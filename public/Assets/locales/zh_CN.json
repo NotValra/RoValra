@@ -841,6 +841,7 @@
             "desc2": "页面将重新加载以应用更改。设置页面上的更改可能不会立即生效。",
             "desc3": "我们无法保证翻译始终为最新版本。这些译文由社区成员翻译，我们无法保证百分之百的准确。"
         },
+        "version": "RoValra 版本：{{version}}",
         "donatorExclusive": "这是一项捐赠者专属功能。",
         "contributed": "{{username}} 为此功能的制作做出了贡献。",
         "marketplace": {
