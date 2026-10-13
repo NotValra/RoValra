@@ -431,6 +431,16 @@ export const SETTINGS_CONFIG = {
                     'This allows you to view past events on experiences and how many are going.',
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    eventsTabEnabled: {
+                        label: 'Separate Events Tab',
+                        description:
+                            'Moves experience events from About to their own tab.',
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['127238'],
+                    },
+                },
             },
             EnableGameTrailer: {
                 label: 'Experience Trailer',
