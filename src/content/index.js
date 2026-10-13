@@ -213,6 +213,7 @@ import { init as initPlaytime } from './features/home/playtime.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
+import { init as initProfilePinnedFriends } from './features/profile/friends/pinnedFriends.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
@@ -449,6 +450,7 @@ const featureRoutes = [
             initPrivateServers,
             initUserGames,
             initTrustedFriends,
+            initProfilePinnedFriends,
             initProfileRender,
             initProfileTestTab,
             initProfileShowcase,
