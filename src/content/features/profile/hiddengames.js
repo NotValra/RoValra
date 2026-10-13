@@ -170,12 +170,22 @@ const Api = {
 
         const fetchPromise = (async () => {
             const isPublic = await this.checkInventoryPublic(userId);
-            if (!isPublic) return { all: [], hidden: [] };
 
             const [itemByUniverse, publicGames] = await Promise.all([
-                this.getAllOwnedUniverses(userId),
+                isPublic
+                    ? this.getAllOwnedUniverses(userId)
+                    : Promise.resolve(new Map()),
                 this.getPublicGames(userId),
             ]);
+
+            publicGames.forEach((game) => {
+                if (!itemByUniverse.has(game.id)) {
+                    itemByUniverse.set(game.id, {
+                        name: game.name,
+                        placeId: game.rootPlace?.id,
+                    });
+                }
+            });
 
             const publicIds = new Set(publicGames.map((g) => g.id));
             const allIds = [...itemByUniverse.keys()];
