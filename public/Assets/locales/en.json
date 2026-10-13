@@ -2872,6 +2872,11 @@
         "rotatePreview": "Rotate preview",
         "itemOnly": "Show item only"
     },
+    "freeBadgeQuota": {
+        "label": "Free Badges",
+        "value": "{{count}} left today",
+        "tooltip": "Badges this experience can still create for free. Roblox allows 5 free badges per experience every 24 hours."
+    },
     "groupFilters": {
         "sort": {
             "default": "Default",
