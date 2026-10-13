@@ -380,7 +380,7 @@
         "myProfile": "Mój profil",
         "disabled": "Wyłączone",
         "show": "Pokaż",
-        "hide": "Ukryj"
+        "hide": "Ukryj",
         "add": "Dodaj",
         "addButton": "Dodaj przycisk",
         "buttonPlaceholder1": "Nazwa",
@@ -1282,7 +1282,9 @@
         "noSearchHistory": "Nie masz historii wyszukiwania.",
         "deleteSearchHistoryTitle": "Usuń historię wyszukiwania",
         "deleteSearchHistoryMessage": "Czy na pewno chcesz usunąć ten wpis z historii wyszukiwania?",
-        "delete": "Usuń"
+        "delete": "Usuń",
+        "itemValue": "Wartość",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "Mają to znajomi: {{count}}",
@@ -1966,7 +1968,7 @@
     "groups": {
         "createdLabel": "Utworzono",
         "joinedLabel": "Dołączono",
-        "unknown": "Nieznane"
+        "unknown": "Nieznane",
         "hidden": "Ukryte",
         "hiddenTooltip": "Ta społeczność ukrywa listę członków, dlatego daty dołączenia mogą zobaczyć tylko jej członkowie."
     },
@@ -2104,6 +2106,11 @@
         "baseplate": "Podłoże",
         "rotatePreview": "Obracaj podgląd",
         "itemOnly": "Pokaż tylko przedmiot"
+    },
+    "freeBadgeQuota": {
+        "label": "Darmowe odznaki",
+        "value": "Pozostało dzisiaj: {{count}}",
+        "tooltip": "Liczba darmowych odznak, które ta gra może jeszcze utworzyć. Roblox pozwala na utworzenie 5 darmowych odznak na jedną grę w ciągu każdych 24 godzin."
     },
     "groupFilters": {
         "sort": {
@@ -2322,5 +2329,12 @@
         "contentType": "Typ zawartości",
         "redirected": "Przekierowano",
         "copy": "Kopiuj"
+    },
+    "notifications": {
+        "newTrade": "Nowa wymiana",
+        "tradeFrom": "Od {{name}}",
+        "tradeStats": "Wartość: {{value}} | RAP: {{rap}}",
+        "friendPlaying": "{{name}} gra teraz",
+        "unknownGame": "Gra"
     }
 }
