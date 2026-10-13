@@ -26,7 +26,7 @@ function getLanguageFromUrl(url = window.location.href) {
     return supportedLanguages.has(code) ? code : defaultLanguage;
 }
 
-async function getLanguage() {
+export async function getLanguage() {
     await supportedLanguagesReady;
     const lang = await settings.rovalraLanguage;
 

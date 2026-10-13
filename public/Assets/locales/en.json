@@ -380,7 +380,11 @@
         "myProfile": "My Profile",
         "disabled": "Disabled",
         "show": "Show",
-        "hide": "Hide"
+        "hide": "Hide",
+        "add": "Add",
+        "addButton": "Add button",
+        "buttonPlaceholder1": "Name",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra was unable to find any supported topbar items.",
@@ -628,7 +632,8 @@
         "setActive": "Set Active",
         "noServersFound": "No {{status}} private servers found.",
         "byCreator": "By ",
-        "allowJoining": "Allow Joining"
+        "allowJoining": "Allow Joining",
+        "friendsAllowed": "Friends Allowed"
     },
     "firstAccount": {
         "label": "First Account",
@@ -695,6 +700,11 @@
     },
     "lastEquipped": {
         "label": "Last Equipped"
+    },
+    "ownedItemPrice": {
+        "label": "Price",
+        "free": "Free",
+        "offSale": "Off Sale"
     },
     "pendingRobux": {
         "tooltip": "This is an estimate of how many Robux from your pending balance will become available tomorrow, based on your transaction data. The actual amount may vary. And this may be inaccurate.",
@@ -884,11 +894,13 @@
                     "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
                 },
                 "locales": {
+                    "madeDe": "Helped make the German locale",
                     "madeRo": "Helped make the Romanian locale",
                     "madeEs": "Helped make the Spanish locale",
                     "madeRu": "Helped make the Russian locale",
                     "madeFr": "Helped make the French locale",
-                    "madeZh": "Helped make the Chinese locale"
+                    "madeZh": "Helped make the Chinese locale",
+                    "madeVi": "Helped make the Vietnamese locale"
                 }
             },
             "ui": {
@@ -1077,7 +1089,12 @@
                 "followTerms": "Images must follow Roblox ToS",
                 "joinDiscord": "Join the RoValra Discord",
                 "agree": "Agree",
-                "agreeCountdown": "Agree ({{count}})"
+                "agreeCountdown": "Agree ({{count}})",
+                "preview": "Preview",
+                "previewTitle": "Preview Custom Badge",
+                "previewDescription": "Upload a WEBP image to see how it would look as a badge on your profile. The image is only kept in memory and is never uploaded or saved, it disappears when you leave or refresh the page.",
+                "previewTooltip": "Badge Preview",
+                "previewDone": "Done"
             },
             "githubSponsorBadge": {
                 "title": "GitHub Sponsors Profile Badge",
@@ -1209,7 +1226,8 @@
         "transactions": "Transactions",
         "apiDocs": "API Docs",
         "incidentLearnMore": "Click here to learn more.",
-        "incidentHideNotice": "You can hide this notice here"
+        "incidentHideNotice": "You can hide this notice here",
+        "rovalraApi": "RoValra API"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
@@ -1435,6 +1453,24 @@
             "active": "No ongoing or upcoming events.",
             "past": "No past events.",
             "all": "No events found."
+        }
+    },
+    "badgeSort": {
+        "label": "Sort badges",
+        "seeMore": "See More",
+        "updated": "Updated",
+        "created": "Created",
+        "options": {
+            "default": "Default",
+            "updated": "Recently Updated",
+            "newest": "Newest",
+            "oldest": "Oldest",
+            "mostWon": "Most Won",
+            "leastWon": "Least Won",
+            "wonYesterday": "Most Won Yesterday",
+            "rarest": "Rarest",
+            "easiest": "Easiest",
+            "name": "Name (A-Z)"
         }
     },
     "hiddenBadges": {
@@ -1684,6 +1720,27 @@
         "offSale": "Went off sale",
         "backOnSale": "Back on sale"
     },
+    "tradeRecentItems": {
+        "offer": "Recently offered",
+        "request": "Recently requested",
+        "clear": "Clear"
+    },
+    "tradeQuickActions": {
+        "minValue": "Min value they give",
+        "hideLosses": "Hide losses",
+        "bulkTitle": "Bulk action",
+        "bulkHint": "Declines every received trade where you lose value. You confirm first.",
+        "declineLosses": "Decline losing trades",
+        "loadingTrades": "Loading received trades...",
+        "checking": "Checking trades {{done}}/{{total}}...",
+        "noLosses": "No losing received trades found",
+        "confirmTitle": "Decline losing trades",
+        "confirmMessage": "{{count}} of your {{total}} received trades are a loss by value ({{value}} total). Decline all of them? This can't be undone.",
+        "declineConfirm": "Decline",
+        "declining": "Declining {{done}}/{{total}}...",
+        "declined": "Declined {{count}} trades",
+        "declinedWithFailures": "Declined {{count}} trades, {{failed}} failed"
+    },
     "time": {
         "justNow": "just now",
         "secondsAgo": "{{count}}s ago",
@@ -1901,7 +1958,9 @@
     "groups": {
         "createdLabel": "Created",
         "joinedLabel": "Joined",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "hidden": "Hidden",
+        "hiddenTooltip": "This community hides its member list, so join dates can only be seen by its members."
     },
     "showcase": {
         "tab": "Showcase",
@@ -2038,6 +2097,11 @@
         "rotatePreview": "Rotate preview",
         "itemOnly": "Show item only"
     },
+    "freeBadgeQuota": {
+        "label": "Free Badges",
+        "value": "{{count}} left today",
+        "tooltip": "Badges this experience can still create for free. Roblox allows 5 free badges per experience every 24 hours."
+    },
     "groupFilters": {
         "sort": {
             "default": "Default",
@@ -2046,7 +2110,11 @@
             "newest": "Newest",
             "oldest": "Oldest"
         },
-        "tooltip": "Sort by when the user joined the community"
+        "tooltip": "Sort by when the user joined the community",
+        "view": {
+            "row": "Row",
+            "grid": "Grid"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",
@@ -2071,6 +2139,9 @@
             "monthlyLimitLeft": "Monthly limit left",
             "sentToday": "Sent today",
             "sentThisMonth": "Sent this month",
+            "nextRefill": "Next refill",
+            "leftAfter": "{{amount}} left",
+            "refillNote": "Each transfer counts toward the monthly limit for 30 days, then those Robux become available again.",
             "caption": "Daily limit is {{dailyLimit}}. Monthly limit is {{monthlyLimit}}. Updates every 5 minutes. The remaining are estimates and may be inaccurate."
         },
         "referral": {
@@ -2174,5 +2245,77 @@
     "pinnedFriends": {
         "pin": "Pin to top",
         "unpin": "Unpin"
+    },
+    "richLinks": {
+        "by": "By {{name}}",
+        "members": "{{count}} Members",
+        "playing": "{{count}} Playing",
+        "visits": "{{count}} Visits",
+        "loading": "Loading...",
+        "free": "Free",
+        "offSale": "Off sale"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "Loading API documentation...",
+        "loadFailed": "Failed to load API documentation: {{error}}",
+        "noAccess": "You don't have access to these docs.",
+        "serverError": "The server responded with {{status}}.",
+        "invalidSpec": "The server returned an invalid OpenAPI document.",
+        "baseUrl": "Base URL: {{url}}",
+        "apiVersion": "API version",
+        "openApiVersion": "OpenAPI version",
+        "server": "Server",
+        "sendToken": "Send my RoValra access token",
+        "filterLabel": "Filter endpoints",
+        "filterPlaceholder": "Path, summary or tag",
+        "hideDeprecated": "Hide deprecated",
+        "noEndpoints": "No endpoints found.",
+        "deprecated": "Deprecated",
+        "deprecatedTooltip": "This endpoint is deprecated.",
+        "authRequired": "Authentication required",
+        "authOptional": "Authentication optional",
+        "schemeNotSent": "Requires {{name}}, which this page doesn't send.",
+        "operationId": "Operation ID",
+        "security": "Auth: {{schemes}}",
+        "securityOptional": "Auth: {{schemes}} (optional)",
+        "securityTooltip": "Security requirements",
+        "parameters": "Parameters",
+        "noParameters": "No parameters",
+        "tryItOut": "Try it out",
+        "name": "Name",
+        "description": "Description",
+        "required": "required",
+        "availableValues": "Available values: {{values}}",
+        "requestBody": "Request body",
+        "requestContentType": "Request content type",
+        "exampleValue": "Example Value",
+        "schema": "Schema",
+        "responses": "Responses",
+        "noResponses": "No documented responses",
+        "code": "Code",
+        "details": "Details",
+        "execute": "Execute",
+        "clear": "Clear",
+        "missingParams": "Missing required parameters: {{params}}",
+        "invalidJson": "Request body is not valid JSON: {{error}}",
+        "bodyRequired": "A request body is required.",
+        "confirmTitle": "Send request?",
+        "confirmMessage": "This will send a {{method}} request to {{path}}. Only continue if you understand what it does.",
+        "send": "Send",
+        "sending": "Sending request...",
+        "requestFailed": "Request failed: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "Request URL",
+        "serverResponse": "Server response",
+        "responseBody": "Response body",
+        "responseHeaders": "Response headers",
+        "emptyResponse": "(empty response)",
+        "responseImage": "Response image",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Request duration",
+        "contentType": "Content type",
+        "redirected": "Redirected",
+        "copy": "Copy"
     }
 }

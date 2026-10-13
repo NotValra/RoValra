@@ -262,6 +262,23 @@ function getRolimonsUrl(card, assetId, options = {}) {
     return `https://www.rolimons.com/item/${assetId}`;
 }
 
+let rolimonsItemLinksListening = false;
+
+function onRolimonsItemLinkClick(event) {
+    const link = event.target.closest?.('.rovalra-rolimons-item-link');
+    if (!link) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.open(link.dataset.rovalraHref, '_blank');
+}
+
+function listenForRolimonsItemLinks() {
+    if (rolimonsItemLinksListening) return;
+    rolimonsItemLinksListening = true;
+    window.addEventListener('click', onRolimonsItemLinkClick, true);
+}
+
 function addUserTradeItemCardsBottomPadding(card) {
     if (
         !featureSettings.tradeShowItemValues ||
@@ -369,39 +386,43 @@ export function updateItemCard(card, assetId, options = {}) {
                 <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
             `; // verified
 
-            if (!priceDiv.closest('a') || options.forceLink) {
-                let rolimonsLink;
-                const rolimonsUrl = getRolimonsUrl(card, assetId, options);
-                const rolimonsTargetType = isRolimonsBundle(card, options)
-                    ? 'bundle'
-                    : 'item';
-                if (options.forceLink) {
-                    rolimonsLink = document.createElement('span');
-                    rolimonsLink.style.cursor = 'pointer';
-                    rolimonsLink.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        window.open(rolimonsUrl, '_blank');
-                    });
-                } else {
-                    rolimonsLink = document.createElement('a');
-                    rolimonsLink.href = rolimonsUrl;
-                    rolimonsLink.target = '_blank';
-                }
-                rolimonsLink.style.display = 'flex';
-                rolimonsLink.style.alignItems = 'center';
-                rolimonsLink.style.marginLeft = '4px';
-                rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
-                addTooltip(
-                    rolimonsLink,
-                    ts('trading.openOnRolimons', { type: rolimonsTargetType }),
-                    {
-                        position: 'top',
-                    },
-                );
-
-                valDiv.appendChild(rolimonsLink);
+            let rolimonsLink;
+            const rolimonsUrl = getRolimonsUrl(card, assetId, options);
+            const rolimonsTargetType = isRolimonsBundle(card, options)
+                ? 'bundle'
+                : 'item';
+            if (priceDiv.closest('a') && !options.forceLink) {
+                rolimonsLink = document.createElement('span');
+                rolimonsLink.className = 'rovalra-rolimons-item-link';
+                rolimonsLink.dataset.rovalraHref = rolimonsUrl;
+                rolimonsLink.style.cursor = 'pointer';
+                listenForRolimonsItemLinks();
+            } else if (options.forceLink) {
+                rolimonsLink = document.createElement('span');
+                rolimonsLink.style.cursor = 'pointer';
+                rolimonsLink.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.open(rolimonsUrl, '_blank');
+                });
+            } else {
+                rolimonsLink = document.createElement('a');
+                rolimonsLink.href = rolimonsUrl;
+                rolimonsLink.target = '_blank';
             }
+            rolimonsLink.style.display = 'flex';
+            rolimonsLink.style.alignItems = 'center';
+            rolimonsLink.style.marginLeft = '4px';
+            rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
+            addTooltip(
+                rolimonsLink,
+                ts('trading.openOnRolimons', { type: rolimonsTargetType }),
+                {
+                    position: 'top',
+                },
+            );
+
+            valDiv.appendChild(rolimonsLink);
             priceDiv.parentNode.insertBefore(valDiv, priceDiv.nextSibling);
         }
 

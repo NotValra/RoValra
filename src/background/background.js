@@ -347,9 +347,9 @@ const contextMenuClickListener = async (info, tab) => {
             chrome.tabs.sendMessage(tab.id, {
                 action: 'view-ids',
                 data: {
-                    targetId: id
-                }
-            })
+                    targetId: id,
+                },
+            });
         }
     } else if (info.menuItemId.startsWith('rovalra-copy-') && tab?.id) {
         const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
@@ -499,9 +499,16 @@ async function wearOutfit(outfitData) {
         }
 
         const storedDetails = await new Promise((resolve) => {
-            chrome.storage.local.get('rovalra_avatar_rotator_details', (data) => {
-                resolve(data.rovalra_avatar_rotator_details?.[String(outfitId)] || null);
-            });
+            chrome.storage.local.get(
+                'rovalra_avatar_rotator_details',
+                (data) => {
+                    resolve(
+                        data.rovalra_avatar_rotator_details?.[
+                            String(outfitId)
+                        ] || null,
+                    );
+                },
+            );
         });
         let details = storedDetails;
         if (!details) {
@@ -2158,6 +2165,22 @@ chrome.permissions.onRemoved.addListener((permissions) => {
     });
 });
 
+function getImageTypeFromBytes(bytes) {
+    const startsWith = (signature, offset = 0) =>
+        signature.every((byte, i) => bytes[offset + i] === byte);
+    const ascii = (text) => [...text].map((char) => char.charCodeAt(0));
+
+    if (startsWith([0x89, 0x50, 0x4e, 0x47])) return 'image/png';
+    if (startsWith([0xff, 0xd8, 0xff])) return 'image/jpeg';
+    if (startsWith(ascii('GIF8'))) return 'image/gif';
+    if (startsWith(ascii('RIFF')) && startsWith(ascii('WEBP'), 8)) {
+        return 'image/webp';
+    }
+    if (startsWith(ascii('BM'))) return 'image/bmp';
+    if (startsWith(ascii('ftypavif'), 4)) return 'image/avif';
+    return null;
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
         case 'updateGameBookmarks':
@@ -2386,6 +2409,94 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
             return true;
 
+        case 'fetchImageAsDataUrl': {
+            let imageUrl;
+            try {
+                imageUrl = new URL(request.url);
+            } catch {
+                sendResponse({ error: 'Invalid URL' });
+                return false;
+            }
+            if (
+                imageUrl.protocol !== 'https:' &&
+                imageUrl.protocol !== 'http:'
+            ) {
+                sendResponse({ error: 'Unsupported protocol' });
+                return false;
+            }
+            //Verified
+            fetch(imageUrl.toString(), { credentials: 'omit' })
+                .then(async (response) => {
+                    if (!response.ok) {
+                        throw new Error(`Request failed (${response.status})`);
+                    }
+                    const bytes = new Uint8Array(await response.arrayBuffer());
+                    if (bytes.length > 20 * 1024 * 1024) {
+                        throw new Error('Image too large');
+                    }
+                    const contentType = (
+                        response.headers.get('content-type') || ''
+                    ).split(';')[0];
+                    const imageType = contentType.startsWith('image/')
+                        ? contentType
+                        : getImageTypeFromBytes(bytes);
+                    if (!imageType) throw new Error('Not an image');
+                    let binary = '';
+                    for (let i = 0; i < bytes.length; i += 0x8000) {
+                        binary += String.fromCharCode(
+                            ...bytes.subarray(i, i + 0x8000),
+                        );
+                    }
+                    sendResponse({
+                        dataUrl: `data:${imageType};base64,${btoa(binary)}`,
+                    });
+                })
+                .catch((err) => sendResponse({ error: err.message }));
+            return true;
+        }
+
+        case 'proxyFetch': {
+            let parsedUrl;
+            try {
+                parsedUrl = new URL(request.url);
+            } catch {
+                sendResponse({ error: 'Invalid URL' });
+                return false;
+            }
+            if (
+                parsedUrl.protocol !== 'https:' &&
+                parsedUrl.protocol !== 'http:'
+            ) {
+                sendResponse({ error: 'Unsupported protocol' });
+                return false;
+            }
+            const { method, headers, body, credentials, cache, redirect } =
+                request.options || {};
+            //Verified
+            fetch(parsedUrl.toString(), {
+                method,
+                headers,
+                body,
+                credentials,
+                cache,
+                redirect,
+            })
+                .then(async (response) => {
+                    const responseHeaders = {};
+                    response.headers.forEach(
+                        (val, key) => (responseHeaders[key] = val),
+                    );
+                    sendResponse({
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: responseHeaders,
+                        body: await response.arrayBuffer().catch(() => null),
+                    });
+                })
+                .catch((err) => sendResponse({ error: err.message }));
+            return true;
+        }
+
         case 'fetchRobloxApi':
             callRobloxApiBackground(request.options)
                 .then(async (response) => {
@@ -2429,7 +2540,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 ) {
                                     request.ids.forEach((item) => {
                                         if (item.type === 'Universe') {
-                                            if (settings.copyUniverseIdEnabled) {
+                                            if (
+                                                settings.copyUniverseIdEnabled
+                                            ) {
                                                 chrome.contextMenus.create({
                                                     id: `rovalra-copy-universe-${item.id}`,
                                                     title: item.title,
@@ -2471,8 +2584,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         ],
                                     });
                                 }
-                        });
-                    })
+                            },
+                        );
+                    });
                 }
             }
             return false;

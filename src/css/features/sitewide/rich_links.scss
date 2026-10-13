@@ -1,0 +1,151 @@
+.rovalra-rich-link-anchor {
+    text-decoration: none !important;
+}
+
+.rovalra-rich-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 2px 8px 2px 2px;
+    border-radius: 6px;
+    line-height: 18px;
+    background-color: var(--rovalra-container-background-color);
+    color: var(--rovalra-main-text-color);
+    vertical-align: middle;
+    white-space: nowrap;
+
+    &:hover {
+        filter: brightness(1.15);
+    }
+}
+
+.rovalra-rich-link-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    background-color: rgba(128, 128, 128, 0.2);
+    object-fit: cover;
+}
+
+.rovalra-rich-link-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+.rovalra-rich-link-verified {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.rovalra-rich-round {
+    border-radius: 50%;
+}
+
+.rovalra-rich-card {
+    position: fixed;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 280px;
+    padding: 12px;
+    border-radius: 12px;
+    background-color: var(--rovalra-container-background-color);
+    color: var(--rovalra-main-text-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+        opacity 0.12s ease,
+        transform 0.12s ease;
+    visibility: hidden;
+
+    &.is-visible {
+        opacity: 1;
+        transform: none;
+        visibility: visible;
+    }
+}
+
+.rovalra-rich-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.rovalra-rich-card-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.rovalra-rich-card-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.rovalra-rich-card-title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.rovalra-rich-card-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rovalra-rich-link-verified {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+.rovalra-rich-card-subtitle,
+.rovalra-rich-card-stats {
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-rich-card-description {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    white-space: pre-line;
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-rich-card-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.rovalra-rich-card-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}

@@ -28,7 +28,7 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import { addQuickAction } from '../../core/ui/general/quickActions.js';
-import { createButton } from '../../core/ui/buttons.js';
+import { createButton, createFoundationButton } from '../../core/ui/buttons.js';
 
 const STORAGE_KEY = 'rovalra_game_outfits';
 const EDITOR_BUTTON_CLASS = 'rovalra-game-outfits-btn';
@@ -362,14 +362,16 @@ function buildEditor(userIdPromise, register) {
         let item = container.querySelector('.rovalra-game-outfits-item');
 
         if (!item) {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = `btn-secondary-xs ${EDITOR_BUTTON_CLASS}`;
-            button.textContent = ts('avatar.gameOutfits.button');
-            button.addEventListener('click', async () => {
-                const userId = await userIdPromise;
-                if (userId) openPicker(userId, null);
-            });
+            const button = createFoundationButton(
+                ts('avatar.gameOutfits.button'),
+                {
+                    classList: [EDITOR_BUTTON_CLASS],
+                    onClick: async () => {
+                        const userId = await userIdPromise;
+                        if (userId) openPicker(userId, null);
+                    },
+                },
+            );
 
             item = document.createElement('li');
             item.className = 'rovalra-game-outfits-item';

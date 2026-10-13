@@ -29,6 +29,17 @@ window.addEventListener('rovalra-extract-serverid-request', function (event) {
         if (!reactKey) throw new Error('No React Fiber');
 
         let fiber = element[reactKey];
+        const propsKey = Object.keys(element).find((k) =>
+            k.startsWith('__reactProps$'),
+        );
+        if (
+            fiber.alternate &&
+            propsKey &&
+            fiber.alternate.memoizedProps === element[propsKey]
+        ) {
+            fiber = fiber.alternate;
+        }
+
         let serverId = null;
         let accessCode = null;
         let vipServerId = null;
@@ -46,6 +57,7 @@ window.addEventListener('rovalra-extract-serverid-request', function (event) {
         );
 
         const isUsedAccessCode = (code) => {
+            if (code === currentAssignedCode) return false;
             return assignedAccessCodes.has(code) || existingCodes.has(code);
         };
 
@@ -126,13 +138,7 @@ window.addEventListener('rovalra-extract-serverid-request', function (event) {
                         : null;
                 const joinHandler = props[handlerName];
 
-                if (
-                    !accessCode &&
-                    joinHandler &&
-                    !joinHandler.__rovalra_checked
-                ) {
-                    joinHandler.__rovalra_checked = true;
-
+                if (!accessCode && joinHandler) {
                     const handlerUUID = findUUID(
                         joinHandler,
                         isUsedAccessCode,

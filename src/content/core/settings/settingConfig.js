@@ -34,6 +34,21 @@ export const SETTINGS_CONFIG = {
                         value: 'en',
                     },
                     {
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
+                    },
+                    {
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
+                    },
+                    {
+                        label: languageLabel(
+                            'Brazilian Portuguese (Português (Brasil))',
+                            'pt',
+                        ),
+                        value: 'pt',
+                    },
+                    {
                         label: languageLabel('French (Français)', 'fr'),
                         value: 'fr',
                     },
@@ -46,34 +61,42 @@ export const SETTINGS_CONFIG = {
                         value: 'ro',
                     },
                     {
-                        label: languageLabel('Indonesian (Bahasa Indonesia)', 'id'),
+                        label: languageLabel(
+                            'Indonesian (Bahasa Indonesia)',
+                            'id',
+                        ),
                         value: 'id',
-                    },
-                    {
-                        label: languageLabel('Russian (Русский)', 'ru'),
-                        value: 'ru',
                     },
                     {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
                     {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+
+                    {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
-                            'zh-CHT',
+                            'zh_TW',
                         ),
-                        value: 'zh-CHT',
+                        value: 'zh_TW',
                     },
                     {
                         label: languageLabel(
                             'Simplified Chinese (简体中文)',
-                            'zh-CHS',
+                            'zh_CN',
                         ),
-                        value: 'zh-CHS',
+                        value: 'zh_CN',
                     },
                     {
                         label: languageLabel('Arabic (عربي)', 'ar'),
                         value: 'ar',
+                    },
+                    {
+                        label: languageLabel('Vietnamese (Tiếng Việt)', 'vi'),
+                        value: 'vi',
                     },
                     { label: 'Automatic', value: 'auto' },
                 ],
@@ -244,6 +267,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['4866259395', '447170745'],
+            },
+            ownedItemPriceEnabled: {
+                label: 'Price on Owned Item Pages',
+                description:
+                    'Shows the price of an item on its item page even when you already own it.',
+                type: 'checkbox',
+                default: true,
             },
             itemTradingEnabled: {
                 label: 'Item Trading Info',
@@ -531,6 +561,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            badgeSortEnabled: {
+                label: 'Badge Sorting',
+                description: [
+                    'Adds a Sort dropdown to experience badge sections.',
+                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
+            },
             badgeOwnershipEnabled: {
                 label: 'Dim Unowned Badges',
                 description: [
@@ -548,6 +588,24 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: [476449201],
+            },
+            freeBadgeQuotaEnabled: {
+                label: 'Free Badge Quota',
+                description: [
+                    'Shows how many badges an experience can still create for free today in its stats.',
+                    'Roblox lets each experience create 5 free badges every 24 hours.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
+            },
+            gameStatTimestampsEnabled: {
+                label: 'Detailed Created / Updated Dates',
+                description: [
+                    'Replaces the Created and Updated dates on experience pages with exact, clickable timestamps.',
+                ],
+                type: 'checkbox',
+                default: true,
             },
             updateHistoryEnabled: {
                 label: 'Update History',
@@ -763,6 +821,27 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    privateServerFriendsToggleEnabled: {
+                        label: 'Friends Allowed Toggle',
+                        description: [
+                            'Adds a Friends Allowed switch under Allow Joining, so you can let friends in or keep them out without opening the server settings.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['4489102289'],
+                    },
+                },
+            },
+            autoFriendsAllowedEnabled: {
+                label: 'Friends Allowed On New Private Servers',
+                description: [
+                    'Turns on Friends Allowed as soon as you create a private server, so your friends can join without you going into its settings first.',
+                    'Only new servers are changed. Servers you already have are left as they are.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4489102289'],
             },
         },
     },
@@ -1020,6 +1099,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_group_filters_view',
             },
             trustedConnectionsEnabledv3: {
                 label: 'Trusted Friends',
@@ -1076,6 +1156,7 @@ export const SETTINGS_CONFIG = {
                     'Shows when a user joined a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
             },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
@@ -1978,6 +2059,27 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['1960518316'],
             },
+            tradeRecentItemsEnabled: {
+                label: 'Recent Trade Items',
+                description: [
+                    'Remembers the items you recently offered and requested, and shows them above each inventory when making a trade.',
+                    'Clicking one finds and selects it for you. Your history is only stored on this device.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_trade_recent_items',
+                contributors: ['2239549101'],
+            },
+            tradeQuickActionsEnabled: {
+                label: 'Trade Quick Actions',
+                description: [
+                    'Adds quick actions to the trades page, letting you only show trades above a certain value or hide trades that are a loss for you.',
+                    'Also adds a button to decline every received trade that is a loss by value, after asking you to confirm.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
+            },
         },
     },
     Plus: {
@@ -1998,7 +2100,7 @@ export const SETTINGS_CONFIG = {
                         default: false,
                     },
                 },
-                contributors: ['1564574922'],
+                contributors: ['1564574922', '476449201'],
             },
             PlusPrivateServerTooltipEnabled: {
                 label: 'Roblox Plus Free Server Tooltip',
@@ -2067,6 +2169,8 @@ export const SETTINGS_CONFIG = {
                     'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_robux_transfer_limits_v1',
+                contributors: ['48255812', '447170745'],
             },
             plusReferralEnabled: {
                 label: 'Show RoValra Plus Referral',
@@ -2434,6 +2538,24 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            richRobloxLinksEnabled: {
+                label: 'Rich Roblox Links',
+                description: [
+                    'Turns Roblox links in descriptions into pills with their icon, name and verified badge.',
+                    'Hover a pill to preview the community, user, experience or item.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
+            sidebarVerifiedBadgeEnabled: {
+                label: 'Fixes a few spots where the verified badge is missing',
+                description: [
+                    "Shows the verified badge next to your name in the sidebar and top bar if you're verified.",
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             disableThumbnailBackground: {
                 label: 'Disable Thumbnail Backgrounds',
                 description: [
@@ -2450,7 +2572,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-
             ExplorerEnabled: {
                 label: 'Explorer',
                 description: [
@@ -2549,6 +2670,14 @@ export const SETTINGS_CONFIG = {
                             "Prevents your username from being moved up to a place where it's harder to read because of extensions adding features.",
                         type: 'checkbox',
                         default: true,
+                    },
+                    themeScrollbarFixEnabled: {
+                        label: 'Match the scrollbar to your theme',
+                        description:
+                            'Fixes the page scrollbar showing up light on dark theme, or dark on light theme, and makes it blend in with the page.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['74884'],
                     },
                 },
             },
@@ -3088,6 +3217,97 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            cursorBuddyEnabled: {
+                label: 'Cursor Buddy',
+                description: [
+                    'A cute little buddy follows your cursor around Roblox.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    cursorBuddyCompanion: {
+                        label: 'Buddy',
+                        type: 'select',
+                        options: [
+                            { label: 'Oneko', value: 'cat' },
+                            { label: 'Kitten', value: 'kitten' },
+                        ],
+                        default: 'cat',
+                    },
+                    cursorBuddySize: {
+                        label: 'Size',
+                        description: 'Choose how big your buddy looks.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 24,
+                        max: 128,
+                        step: 1,
+                        default: 32,
+                    },
+                    cursorBuddyFollowSpeed: {
+                        label: 'Follow Speed',
+                        description:
+                            'Choose how quickly your buddy follows your cursor.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 40,
+                        max: 600,
+                        step: 10,
+                        default: 240,
+                    },
+                },
+            },
+            customScrollbarEnabled: {
+                label: 'Customize Scroll Bar',
+                description: ['Make Roblox scrollbars look the way you want.'],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    customScrollbarHide: {
+                        label: 'Hide Scroll Bar',
+                        description: 'Hide the scrollbar entirely.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    customScrollbarWidth: {
+                        label: 'Width',
+                        description:
+                            'Set the scrollbar width in pixels (1-24).',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 1,
+                        max: 24,
+                        default: 8,
+                    },
+                    customScrollbarRadius: {
+                        label: 'Border Radius',
+                        description:
+                            'Set the scrollbar corner radius in pixels (0-24).',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 0,
+                        max: 24,
+                        default: 8,
+                    },
+                    customScrollbarThumbColor: {
+                        label: 'Thumb Color',
+                        description:
+                            'Set the color of the moving scrollbar thumb.',
+                        type: 'color',
+                        default: '#4f545c',
+                    },
+                    customScrollbarTrackColor: {
+                        label: 'Track Color',
+                        description:
+                            'Set the background color of the scrollbar.',
+                        type: 'color',
+                        default: '#202124',
+                    },
+                },
+            },
+
             customFaviconEnabled: {
                 label: 'Favicon Customization',
                 description: [
@@ -3330,6 +3550,24 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            privateApiDocsEnabled: {
+                label: ['Private RoValra API docs'],
+                description: [
+                    'Adds RoValra API documentation at https://www.roblox.com/rovalra-api-docs.',
+                    'The documentation is loaded from RoValra and is only available to accounts with access to it.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    privateApiDocsSidebarLinkEnabled: {
+                        label: 'RoValra API sidebar link',
+                        description:
+                            'Adds a RoValra API link below Communities in the Roblox sidebar.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             onboardingShown: {
                 label: ['Show onboarding'],

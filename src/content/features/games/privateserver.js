@@ -20,6 +20,7 @@ const privateServerContext = {
 };
 
 const vipServerDetailsCache = new Map();
+let showFriendsAllowedToggle = true;
 
 export async function getVipServerDetails(vipServerId) {
     if (vipServerDetailsCache.has(vipServerId))
@@ -48,10 +49,16 @@ export async function init() {
     } catch (e) {}
 
     chrome.storage.local.get(
-        { PrivateQuickLinkCopy: true, ServerlistmodificationsEnabled: true },
+        {
+            PrivateQuickLinkCopy: true,
+            ServerlistmodificationsEnabled: true,
+            privateServerFriendsToggleEnabled: true,
+        },
         (settings) => {
             const enableControls = settings.PrivateQuickLinkCopy;
             const enableDetails = settings.ServerlistmodificationsEnabled;
+            showFriendsAllowedToggle =
+                settings.privateServerFriendsToggleEnabled;
 
             observeElement(
                 '.rbx-private-game-server-item',
@@ -148,6 +155,30 @@ export async function init() {
             );
         },
     );
+}
+
+function createFriendsAllowedToggle(privateServerId, friendsAllowed) {
+    const toggle = createToggle({
+        checked: friendsAllowed === true,
+        onChange: async (newState) => {
+            try {
+                const response = await callRobloxApi({
+                    subdomain: 'games',
+                    endpoint: `/v1/vip-servers/${privateServerId}/permissions`,
+                    method: 'PATCH',
+                    body: { friendsAllowed: newState },
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                vipServerDetailsCache.delete(privateServerId);
+            } catch (error) {
+                console.error('Error toggling friends allowed:', error);
+                toggle.setChecked(!newState);
+            }
+        },
+    });
+
+    return toggle;
 }
 
 async function addOwnerControls(serverItem, privateServerId) {
@@ -338,6 +369,23 @@ async function addOwnerControls(serverItem, privateServerId) {
     toggleRow.appendChild(toggleLabel);
     toggleRow.appendChild(toggle);
     container.appendChild(toggleRow);
+
+    if (showFriendsAllowedToggle) {
+        const friendsRow = toggleRow.cloneNode(false);
+        const friendsLabel = toggleLabel.cloneNode(false);
+        friendsLabel.textContent = await t('privateServer.friendsAllowed', {
+            defaultValue: 'Friends Allowed',
+        });
+
+        friendsRow.append(
+            friendsLabel,
+            createFriendsAllowedToggle(
+                privateServerId,
+                initialData?.permissions?.friendsAllowed,
+            ),
+        );
+        container.appendChild(friendsRow);
+    }
 }
 
 export async function addModernPrivateServerControls(
@@ -539,4 +587,21 @@ export async function addModernPrivateServerControls(
     friendJoinRow.appendChild(toggleLabel);
     friendJoinRow.appendChild(toggle);
     btnContainer.appendChild(friendJoinRow);
+
+    if (showFriendsAllowedToggle) {
+        const friendsRow = friendJoinRow.cloneNode(false);
+        const friendsLabel = toggleLabel.cloneNode(false);
+        friendsLabel.textContent = ts('privateServer.friendsAllowed', {
+            defaultValue: 'Friends Allowed',
+        });
+
+        friendsRow.append(
+            friendsLabel,
+            createFriendsAllowedToggle(
+                privateServerId,
+                details.permissions?.friendsAllowed,
+            ),
+        );
+        btnContainer.appendChild(friendsRow);
+    }
 }

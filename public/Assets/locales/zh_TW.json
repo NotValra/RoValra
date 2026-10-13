@@ -359,10 +359,10 @@
         "button": "自訂版面",
         "edit": "編輯",
         "settingsTitle": "類別設定",
-        "visibility": "可見性",
+        "visibility": "可見度",
         "visibilityDescription": "選擇是否在首頁顯示此類別。",
         "accurateContinue": "準確繼續名單",
-        "accurateContinueDescription": "按您上次玩每個遊戲的時間整理繼續。",
+        "accurateContinueDescription": "按您上次玩每個遊戲的時間排序繼續。",
         "enable": "啟用",
         "disable": "停用",
         "show": "顯示",
@@ -497,7 +497,7 @@
         "noHiddenGames": "此使用者沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
         "labels": {
-            "sort": "整理",
+            "sort": "排序",
             "order": "順序",
             "showAll": "顯示全部遊戲"
         },
@@ -521,7 +521,7 @@
         "noHiddenGames": "此群組沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
         "labels": {
-            "sort": "整理",
+            "sort": "排序",
             "order": "順序",
             "showAll": "顯示全部遊戲"
         },
@@ -779,7 +779,7 @@
         "noPurchases": "找不到遊戲購買記錄。",
         "singlePurchase": "1 次購買",
         "multiplePurchases": "{{count}} 次購買",
-        "loadMore": "載入更多（剩餘 {{remaining}} 次）",
+        "loadMore": "載入更多（剩餘 {{remaining}} 個）",
         "searchPlaceholder": "搜尋遊戲",
         "loading": "正在載入遊戲消費額…",
         "scanInProgress": "交易掃描正在進行中。這可能需要一些時間。",
@@ -795,7 +795,7 @@
         "includeGameCreators": "包含遊戲創作者",
         "singlePurchase": "1 次購買",
         "multiplePurchases": "{{count}} 次購買",
-        "loadMore": "載入更多（剩餘 {{remaining}} 次）",
+        "loadMore": "載入更多（剩餘 {{remaining}} 個）",
         "searchPlaceholder": "搜尋創作者",
         "loading": "正在載入創作者消費額…",
         "scanInProgress": "交易掃描正在進行中。這可能需要一些時間。",
@@ -811,7 +811,7 @@
             "store": "商店"
         },
         "info": {
-            "title": "RoValra 資訊!",
+            "title": "RoValra 資訊！",
             "desc1": "《RoValra》是一款永久免費的 Roblox 擴充功能，致力於提升所有玩家的遊戲體驗！並且完全開源。",
             "desc2": "部分免費功能仍依賴 RoValra 伺服器，運作需要付費。",
             "desc3": "支援者的捐贈有助於支付這些費用，使 RoValra 能夠為所有人提供更多免費功能，並不斷改進。<icon style=\"color:#c13ad9\" filled>heart</icon>",
@@ -837,7 +837,7 @@
                 "2974594300": "使用者介面改進、錯誤修復及其他貢獻。",
                 "170038374": "構思了一些概念，RoValra 的部分功能就是基於這些概念設計的。"
             },
-            "sortLabel": "整理貢獻者名單",
+            "sortLabel": "排序貢獻者名單",
             "sortMost": "最多",
             "sortLeast": "最少",
             "contributionCount_one": "對 {{count}} 則功能做出貢獻",
@@ -922,7 +922,7 @@
             "tier3DiscordRole": "等級 3 捐贈者 Discord 身份 + 最佳 Discord 特權。",
             "previousRewards": "+ 所有先前等級的獎勵",
             "moreComingSoon": "更多內容即將推出。",
-            "note": "備註：\n- 徽章可能需要幾分鐘才能在捐贈後顯示。\n- 若要管理徽章的可見性，請前往「個人檔案」設定標籤。\n- 透過抽成捐贈很遺憾不會給予捐贈者特權，這是 Roblox 的限制。\n- 捐贈時，您同時也同意 [RoValra 的使用條款](https://www.rovalra.com/tou/)"
+            "note": "備註：\n- 徽章可能需要幾分鐘才能在捐贈後顯示。\n- 若要管理徽章的可見度，請前往「個人檔案」設定標籤。\n- 透過抽成捐贈很遺憾不會給予捐贈者特權，這是 Roblox 的限制。\n- 捐贈時，您同時也同意 [RoValra 的使用條款](https://www.rovalra.com/tou/)"
         },
         "search": {
             "minLength": "請輸入至少 2 個字元進行搜尋。",
@@ -965,7 +965,7 @@
                 "enablePermission": "啟用{{permission}}權限"
             },
             "badges": {
-                "visibility": "切換捐贈徽章的可見性。"
+                "visibility": "切換捐贈徽章的可見度。"
             },
             "locks": {
                 "donatorTierRequired": "必須要 RoValra 捐贈者等級 {{tier}}",
@@ -1202,7 +1202,7 @@
         "onlineStatus": "線上狀態",
         "joinStatus": "體驗狀態",
         "privateServerPrivacy": "私人伺服器隱私權",
-        "inventoryVisibility": "道具欄可見性",
+        "inventoryVisibility": "道具欄可見度",
         "everyone": "所有人",
         "friendsFollowingAndFollowers": "好友、追蹤者和我追蹤的人",
         "friendsAndFollowing": "好友和我追蹤的人",
@@ -1219,7 +1219,8 @@
         "transactions": "交易",
         "apiDocs": "API 文件",
         "incidentLearnMore": "點觸此處瞭解更多。",
-        "incidentHideNotice": "您可以在此處隱藏此通知。"
+        "incidentHideNotice": "您可以在此處隱藏此通知。",
+        "rovalraApi": "RoValra API"
     },
     "sidebarCollapse": {
         "collapseSidebar": "摺疊側邊欄",
@@ -1307,14 +1308,14 @@
         "developerProducts": "開發者產品",
         "search": "搜尋",
         "sort": {
-            "created": "按建立時間整理",
-            "price": "按價格整理",
-            "updated": "按更新時間整理",
-            "name": "按名稱整理"
+            "created": "按建立時間排序",
+            "price": "按價格排序",
+            "updated": "按更新時間排序",
+            "name": "按名稱排序"
         },
         "order": {
-            "ascending": "升序整理",
-            "descending": "降序整理"
+            "ascending": "升序排序",
+            "descending": "降序排序"
         }
     },
     "shop": {
@@ -1345,7 +1346,7 @@
         "noSubplaces": "找不到子地點。",
         "failedToLoad": "無法載入子地點。",
         "labels": {
-            "sort": "整理",
+            "sort": "排序",
             "order": "順序"
         },
         "sort": {
@@ -1383,7 +1384,7 @@
         "loadErrorApi": "無法從 RoValra API 載入伺服器。",
         "hide": "隱藏",
         "join": "加入",
-        "peopleMax": "目前玩家人數為 {{maxPlayers}} 人，上限為 {{maxPlayers}} 人。",
+        "peopleMax": "{{playing}} 人，最多 {{maxPlayers}} 人",
         "pinPrivateServer": "釘選私人伺服器",
         "unpinPrivateServer": "解除釘選私人伺服器",
         "playerCountUnknownTooltip": "玩家人數未知，這是 Roblox 的限制。縮圖無法代表遊戲中的玩家人數。",
@@ -1683,6 +1684,36 @@
     "purchasePrompt": {
         "balanceAfter": "您在此交易後的餘額將為"
     },
+    "recentlyViewed": {
+        "title": "最近瀏覽",
+        "clear": "清除",
+        "remove": "移除",
+        "cheaper": "比您瀏覽時便宜 {{value}} Robux",
+        "pricier": "比您瀏覽時貴 {{value}} Robux",
+        "offSale": "已下架",
+        "backOnSale": "重新上架"
+    },
+    "tradeRecentItems": {
+        "offer": "最近提供",
+        "request": "最近請求",
+        "clear": "清除"
+    },
+    "tradeQuickActions": {
+        "minValue": "他們給的最小值",
+        "hideLosses": "隱藏虧損",
+        "bulkTitle": "批量操作",
+        "bulkHint": "拒絕所有虧損的交易。請先確認。",
+        "declineLosses": "拒絕虧損的交易",
+        "loadingTrades": "正在載入已收到的交易...",
+        "checking": "正在檢查 {{done}}/{{total}} 個交易...",
+        "noLosses": "未發現虧損的交易",
+        "confirmTitle": "拒絕虧損的交易",
+        "confirmMessage": "您收到的 {{total}} 個交易中有 {{count}} 個虧損（總虧損額為 {{value}}）。全部拒絕？此操作無法復原。",
+        "declineConfirm": "拒絕",
+        "declining": "正在拒絕 {{done}}/{{total}}...",
+        "declined": "已拒絕 {{count}} 個交易",
+        "declinedWithFailures": "已拒絕 {{count}} 個交易，{{failed}} 個交易無法拒絕"
+    },
     "time": {
         "justNow": "剛剛",
         "secondsAgo": "{{count}} 秒前",
@@ -1898,270 +1929,346 @@
         "tooltip": "總社群地點參訪次數"
     },
     "groups": {
-        "createdLabel": "建立日期",
-        "joinedLabel": "加入日期",
+        "createdLabel": "建立日期：",
+        "joinedLabel": "加入日期：",
         "unknown": "未知"
     },
     "showcase": {
-        "tab": "Showcase",
-        "favoriteGame": "Favourite experience",
-        "favoriteGroup": "Favourite community",
-        "favoriteDecal": "Art Showcase",
-        "chooseGame": "Choose an experience to feature on your profile.",
-        "noFeaturedGame": "No featured experience yet. :C",
-        "chooseGroup": "Choose a community to feature on your profile.",
-        "noFeaturedGroup": "No featured community yet. :,(",
-        "chooseDecal": "Enter a decal ID to feature an image on your profile.",
-        "noFeaturedDecal": "No featured image yet. :C",
-        "searchGame": "Search for an experience to feature",
-        "searchGroup": "Search for a community to feature",
-        "clearGame": "Clear favourite experience",
-        "clearGroup": "Clear favourite community",
-        "gameOptions": "Favourite experience options",
-        "groupOptions": "Favourite community options",
-        "decalId": "Decal ID",
-        "decalImageOptions": "Image options",
-        "openImagePage": "Open image page",
-        "report": "Report",
-        "clearDecal": "Clear Image",
-        "by": "By",
-        "maturity": "Maturity",
-        "maturityUnavailable": "Maturity unavailable",
-        "members": "{{count}} members",
-        "noResultsGame": "Unable to find experience.",
-        "noResultsGroup": "Unable to find community.",
-        "unknownExperience": "Unknown experience",
-        "unknownCommunity": "Unknown community",
-        "verifiedBadge": "Verified Badge Icon"
+        "tab": "展示",
+        "favoriteGame": "最愛體驗",
+        "favoriteGroup": "最愛社群",
+        "favoriteDecal": "藝術作品展示",
+        "chooseGame": "選擇一個體驗展示在您的個人檔案中。",
+        "noFeaturedGame": "暫無精選體驗。:C",
+        "chooseGroup": "選擇一個社群展示在您的個人檔案中。",
+        "noFeaturedGroup": "暫無精選社群。:,(",
+        "chooseDecal": "輸入貼花 ID 以在個人檔案中展示圖片。",
+        "noFeaturedDecal": "暫無精選圖片。:C",
+        "searchGame": "搜尋要展示的體驗",
+        "searchGroup": "搜尋要展示的社群",
+        "clearGame": "清除最愛體驗",
+        "clearGroup": "清除最愛社群",
+        "gameOptions": "最愛體驗選項",
+        "groupOptions": "最愛社群選項",
+        "decalId": "貼花 ID",
+        "decalImageOptions": "圖片選項",
+        "openImagePage": "開啟圖片頁面",
+        "report": "檢舉",
+        "clearDecal": "清除圖片",
+        "by": "創作者：",
+        "maturity": "成年適宜內容",
+        "maturityUnavailable": "成年適宜內容無法使用",
+        "members": "{{count}} 成員",
+        "noResultsGame": "找不到體驗。",
+        "noResultsGroup": "找不到社群。",
+        "unknownExperience": "未知體驗",
+        "unknownCommunity": "未知社群",
+        "verifiedBadge": "已驗證徽章圖示"
     },
     "profileCustomization": {
-        "pill": "Customization",
-        "pillTooltip": "Switch your avatar borders and frames.",
-        "title": "Profile Customization",
-        "tabBorders": "Avatar Borders",
-        "tabFrames": "Frames",
-        "currentPreview": "Current Selection Preview",
-        "unequip": "Unequip",
-        "unequipTooltip": "Click to unequip this border",
-        "equip": "Equip",
-        "equipTooltip": "Equip this border",
-        "equipped": "Equipped",
-        "getMore": "Get More",
-        "owned": "Owned",
-        "unowned": "Unowned",
-        "unownedTooltip": "You do not own this border yet.",
-        "all": "All",
-        "new": "New",
-        "static": "STATIC",
-        "animated": "ANIMATED",
-        "free": "Free",
-        "noBorders": "No borders found.",
-        "noBordersInTab": "No borders found in this tab.",
-        "noFrames": "No frames found.",
-        "noFramesInTab": "No frames found in this tab.",
-        "none": "None",
-        "failedToLoad": "Failed to load your borders. Please try again later."
+        "pill": "自訂",
+        "pillTooltip": "切換你的虛擬人偶邊框和框架。",
+        "title": "個人檔案自訂",
+        "tabBorders": "虛擬人偶邊框",
+        "tabFrames": "框架",
+        "currentPreview": "目前選取預覽",
+        "unequip": "解除裝備",
+        "unequipTooltip": "點觸以解除裝備此邊框",
+        "equip": "裝備",
+        "equipTooltip": "裝備此邊框",
+        "equipped": "裝備中",
+        "getMore": "取得更多",
+        "owned": "已擁有",
+        "unowned": "未擁有",
+        "unownedTooltip": "您尚未擁有此邊框。",
+        "all": "全部",
+        "new": "新增",
+        "static": "靜態",
+        "animated": "動態",
+        "free": "免費",
+        "noBorders": "未找到邊框。",
+        "noBordersInTab": "此標籤頁未找到邊框。",
+        "noFrames": "未找到框架。",
+        "noFramesInTab": "此標籤頁未找到框架。",
+        "none": "無",
+        "failedToLoad": "無法載入邊框。請稍後重試。"
     },
     "profileFrame": {
-        "storeTitle": "Profile Frame Store",
-        "storeDesc": "Profile frames wrap the whole avatar display on your profile. Buying frames directly supports RoValra and the artists, and counts towards your Donator Tier. Frames are not included in the Donator Tier 3 unlock, that covers avatar borders only.",
-        "tabBorders": "Avatar Borders",
-        "tabFrames": "Frames",
-        "loading": "Loading frames...",
-        "currentPreview": "Current Frame Preview",
-        "all": "All",
-        "new": "New",
-        "static": "STATIC",
-        "animated": "ANIMATED",
-        "equip": "Equip",
-        "equipTooltip": "Equip this frame",
-        "equipped": "Equipped",
-        "unequipTooltip": "Click to unequip this frame",
-        "unequip": "Unequip",
-        "buy": "Buy",
-        "buyFor": "Buy for {{price}}",
-        "viewItem": "View item",
-        "buyTooltip": "Buy this frame",
-        "owned": "Owned",
-        "ownedTooltip": "You own this frame!",
-        "free": "Free",
-        "freeTooltip": "This frame is free to equip.",
-        "localOnly": "Saved locally",
-        "localOnlyTooltip": "RoValra could not save this frame to your account yet, so it is only visible to you on this browser.",
-        "noFrames": "No frames available.",
-        "noFramesInTab": "No frames found in this tab.",
-        "failedToLoad": "Failed to load frames. Please try again later."
+        "storeTitle": "個人檔案框架商店",
+        "storeDesc": "個人檔案框架會環繞您個人檔案頁面上的整個虛擬人偶顯示區域。購買框架可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含框架，此等級僅包含虛擬人偶邊框。",
+        "tabBorders": "虛擬人偶邊框",
+        "tabFrames": "框架",
+        "loading": "正在載入框架...",
+        "currentPreview": "目前框架預覽",
+        "all": "全部",
+        "new": "新增",
+        "static": "靜態",
+        "animated": "動態",
+        "equip": "裝備",
+        "equipTooltip": "裝備此框架",
+        "equipped": "裝備中",
+        "unequipTooltip": "點觸以解除裝備此框架",
+        "unequip": "解除裝備",
+        "buy": "購買",
+        "buyFor": "以 {{price}} 購買",
+        "viewItem": "檢視道具",
+        "buyTooltip": "購買此框架",
+        "owned": "已擁有",
+        "ownedTooltip": "您擁有此框架！",
+        "free": "免費",
+        "freeTooltip": "此框架可免費裝備。",
+        "localOnly": "已儲存至本機",
+        "localOnlyTooltip": "RoValra 無法將此框架儲存到您的帳號，因此它僅在此瀏覽器上可見。",
+        "noFrames": "沒有可用的框架。",
+        "noFramesInTab": "此標籤頁未找到框架。",
+        "failedToLoad": "無法載入框架。請稍後重試。"
     },
     "profileNotes": {
-        "ariaLabel": "Private profile note",
-        "heading": "Note (only visible to you)",
-        "headingTooltip": "This note is stored only in this browser and is never sent to Roblox or RoValra.",
-        "addNote": "Click to add a note",
-        "editAriaLabel": "Edit private profile note",
-        "addAriaLabel": "Add private profile note",
-        "displayTooltip": "Click to edit. Notes are saved only in this browser.",
-        "inputPlaceholder": "Add a private note",
-        "inputTooltip": "Saved when you click outside. Press Escape to cancel or Ctrl+Enter to save."
+        "ariaLabel": "私人個人檔案備註",
+        "heading": "備註（只有您看得到）",
+        "headingTooltip": "此備註只儲存在此瀏覽器中，絕不會傳送到 Roblox 或 RoValra。",
+        "addNote": "點觸以新增備註",
+        "editAriaLabel": "編輯私人個人檔案備註",
+        "addAriaLabel": "新增私人個人檔案備註",
+        "displayTooltip": "點觸以編輯。備註僅儲存在此瀏覽器中。",
+        "inputPlaceholder": "新增私人備註",
+        "inputTooltip": "點觸外部時儲存。按 Esc 鍵取消，或按 Ctrl+Enter 鍵儲存。"
     },
     "profilePronouns": {
-        "label": "Pronouns",
-        "ariaLabel": "Pronouns: {{pronouns}}"
+        "label": "代名詞",
+        "ariaLabel": "代名詞：{{pronouns}}"
     },
     "profileEdit": {
-        "featuresTitle": "RoValra Features",
-        "profilePronouns": "Profile Pronouns",
-        "profileBadges": "Profile Badges",
-        "pronounsPlaceholder": "Enter your pronouns",
-        "donatorPerks": "Donator Perks",
-        "usernameCustomizations": "Username Customizations"
+        "featuresTitle": "RoValra 功能",
+        "profilePronouns": "個人檔案代名詞",
+        "profileBadges": "個人檔案徽章",
+        "pronounsPlaceholder": "輸入您的代名詞",
+        "donatorPerks": "捐贈者特權",
+        "usernameCustomizations": "使用者名稱自訂"
     },
     "profile": {
-        "socialLinks": "Social links",
-        "currencyTransfer": "Send Robux",
-        "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
-        "openClient": "Open Client"
+        "socialLinks": "社群連結",
+        "currencyTransfer": "傳送 Robux",
+        "currencyTransferConfirmation": "這將開啟 Roblox 客戶端，允許您傳送 Robux。",
+        "openClient": "開啟客戶端"
     },
     "animations": {
-        "idle": "Idle",
-        "walk": "Walk",
-        "fall": "Fall",
-        "climb": "Climb",
-        "run": "Run",
-        "jump": "Jump",
-        "swim": "Swim"
+        "idle": "閒置",
+        "walk": "步行",
+        "fall": "跌落",
+        "climb": "攀爬",
+        "run": "奔跑",
+        "jump": "跳躍",
+        "swim": "游泳"
     },
     "itemRender": {
-        "renderOptions": "Render Options",
-        "darkLighting": "Dark Lighting",
-        "baseplate": "Baseplate",
-        "rotatePreview": "Rotate preview"
+        "renderOptions": "渲染選項",
+        "darkLighting": "黑暗照明",
+        "baseplate": "底板",
+        "rotatePreview": "旋轉預覽",
+        "itemOnly": "僅顯示道具"
     },
     "groupFilters": {
         "sort": {
-            "default": "Default",
+            "default": "預設",
             "az": "A-Z",
             "za": "Z-A",
-            "newest": "Newest",
-            "oldest": "Oldest"
+            "newest": "最新",
+            "oldest": "最舊"
         },
-        "tooltip": "Sort by when the user joined the community"
+        "tooltip": "按使用者加入社群的時間排序"
     },
     "creatorStats": {
-        "ccu": "CCU",
-        "visits": "Visits",
-        "members": "Members",
-        "ccuTooltip": "Current players across public experiences created by this user.",
-        "visitsTooltip": "Lifetime visits across public experiences created by this user.",
-        "membersTooltip": "Members across communities owned by this user."
+        "ccu": "目前活躍使用者",
+        "visits": "參訪次數",
+        "members": "成員",
+        "ccuTooltip": "此使用者所建立的公共體驗中的目前玩家數。",
+        "visitsTooltip": "此使用者所建立的公共體驗的累積參訪次數。",
+        "membersTooltip": "此使用者擁有的社群的成員數。"
     },
     "plus": {
         "stats": {
-            "robux": "You've saved {{robux}} when you had Plus",
-            "percentOffSmall": "In-game items, avatars and more",
-            "percentOff": "{{percent}} off",
-            "itemsBoughtSmall": "Items bought with Plus discount",
-            "privateServersCreatedSmall": "Private servers created for free",
-            "robuxSentSmall": "Robux sent to friends",
-            "delayNotice": "All data shown here is delayed by 1 day"
+            "robux": "您擁有 Plus 會員資格時節省了 {{robux}}",
+            "percentOffSmall": "遊戲內道具、虛擬人偶等",
+            "percentOff": "{{percent}} 折扣",
+            "itemsBoughtSmall": "使用 Plus 會員折扣購買的道具",
+            "privateServersCreatedSmall": "免費建立的私人伺服器",
+            "robuxSentSmall": "傳送給好友的 Robux",
+            "delayNotice": "此處顯示的所有資料均延遲 1 天"
         },
         "transferLimits": {
-            "dailyLimitLeft": "Daily limit left",
-            "monthlyLimitLeft": "Monthly limit left",
-            "sentToday": "Sent today",
-            "sentThisMonth": "Sent this month",
-            "caption": "Daily limit is {{dailyLimit}}. Monthly limit is {{monthlyLimit}}. Updates every 5 minutes. The remaining are estimates and may be inaccurate."
+            "dailyLimitLeft": "每日剩餘限額",
+            "monthlyLimitLeft": "每月剩餘限額",
+            "sentToday": "今天已傳送",
+            "sentThisMonth": "本月已傳送",
+            "nextRefill": "下次儲值",
+            "leftAfter": "剩餘 {{amount}}",
+            "refillNote": "每次轉帳計入每月限額，有效期為 30 天，之後這些 Robux 將再次可用。",
+            "caption": "每日限額為 {{dailyLimit}}。每月限額為 {{monthlyLimit}}。每 5 分鐘更新一次。其餘數值為預估值，可能不準確。"
         },
         "referral": {
-            "reward": "Get 100 Robux for free and help support RoValra!",
-            "details": "Only new Roblox Plus users qualify. RoValra will also receive 100 Robux when you subscribe using RoValra's referral code.",
-            "button": "Subscribe using RoValra's referral code"
+            "reward": "免費獲得 100 Robux 並支援 RoValra！",
+            "details": "僅限新 Roblox Plus 使用者。使用 RoValra 的推薦碼訂閱，RoValra 也將獲得 100 Robux。",
+            "button": "使用 RoValra 的推薦碼訂閱"
         },
         "privateServerTooltip": {
-            "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
+            "tooltipText": "原價：<b>{{originalPrice}} Robux</b><br>目前顯示為<b>免費</b>，因為您是 Roblox Plus 會員。"
         },
         "sendRobux": {
             "profile": {
-                "button": "Send Robux",
-                "openInApp": "Open In App"
+                "button": "傳送 Robux",
+                "openInApp": "在 App 中開啟"
             },
             "buyRobux": {
-                "deletedAccountTitle": "Cannot Send Robux",
-                "deletedAccountBody": "This user's account has been deleted, it cannot be sent Robux"
+                "deletedAccountTitle": "無法傳送 Robux",
+                "deletedAccountBody": "此使用者帳號已遭刪除，無法傳送 Robux。"
             },
             "popup": {
                 "shared": {
-                    "title": "Send Robux",
-                    "titleSilly": "send bobux :3",
-                    "okBtn": "OK"
+                    "title": "傳送 Robux",
+                    "titleSilly": "傳送 bobux :3",
+                    "okBtn": "確定"
                 },
                 "step1": {
-                    "robuxInputName": "Robux Amount to Send",
-                    "mutedNotice": "Robux are sent instantly with no fees",
-                    "minRobux": "You must send at least {{robuxAmount}} Robux",
-                    "maxRobux": "You must send no more than {{robuxAmount}} Robux",
-                    "notEnoughRobux": "You don't have enough Robux",
-                    "nextBtn": "Next"
+                    "robuxInputName": "要傳送的 Robux 數量",
+                    "mutedNotice": "Robux 即時傳送，無手續費",
+                    "minRobux": "您必須傳送至少 {{robuxAmount}} Robux",
+                    "maxRobux": "您傳送的 Robux 不得超過 {{robuxAmount}} Robux",
+                    "notEnoughRobux": "您的 Robux 餘額不足",
+                    "nextBtn": "下一步"
                 },
                 "step2": {
-                    "sendBtn": "Send",
-                    "editBtn": "Edit",
-                    "mutedNotice": "No cancellations. You may need age check or parent approval.",
-                    "transferErrorGeneric": "An unknown error occured.",
-                    "transferErrorNoMessage": "Unknown error occured with no message provided",
-                    "transferSuccessBody": "The transfer was a success!",
-                    "transferSuccessBodySilly": "transfer was alright! very cool",
-                    "transferSuccessOkBtnSilly": "electric boogaloo",
-                    "userInfoFriendTime": "Friended {{time, relativetime}}",
-                    "userInfoMutualFriends_one": "{{count}} mutual friend",
-                    "userInfoMutualFriends_other": "{{count}} mutual friends",
-                    "userInfoJoin": "Joined in {{year}}",
-                    "paramPassedError": "An unknown error occured! Check console and report the issue to RoValra."
+                    "sendBtn": "傳送",
+                    "editBtn": "編輯",
+                    "mutedNotice": "不可取消。您可能需要進行年齡驗證或獲得家長批准。",
+                    "transferErrorGeneric": "發生未知錯誤。",
+                    "transferErrorNoMessage": "發生未知錯誤，但未提供錯誤訊息。",
+                    "transferSuccessBody": "轉帳成功！",
+                    "transferSuccessBodySilly": "轉帳成功！太棒了！",
+                    "transferSuccessOkBtnSilly": "電動布加洛舞！",
+                    "userInfoFriendTime": "新增好友於 {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} 位共同好友",
+                    "userInfoMutualFriends_other": "{{count}} 位共同好友",
+                    "userInfoJoin": "加入年份：{{year}}",
+                    "paramPassedError": "發生未知錯誤！請檢查控制台並將問題回報給 RoValra。"
                 },
                 "parentPerms": {
-                    "askBtn": "Ask",
-                    "sendRobuxBody": "To send Robux, you need parent permission",
-                    "receiveRobuxBody": "To receive Robux, you need parent permission",
-                    "askTitle": "Ask for Permission",
-                    "askTitleSilly": "ask parents for perms",
-                    "errorSending": "An unknown error occured, check the console and report it to RoValra",
-                    "errorReceivingTitle": "There was an error accepting the Robux",
-                    "errorReceivingBody": "An unknown error occured, you might have already accepted this Robux transfer. Check the console for details.",
-                    "errorReceivingOkBtnSilly": "aw",
-                    "successfulAskTitle": "Request Sent",
-                    "successfulAskTitleSilly": "we notified ur parents, prepare...",
-                    "successfulAskBody": "We have sent the request to your parents and guardians via email!",
-                    "successfulAskOkBtnSilly": "alright very cool, thanks"
+                    "askBtn": "請求",
+                    "sendRobuxBody": "傳送 Robux 需要家長許可",
+                    "receiveRobuxBody": "接收 Robux 需要家長許可",
+                    "askTitle": "請求家長許可",
+                    "askTitleSilly": "請求家長許可",
+                    "errorSending": "發生未知錯誤，請檢查控制台並將問題回報給 RoValra",
+                    "errorReceivingTitle": "接收 Robux 時發生錯誤",
+                    "errorReceivingBody": "發生未知錯誤，您可能已經接受了此次 Robux 轉帳。請檢查控制台以瞭解詳情。",
+                    "errorReceivingOkBtnSilly": "哎呀",
+                    "successfulAskTitle": "請求已傳送",
+                    "successfulAskTitleSilly": "我們已通知您的家長，請準備...",
+                    "successfulAskBody": "我們已透過電子郵件將請求傳送給您的家長和監護人！",
+                    "successfulAskOkBtnSilly": "好的，太棒了，謝謝"
                 },
                 "plusNeeded": {
-                    "body": "Unfortunetly you need Roblox Plus to be able to send Robux, this is part of the Roblox Plus subscription.",
-                    "bodySilly": "u have no bobloc plus :c so u cant send bobux to people because its reqwired 3:",
-                    "buyPlusBtn": "Buy Roblox Plus",
-                    "buyPlusBtnSilly": "get le bobloc plus c:",
-                    "okBtnSilly": "awww darn okay :c"
+                    "body": "很抱歉，您需要訂閱 Roblox Plus 才能傳送 Robux，這是 Roblox Plus 訂閱服務的一部分。",
+                    "bodySilly": "您沒有 bobloc plus 會員 :c 所以您無法向他人傳送 bobux，因為它是必需的 3:",
+                    "buyPlusBtn": "購買 Roblox Plus",
+                    "buyPlusBtnSilly": "取得 bobloc plus c:",
+                    "okBtnSilly": "可惡，好吧 :c"
                 }
             }
         }
     },
     "avatar": {
         "gameOutfits": {
-            "button": "Game Outfits",
-            "title": "Outfits for experiences",
-            "hint": "Pick the outfit that gets equipped when you play an R6 or an R15 experience.",
-            "r6": "R6 experiences",
-            "r15": "R15 experiences",
-            "none": "Do not change",
-            "gameTitle": "Outfit for this experience",
-            "gameHint": "This overrides the outfit set for R6 and R15 experiences.",
-            "useGlobal": "Use my default"
+            "button": "遊戲外觀",
+            "title": "體驗使用的外觀",
+            "hint": "選擇在遊玩 R6 或 R15 體驗時裝備的外觀。",
+            "r6": "R6 體驗",
+            "r15": "R15 體驗",
+            "none": "不要變更",
+            "gameTitle": "此體驗的外觀",
+            "gameHint": "這將覆蓋 R6 和 R15 體驗的預設外觀設定。",
+            "useGlobal": "使用我的預設值"
         },
         "bodyColors": {
-            "addCustom": "Pick a custom color",
-            "savedColor": "{{hex}}, right click to remove",
-            "applyFailed": "Could not update your body colors. Try again in a moment."
+            "addCustom": "選擇自訂顏色",
+            "savedColor": "{{hex}}，右鍵點選刪除",
+            "applyFailed": "無法更新您的身體膚色。請稍後再試。"
         }
     },
     "pinnedFriends": {
-        "pin": "Pin to top",
-        "unpin": "Unpin"
+        "pin": "釘選至頂部",
+        "unpin": "解除釘選"
+    },
+    "richLinks": {
+        "by": "創作者：{{name}}",
+        "members": "{{count}} 成員",
+        "playing": "{{count}} 正在遊玩",
+        "visits": "{{count}} 參訪次數",
+        "loading": "正在載入...",
+        "free": "免費",
+        "offSale": "已下架"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "正在載入 API 文件...",
+        "loadFailed": "無法載入 API 文件：{{error}}",
+        "noAccess": "您無法存取這些文件。",
+        "serverError": "伺服器回應為 {{status}}。",
+        "invalidSpec": "伺服器傳回了無效的 OpenAPI 文件。",
+        "baseUrl": "基本 URL：{{url}}",
+        "apiVersion": "API 版本",
+        "openApiVersion": "OpenAPI 版本",
+        "server": "伺服器",
+        "sendToken": "傳送我的 RoValra 存取權杖",
+        "filterLabel": "篩選端點",
+        "filterPlaceholder": "路徑、摘要或標籤",
+        "hideDeprecated": "隱藏已淘汰的端點",
+        "noEndpoints": "未找到端點。",
+        "deprecated": "已淘汰",
+        "deprecatedTooltip": "此端點已淘汰。",
+        "authRequired": "需要授權",
+        "authOptional": "授權可略",
+        "schemeNotSent": "需要 {{name}}，但此頁面不會傳送。",
+        "operationId": "操作 ID",
+        "security": "授權：{{schemes}}",
+        "securityOptional": "授權：{{schemes}}（可略）",
+        "securityTooltip": "安全需求",
+        "parameters": "參數",
+        "noParameters": "無參數",
+        "tryItOut": "試一下",
+        "name": "名稱",
+        "description": "說明",
+        "required": "必填",
+        "availableValues": "可用值：{{values}}",
+        "requestBody": "請求主體",
+        "requestContentType": "請求內容類型",
+        "exampleValue": "範例值",
+        "schema": "架構",
+        "responses": "回應",
+        "noResponses": "無文件化的回應",
+        "code": "代碼",
+        "details": "詳細資料",
+        "execute": "執行",
+        "clear": "清除",
+        "missingParams": "缺少必要參數：{{params}}",
+        "invalidJson": "請求主體不是有效的 JSON：{{error}}",
+        "bodyRequired": "請求體是必要的。",
+        "confirmTitle": "傳送請求？",
+        "confirmMessage": "這將向 {{path}} 傳送一個 {{method}} 請求。請僅在您了解其作用的情況下繼續。",
+        "send": "傳送",
+        "sending": "正在傳送請求...",
+        "requestFailed": "請求失敗：{{error}}",
+        "curl": "Curl",
+        "requestUrl": "請求 URL",
+        "serverResponse": "伺服器回應",
+        "responseBody": "回應主體",
+        "responseHeaders": "回應頭",
+        "emptyResponse": "（空回應）",
+        "responseImage": "回應圖片",
+        "duration": "{{ms}} 毫秒",
+        "durationTooltip": "請求持續時間",
+        "contentType": "內容類型",
+        "redirected": "已重新導向",
+        "copy": "複製"
     }
 }

@@ -61,12 +61,13 @@ async function updateLastEquippedRow(priceRow) {
     row.dataset.rovalraLastEquippedItemId = String(itemId);
     row.dataset.rovalraLastEquippedTime = lastEquipTime;
 
+    const anchorRow =
+        parent.querySelector('.rovalra-owned-price-row') || priceRow;
+
     if (existingRow) {
         existingRow.replaceWith(row);
-    } else if (priceRow.nextSibling) {
-        parent.insertBefore(row, priceRow.nextSibling);
     } else {
-        parent.appendChild(row);
+        parent.insertBefore(row, anchorRow.nextSibling);
     }
 }
 

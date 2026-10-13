@@ -39,6 +39,9 @@ export const CONTRIBUTOR_USER_IDS = [
     '231260921', // textuired
     '2020751790', // Orellius
     '200565345', // krampuszc
+    '2239549101', // TimorousShadow
+    '519742979', // BBasilio2001
+    '74884', // awkward222
 ];
 
 export const TESTER_USER_IDS = [
@@ -54,8 +57,11 @@ export const TRANSLATOR_USER_IDS = [
     '9502859424', // moowi1337
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
-    '3733653415 ', // kurdo3660
+    '3733653415', // kurdo3660
     '16147087', // Edward667
+    '587930109', // hnguyen1910
+    '11785214974', // DevinHmmm
+    '2490953439', // xMrReks
 ];
 
 export const ARTIST_USER_IDS = [

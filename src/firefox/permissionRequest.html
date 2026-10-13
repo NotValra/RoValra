@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>RoValra Permission</title>
+        <style>
+            :root {
+                color-scheme: light dark;
+                --bg: #ffffff;
+                --text: #1d1d1f;
+                --muted: #5f6368;
+                --border: #d9d9de;
+                --primary: #335fff;
+                --primary-text: #ffffff;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #1c1d21;
+                    --text: #f2f2f5;
+                    --muted: #a6a7ad;
+                    --border: #3a3b40;
+                }
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                padding: 20px;
+                background: var(--bg);
+                color: var(--text);
+                font:
+                    14px/1.45 system-ui,
+                    sans-serif;
+            }
+            header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+            header img {
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+            }
+            h1 {
+                margin: 0;
+                font-size: 17px;
+            }
+            p {
+                margin: 0 0 10px;
+                color: var(--muted);
+            }
+            ul {
+                margin: 0 0 18px;
+                padding-left: 20px;
+            }
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+            button {
+                padding: 8px 16px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                background: transparent;
+                color: var(--text);
+                font: inherit;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            button.primary {
+                border-color: var(--primary);
+                background: var(--primary);
+                color: var(--primary-text);
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <img src="public/Assets/icon-48.png" alt="" />
+            <h1>RoValra needs a permission</h1>
+        </header>
+        <p>The feature you turned on needs this extra permission:</p>
+        <ul id="permissions"></ul>
+        <div class="actions">
+            <button id="cancel" type="button">Cancel</button>
+            <button id="allow" type="button" class="primary">Allow</button>
+        </div>
+        <script src="firefox-permission-request.js"></script>
+    </body>
+</html>

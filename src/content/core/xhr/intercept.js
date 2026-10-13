@@ -38,6 +38,7 @@ const LayeredAssetTypes = [
         'https://metrics.roblox.com/v1/games/report-event';
     const GAME_SERVERS_API_URL = 'https://games.roblox.com/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
+    const PRIVATE_SERVER_CREATE_PATH = '/v1/games/vip-servers/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
     const TRADE_DETAILS_API_URL = 'https://trades.roblox.com/v2/trades/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
@@ -322,57 +323,69 @@ const LayeredAssetTypes = [
 
     document.addEventListener('rovalra-home-rendered', refreshHomeExtraSorts);
 
-    function refreshHomeExtraSorts() {
-        const card = document.querySelector('#HomeContainer a.game-card-link');
-        if (!card) return;
-        const fiberKey = Object.keys(card).find((key) =>
-            key.startsWith('__reactFiber$'),
-        );
-        for (let fiber = card[fiberKey]; fiber; fiber = fiber.return) {
-            for (let hook = fiber.memoizedState; hook; hook = hook.next) {
-                if (
-                    hook.memoizedState?.pageType !== 'Home' ||
-                    !Array.isArray(hook.memoizedState.sorts) ||
-                    typeof hook.queue?.dispatch !== 'function'
-                )
-                    continue;
-                hook.queue.dispatch((current) => {
+    function getHomeSortDispatch() {
+        const visited = new Set();
+        for (const card of document.querySelectorAll(
+            '#HomeContainer a.game-card-link',
+        )) {
+            const fiberKey = Object.keys(card).find((key) =>
+                key.startsWith('__reactFiber$'),
+            );
+            for (
+                let fiber = card[fiberKey];
+                fiber && !visited.has(fiber);
+                fiber = fiber.return
+            ) {
+                visited.add(fiber);
+                for (let hook = fiber.memoizedState; hook; hook = hook.next) {
                     if (
-                        current?.pageType !== 'Home' ||
-                        !Array.isArray(current.sorts)
+                        hook.memoizedState?.pageType === 'Home' &&
+                        Array.isArray(hook.memoizedState.sorts) &&
+                        typeof hook.queue?.dispatch === 'function'
                     )
-                        return current;
-                    const data = {
-                        ...current,
-                        sorts: current.sorts.filter(
-                            (sort) =>
-                                !homeExtraSortKeys.has(getHomeSortKey(sort)),
-                        ),
-                        games: [...(current.games || [])],
-                        contentMetadata: {
-                            ...current.contentMetadata,
-                            Game: { ...current.contentMetadata?.Game },
-                        },
-                    };
-                    const currentKeys = new Set(data.sorts.map(getHomeSortKey));
-                    for (const sort of homeKnownSorts) {
-                        const key = getHomeSortKey(sort);
-                        if (
-                            homeLayoutHidden.includes(key) &&
-                            !currentKeys.has(key) &&
-                            !homeExtraSortKeys.has(key)
-                        )
-                            data.sorts.push(sort);
-                    }
-                    addHomeExtraSorts(data);
-                    reorderHomeSorts(data);
-                    dispatchHomeLayoutCategories(data);
-                    hideHomeSorts(data);
-                    return data;
-                });
-                return;
+                        return hook.queue.dispatch;
+                }
             }
         }
+    }
+
+    function refreshHomeExtraSorts() {
+        const dispatch = getHomeSortDispatch();
+        if (!dispatch) return;
+        dispatch((current) => {
+            if (
+                current?.pageType !== 'Home' ||
+                !Array.isArray(current.sorts)
+            )
+                return current;
+            const data = {
+                ...current,
+                sorts: current.sorts.filter(
+                    (sort) =>
+                        !homeExtraSortKeys.has(getHomeSortKey(sort)),
+                ),
+                games: [...(current.games || [])],
+                contentMetadata: {
+                    ...current.contentMetadata,
+                    Game: { ...current.contentMetadata?.Game },
+                },
+            };
+            const currentKeys = new Set(data.sorts.map(getHomeSortKey));
+            for (const sort of homeKnownSorts) {
+                const key = getHomeSortKey(sort);
+                if (
+                    homeLayoutHidden.includes(key) &&
+                    !currentKeys.has(key) &&
+                    !homeExtraSortKeys.has(key)
+                )
+                    data.sorts.push(sort);
+            }
+            addHomeExtraSorts(data);
+            reorderHomeSorts(data);
+            dispatchHomeLayoutCategories(data);
+            hideHomeSorts(data);
+            return data;
+        });
     }
 
     function waitForHomeLayoutState() {
@@ -1117,6 +1130,24 @@ const LayeredAssetTypes = [
                     .catch(() => {});
             }
             if (
+                requestUrl.includes(GAMES_ROBLOX_API) &&
+                requestUrl.includes(PRIVATE_SERVER_CREATE_PATH) &&
+                String(args[1]?.method || args[0]?.method).toUpperCase() ===
+                    'POST'
+            ) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) =>
+                        document.dispatchEvent(
+                            new CustomEvent('rovalra-private-server-created', {
+                                detail: d,
+                            }),
+                        ),
+                    )
+                    .catch(() => {});
+            }
+            if (
                 requestUrl.includes(TRADES_API_URL) &&
                 requestUrl.includes('/tradableitems')
             ) {
@@ -1390,6 +1421,15 @@ const LayeredAssetTypes = [
                     )
                         triggerEvent(
                             'rovalra-game-media-response',
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (
+                        url.includes(GAMES_ROBLOX_API) &&
+                        url.includes(PRIVATE_SERVER_CREATE_PATH) &&
+                        String(xhr._rovalra_method).toUpperCase() === 'POST'
+                    )
+                        triggerEvent(
+                            'rovalra-private-server-created',
                             JSON.parse(xhr.responseText),
                         );
                     if (

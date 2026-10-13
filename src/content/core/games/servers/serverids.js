@@ -1,5 +1,16 @@
 // adds the server ids to the server elements so we know what is what
-import { observeElement } from '../../observer.js';
+import {
+    observeElement,
+    observeAttributes,
+    observeChildren,
+} from '../../observer.js';
+
+export const SERVER_ROW_SELECTOR = [
+    '.rbx-public-game-server-item',
+    '.rbx-friends-game-server-item',
+    '.rbx-private-game-server-item',
+    '.flex.items-center.justify-between.padding-y-medium.width-full',
+].join(', ');
 
 let extractorScriptInjected = false;
 
@@ -50,36 +61,53 @@ async function extractServerIdFromFiber(server) {
     });
 }
 
+export async function syncServerId(serverItem) {
+    const requestId = (serverItem._rovalraIdRequest || 0) + 1;
+    serverItem._rovalraIdRequest = requestId;
+
+    const extractionResult = await extractServerIdFromFiber(serverItem);
+
+    if (serverItem._rovalraIdRequest !== requestId) return null;
+    if (!extractionResult || extractionResult.error) return null;
+
+    const { serverId, privateServerId, accessCode, isFriendServer, isOwner } =
+        extractionResult;
+
+    if (privateServerId) {
+        serverItem.setAttribute('data-private-server-id', privateServerId);
+    }
+    if (accessCode) {
+        serverItem.setAttribute('data-access-code', accessCode);
+    }
+    serverItem.setAttribute(
+        'data-rovalra-is-friend-server',
+        String(Boolean(isFriendServer)),
+    );
+    serverItem.setAttribute('data-rovalra-is-owner', String(Boolean(isOwner)));
+
+    if (serverId) {
+        const previousId = serverItem.getAttribute('data-rovalra-serverid');
+        if (previousId !== serverId) {
+            serverItem.setAttribute('data-rovalra-serverid', serverId);
+            serverItem.dispatchEvent(
+                new CustomEvent('rovalra-serverid-set', {
+                    detail: { serverId, previousId },
+                    bubbles: true,
+                }),
+            );
+        }
+    }
+
+    return extractionResult;
+}
+
 async function processServerElement(serverItem, retries = 5) {
     try {
-        const extractionResult = await extractServerIdFromFiber(serverItem); // Get the full result
-        const serverId = extractionResult?.serverId;
-        const privateServerId = extractionResult?.privateServerId;
-        const accessCode = extractionResult?.accessCode;
+        await syncServerId(serverItem);
 
-        if (serverId && serverId.length > 0) {
-            const oldServerId = serverItem.getAttribute(
-                'data-rovalra-serverid',
-            );
-
-            if (oldServerId !== serverId) {
-                serverItem.setAttribute('data-rovalra-serverid', serverId);
-
-                const event = new CustomEvent('rovalra-serverid-set', {
-                    detail: { serverId },
-                    bubbles: true,
-                });
-                serverItem.dispatchEvent(event);
-            }
-        }
-
-        if (privateServerId) {
-            serverItem.setAttribute('data-private-server-id', privateServerId);
-        }
-        if (accessCode) {
-            serverItem.setAttribute('data-access-code', accessCode);
-        } else if (
+        if (
             serverItem.classList.contains('rbx-private-game-server-item') &&
+            !serverItem.hasAttribute('data-access-code') &&
             !serverItem.hasAttribute('data-private-server-id') &&
             retries > 0
         ) {
@@ -96,54 +124,51 @@ async function processServerElement(serverItem, retries = 5) {
     }
 }
 
+function scheduleServerIdSync(serverItem) {
+    if (serverItem._rovalraIdSyncQueued) return;
+    serverItem._rovalraIdSyncQueued = true;
+
+    queueMicrotask(() => {
+        serverItem._rovalraIdSyncQueued = false;
+        if (serverItem.isConnected) processServerElement(serverItem);
+    });
+}
+
 function watchServerElement(serverItem) {
-    const observer = new MutationObserver((mutations) => {
-        const hasPlayerChange = mutations.some((mutation) => {
-            if (mutation.type === 'childList') {
-                const target = mutation.target;
-                if (
-                    target.classList?.contains('player-thumbnails-container') ||
-                    target.closest('.player-thumbnails-container')
-                ) {
-                    return true;
-                }
-            }
-            return false;
-        });
+    if (serverItem._rovalraIdWatchers) return;
 
-        if (hasPlayerChange) {
-            serverItem.classList.remove('rovalra-checked');
+    const onChange = () => scheduleServerIdSync(serverItem);
+    const watchers = [];
 
-            processServerElement(serverItem);
-        }
-    });
+    const card = serverItem.firstElementChild;
+    if (card) {
+        watchers.push(
+            observeAttributes(card, onChange, ['src', 'href'], {
+                subtree: true,
+            }),
+        );
+    }
 
-    observer.observe(serverItem, {
-        childList: true,
-        subtree: true,
-    });
+    const thumbnails = serverItem.querySelector('.player-thumbnails-container');
+    if (thumbnails) watchers.push(observeChildren(thumbnails, onChange));
 
-    serverItem._rovalraServerObserver = observer;
+    serverItem._rovalraIdWatchers = watchers;
+}
+
+function unwatchServerElement(serverItem) {
+    serverItem._rovalraIdWatchers?.forEach((watcher) => watcher.disconnect());
+    serverItem._rovalraIdWatchers = null;
 }
 
 export function initServerIdExtraction() {
     injectExtractorScript();
 
-    const selectors = [
-        '.rbx-public-game-server-item',
-        '.rbx-friends-game-server-item',
-        '.rbx-private-game-server-item',
-    ];
-
-    selectors.forEach((selector) => {
-        observeElement(
-            selector,
-            (serverElement) => {
-                processServerElement(serverElement);
-
-                watchServerElement(serverElement);
-            },
-            { multiple: true },
-        );
-    });
+    observeElement(
+        SERVER_ROW_SELECTOR,
+        (serverElement) => {
+            processServerElement(serverElement);
+            watchServerElement(serverElement);
+        },
+        { multiple: true, onRemove: unwatchServerElement },
+    );
 }

@@ -1,3 +1,4 @@
+import './core/firefoxCompat.js';
 import { initializeObserver, startObserving } from './core/observer.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
 import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
@@ -12,6 +13,7 @@ import { init as initBetaPrograms } from './features/navigation/betaprograms.js'
 import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js';
+import { init as initPrivateApiDocs } from './features/developer/privateApiDocs.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
@@ -27,13 +29,16 @@ import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
+import { init as initRichRobloxLinks } from './features/sitewide/richRobloxLinks.js';
 import { init as initViewIds } from './features/sitewide/viewid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
+import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
+import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
@@ -45,6 +50,7 @@ import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
+import { init as initSidebarVerifiedBadge } from './features/sitewide/sidebarVerifiedBadge.js';
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
@@ -53,7 +59,8 @@ import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndic
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
-import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js'
+import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
+import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -74,6 +81,7 @@ import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js
 import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
+import { init as initOwnedItemPrice } from './features/catalog/ownedItemPrice.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
 import { init as initFriendOwnership } from './features/catalog/friendOwnership.js';
 
@@ -84,6 +92,9 @@ import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initBadgeLayoutToggle } from './features/games/badgeLayoutToggle.js';
 import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
 import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
+import { init as initBadgeSort } from './features/games/badgeSort.js';
+import { init as initGameStatTimestamps } from './features/games/gameStatTimestamps.js';
+import { init as initFreeBadgeQuota } from './features/games/freeBadgeQuota.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
@@ -116,6 +127,8 @@ import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
 import { init as initBlockUser } from './features/trading/blockUser.js';
 import { init as initSendTrade } from './features/trading/sendTrade.js';
+import { init as initRecentTradeItems } from './features/trading/recentTradeItems.js';
+import { init as initTradeQuickActions } from './features/trading/tradeQuickActions.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -142,6 +155,7 @@ import { init as initPrivateServerControls } from './features/games/privateserve
 import { init as initHidePrivateServers } from './features/games/hidePrivateServers.js';
 import { init as initPinPrivateServers } from './features/games/pinPrivateServers.js';
 import { init as initPlusPrivateServerTooltip } from './features/games/plusPrivateServerTooltip.js';
+import { init as initAutoFriendsAllowed } from './features/games/autoFriendsAllowed.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
 import { init as initBannedUsers } from './features/profile/bannedusers.js';
@@ -231,6 +245,7 @@ const featureRoutes = [
             initVideoTest,
             initStreamerMode,
             initMarkDownTest,
+            initPrivateApiDocs,
             initTests,
             initBirthdayTracker,
             initServerTracker,
@@ -244,6 +259,7 @@ const featureRoutes = [
             initAuthenticatedUserLanguageTracking,
             initPlaytimeTracker,
             initCopyId,
+            initRichRobloxLinks,
             initViewIds,
             initBetaPrograms,
             initPreviousPrice,
@@ -255,7 +271,9 @@ const featureRoutes = [
             initTransactionsLink,
             initStatus,
             initCustomFont,
+            initCyrillicFont,
             initCustomFavicon,
+            initCursorBuddy,
             initRobuxIcons,
             initMoreRobuxDigits,
             initProfileBackground,
@@ -274,6 +292,7 @@ const featureRoutes = [
             initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,
+            initSidebarVerifiedBadge,
             initWideTilePlayerCounts,
             initBackgroundImage,
             initFreeRobloxPlusThemes,
@@ -282,6 +301,7 @@ const featureRoutes = [
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,
+            initCustomScrollbar,
             initRoValraIncidentTracker,
         ],
     },
@@ -310,6 +330,7 @@ const featureRoutes = [
             initParentItem,
             initItemTrading,
             initLastEquipped,
+            initOwnedItemPrice,
             initItemRender,
             initFriendOwnership,
             initCatalogExplorer,
@@ -359,14 +380,17 @@ const featureRoutes = [
             initPinPrivateServers,
             initHeatmap,
             initPlusPrivateServerTooltip,
+            initAutoFriendsAllowed,
             initCatalogExplorer,
             initUnderReviewPill,
+            initGameStatTimestamps,
         ],
     },
     // private games and game pages
     {
         paths: ['/games/', '/private-games'],
         features: [
+            initFreeBadgeQuota,
             initDevProductLoader,
             initSubplaces,
             initTotalSpentGames,
@@ -375,6 +399,7 @@ const featureRoutes = [
             initBadgeLayoutToggle,
             initBadgeOwnership,
             initBadgeEarnedDate,
+            initBadgeSort,
         ],
     },
     {
@@ -490,6 +515,8 @@ const featureRoutes = [
             initTradeProof,
             initBlockUser,
             initSendTrade,
+            initRecentTradeItems,
+            initTradeQuickActions,
         ],
     },
 

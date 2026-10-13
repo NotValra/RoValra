@@ -11,6 +11,10 @@ This is a guide on how to contribute to RoValra
 
 ## Pull Request Guidelines
 
+**Most Important:** Do not expect me (Valra) to get to your PR instantly. I am still human, I need breaks once in a while.\
+Don't rush me and don't expect it to get accepted instantly.\
+If the PR has remained stale with no review for a few weeks then feel free to ask about it.
+
 Every PR needs a clear description of what it does. Depending on the type of PR, please also include the following:
 
 ### New features
@@ -96,6 +100,9 @@ The translation percentage shown next to each language in the settings is calcul
 The list of supported languages is generated automatically by `build.js` from the files in `public/Assets/locales`, so no other changes are needed.
 
 Please only submit translations for languages you are fluent in, and avoid pure machine translations.
+
+**If you used AI in your translations you need to disclose it. If you didn't make sure you disclose you didn't otherwise the translations will be automatically denied**\
+Using AI to translate is not an automatic denial of the translation, as long as you confirm you read through it all and made sure it was accurate.
 
 ## Adding New Settings
 
@@ -222,7 +229,7 @@ And you can use specific sizing too!
 You can also use material icons by adding the attribute material.
 There are also RoValra Icons you can view them [here](https://github.com/NotValra/RoValra-Website/tree/main/font)
 
-If you need information about what Builder Icons exist, you can visit the [Builder Icons Viewer](https://kaan650.github.io/builder-icons/) by [@kann650](https://github.com/kann650)
+If you need information about what Builder Icons exist, you can visit the [Builder Icons Viewer](https://kaan650.github.io/builder-icons/) by [@kaan650](https://github.com/kaan650)
 If you need information about Material Icons, visit [Material Icons Library](https://fonts.google.com/icons?preview.script=Latn&icon.size=24&icon.color=%23e3e3e3&icon.set=Material%20Icons)
 
 When using DOMPurify, make sure to import `CUSTOM_ADDED_TAGS` and use the config in [src/content/core/utils/purifyCfg.js](src/content/core/utils/purifyCfg.js)

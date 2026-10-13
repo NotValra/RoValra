@@ -99,6 +99,8 @@
         "versionUnknown": "Version inconnue",
         "version": "Version {{version}}",
         "versionLabel": "Version",
+        "performanceTooltip": "Performances du serveur",
+        "regionTooltip": "Région du serveur : {{region}}",
         "latest": " (Plus récente)",
         "oldest": " (Plus ancienne)",
         "serverFull": "Le serveur est plein",
@@ -445,6 +447,14 @@
         "hours": "{{value}} heures",
         "minutes": "{{value}} minutes"
     },
+    "mutualFriends": {
+        "pill_one": "{{count}} ami en commun",
+        "pill_other": "{{count}} amis en commun",
+        "tooltip": "Les amis que vous avez en commun avec cet utilisateur",
+        "tab": "En commun",
+        "title": "Amis en commun ({{count}})",
+        "empty": "Vous n'avez aucun ami en commun avec cet utilisateur."
+    },
     "trustedFriends": {
         "pendingConnection": "Ami de confiance en attente",
         "pendingRequest": "Demande d'ami de confiance en attente",
@@ -618,7 +628,8 @@
         "setActive": "Activer",
         "noServersFound": "Aucun serveur privé {{status}} trouvé.",
         "byCreator": "Par ",
-        "allowJoining": "Autoriser à rejoindre"
+        "allowJoining": "Autoriser à rejoindre",
+        "friendsAllowed": "Amis autorisés"
     },
     "firstAccount": {
         "label": "Premier compte",
@@ -876,7 +887,10 @@
                 "locales": {
                     "madeRo": "A aidé à créer la traduction roumaine",
                     "madeEs": "A aidé à créer la traduction espagnole",
-                    "madeFr": "A contribué à la traduction française"
+                    "madeRu": "A aidé à créer la traduction russe",
+                    "madeFr": "A contribué à la traduction française",
+                    "madeVi": "A aidé à créer la traduction vietnamienne",
+                    "madeZh": "A aidé à créer la traduction chinoise"
                 }
             },
             "ui": {
@@ -1065,7 +1079,12 @@
                 "followTerms": "Les images doivent respecter les Conditions d'utilisation de Roblox",
                 "joinDiscord": "Rejoindre le Discord de RoValra",
                 "agree": "J'accepte",
-                "agreeCountdown": "J'accepte ({{count}})"
+                "agreeCountdown": "J'accepte ({{count}})",
+                "previewDone": "Terminé",
+                "previewTooltip": "Aperçu du badge",
+                "previewDescription": "Importez une image WEBP pour voir à quoi elle ressemblerait comme badge sur votre profil. L'image reste uniquement en mémoire et n'est jamais importée ni enregistrée, elle disparaît quand vous quittez ou actualisez la page.",
+                "previewTitle": "Aperçu du badge personnalisé",
+                "preview": "Aperçu"
             },
             "githubSponsorBadge": {
                 "title": "Badge de profil GitHub Sponsors",
@@ -1188,18 +1207,6 @@
             }
         }
     },
-    "qolToggles": {
-        "onlineStatus": "Statut en ligne",
-        "joinStatus": "Statut d'expérience",
-        "privateServerPrivacy": "Confidentialité des serveurs privés",
-        "inventoryVisibility": "Visibilité de l'inventaire",
-        "everyone": "Tout le monde",
-        "friendsFollowingAndFollowers": "Amis, abonnés et abonnements",
-        "friendsAndFollowing": "Amis et abonnements",
-        "friends": "Amis",
-        "trustedFriends": "Amis de confiance",
-        "noOne": "Personne"
-    },
     "groupFunds": {
         "loading": "Chargement...",
         "pending": "En attente :",
@@ -1209,7 +1216,8 @@
         "transactions": "Transactions",
         "apiDocs": "Documentation API",
         "incidentLearnMore": "Cliquez ici pour en savoir plus.",
-        "incidentHideNotice": "Vous pouvez masquer cet avis ici"
+        "incidentHideNotice": "Vous pouvez masquer cet avis ici",
+        "rovalraApi": "API RoValra"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Réduire la barre latérale",
@@ -1673,6 +1681,36 @@
     "purchasePrompt": {
         "balanceAfter": "Votre solde après cette transaction sera de"
     },
+    "tradeQuickActions": {
+        "minValue": "Valeur min. qu'ils donnent",
+        "hideLosses": "Masquer les pertes",
+        "bulkTitle": "Action groupée",
+        "bulkHint": "Refuse tous les échanges reçus où vous perdez en valeur. Vous confirmez d'abord.",
+        "declineLosses": "Refuser les échanges perdants",
+        "loadingTrades": "Chargement des échanges reçus...",
+        "checking": "Vérification des échanges {{done}}/{{total}}...",
+        "noLosses": "Aucun échange reçu perdant trouvé",
+        "confirmTitle": "Refuser les échanges perdants",
+        "confirmMessage": "{{count}} de vos {{total}} échanges reçus sont perdants en valeur ({{value}} au total). Tous les refuser ? Cette action est irréversible.",
+        "declineConfirm": "Refuser",
+        "declining": "Refus en cours {{done}}/{{total}}...",
+        "declined": "{{count}} échanges refusés",
+        "declinedWithFailures": "{{count}} échanges refusés, {{failed}} en échec"
+    },
+    "tradeRecentItems": {
+        "offer": "Proposés récemment",
+        "request": "Demandés récemment",
+        "clear": "Effacer"
+    },
+    "recentlyViewed": {
+        "title": "Consultés récemment",
+        "clear": "Effacer",
+        "remove": "Retirer",
+        "cheaper": "{{value}} Robux de moins que lors de votre visite",
+        "pricier": "{{value}} Robux de plus que lors de votre visite",
+        "offSale": "N'est plus en vente",
+        "backOnSale": "De nouveau en vente"
+    },
     "time": {
         "justNow": "à l'instant",
         "secondsAgo": "il y a {{count}} s",
@@ -2024,7 +2062,8 @@
         "renderOptions": "Options de rendu",
         "darkLighting": "Éclairage sombre",
         "baseplate": "Plaque de base",
-        "rotatePreview": "Faire pivoter l'aperçu"
+        "rotatePreview": "Faire pivoter l'aperçu",
+        "itemOnly": "Afficher uniquement l'article"
     },
     "groupFilters": {
         "sort": {
@@ -2059,6 +2098,9 @@
             "monthlyLimitLeft": "Limite mensuelle restante",
             "sentToday": "Envoyés aujourd'hui",
             "sentThisMonth": "Envoyés ce mois-ci",
+            "refillNote": "Chaque transfert compte dans la limite mensuelle pendant 30 jours, puis ces Robux redeviennent disponibles.",
+            "leftAfter": "{{amount}} restants",
+            "nextRefill": "Prochaine recharge",
             "caption": "La limite quotidienne est de {{dailyLimit}}. La limite mensuelle est de {{monthlyLimit}}. Mise à jour toutes les 5 minutes. Les montants restants sont des estimations et peuvent être inexacts."
         },
         "referral": {
@@ -2132,6 +2174,15 @@
             }
         }
     },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Certains paramètres ont été supprimés ou remplacés"
+            },
+            "deleted": "Les paramètres suivants ont récemment été supprimés, verrouillés ou rendus obsolètes :",
+            "replaced": "Les paramètres suivants ont récemment été remplacés ou modifiés :"
+        }
+    },
     "avatar": {
         "gameOutfits": {
             "button": "Tenues de jeu",
@@ -2153,5 +2204,77 @@
     "pinnedFriends": {
         "pin": "Épingler en haut",
         "unpin": "Désépingler"
+    },
+    "privateApiDocs": {
+        "title": "API RoValra",
+        "loading": "Chargement de la documentation de l'API...",
+        "loadFailed": "Impossible de charger la documentation de l'API : {{error}}",
+        "noAccess": "Vous n'avez pas accès à cette documentation.",
+        "serverError": "Le serveur a répondu {{status}}.",
+        "invalidSpec": "Le serveur a renvoyé un document OpenAPI invalide.",
+        "baseUrl": "URL de base : {{url}}",
+        "apiVersion": "Version de l'API",
+        "openApiVersion": "Version OpenAPI",
+        "server": "Serveur",
+        "sendToken": "Envoyer mon jeton d'accès RoValra",
+        "filterLabel": "Filtrer les endpoints",
+        "filterPlaceholder": "Chemin, résumé ou tag",
+        "hideDeprecated": "Masquer les obsolètes",
+        "noEndpoints": "Aucun endpoint trouvé.",
+        "deprecated": "Obsolète",
+        "deprecatedTooltip": "Cet endpoint est obsolète.",
+        "authRequired": "Authentification requise",
+        "authOptional": "Authentification facultative",
+        "schemeNotSent": "Nécessite {{name}}, que cette page n'envoie pas.",
+        "operationId": "ID d'opération",
+        "security": "Auth : {{schemes}}",
+        "securityOptional": "Auth : {{schemes}} (facultatif)",
+        "securityTooltip": "Exigences de sécurité",
+        "parameters": "Paramètres",
+        "noParameters": "Aucun paramètre",
+        "tryItOut": "Essayer",
+        "name": "Nom",
+        "description": "Description",
+        "required": "requis",
+        "availableValues": "Valeurs disponibles : {{values}}",
+        "requestBody": "Corps de la requête",
+        "requestContentType": "Type de contenu de la requête",
+        "exampleValue": "Exemple de valeur",
+        "schema": "Schéma",
+        "responses": "Réponses",
+        "noResponses": "Aucune réponse documentée",
+        "code": "Code",
+        "details": "Détails",
+        "execute": "Exécuter",
+        "clear": "Effacer",
+        "missingParams": "Paramètres requis manquants : {{params}}",
+        "invalidJson": "Le corps de la requête n'est pas un JSON valide : {{error}}",
+        "bodyRequired": "Un corps de requête est requis.",
+        "confirmTitle": "Envoyer la requête ?",
+        "confirmMessage": "Une requête {{method}} va être envoyée à {{path}}. Ne continuez que si vous comprenez ce qu'elle fait.",
+        "send": "Envoyer",
+        "sending": "Envoi de la requête...",
+        "requestFailed": "Échec de la requête : {{error}}",
+        "curl": "Curl",
+        "requestUrl": "URL de la requête",
+        "serverResponse": "Réponse du serveur",
+        "responseBody": "Corps de la réponse",
+        "responseHeaders": "En-têtes de la réponse",
+        "emptyResponse": "(réponse vide)",
+        "responseImage": "Image de la réponse",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Durée de la requête",
+        "contentType": "Type de contenu",
+        "redirected": "Redirigé",
+        "copy": "Copier"
+    },
+    "richLinks": {
+        "by": "Par {{name}}",
+        "members": "{{count}} membres",
+        "playing": "{{count}} en jeu",
+        "visits": "{{count}} visites",
+        "loading": "Chargement...",
+        "free": "Gratuit",
+        "offSale": "Hors vente"
     }
 }

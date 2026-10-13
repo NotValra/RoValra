@@ -6,8 +6,8 @@ export const ROBUX_TRANSFER_CHANGED_EVENT =
     'rovalra:robux-transfer-limits-changed';
 export const ROBUX_TRANSFER_REFRESH_MS = 5 * 60 * 1000;
 
-const SUBSCRIPTION_CACHE_TTL_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MONTH_PERIOD_MS = 30 * DAY_MS;
 
 let activeUpdatePromise = null;
 let trackingInitialized = false;
@@ -15,63 +15,6 @@ let refreshIntervalId = null;
 
 function clampRemaining(limit, sent) {
     return Math.max(0, limit - Math.max(0, sent));
-}
-
-function addMonths(timestamp, months) {
-    const date = new Date(timestamp);
-    const day = date.getUTCDate();
-    date.setUTCDate(1);
-    date.setUTCMonth(date.getUTCMonth() + months);
-    const daysInTargetMonth = new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0),
-    ).getUTCDate();
-    date.setUTCDate(Math.min(day, daysInTargetMonth));
-    return date.getTime();
-}
-
-function subtractSubscriptionPeriod(timestamp, subscription) {
-    const periodCount = Number(subscription?.productInfo?.periodCount) || 1;
-    const periodType =
-        subscription?.periodType || subscription?.productInfo?.periodType;
-
-    if (periodType === 'Year') {
-        return addMonths(timestamp, -12 * periodCount);
-    }
-
-    if (periodType === 'Week') {
-        return timestamp - 7 * DAY_MS * periodCount;
-    }
-
-    return addMonths(timestamp, -periodCount);
-}
-
-function getSubscriptionWindow(subscription, now = Date.now()) {
-    if (!subscription) return null;
-
-    const activation = Number(subscription.activationTimestampMs);
-    const expiration = Number(subscription.expirationTimestampMs);
-    const renewal = Number(subscription.nextRenewalTimestampMs);
-    const end =
-        Number.isFinite(renewal) && renewal > now
-            ? renewal
-            : Number.isFinite(expiration) && expiration > now
-              ? expiration
-              : null;
-
-    if (!end) return null;
-
-    let start = subtractSubscriptionPeriod(end, subscription);
-    if (Number.isFinite(activation) && start < activation) {
-        start = activation;
-    }
-
-    return {
-        start,
-        end,
-        activation: Number.isFinite(activation) ? activation : null,
-        expiration: Number.isFinite(expiration) ? expiration : null,
-        nextRenewal: Number.isFinite(renewal) ? renewal : null,
-    };
 }
 
 async function readAllTransferData() {
@@ -103,28 +46,27 @@ function emitTransferDataChange(userId, transferData) {
     );
 }
 
-async function fetchRobloxPlusSubscription() {
-    const response = await callRobloxApiJson({
-        subdomain: 'apis',
-        endpoint: `/subscriptions/v2/user/subscriptions?ProductType=Blackbird&ExpirationTimestampMsStart=${Date.now()}&ResultsPerPage=100`,
-        method: 'GET',
-        noCache: true,
-    });
+async function fetchCurrencyTransfers(userId, now = Date.now()) {
+    const cutoff = now - MONTH_PERIOD_MS;
+    const transactions = [];
+    let cursor = '';
 
-    return Array.isArray(response?.subscriptions)
-        ? response.subscriptions[0] || null
-        : null;
-}
+    do {
+        const response = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: `/transaction-records/v1/users/${userId}/transactions?cursor=${encodeURIComponent(cursor)}&limit=100&transactionType=CurrencyTransfer&itemPricingType=PaidAndLimited`,
+            method: 'GET',
+            noCache: true,
+        });
+        const page = Array.isArray(response?.data) ? response.data : [];
+        transactions.push(...page);
 
-async function fetchCurrencyTransfers(userId) {
-    const response = await callRobloxApiJson({
-        subdomain: 'apis',
-        endpoint: `/transaction-records/v1/users/${userId}/transactions?cursor=&limit=100&transactionType=CurrencyTransfer&itemPricingType=PaidAndLimited`,
-        method: 'GET',
-        noCache: true,
-    });
+        const oldestCreatedMs = Date.parse(page[page.length - 1]?.created);
+        if (Number.isFinite(oldestCreatedMs) && oldestCreatedMs < cutoff) break;
+        cursor = response?.nextPageCursor || '';
+    } while (cursor);
 
-    return Array.isArray(response?.data) ? response.data : [];
+    return transactions;
 }
 
 async function fetchRobloxTransferLimits() {
@@ -230,45 +172,37 @@ function calculateDailyStats(transfers, dailyLimit, now = Date.now()) {
     };
 }
 
-function calculateMonthlyStats(transfers, monthlyLimit, subscriptionWindow) {
-    const start = subscriptionWindow?.start;
-    const end = subscriptionWindow?.end;
-    const monthlyTransfers =
-        Number.isFinite(start) && Number.isFinite(end)
-            ? transfers.filter(
-                  (transfer) =>
-                      transfer.createdMs >= start && transfer.createdMs < end,
-              )
-            : [];
+function calculateMonthlyStats(transfers, monthlyLimit, now = Date.now()) {
+    const windowStart = now - MONTH_PERIOD_MS;
+    const monthlyTransfers = transfers.filter(
+        (transfer) => transfer.createdMs > windowStart,
+    );
     const sent = monthlyTransfers.reduce(
         (total, transfer) => total + transfer.amount,
         0,
     );
+    const releases = monthlyTransfers
+        .map((transfer) => ({
+            timestampMs: transfer.createdMs + MONTH_PERIOD_MS,
+            amount: transfer.amount,
+        }))
+        .sort((a, b) => a.timestampMs - b.timestampMs);
 
     return {
         sent,
         remaining: clampRemaining(monthlyLimit, sent),
         limit: monthlyLimit,
-        windowStartTimestampMs: start || null,
-        windowEndTimestampMs: end || null,
+        resetTimestampMs: releases[0]?.timestampMs || null,
+        releases,
+        windowStartTimestampMs: windowStart,
+        windowEndTimestampMs: now,
     };
 }
 
-function buildTransferData(
-    userId,
-    transactions,
-    subscription,
-    limits,
-    now = Date.now(),
-) {
-    const subscriptionWindow = getSubscriptionWindow(subscription, now);
+function buildTransferData(userId, transactions, limits, now = Date.now()) {
     const transfers = buildNetSentTransfers(transactions, userId);
     const daily = calculateDailyStats(transfers, limits.dailyLimit, now);
-    const monthly = calculateMonthlyStats(
-        transfers,
-        limits.monthlyLimit,
-        subscriptionWindow,
-    );
+    const monthly = calculateMonthlyStats(transfers, limits.monthlyLimit, now);
 
     return {
         userId: String(userId),
@@ -280,13 +214,11 @@ function buildTransferData(
         remainingThisMonth: monthly.remaining,
         dailyLimit: limits.dailyLimit,
         monthlyLimit: limits.monthlyLimit,
-        subscription: subscriptionWindow,
         source: {
             transactionCount: Array.isArray(transactions)
                 ? transactions.length
                 : 0,
             transferCount: transfers.length,
-            hasMoreTransactionsThanFetched: transactions.length >= 100,
             fetchedAt: now,
         },
         updatedAt: now,
@@ -320,20 +252,6 @@ export async function updateRobuxTransferData(forceRefresh = false) {
 
     activeUpdatePromise = (async () => {
         try {
-            const shouldRefreshSubscription =
-                forceRefresh ||
-                !cachedData?.subscription ||
-                Date.now() - (cachedData.subscriptionFetchedAt || 0) >
-                    SUBSCRIPTION_CACHE_TTL_MS;
-            const subscription = shouldRefreshSubscription
-                ? await fetchRobloxPlusSubscription().catch((error) => {
-                      console.warn(
-                          'RoValra: Failed to fetch Roblox Plus subscription for transfer tracker',
-                          error,
-                      );
-                      return cachedData?.subscriptionRaw || null;
-                  })
-                : cachedData.subscriptionRaw || null;
             const limits = await fetchRobloxTransferLimits().catch((error) => {
                 console.warn(
                     'RoValra: Failed to fetch Roblox Robux transfer limits',
@@ -355,14 +273,8 @@ export async function updateRobuxTransferData(forceRefresh = false) {
             const transferData = buildTransferData(
                 userId,
                 transactions,
-                subscription,
                 limits,
             );
-
-            transferData.subscriptionRaw = subscription;
-            transferData.subscriptionFetchedAt = shouldRefreshSubscription
-                ? Date.now()
-                : cachedData.subscriptionFetchedAt;
 
             const latestTransferData = await readAllTransferData();
             latestTransferData[userId] = transferData;
@@ -400,10 +312,7 @@ export async function getRobuxTransferRemaining(forceRefresh = false) {
         dailySent: data.sentToday,
         monthlySent: data.sentThisMonth,
         dailyResetTimestampMs: data.daily?.resetTimestampMs || null,
-        monthlyResetTimestampMs:
-            data.monthly?.windowEndTimestampMs ||
-            data.subscription?.end ||
-            null,
+        monthlyResetTimestampMs: data.monthly?.resetTimestampMs || null,
         updatedAt: data.updatedAt,
     };
 }

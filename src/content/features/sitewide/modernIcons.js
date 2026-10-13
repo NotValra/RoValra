@@ -8,28 +8,44 @@ const ICON_TEMPLATES = new Map();
 let modernIconsInitialized = false;
 
 function prepareTemplates() {
-    ICON_TEMPLATES.set('votes', Icon({
-        classes: ['rovalra-modern-icon'],
-        filled: true,
-        size: '18px',
-        icon: 'thumb-up'
-    }));
-    ICON_TEMPLATES.set('playing', Icon({
-        classes: ['rovalra-modern-icon'],
-        filled: true,
-        size: '18px',
-        icon: 'person-play'
-    }));
+    ICON_TEMPLATES.set(
+        'votes',
+        Icon({
+            classes: ['rovalra-modern-icon'],
+            filled: true,
+            size: '18px',
+            icon: 'thumb-up',
+        }),
+    );
+    ICON_TEMPLATES.set(
+        'playing',
+        Icon({
+            classes: ['rovalra-modern-icon'],
+            filled: true,
+            size: '18px',
+            icon: 'person-play',
+        }),
+    );
 
     injectStylesheet('css/modernIcons.css', 'rovalra-modern-icons-styles');
 }
 
+const ICON_SELECTOR =
+    '.icon-votes-gray, .icon-playing-counts-gray, .sdui-icon.icon-rating-16x16, .sdui-icon.icon-current-players-16x16';
+
 function replaceIcon(element) {
     let type = null;
+    const isSdui = element.classList.contains('sdui-icon');
 
-    if (element.classList.contains('icon-votes-gray')) {
+    if (
+        element.classList.contains('icon-votes-gray') ||
+        element.classList.contains('icon-rating-16x16')
+    ) {
         type = 'votes';
-    } else if (element.classList.contains('icon-playing-counts-gray')) {
+    } else if (
+        element.classList.contains('icon-playing-counts-gray') ||
+        element.classList.contains('icon-current-players-16x16')
+    ) {
         type = 'playing';
     }
 
@@ -38,6 +54,10 @@ function replaceIcon(element) {
 
     const replacement = template.cloneNode(true);
     replacement.setAttribute('aria-hidden', 'true');
+    if (isSdui) {
+        replacement.classList.add('rovalra-modern-icon-sdui');
+        replacement.setAttribute('size', '10px');
+    }
     element.replaceWith(replacement);
 }
 
@@ -52,12 +72,8 @@ export function initializeModernIcons() {
 
         prepareTemplates();
 
-        observeElement(
-            '.icon-votes-gray, .icon-playing-counts-gray',
-            replaceIcon,
-            {
-                multiple: true,
-            },
-        );
+        observeElement(ICON_SELECTOR, replaceIcon, {
+            multiple: true,
+        });
     });
 }

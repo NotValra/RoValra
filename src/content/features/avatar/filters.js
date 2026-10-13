@@ -458,7 +458,17 @@ export function init() {
                 btn.classList.toggle('filter-applied', count > 0);
             }
 
+            function isNonItemTabActive() {
+                const activePane = document.querySelector('.tab-pane.active');
+                return !!activePane && (activePane.id === 'scale' || activePane.id === 'bodyColors');
+            }
+
             function ensureUIInActiveTab() {
+                if (isNonItemTabActive()) {
+                    document.getElementById('rovalra-fx-container')?.remove();
+                    return;
+                }
+
                 const activeTab = getActiveAvatarPane();
                 if (!activeTab) return;
 

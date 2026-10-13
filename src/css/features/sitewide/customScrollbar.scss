@@ -1,0 +1,37 @@
+.rovalra-custom-scrollbar {
+    &, * {
+        scrollbar-color: auto !important;
+        scrollbar-width: auto !important;
+    }
+
+    &::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+        width: var(--rovalra-scrollbar-width) !important;
+        height: var(--rovalra-scrollbar-width) !important;
+    }
+
+    &::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-track {
+        background: var(--rovalra-scrollbar-track) !important;
+    }
+
+    &::-webkit-scrollbar-thumb,
+    *::-webkit-scrollbar-thumb {
+        background: var(--rovalra-scrollbar-thumb) !important;
+        border-radius: var(--rovalra-scrollbar-radius) !important;
+    }
+
+}
+
+.rovalra-custom-scrollbar-hidden {
+    &,
+    * {
+        scrollbar-width: none !important;
+    }
+
+    &::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important;
+    }
+}
