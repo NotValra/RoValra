@@ -1,6 +1,7 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
 import { updateGameBookmarks } from './gameBookmarks.js';
+import { setupNotifications } from './notifications.js';
 
 // --- Constants & State ---
 
@@ -2608,3 +2609,4 @@ updateAvatarRotator();
 setupContextMenuListener();
 updateBannedUserListener();
 updatePrivateGameListener();
+setupNotifications(callRobloxApiBackground);
