@@ -224,23 +224,38 @@ async function renderRow() {
         const header = row.querySelector('.rovalra-recently-viewed-header');
         const list = row.querySelector('.rovalra-recently-viewed-list');
 
-        const remove = async (entry) => {
-            items = items.filter(
-                (item) =>
-                    !(item.id === entry.id && item.itemType === entry.itemType),
-            );
-            await saveHistory(userId, items);
-            list.querySelector(entrySelector(entry))?.remove();
-            if (items.length === 0) row.remove();
+        let updateQueue = Promise.resolve();
+        const queueUpdate = (update) => {
+            const result = updateQueue.then(update);
+            updateQueue = result.catch(() => {});
+            return result;
         };
+
+        const remove = (entry) =>
+            queueUpdate(async () => {
+                const result = await chrome.storage.local.get(STORAGE_KEY);
+                const all = result[STORAGE_KEY] || {};
+                items = (all[userId] || []).filter(
+                    (item) =>
+                        !(
+                            item.id === entry.id &&
+                            item.itemType === entry.itemType
+                        ),
+                );
+                all[userId] = items;
+                await chrome.storage.local.set({ [STORAGE_KEY]: all });
+                list.querySelector(entrySelector(entry))?.remove();
+                if (list.children.length === 0) row.remove();
+            });
 
         header.appendChild(
             createButton(ts('recentlyViewed.clear'), 'secondary', {
-                onClick: async () => {
-                    items = [];
-                    await saveHistory(userId, items);
-                    row.remove();
-                },
+                onClick: () =>
+                    queueUpdate(async () => {
+                        items = [];
+                        await saveHistory(userId, items);
+                        row.remove();
+                    }),
             }),
         );
 
