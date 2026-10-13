@@ -501,6 +501,7 @@
         "noPublicGames": "User has no public experiences",
         "overlayText": "Hidden Experiences",
         "noHiddenGames": "This user has no hidden experiences.",
+        "inventoryPrivate": "This user's inventory is private, so their hidden experiences can't be listed. Turn on \"Show All Games\" to see their public ones.",
         "buttonText": "Hidden Experiences",
         "labels": {
             "sort": "Sort",
@@ -509,6 +510,7 @@
         },
         "sort": {
             "default": "Default",
+            "subplaceUpdated": "Recently Updated (Subplaces)",
             "likeRatio": "Like Ratio",
             "likes": "Likes",
             "dislikes": "Dislikes",
@@ -522,6 +524,16 @@
         "noMatches": "No experiences match filters.",
         "loading": "Loading..."
     },
+    "gameSortStat": {
+        "updated": "Updated",
+        "updatedUnknown": "Updated: unknown",
+        "placeUpdated": "Place updated",
+        "likeRatio": "{{ratio}}% of {{total}} votes",
+        "noVotes": "No votes",
+        "likes": "{{count}} likes",
+        "dislikes": "{{count}} dislikes",
+        "players": "{{count}} playing"
+    },
     "hiddenGroupGames": {
         "overlayTitle": "Hidden Group Experiences ({{count}} Total)",
         "noHiddenGames": "This group has no hidden experiences.",
@@ -533,6 +545,7 @@
         },
         "sort": {
             "recentlyUpdated": "Recently Updated",
+            "subplaceUpdated": "Recently Updated (Subplaces)",
             "likeRatio": "Like Ratio",
             "likes": "Likes",
             "dislikes": "Dislikes",

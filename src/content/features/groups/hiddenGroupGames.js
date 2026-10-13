@@ -9,6 +9,8 @@ import { callRobloxApiJson } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
+import { addSortStatToCard } from '../../core/ui/games/sortStat.js';
+import { fetchLatestPlaceUpdates } from '../../core/games/latestPlaceUpdate.js';
 import { getGroupIdFromUrl } from '../../core/idExtractor.js';
 import { settings } from '../../core/settings/getSettings.js';
 
@@ -32,6 +34,7 @@ const sharedStatsCache = {
     players: new Map(),
     updated: new Map(),
     thumbnails: new Map(),
+    latestPlace: new Map(),
 };
 
 const api = {
@@ -129,6 +132,19 @@ const api = {
                     cache.updated.set(item.id, item.updated || 0);
                 });
             }
+
+            const missing = chunk
+                .map((g) => g.id)
+                .filter((id) => !cache.updated.has(id));
+            if (missing.length) {
+                const devData = await callRobloxApiJson({
+                    subdomain: 'develop',
+                    endpoint: `/v1/universes/multiget?${missing.map((id) => `ids=${id}`).join('&')}`,
+                }).catch(() => null);
+                devData?.data?.forEach((u) =>
+                    cache.updated.set(u.id, u.updated),
+                );
+            }
         }
     },
 
@@ -166,6 +182,10 @@ class HiddenGamesManager {
                 {
                     value: 'default',
                     label: await t('hiddenGroupGames.sort.recentlyUpdated'),
+                },
+                {
+                    value: 'subplace-updated',
+                    label: await t('hiddenGroupGames.sort.subplaceUpdated'),
                 },
                 {
                     value: 'like-ratio',
@@ -262,35 +282,20 @@ class HiddenGamesManager {
             '',
             { style: { display: 'flex', flexDirection: 'column' } },
             [
-                el(
-                    'div',
-                    'rovalra-filters-container',
-                    {
-                        style: {
-                            display: 'grid',
-                            gridTemplateColumns:
-                                'repeat(auto-fit, minmax(200px, 1fr))',
-                            gap: '16px 24px',
-                            padding: '16px 24px',
-                            backgroundColor: 'var(--surface-default)',
-                            borderBottom: '1px solid var(--border-default)',
-                        },
-                    },
-                    [
-                        createFilterGroup(
-                            await t('hiddenGroupGames.labels.sort'),
-                            sortDropdown.element,
-                        ),
-                        createFilterGroup(
-                            await t('hiddenGroupGames.labels.order'),
-                            orderDropdown.element,
-                        ),
-                        createFilterGroup(
-                            await t('hiddenGroupGames.labels.showAll'),
-                            showAllToggleWrapper,
-                        ),
-                    ],
-                ),
+                el('div', 'rovalra-filters-container', {}, [
+                    createFilterGroup(
+                        await t('hiddenGroupGames.labels.sort'),
+                        sortDropdown.element,
+                    ),
+                    createFilterGroup(
+                        await t('hiddenGroupGames.labels.order'),
+                        orderDropdown.element,
+                    ),
+                    createFilterGroup(
+                        await t('hiddenGroupGames.labels.showAll'),
+                        showAllToggleWrapper,
+                    ),
+                ]),
                 el('div', 'rovalra-hidden-games-list', {
                     style: {
                         display: 'grid',
@@ -385,9 +390,23 @@ class HiddenGamesManager {
             await api.getGameDetails(source, this.cache);
         }
 
+        if (sort === 'subplace-updated') {
+            await fetchLatestPlaceUpdates(
+                source.map((g) => g.id),
+                this.cache.latestPlace,
+            );
+        }
+
         const orderMultiplier = order === 'desc' ? -1 : 1;
         let processed = [...source];
-        if (sort === 'like-ratio') {
+        if (sort === 'subplace-updated') {
+            processed.sort(
+                (a, b) =>
+                    ((this.cache.latestPlace.get(a.id)?.time || 0) -
+                        (this.cache.latestPlace.get(b.id)?.time || 0)) *
+                    orderMultiplier,
+            );
+        } else if (sort === 'like-ratio') {
             processed.sort(
                 (a, b) =>
                     ((this.cache.likes.get(a.id)?.ratio || 0) -
@@ -460,7 +479,14 @@ class HiddenGamesManager {
 
         const fragment = document.createDocumentFragment();
         gamesToShow.forEach((game) => {
-            fragment.appendChild(createGameCard({ game, stats: this.cache }));
+            fragment.appendChild(
+                addSortStatToCard(
+                    createGameCard({ game, stats: this.cache }),
+                    this.filters.sort,
+                    game.id,
+                    this.cache,
+                ),
+            );
         });
         this.elements.list.appendChild(fragment);
     }
@@ -491,7 +517,12 @@ class HiddenGamesManager {
                 const fragment = document.createDocumentFragment();
                 nextBatch.forEach((game) => {
                     fragment.appendChild(
-                        createGameCard({ game, stats: this.cache }),
+                        addSortStatToCard(
+                            createGameCard({ game, stats: this.cache }),
+                            this.filters.sort,
+                            game.id,
+                            this.cache,
+                        ),
                     );
                 });
                 this.elements.list.appendChild(fragment);
