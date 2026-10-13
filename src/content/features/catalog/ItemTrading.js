@@ -89,13 +89,13 @@ function updateInfo(parent, referenceElement, assetId) {
             const riskData = riskCacheData.risk;
             const color =
                 RISK_COLORS[riskData.level] || 'var(--rovalra-main-text-color)';
-            const riskHtml = `<span style="color:${color};font-weight:bold;">${riskData.level}</span>`;
-            const riskRow = createRow('Risk', riskHtml);
+            const riskHtml = `<span style="color:${color};font-weight:bold;">${ts(riskData.level)}</span>`;
+            const riskRow = createRow(ts('trading.riskLabel'), riskHtml);
 
             const tooltipParts = [];
             if (riskData.reasons && riskData.reasons.length > 0) {
                 tooltipParts.push(
-                    `<span style="font-weight:600; text-decoration: underline;">Reasons:</span>`,
+                    `<span style="font-weight:600; text-decoration: underline;">${ts('trading.reasonsTooltip')}</span>`,
                 );
                 riskData.reasons.forEach((r) => {
                     if (typeof r === 'object') {

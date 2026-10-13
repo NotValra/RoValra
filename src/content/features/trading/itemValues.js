@@ -546,19 +546,19 @@ export function updateItemCard(card, assetId, options = {}) {
             const tooltipParts = [];
             if (data.trend) {
                 const trendValue = getTrendValue(data.trend);
-                tooltipParts.push(`Trend: ${getTrendString(trendValue)}`);
+                tooltipParts.push(ts('trading.trendTooltip', { value: getTrendString(trendValue) }));
             }
             if (data.demand) {
-                tooltipParts.push(`Demand: ${data.demand}`);
+                tooltipParts.push(ts('trading.demandTooltip', { value: data.demand }));
             }
             if (data.acronym) {
-                tooltipParts.push(`Acronym: ${data.acronym}`);
+                tooltipParts.push(ts('trading.acronymTooltip', { value: data.acronym }));
             }
 
             if (featureSettings.tradeRiskEnabled && riskData) {
                 const color = RISK_COLORS[riskData.level] || '#fff';
                 tooltipParts.push(
-                    `Risk: <span style="color:${color};font-weight:bold;">${riskData.level}</span>`,
+                    ts('trading.riskTooltip', { value: <span style="color:${color};font-weight:bold;">${ts(riskData.level)}</span> }),
                 );
 
                 if (
@@ -566,7 +566,7 @@ export function updateItemCard(card, assetId, options = {}) {
                     riskData.metrics.baselineAvg !== undefined
                 ) {
                     tooltipParts.push(
-                        `Stable Price: ${riskData.metrics.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                        ts('trading.stablePriceTooltip', { value: riskData.metrics.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 }) }),
                     );
                 }
                 let bestPrice = data.best_price;
@@ -580,12 +580,12 @@ export function updateItemCard(card, assetId, options = {}) {
 
                 if (bestPrice > 0) {
                     tooltipParts.push(
-                        `Best Price: ${bestPrice.toLocaleString()}`,
+                        ts('trading.bestPriceTooltip', { value: bestPrice.toLocaleString() }),
                     );
                 }
                 if (riskData.reasons && riskData.reasons.length > 0) {
                     tooltipParts.push(
-                        `<span style="font-weight:600; text-decoration: underline;">Reasons:</span>`,
+                        `<span style="font-weight:600; text-decoration: underline;">${ts('trading.reasonsTooltip')}</span>`,
                     );
                     riskData.reasons.forEach((r) => {
                         if (typeof r === 'object') {

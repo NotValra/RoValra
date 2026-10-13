@@ -201,13 +201,27 @@
         "demandLabel": "需求量",
         "trendLabel": "趋势",
         "acronymLabel": "简称",
+        "riskLabel": "风险",
         "bundle": "套装",
         "item": "道具",
         "serial": "序列号",
         "afterTax": "税后",
         "beforeTax": "税前",
         "youGive": "你给出",
-        "youGet": "你获得"
+        "youGet": "你获得",
+        "trendTooltip": "价值：{{value}}",
+        "demandTooltip": "需求量：{{value}}",
+        "acronymTooltip": "简称：{{value}}",
+        "riskTooltip": "风险：{{value}}",
+        "stablePriceTooltip": "稳定价格：{{value}}",
+        "bestPriceTooltip": "最优价格：{{value}}",
+        "riskLevels": {
+            "noRisk": "无风险",
+            "low": "低风险",
+            "medium": "中等风险",
+            "high": "高风险",
+            "insane": "极高风险"
+        }
     },
     "onboarding": {
         "title": "欢迎使用《RoValra》！",

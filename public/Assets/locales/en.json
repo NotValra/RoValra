@@ -203,13 +203,28 @@
         "demandLabel": "Demand",
         "trendLabel": "Trend",
         "acronymLabel": "Acronym",
+        "riskLabel": "Risk",
         "bundle": "bundle",
         "item": "item",
         "serial": "Serial",
         "afterTax": "After Tax",
         "beforeTax": "Before Tax",
         "youGive": "You Give",
-        "youGet": "You Get"
+        "youGet": "You Get",
+        "trendTooltip": "Trend: {{value}}",
+        "demandTooltip": "Demand: {{value}}",
+        "acronymTooltip": "Acronym: {{value}}",
+        "riskTooltip": "Risk: {{value}}",
+        "stablePriceTooltip": "Stable Price: {{value}}",
+        "bestPriceTooltip": "Best Price: {{value}}",
+        "reasonsTooltip": "Reasons:",
+        "riskLevels": {
+            "noRisk": "No Risk",
+            "low": "Low Risk",
+            "medium": "Medium Risk",
+            "high": "High Risk",
+            "insane": "Insane Risk"
+        }
     },
     "onboarding": {
         "title": "Welcome to RoValra!",
