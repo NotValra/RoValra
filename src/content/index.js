@@ -94,6 +94,7 @@ import { init as initBadgeOwnership } from './features/games/badgeOwnership.js';
 import { init as initBadgeEarnedDate } from './features/games/badgeEarnedDate.js';
 import { init as initBadgeSort } from './features/games/badgeSort.js';
 import { init as initGameStatTimestamps } from './features/games/gameStatTimestamps.js';
+import { init as initFreeBadgeQuota } from './features/games/freeBadgeQuota.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
@@ -383,6 +384,7 @@ const featureRoutes = [
             initCatalogExplorer,
             initUnderReviewPill,
             initGameStatTimestamps,
+            initFreeBadgeQuota,
         ],
     },
     // private games and game pages

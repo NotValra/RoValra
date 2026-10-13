@@ -586,6 +586,16 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: [476449201],
             },
+            freeBadgeQuotaEnabled: {
+                label: 'Free Badge Quota',
+                description: [
+                    'Shows how many badges an experience can still create for free today in its stats.',
+                    'Roblox lets each experience create 5 free badges every 24 hours.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
+            },
             gameStatTimestampsEnabled: {
                 label: 'Detailed Created / Updated Dates',
                 description: [
