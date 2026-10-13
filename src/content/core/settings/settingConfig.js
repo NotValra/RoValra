@@ -1169,7 +1169,7 @@ export const SETTINGS_CONFIG = {
             inventorySortEnabled: {
                 label: 'Inventory Sorting',
                 description: [
-                    'Adds a sort menu to inventories so you can sort every item in a category by when it was acquired, name, price or RAP.',
+                    'Adds a sort menu to inventories so you can sort every item in a category by when it was acquired, name, price or RAP, and badges by when they were earned, name or rarity.',
                 ],
                 type: 'checkbox',
                 default: true,
