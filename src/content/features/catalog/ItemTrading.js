@@ -76,11 +76,11 @@ function updateInfo(parent, referenceElement, assetId) {
     }
 
     if (data.trend) {
-        rows.push(createRow('Trend', data.trend));
+        rows.push(createRow(ts('trading.trendLabel'), data.trend));
     }
 
     if (data.acronym) {
-        rows.push(createRow('Acronym', data.acronym));
+        rows.push(createRow(ts('trading.acronymLabel'), data.acronym));
     }
 
     if (featureSettings.tradeRiskEnabled) {

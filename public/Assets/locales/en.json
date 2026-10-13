@@ -201,6 +201,8 @@
         "rap": "RAP",
         "valueLabel": "Value",
         "demandLabel": "Demand",
+        "trendLabel": "Trend",
+        "acronymLabel": "Acronym",
         "bundle": "bundle",
         "item": "item",
         "serial": "Serial",

@@ -199,6 +199,8 @@
         "rap": "近期平均价格 (RAP)",
         "valueLabel": "价值",
         "demandLabel": "需求量",
+        "trendLabel": "趋势",
+        "acronymLabel": "简称",
         "bundle": "套装",
         "item": "道具",
         "serial": "序列号",
