@@ -1749,7 +1749,7 @@ function getContributions() {
                     if (contributions[String(contributor)] === undefined)
                         contributions[String(contributor)] = [];
                     contributions[String(contributor)].push({
-                        feature: settingData.label,
+                        feature: ts(settingData.label),
                         key: settingName,
                     });
                 }
@@ -1757,7 +1757,7 @@ function getContributions() {
                 if (contributions[String(CREATOR_USER_ID)] === undefined)
                     contributions[String(CREATOR_USER_ID)] = [];
                 contributions[String(CREATOR_USER_ID)].push({
-                    feature: settingData.label,
+                    feature: ts(settingData.label),
                     key: settingName,
                 });
             }
