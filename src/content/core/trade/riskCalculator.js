@@ -1,19 +1,19 @@
 import { ts } from '../locale/i18n.js';
 
 export const RISK_LEVELS = {
-    NO_RISK: 'No Risk',
-    LOW: 'Low Risk',
-    MEDIUM: 'Medium Risk',
-    HIGH: 'High Risk',
-    INSANE: 'Insane Risk',
+    NO_RISK: 'trading.riskLevels.noRisk',
+    LOW: 'trading.riskLevels.low',
+    MEDIUM: 'trading.riskLevels.medium',
+    HIGH: 'trading.riskLevels.high',
+    INSANE: 'trading.riskLevels.insane',
 };
 
 export const RISK_COLORS = {
-    'No Risk': '#00b06f',
-    'Low Risk': '#ffdd15',
-    'Medium Risk': '#ff9100',
-    'High Risk': '#d43f3a',
-    'Insane Risk': '#5a0000',
+    'trading.riskLevels.noRisk': '#00b06f',
+    'trading.riskLevels.low': '#ffdd15',
+    'trading.riskLevels.medium': '#ff9100',
+    'trading.riskLevels.high': '#d43f3a',
+    'trading.riskLevels.insane': '#5a0000',
 };
 
 function getRapValueThreshold(value) {
