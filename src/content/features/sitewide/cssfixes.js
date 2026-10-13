@@ -133,6 +133,11 @@ const applyProfileUsernameSpacingFix = (enabled) => {
     (document.head || document.documentElement).appendChild(style);
 };
 
+const applyThemeScrollbarFix = (enabled) => {
+    if (!enabled) return;
+    document.documentElement.classList.add('rovalra-theme-scrollbar');
+};
+
 const applyCartRemoveButtonFix = () => {
     chrome.storage.local.get('FixCartRemoveButton', function (settings) {
         if (!settings.FixCartRemoveButton) return;
@@ -342,6 +347,7 @@ export function init() {
             'cssfixesEnabled',
             'giantInvisibleLink',
             'profileUsernameSpacingFixEnabled',
+            'themeScrollbarFixEnabled',
         ],
         function (data) {
             if (data.cssfixesEnabled === true) {
@@ -354,6 +360,7 @@ export function init() {
                 applyProfileUsernameSpacingFix(
                     data.profileUsernameSpacingFixEnabled,
                 );
+                applyThemeScrollbarFix(data.themeScrollbarFixEnabled);
                 applyGameTitleFix();
                 applyCartRemoveButtonFix();
                 applyProfileGameCardFix();

@@ -2661,6 +2661,14 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    themeScrollbarFixEnabled: {
+                        label: 'Match the scrollbar to your theme',
+                        description:
+                            'Fixes the page scrollbar showing up light on dark theme, or dark on light theme, and makes it blend in with the page.',
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['74884'],
+                    },
                 },
             },
             eastereggslinksEnabled: {
