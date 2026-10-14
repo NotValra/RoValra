@@ -1747,6 +1747,16 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['587159802'],
             },
+            groupFundsPillEnabled: {
+                label: 'Community Funds Pill',
+                description: [
+                    "Shows a community's funds as a pill on its page if your role can see them, even when they aren't public.",
+                    'Clicking it opens the revenue summary.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['74884'],
+            },
         },
     },
     Avatar: {
