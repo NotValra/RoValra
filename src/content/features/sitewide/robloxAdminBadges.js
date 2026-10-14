@@ -13,7 +13,6 @@ import {
     USER_CARD_SELECTORS,
 } from '../../core/profile/userCardElements.js';
 import { settings } from '../../core/settings/getSettings.js';
-import { addTooltip } from '../../core/ui/tooltip.js';
 
 const BADGE_CLASS = 'rovalra-admin-badge';
 const NAME_ROW_CLASS = 'rovalra-admin-name-row';
@@ -95,9 +94,7 @@ async function updateCard(element, context = getUserCardContext(element)) {
     badge.style.maskImage = `url("${getAssets().robloxAdminBadge}")`;
     badge.setAttribute('role', 'img');
     badge.setAttribute('aria-label', label);
-    badge.title = label;
     badge.dataset.userId = id;
-    addTooltip(badge, label, { position: 'top' });
     state.badge = badge;
     badgeOwners.set(badge, { element, displayName });
 
