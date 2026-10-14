@@ -139,6 +139,7 @@ import { init as initBulkLeaveGroups } from './features/groups/bulkLeave.js';
 import { init as initPlaceVisits } from './features/groups/placevisits.js';
 import { init as initGroupCreateDate } from './features/groups/createDate.js';
 import { init as initGroupPendingFunds } from './features/groups/groupPendingFunds.js';
+import { init as initGroupFundsPill } from './features/groups/groupFundsPill.js';
 // Plus
 import { init as initRobloxPlusStats } from './features/plus/stats.js';
 import { init as initRobloxPlusTransferLimits } from './features/plus/transferLimits.js';
@@ -355,6 +356,7 @@ const featureRoutes = [
             initPlaceVisits,
             initGroupCreateDate,
             initGroupPendingFunds,
+            initGroupFundsPill,
             initItemRender,
         ],
     },

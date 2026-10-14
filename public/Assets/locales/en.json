@@ -1955,6 +1955,10 @@
         "label": "{{count}} Place Visits",
         "tooltip": "Total Community Place Visits"
     },
+    "groupFundsPill": {
+        "label": "{{count}} Funds",
+        "tooltip": "Community Funds"
+    },
     "groups": {
         "createdLabel": "Created",
         "joinedLabel": "Joined",
