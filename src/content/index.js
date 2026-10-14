@@ -55,6 +55,7 @@ import { init as initSidebarVerifiedBadge } from './features/sitewide/sidebarVer
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
+import { init as initThemeVariables } from './features/sitewide/themeVariables.js';
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndicator.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
@@ -300,6 +301,7 @@ const featureRoutes = [
             initBackgroundImage,
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
+            initThemeVariables,
             initReceiveRobuxNotificationCenter,
             initGameOutfits,
             initSitewideAppThemesOnProfiles,

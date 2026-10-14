@@ -4,6 +4,7 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
+import { DEFAULT_THEME_VARIABLES } from '../themeVariables.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
 
 function languageLabel(label, language) {
@@ -912,7 +913,6 @@ export const SETTINGS_CONFIG = {
                         donatorTier: 1,
                         donatorReason:
                             'Donator Tier 1 is required to display your app theme on your own profile',
-                        dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },
                 contributors: ['650766686'],
@@ -2133,16 +2133,7 @@ export const SETTINGS_CONFIG = {
                 locked: 'Roblox made their own version of this.',
                 isPermanent: true,
             },
-            FreeRobloxPlusThemesEnabledv3: {
-                label: 'Free Roblox Plus Themes',
-                description: [
-                    'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
-                ],
-                type: 'checkbox',
-                default: true,
-                contributors: ['447170745', '4866259395', '650766686'],
-                dependedBy: ['displayAppThemeOwnProfile'],
-            },
+
             currencyTransferEnabled: {
                 label: 'Send Robux',
                 description: [
@@ -3148,6 +3139,28 @@ export const SETTINGS_CONFIG = {
                         type: 'button',
                         buttonText: 'Edit',
                         event: 'rovalra:openCustomThemeBackground',
+                    },
+                },
+            },
+            CustomThemeVariablesEnabled: {
+                label: 'Custom Theme Colors',
+                description: [
+                    'Lets you use any Roblox theme, like Nebula Drift, and change the color variables Roblox uses for its themes.',
+                    'Picking a Roblox Plus theme applies it for free without requiring Roblox Plus. Any colors you change are layered on top of it, for both dark and light mode.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    customThemeVariables: {
+                        label: 'Roblox Plus Themes',
+                        type: 'themeVariables',
+                        default: DEFAULT_THEME_VARIABLES,
+                    },
+                    customThemeVariableSaved: {
+                        label: 'Saved Themes',
+                        type: 'savedThemeVariables',
+                        default: [],
+                        hidden: true,
                     },
                 },
             },
