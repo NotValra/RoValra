@@ -437,7 +437,7 @@ export const SETTINGS_CONFIG = {
                         description:
                             'Moves experience events from About to their own tab.',
                         type: 'checkbox',
-                        default: true,
+                        default: false,
                         contributors: ['127238'],
                     },
                 },
