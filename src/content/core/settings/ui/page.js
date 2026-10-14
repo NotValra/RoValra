@@ -98,6 +98,8 @@ export async function checkRoValraPage() {
 
     isSettingsPage = true;
 
+    let loadedTabKey = null;
+
     async function loadTabContent(hashKey) {
         if (!hashKey) hashKey = 'info';
 
@@ -167,6 +169,8 @@ export async function checkRoValraPage() {
         );
 
         contentContainer.innerHTML = '';
+        if (loadedTabKey !== lowerHashKey) contentContainer.scrollTop = 0;
+        loadedTabKey = lowerHashKey;
 
         const staticButtonInfo = findStaticSettingsTab(lowerHashKey);
 

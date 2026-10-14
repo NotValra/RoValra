@@ -800,6 +800,36 @@ body.rovalra-settings-page {
         color: #0066cc !important;
     }
 
+    @media (min-width: 769px) {
+        #settings-container {
+            display: flex !important;
+            flex-direction: column;
+            height: calc(100vh - 110px);
+        }
+
+        #rovalra-ui-container {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .rovalra-sidebar {
+            max-height: 100%;
+            overflow-y: auto;
+        }
+
+        #content-container {
+            align-self: stretch;
+            overscroll-behavior: contain;
+        }
+
+        .rovalra-sidebar,
+        #content-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-shift-400, rgba(128, 128, 128, 0.4))
+                transparent;
+        }
+    }
+
     @media (max-width: 1000px) {
         #content-container {
             width: 550px !important;
