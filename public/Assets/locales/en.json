@@ -1957,7 +1957,9 @@
     },
     "groupFundsPill": {
         "label": "{{count}} Funds",
-        "tooltip": "Community Funds"
+        "tooltip": "Community Funds",
+        "privateTooltip": "These funds aren't public. RoValra shows them to you because of your role.",
+        "roleTooltip": "RoValra shows these funds to you because of your role."
     },
     "groups": {
         "createdLabel": "Created",
