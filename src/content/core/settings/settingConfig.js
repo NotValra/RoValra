@@ -390,6 +390,16 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            gameVideoPreviewsEnabled: {
+                label: 'Game Video Previews',
+                description: [
+                    'Hover over a wide game thumbnail to play its video without sound. Games without a video keep their normal thumbnail.',
+                    'Previews stop when you move away and respect your reduced motion preference.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['127238'],
+            },
             wideGameTileStatsEnabled: {
                 label: 'Player Counts on Wide Tiles',
                 description: [

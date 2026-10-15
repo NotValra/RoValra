@@ -1,0 +1,20 @@
+.rovalra-video-preview-positioned {
+    position: relative;
+}
+
+.rovalra-game-video-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: contain;
+    background: #000;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+
+    &.rovalra-game-video-preview-ready {
+        opacity: 1;
+    }
+}

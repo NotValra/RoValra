@@ -53,6 +53,7 @@ import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
 import { init as initSidebarVerifiedBadge } from './features/sitewide/sidebarVerifiedBadge.js';
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
+import { init as initGameVideoPreviews } from './features/sitewide/gameVideoPreviews.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
 import { init as initThemeVariables } from './features/sitewide/themeVariables.js';
@@ -298,6 +299,7 @@ const featureRoutes = [
             initFriendUsernames,
             initSidebarVerifiedBadge,
             initWideTilePlayerCounts,
+            initGameVideoPreviews,
             initBackgroundImage,
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
