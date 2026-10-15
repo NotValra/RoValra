@@ -63,3 +63,97 @@
         font-weight: 500;
     }
 }
+
+.profile-carousel > div:has(> .rovalra-hidden-games-toggle) {
+    position: relative;
+}
+
+.profile-carousel > div > .rovalra-hidden-games-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+}
+
+.rovalra-hidden-games-inline {
+    width: 100%;
+    margin-top: 12px;
+
+    .rovalra-filters-container {
+        gap: 12px;
+        padding: 0 0 12px;
+        background-color: transparent;
+    }
+
+    .rovalra-hidden-games-scroll-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .rovalra-hidden-games-scroll-container {
+        flex-grow: 1;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 24px;
+        scrollbar-width: none;
+        padding: 24px 24px 36px;
+        margin: -12px -24px -24px;
+        pointer-events: none;
+
+        > * {
+            pointer-events: auto;
+        }
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .rovalra-hidden-games-carousel {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 12px;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .rovalra-hidden-game-slot {
+        flex-shrink: 0;
+        width: 150px;
+        scroll-snap-align: start;
+    }
+
+    .rovalra-scroll-btn {
+        position: absolute;
+        z-index: 10;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        color: white;
+        transition: opacity 0.25s ease;
+
+        &.left {
+            left: 5px;
+        }
+
+        &.right {
+            right: 5px;
+        }
+
+        &.rovalra-btn-disabled {
+            opacity: 0.25 !important;
+            cursor: default;
+        }
+    }
+}
