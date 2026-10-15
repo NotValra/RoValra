@@ -504,6 +504,8 @@
         "overlayText": "Ukryte projekty",
         "noHiddenGames": "Ten użytkownik nie ma ukrytych projektów.",
         "buttonText": "Ukryte projekty",
+        "publicExperiences": "Publiczne gry",
+        "hiddenExperiences": "Ukryte gry",
         "labels": {
             "sort": "Sortuj",
             "order": "Kolejność",
@@ -795,7 +797,7 @@
                 "actions": "Przyciski"
             }
         }
-    },    
+    },
     "previousPrice": {
         "offSale": "Wycofany ze sprzedaży",
         "text": "Poprzednia cena:",
