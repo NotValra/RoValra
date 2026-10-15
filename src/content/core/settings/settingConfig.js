@@ -1764,7 +1764,7 @@ export const SETTINGS_CONFIG = {
                     'Clicking it opens the revenue summary.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['74884'],
             },
         },

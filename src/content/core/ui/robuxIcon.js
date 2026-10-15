@@ -130,8 +130,7 @@ function syncStreamerRobuxSetting() {
                 streamerRobuxRevealed,
             );
         });
-    } catch (error) {
-    }
+    } catch (error) {}
 }
 
 function isTransactionsPage() {
@@ -847,6 +846,24 @@ async function attachUsdEstimateToValueElement(element) {
     }
 }
 
+function injectNavbarEstimateStyles() {
+    if (document.getElementById('rovalra-navbar-estimate-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'rovalra-navbar-estimate-styles';
+    style.textContent = `
+        #navbar-robux button:has(.rovalra-usd-estimate),
+        #navbar-robux .nav-robux-icon:has(.rovalra-usd-estimate),
+        #navbar-robux .nav-robux-icon:has(.rovalra-usd-estimate) > .rbx-text-navbar-right {
+            max-width: none !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+        }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+}
+
 function refreshVisibleUsdEstimates() {
     removeStreamerHiddenEstimates();
 
@@ -958,6 +975,8 @@ export function init() {
     }
 
     robuxIconInitialized = true;
+
+    injectNavbarEstimateStyles();
 
     const refreshEvents = ['load', 'pageshow', 'hashchange', 'popstate'];
     refreshEvents.forEach((eventName) => {
