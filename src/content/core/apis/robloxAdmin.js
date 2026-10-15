@@ -1,7 +1,8 @@
 import { callRobloxApiJson } from '../api.js';
 import { get as getCache, set as setCache } from '../storage/cacheHandler.js';
 
-const CACHE_SECTION = 'roblox_admin_badges';
+const ROBLOX_ADMIN_GROUP_ID = 1200769;
+const CACHE_SECTION = 'roblox_admin_group_membership';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const FAILURE_BACKOFF_MS = 30 * 1000;
 const MAX_CONCURRENT_REQUESTS = 4;
@@ -29,24 +30,31 @@ async function fetchAdminStatus(userId) {
         );
         if (typeof cached === 'boolean') return cached;
 
-        const badges = await callRobloxApiJson({
-            subdomain: 'accountinformation',
-            endpoint: `/v1/users/${userId}/roblox-badges`,
+        const groups = await callRobloxApiJson({
+            subdomain: 'groups',
+            endpoint: `/v1/users/${userId}/groups/roles?includeLocked=true`,
             method: 'GET',
             useBackground: true,
         });
         if (
-            !Array.isArray(badges) ||
-            !badges.every(
-                (badge) =>
-                    badge && Number.isSafeInteger(badge.id) && badge.id > 0,
+            !Array.isArray(groups?.data) ||
+            !groups.data.every(
+                (membership) =>
+                    ['string', 'number'].includes(
+                        typeof membership?.group?.id,
+                    ) &&
+                    Number.isSafeInteger(Number(membership?.group?.id)) &&
+                    Number(membership.group.id) > 0,
             )
         ) {
             recordFailure(userId);
             return null;
         }
 
-        const isAdmin = badges.some((badge) => badge.id === 1);
+        const isAdmin = groups.data.some(
+            (membership) =>
+                Number(membership.group.id) === ROBLOX_ADMIN_GROUP_ID,
+        );
         await setCache(CACHE_SECTION, userId, isAdmin, 'session');
         return isAdmin;
     } catch {
