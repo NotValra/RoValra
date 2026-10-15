@@ -1,35 +1,36 @@
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
-import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { t } from '../../core/locale/i18n.js';
+import {
+    addTradeActionButton,
+    getTradePartnerId,
+} from '../../core/trade/ui/tradeActionButton.js';
 
 let observerRequest = null;
-
-function getTradePartnerId(container) {
-    const link = container
-        .closest('.trades-list-detail')
-        ?.querySelector('.paired-name');
-    return link ? getUserIdFromUrl(link.href) : null;
-}
+const sendButtons = new Map();
 
 async function addSendTradeButton(container) {
-    if (container.querySelector('.rovalra-send-trade-button')) return;
+    if (sendButtons.has(container)) return;
 
-    const button = document.createElement('button');
-    button.className = 'btn-control-md rovalra-send-trade-button';
-    button.textContent = await t('sendTrade.send');
+    const actionButton = addTradeActionButton(container, {
+        className: 'rovalra-send-trade-button',
+        onClick: () => {
+            const userId = getTradePartnerId(container);
+            if (!userId) return;
 
-    button.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const userId = getTradePartnerId(container);
-        if (!userId) return;
-
-        window.location.href = `https://www.roblox.com/users/${userId}/trade`;
+            window.location.href = `https://www.roblox.com/users/${userId}/trade`;
+        },
     });
+    sendButtons.set(container, actionButton);
 
-    container.appendChild(button);
+    actionButton.button.hidden = true;
+    actionButton.setLabel(await t('sendTrade.send'));
+    actionButton.button.hidden = false;
+}
+
+function removeSendTradeButton(container) {
+    sendButtons.get(container)?.remove();
+    sendButtons.delete(container);
 }
 
 export async function init() {
@@ -37,15 +38,16 @@ export async function init() {
 
     const path = window.location.pathname;
     if (!path.startsWith('/trades')) {
-        if (observerRequest) {
-            observerRequest.active = false;
-            observerRequest = null;
-        }
+        observerRequest?.disconnect();
+        observerRequest = null;
+        [...sendButtons.keys()].forEach(removeSendTradeButton);
         return;
     }
     if (observerRequest) return;
 
-    observerRequest = observeElement('.trade-buttons', addSendTradeButton, {
-        multiple: true,
-    });
+    observerRequest = observeElement(
+        '.trades-list-detail .trade-buttons',
+        addSendTradeButton,
+        { multiple: true, onRemove: removeSendTradeButton },
+    );
 }
