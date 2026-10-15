@@ -3118,6 +3118,78 @@ export const SETTINGS_CONFIG = {
     WebsiteCustomization: {
         title: 'Website Customization',
         settings: {
+            websiteAnimationsEnabled: {
+                label: 'Website Animations',
+                description: [
+                    'Adds hover, press, focus and panel animations around Roblox.',
+                    'Respects the reduced motion setting on your device.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['127238'],
+                childSettings: {
+                    websiteAnimationsStyle: {
+                        label: 'Animation Style',
+                        description: 'Choose how much movement you prefer.',
+                        type: 'select',
+                        default: 'balanced',
+                        options: [
+                            { label: 'Subtle', value: 'subtle' },
+                            { label: 'Balanced', value: 'balanced' },
+                            { label: 'Lively', value: 'lively' },
+                        ],
+                    },
+                    websiteAnimationsSidebar: {
+                        label: 'Sidebar Animations',
+                        description:
+                            'Animates sidebar links and smoothly opens and closes the sidebar when Expand on Hover is enabled.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    websiteAnimationsCards: {
+                        label: 'Card Animations',
+                        description:
+                            'Reveals new cards in a short sequence, adds carousel edge fades and animates thumbnails, friend avatars, badges, subplace cards and community links.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    websiteAnimationsButtons: {
+                        label: 'Button Animations',
+                        description:
+                            'Animates buttons, profile actions, social links, topbar icons, bookmarks, carousel arrows and popup close icons.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    websiteAnimationsNavigation: {
+                        label: 'Navigation Animations',
+                        description:
+                            'Adds a sliding white indicator to game and profile tabs and animated highlights to navigation links.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    websiteAnimationsMenus: {
+                        label: 'Menu and Popup Animations',
+                        description:
+                            'Animates menus and search results, fades in alerts and smoothly closes RoValra popups.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    websiteAnimationsForms: {
+                        label: 'Input and Selection Animations',
+                        description:
+                            'Adds focus highlights to supported search fields and feedback to switches and selection controls.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    websiteAnimationsPanels: {
+                        label: 'Panel and Dialog Animations',
+                        description:
+                            'Gently reveals panels and dialogs and smoothly expands settings sections and purchase details.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             CustomThemeBackgroundEnabled: {
                 label: 'Customizable Background Image',
                 description:

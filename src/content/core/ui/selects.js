@@ -1,4 +1,5 @@
 import { createShimmerBlock } from './shimmer.js';
+import { cancelPopupClose, closePopupWithMotion } from './motion.js';
 
 const DEFAULT_PANEL_MAX_HEIGHT = 300;
 const VIEWPORT_EDGE_MARGIN = 8;
@@ -289,10 +290,11 @@ export function createDropdownContent(
     const toggleContentVisibility = (forceOpen) => {
         const isOpen =
             forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
-        contentPanel.setAttribute('data-state', isOpen ? 'open' : 'closed');
         triggerElement.setAttribute('aria-expanded', String(isOpen));
 
         if (isOpen) {
+            cancelPopupClose(contentPanel);
+            contentPanel.setAttribute('data-state', 'open');
             document.body.appendChild(contentPanel);
             positionContent();
             window.addEventListener('scroll', positionContent, {
@@ -302,9 +304,10 @@ export function createDropdownContent(
                 passive: true,
             });
         } else {
-            if (contentPanel.parentNode === document.body) {
-                document.body.removeChild(contentPanel);
-            }
+            closePopupWithMotion(contentPanel, 'menus', () => {
+                contentPanel.remove();
+            });
+            contentPanel.setAttribute('data-state', 'closed');
             window.removeEventListener('scroll', positionContent);
             window.removeEventListener('resize', positionContent);
         }

@@ -4,16 +4,19 @@ $roblox-left-nav-breakpoint: 768px;
 
 .left-nav[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'] {
     width: $expanded-sidebar-width;
+
+    // Keep the contents aligned with the sidebar, including while its width changes.
+    > .flex,
+    > .flex > div:first-child {
+        width: 100% !important;
+        min-width: 0;
+        box-sizing: border-box;
+    }
 }
 
 .left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-hover-expanded='true'] {
     width: $expanded-sidebar-width;
     z-index: 10;
-
-    > .flex,
-    > .flex > div:first-child {
-        width: $expanded-sidebar-width !important;
-    }
 }
 
 @media (min-width: $roblox-left-nav-breakpoint) {
@@ -39,11 +42,6 @@ $roblox-left-nav-breakpoint: 768px;
         [data-rovalra-sidebar-hover-expanded='true']
     ) {
     width: $collapsed-sidebar-width;
-
-    > .flex,
-    > .flex > div:first-child {
-        width: $collapsed-sidebar-width !important;
-    }
 
     nav ul {
         align-items: center;

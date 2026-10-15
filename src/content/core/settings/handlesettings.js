@@ -12,6 +12,7 @@ import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 import { showSystemAlert } from '../ui/roblox/alert.js';
+import { setExpandingSectionVisible } from '../ui/expandingSection.js';
 import { ts } from '../locale/i18n.js';
 import { requestTouAgreement } from '../ui/tou/touAgreement.js';
 import {
@@ -1632,18 +1633,26 @@ export function updateConditionalSettingsVisibility(
             element.closest('.child-setting-item') ||
             element.closest('.setting');
         if (wrapper) {
-            wrapper.style.display = settingsToHide.has(settingName)
-                ? 'none'
-                : '';
+            if (wrapper.classList.contains('child-setting-item')) {
+                setExpandingSectionVisible(
+                    wrapper,
+                    !settingsToHide.has(settingName),
+                );
+            } else {
+                wrapper.style.display = settingsToHide.has(settingName)
+                    ? 'none'
+                    : '';
+            }
         }
 
         const separator = settingsContent.querySelector(
             `.child-setting-separator[data-child-setting-name="${settingName}"]`,
         );
         if (separator) {
-            separator.style.display = settingsToHide.has(settingName)
-                ? 'none'
-                : '';
+            setExpandingSectionVisible(
+                separator,
+                !settingsToHide.has(settingName),
+            );
         }
 
         applyDisabledState(
