@@ -83,10 +83,10 @@ export function fetchPresenceBatched(userId) {
 }
 
 const PRESENCE_MAP = {
-    0: { class: 'offline icon-offline', title: ts('common.offline') },
-    1: { class: 'online icon-online', title: ts('common.website') },
-    2: { class: 'game icon-game', title: ts('common.playing') },
-    3: { class: 'studio icon-studio', title: ts('common.studio') },
+    0: { class: 'offline icon-offline', titleKey: 'common.offline' },
+    1: { class: 'online icon-online', titleKey: 'common.website' },
+    2: { class: 'game icon-game', titleKey: 'common.playing' },
+    3: { class: 'studio icon-studio', titleKey: 'common.studio' },
 };
 
 export function updateUserCardPresence(
@@ -97,7 +97,7 @@ export function updateUserCardPresence(
 ) {
     const presence = PRESENCE_MAP[presenceType] || PRESENCE_MAP[0];
     const presenceTitle =
-        presenceType === 2 && gameName ? gameName : presence.title;
+        presenceType === 2 && gameName ? gameName : ts(presence.titleKey);
     const icon = card.querySelector('[data-testid="presence-icon"]');
     if (icon) {
         icon.className = presence.class;
@@ -170,7 +170,7 @@ export function createUserCard({
     const presenceTitle =
         presenceInfo === 2 && gameName
             ? safeHtml`${gameName}`
-            : presence.title;
+            : ts(presence.titleKey);
     const assets = getAssets();
     const nameLabel = `<span class="rovalra-user-card-display-name" style="display: block; flex: 0 1 auto; min-width: 0; width: auto !important; max-width: 100% !important; overflow: hidden !important; text-overflow: ellipsis; white-space: nowrap;">${displayName}</span>`;
     const verifiedBadge = isVerified

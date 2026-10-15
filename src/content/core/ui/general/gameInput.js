@@ -144,7 +144,8 @@ export function createSearchInput({
 
             if (useGroupSearch) {
                 infoContainer.textContent = ts('showcase.members', {
-                    count: formatPlayerCount(game.memberCount),
+                    count: Number(game.memberCount),
+                    replace: { count: formatPlayerCount(game.memberCount) },
                 });
             } else {
                 const playingIcon = document.createElement('span');

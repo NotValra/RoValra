@@ -21,7 +21,7 @@ export const SETTINGS_CONFIG = {
         settings: {
             rovalraLanguage: {
                 label: 'RoValra Language',
-                contributors: [1564574922],
+                contributors: [1564574922, 127238],
                 description: [
                     'Manually configure a language for RoValra. Some translations may be missing.',
                     // it works on the setting page only once it figures out the language from other pages' URLs
@@ -72,11 +72,6 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
-                    {
-                        label: languageLabel('French (Français)', 'fr'),
-                        value: 'fr',
-                    },
-
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
@@ -2172,7 +2167,7 @@ export const SETTINGS_CONFIG = {
                     "Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you aren't subscribed.",
                 type: 'checkbox',
                 default: true,
-                contributors: ['650766686'],
+                contributors: ['650766686', '127238'],
             },
             plusTransferLimitsEnabled: {
                 label: 'Show Plus Transfer Limits',

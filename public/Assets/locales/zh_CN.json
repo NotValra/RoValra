@@ -445,6 +445,14 @@
         "hours": "{{value}} 小时",
         "minutes": "{{value}} 分钟"
     },
+    "mutualFriends": {
+        "pill_one": "{{count}} 位共同好友",
+        "pill_other": "{{count}} 位共同好友",
+        "tooltip": "你与这位用户有哪些共同好友。",
+        "tab": "共同好友",
+        "title": "共同好友 ({{count}})",
+        "empty": "你与这位用户没有共同好友。"
+    },
     "trustedFriends": {
         "pendingConnection": "待处理信赖好友",
         "pendingRequest": "待处理信赖好友请求",
@@ -816,14 +824,6 @@
             "support": "支持 RoValra",
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
-        },
-        "mutualFriends": {
-            "pill_one": "{{count}} 位共同好友",
-            "pill_other": "{{count}} 位共同好友",
-            "tooltip": "你与这位用户有哪些共同好友。",
-            "tab": "共同好友",
-            "title": "共同好友 ({{count}})",
-            "empty": "你与这位用户没有共同好友。"
         },
         "credits": {
             "contributorsTitle": "贡献者",
@@ -2093,7 +2093,7 @@
             "percentOff": "{{percent}} 折扣",
             "itemsBoughtSmall": "使用 Plus 会员折扣购买的道具",
             "privateServersCreatedSmall": "免费创建的私人服务器",
-            "robuxSentSmall": "发送给好友的 friends",
+            "robuxSentSmall": "发送给好友的 Robux",
             "delayNotice": "此处显示的所有数据均延迟 1 天"
         },
         "transferLimits": {

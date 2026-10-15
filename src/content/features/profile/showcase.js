@@ -471,7 +471,8 @@ function renderGroupCard(container, group, canEdit) {
     const members = document.createElement('p');
     members.className = 'text-body rovalra-showcase-maturity';
     members.textContent = ts('showcase.members', {
-        count: Number(group.memberCount || 0).toLocaleString(),
+        count: Number(group.memberCount || 0),
+        replace: { count: Number(group.memberCount || 0).toLocaleString() },
     });
     details.appendChild(members);
     card.append(iconLink, details);
