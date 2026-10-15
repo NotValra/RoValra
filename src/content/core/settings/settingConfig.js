@@ -124,7 +124,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            SaveLotsRobuxEnabled: {
+            SaveLotsRobuxEnabledv1: {
                 label: 'Save 10%-40% Robux on Purchases',
                 description: [
                     'This adds a button allowing you to save 40% on items on the marketplace.',
