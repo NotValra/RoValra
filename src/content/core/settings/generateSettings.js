@@ -28,6 +28,7 @@ import { createUserCard } from '../ui/profile/userCard.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { getBorders } from '../configs/borders.js';
 import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
+import { createThemeVariablesEditor } from '../../features/sitewide/themeVariablesEditor.js';
 import {
     getProfilePronounsLength,
     replacePronounSpecialCharacters,
@@ -181,7 +182,9 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
     icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"></path></svg>`;
     btn.appendChild(icon);
 
-    addTooltip(btn, ts('settings.ui.controls.clearStorage'), { position: 'top' });
+    addTooltip(btn, ts('settings.ui.controls.clearStorage'), {
+        position: 'top',
+    });
 
     btn.onclick = (e) => {
         e.preventDefault();
@@ -361,7 +364,7 @@ function createImageUrlPreview(inputElement, settingName) {
     const title = document.createElement('div');
     title.style.cssText =
         'font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);';
-        title.textContent = ts('settings.ui.controls.preview');
+    title.textContent = ts('settings.ui.controls.preview');
 
     const divider = document.createElement('div');
     divider.className = 'setting-label-divider';
@@ -542,7 +545,10 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                 dropdownOptions.forEach((option) => {
                     const progress = getTranslationProgress(option.value);
                     if (progress !== null) {
-                        option.label = option.label.replace(/ \([\d.]+%\)$/, '');
+                        option.label = option.label.replace(
+                            / \([\d.]+%\)$/,
+                            '',
+                        );
                         option.label += ` (${progress}%)`;
                     }
                 });
@@ -556,7 +562,8 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                     const languageOption = dropdownOptions.find(
                         (item) => item.value === option.value,
                     );
-                    if (languageOption) option.textContent = languageOption.label;
+                    if (languageOption)
+                        option.textContent = languageOption.label;
                 });
             });
         }
@@ -1020,6 +1027,8 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                 <span class="slider"></span>
             </label>`);
         return wrapper;
+    } else if (setting.type === 'themeVariables') {
+        return createThemeVariablesEditor();
     } else if (setting.type === 'button') {
         const button = createButton(
             ts(setting.buttonText) || ts('settings.ui.controls.clickMe'),
@@ -1104,7 +1113,9 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             removeBtn.style.width = '32px';
             removeBtn.style.height = '32px';
             removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>`;
-            addTooltip(removeBtn, ts('settings.ui.controls.remove'), { position: 'top' });
+            addTooltip(removeBtn, ts('settings.ui.controls.remove'), {
+                position: 'top',
+            });
 
             removeBtn.onclick = () => {
                 row.remove();
@@ -1172,7 +1183,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         controlsContainer.appendChild(experimentalPill);
     }
     if (setting.beta) {
-        const betaPill = createPill(ts('settings.ui.controls.beta'), ts(setting.beta), 'beta');
+        const betaPill = createPill(
+            ts('settings.ui.controls.beta'),
+            ts(setting.beta),
+            'beta',
+        );
         controlsContainer.appendChild(betaPill);
     }
     if (setting.deprecated) {
@@ -1291,7 +1306,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const childContainer = document.createElement('div');
             childContainer.className = 'child-setting-item';
             childContainer.id = `setting-${childName}`;
-            if (childSetting.condition && childSetting.condition.hide !== false) {
+            if (
+                childSetting.condition &&
+                childSetting.condition.hide !== false
+            ) {
                 childContainer.style.display = 'none';
             }
 
@@ -1311,7 +1329,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childControls.appendChild(experimentalPill);
             }
             if (childSetting.beta) {
-                const betaPill = createPill(ts('settings.ui.controls.beta'), ts(childSetting.beta), 'beta');
+                const betaPill = createPill(
+                    ts('settings.ui.controls.beta'),
+                    ts(childSetting.beta),
+                    'beta',
+                );
                 childControls.appendChild(betaPill);
             }
             if (childSetting.deprecated) {

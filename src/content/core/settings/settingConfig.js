@@ -4,6 +4,7 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
+import { DEFAULT_THEME_VARIABLES } from '../themeVariables.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
 import { t, ts } from '../locale/i18n.js';
 
@@ -431,6 +432,16 @@ export const SETTINGS_CONFIG = {
                     'settings.experiences.EnableImprovedEvents.desc1',
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    eventsTabEnabled: {
+                        label: 'Separate Events Tab',
+                        description:
+                            'Moves experience events from About to their own tab.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['127238'],
+                    },
+                },
             },
             EnableGameTrailer: {
                 label: 'settings.experiences.EnableGameTrailer.title',
@@ -900,8 +911,7 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                         donatorTier: 1,
-                        donatorReason:
-                            'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.donatorReason',
+                        donatorReason: 'settings.profile.displayAppThemeUserProfile.displayAppThemeOwnProfile.donatorReason',
                         dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },
@@ -1747,6 +1757,16 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['587159802'],
             },
+            groupFundsPillEnabled: {
+                label: 'Community Funds Pill',
+                description: [
+                    "Shows a community's funds as a pill on its page if your role can see them, even when they aren't public.",
+                    'Clicking it opens the revenue summary.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['74884'],
+            },
         },
     },
     Avatar: {
@@ -2113,16 +2133,7 @@ export const SETTINGS_CONFIG = {
                 locked: 'Roblox made their own version of this.',
                 isPermanent: true,
             },
-            FreeRobloxPlusThemesEnabledv3: {
-                label: 'Free Roblox Plus Themes',
-                description: [
-                    'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
-                ],
-                type: 'checkbox',
-                default: true,
-                contributors: ['447170745', '4866259395', '650766686'],
-                dependedBy: ['displayAppThemeOwnProfile'],
-            },
+
             currencyTransferEnabled: {
                 label: 'Send Robux',
                 description: [
@@ -3128,6 +3139,28 @@ export const SETTINGS_CONFIG = {
                         type: 'button',
                         buttonText: 'Edit',
                         event: 'rovalra:openCustomThemeBackground',
+                    },
+                },
+            },
+            CustomThemeVariablesEnabled: {
+                label: 'Custom Theme Colors',
+                description: [
+                    'Lets you use any Roblox theme, like Nebula Drift, and change the color variables Roblox uses for its themes.',
+                    'Picking a Roblox Plus theme applies it for free without requiring Roblox Plus. Any colors you change are layered on top of it, for both dark and light mode.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    customThemeVariables: {
+                        label: 'Roblox Plus Themes',
+                        type: 'themeVariables',
+                        default: DEFAULT_THEME_VARIABLES,
+                    },
+                    customThemeVariableSaved: {
+                        label: 'Saved Themes',
+                        type: 'savedThemeVariables',
+                        default: [],
+                        hidden: true,
                     },
                 },
             },

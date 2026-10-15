@@ -56,7 +56,7 @@ async function requireProfileNotesEnabled() {
     return false;
 }
 
-function downloadJsonFile(fileName, value) {
+export function downloadJsonFile(fileName, value) {
     const blob = new Blob([JSON.stringify(value, null, 2)], {
         type: 'application/json',
     });
