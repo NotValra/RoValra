@@ -2070,6 +2070,12 @@
         "label": "Odwiedziny miejsc: {{count}}",
         "tooltip": "Łączne odwiedziny miejsc społeczności"
     },
+    "groupFundsPill": {
+        "label": "{{count}} środków",
+        "tooltip": "Środki społeczności",
+        "privateTooltip": "Te środki nie są publiczne. RoValra wyświetla je tylko Tobie ze względu na Twoją rolę.",
+        "roleTooltip": "RoValra wyświetla Ci te środki ze względu na Twoją rolę."
+    },
     "groups": {
         "createdLabel": "Utworzono",
         "joinedLabel": "Dołączono",
