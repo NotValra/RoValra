@@ -380,7 +380,7 @@
         "myProfile": "Mój profil",
         "disabled": "Wyłączone",
         "show": "Pokaż",
-        "hide": "Ukryj"
+        "hide": "Ukryj",
         "add": "Dodaj",
         "addButton": "Dodaj przycisk",
         "buttonPlaceholder1": "Nazwa",
@@ -1966,7 +1966,7 @@
     "groups": {
         "createdLabel": "Utworzono",
         "joinedLabel": "Dołączono",
-        "unknown": "Nieznane"
+        "unknown": "Nieznane",
         "hidden": "Ukryte",
         "hiddenTooltip": "Ta społeczność ukrywa listę członków, dlatego daty dołączenia mogą zobaczyć tylko jej członkowie."
     },

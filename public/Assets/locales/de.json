@@ -152,6 +152,7 @@
     "unknownError": "Unbekannter Fehler",
     "errorLoadingTitle": "Fehler beim Laden des Artikels",
     "errorLoadingMessage": "Wir konnten die Informationen zu diesem Artikel nicht abrufen. Details: {{errorMessage}}. Bitte versuche es später erneut."
+  },
   "avatarRotator": {
     "stop": "Rotation stoppen",
     "button": "Avatar-Rotation",
