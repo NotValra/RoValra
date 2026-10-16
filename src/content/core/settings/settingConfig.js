@@ -3547,6 +3547,16 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['10646979010'],
             },
+            debugOverlayEnabled: {
+                label: 'Debug Overlay',
+                description: [
+                    'Shows a debug overlay with performance, loading and graphics information.',
+                    'Press F3 to show or hide it.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
+            },
             alwaysShowAccountStandingTab: {
                 label: ['Always show Account Standing tab'],
                 description: [
