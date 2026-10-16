@@ -1591,6 +1591,7 @@
         "stillScanning": "Still scanning your badges. Hidden badges you own may appear soon.",
         "noneOwnedFound": "No hidden badges that you own were found for this experience.",
         "noneFound": "No hidden badges were found for this experience.",
+        "noPublicBadges": "This experience has no public badges.",
         "failedToLoad": "Failed to load hidden badges.",
         "rolimonsSource": "Hidden badges provided by Rolimon's.",
         "viewOnRolimons": "View game on Rolimon's"

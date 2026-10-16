@@ -20,6 +20,7 @@ const HIDDEN_LIST_CLASS = 'rovalra-hidden-badges-list';
 const EMPTY_MESSAGE_CLASS = 'rovalra-hidden-badges-empty';
 const SHIMMER_ROW_CLASS = 'rovalra-hidden-badge-shimmer';
 const STORAGE_REFRESH_DELAY = 1500;
+const INJECTED_SECTION_ID = 'rovalra-hidden-badges-section';
 
 let initialized = false;
 let storageRefreshTimer = null;
@@ -35,6 +36,7 @@ async function getLocaleText() {
         stillScanning,
         noneOwnedFound,
         noneFound,
+        noPublicBadges,
         failedToLoad,
         rolimonsSource,
         viewOnRolimons,
@@ -50,6 +52,7 @@ async function getLocaleText() {
         t('hiddenBadges.stillScanning'),
         t('hiddenBadges.noneOwnedFound'),
         t('hiddenBadges.noneFound'),
+        t('hiddenBadges.noPublicBadges'),
         t('hiddenBadges.failedToLoad'),
         t('hiddenBadges.rolimonsSource'),
         t('hiddenBadges.viewOnRolimons'),
@@ -69,6 +72,7 @@ async function getLocaleText() {
         stillScanning,
         noneOwnedFound,
         noneFound,
+        noPublicBadges,
         failedToLoad,
         rolimonsSource,
         viewOnRolimons,
@@ -369,6 +373,57 @@ function renderBadgeRows(
     });
 }
 
+async function loadHiddenBadgeData(placeId, localeText) {
+    const cached = hiddenBadgeMemoryCache.get(String(placeId));
+    if (cached) return cached;
+
+    let hiddenBadgeIds = await getDisabledBadgeIds(placeId);
+    const ownedOnly = hiddenBadgeIds === null;
+    let isScanning = false;
+
+    if (ownedOnly) {
+        const owned = await getOwnedHiddenBadgeIds(placeId);
+        if (owned.universeMissing) {
+            return { message: localeText.unableToDetectUniverse, ownedOnly };
+        }
+        hiddenBadgeIds = owned.badgeIds;
+        isScanning = owned.isScanning;
+    }
+
+    if (hiddenBadgeIds.length === 0) {
+        const message = !ownedOnly
+            ? localeText.noneFound
+            : isScanning
+              ? localeText.stillScanning
+              : localeText.noneOwnedFound;
+        const result = { message, ownedOnly };
+        if (!isScanning) hiddenBadgeMemoryCache.set(String(placeId), result);
+        return result;
+    }
+
+    const details = await getBadgeDetailsBatch(hiddenBadgeIds);
+    if (details.length === 0) {
+        const result = {
+            message: ownedOnly
+                ? localeText.noneOwnedFound
+                : localeText.noneFound,
+            ownedOnly,
+        };
+        hiddenBadgeMemoryCache.set(String(placeId), result);
+        return result;
+    }
+
+    const thumbMap = await fetchThumbnails(
+        details.map((badge) => ({ id: badge.id })),
+        'BadgeIcon',
+        '150x150',
+    );
+
+    const result = { details, thumbMap, ownedOnly };
+    hiddenBadgeMemoryCache.set(String(placeId), result);
+    return result;
+}
+
 async function renderHiddenBadges(container, hiddenList) {
     const localeText = await getLocaleText();
 
@@ -379,93 +434,26 @@ async function renderHiddenBadges(container, hiddenList) {
             return;
         }
 
-        const cached = hiddenBadgeMemoryCache.get(String(placeId));
-        if (cached) {
-            if (cached.message) {
-                showHiddenMessage(hiddenList, cached.message);
-            } else {
-                renderBadgeRows(
-                    hiddenList,
-                    cached.details,
-                    cached.thumbMap,
-                    localeText,
-                    cached.ownedOnly,
-                    placeId,
-                );
-            }
-            hiddenList.dataset.rovalraHiddenBadgesLoaded = 'true';
-            return;
-        }
-
         hiddenList.dataset.rovalraHiddenBadgesLoading = 'true';
-        if (!hiddenList.dataset.rovalraHiddenBadgesLoaded) {
+        if (
+            !hiddenList.dataset.rovalraHiddenBadgesLoaded &&
+            !hiddenBadgeMemoryCache.has(String(placeId))
+        ) {
             renderHiddenBadgeShimmer(hiddenList);
         }
 
-        let hiddenBadgeIds = await getDisabledBadgeIds(placeId);
-        const ownedOnly = hiddenBadgeIds === null;
-        let isScanning = false;
-
-        if (ownedOnly) {
-            const owned = await getOwnedHiddenBadgeIds(placeId);
-            if (owned.universeMissing) {
-                showHiddenMessage(
-                    hiddenList,
-                    localeText.unableToDetectUniverse,
-                );
-                return;
-            }
-            hiddenBadgeIds = owned.badgeIds;
-            isScanning = owned.isScanning;
-        }
-
-        if (hiddenBadgeIds.length === 0) {
-            const message = !ownedOnly
-                ? localeText.noneFound
-                : isScanning
-                  ? localeText.stillScanning
-                  : localeText.noneOwnedFound;
-            showHiddenMessage(hiddenList, message);
-            if (!isScanning) {
-                hiddenBadgeMemoryCache.set(String(placeId), {
-                    message,
-                    ownedOnly,
-                });
-            }
-            hiddenList.dataset.rovalraHiddenBadgesLoaded = 'true';
-            delete hiddenList.dataset.rovalraHiddenBadgesLoading;
-            return;
-        }
-
-        const details = await getBadgeDetailsBatch(hiddenBadgeIds);
-        const thumbMap = await fetchThumbnails(
-            details.map((badge) => ({ id: badge.id })),
-            'BadgeIcon',
-            '150x150',
-        );
-
-        hiddenBadgeMemoryCache.set(String(placeId), {
-            details,
-            thumbMap,
-            ownedOnly,
-        });
+        const data = await loadHiddenBadgeData(placeId, localeText);
         hiddenList.dataset.rovalraHiddenBadgesLoaded = 'true';
-        if (details.length === 0) {
-            const message = ownedOnly
-                ? localeText.noneOwnedFound
-                : localeText.noneFound;
-            hiddenBadgeMemoryCache.set(String(placeId), {
-                message,
-                ownedOnly,
-            });
-            showHiddenMessage(hiddenList, message);
+
+        if (data.message) {
+            showHiddenMessage(hiddenList, data.message);
         } else {
             renderBadgeRows(
                 hiddenList,
-                details,
-                thumbMap,
+                data.details,
+                data.thumbMap,
                 localeText,
-                ownedOnly,
+                data.ownedOnly,
                 placeId,
             );
         }
@@ -480,6 +468,10 @@ async function renderHiddenBadges(container, hiddenList) {
 async function setupBadgeTabs(container) {
     if (container.dataset.rovalraHiddenBadgesAdded) return;
 
+    if (container.id !== INJECTED_SECTION_ID) {
+        document.getElementById(INJECTED_SECTION_ID)?.remove();
+    }
+
     const header = container.querySelector('.container-header');
     const heading = header?.querySelector('h3');
     const nativeList = container.querySelector('.stack-list');
@@ -491,6 +483,19 @@ async function setupBadgeTabs(container) {
     hiddenList.className = `stack-list ${HIDDEN_LIST_CLASS}`;
     nativeList.after(hiddenList);
 
+    const showHiddenByDefault = container.id === INJECTED_SECTION_ID;
+    const updateView = (showHidden) => {
+        container.classList.toggle('rovalra-show-hidden-badges', showHidden);
+
+        if (
+            showHidden &&
+            !hiddenList.dataset.rovalraHiddenBadgesLoaded &&
+            !hiddenList.dataset.rovalraHiddenBadgesLoading
+        ) {
+            renderHiddenBadges(container, hiddenList);
+        }
+    };
+
     const localeText = await getLocaleText();
     const toggle = createPillToggle({
         options: [
@@ -500,26 +505,71 @@ async function setupBadgeTabs(container) {
                 value: 'hidden',
             },
         ],
-        initialValue: 'badges',
-        onChange: (value) => {
-            const showHidden = value === 'hidden';
-            container.classList.toggle(
-                'rovalra-show-hidden-badges',
-                showHidden,
-            );
-
-            if (
-                showHidden &&
-                !hiddenList.dataset.rovalraHiddenBadgesLoaded &&
-                !hiddenList.dataset.rovalraHiddenBadgesLoading
-            ) {
-                renderHiddenBadges(container, hiddenList);
-            }
-        },
+        initialValue: showHiddenByDefault ? 'hidden' : 'badges',
+        onChange: (value) => updateView(value === 'hidden'),
     });
 
     header.prepend(toggle);
     heading.remove();
+    if (showHiddenByDefault) updateView(true);
+}
+
+async function injectBadgeSection(aboutContainer) {
+    if (aboutContainer.dataset.rovalraHiddenBadgesChecked) return;
+    aboutContainer.dataset.rovalraHiddenBadgesChecked = 'true';
+
+    if (document.querySelector('.game-badges-list')) return;
+
+    const placeId = getPlaceIdFromUrl();
+    if (!placeId) return;
+
+    try {
+        const localeText = await getLocaleText();
+        const data = await loadHiddenBadgeData(placeId, localeText);
+        if (!data.details?.length) return;
+        if (
+            !aboutContainer.isConnected ||
+            document.querySelector('.game-badges-list')
+        ) {
+            return;
+        }
+
+        const section = document.createElement('div');
+        section.className = 'stack badge-container game-badges-list';
+        section.id = INJECTED_SECTION_ID;
+
+        const header = document.createElement('div');
+        header.className = 'container-header';
+        const heading = document.createElement('h3');
+        heading.textContent = localeText.tabs.badges;
+        header.appendChild(heading);
+
+        const nativeList = document.createElement('ul');
+        nativeList.className = 'stack-list';
+
+        const noPublicMessage = document.createElement('p');
+        noPublicMessage.className = `${EMPTY_MESSAGE_CLASS} rovalra-no-public-badges`;
+        noPublicMessage.textContent = localeText.noPublicBadges;
+
+        section.append(header, noPublicMessage, nativeList);
+
+        const recommendations = aboutContainer.querySelector(
+            ':scope > .container-list.games-detail',
+        );
+        const anchor =
+            aboutContainer
+                .querySelector(':scope > .section .game-social-links')
+                ?.closest('.section') ||
+            aboutContainer.querySelector(
+                ':scope > .game-description-container',
+            );
+
+        if (recommendations) recommendations.before(section);
+        else if (anchor) anchor.after(section);
+        else aboutContainer.appendChild(section);
+    } catch (error) {
+        console.warn('RoValra: Failed to inject hidden badge section', error);
+    }
 }
 
 export async function init() {
@@ -528,6 +578,9 @@ export async function init() {
     initialized = true;
 
     observeElement('.game-badges-list', setupBadgeTabs, {
+        multiple: true,
+    });
+    observeElement('.game-about-tab-container', injectBadgeSection, {
         multiple: true,
     });
 
