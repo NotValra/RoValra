@@ -45,6 +45,7 @@ import { init as initLoginBanner } from './features/scamprevention/loginBanner.j
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js';
+import { init as initPublicGameDiscovery } from './features/search/publicGameDiscovery.js';
 import { init as initCustomRobloxBanner } from './features/sitewide/customRobloxBanner.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
@@ -229,6 +230,7 @@ import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRo
 
 let pageLoaded = false;
 let lastPath = window.location.pathname.toLowerCase();
+let lastSearch = window.location.search;
 const initializedPersistentFeatures = new Set();
 
 const featureRoutes = [
@@ -309,6 +311,11 @@ const featureRoutes = [
             initCustomScrollbar,
             initRoValraIncidentTracker,
         ],
+    },
+    // Experience search
+    {
+        paths: ['/discover'],
+        features: [initPublicGameDiscovery],
     },
     // pretty much just the 40% method
     {
@@ -822,6 +829,11 @@ async function initializePage() {
 
 async function handleUrlChange() {
     const currentPath = window.location.pathname.toLowerCase();
+    const currentSearch = window.location.search;
+
+    if (currentPath === lastPath && currentSearch === lastSearch) return;
+
+    lastSearch = currentSearch;
 
     if (currentPath !== lastPath) {
         console.log(
@@ -831,8 +843,9 @@ async function handleUrlChange() {
         lastPath = currentPath;
 
         runFeaturesForPage();
-        window.dispatchEvent(new CustomEvent('rovalra:urlChanged'));
     }
+
+    window.dispatchEvent(new CustomEvent('rovalra:urlChanged'));
 }
 
 function setupUrlChangeListeners() {
@@ -854,11 +867,7 @@ function setupUrlChangeListeners() {
     window.addEventListener('popstate', handleUrlChange);
     window.addEventListener('hashchange', normalizeGamePageHash);
 
-    setInterval(() => {
-        if (window.location.pathname.toLowerCase() !== lastPath) {
-            handleUrlChange();
-        }
-    }, 500);
+    setInterval(handleUrlChange, 500);
 
     normalizeGamePageHash();
 }
