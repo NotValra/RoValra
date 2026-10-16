@@ -200,7 +200,57 @@ const applyProfileGameCardFix = () => {
         );
     });
 };
+const applyProfileCreationsGameCardFix = () => {
+    if (!window.location.href.includes('profile')) return;
 
+    const css = `
+        .profile-experiences .css-1jynqc0-carouselContainer,
+        .profile-experiences .css-1i465w8-carousel {
+            height: 250px !important;
+            overflow: visible !important;
+        }
+    `;
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    import('../../core/ui/games/gameCard.js').then(({ createGameCard }) => {
+        observeElement(
+            '.profile-experiences .game-card-container',
+            (originalCard) => {
+                if (originalCard.dataset.fixed) return;
+                originalCard.dataset.fixed = 'true';
+
+                try {
+                    const link = originalCard.querySelector('.game-card-link');
+                    if (!link) return;
+
+                    const universeId = link.id || link.dataset.universeId;
+                    const placeId = getPlaceIdFromUrl(link.href);
+
+                    if (!universeId && !placeId) return;
+
+                    const newCard = universeId
+                        ? createGameCard({ gameId: universeId })
+                        : createGameCard({ placeId: placeId });
+
+                    const next = originalCard.nextElementSibling;
+                    if (next?.classList.contains('rovalra-game-card')) {
+                        next.remove();
+                    }
+                    originalCard.style.display = 'none';
+                    originalCard.after(newCard);
+                } catch (e) {
+                    console.warn(
+                        'RoValra: Failed to replace profile game card',
+                        e,
+                    );
+                }
+            },
+            { multiple: true },
+        );
+    });
+};
 // Cuz RoSeal is broken and im the only one having this issue i have to fix it myself 🙄
 const applyFriendsCarouselPaddingFix = async () => {
     const userId = await getAuthenticatedUserId();
@@ -364,6 +414,7 @@ export function init() {
                 applyGameTitleFix();
                 applyCartRemoveButtonFix();
                 applyProfileGameCardFix();
+                applyProfileCreationsGameCardFix();
                 applyFriendsCarouselPaddingFix();
                 applyNavbarSearchWidthFix();
                 applyNotificationBellMarginFix();

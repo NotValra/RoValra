@@ -519,6 +519,8 @@
         "overlayText": "Hidden Experiences",
         "noHiddenGames": "This user has no hidden experiences.",
         "buttonText": "Hidden Experiences",
+        "publicExperiences": "Public Experiences",
+        "hiddenExperiences": "Hidden Experiences",
         "labels": {
             "sort": "Sort",
             "order": "Order",
