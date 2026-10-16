@@ -412,7 +412,7 @@ function attachCollapseButton(leftNav) {
                 : 'top',
         showArrow: false,
     });
-    leftNav.appendChild(button);
+    (leftNav.querySelector('nav')?.parentElement ?? leftNav).prepend(button);
 
     syncSidebarLayout(leftNav, state);
 }

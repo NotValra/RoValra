@@ -123,10 +123,38 @@ $roblox-left-nav-breakpoint: 768px;
     display: none;
 }
 
+.left-nav[data-rovalra-sidebar-layout-active='true'] > .flex > div:first-child {
+    position: relative;
+    min-height: 100%;
+}
+
+.left-nav[data-rovalra-sidebar-layout-active='true'] nav li:first-child > a {
+    padding-right: 52px;
+}
+
+.left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true']:not(
+        [data-rovalra-sidebar-hover-expanded='true']
+    ) {
+    > .flex > div:first-child {
+        padding-top: 64px;
+    }
+
+    .rovalra-sidebar-collapse-button {
+        right: auto;
+        left: 16px;
+    }
+}
+
+.left-nav[data-rovalra-sidebar-collapsed='true']
+    .rovalra-sidebar-collapse-icon
+    svg {
+    transform: scaleX(-1);
+}
+
 .left-nav .rovalra-sidebar-collapse-button {
     position: absolute;
-    left: 10px;
-    bottom: 12px;
+    top: 12px;
+    right: 12px;
     z-index: 2;
     flex: 0 0 40px !important;
     width: 40px !important;
