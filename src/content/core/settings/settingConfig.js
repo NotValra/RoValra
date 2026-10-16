@@ -558,7 +558,8 @@ export const SETTINGS_CONFIG = {
                 label: 'Hidden Badges',
                 description: [
                     'Adds a Hidden Badges tab to experience pages.',
-                    'This only shows hidden badges of a game that you obtained.',
+                    'This will show all badges normally hidden on the games page.',
+                    "Hidden badges information powered by [Rolimon's](https://www.rolimons.com/)",
                 ],
                 type: 'checkbox',
                 default: true,
