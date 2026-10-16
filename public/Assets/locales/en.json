@@ -1695,7 +1695,13 @@
             "previewGui": "Preview GUI",
             "togglePreviewVisibility": "Toggle visibility in preview",
             "noMatchingInstances": "No matching instances found",
-            "loadError": "Failed to load."
+            "loadError": "Failed to load.",
+            "previewMesh": "Preview Mesh",
+            "previewImage": "Preview Image",
+            "loadingImage": "Loading image...",
+            "imageLoadError": "Failed to load image.",
+            "loadingMesh": "Loading mesh...",
+            "meshLoadError": "Failed to load mesh."
         }
     },
     "priceFloor": {
