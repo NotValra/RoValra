@@ -95,3 +95,40 @@
 .rovalra-hidden-badges-rolimons-link {
     font-weight: 600;
 }
+
+.rovalra-hidden-badge-row {
+    position: relative;
+}
+
+.rovalra-hidden-badge-rolimons-link {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    display: flex;
+    line-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+
+    .rovalra-hidden-badge-row:hover > &,
+    &:focus-visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    img {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.game-badges-list .rovalra-hidden-badge-row.rovalra-badge-not-owned {
+    opacity: 1;
+    filter: none;
+
+    > :not(.rovalra-hidden-badge-rolimons-link) {
+        opacity: 0.45;
+        filter: grayscale(0.85) brightness(0.72);
+    }
+}

@@ -1594,7 +1594,8 @@
         "noPublicBadges": "This experience has no public badges.",
         "failedToLoad": "Failed to load hidden badges.",
         "rolimonsSource": "Hidden badges provided by Rolimon's.",
-        "viewOnRolimons": "View game on Rolimon's"
+        "viewOnRolimons": "View game on Rolimon's",
+        "openBadgeOnRolimons": "Open badge on Rolimon's"
     },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",

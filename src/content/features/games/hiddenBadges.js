@@ -12,6 +12,7 @@ import {
 } from '../../core/storage/cacheHandler.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
 
 const BADGES_STORAGE_KEY = 'rovalra_badges_v1';
 const DETAILS_CACHE_SECTION = 'badge_details';
@@ -40,6 +41,7 @@ async function getLocaleText() {
         failedToLoad,
         rolimonsSource,
         viewOnRolimons,
+        openBadgeOnRolimons,
         rarity,
         wonYesterday,
         wonEver,
@@ -56,6 +58,7 @@ async function getLocaleText() {
         t('hiddenBadges.failedToLoad'),
         t('hiddenBadges.rolimonsSource'),
         t('hiddenBadges.viewOnRolimons'),
+        t('hiddenBadges.openBadgeOnRolimons'),
         t('privateGames.badges.rarity'),
         t('privateGames.badges.wonYesterday'),
         t('privateGames.badges.wonEver'),
@@ -76,6 +79,7 @@ async function getLocaleText() {
         failedToLoad,
         rolimonsSource,
         viewOnRolimons,
+        openBadgeOnRolimons,
         stats: {
             rarity,
             wonYesterday,
@@ -330,6 +334,25 @@ function renderBadgeRows(
 
         thumbnail.appendChild(image);
         link.appendChild(thumbnail);
+
+        const rolimonsLink = document.createElement('a');
+        rolimonsLink.className = 'rovalra-hidden-badge-rolimons-link';
+        rolimonsLink.href = `https://www.rolimons.com/gamebadge/${badge.id}`;
+        rolimonsLink.target = '_blank';
+        rolimonsLink.rel = 'noopener noreferrer';
+        rolimonsLink.setAttribute(
+            'aria-label',
+            localeText.openBadgeOnRolimons,
+        );
+
+        const rolimonsIcon = document.createElement('img');
+        rolimonsIcon.src = getAssets().rolimonsIcon;
+        rolimonsIcon.alt = '';
+        rolimonsLink.appendChild(rolimonsIcon);
+        addTooltip(rolimonsLink, localeText.openBadgeOnRolimons, {
+            position: 'top',
+        });
+
         imageWrap.appendChild(link);
 
         const content = document.createElement('div');
@@ -368,7 +391,7 @@ function renderBadgeRows(
         });
 
         content.append(dataContainer, statsList);
-        row.append(imageWrap, content);
+        row.append(imageWrap, content, rolimonsLink);
         list.appendChild(row);
     });
 }
