@@ -1,0 +1,2452 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "共有",
+        "serverCopied": "コピーしました！",
+        "recentServerTitle": "サーバー",
+        "decalOptions": "画像オプション"
+    },
+    "common": {
+        "select": "選択...",
+        "search": "検索",
+        "rovalraSettings": "RoValra 設定",
+        "filterItems": "アイテムをフィルター",
+        "applyFilter": "フィルターを適用",
+        "uploadFile": "ファイルをアップロード",
+        "change": "変更",
+        "invalidFileFormat": "無効なファイル形式です。",
+        "invalidImageFile": "無効なファイル形式です。有効な画像をアップロードしてください。",
+        "fileProcessingFailed": "ファイルの処理に失敗しました。別のファイルをお試しください。",
+        "errorProcessingFile": "ファイルの処理中にエラーが発生しました。別のファイルをお試しください。",
+        "less": "少ない",
+        "more": "多い",
+        "pastYear": "過去1年",
+        "past6Months": "過去6か月",
+        "past3Months": "過去3か月",
+        "pastMonth": "過去1か月",
+        "pastWeek": "過去1週間",
+        "unnamedProduct": "名前のない商品",
+        "offSale": "販売停止中",
+        "robloxExperience": "Roblox エクスペリエンス",
+        "subplace": "サブプレイス",
+        "subplaceUpper": "サブプレイス",
+        "offline": "オフライン",
+        "website": "ウェブサイト",
+        "playing": "プレイ中",
+        "playingGame": "{{gameName}} をプレイ中",
+        "studio": "スタジオ",
+        "share": "共有",
+        "copied": "コピーしました！",
+        "free": "無料",
+        "unknown": "不明",
+        "somethingWentWrong": "問題が発生しました",
+        "robloxPlusSubscriber": "Roblox Plus 加入者",
+        "joinServerFull": "参加（サーバー満員）",
+        "id": "ID: ",
+        "profile": "プロフィール",
+        "error": "エラー",
+        "rovalraDeveloper": "RoValra 開発者",
+        "close": "閉じる",
+        "confirmAction": "操作の確認",
+        "areYouSure": "続行してもよろしいですか？",
+        "confirm": "確認",
+        "cancel": "キャンセル"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "お近くのギルバート",
+        "title": "RoValra リージョンセレクター",
+        "automatic": "自動",
+        "servers": "サーバー: ",
+        "datacenters": "データセンター: ",
+        "filterByRegion": "リージョンでサーバーをフィルター",
+        "filterByRegionItem": "{{region}} でフィルター（サーバー {{count}} 件）",
+        "filterByUptime": "稼働時間でサーバーをフィルター（新しい順/古い順）",
+        "filterByVersion": "ゲームバージョンでサーバーをフィルター"
+    },
+    "guidelines": {
+        "title": "RoValra ガイドライン",
+        "message": "RoValra を使用することで、利用規約に従うことに同意したものとみなされます。これらのルールに従わない場合、ステータスバブルや代名詞を含む特定の機能へのアクセスが停止される場合があります。<br><br><b>重要なポイント：</b><br>• ユーザーをプラットフォーム外に誘導することはできません。<br>• 不適切な行為は一切できません。<br>• Roblox 利用規約に違反してはいけません。<br><br>詳細は <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a> をご覧ください。",
+        "confirm": "理解しました"
+    },
+    "review": {
+        "requestMessage": "RoValra をお役立ていただけているようです！\n レビューを書いていただけませんか？\n レビューは、RoValra を有料化せず、すべての人が無料で使い続けられるようにする助けになります。",
+        "leaveReview": "レビューを書く",
+        "notNow": "今はしない",
+        "doNotShowAgain": "今後表示しない",
+        "rateTitle": "RoValra を評価",
+        "donationMessage": "リージョンセレクターのような機能の運用は無料ではなく、RoValra はその費用をまかなうために完全に寄付に頼っています。\n\n寄付はサーバーの稼働を維持し、このような機能をすべての人が無料で使い続けられるようにするために役立ちます。",
+        "donate": "寄付する",
+        "donationTitle": "RoValra を応援しませんか？"
+    },
+    "heatmap": {
+        "updatesBetween": "{{date}} の {{start}} - {{end}} の間の更新",
+        "updatesOn": "{{date}} の更新",
+        "trackingSince": "更新履歴の追跡は 2026年2月15日 から開始されています"
+    },
+    "profileFeatures": {
+        "title": "RoValra の機能"
+    },
+    "serverFilters": {
+        "newest": "新しいサーバー",
+        "oldest": "古いサーバー",
+        "uptime": "サーバー稼働時間",
+        "version": "バージョン",
+        "enterVersion": "バージョンを入力",
+        "region": "リージョン",
+        "versionPlaceholder": "バージョン"
+    },
+    "serverInfo": {
+        "loading": "読み込み中...",
+        "versionUnknown": "バージョン不明",
+        "version": "バージョン {{version}}",
+        "versionLabel": "バージョン",
+        "regionTooltip": "サーバーリージョン: {{region}}",
+        "performanceTooltip": "サーバーパフォーマンス",
+        "latest": "（最新）",
+        "oldest": "（最古）",
+        "serverFull": "サーバーは満員です",
+        "privateServer": "プライベートサーバーでプレイ中",
+        "purchaseGame": "リージョンを表示するにはゲームを購入してください。",
+        "currentVersionTooltip": "現在公開されているバージョンです。"
+    },
+    "serverStats": {
+        "totalServers": "サーバー総数",
+        "totalServersTooltip": "このエクスペリエンスで RoValra が追跡しているサーバーの総数",
+        "oldest": "最古",
+        "oldestTooltip": "サーバーが現在実行している最も古いバージョンです。"
+    },
+    "preferredRegion": {
+        "criticalError": "Roblox の Join API が応答していません。しばらくお待ちいただく必要があるかもしれません。\nこれは通常、ネットワークの問題または Roblox サーバーの問題が原因です。問題が続く場合は、[優先リージョン](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search)を無効にするか、ブラウザのキャッシュを消去してみてください。\nそれでも問題が続く場合は、RoValra の Discord サーバーでご報告ください。\n\n---\n**エラーの詳細:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Roblox が gamejoin API から移行しようとしている可能性があります。これは RoValra ではどうにもできず、しばらくの間リージョンセレクターに影響します。できるだけ早く修正に取り組んでいます。\n\n---\n**エラーの詳細:**\n{{detailMsg}}",
+        "detectingLocation": "現在地を検出中...",
+        "closestRegion": "最寄りのリージョン",
+        "inactiveRegion": "{{region}} は Roblox のサーバー拠点としては使用されなくなりました。",
+        "scanningLocally": "{{region}} をローカルでスキャン中...",
+        "regionApiUnavailable": "リージョン API が利用できません。{{region}} をスキャン中...",
+        "findingLowestLatency": "最も低レイテンシのサーバーを検索中...",
+        "searchingInRegion": "{{region}} を検索中...",
+        "fallbackInactive": "API 経由の次善のサーバーは非アクティブです。{{region}} をローカルでスキャン中...",
+        "noServersApi": "API では {{region}} のサーバーが見つかりませんでした。ローカルでスキャン中...",
+        "loadBalancing": "{{region}} は負荷分散に使用されており、高負荷時にのみ稼働している可能性があります。スキャン中...",
+        "foundJoining": "{{region}} が見つかりました！参加中...",
+        "foundContinuing": "見つかりました: {{region}}。{{targetRegion}} の検索を続行中...",
+        "foundVerifying": "{{region}} が見つかりました！確認中...",
+        "verifyingStatus": "サーバーの状態を確認中...",
+        "searchingClosest": "{{region}} に最も近いリージョンを検索中...",
+        "noServersRunning": "{{region}} のサーバーは稼働していません。",
+        "joinRegion": "{{region}} に参加",
+        "couldNotFindServers": "サーバーが見つかりませんでした。"
+    },
+    "purchaseModal": {
+        "title": "アイテムを購入",
+        "buy": "購入",
+        "savingWithPlus": "Plus で <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> お得",
+        "subtotal": "小計",
+        "plusBenefit": "Plus 特典（{{percent}}% オフ）",
+        "total": "合計",
+        "insufficientRobux": "Robux が不足しています",
+        "purchasing": "購入中...",
+        "purchaseComplete": "購入完了",
+        "successMessage": "<b>{{itemName}}</b> を購入しました",
+        "ok": "OK",
+        "purchaseError": "購入エラー",
+        "purchaseFailed": "購入に失敗しました",
+        "unknownError": "不明なエラー",
+        "errorLoadingTitle": "アイテムの読み込みエラー",
+        "errorLoadingMessage": "このアイテムの情報を取得できませんでした。詳細: {{errorMessage}}。後でもう一度お試しください。"
+    },
+    "avatarRotator": {
+        "stop": "ローテーターを停止",
+        "button": "アバターローテーター",
+        "selectMinimum": "アバターを2つ以上選択してください",
+        "setRotators": "ローテーターに設定（{{count}}）",
+        "selectedStatus": "切り替えるアバターを選択してください。（{{count}} 件選択中）",
+        "loading": "読み込み中...",
+        "loadMore": "さらに読み込む",
+        "interval": "間隔（秒）",
+        "loadingDetails": "アウトフィットの詳細を読み込み中...",
+        "active": "ローテーター作動中！",
+        "disable": "無効にする",
+        "clearSelection": "選択をクリア",
+        "title": "アバターローテーター"
+    },
+    "avatarFilters": {
+        "filterItems": "アイテムをフィルター",
+        "filtering": "フィルター中...",
+        "loading": "読み込み中...",
+        "creatorName": "クリエイター名",
+        "minPrice": "最低価格",
+        "maxPrice": "最高価格",
+        "availability": "販売状況",
+        "showAll": "すべて表示",
+        "onsaleOnly": "販売中のみ",
+        "offsaleOnly": "販売停止中のみ",
+        "effects": "エフェクト",
+        "limiteds": "リミテッド"
+    },
+    "trading": {
+        "searchInventory": "インベントリを検索",
+        "continueSearch": "検索を続行",
+        "filterTrades": "トレードをフィルター",
+        "noResults": "結果が見つかりません",
+        "copyProof": "証拠をコピー",
+        "copied": "コピーしました！",
+        "value": "価値:",
+        "demand": "需要:",
+        "includeRobux": "Robux を含める",
+        "openUserOnRolimons": "Rolimons でユーザーを開く",
+        "openOnRolimons": "Rolimons で{{type}}を開く",
+        "projectedItem": "プロジェクテッドアイテム",
+        "projected": "プロジェクテッド",
+        "rareItem": "レアアイテム",
+        "rap": "RAP",
+        "valueLabel": "価値",
+        "demandLabel": "需要",
+        "bundle": "バンドル",
+        "item": "アイテム",
+        "serial": "シリアル",
+        "afterTax": "税引後",
+        "beforeTax": "税引前",
+        "youGive": "あなたが渡す",
+        "youGet": "あなたが受け取る"
+    },
+    "onboarding": {
+        "title": "RoValra へようこそ！",
+        "thankYou": "<strong>RoValra</strong> をインストールしていただきありがとうございます！",
+        "exploreFeatures": "設定を変更してすべての機能を確認するには、次の操作を行ってください:",
+        "settingsInstruction": "Roblox のヘッダーにある<strong>歯車アイコン</strong>をクリックし、「RoValra 設定」をクリックします。",
+        "imageAlt": "Roblox ウェブサイトで RoValra 設定ボタンの場所を示すガイド。",
+        "description": "RoValra は、すべての人に便利な機能を提供することを目指す、ずっと無料の Roblox 拡張機能です！",
+        "gotIt": "わかりました！"
+    },
+    "catalogDependencies": {
+        "scan": "依存関係をスキャン",
+        "loading": "情報を読み込み中（{{count}}）...",
+        "title": "依存関係",
+        "unknown": "不明",
+        "assetFallback": "アセット {{id}}",
+        "verifiedBadge": "認証済みバッジ",
+        "by": "作成者:"
+    },
+    "catalogItemSales": {
+        "sales": "販売数",
+        "revenue": "収益",
+        "statsTooltip": "販売数と収益の統計はリークによるもので、不正確な可能性があります。"
+    },
+    "fortyMethod": {
+        "loginRequired": "ユーザー ID を特定できませんでした。ログインしていることを確認してください。",
+        "setupExperience": "エクスペリエンスを設定",
+        "specificTemplate": "特定のテンプレートのみ有効です",
+        "selectGroup": "エクスペリエンスを管理できるグループを選択してください。<br>拡張機能がエクスペリエンスを作成します。",
+        "or": "または",
+        "manualPlaceId": "プレイス ID を手動で入力 <br> （何をしているか理解している場合のみ行ってください。）",
+        "donateSavedRobux": "節約した Robux を RoValra に寄付",
+        "estimatedSavings": "後で表示される推定節約額は概算であり、不正確な場合があります。",
+        "importantInformation": "重要なお知らせ",
+        "acknowledge": "了承しました",
+        "groupRequired": "グループが必要です",
+        "goBack": "戻る",
+        "ownershipDetected": "所有を検出しました",
+        "understandContinue": "理解して続行",
+        "createExperience": "エクスペリエンスを作成",
+        "createNewExperience": "新しいエクスペリエンスを作成",
+        "findingExperience": "エクスペリエンスを検索中",
+        "findingExperienceWait": "新しく公開したエクスペリエンスを探しています。しばらくお待ちください...",
+        "donateToRoValra": "RoValra に寄付",
+        "back": "戻る",
+        "validationWarning": "検証の警告",
+        "updateExperience": "エクスペリエンスを更新",
+        "useAnyway": "それでも使用する",
+        "permissionRequired": "権限が必要です",
+        "backToGroupSelection": "グループ選択に戻る",
+        "experience": "エクスペリエンス",
+        "loading": "読み込み中...",
+        "setupGame": "ゲームを設定",
+        "saveContinue": "保存して続行",
+        "creating": "作成中...",
+        "uploadingTemplate": "テンプレートをアップロード中...",
+        "configuring": "設定中...",
+        "done": "完了！",
+        "updating": "更新中...",
+        "purchaseFailed": "購入に失敗しました",
+        "gotIt": "わかりました",
+        "confirmMethodPurchase": "40% メソッドの購入を確認",
+        "confirmCartPurchase": "カート購入を確認",
+        "cancel": "キャンセル",
+        "alreadyOwned": "所有済み",
+        "joinToPurchase": "購入するにはゲームに参加してください",
+        "confirmPurchase": "購入を確認",
+        "purchaseError": "購入エラー",
+        "ownerAccount": "<strong>オーナーアカウント:</strong> グループのオーナーを、アイテムの購入に使用しているアカウントと同じにすることはできません。オーナーは、2FA が有効で強力かつ固有のパスワードを設定した、安全なサブアカウントにしてください。",
+        "payouts": "<strong>支払い:</strong> グループの資金から節約した Robux を支払えるのは、グループのオーナーアカウントのみです。",
+        "pendingRobux": "<strong>保留中の Robux:</strong> この機能を使用すると、Robux は支払い可能になるまで約1か月間保留されますのでご注意ください。",
+        "groupRequiredBody": "40% メソッドを自分のグループで使用するには、エクスペリエンスを管理できるグループが必要です。",
+        "groupRequiredImportant": "<strong>重要:</strong> これを正しく動作させるには、グループを安全なサブアカウントが所有している必要があります。メインアカウント（アイテムの購入に使用しているアカウント）には、グループのエクスペリエンスを作成・管理する権限を持つロールが必要です。",
+        "groupRequiredDonate": "適切なグループがない場合は、代わりに RoValra のエクスペリエンスを使用して購入を処理することで RoValra を支援できます。その場合、節約した Robux は RoValra に渡されます ❤️",
+        "ownershipBody": "あなたがこのグループのオーナーである場合、40% メソッドは機能しません。別のグループを選択するか、所有権を安全なサブアカウントに移してください。",
+        "experienceAccepted": "エクスペリエンスが承認されました",
+        "experienceAcceptedSpecific": "<strong>特定のエクスペリエンスのみ有効です。</strong>このエクスペリエンスに、ゲーム内購入を処理するために必要なスクリプトが設定されていることを確認してください。",
+        "experienceAcceptedGroup": "エクスペリエンスが、<strong>あなたが管理しているが、このアカウントが所有していない</strong>グループに属していることを確認してください。グループはサブアカウントが所有しているのが望ましいです。あなたがグループを所有している場合、40% メソッドは機能しません。",
+        "experienceAcceptedPending": "節約した Robux は、支払いまで約1か月間保留されます。支払いのため、グループオーナーには安全なサブアカウントを使用してください。",
+        "createExperienceBody": "40% メソッドを使用するには、このグループ用に新しいエクスペリエンスを作成してください。",
+        "createNewExperienceBody": "このメソッド用に新しいエクスペリエンスを作成するには:",
+        "createStepOne": "Studio でコピーロックされていないエクスペリエンスを開きます:",
+        "openStudio": "Studio を開く",
+        "createStepTwo": "Studio で <strong>ファイル > ゲーム設定 > セキュリティ > 「サードパーティ販売を許可」をオン > ファイル > Roblox に別名で公開...</strong> の順に進みます。",
+        "createStepThree": "クリエイターの一覧からこのグループを選択します。",
+        "createStepFour": "<strong>作成</strong>をクリックすると、エクスペリエンスが公開されます",
+        "createPublishedBody": "公開したら、下のボタンをクリックしてください。自動的に見つけて選択します。",
+        "publishedGame": "ゲームを公開しました",
+        "saveSettingsUnavailable": "設定の保存に失敗しました。ストレージ API が利用できません。",
+        "groupsLoadFailed": "グループの読み込みに失敗しました。更新してもう一度お試しください。",
+        "noGroupSelected": "グループが選択されていません。もう一度お試しください。"
+    },
+    "risk": {
+        "projected": "アイテムはプロジェクテッドとしてフラグが立てられています。",
+        "rapMuchHigher": "RAP が価値よりもはるかに高いため、価値が上がる可能性があります。",
+        "rapHigher": "RAP が価値よりも高いため、価値が上がる可能性があります。",
+        "rapMuchLower": "RAP が価値よりもはるかに低いため、価値が下がる可能性があります。",
+        "rapHigherSales": "RAP は販売額より高いですが、最安値がそれを裏付けています。",
+        "rapUnusuallyHigh": "RAP が最近の安定した販売価格と比べて異常に高くなっています。",
+        "rapHigherStable": "RAP が安定価格より高くなっています（緩やかに上昇中）。",
+        "bestPriceMuchLower": "最安値が RAP を大きく下回っています。",
+        "bestPriceLower": "最安値が RAP を下回っています。",
+        "bestPriceHigher": "最安値が RAP を上回っています。",
+        "bestPriceSlightlyHigher": "最安値が RAP をわずかに上回っています。",
+        "sufferingProjection": "アイテムはプロジェクションの影響を受けています。",
+        "stableTrend": "価格は安定した推移です。"
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Roblox Plus なしですべてのテーマを選択して使用できます。"
+    },
+    "items": {
+        "hiddenFromMarketplace": "このアイテムはマーケットプレイスで非表示になっています",
+        "notFound": "見つかりません",
+        "failedToLoad": "読み込みに失敗しました",
+        "onHold": "保留中",
+        "faeItem": "FAE アイテム"
+    },
+    "inventory": {
+        "openRolimons": "Rolimon's で開く",
+        "searchPlaceholder": "アイテム名で検索..."
+    },
+    "games": {
+        "failedToLoad": "ゲームの読み込みに失敗しました"
+    },
+    "gameBookmarks": {
+        "bookmark": "ブックマーク",
+        "saved": "ブックマーク済み",
+        "title": "ブックマーク",
+        "uncategorized": "未分類",
+        "create": "+ 新しいカテゴリを作成",
+        "categoryName": "カテゴリ名",
+        "createSave": "作成して保存",
+        "save": "変更を保存",
+        "deleteCategory": "カテゴリを削除",
+        "deleteCategoryConfirm": "よろしいですか？この操作によりカテゴリが削除され、ブックマークされているすべてのゲームから外されます。",
+        "confirm": "削除",
+        "cancel": "キャンセル",
+        "remove": "ブックマークを削除",
+        "error": "ブックマークを保存できませんでした。もう一度お試しください。",
+        "loading": "ゲームを読み込み中…",
+        "all": "すべて",
+        "topic": "ブックマークしたゲーム",
+        "empty": "このカテゴリにブックマークしたゲームはありません。"
+    },
+    "homeLayout": {
+        "untitled": "無題",
+        "empty": "RoValra はレイアウトを見つけられませんでした。更新してもう一度お試しください。",
+        "reset": "リセット",
+        "save": "保存",
+        "overlayTitle": "ホームレイアウト",
+        "button": "レイアウトをカスタマイズ",
+        "edit": "編集",
+        "settingsTitle": "カテゴリ設定",
+        "visibility": "表示設定",
+        "visibilityDescription": "このカテゴリをホームに表示するかどうかを選択します。",
+        "accurateContinue": "正確な「続ける」",
+        "accurateContinueDescription": "「続ける」を、各ゲームを最後にプレイした順に並べ替えます。",
+        "enable": "有効にする",
+        "disable": "無効にする",
+        "show": "表示",
+        "hide": "非表示"
+    },
+    "sidebarLayout": {
+        "untitled": "無題",
+        "empty": "RoValra はサイドバーのボタンを見つけられませんでした。",
+        "reset": "リセット",
+        "save": "保存",
+        "overlayTitle": "サイドバーレイアウト",
+        "button": "レイアウトをカスタマイズ",
+        "myProfile": "マイプロフィール",
+        "disabled": "無効",
+        "show": "表示",
+        "hide": "非表示",
+        "add": "追加",
+        "addButton": "ボタンを追加",
+        "buttonPlaceholder1": "名前",
+        "buttonPlaceholder2": "URL"
+    },
+    "topbarLayout": {
+        "empty": "RoValra はサポートされているトップバー項目を見つけられませんでした。",
+        "reset": "リセット",
+        "save": "保存",
+        "overlayTitle": "トップバーレイアウト",
+        "button": "トップバーレイアウト",
+        "disabled": "必須",
+        "show": "表示",
+        "hide": "非表示",
+        "labels": {
+            "logo": "Roblox ロゴ",
+            "charts": "チャート",
+            "marketplace": "マーケットプレイス",
+            "create": "作成",
+            "robux": "Robux",
+            "search": "検索",
+            "profile": "プロフィール",
+            "qol": "ステータス",
+            "topbarLayout": "トップバーレイアウト",
+            "notifications": "通知",
+            "robuxBalance": "Robux 残高",
+            "settings": "設定"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "前のフレンド",
+        "nextFriends": "その他のフレンド",
+        "isPlaying": "{{name}} がプレイ中",
+        "online": "オンライン",
+        "inStudio": "Studio 内",
+        "offline": "オフライン",
+        "friendFallback": "フレンド",
+        "join": "参加",
+        "chat": "チャット",
+        "viewProfile": "プロフィールを表示"
+    },
+    "friendLabels": {
+        "menuAction": "フレンドラベルを設定",
+        "dialogTitle": "{{displayName}} にラベルを付ける",
+        "inputLabel": "フレンドラベル",
+        "inputPlaceholder": "親友、学校、",
+        "existingLabels": "既存のラベル",
+        "friendFallback": "フレンド",
+        "save": "保存",
+        "remove": "削除",
+        "cancel": "キャンセル"
+    },
+    "underratedGames": {
+        "topic": "隠れた名作ゲーム",
+        "subtitle": "RoValra コミュニティが厳選した隠れた名作ゲームです。",
+        "rotates": "ローテーション",
+        "suggestOnDiscord": "{{discord}} で隠れた名作ゲームを提案",
+        "ageRestrictionWarning": "これらのゲームの一部は、Roblox の 250 HEP 要件により 16歳以上限定になっている場合があります。"
+    },
+    "playtime": {
+        "topic": "プレイ時間",
+        "period": "プレイ時間の期間",
+        "today": "今日",
+        "thisWeek": "今週",
+        "thisMonth": "今月",
+        "thisYear": "今年",
+        "allTime": "全期間",
+        "hours": "{{value}} 時間",
+        "minutes": "{{value}} 分"
+    },
+    "mutualFriends": {
+        "pill_one": "共通のフレンド {{count}} 人",
+        "pill_other": "共通のフレンド {{count}} 人",
+        "tooltip": "このユーザーと共通のフレンド",
+        "tab": "共通",
+        "title": "共通のフレンド（{{count}}）",
+        "empty": "このユーザーとの共通のフレンドはいません。"
+    },
+    "trustedFriends": {
+        "pendingConnection": "保留中のトラステッドフレンド",
+        "pendingRequest": "トラステッドフレンドリクエスト保留中",
+        "addConnection": "トラステッドフレンドを追加",
+        "addConfirmation": "トラステッドフレンドリクエストを送信してもよろしいですか？",
+        "sendRequest": "リクエストを送信",
+        "sending": "送信中...",
+        "requestSent": "トラステッドフレンドリクエストを送信しました！",
+        "requestFailed": "トラステッドフレンドリクエストの送信に失敗しました。",
+        "errorSending": "送信エラー",
+        "acceptConnection": "トラステッドフレンドを承認",
+        "acceptConfirmation": "このトラステッドフレンドリクエストを承認してもよろしいですか？",
+        "accept": "承認",
+        "accepting": "承認中...",
+        "requestAccepted": "トラステッドフレンドリクエストを承認しました！",
+        "acceptFailed": "トラステッドフレンドリクエストの承認に失敗しました。",
+        "errorAccepting": "承認エラー",
+        "removeConnection": "トラステッドフレンドを削除",
+        "removeConfirmation": "このトラステッドフレンドを削除してもよろしいですか？",
+        "remove": "削除",
+        "removing": "削除中...",
+        "connectionRemoved": "トラステッドフレンドを削除しました！",
+        "removeFailed": "トラステッドフレンドの削除に失敗しました。",
+        "errorRemoving": "削除エラー"
+    },
+    "chatEligibility": {
+        "canChat": "このユーザーとチャットできます。",
+        "cannotChat": "このユーザーはあなたのチャット可能な年齢範囲外です。",
+        "ageCheckRequired": "このユーザーは年齢確認を完了していません。"
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "現在着用中",
+        "items": "アイテム",
+        "cosmetics": "コスメティック",
+        "bodyParts": "ボディパーツ",
+        "animations": "アニメーション",
+        "emotes": "エモート"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "このユーザーには公開エクスペリエンスがありません",
+        "overlayText": "非公開エクスペリエンス",
+        "noHiddenGames": "このユーザーには非公開エクスペリエンスがありません。",
+        "buttonText": "非公開エクスペリエンス",
+        "publicExperiences": "公開エクスペリエンス",
+        "hiddenExperiences": "非公開エクスペリエンス",
+        "labels": {
+            "sort": "並べ替え",
+            "order": "順序",
+            "showAll": "すべてのゲームを表示"
+        },
+        "sort": {
+            "default": "デフォルト",
+            "likeRatio": "高評価率",
+            "likes": "高評価",
+            "dislikes": "低評価",
+            "players": "プレイヤー",
+            "name": "名前（Z-A）"
+        },
+        "order": {
+            "descending": "降順",
+            "ascending": "昇順"
+        },
+        "noMatches": "フィルターに一致するエクスペリエンスはありません。",
+        "loading": "読み込み中..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "非公開グループエクスペリエンス（合計 {{count}} 件）",
+        "noHiddenGames": "このグループには非公開エクスペリエンスがありません。",
+        "buttonText": "非公開エクスペリエンス",
+        "labels": {
+            "sort": "並べ替え",
+            "order": "順序",
+            "showAll": "すべてのゲームを表示"
+        },
+        "sort": {
+            "recentlyUpdated": "最近更新",
+            "likeRatio": "高評価率",
+            "likes": "高評価",
+            "dislikes": "低評価",
+            "players": "プレイヤー",
+            "name": "名前（Z-A）"
+        },
+        "order": {
+            "descending": "降順",
+            "ascending": "昇順"
+        },
+        "noMatches": "現在のフィルターに一致する非公開エクスペリエンスはありません。",
+        "loadingMore": "さらにゲームを読み込み中..."
+    },
+    "userOutfits": {
+        "loading": "アウトフィットを読み込み中...",
+        "back": "戻る",
+        "totalPrice": "合計価格:",
+        "loadingItems": "アイテムを読み込み中...",
+        "noItems": "このアウトフィットにはアイテムがありません。",
+        "errorLoadingItems": "アイテムを読み込めませんでした。",
+        "buttonText": "アウトフィットを表示",
+        "overlayTitle": "ユーザーのアウトフィット",
+        "overlayTitleUser": "{{displayName}} のアウトフィット",
+        "noOutfits": "このユーザーにはアウトフィットがありません。",
+        "inventoryPrivate": "ユーザーのインベントリは非公開です。",
+        "errorNoUserId": "ページからユーザー ID を特定できませんでした。",
+        "errorFetch": "アウトフィットを取得できませんでした。"
+    },
+    "donationLink": {
+        "donate": "寄付する",
+        "overlayTitle": "Pls Donate",
+        "description": "これにより「PLS DONATE」が起動し、オフライン寄付を行うことができます。\n\nRoblox の手数料（30%）とゲームの手数料（10%）がかかるため、ユーザーが受け取る金額は寄付額の60%になります。\n\n参加すると、ユーザー名があらかじめ入力された「オフライン寄付」UI が表示されます。ギフトボタンをクリックして相手のスタンドを開き、ゲームパスを購入して寄付してください。",
+        "joinButton": "Pls Donate に参加",
+        "goBackButton": "戻る",
+        "loadingGamePasses": "ゲームパスを読み込み中...",
+        "priceLowToHigh": "価格（安い順）",
+        "priceHighToLow": "価格（高い順）",
+        "userGamePasses": "{{username}} のゲームパス",
+        "copyDonationLink": "寄付リンクをコピー",
+        "copyLinkDescription": "このプロフィールへの特別なリンクをコピーします。RoValra ユーザーがそのリンクを開くと、この寄付メニューが自動的に表示されます。<br><br><strong>注意:</strong> 寄付ウィンドウが表示されるのは RoValra ユーザーのみで、それ以外の方には通常のプロフィールが表示されます。",
+        "copyLinkButton": "リンクをコピー",
+        "copySuccess": "寄付リンクをコピーしました！",
+        "noGamePassesFound": "{{username}} のゲームにゲームパスが見つかりませんでした。",
+        "errorLoading": "ゲームパスの読み込みエラー: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "インスタント参加",
+        "stopJoining": "参加を停止",
+        "description": "ユーザーがエクスペリエンスに入るとすぐに、自動的に参加を試みます。<br><br>このためには、ユーザーが参加を全員に許可しているか、あなたがそのユーザーとフレンドである必要があります。",
+        "searchPlaceholder": "エクスペリエンスを検索、またはプレイス ID を入力（任意）",
+        "continue": "続行",
+        "cancel": "キャンセル",
+        "confirmTitle": "操作の確認"
+    },
+    "rap": {
+        "error": "エラー",
+        "private": "非公開",
+        "openInRolimons": "Rolimon's で開く",
+        "thisUser": "このユーザー",
+        "rolimonsRedirect": "{{username}} の Rolimon's のプロフィールにリダイレクトされます。Rolimon's はトレードやアイテムの価値に関する外部ウェブサイトです。<br><br>続行しますか？",
+        "continueToRolimons": "Rolimon's に進む",
+        "user": "ユーザー",
+        "loadingItems": "さらにアイテムを読み込み中...",
+        "noItemsMatch": "検索に一致するアイテムはありません。",
+        "collectiblesTitle": "{{displayName}} のコレクティブル（{{totalRapString}} RAP）",
+        "collectiblesTitleValue": "{{displayName}} のコレクティブル（価値 {{totalRapString}}）",
+        "inventoryPrivateOrNoLimiteds": "このユーザーのインベントリは非公開か、リミテッドがありません。",
+        "searchByName": "アイテム名で検索",
+        "itemAmount": "このアイテムの所持数: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "送信"
+    },
+    "privateServer": {
+        "processingTitle": "サーバーを処理中",
+        "starting": "開始中...",
+        "cancel": "キャンセル",
+        "cancelling": "キャンセル中...",
+        "activating": "有効化中",
+        "inactivating": "無効化中",
+        "progressText": "サーバー {{current}}/{{total}} を{{actionText}}...",
+        "unknownApiError": "不明な API エラーが発生しました。",
+        "processCancelled": "処理がキャンセルされました。<span class=\"success-text\">{{count}} 件のサーバーを処理しました。</span>",
+        "completed": "完了: <span class=\"success-text\">{{successCount}} 件成功</span>、<span class=\"error-text\">{{errorCount}} 件失敗</span>。",
+        "processingComplete": "処理完了",
+        "confirmationTitle": "操作の確認",
+        "confirmationMessage": "{{count}} 件のプライベートサーバーを{{action}}に設定しようとしています。",
+        "confirmationJoinable": "これにより、プライベートサーバーに参加できるようになります。",
+        "confirmationUnjoinable": "これにより、プライベートサーバーに参加できなくなります。",
+        "confirmationReversible": "後からいつでも元に戻せます。",
+        "confirm": "確認",
+        "deselectAll": "すべての選択を解除",
+        "selectAll": "すべて選択",
+        "bulkInactivate": "一括で非アクティブ化",
+        "bulkActivate": "一括でアクティブ化",
+        "setInactive": "非アクティブに設定",
+        "setActive": "アクティブに設定",
+        "noServersFound": "{{status}}のプライベートサーバーが見つかりません。",
+        "byCreator": "作成者: ",
+        "allowJoining": "参加を許可",
+        "friendsAllowed": "フレンドのみ許可"
+    },
+    "firstAccount": {
+        "label": "最初のアカウント",
+        "yes": "はい",
+        "no": "いいえ",
+        "tooltip": "Roblox があなたのアカウントを最初のアカウントだと判断しているかどうかを表示します。<br>この情報は Roblox から直接取得したものですが、正確とは限りません。",
+        "createdDate": "最初のアカウント作成日: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "トラステッドクリエイタープログラム参加中",
+        "yes": "はい",
+        "no": "いいえ",
+        "tooltip": "これを確認する方法を見つけて、面白いと思いました :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "テーマ",
+        "light": "ライト",
+        "dark": "ダーク"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "画像設定をカスタマイズ",
+            "source": "画像ソース",
+            "opacity": "画像の不透明度",
+            "customSize": "カスタムスケール",
+            "blur": "ぼかし",
+            "overrideTopbarSidebar": "透過モード",
+            "size": {
+                "label": "背景サイズ",
+                "cover": "カバー",
+                "contain": "コンテイン",
+                "auto": "自動",
+                "custom": "カスタム"
+            },
+            "position": {
+                "label": "背景位置",
+                "center": "中央",
+                "top": "上",
+                "bottom": "下",
+                "left": "左",
+                "right": "右",
+                "topleft": "左上",
+                "topright": "右上",
+                "bottomleft": "左下",
+                "bottomright": "右下"
+            },
+            "overlay": {
+                "color": "オーバーレイの色",
+                "opacity": "オーバーレイの不透明度"
+            },
+            "errors": {
+                "invalidUrl": "有効な https 画像 URL を入力してください。"
+            }
+        },
+        "variables": {
+            "intro": "上の Roblox テーマを選んでそのまま使用するか、下の任意の色を変更してカスタマイズできます。変更はリアルタイムで反映されます。",
+            "presetNone": "なし",
+            "opacity": "不透明度",
+            "reset": "リセット",
+            "resetAll": "色をリセット",
+            "saved": {
+                "title": "マイテーマ",
+                "noTheme": "テーマなし",
+                "unsaved": "未保存のテーマ",
+                "editingLabel": "{{name}}（編集中）",
+                "statusNone": "テーマは装備されていません。Roblox は通常の見た目です。",
+                "statusUnsaved": "まだテーマとして保存されていない色を使用しています。",
+                "statusEditing": "{{name}} を編集中です。変更を保持するには保存してください。",
+                "statusEquipped": "{{name}} を装備中です。",
+                "namePlaceholder": "テーマ名",
+                "save": "保存",
+                "delete": "削除",
+                "export": "エクスポート",
+                "import": "インポート",
+                "defaultName": "マイテーマ",
+                "importedName": "インポートしたテーマ",
+                "saved": "テーマを保存しました！",
+                "updated": "テーマを更新しました！",
+                "deleted": "テーマを削除しました。",
+                "imported": "テーマをインポートしました！",
+                "nameRequired": "先にテーマの名前を入力してください。",
+                "limitReached": "保存できるテーマは最大 {{count}} 個です。",
+                "invalidFile": "そのファイルは RoValra のテーマではありません。",
+                "fileTooLarge": "そのファイルはテーマとしては大きすぎます。",
+                "deleteTitle": "テーマを削除",
+                "deleteMessage": "保存済みのこのテーマを削除してもよろしいですか？"
+            },
+            "modes": {
+                "editingDark": "ダークモードの色を編集中",
+                "editingLight": "ライトモードの色を編集中"
+            },
+            "tokens": {
+                "surface-0": "ページ背景",
+                "surface-100": "サーフェス 100",
+                "surface-200": "サーフェス 200",
+                "surface-300": "サーフェス 300",
+                "common-navigation-bar": "ナビゲーションバー",
+                "over-media-0": "メディア上 0",
+                "over-media-100": "メディア上 100",
+                "over-media-200": "メディア上 200",
+                "over-media-300": "メディア上 300",
+                "common-backdrop": "背景",
+                "content-emphasis": "強調テキスト",
+                "content-default": "デフォルトテキスト",
+                "content-muted": "控えめなテキスト",
+                "content-link": "リンクテキスト",
+                "stroke-default": "ストローク（デフォルト）",
+                "stroke-emphasis": "ストローク（強調）",
+                "stroke-muted": "ストローク（控えめ）",
+                "common-heavy-divider": "太い区切り線",
+                "shift-100": "シフト 100",
+                "shift-200": "シフト 200",
+                "shift-300": "シフト 300",
+                "shift-400": "シフト 400",
+                "system-emphasis": "強調",
+                "system-contrast": "コントラスト",
+                "system-alert": "アラート",
+                "system-success": "成功",
+                "system-warning": "警告",
+                "system-neutral": "ニュートラル",
+                "action-emphasis-background": "プライマリ背景",
+                "action-emphasis-foreground": "プライマリテキスト",
+                "action-standard-background": "標準背景",
+                "action-standard-foreground": "標準テキスト",
+                "action-soft-emphasis-background": "ソフト背景",
+                "action-soft-emphasis-foreground": "ソフトテキスト",
+                "action-subtle-border": "控えめな枠線",
+                "action-alert-foreground": "アラートテキスト",
+                "action-over-media-background": "メディア上の背景",
+                "action-over-media-foreground": "メディア上のテキスト"
+            },
+            "presets": {
+                "classic": "クラシック",
+                "circuit-rush": "Circuit Rush",
+                "cosmic-dust": "Cosmic Dust",
+                "electric-lime": "Electric Lime",
+                "hyper-plum": "Hyper Plum",
+                "inferno-blast": "Inferno Blast",
+                "kinetic-energy": "Kinetic Energy",
+                "lava-glow": "Lava Glow",
+                "nebula-drift": "Nebula Drift",
+                "nitro-frost": "Nitro Frost",
+                "pixel-pop": "Pixel Pop",
+                "polar-freeze": "Polar Freeze",
+                "quantum-pulse": "Quantum Pulse",
+                "star-burst": "Star Burst",
+                "super-charge": "Super Charge"
+            },
+            "builtIn": {
+                "veryDark": "超ダークテーマ"
+            },
+            "groups": {
+                "surfaces": "サーフェス",
+                "content": "テキスト",
+                "strokes": "ストロークとシフト",
+                "system": "システム",
+                "actions": "ボタン"
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "販売停止中",
+        "text": "以前の価格:",
+        "lastOnSale": "最後のセール",
+        "for": "で"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "アンロック済み"
+    },
+    "lastEquipped": {
+        "label": "最後に装備"
+    },
+    "ownedItemPrice": {
+        "label": "価格",
+        "free": "無料",
+        "offSale": "販売停止中"
+    },
+    "pendingRobux": {
+        "tooltip": "取引データに基づき、保留中の残高のうち明日利用可能になる Robux の推定額です。実際の金額は異なる場合があり、不正確な可能性もあります。",
+        "loading": "読み込み中...",
+        "error": "エラー: {{message}}",
+        "insufficientData": "データ不足",
+        "insufficientDataTooltip": "正確な推定を行うための取引履歴が不足しています。さらに取引が完了するまでお待ちください。",
+        "label": "明日保留解除される Robux"
+    },
+    "totalEarned": {
+        "calculateEarnings": "収益を計算",
+        "calculateEarned": "獲得額を計算",
+        "pausedMessage": "計算を一時停止しました。再開して集計を続けてください。",
+        "resumeCalculation": "計算を再開",
+        "startNewCalculation": "新しい計算を開始",
+        "description": "販売とグループ支払いから獲得した Robux の合計を計算します。",
+        "startCalculation": "計算を開始",
+        "transactionsScanned": "スキャンした取引数",
+        "totalRobuxEarned": "獲得した Robux 合計",
+        "breakdownLabel": "収益源の内訳",
+        "calculatingTitle": "獲得した Robux 合計を計算中",
+        "scanningHistory": "獲得した Robux 合計を計算中...",
+        "rateLimited": "API のレート制限に達しました。引き続き集計中...",
+        "calculationComplete": "計算完了",
+        "allScanned": "獲得した Robux 合計のスキャンが完了しました。",
+        "newCalculation": "新しい計算",
+        "errorTitle": "エラーが発生しました",
+        "retry": "再試行",
+        "robloxLimitError": "Roblox が内部サーバーエラーを返しました。Roblox の制限により、これ以上の取引をスキャンできない可能性があります。",
+        "noEarnings": "収益はまだ見つかっていません。",
+        "other": "その他",
+        "groupPayout": "グループ支払い"
+    },
+    "totalSpent": {
+        "other": "その他",
+        "na": "該当なし",
+        "calculatingTitle": "計算中",
+        "calculatingRobuxTitle": "使用した Robux 合計を計算中",
+        "calculatingMoneyTitle": "使用した金額合計を計算中",
+        "calculatingText": "計算中...",
+        "calculatingRobuxText": "使用した Robux 合計を計算中...",
+        "calculatingMoneyText": "使用した金額合計を計算中...",
+        "rateLimited": "API のレート制限に達しました。引き続き集計中...",
+        "calculationComplete": "計算完了",
+        "allScanned": "関連するすべての取引をスキャンしました。",
+        "robuxAllScanned": "使用した Robux 合計のスキャンが完了しました。",
+        "moneyAllScanned": "使用した金額合計のスキャンが完了しました。",
+        "newCalculation": "新しい計算",
+        "errorTitle": "エラーが発生しました",
+        "retry": "再試行",
+        "calculateSpend": "支出を計算",
+        "pausedMessage": "計算を一時停止しました。再開して集計を続けてください。",
+        "resumeCalculation": "計算を再開",
+        "startNewCalculation": "新しい計算を開始",
+        "description": "取引履歴を計算するモードを選択してください。",
+        "calculateRobux": "使用した Robux を計算",
+        "calculateMoney": "使用した金額を計算",
+        "transactionsScanned": "スキャンした取引数",
+        "totalRobuxSpent": "使用した Robux 合計",
+        "totalMoneySpent": "使用額合計（概算）",
+        "itemTypeBreakdown": "アイテム種類別の内訳",
+        "premiumBreakdown": "プレミアム サブスクリプションの内訳",
+        "purchaseBreakdown": "Robux 購入の内訳",
+        "noItems": "アイテムはまだ見つかっていません。",
+        "pack": "パック",
+        "stipend": "月額付与",
+        "errorUserId": "ユーザー ID を取得できませんでした。",
+        "robloxLimitError": "Roblox が内部サーバーエラーを返しました。Roblox の制限により、これ以上の取引をスキャンできない可能性があります。",
+        "errorRetries": "複数回の再試行後に失敗しました。最後のエラー: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "使用額合計",
+        "loading": "読み込み中...",
+        "failedToLoad": "読み込みに失敗しました",
+        "singlePurchase": "1 件の購入",
+        "multiplePurchases": "{{count}} 件の購入",
+        "stillCalculating": "使用額合計はまだ計算中です。"
+    },
+    "spentPerGame": {
+        "title": "ゲームごとの使用額合計",
+        "disclaimer": "Roblox の制限により、不正確な場合があります",
+        "mostSpent": "使用額が多い順",
+        "mostPurchases": "購入数が多い順",
+        "noPurchases": "ゲームの購入は見つかりませんでした。",
+        "singlePurchase": "1 件の購入",
+        "multiplePurchases": "{{count}} 件の購入",
+        "loadMore": "さらに読み込む（残り {{remaining}} 件）",
+        "searchPlaceholder": "ゲームを検索",
+        "loading": "ゲームの支出を読み込み中…",
+        "scanInProgress": "取引のスキャン中です。しばらく時間がかかる場合があります。",
+        "loadError": "ゲームの支出を読み込めません。"
+    },
+    "spentPerCreator": {
+        "title": "クリエイターごとの使用額合計",
+        "disclaimer": "Roblox の制限により、不正確な場合があります",
+        "mostSpent": "使用額が多い順",
+        "mostPurchases": "購入数が多い順",
+        "noPurchases": "クリエイターへの購入は見つかりませんでした。",
+        "unknownCreator": "不明なクリエイター",
+        "includeGameCreators": "ゲームのクリエイターを含める",
+        "singlePurchase": "1 件の購入",
+        "multiplePurchases": "{{count}} 件の購入",
+        "loadMore": "さらに読み込む（残り {{remaining}} 件）",
+        "searchPlaceholder": "クリエイターを検索",
+        "loading": "クリエイターの支出を読み込み中…",
+        "scanInProgress": "取引のスキャン中です。しばらく時間がかかる場合があります。",
+        "loadError": "クリエイターの支出を読み込めません。"
+    },
+    "settings": {
+        "tabs": {
+            "info": "情報",
+            "credits": "コントリビューター",
+            "donatorPerks": "寄付者特典",
+            "settings": "設定",
+            "accountStanding": "アカウントの状態",
+            "store": "ストア"
+        },
+        "info": {
+            "title": "RoValra について！",
+            "desc1": "RoValra は、すべてを完全にオープンソースにすることで、基本的な利便性向上機能を誰でも無料で使えるようにすることを目指す拡張機能です。",
+            "desc2": "一部の無料機能は引き続き RoValra のサーバーに依存しており、運用に費用がかかります。",
+            "desc3": "サポーターの寄付はこれらの費用をまかない、RoValra がより多くの機能を全員に無料で提供し続け、今後も改善を続けられるようにします。<icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra は情熱から生まれたプロジェクトであり、これまでもずっとそうでした。",
+            "suggestions": "機能のご提案がありましたら、私の Discord サーバーまたは GitHub でお知らせください",
+            "bugs": "バグを見つけたら、私の Discord サーバーまたは GitHub でお知らせください",
+            "review": "この拡張機能を気に入っていただけましたら、<a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">レビューを書いて</a>いただけるととても助かります <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Discord サーバー",
+            "github": "GitHub リポジトリ",
+            "support": "RoValra を支援",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "コントリビューター",
+            "translatorsTitle": "翻訳者",
+            "featureCount_one": "{{count}} 件の機能",
+            "featureCount_other": "{{count}} 件の機能",
+            "contributorTooltips": {
+                "146089324": "WoozyNate さんは fisch を作りました。以前の RoValra のロゴはここから来ています。ぜひ fisch をチェックしてみてください！",
+                "1337447242": "新しいロゴとストアページのすべての画像を作成しました。",
+                "795922138": "冗談として「RoValra」という名前を思いつきました。面白すぎて使わずにはいられませんでした。",
+                "2974594300": "UI の改善、バグ修正、その他の貢献。",
+                "170038374": "一部の RoValra 機能の元となるコンセプトを作成しました。"
+            },
+            "sortLabel": "コントリビューターを並べ替え",
+            "sortMost": "多い順",
+            "sortLeast": "少ない順",
+            "contributionCount_one": "{{count}} 件の機能に貢献",
+            "contributionCount_other": "{{count}} 件の機能に貢献",
+            "backendContributorsNote": "これらの方々は、機能以外の部分でも協力してくれました。",
+            "loadingContributors": "読み込み中...",
+            "failedToLoadContributors": "コントリビューターの読み込みに失敗しました。",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "翻訳者バッジと WoozyNate バッジを追加",
+                    "nateGilbertFix": "Nate のバッジを再びギルバートに戻すよう修正"
+                },
+                "caching": {
+                    "hashmap": "キャッシュハンドラーにハッシュマップを追加"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Roblox のアップデートに合わせてサイドバーを修正"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "RBXM パーサーのずれと CFRAME 形式を修正"
+                },
+                "markdown": {
+                    "untrustedMd": "信頼できないユーザー向けに簡易 Markdown パーサーを追加"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "統合設定 API を追加"
+                },
+                "contributorList": {
+                    "creditsImprovement": "コントリビューター一覧のクレジットを改善",
+                    "nonSettingCredits": "独自の設定を持たない機能や改善のクレジットを追加"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "寄付者ティアの新しいインジケーターを追加"
+                },
+                "iconElement": {
+                    "addIcons": "Builder Icons、Material Icons、RoValra Icons を使用できる `<icon>` 要素を追加。",
+                    "addElement": "Builder Icons を使用できる基本の `<icon>` 要素を追加。以前は、クラスを指定した組み込みの `<i>` 要素を使用する予定でした。",
+                    "makeRoValraIcons": "RoValra Icons 用のフォントと、ウェブサイト向けの新しいビルド方法を追加。",
+                    "addBuilderIconsWOFF": "RoValra ウェブサイトで Builder Icons のホスティングを追加し、サイズの小さい複数のフォントファイルも用意。"
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Plus テーマのインデックスをウェブサイトに追加し、ユーザーが正しく指定されたテーマのみを使用できるようにしました。"
+                },
+                "locales": {
+                    "madeDe": "ドイツ語ロケールの作成に協力",
+                    "madeRo": "ルーマニア語ロケールの作成に協力",
+                    "madeEs": "スペイン語ロケールの作成に協力",
+                    "madeRu": "ロシア語ロケールの作成に協力",
+                    "madeFr": "フランス語ロケールの作成に協力",
+                    "madeZh": "中国語ロケールの作成に協力",
+                    "madeVi": "ベトナム語ロケールの作成に協力"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "{{user}} の貢献",
+                    "contributor": "コントリビューター",
+                    "featureName": "機能",
+                    "featureKey": "（開発用）機能キー"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "寄付者特典！",
+            "subtitle": "RoValra の開発を支援して、限定特典を手に入れましょう！",
+            "howToGet": "特典の入手方法",
+            "howToGetDesc": "サポート用ゲームでゲームパスを購入することで寄付できます。",
+            "goToGame": "寄付ゲームへ移動",
+            "perkTiers": "特典ティア",
+            "perk": "特典",
+            "currentTier": "現在のティア",
+            "tier1": "ティア 1: サポーター",
+            "tier1Desc": "<strong>任意の金額</strong>を寄付",
+            "tier1Reward": "寄付者 1 バッジ",
+            "tier1DiscordRole": "寄付者 1 の Discord ロール + 追加の Discord 特典。",
+            "tier1Feature": "自己紹介に文字列を追加せずに、ステータスと環境を設定できます。",
+            "tier2": "ティア 2: サポーター",
+            "tier2Desc": "<strong>200 Robux 以上</strong>を寄付",
+            "tier2Reward": "寄付者 2 バッジ",
+            "tier2DiscordRole": "寄付者 2 の Discord ロール + アップグレードされた Discord 特典。",
+            "tier3": "ティア 3: サポーター",
+            "tier3Desc": "<strong>500 Robux 以上</strong>を寄付",
+            "tier3Reward": "寄付者 3 バッジ",
+            "tier3DiscordRole": "寄付者 3 の Discord ロール + 最高の Discord 特典。",
+            "previousRewards": "+ 下位ティアのすべての特典",
+            "moreComingSoon": "近日追加予定。",
+            "note": "注意:\n- バッジは寄付後、表示されるまで数分かかる場合があります。\n- バッジの表示設定は、「プロフィール」設定タブで管理できます。\n- コミッション経由の寄付では、残念ながら寄付者特典は付与されません。これは Roblox の制限によるものです。\n- 寄付することで、[RoValra 利用規約](https://www.rovalra.com/tou/)に同意したものとみなされます"
+        },
+        "search": {
+            "minLength": "検索するには2文字以上入力してください。",
+            "noResults": "「{{query}}」に一致する設定が見つかりません。"
+        },
+        "ui": {
+            "common": {
+                "cancel": "キャンセル",
+                "okay": "了解",
+                "ok": "OK",
+                "pleaseWait": "お待ちください...",
+                "loading": "読み込み中...",
+                "unknown": "不明",
+                "user": "ユーザー",
+                "unavailable": "利用不可",
+                "notAvailable": "該当なし"
+            },
+            "levels": {
+                "allGood": "良好",
+                "limited": "制限あり",
+                "veryLimited": "大幅に制限",
+                "atRisk": "リスクあり",
+                "suspended": "停止中"
+            },
+            "search": {
+                "placeholder": "設定を検索..."
+            },
+            "controls": {
+                "clearStorage": "ストレージを消去",
+                "preview": "プレビュー",
+                "fadeStrength": "フェードの強さ",
+                "clickMe": "クリックして",
+                "enterValue": "値を入力",
+                "remove": "削除",
+                "add": "追加",
+                "experimental": "実験的",
+                "beta": "ベータ",
+                "deprecated": "非推奨",
+                "invalidImageUrl": "有効な http:// または https:// の画像 URL を入力してください。",
+                "enablePermission": "{{permission}} 権限を有効にする"
+            },
+            "badges": {
+                "visibility": "寄付バッジの表示/非表示を切り替えます。"
+            },
+            "locks": {
+                "donatorTierRequired": "RoValra 寄付者ティア {{tier}} が必要です",
+                "donatorPerk": "RoValra 寄付者特典（ティア {{tier}}）",
+                "featureDisabled": "この機能は{{lockType}}無効になっています"
+            },
+            "featureStatus": {
+                "title": "この機能を有効にする前に",
+                "message": "これらのラベルが付いた機能は不安定であったり、時間の経過とともに変更される可能性があります。読み込み時間の増加、UI の不整合、サイト関連の問題、その他の予期しない動作を引き起こす場合があります。<br><br>完全に動作しない可能性があることを理解している場合にのみ有効にしてください。",
+                "acknowledge": "了承しました"
+            },
+            "environment": {
+                "exported": "環境 JSON をコンソール（F12）に出力しました。",
+                "imported": "環境設定を正常にインポートしました。変更を適用するためページが再読み込みされます。",
+                "parseFailed": "JSON ファイルの解析に失敗しました。",
+                "storageUsed": "使用中のローカルストレージ合計: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "代名詞は15文字以内で入力してください。",
+                "filterRejected": "Roblox のフィルターにより、この代名詞は拒否されました。別の値をお試しください。",
+                "checkFailed": "Roblox で代名詞を確認できませんでした。もう一度お試しください。",
+                "filterBusy": "Roblox の代名詞フィルターが混み合っています。しばらくしてからもう一度お試しください。"
+            },
+            "port": {
+                "enableProfileNotes": "ノートをインポートまたはエクスポートする前に、プロフィールノートを有効にしてください。",
+                "exportedOne": "{{count}} 件のプロフィールノートをエクスポートしました。",
+                "exportedMany": "{{count}} 件のプロフィールノートをエクスポートしました。",
+                "exportFailed": "プロフィールノートをエクスポートできませんでした。",
+                "notesTooLarge": "プロフィールノートのバックアップが大きすぎます。",
+                "invalidNotesBackup": "これは有効な RoValra プロフィールノートのバックアップではありません。",
+                "importedOne": "{{count}} 件のプロフィールノートをインポートしました。",
+                "importedMany": "{{count}} 件のプロフィールノートをインポートしました。",
+                "notesReadFailed": "プロフィールノートのバックアップを読み取れませんでした。",
+                "importFailed": "プロフィールノートをインポートできませんでした。",
+                "exportUnexpectedError": "エクスポート中に予期しないエラーが発生しました。",
+                "exportError": "設定のエクスポート中にエラーが発生しました。詳細はコンソールをご確認ください。",
+                "sanitizeError": "エクスポート用の設定のサニタイズ中にエラーが発生しました。詳細はコンソールをご確認ください。",
+                "invalidSettingsFile": "これは有効な RoValra 設定ファイルではないようです。",
+                "invalidSettingsData": "エラー: インポートされた設定ファイルに、無効または危険なデータが含まれています。",
+                "settingsTooLarge": "エラー: 設定ファイルが大きすぎます。最大サイズは 1MB です。",
+                "importError": "設定のインポート中にエラーが発生しました。詳細はコンソールをご確認ください。",
+                "malformedSettings": "設定ファイルの形式が正しくありません。",
+                "readFailed": "設定ファイルを読み取れませんでした。破損しているか、形式が正しくない可能性があります。",
+                "importUnexpectedError": "インポート中に予期しないエラーが発生しました。",
+                "exportSettings": "設定をエクスポート",
+                "importSettings": "設定をインポート"
+            },
+            "changelogs": {
+                "title": "変更履歴",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "無題のリリース",
+                "current": "お使いのバージョン",
+                "noNotes": "このリリースには変更履歴のメモがありません。",
+                "loading": "変更履歴を読み込み中...",
+                "empty": "現在、利用できる変更履歴はありません。",
+                "loadFailed": "変更履歴の読み込みに失敗しました。後でもう一度お試しください。"
+            },
+            "parentRequest": {
+                "sendingTitle": "リクエストを送信中",
+                "sentTitle": "リクエストを送信しました！",
+                "sentBody": "リクエストは、メールで保護者に送信されました。",
+                "experienceName": "エクスペリエンス名:",
+                "sendFailedTitle": "リクエストの送信に失敗しました",
+                "sendFailedBody": "不明な理由でリクエストの送信に失敗しました。レート制限を受けた可能性があります。詳細はコンソールをご確認ください。",
+                "cancelingTitle": "リクエストをキャンセル中",
+                "canceledTitle": "リクエストをキャンセルしました",
+                "canceledBody": "保護者へのリクエストをキャンセルしました。",
+                "cancelFailedTitle": "リクエストのキャンセルに失敗しました",
+                "cancelFailedBody": "ブロック解除リクエストのキャンセルに失敗しました。レート制限を受けた可能性があります。詳細はコンソールをご確認ください。",
+                "sendUnblock": "ブロック解除リクエストを送信",
+                "alreadyRequestedTitle": "リクエスト済み",
+                "alreadyRequestedBody": "もうそのエクスペリエンスはリクエスト済みですよ！"
+            },
+            "donation": {
+                "donateUsd": "寄付（最低 $1 USD）",
+                "donateRobux": "寄付（最低 5 Robux）",
+                "parentApprovalTitle": "RoValra をもっと応援しよう！",
+                "parentApprovalMessage": "ゲームパスを使用すると、RoValra は寄付の取り分をより多く受け取れます。少なくとも1つの保護者アカウントが紐づけられているようです。エクスペリエンスのブロック解除をリクエストすると、2D（および 3D）の衣類を使うよりも RoValra の取り分が増えます。",
+                "useMarketplace": "マーケットプレイスを使用",
+                "currencyLabel": "寄付の通貨",
+                "donateWith": "寄付方法",
+                "supportTitle": "RoValra を応援する",
+                "supportDescription": "寄付して限定コスメティック特典を手に入れよう",
+                "githubSponsors": "GitHub Sponsors",
+                "included": "含まれる",
+                "notIncluded": "含まれない",
+                "totalDonated": "RoValra への寄付合計: {{amount}}",
+                "tierTooltip": "あなたの寄付者ティア",
+                "topDonators": "トップ寄付者（Robux）"
+            },
+            "profileBadge": {
+                "title": "カスタム RoValra プロフィールバッジ",
+                "description": "プロフィール用のカスタムバッジを手に入れよう",
+                "iconLabel": "カスタムプロフィールバッジのアイコン",
+                "getUsd": "購入（$5 USD）",
+                "getRobux": "購入（4,000 Robux）",
+                "purchaseIntro": "この購入は、RoValra を本気で応援したい方向けです。",
+                "createTicket": "このアイテムを購入後、RoValra の Discord でチケットを作成してください。受け取るには、Discord アカウントの作成から30日以上経過している必要があります",
+                "provideDetails": "カスタムプロフィールバッジに使用したい画像と名前をスタッフに伝えてください。",
+                "countsTowardTier": "このアイテムの購入は、RoValra 寄付者ティアに加算されます。",
+                "visibility": "これらのカスタムバッジは、RoValra ユーザーにのみ表示されます。",
+                "imageRequirements": "画像の要件",
+                "webpRequirement": "画像は <strong>1 MB</strong> 未満の <strong>WEBP</strong> ファイルである必要があります。",
+                "noRobloxBadges": "Roblox 公式の SVG やバッジは使用できません。",
+                "noOfficialRoValraBadges": "コントリビューターやアーティストのバッジなど、RoValra 公式のバッジは使用できません。",
+                "followTerms": "画像は Roblox 利用規約に従う必要があります",
+                "joinDiscord": "RoValra Discord に参加",
+                "agree": "同意する",
+                "agreeCountdown": "同意する（{{count}}）",
+                "preview": "プレビュー",
+                "previewTitle": "カスタムバッジをプレビュー",
+                "previewDescription": "WEBP 画像をアップロードして、プロフィール上のバッジとしてどのように表示されるかを確認できます。画像はメモリ内にのみ保持され、アップロードや保存は一切されず、ページを離れるか更新すると消去されます。",
+                "previewTooltip": "バッジのプレビュー",
+                "previewDone": "完了"
+            },
+            "githubSponsorBadge": {
+                "title": "GitHub Sponsors プロフィールバッジ",
+                "description": "レインボーハートのプロフィールバッジ。GitHub Sponsors 限定",
+                "get": "購入（最低 $1 USD）"
+            },
+            "store": {
+                "artist": "アーティスト",
+                "artistTooltip": "{{name}} がこのアバターボーダーを作成しました。",
+                "free": "無料",
+                "owned": "所有済み",
+                "equipped": "装備中",
+                "equip": "装備",
+                "buy": "購入",
+                "buyFor": "{{price}} で購入",
+                "viewGamepass": "ゲームパスを表示",
+                "all": "すべて",
+                "new": "新着",
+                "static": "静止画",
+                "animated": "アニメーション",
+                "borderTitle": "アバターボーダーストア",
+                "borderDescription": "アバターボーダーストアです。アバターボーダーを購入して、RoValra とアーティストを直接支援できます。<strong>寄付者ティア 3 ならすべてのアバターボーダーが無料です。</strong>アバターボーダーの購入は寄付者ティアに加算されます！",
+                "loadingBorders": "ボーダーを読み込み中..."
+            },
+            "border": {
+                "bundleNotice": "（静止画版とアニメーション版の両方を含みます）",
+                "freeTier3Tooltip": "寄付者ティア 3 のため無料です！",
+                "ownedTooltip": "このボーダーを所有しています！",
+                "freeTooltip": "このボーダーは無料で装備できます。",
+                "supportNotice": "コスメティックを直接購入すると、アーティストと RoValra を支援できます",
+                "purchaseDelay": "購入後、アバターボーダーが表示されるまで最大1分ほどかかる場合があります",
+                "parentApprovalTitle": "保護者の操作が必要です",
+                "parentApprovalMessage": "アバターボーダーを購入するには、保護者の許可が必要です。",
+                "noParentTitle": "アバターボーダーは使用できません",
+                "noParentBody": "Roblox では保護者の許可が必要ですが、あなたのアカウントには保護者が紐づけられていません。アバターボーダーを使用したい場合は、保護者アカウントを紐づけて、エクスペリエンスのブロック解除をリクエストする必要があります。",
+                "noBorders": "利用可能なボーダーはありません。",
+                "currentPreview": "現在の選択のプレビュー",
+                "signInPreview": "アバターでボーダーをプレビューするにはサインインしてください。",
+                "noBordersInTab": "このタブにボーダーは見つかりませんでした。",
+                "loadFailed": "ボーダーの読み込みに失敗しました。後でもう一度お試しください。",
+                "unequipTooltip": "クリックしてこのボーダーを外す",
+                "equipTooltip": "このボーダーを装備",
+                "buyTooltip": "このボーダーを購入"
+            },
+            "appeal": {
+                "messageLabel": "異議申し立てのメッセージを入力してください（20〜3000文字）",
+                "title": "異議申し立てを送信",
+                "submit": "異議申し立てを送信",
+                "invalidLength": "異議申し立てのメッセージは20〜3000文字で入力してください。",
+                "submitFailed": "異議申し立ての送信に失敗しました。もう一度お試しください。"
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "良好",
+                    "none": "なし / 制限なし",
+                    "limited": "制限あり",
+                    "veryLimited": "大幅に制限",
+                    "atRisk": "リスクあり",
+                    "suspended": "停止中"
+                },
+                "appealStatuses": {
+                    "notAppealed": "異議申し立てなし",
+                    "pending": "異議申し立て審査中",
+                    "denied": "異議申し立て却下",
+                    "accepted": "異議申し立て承認"
+                },
+                "goodTitle": "アカウントは良好な状態です。",
+                "goodDescription": "RoValra セーフティチームによる有効な違反や制限はありません。",
+                "temporaryTitle": "アカウントは一時的に制限されています。",
+                "violationTitle": "アカウントに違反が見つかりました。",
+                "statusDescription": "アカウントのステータスが次に設定されました: {{status}}",
+                "policyTitle": "RoValra セーフティポリシー",
+                "policyDescription": "{{- termsLink}}に違反していることが判明したアカウント、またはサードパーティの検出によりリスクがあると判断されたアカウントは、特定の機能が無効になります。特定のオンライン機能が制限される場合がありますが、RoValra セーフティチームが拡張機能全体やローカルで完結する機能を無効にすることは<strong>決してありません</strong>。",
+                "automatedAction": "自動対応",
+                "manualReview": "手動審査",
+                "disabledFeatures": "無効化された機能",
+                "moderatedContent": "モデレーションされたコンテンツ",
+                "violationDetails": "違反の詳細",
+                "unknownReason": "不明な理由",
+                "moderated": "モデレーション済み",
+                "temporaryExpires": "一時的な制限の期限",
+                "appealCase": "異議申し立てケース",
+                "status": "ステータス",
+                "yourMessage": "あなたのメッセージ",
+                "response": "返答",
+                "reviewingAppeal": "現在、チームが異議申し立てを審査中です。",
+                "appealDecision": "この決定に異議を申し立てる"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "{{extensions}} が有効な場合、RoValra が正しく動作しない可能性があります。",
+            "description": "{{extensions}} のサポートは保証していません。"
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "プライバシー設定"
+        },
+        "noTogglesEnabled": "有効なトグルがありません！RoValra 設定でプライバシー設定のトグルを有効にしてください。",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "全員",
+                "friendsFollowingFollowers": "フレンド、フォロー中、フォロワー",
+                "friendsFollowing": "フレンドとフォロー中",
+                "friends": "フレンド",
+                "trustedFriends": "トラステッドフレンド",
+                "noOne": "なし"
+            },
+            "onlineStatus": {
+                "name": "オンラインステータス"
+            },
+            "joinStatus": {
+                "name": "エクスペリエンスステータス"
+            },
+            "privateServerPrivacy": {
+                "name": "プライベートサーバーのプライバシー"
+            },
+            "inventoryPrivacy": {
+                "name": "インベントリのプライバシー"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "読み込み中...",
+        "pending": "保留中:",
+        "noPermissions": "権限なし"
+    },
+    "navigation": {
+        "transactions": "取引",
+        "apiDocs": "API ドキュメント",
+        "incidentLearnMore": "詳しくはこちらをクリックしてください。",
+        "incidentHideNotice": "この通知はここで非表示にできます",
+        "rovalraApi": "RoValra API"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "サイドバーを折りたたむ",
+        "expandSidebar": "サイドバーを展開"
+    },
+    "voiceBanIndicator": {
+        "title": "ボイスチャット禁止",
+        "liftsIn": "解除まで",
+        "noExpiry": "期限の指定なし"
+    },
+    "ageTheme": {
+        "navbarTooltip": "年齢テーマ",
+        "options": {
+            "normal": "通常の Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Roblox リーク版 Select（スタートモード）"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "ベータプログラムを切り替え",
+        "noPrograms": "参加しているベータプログラムはありません。",
+        "allowlist": "許可リストに登録済み",
+        "previousProgramsTitle": "以前参加していたベータプログラム",
+        "previousProgramTooltip": "このベータプログラムは終了しました。"
+    },
+    "quickSearch": {
+        "aborted": "中止しました",
+        "apiRequestFailed": "API リクエストがステータス {{status}} で失敗しました",
+        "friendSearchError": "RoValra: フレンド検索エラー",
+        "userSearchError": "RoValra: ユーザー検索エラー",
+        "gameSearchError": "RoValra: ゲーム検索エラー",
+        "trustedConnection": "あなたたちはトラステッドフレンドです",
+        "connection": "あなたたちはフレンドです",
+        "playing": "{{gameName}} をプレイ中",
+        "verifiedBadge": "認証済みバッジ",
+        "verified": "認証済み",
+        "permanentlyBanned": "このユーザーは停止されているか、アカウントを無効にしています。",
+        "joinPreferredRegion": "優先リージョンに参加",
+        "bestRegionAuto": "最適なリージョン（自動）",
+        "searchHistory": "検索履歴",
+        "noSearchHistory": "検索履歴がありません。",
+        "deleteSearchHistoryTitle": "検索履歴を削除",
+        "deleteSearchHistoryMessage": "この検索履歴を削除してもよろしいですか？",
+        "delete": "削除",
+        "itemValue": "価値",
+        "itemRap": "RAP"
+    },
+    "friendOwnership": {
+        "pillLabel": "フレンド {{count}} 人が所有",
+        "pillTooltip": "このアイテムを所有しているフレンドを表示",
+        "overlayTitle": "フレンド {{count}} 人がこのアイテムを所有しています",
+        "unknownUser": "ユーザー {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "優先サーバーリージョンを選択または参加",
+        "tooltip": "優先リージョンに参加",
+        "tooltipWithRegion": "優先リージョンに参加<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "優先リージョンに参加<br><b>最適なリージョン（自動）</b>"
+    },
+    "quickPlay": {
+        "loading": "読み込み中...",
+        "rateLimited": "レート制限中です。再試行しています...",
+        "loadError": "サーバーを読み込めませんでした。",
+        "noPrivateServers": "アクティブなプライベートサーバーが見つかりません。",
+        "configure": "設定",
+        "copyLink": "リンクをコピー",
+        "copied": "コピーしました！",
+        "error": "エラー！",
+        "generateLink": "新しいリンクを生成",
+        "joinClosestServer": "最寄りのサーバーに参加",
+        "selectPreferredRegion": "優先リージョンを選択",
+        "privateServers": "プライベートサーバー"
+    },
+    "privateServerPage": {
+        "regenerateLink": "リンクを生成",
+        "regenerated": "生成しました！"
+    },
+    "devProducts": {
+        "noProducts": "開発者アイテムが見つかりません。",
+        "loadError": "このゲームの開発者アイテムを読み込めません。",
+        "passes": "パス",
+        "developerProducts": "開発者アイテム",
+        "search": "検索",
+        "sort": {
+            "created": "作成日で並べ替え",
+            "price": "価格で並べ替え",
+            "updated": "更新日で並べ替え",
+            "name": "名前で並べ替え"
+        },
+        "order": {
+            "ascending": "昇順で並べ替え",
+            "descending": "降順で並べ替え"
+        }
+    },
+    "shop": {
+        "tab": "ショップ",
+        "all": "すべて",
+        "category": "カテゴリ",
+        "product": "商品",
+        "gamePass": "ゲームパス",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "ボーナス: {{item}}",
+        "bonusItemFallback": "ボーナスアイテム付き",
+        "noItems": "ショップのアイテムが見つかりません。",
+        "failedToLoad": "ショップのアイテムの読み込みに失敗しました。",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "商品",
+            "GamePass": "ゲームパス",
+            "Robux": "Robux バンドル"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "サブプレイス",
+        "searchPlaceholder": "サブプレイスを検索",
+        "loadMore": "さらに読み込む",
+        "rootPlace": "ルートプレイス",
+        "noSubplaces": "サブプレイスが見つかりません。",
+        "failedToLoad": "サブプレイスの読み込みに失敗しました。",
+        "labels": {
+            "sort": "並べ替え",
+            "order": "順序"
+        },
+        "sort": {
+            "default": "デフォルト",
+            "updated": "最近更新",
+            "created": "最近作成",
+            "name": "名前（Z-A）"
+        },
+        "order": {
+            "descending": "降順",
+            "ascending": "昇順"
+        },
+        "banner": {
+            "title": "現在、[{{rootPlaceName}}]({{rootPlaceUrl}}) のサブプレイスを表示しています。",
+            "descriptionDefault": "エクスペリエンスによっては、サブプレイスへの参加が無効になっている場合があります。",
+            "descriptionRestricted": "このサブプレイスは参加制限のため参加できません。",
+            "descriptionJoinable": "このサブプレイスには参加できます。",
+            "mainExperience": "メインのエクスペリエンス"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "アップデート",
+        "title": "更新履歴",
+        "blocked": {
+            "eighteenPlus": "更新履歴は 18歳以上向けエクスペリエンスでは機能しません",
+            "paidAccess": "更新履歴は有料アクセスのエクスペリエンスでは機能しません",
+            "subplace": "更新履歴は参加制限のあるサブプレイスでは機能しません",
+            "noDesktopSupport": "更新履歴は PC に対応していないエクスペリエンスではサポートされていません"
+        }
+    },
+    "serverList": {
+        "clear": "クリア",
+        "noServersApi": "RoValra API でサーバーが見つかりませんでした。",
+        "allServersInactive": "このリージョンのすべてのサーバーが非アクティブになりました",
+        "loadErrorApi": "RoValra API からサーバーを読み込めませんでした。",
+        "hide": "非表示",
+        "join": "参加",
+        "peopleMax": "最大 {{maxPlayers}} 人中 {{playing}} 人",
+        "pinPrivateServer": "プライベートサーバーをピン留め",
+        "unpinPrivateServer": "プライベートサーバーのピン留めを解除",
+        "playerCountUnknownTooltip": "プレイヤー数が不明です。これは Roblox の制限によるものです。サムネイルはゲーム内の実際の人を表すものではありません。",
+        "playerCountUnknownLabel": "プレイヤー数不明"
+    },
+    "recentServers": {
+        "title": "最近のサーバー",
+        "refresh": "更新",
+        "noneFound": "最近のサーバーは見つかりませんでした。",
+        "noActiveFound": "アクティブな最近のサーバーは見つかりませんでした。",
+        "lastJoined": "最後に参加: {{time}}",
+        "meAlt": "自分",
+        "secondsAgo": "{{count}}秒前",
+        "minutesAgo": "{{count}}分前",
+        "hoursAgo": "{{count}}時間前",
+        "daysAgo": "{{count}}日前",
+        "description": "直前まで参加していた最近のサーバー。"
+    },
+    "quickOutfits": {
+        "errorFetching": "アウトフィットの取得中にエラーが発生しました",
+        "equipping": "装備中...",
+        "equipped": "装備しました！",
+        "failed": "失敗",
+        "error": "エラー:",
+        "noUserId": "クイックアウトフィット用の認証済みユーザー ID が見つかりません。",
+        "loading": "アウトフィットを読み込み中...",
+        "title": "クイックアウトフィット",
+        "noneFound": "アウトフィットが見つかりません。",
+        "success": "アウトフィットを装備しました。"
+    },
+    "btrDonationWarning": {
+        "title": "重要: BTRoblox を無効にしてください",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox が検出されました。Roblox の購入フローに干渉する可能性があります。購入に問題がある場合は、一時的に BTRoblox を無効にしてページを再読み込みしてみてください。</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">BTRoblox を無効にし、このページを再読み込みしてから、もう一度購入をお試しください。</p>",
+        "continue": "それでも続行"
+    },
+    "botDetector": {
+        "tooltip": "ボットとは、アイテムを稼ぐために自動スクリプトを実行しているアカウントのことです。1人のユーザーが50体以上のボットを動かしている場合もあります。これはゲーム開発者の責任ではないことにご注意ください。エクスペリエンスが主に新しい Roblox アカウントでプレイされている場合、この情報は不正確になる可能性があります。",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> にはボットが多数います",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> にはボットが少しいますが、ほとんどは本物のプレイヤーです",
+        "thisGame": "このゲーム"
+    },
+    "events": {
+        "title": "イベント",
+        "tabs": {
+            "upcoming": "開催予定",
+            "past": "過去"
+        },
+        "buttons": {
+            "viewEvent": "イベントを表示",
+            "joinEvent": "イベントに参加",
+            "unfollowEvent": "イベントのフォローを解除",
+            "notifyMe": "通知する"
+        },
+        "loadMore": "さらに読み込む",
+        "releaseDate": "イベントのリリース日",
+        "empty": {
+            "active": "開催中または開催予定のイベントはありません。",
+            "past": "過去のイベントはありません。",
+            "all": "イベントが見つかりません。"
+        }
+    },
+    "badgeSort": {
+        "label": "バッジを並べ替え",
+        "seeMore": "もっと見る",
+        "updated": "更新日",
+        "created": "作成日",
+        "options": {
+            "default": "デフォルト",
+            "updated": "最近更新",
+            "newest": "新しい順",
+            "oldest": "最古",
+            "mostWon": "獲得数が多い順",
+            "leastWon": "獲得数が少ない順",
+            "wonYesterday": "昨日の獲得数が多い順",
+            "rarest": "レア度が高い順",
+            "easiest": "簡単な順",
+            "name": "名前（A-Z）"
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "バッジ",
+            "hiddenBadges": "非公開バッジ"
+        },
+        "hiddenOwnedNotice": "ここには、あなたが獲得済みの非公開バッジのみが表示されます。",
+        "unableToDetectPlace": "このプレイスを検出できません。",
+        "unableToDetectUniverse": "このユニバースを検出できません。",
+        "stillScanning": "バッジをスキャン中です。所持している非公開バッジがまもなく表示される可能性があります。",
+        "noneOwnedFound": "このエクスペリエンスで、あなたが所持している非公開バッジは見つかりませんでした。",
+        "noneFound": "このエクスペリエンスの非公開バッジは見つかりませんでした。",
+        "noPublicBadges": "このエクスペリエンスには公開バッジがありません。",
+        "failedToLoad": "非公開バッジの読み込みに失敗しました。",
+        "rolimonsSource": "非公開バッジは Rolimon's 提供です。",
+        "viewOnRolimons": "Rolimon's でゲームを表示",
+        "openBadgeOnRolimons": "Rolimon's でバッジを開く"
+    },
+    "antiBots": {
+        "reviewMembers": "選択した {{count}} 人のメンバーを確認:",
+        "botWarning": "<strong>警告:</strong> 操作する前に、これらがボットであることを確認してください。",
+        "banMembers": "メンバーを BAN",
+        "kickMembers": "メンバーをキック",
+        "cancel": "キャンセル",
+        "actionRequired": "操作が必要です（{{count}}）",
+        "noPermission": "メンバーを BAN またはキックする権限がありません。",
+        "confirmBan": "<strong>{{count}} 人のメンバーを BAN</strong>しようとしています。永久にブロックされます。",
+        "confirmKick": "<strong>{{count}} 人のメンバーをキック</strong>しようとしています。いつでも再参加できます。",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>リマインダー:</strong> BAN する前にボットスコアを確認してください。</div>",
+        "yesAction": "はい、{{action}}します",
+        "confirmAction": "操作の確認",
+        "processing": "{{total}} 人中 {{current}} 人目を処理中: {{displayName}}... 残り約 {{time}} 秒",
+        "rateLimited": "レート制限中です。{{delay}} 秒後に再試行します...",
+        "apiError": "API エラー {{status}}",
+        "unknownError": "不明なエラー",
+        "processComplete": "{{totalMembers}} 人中 {{successCount}} 人のメンバーを正常に処理しました（{{actionType}}）。",
+        "processFailed": "{{failedCount}} 件失敗しました。",
+        "close": "閉じる",
+        "score": "スコア: {{score}}/100",
+        "actionCount": "操作（{{count}}）",
+        "unselectAll": "すべての選択を解除",
+        "selectAll": "すべて選択",
+        "antiBots": "アンチボット",
+        "banByScore": "スコアで BAN",
+        "quickAction": "クイックアクション",
+        "members": "メンバー",
+        "loadingMembers": "メンバーを読み込み中...",
+        "selectMembersForAction": "操作するメンバーを選択（{{count}} 人読み込み済み）",
+        "noMembersFound": "メンバーが見つかりません。",
+        "initializingScan": "スキャンを初期化中...",
+        "scanStatus": "スキャン済み: {{loaded}}（{{percent}}%）| 分析済み: {{processed}}",
+        "finalizingAnalysis": "分析を最終処理中...",
+        "botsFound": "ボットの疑いがあるアカウントが {{count}} 件見つかりました",
+        "noBotsFound": "ボットの疑いがあるアカウントは見つかりませんでした",
+        "noBotsDetected": "ボットは検出されませんでした。",
+        "errorRetry": "エラー - 再試行",
+        "errorDuringScan": "スキャン中にエラーが発生しました。",
+        "minBotScore": "最小ボットスコア: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "約 <span id=\"rovalra-score-ban-count\">0</span> 人のメンバーが選択されます。",
+        "confirm": "確認",
+        "banKickByScore": "スコアで BAN/キック",
+        "confirmCount": "確認（{{count}}）"
+    },
+    "revertLogo": {
+        "haveFun": "楽しんで！",
+        "close": "閉じる",
+        "robloxExperience": "Roblox エクスペリエンス",
+        "unknownExperience": "不明なエクスペリエンス",
+        "serverId": "サーバー ID:",
+        "privateServer": "プライベートサーバー",
+        "owner": "オーナー:",
+        "version": "バージョン:",
+        "uptime": "稼働時間:",
+        "rcc": "RCC:",
+        "serverChannel": "サーバーチャンネル:",
+        "production": "本番",
+        "launchingRoblox": "Roblox を起動中",
+        "downloadRoblox": "Roblox をダウンロード",
+        "thanksDownloading": "Roblox をダウンロードいただきありがとうございます",
+        "downloadInstructions": "以下の手順に従って Roblox をインストールしてください。ダウンロードは数秒後に開始されます。開始されない場合は、<a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">ダウンロードを再開</a>してください。",
+        "installInstructions": "インストール手順",
+        "step1": "ダウンロードが完了したら、ダウンロードフォルダ内の <b>RobloxPlayerInstaller.exe</b> ファイルをダブルクリックします。",
+        "step2": "<b>RobloxPlayerInstaller</b> をダブルクリックして、アプリをインストールします。",
+        "step3": "画面の指示に従って、Roblox をコンピューターにインストールします。",
+        "step4": "インストールが完了したら、<a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">エクスペリエンスに参加</a>しましょう。",
+        "mobileApp": "モバイルアプリもお忘れなく",
+        "scanCode": "スマートフォンのカメラでこのコードをスキャンして Roblox を入手しましょう。",
+        "joiningServer": "サーバーに参加中...",
+        "errorParsingUrl": "URL の解析エラー",
+        "findingUser": "ユーザーを検索中...",
+        "fetchingServerInfo": "サーバー情報を取得中...",
+        "nonRootPlaceRestrictions": "参加できません: ルート以外のプレイスの制限があります。",
+        "waitingForRoblox": "Roblox を待機中...",
+        "launching": "起動中..."
+    },
+    "createRoblox": {
+        "download": "ダウンロード",
+        "downloadMesh": ".mesh をダウンロード",
+        "downloadObj": ".obj をダウンロード",
+        "explorer": {
+            "button": "エクスプローラー",
+            "title": "エクスプローラー",
+            "loading": "読み込み中...",
+            "selectInstance": "プロパティを表示するインスタンスを選択してください",
+            "noProperties": "プロパティなし",
+            "viewSource": "ソースを表示",
+            "closePreview": "プレビューを閉じる",
+            "defaultDevice": "デフォルト（1280x720）",
+            "fitToWindow": "ウィンドウに合わせる",
+            "actualResolution": "実際の解像度",
+            "physicalSize": "物理サイズ",
+            "rotate": "回転",
+            "loadingPreview": "GUI プレビューを読み込み中...",
+            "searchInstances": "インスタンスを検索...（2文字以上）",
+            "searchProperties": "プロパティを検索...",
+            "previewGui": "GUI をプレビュー",
+            "togglePreviewVisibility": "プレビューでの表示/非表示を切り替え",
+            "noMatchingInstances": "一致するインスタンスが見つかりません",
+            "loadError": "読み込みに失敗しました。",
+            "previewMesh": "メッシュをプレビュー",
+            "previewImage": "画像をプレビュー",
+            "loadingImage": "画像を読み込み中...",
+            "imageLoadError": "画像の読み込みに失敗しました。",
+            "loadingMesh": "メッシュを読み込み中...",
+            "meshLoadError": "メッシュの読み込みに失敗しました。"
+        }
+    },
+    "priceFloor": {
+        "label": "最低価格:",
+        "status": "このアイテムは最低価格{{status}}{{difference}}。",
+        "statusTypes": {
+            "above": "を上回っています",
+            "below": "を下回っています",
+            "at": "と同じです"
+        },
+        "difference": "（差額 {{diff}}）",
+        "description": "最低価格とは、アイテムを販売できる最低価格のことで、動的に更新されます。"
+    },
+    "parentItem": {
+        "multipleBundles": "このアイテムは複数のバンドルに含まれています",
+        "multipleBundlesDescription": "このアイテムはテンプレートとして使用されている可能性が高く、複数のバンドルに含まれています。",
+        "partOfBundle": "このアイテムは [{{bundleName}}]({{bundleUrl}}) バンドルの一部です",
+        "viewingFromBundle": "現在、バンドルのアイテムを表示しています。"
+    },
+    "rovalraBadges": {
+        "userVerified": "ユーザーは ID 認証済みです。",
+        "userNotVerified": "ユーザーは ID 認証済みではありません。",
+        "userAgeVerified": "ユーザーは年齢確認済みです。",
+        "userNotAgeVerified": "ユーザーは年齢確認済みではありません。",
+        "userAgeVerificationMayBeInaccurate": "不正確な場合があります"
+    },
+    "friendsSince": {
+        "friended": "フレンド登録日",
+        "lastSeen": "最終確認",
+        "age": "年齢",
+        "friendedVia": "フレンド登録の経路",
+        "originFrom": "送信元",
+        "originSearch": "検索",
+        "originInGame": "ゲーム内",
+        "originProfile": "プロフィール",
+        "originQQContacts": "QQ 連絡先",
+        "originWeChatContacts": "WeChat 連絡先",
+        "originQrCode": "QR コード",
+        "originProfileShare": "プロフィール共有",
+        "originPhoneContacts": "電話の連絡先",
+        "originPeopleYouMayKnow": "知り合いかも",
+        "originschoolmemberlist": "学校メンバーリスト",
+        "originFriendLink": "フレンドリンク",
+        "originSocialTabsPage": "ソーシャルタブページ",
+        "originUnknown": "不明"
+    },
+    "lastPlayed": {
+        "together": "よく一緒にプレイ"
+    },
+    "avatarDownload": {
+        "button": "アバターをダウンロード",
+        "title": "アバターをダウンロード",
+        "size": "解像度:",
+        "downloadPortrait": "ポートレート PNG",
+        "downloadBust": "バスト PNG",
+        "downloadAvatar": "アバター PNG",
+        "downloading": "ダウンロード中...",
+        "failed": "アバターのダウンロードに失敗しました。後でもう一度お試しください。"
+    },
+    "unfriend": {
+        "confirmUnfriend": "フレンド解除の確認",
+        "confirmUnfriends": "フレンド解除の確認",
+        "descriptionSingle": "フレンド 1 人を解除しようとしています。この操作は元に戻せません。",
+        "descriptionPlural": "フレンド {{count}} 人を解除しようとしています。この操作は元に戻せません。",
+        "cancel": "キャンセル",
+        "unfriend": "フレンド解除",
+        "unfriendCount": "フレンド解除（{{count}}）",
+        "unfriendCountAction": "フレンド {{count}} 人を解除",
+        "unfriendCountActionPlural": "フレンド {{count}} 人を解除",
+        "unfriending": "フレンド解除中...",
+        "bulkUnfriend": "一括フレンド解除",
+        "exitBulkMode": "一括モードを終了",
+        "successMessage": "フレンド {{successCount}}/{{totalCount}} 人の解除に成功しました！"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "バッジ一括削除",
+        "exit": "一括モードを終了",
+        "delete": "バッジを削除",
+        "deleteCount": "バッジを削除（{{count}}）",
+        "confirmTitle": "バッジの削除を確認",
+        "finalTitle": "本当によろしいですか？",
+        "finalDescription": "インベントリから {{count}} 個のバッジが完全に削除されます。",
+        "descriptionSingle": "インベントリからバッジ 1 個を削除しようとしています。この操作は元に戻せません。",
+        "descriptionPlural": "インベントリからバッジ {{count}} 個を削除しようとしています。この操作は元に戻せません。",
+        "deletingProgress": "バッジを削除中... {{current}}/{{total}}",
+        "cancel": "キャンセル",
+        "success": "バッジ {{successCount}}/{{totalCount}} 個を削除しました。"
+    },
+    "blockUser": {
+        "block": "ブロック",
+        "unblock": "ブロック解除",
+        "blockTitle": "{{username}} をブロック",
+        "unblockTitle": "{{username}} のブロックを解除",
+        "blockTitleGeneric": "ユーザーをブロック",
+        "unblockTitleGeneric": "ユーザーのブロックを解除",
+        "blockMessage": "このユーザーからトレードを送信できなくなります。既存のトレードを辞退することはできますが、承認やカウンターオファーはできなくなります。",
+        "unblockMessage": "このユーザーが再びトレードを送信できるようになり、既存のトレードを承認またはカウンターオファーできるようになります。",
+        "cancel": "キャンセル"
+    },
+    "unfriendDetector": {
+        "title_one": "フレンド解除を検出",
+        "title_other": "フレンド解除を検出",
+        "description_one": "このフレンドは、前回プレイして以降にあなたを削除しました:",
+        "description_other": "これらの {{count}} 人のフレンドは、前回プレイして以降にあなたを削除しました:",
+        "viewProfile": "{{name}} のプロフィールを表示",
+        "dismiss": "閉じる"
+    },
+    "leaveGroups": {
+        "confirmLeave": "退会の確認",
+        "confirmLeaves": "退会の確認",
+        "descriptionSingle": "コミュニティ 1 つから退会しようとしています。この操作は元に戻せません。",
+        "descriptionPlural": "コミュニティ {{count}} 個から退会しようとしています。この操作は元に戻せません。",
+        "cancel": "キャンセル",
+        "leave": "退会",
+        "leaveCount": "退会（{{count}}）",
+        "leaveCountAction": "コミュニティ {{count}} 個から退会",
+        "leaveCountActionPlural": "コミュニティ {{count}} 個から退会",
+        "leaving": "退会中...",
+        "bulkLeave": "一括退会",
+        "exitBulkMode": "一括モードを終了",
+        "successMessage": "コミュニティ {{successCount}}/{{totalCount}} 個からの退会に成功しました！"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "この取引後の残高"
+    },
+    "recentlyViewed": {
+        "title": "最近見た",
+        "clear": "クリア",
+        "remove": "削除",
+        "cheaper": "閲覧時より {{value}} Robux 安くなっています",
+        "pricier": "閲覧時より {{value}} Robux 高くなっています",
+        "offSale": "販売終了",
+        "backOnSale": "販売再開"
+    },
+    "tradeRecentItems": {
+        "offer": "最近オファーした",
+        "request": "最近リクエストした",
+        "clear": "クリア"
+    },
+    "tradeQuickActions": {
+        "minValue": "相手が出す最小の価値",
+        "hideLosses": "損失を非表示",
+        "bulkTitle": "一括操作",
+        "bulkHint": "受信したトレードのうち、あなたが価値を失うものをすべて辞退します。事前に確認が入ります。",
+        "declineLosses": "損失トレードを辞退",
+        "loadingTrades": "受信したトレードを読み込み中...",
+        "checking": "トレードを確認中 {{done}}/{{total}}...",
+        "noLosses": "損失となる受信トレードは見つかりませんでした",
+        "confirmTitle": "損失トレードを辞退",
+        "confirmMessage": "受信したトレード {{total}} 件のうち {{count}} 件は、価値の面で損失です（合計 {{value}}）。すべて辞退しますか？この操作は元に戻せません。",
+        "declineConfirm": "辞退",
+        "declining": "辞退中 {{done}}/{{total}}...",
+        "declined": "{{count}} 件のトレードを辞退しました",
+        "declinedWithFailures": "{{count}} 件のトレードを辞退しました（{{failed}} 件失敗）"
+    },
+    "time": {
+        "justNow": "たった今",
+        "secondsAgo": "{{count}}秒前",
+        "minutesAgo": "{{count}}分前",
+        "hoursAgo": "{{count}}時間前",
+        "daysAgo": "{{count}}日前",
+        "weeksAgo": "{{count}}週間前",
+        "monthsAgo": "{{count}}か月前",
+        "yearsAgo": "{{count}}年前",
+        "secondsFromNow": "{{count}}秒後",
+        "minutesFromNow": "{{count}}分後",
+        "hoursFromNow": "{{count}}時間後",
+        "daysFromNow": "{{count}}日後",
+        "weeksFromNow": "{{count}}週間後",
+        "monthsFromNow": "{{count}}か月後",
+        "yearsFromNow": "{{count}}年後",
+        "months": {
+            "jan": "1月",
+            "feb": "2月",
+            "mar": "3月",
+            "apr": "4月",
+            "may": "5月",
+            "jun": "6月",
+            "jul": "7月",
+            "aug": "8月",
+            "sep": "9月",
+            "oct": "10月",
+            "nov": "11月",
+            "dec": "12月"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "概要",
+            "store": "ストア",
+            "servers": "サーバー"
+        },
+        "servers": {
+            "title": "あなたのプライベートサーバー",
+            "description": "ひとり、または招待した人と、自分だけのスペースでプレイ",
+            "friendsTitle": "フレンドがいるサーバー",
+            "publicTitle": "その他のサーバー",
+            "privateServer": "プライベートサーバー",
+            "players": "最大 {{maxPlayers}} 人中 {{playing}} 人",
+            "join": "参加",
+            "loadMore": "さらに読み込む",
+            "loading": "サーバーを読み込み中...",
+            "noServers": "サーバーが見つかりません。",
+            "loadError": "サーバーを読み込めません。",
+            "ownerAvatar": "サーバーオーナー",
+            "playerAvatar": "プレイヤー",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "非公開エクスペリエンス",
+        "experienceIsPrivate": "このエクスペリエンスは非公開です。",
+        "unknown": "不明",
+        "rovalraNotice": "このページを表示できるのは RoValra ユーザーのみです。",
+        "unavailable": "利用不可",
+        "favorite": {
+            "add": "お気に入りに追加",
+            "remove": "お気に入りから削除",
+            "favorited": "お気に入り済み",
+            "favorite": "お気に入り"
+        },
+        "notify": {
+            "tooltip": "通知をオンにする",
+            "label": "通知"
+        },
+        "description": {
+            "title": "説明",
+            "noDescription": "説明はありません。"
+        },
+        "stats": {
+            "active": "アクティブ",
+            "favorites": "お気に入り",
+            "visits": "訪問数",
+            "maxPlayers": "最大プレイヤー数",
+            "genre": "ジャンル",
+            "subgenre": "サブジャンル",
+            "created": "作成日",
+            "updated": "更新日",
+            "voiceChat": "ボイスチャット",
+            "supported": "対応",
+            "unsupported": "非対応"
+        },
+        "reportAbuse": "違反を報告",
+        "badges": {
+            "title": "バッジ",
+            "noBadges": "バッジはまだありません",
+            "rarity": "レア度",
+            "wonYesterday": "昨日の獲得数",
+            "wonEver": "累計獲得数"
+        },
+        "subscriptions": {
+            "title": "サブスクリプション",
+            "subscribe": "購読"
+        },
+        "passes": {
+            "title": "パス",
+            "showOffSale": "販売停止中を表示",
+            "noPasses": "利用可能なパスはありません",
+            "offSale": "販売停止中",
+            "owned": "所有済み",
+            "buy": "購入"
+        },
+        "disabled": "非公開/モデレーション済みゲームの表示は無効です",
+        "disabledDescription": "非公開およびモデレーション済みのゲームを表示するには、こちらで設定を有効にする必要があります:",
+        "disabledLinkText": "非公開/モデレーション済みゲームを表示",
+        "products": {
+            "title": "商品",
+            "buy": "購入"
+        },
+        "moderated": "モデレーション済み"
+    },
+    "gamePassViewer": {
+        "type": "種類",
+        "typeValue": "パス",
+        "productId": "商品 ID",
+        "price": "価格",
+        "owned": "所有済み",
+        "ownedItem": "所有済みアイテム",
+        "free": "無料",
+        "ownedNotice": "このアイテムはインベントリにあります。",
+        "inventory": "インベントリ",
+        "by": "作成者:",
+        "usePassIn": "このパスの使用先:",
+        "rovalraNoticeDescription": "このゲームパスは非アクティブで、アカウントの経過期間やゲームの公開設定に関連する可能性のある Roblox の制限により購入できません。"
+    },
+    "playabilityStatus": {
+        "0": "このエクスペリエンスは利用できません",
+        "1": "このエクスペリエンスはプレイ可能です",
+        "2": "ゲストはこのエクスペリエンスに参加できません",
+        "3": "このエクスペリエンスは Roblox のコミュニティ基準に違反したためモデレーションされました",
+        "4": "このエクスペリエンスは正しく設定されていません",
+        "5": "このエクスペリエンスは非公開です",
+        "6": "このエクスペリエンスに参加できるのはフレンドのみです",
+        "7": "このエクスペリエンスに参加できるのはコミュニティメンバーのみです",
+        "8": "このエクスペリエンスは、お使いのデバイスでは制限されています",
+        "9": "このエクスペリエンスは、Roblox のコミュニティ基準に違反した可能性があるため審査中です",
+        "10": "プレイするには購入が必要です",
+        "11": "アカウントは制限されています",
+        "12": "このエクスペリエンスは一時的に利用できません",
+        "13": "このエクスペリエンスには公開されているバージョンがありません",
+        "14": "このエクスペリエンスはコンプライアンス上の理由でブロックされています",
+        "15": "このエクスペリエンスはお住まいの地域では利用できません",
+        "16": "このエクスペリエンスは地域のコンプライアンス上の理由でブロックされています",
+        "17": "このエクスペリエンスは保護者による制限の対象です",
+        "18": "このエクスペリエンスは保護者による制限でブロックされています",
+        "19": "このエクスペリエンスには年齢制限があります",
+        "20": "18歳以上向けエクスペリエンスには認証が必要です",
+        "21": "プレイするには購入が必要です",
+        "22": "このデバイスでは購入が制限されています",
+        "23": "このエクスペリエンスは未審査です",
+        "24": "このエクスペリエンスはコンテンツ記述子により年齢制限があります",
+        "25": "このエクスペリエンスは、不正確なコンテンツ成熟度評価のためモデレーションされました。",
+        "unknown": "このエクスペリエンスは利用できません"
+    },
+    "bannedUsers": {
+        "connections": "フレンド",
+        "followers": "フォロワー",
+        "following": "フォロー中",
+        "about": "概要",
+        "creations": "作品",
+        "experiences": "エクスペリエンス",
+        "bannedStatus": "BAN 済み",
+        "seeAll": "すべて表示",
+        "hiddenUser": "非表示のユーザー",
+        "communities": "コミュニティ",
+        "badges": "バッジ",
+        "noExperiences": "このユーザーには公開エクスペリエンスがありません。",
+        "favorites": "お気に入り",
+        "joinedDate": "参加日",
+        "store": "ストア",
+        "members": "メンバー",
+        "accountForgotten": "忘れられたアカウント"
+    },
+    "copyId": {
+        "copyId": "{{type}} ID をコピー",
+        "copyUniverseId": "ユニバース ID をコピー",
+        "types": {
+            "bundle": "バンドル",
+            "asset": "アセット",
+            "gamePass": "ゲームパス",
+            "badge": "バッジ",
+            "community": "コミュニティ",
+            "event": "イベント",
+            "developerProduct": "開発者アイテム",
+            "place": "プレイス",
+            "universe": "ユニバース",
+            "user": "ユーザー"
+        }
+    },
+    "viewid": {
+        "viewId": "ID を表示",
+        "popup": {
+            "title": "アイテム ID",
+            "button": {
+                "copy": "データをコピー",
+                "copyMd": "Markdown データをコピー"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "{{gameName}} をプレイ中のフレンド",
+        "join": "参加"
+    },
+    "friendUsernames": {
+        "ariaLabel": "ユーザー名: @{{username}}",
+        "nameWithUsername": "{{displayName}}（@{{username}}）"
+    },
+    "placeVisits": {
+        "label": "プレイス訪問数 {{count}}",
+        "tooltip": "コミュニティのプレイス訪問数合計"
+    },
+    "groupFundsPill": {
+        "label": "資金 {{count}}",
+        "tooltip": "コミュニティの資金",
+        "privateTooltip": "この資金は公開されていません。あなたのロールに基づき、RoValra がこれを表示しています。",
+        "roleTooltip": "あなたのロールに基づき、RoValra がこの資金を表示しています。"
+    },
+    "groups": {
+        "createdLabel": "作成日",
+        "joinedLabel": "参加日",
+        "unknown": "不明",
+        "hidden": "非表示",
+        "hiddenTooltip": "このコミュニティはメンバーリストを非表示にしているため、参加日はメンバーにのみ表示されます。"
+    },
+    "showcase": {
+        "tab": "ショーケース",
+        "favoriteGame": "お気に入りのエクスペリエンス",
+        "favoriteGroup": "お気に入りのコミュニティ",
+        "favoriteDecal": "アートショーケース",
+        "chooseGame": "プロフィールで紹介するエクスペリエンスを選択してください。",
+        "noFeaturedGame": "紹介するエクスペリエンスはまだありません。:C",
+        "chooseGroup": "プロフィールで紹介するコミュニティを選択してください。",
+        "noFeaturedGroup": "紹介するコミュニティはまだありません。:,(",
+        "chooseDecal": "デカール ID を入力して、プロフィールで画像を紹介しましょう。",
+        "noFeaturedDecal": "紹介する画像はまだありません。:C",
+        "searchGame": "紹介するエクスペリエンスを検索",
+        "searchGroup": "紹介するコミュニティを検索",
+        "clearGame": "お気に入りのエクスペリエンスをクリア",
+        "clearGroup": "お気に入りのコミュニティをクリア",
+        "gameOptions": "お気に入りのエクスペリエンスのオプション",
+        "groupOptions": "お気に入りのコミュニティのオプション",
+        "decalId": "デカール ID",
+        "decalImageOptions": "画像オプション",
+        "openImagePage": "画像ページを開く",
+        "report": "報告",
+        "clearDecal": "画像をクリア",
+        "by": "作成者:",
+        "maturity": "コンテンツ成熟度",
+        "maturityUnavailable": "コンテンツ成熟度は利用できません",
+        "members": "メンバー {{count}} 人",
+        "noResultsGame": "エクスペリエンスが見つかりません。",
+        "noResultsGroup": "コミュニティが見つかりません。",
+        "unknownExperience": "不明なエクスペリエンス",
+        "unknownCommunity": "不明なコミュニティ",
+        "verifiedBadge": "認証済みバッジのアイコン"
+    },
+    "profileCustomization": {
+        "pill": "カスタマイズ",
+        "pillTooltip": "アバターボーダーとフレームを切り替えます。",
+        "title": "プロフィールのカスタマイズ",
+        "tabBorders": "アバターボーダー",
+        "tabFrames": "フレーム",
+        "currentPreview": "現在の選択のプレビュー",
+        "unequip": "外す",
+        "unequipTooltip": "クリックしてこのボーダーを外す",
+        "equip": "装備",
+        "equipTooltip": "このボーダーを装備",
+        "equipped": "装備中",
+        "getMore": "もっと入手",
+        "owned": "所有済み",
+        "unowned": "未所有",
+        "unownedTooltip": "このボーダーはまだ所有していません。",
+        "all": "すべて",
+        "new": "新着",
+        "static": "静止画",
+        "animated": "アニメーション",
+        "free": "無料",
+        "noBorders": "ボーダーが見つかりません。",
+        "noBordersInTab": "このタブにボーダーは見つかりませんでした。",
+        "noFrames": "フレームが見つかりません。",
+        "noFramesInTab": "このタブにフレームは見つかりませんでした。",
+        "none": "なし",
+        "failedToLoad": "ボーダーの読み込みに失敗しました。後でもう一度お試しください。"
+    },
+    "profileFrame": {
+        "storeTitle": "プロフィールフレームストア",
+        "storeDesc": "プロフィールフレームは、プロフィール上のアバター表示全体を囲みます。フレームを直接購入すると RoValra とアーティストを支援でき、寄付者ティアにも加算されます。フレームは寄付者ティア 3 の特典には含まれません（対象はアバターボーダーのみです）。",
+        "tabBorders": "アバターボーダー",
+        "tabFrames": "フレーム",
+        "loading": "フレームを読み込み中...",
+        "currentPreview": "現在のフレームのプレビュー",
+        "all": "すべて",
+        "new": "新着",
+        "static": "静止画",
+        "animated": "アニメーション",
+        "equip": "装備",
+        "equipTooltip": "このフレームを装備",
+        "equipped": "装備中",
+        "unequipTooltip": "クリックしてこのフレームを外す",
+        "unequip": "外す",
+        "buy": "購入",
+        "buyFor": "{{price}} で購入",
+        "viewItem": "アイテムを表示",
+        "buyTooltip": "このフレームを購入",
+        "owned": "所有済み",
+        "ownedTooltip": "このフレームを所有しています！",
+        "free": "無料",
+        "freeTooltip": "このフレームは無料で装備できます。",
+        "localOnly": "ローカルに保存済み",
+        "localOnlyTooltip": "RoValra はこのフレームをまだアカウントに保存できていないため、このブラウザ上でのみ表示されます。",
+        "noFrames": "利用可能なフレームはありません。",
+        "noFramesInTab": "このタブにフレームは見つかりませんでした。",
+        "failedToLoad": "フレームの読み込みに失敗しました。後でもう一度お試しください。"
+    },
+    "profileNotes": {
+        "ariaLabel": "非公開のプロフィールノート",
+        "heading": "ノート（自分にのみ表示）",
+        "headingTooltip": "このノートはこのブラウザにのみ保存され、Roblox や RoValra に送信されることはありません。",
+        "addNote": "クリックしてノートを追加",
+        "editAriaLabel": "非公開のプロフィールノートを編集",
+        "addAriaLabel": "非公開のプロフィールノートを追加",
+        "displayTooltip": "クリックして編集。ノートはこのブラウザにのみ保存されます。",
+        "inputPlaceholder": "非公開のノートを追加",
+        "inputTooltip": "外側をクリックすると保存されます。Esc でキャンセル、Ctrl+Enter で保存します。"
+    },
+    "profilePronouns": {
+        "label": "代名詞",
+        "ariaLabel": "代名詞: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "RoValra の機能",
+        "profilePronouns": "プロフィールの代名詞",
+        "profileBadges": "プロフィールバッジ",
+        "pronounsPlaceholder": "代名詞を入力",
+        "donatorPerks": "寄付者特典",
+        "usernameCustomizations": "ユーザー名のカスタマイズ"
+    },
+    "profile": {
+        "socialLinks": "ソーシャルリンク",
+        "currencyTransfer": "Robux を送る",
+        "currencyTransferConfirmation": "Roblox クライアントが開き、Robux を送ることができます。",
+        "openClient": "クライアントを開く"
+    },
+    "animations": {
+        "idle": "アイドル",
+        "walk": "歩行",
+        "fall": "落下",
+        "climb": "登る",
+        "run": "走る",
+        "jump": "ジャンプ",
+        "swim": "泳ぐ"
+    },
+    "itemRender": {
+        "renderOptions": "レンダリングオプション",
+        "darkLighting": "暗い照明",
+        "baseplate": "ベースプレート",
+        "rotatePreview": "プレビューを回転",
+        "itemOnly": "アイテムのみ表示"
+    },
+    "freeBadgeQuota": {
+        "label": "無料バッジ",
+        "value": "本日あと {{count}} 個",
+        "tooltip": "このエクスペリエンスが無料でまだ作成できるバッジの数です。Roblox では、エクスペリエンスごとに24時間あたり5個まで無料でバッジを作成できます。"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "デフォルト",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "新しい順",
+            "oldest": "最古"
+        },
+        "tooltip": "ユーザーがコミュニティに参加した日で並べ替え",
+        "view": {
+            "row": "行",
+            "grid": "グリッド"
+        }
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "訪問数",
+        "members": "メンバー",
+        "ccuTooltip": "このユーザーが作成した公開エクスペリエンス全体の現在のプレイヤー数。",
+        "visitsTooltip": "このユーザーが作成した公開エクスペリエンス全体の累計訪問数。",
+        "membersTooltip": "このユーザーが所有するコミュニティ全体のメンバー数。"
+    },
+    "plus": {
+        "stats": {
+            "robux": "Plus 加入中に {{robux}} 節約しました",
+            "percentOffSmall": "ゲーム内アイテム、アバターなど",
+            "percentOff": "{{percent}} オフ",
+            "itemsBoughtSmall": "Plus 割引で購入したアイテム",
+            "privateServersCreatedSmall": "無料で作成したプライベートサーバー",
+            "robuxSentSmall": "フレンドに送った Robux",
+            "delayNotice": "ここに表示されるデータはすべて1日遅れです"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "1日の残り上限",
+            "monthlyLimitLeft": "1か月の残り上限",
+            "sentToday": "本日の送信額",
+            "sentThisMonth": "今月の送信額",
+            "nextRefill": "次の回復",
+            "leftAfter": "残り {{amount}}",
+            "refillNote": "各送金は30日間、月間上限にカウントされ、その後その Robux は再び利用可能になります。",
+            "caption": "1日の上限は {{dailyLimit}}、月間の上限は {{monthlyLimit}} です。5分ごとに更新されます。残りの数値は推定値であり、不正確な場合があります。"
+        },
+        "referral": {
+            "reward": "100 Robux を無料で入手して、RoValra を応援しよう！",
+            "details": "対象は新規の Roblox Plus ユーザーのみです。RoValra の紹介コードを使って登録すると、RoValra も 100 Robux を受け取ります。",
+            "button": "RoValra の紹介コードを使って登録"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "元の価格: <b>{{originalPrice}} Robux</b><br>Roblox Plus により現在は<b>無料</b>と表示されています。"
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Robux を送る",
+                "openInApp": "アプリで開く"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Robux を送れません",
+                "deletedAccountBody": "このユーザーのアカウントは削除されているため、Robux を送ることはできません"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Robux を送る",
+                    "titleSilly": "ボバックスを送る :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "送る Robux の金額",
+                    "mutedNotice": "Robux は手数料なしで即時に送られます",
+                    "minRobux": "最低 {{robuxAmount}} Robux を送る必要があります",
+                    "maxRobux": "{{robuxAmount}} Robux を超える金額は送れません",
+                    "notEnoughRobux": "Robux が足りません",
+                    "nextBtn": "次へ"
+                },
+                "step2": {
+                    "sendBtn": "送信",
+                    "editBtn": "編集",
+                    "mutedNotice": "キャンセルはできません。年齢確認または保護者の承認が必要な場合があります。",
+                    "transferErrorGeneric": "不明なエラーが発生しました。",
+                    "transferErrorNoMessage": "メッセージなしの不明なエラーが発生しました",
+                    "transferSuccessBody": "送金に成功しました！",
+                    "transferSuccessBodySilly": "送金できたよ！めっちゃいいね",
+                    "transferSuccessOkBtnSilly": "エレクトリック・ブガルー",
+                    "userInfoFriendTime": "{{time, relativetime}} にフレンド登録",
+                    "userInfoMutualFriends_one": "共通のフレンド {{count}} 人",
+                    "userInfoMutualFriends_other": "共通のフレンド {{count}} 人",
+                    "userInfoJoin": "{{year}}年に参加",
+                    "paramPassedError": "不明なエラーが発生しました！コンソールを確認し、RoValra に問題を報告してください。"
+                },
+                "parentPerms": {
+                    "askBtn": "お願いする",
+                    "sendRobuxBody": "Robux を送るには、保護者の許可が必要です",
+                    "receiveRobuxBody": "Robux を受け取るには、保護者の許可が必要です",
+                    "askTitle": "許可を求める",
+                    "askTitleSilly": "親に許可をもらう",
+                    "errorSending": "不明なエラーが発生しました。コンソールを確認し、RoValra に報告してください",
+                    "errorReceivingTitle": "Robux の受け取り中にエラーが発生しました",
+                    "errorReceivingBody": "不明なエラーが発生しました。この Robux の送金はすでに受け取り済みの可能性があります。詳細はコンソールをご確認ください。",
+                    "errorReceivingOkBtnSilly": "あぁ",
+                    "successfulAskTitle": "リクエストを送信しました",
+                    "successfulAskTitleSilly": "親に通知したよ、覚悟してね...",
+                    "successfulAskBody": "メールで保護者にリクエストを送信しました！",
+                    "successfulAskOkBtnSilly": "おっけー、いいね、ありがとう"
+                },
+                "plusNeeded": {
+                    "body": "残念ながら、Robux を送るには Roblox Plus が必要です。これは Roblox Plus サブスクリプションの特典です。",
+                    "bodySilly": "ボブロックスプラスがないから :c ボバックスは送れないよ、必要だからね 3:",
+                    "buyPlusBtn": "Roblox Plus を購入",
+                    "buyPlusBtnSilly": "ボブロックスプラスをゲット c:",
+                    "okBtnSilly": "えー、まあいっか :c"
+                }
+            }
+        }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "一部の設定が削除/置き換えられました"
+            },
+            "deleted": "以下の設定は最近削除、ロック、または非推奨になりました:",
+            "replaced": "以下の設定は最近置き換えまたは変更されました:"
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "ゲームアウトフィット",
+            "title": "エクスペリエンス用アウトフィット",
+            "hint": "R6 または R15 のエクスペリエンスをプレイするときに装備されるアウトフィットを選択してください。",
+            "r6": "R6 エクスペリエンス",
+            "r15": "R15 エクスペリエンス",
+            "none": "変更しない",
+            "gameTitle": "このエクスペリエンス用のアウトフィット",
+            "gameHint": "R6 および R15 エクスペリエンス用に設定したアウトフィットよりも優先されます。",
+            "useGlobal": "デフォルトを使用"
+        },
+        "bodyColors": {
+            "addCustom": "カスタムカラーを選択",
+            "savedColor": "{{hex}}、右クリックで削除",
+            "applyFailed": "ボディカラーを更新できませんでした。しばらくしてからもう一度お試しください。"
+        }
+    },
+    "pinnedFriends": {
+        "pin": "先頭に固定",
+        "unpin": "固定を解除"
+    },
+    "richLinks": {
+        "by": "作成者: {{name}}",
+        "members": "メンバー {{count}} 人",
+        "playing": "プレイ中 {{count}} 人",
+        "visits": "訪問数 {{count}}",
+        "loading": "読み込み中...",
+        "free": "無料",
+        "offSale": "販売停止中"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "API ドキュメントを読み込み中...",
+        "loadFailed": "API ドキュメントの読み込みに失敗しました: {{error}}",
+        "noAccess": "これらのドキュメントにアクセスする権限がありません。",
+        "serverError": "サーバーがステータス {{status}} で応答しました。",
+        "invalidSpec": "サーバーが無効な OpenAPI ドキュメントを返しました。",
+        "baseUrl": "ベース URL: {{url}}",
+        "apiVersion": "API バージョン",
+        "openApiVersion": "OpenAPI バージョン",
+        "server": "サーバー",
+        "sendToken": "RoValra アクセストークンを送信",
+        "filterLabel": "エンドポイントをフィルター",
+        "filterPlaceholder": "パス、概要、またはタグ",
+        "hideDeprecated": "非推奨を非表示",
+        "noEndpoints": "エンドポイントが見つかりません。",
+        "deprecated": "非推奨",
+        "deprecatedTooltip": "このエンドポイントは非推奨です。",
+        "authRequired": "認証が必須",
+        "authOptional": "認証は任意",
+        "schemeNotSent": "{{name}} が必要ですが、このページは送信しません。",
+        "operationId": "オペレーション ID",
+        "security": "認証: {{schemes}}",
+        "securityOptional": "認証: {{schemes}}（任意）",
+        "securityTooltip": "セキュリティ要件",
+        "parameters": "パラメーター",
+        "noParameters": "パラメーターなし",
+        "tryItOut": "試してみる",
+        "name": "名前",
+        "description": "説明",
+        "required": "必須",
+        "availableValues": "使用可能な値: {{values}}",
+        "requestBody": "リクエストボディ",
+        "requestContentType": "リクエストのコンテンツタイプ",
+        "exampleValue": "サンプル値",
+        "schema": "スキーマ",
+        "responses": "レスポンス",
+        "noResponses": "文書化されたレスポンスはありません",
+        "code": "コード",
+        "details": "詳細",
+        "execute": "実行",
+        "clear": "クリア",
+        "missingParams": "必須パラメーターがありません: {{params}}",
+        "invalidJson": "リクエストボディが有効な JSON ではありません: {{error}}",
+        "bodyRequired": "リクエストボディが必要です。",
+        "confirmTitle": "リクエストを送信しますか？",
+        "confirmMessage": "{{path}} に {{method}} リクエストを送信します。内容を理解している場合のみ続行してください。",
+        "send": "送信",
+        "sending": "リクエストを送信中...",
+        "requestFailed": "リクエストに失敗しました: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "リクエスト URL",
+        "serverResponse": "サーバーのレスポンス",
+        "responseBody": "レスポンスボディ",
+        "responseHeaders": "レスポンスヘッダー",
+        "emptyResponse": "（空のレスポンス）",
+        "responseImage": "レスポンス画像",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "リクエストの所要時間",
+        "contentType": "コンテンツタイプ",
+        "redirected": "リダイレクト済み",
+        "copy": "コピー"
+    },
+    "notifications": {
+        "newTrade": "新しいトレード",
+        "tradeFrom": "{{name}} から",
+        "tradeStats": "価値 {{value}} | RAP {{rap}}",
+        "friendPlaying": "{{name}} がプレイ中",
+        "unknownGame": "エクスペリエンス"
+    }
+}
