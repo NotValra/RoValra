@@ -574,10 +574,10 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             badgeSortEnabled: {
-                label: 'Badge Sorting',
+                label: 'settings.experiences.badgeSortEnabled.title',
                 description: [
-                    'Adds a Sort dropdown to experience badge sections.',
-                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                    'settings.experiences.badgeSortEnabled.desc1',
+                    'settings.experiences.badgeSortEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -602,10 +602,10 @@ export const SETTINGS_CONFIG = {
                 contributors: [476449201],
             },
             freeBadgeQuotaEnabled: {
-                label: 'Free Badge Quota',
+                label: 'settings.experiences.freeBadgeQuotaEnabled.title',
                 description: [
-                    'Shows how many badges an experience can still create for free today in its stats.',
-                    'Roblox lets each experience create 5 free badges every 24 hours.',
+                    'settings.experiences.freeBadgeQuotaEnabled.desc1',
+                    'settings.experiences.freeBadgeQuotaEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: false,

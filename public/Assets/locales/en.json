@@ -1197,6 +1197,11 @@
                 "title": "Badge Layout Toggle",
                 "desc1": "Adds a List / Grid toggle to experience badge sections."
             },
+            "badgeSortEnabled": {
+                "title": "Badge Sorting",
+                "desc1": "Adds a Sort dropdown to experience badge sections.",
+                "desc2": "Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name."
+            },
             "badgeOwnershipEnabled": {
                 "title": "Dim Unowned Badges",
                 "desc1": "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)"
@@ -1204,6 +1209,11 @@
             "badgeEarnedDateEnabled": {
                 "title": "Badge Earned Date",
                 "desc1": "Shows when you earned a badge on badge and experience pages."
+            },
+            "freeBadgeQuotaEnabled": {
+                "title": "Free Badge Quota",
+                "desc1": "Shows how many badges an experience can still create for free today in its stats.",
+                "desc2": "Roblox lets each experience create 5 free badges every 24 hours."
             },
             "gameStatTimestampsEnabled": {
                 "title": "Detailed Created / Updated Dates",

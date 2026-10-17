@@ -15,8 +15,8 @@
         "change": "更改",
         "invalidFileFormat": "文件格式无效。",
         "invalidImageFile": "文件格式无效。请上传有效的图像。",
-        "fileProcessingFailed": "文件处理失败。请尝试上传其他文件。",
-        "errorProcessingFile": "文件处理时发生错误。请尝试上传其他文件。",
+        "fileProcessingFailed": "文件处理失败。请尝试上传其它文件。",
+        "errorProcessingFile": "文件处理时发生错误。请尝试上传其它文件。",
         "less": "更少",
         "more": "更多",
         "pastYear": "过去一年",
@@ -296,7 +296,7 @@
         "groupRequiredBody": "若要在自己的群组中使用 40% 折扣方式，你需要一个可以管理群组体验的群组。",
         "groupRequiredImportant": "<strong>重要：</strong>为了确保此功能正常运行，群组必须由一个安全的马甲号创建。您的主账号（用于购道具的账号）应具有创建和管理群组体验的权限身份。",
         "groupRequiredDonate": "如果你没有合适的群组，你也可以通过我们的体验来支持 RoValra，这样 RoValra 就能收到已节省的 Robux ❤️",
-        "ownershipBody": "如果您是该群组的所有者，则 40% 折扣方式将无法使用。请选择其他群组或将所有权转移到安全的马甲号。",
+        "ownershipBody": "如果您是该群组的所有者，则 40% 折扣方式将无法使用。请选择其它群组或将所有权转移到安全的马甲号。",
         "experienceAccepted": "体验已接受",
         "experienceAcceptedSpecific": "<strong>只有特定的体验才能有效。</strong>请确保该体验已设置好处理游戏内购买所需的脚本。",
         "experienceAcceptedGroup": "请确保该体验属于您<strong>可控制的群组，但该群组并非由此账号所有。</strong>最好由您的马甲号拥有该群组。如果您拥有该群组，则 40% 折扣方式将无法使用。",
@@ -586,7 +586,7 @@
         "priceHighToLow": "价格（从高到低）",
         "userGamePasses": "{{username}} 的游戏通行证",
         "copyDonationLink": "复制捐赠链接",
-        "copyLinkDescription": "这将复制指向此个人资料的特殊链接。当 RoValra 用户打开此链接时，捐赠菜单将自动出现。<br><br><strong>注意：</strong>只有 RoValra 用户才能看到捐赠窗口，其他用户将看到标准个人资料。",
+        "copyLinkDescription": "这将复制指向此个人资料的特殊链接。当 RoValra 用户打开此链接时，捐赠菜单将自动出现。<br><br><strong>注意：</strong>只有 RoValra 用户才能看到捐赠窗口，其它用户将看到标准个人资料。",
         "copyLinkButton": "复制链接",
         "copySuccess": "捐赠链接已成功复制！",
         "noGamePassesFound": "未找到 {{username}} 的游戏通行证。",
@@ -749,11 +749,11 @@
         "retry": "重试",
         "robloxLimitError": "Roblox 返回了内部服务器错误。由于 Roblox 的限制，可能无法扫描更多交易。",
         "noEarnings": "尚未找到任何收益。",
-        "other": "其他",
+        "other": "其它",
         "groupPayout": "群组支付"
     },
     "totalSpent": {
-        "other": "其他",
+        "other": "其它",
         "na": "N/A",
         "calculatingTitle": "计算中",
         "calculatingRobuxTitle": "正在计算 Robux 总消费额",
@@ -1087,13 +1087,23 @@
                 "title": "徽章布局切换",
                 "desc1": "此功能会在体验徽章部分添加列表/网格切换。"
             },
+            "badgeSortEnabled": {
+                "title": "徽章排序",
+                "desc1": "为体验徽章部分添加排序下拉菜单。",
+                "desc2": "按最近更新、最新、最旧、最多/最少赢得、昨天赢得、稀有度或名称排序。"
+            },
             "badgeOwnershipEnabled": {
                 "title": "未拥有的徽章颜色变暗",
                 "desc1": "在徽章页面上，将您未拥有的体验徽章颜色变暗。（类似于 BTRoblox 的做法）"
             },
             "badgeEarnedDateEnabled": {
-                "title": "徽章获得日期",
-                "desc1": "在徽章和体验页面上显示您获得徽章的时间。"
+                "title": "徽章赢得日期",
+                "desc1": "在徽章和体验页面上显示您赢得徽章的时间。"
+            },
+            "freeBadgeQuotaEnabled": {
+                "title": "免费创建徽章配额",
+                "desc1": "在体验的统计数据中显示仍可免费创建的徽章数量。",
+                "desc2": "Roblox 允许每个体验每 24 小时创建 5 个免费徽章。"
             },
             "gameStatTimestampsEnabled": {
                 "title": "详细的创建/更新日期",
@@ -1163,7 +1173,7 @@
                 },
                 "enableShareLink": {
                     "title": "分享链接按钮",
-                    "desc1": "此功能会在加入按钮下方添加一个分享链接按钮，以便您可以向服务器发送链接，供其他人加入。",
+                    "desc1": "此功能会在加入按钮下方添加一个分享链接按钮，以便您可以向服务器发送链接，供其它人加入。",
                     "desc2": "此功能使用 fishstrap.app 来处理分享链接。"
                 },
                 "EnableServerUptime": {
@@ -1195,7 +1205,7 @@
                     "desc1": "这将显示服务器性能，如果您想避免使用性能差的服务器，这将非常有用。"
                 },
                 "EnableMiscIndicators": {
-                    "title": "显示其他指示器",
+                    "title": "显示其它指示器",
                     "desc1": "显示您无法加入的服务器的指示器，例如有人正在私人服务器上玩游戏时。"
                 },
                 "EnableDatacenterandId": {
@@ -1234,7 +1244,7 @@
             },
             "profilePronouns": {
                 "title": "个人资料代词",
-                "desc1": "在您的个人资料中，您的用户名旁边会显示您的代词，供其他 RoValra 用户查看。",
+                "desc1": "在您的个人资料中，您的用户名旁边会显示您的代词，供其它 RoValra 用户查看。",
                 "desc2": "最多 15 个字符。",
                 "desc3": "允许使用表情符号和空格。特殊字符（例如 /、逗号或 ;）将自动替换为 |。",
                 "placeholder": "输入代词"
@@ -1244,7 +1254,7 @@
                 "desc1": "在用户的个人资料中显示其 App 主题！",
                 "displayAppThemeOwnProfile": {
                     "title": "在您的个人资料中显示您的 App 主题",
-                    "desc1": "向其他用户显示您的 App 主题！",
+                    "desc1": "向其它用户显示您的 App 主题！",
                     "desc2": "要更改此设置，您可以前往 [Roblox 设置 > 浏览器首选项 > App 主题](https://www.roblox.com/my/account#!/browser-preferences)",
                     "desc3": "启用此设置将自动开启**免费 Roblox Plus 主题**。",
                     "donatorReason": "需要达到捐赠者等级 1 才能在个人资料中显示您的 App 主题"
@@ -1266,7 +1276,7 @@
             "profileViewsEnabled": {
                 "title": "个人资料浏览次数",
                 "desc1": "在个人资料页面上显示浏览次数。",
-                "desc2": "禁用此功能将隐藏本地个人资料浏览次数，并隐藏您对其他 RoValra 用户的浏览次数。",
+                "desc2": "禁用此功能将隐藏本地个人资料浏览次数，并隐藏您对其它 RoValra 用户的浏览次数。",
                 "desc3": "感谢 [syra](https://www.roblox.com/users/170038374/profile) 提出此功能的概念。"
             },
             "creatorStatsEnabled": {
@@ -1303,7 +1313,7 @@
             "profile3DRenderEnabled": {
                 "title": "启用自定义 3D 个人资料渲染器",
                 "desc1": "将默认个人资料虚拟形象替换为更可定制、功能更丰富的 3D 渲染器。",
-                "desc2": "自定义环境和其他渲染相关设置需要此功能。",
+                "desc2": "自定义环境和其它渲染相关设置需要此功能。",
                 "desc3": "此功能得益于 {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️",
                 "experimental": "此功能可能会导致性能问题，并且可能存在错误。",
                 "profileRenderEnvironment": {
@@ -1404,10 +1414,10 @@
             "statusBubbleEnabled": {
                 "title": "状态气泡",
                 "desc1": "此功能允许您在个人资料中设置状态气泡，任何拥有 RoValra 的用户都可以看到。",
-                "desc2": "同时允许您查看其他 RoValra 用户的状态气泡。",
+                "desc2": "同时允许您查看其它 RoValra 用户的状态气泡。",
                 "desc3": "**此设置保存在 RoValra 的数据库中，因此任何拥有 RoValra 的用户都可以查看。RoValra 的数据库曾经是等级 1 捐赠者福利，我们正在开发替代福利。**",
                 "statusBubbleHomePage": {
-                    "title": "好友在首页以及网站其他可能显示好友的位置的状态气泡。"
+                    "title": "好友在首页以及网站其它可能显示好友的位置的状态气泡。"
                 }
             },
             "donationbuttonEnable": {
@@ -1478,7 +1488,7 @@
             "avatarBorderEnabled": {
                 "title": "显示用户的虚拟形象边框",
                 "desc1": "在好友图块和个人资料页面上的虚拟形象周围显示装饰边框。",
-                "desc2": "**您选择的边框将保存到 RoValra 的数据库中，以便其他 RoValra 用户可以看到它。**",
+                "desc2": "**您选择的边框将保存到 RoValra 的数据库中，以便其它 RoValra 用户可以看到它。**",
                 "avatarBorderChoice": {
                     "title": "免费获取所有虚拟形象边框",
                     "desc1": "允许您完全免费使用任何虚拟形象边框。",
@@ -1490,7 +1500,7 @@
                 "title": "显示用户的个人资料框架",
                 "desc1": "在个人资料页面的虚拟形象周围绘制框架。",
                 "desc2": "框架与虚拟形象边框不同，它们包裹整个虚拟形象缩略图容器，而不是虚拟形象图块。",
-                "desc3": "**您选择的框架将保存到 RoValra 的数据库中，以便其他 RoValra 用户可以看到它。**",
+                "desc3": "**您选择的框架将保存到 RoValra 的数据库中，以便其它 RoValra 用户可以看到它。**",
                 "profileFrameChoice": {
                     "title": "个人资料框架",
                     "desc1": "从 RoValra 商店的「框架」选项卡中选择个人资料边框。",
@@ -1541,7 +1551,7 @@
             "pinnedFriendsEnabled": {
                 "title": "置顶好友",
                 "desc1": "在首页的好友菜单中添加一个条目，将某人置于好友列表的最前面。",
-                "desc2": "无论在线状态如何，置顶好友始终保持在最前面，因此您实际一起玩游戏的人不会被其他在线玩家淹没。"
+                "desc2": "无论在线状态如何，置顶好友始终保持在最前面，因此您实际一起玩游戏的人不会被其它在线玩家淹没。"
             },
             "underratedGamesEnabled": {
                 "title": "被低估的游戏",
@@ -1551,7 +1561,7 @@
                 "title": "第二行好友",
                 "desc1": "在首页好友列表中显示第二行好友，而不是只有一行。",
                 "desc2": "某些扩展程序可能会覆盖此功能。",
-                "locked": "与其他扩展程序存在兼容性问题。"
+                "locked": "与其它扩展程序存在兼容性问题。"
             },
             "HideAddFriendsButton": {
                 "title": "隐藏「添加好友」按钮",
@@ -1613,7 +1623,7 @@
             "title": "导航"
         },
         "miscellaneous": {
-            "title": "其他设置"
+            "title": "其它设置"
         },
         "privacy": {
             "title": "隐私权"
@@ -1633,7 +1643,7 @@
                 "146089324": "WoozyNate 是《Fisch》的创作者，RoValra 的旧标志也是来自《Fisch》。你应该去看一下《Fisch》！",
                 "1337447242": "设计了新的标志和所有商店页面的图像。",
                 "795922138": "「RoValra」这个名字是开玩笑想出来的，结果发现太好笑了，所以就用了。",
-                "2974594300": "用户界面改进、错误修复及其他贡献。",
+                "2974594300": "用户界面改进、错误修复及其它贡献。",
                 "170038374": "构思了一些概念，RoValra 的部分功能就是基于这些概念设计的。"
             },
             "sortLabel": "排序贡献者列表",
@@ -1775,7 +1785,7 @@
             },
             "featureStatus": {
                 "title": "启用此功能前",
-                "message": "带有这些标签的功能可能不稳定，或会随时间变化。它们可能会导致加载时间延长、用户界面不一致、网站相关问题或其他意外行为。<br><br>仅当您了解此功能可能无法完美运行时才启用它。",
+                "message": "带有这些标签的功能可能不稳定，或会随时间变化。它们可能会导致加载时间延长、用户界面不一致、网站相关问题或其它意外行为。<br><br>仅当您了解此功能可能无法完美运行时才启用它。",
                 "acknowledge": "我已阅读并同意"
             },
             "environment": {
@@ -1786,7 +1796,7 @@
             },
             "pronouns": {
                 "tooLong": "代词必须少于或等于 15 个字符。",
-                "filterRejected": "Roblox 的过滤器拒绝了这些代词。请尝试其他值。",
+                "filterRejected": "Roblox 的过滤器拒绝了这些代词。请尝试其它值。",
                 "checkFailed": "Roblox 无法检查代词。请重试。",
                 "filterBusy": "Roblox 代词过滤器繁忙。请稍后再试。"
             },
@@ -2561,7 +2571,7 @@
             "title": "你的私人服务器",
             "description": "在你自己的空间中独自游玩，或邀请他人一同游玩",
             "friendsTitle": "我好友所在的服务器",
-            "publicTitle": "其他服务器",
+            "publicTitle": "其它服务器",
             "privateServer": "私人服务器",
             "players": "{{playing}} 人，最多 {{maxPlayers}} 人",
             "join": "加入",

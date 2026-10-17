@@ -245,7 +245,7 @@
     "catalogItemSales": {
         "sales": "銷售量",
         "revenue": "收入",
-        "statsTooltip": "銷售量和收入統計數據來自洩露資訊，很可能不準確。"
+        "statsTooltip": "銷售量和收入統計資料來自洩露資訊，很可能不準確。"
     },
     "fortyMethod": {
         "loginRequired": "無法認識你的使用者 ID。請確認你已登入了。",
@@ -1088,13 +1088,23 @@
                 "title": "徽章版面切換",
                 "desc1": "此功能會在體驗徽章部分新增名單/網格切換。"
             },
+            "badgeSortEnabled": {
+                "title": "徽章排序",
+                "desc1": "為體驗徽章部分新增排序下拉式選單。",
+                "desc2": "按最近更新、最新、最舊、最多/最少贏得、昨天贏得、稀有度或名稱排序。"
+            },
             "badgeOwnershipEnabled": {
                 "title": "未擁有的徽章顏色變暗",
                 "desc1": "在徽章頁面上，將您未擁有的體驗徽章顏色變暗。（類似於 BTRoblox 的做法）"
             },
             "badgeEarnedDateEnabled": {
-                "title": "徽章獲得日期",
-                "desc1": "在徽章和體驗頁面上顯示您獲得徽章的時間。"
+                "title": "徽章贏得日期",
+                "desc1": "在徽章和體驗頁面上顯示您贏得徽章的時間。"
+            },
+            "freeBadgeQuotaEnabled": {
+                "title": "免費建立徽章配額",
+                "desc1": "在體驗的統計資料中顯示仍可免費建立的徽章數量。",
+                "desc2": "Roblox 允許每個體驗每 24 小時建立 5 個免費徽章。"
             },
             "gameStatTimestampsEnabled": {
                 "title": "詳細的建立/更新日期",
