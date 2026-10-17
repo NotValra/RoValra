@@ -1715,7 +1715,57 @@
             }
         },
         "communities": {
-            "title": "Communities"
+            "title": "Communities",
+            "groupGamesEnabled": {
+                "title": "Hidden Community Experiences",
+                "desc1": "Shows a communities hidden experiences."
+            },
+            "pendingRobuxEnabled": {
+                "title": "Unpending Robux",
+                "desc1": "Shows an estimate of how many pending Robux will stop pending within 24 hours.",
+                "experimental": "May be inaccurate. And will take ages depending on the amount of sales."
+            },
+            "antibotsEnabled": {
+                "title": "Anti-Bot Members",
+                "desc1": "This adds a button that will allow you to scan all members in a community for bots.",
+                "desc2": "If there is any bots it will allow you to quickly ban or kick them.",
+                "desc3": "This calculates bots by similar avatars and display names, so it may not be 100% accurate.",
+                "experimental": "Takes ages since Roblox has heavy rate limits.",
+                "locked": "This broke in a UI update and wasn't very effective because of rate limits."
+            },
+            "QuickActionsEnabled": {
+                "title": "Quick Actions",
+                "desc1": "This adds a quick action button allowing you to quickly ban or kick a bunch of users at once.",
+                "locked": "This broke in a UI update and wasn't very effective because of rate limits."
+            },
+            "draggableGroupsEnabled": {
+                "title": "Draggable Communities",
+                "desc1": "Hold and drag your communities to reorder them however you want.",
+                "desc2": "Your custom order will be saved and persist across page refreshes.",
+                "desc3": "Just hold down on a community for a moment and drag it up or down."
+            },
+            "bulkLeaveGroupsEnabled": {
+                "title": "Bulk Leave Communities",
+                "desc1": "This allows you to leave communities in bulk."
+            },
+            "groupPlaceVisitsEnabled": {
+                "title": "Total Community Place Visits",
+                "desc1": "Shows the total number of visits across all of a community's experiences in the insights section."
+            },
+            "groupCreateDateEnabled": {
+                "title": "Community Creation Date",
+                "desc1": "Shows when a community was created in its header."
+            },
+            "groupPendingFundsEnabled": {
+                "title": "Pending Community Funds",
+                "desc1": "Shows a community's pending Robux in the funds section of its info dialog.",
+                "desc2": "If funds are showing publicly."
+            },
+            "groupFundsPillEnabled": {
+                "title": "Community Funds Pill",
+                "desc1": "Shows a community's funds as a pill on its page if your role can see them, even when they aren't public.",
+                "desc2": "Clicking it opens the revenue summary."
+            }
         },
         "avatar": {
             "title": "Avatar"

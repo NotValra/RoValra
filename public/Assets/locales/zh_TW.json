@@ -1606,7 +1606,57 @@
             }
         },
         "communities": {
-            "title": "社群"
+            "title": "社群",
+            "groupGamesEnabled": {
+                "title": "已隱藏的社群體驗",
+                "desc1": "顯示社群的已隱藏體驗。"
+            },
+            "pendingRobuxEnabled": {
+                "title": "取消待處理的 Robux",
+                "desc1": "顯示預計有多少待處理的 Robux 將在 24 小時內取消。",
+                "experimental": "可能不準確，並且根據銷售量，可能需要很長時間。"
+            },
+            "antibotsEnabled": {
+                "title": "反機器人成員",
+                "desc1": "新增一個按鈕，讓您可以掃描社群中的所有成員以尋找機器人。",
+                "desc2": "如果發現任何機器人，您可以快速封鎖或踢出他們。",
+                "desc3": "此功能透過相似的虛擬人偶和顯示名稱來識別機器人，因此可能並非 100% 準確。",
+                "experimental": "由於 Roblox 的速率限制很嚴格，因此需要很長時間。",
+                "locked": "此功能在使用者介面更新中已無法使用，並且由於速率限制，效果不佳。"
+            },
+            "QuickActionsEnabled": {
+                "title": "快速操作",
+                "desc1": "新增一個快速操作按鈕，讓您一次快速封鎖或踢出多個使用者。",
+                "locked": "此功能在使用者介面更新中已無法使用，並且由於速率限制，效果不佳。"
+            },
+            "draggableGroupsEnabled": {
+                "title": "可拖曳社群",
+                "desc1": "按住並拖曳社群即可隨意重新排序。",
+                "desc2": "自訂排序將被儲存，並在頁面重新整理後保持不變。",
+                "desc3": "只需按住社群片刻，然後向上或向下拖曳即可。"
+            },
+            "bulkLeaveGroupsEnabled": {
+                "title": "批量離開社群",
+                "desc1": "此功能可讓您批量離開社群。"
+            },
+            "groupPlaceVisitsEnabled": {
+                "title": "總社群地點參訪次數",
+                "desc1": "在洞察部分顯示社群所有體驗的總參訪次數。"
+            },
+            "groupCreateDateEnabled": {
+                "title": "社群建立日期",
+                "desc1": "在社群標題列中顯示社群的建立日期。"
+            },
+            "groupPendingFundsEnabled": {
+                "title": "待處理的社群資金",
+                "desc1": "在資訊框的資金部分顯示社群的待處理 Robux。",
+                "desc2": "如果資金公開顯示。"
+            },
+            "groupFundsPillEnabled": {
+                "title": "社群資金概覽",
+                "desc1": "如果您的角色可以查看社群資金，即使資金未公開，也會在社群頁面上以概覽的形式顯示社群資金。",
+                "desc2": "點觸即可開啟收入摘要。"
+            }
         },
         "avatar": {
             "title": "虛擬人偶"

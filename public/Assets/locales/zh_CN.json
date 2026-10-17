@@ -1605,7 +1605,57 @@
             }
         },
         "communities": {
-            "title": "社区"
+            "title": "社区",
+            "groupGamesEnabled": {
+                "title": "已隐藏的社区体验",
+                "desc1": "显示社区的已隐藏体验。"
+            },
+            "pendingRobuxEnabled": {
+                "title": "取消待处理的 Robux",
+                "desc1": "显示预计有多少待处理的 Robux 将在 24 小时内取消。",
+                "experimental": "可能不准确，并且根据销售量，可能需要很长时间。"
+            },
+            "antibotsEnabled": {
+                "title": "反机器人成员",
+                "desc1": "添加一个按钮，允许您扫描社区中的所有成员以查找机器人。",
+                "desc2": "如果发现任何机器人，您可以快速封禁或踢出他们。",
+                "desc3": "此功能通过相似的虚拟形象和显示名称来识别机器人，因此可能并非 100% 准确。",
+                "experimental": "由于 Roblox 的速率限制很严格，因此需要很长时间。",
+                "locked": "此功能在用户界面更新中失效，并且由于速率限制，效果不佳。"
+            },
+            "QuickActionsEnabled": {
+                "title": "快速操作",
+                "desc1": "添加一个快速操作按钮，允许您一次性快速封禁或踢出多个用户。",
+                "locked": "此功能在用户界面更新中失效，并且由于速率限制，效果不佳。"
+            },
+            "draggableGroupsEnabled": {
+                "title": "可拖动社区",
+                "desc1": "按住并拖动社区即可随意重新排序。",
+                "desc2": "自定义排序将被保存，并在页面刷新后保持不变。",
+                "desc3": "只需按住社区片刻，然后向上或向下拖动即可。"
+            },
+            "bulkLeaveGroupsEnabled": {
+                "title": "批量离开社区",
+                "desc1": "此功能允许您批量离开社区。"
+            },
+            "groupPlaceVisitsEnabled": {
+                "title": "总社区场景访问次数",
+                "desc1": "在洞察部分显示社区所有体验的总访问次数。"
+            },
+            "groupCreateDateEnabled": {
+                "title": "社区创建日期",
+                "desc1": "在社区标题栏中显示社区的创建时间。"
+            },
+            "groupPendingFundsEnabled": {
+                "title": "待处理的社区资金",
+                "desc1": "在信息对话框的资金部分显示社区的待处理 Robux。",
+                "desc2": "如果资金公开显示。"
+            },
+            "groupFundsPillEnabled": {
+                "title": "社区资金概览",
+                "desc1": "如果您的角色可以查看社区资金，即使资金未公开，也会在社区页面上以概览的形式显示社区资金。",
+                "desc2": "点击即可打开收入摘要。"
+            }
         },
         "avatar": {
             "title": "虚拟形象"
