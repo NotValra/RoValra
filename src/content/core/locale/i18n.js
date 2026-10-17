@@ -3,7 +3,7 @@ import en from '../../../../public/Assets/locales/en.json';
 import { settings } from '../settings/getSettings';
 
 const defaultLanguage = 'en';
-let supportedLanguages = new Set();
+let supportedLanguages = new Map();
 const neutralPrefixes = new Set(['my']);
 
 const supportedLanguagesReady = fetch(
@@ -11,11 +11,13 @@ const supportedLanguagesReady = fetch(
 )
     .then((response) => response.json())
     .then((languages) => {
-        supportedLanguages = new Set(languages);
+        supportedLanguages = new Map(
+            languages.map((language) => [language.toLowerCase(), language]),
+        );
     })
     .catch((error) => {
         console.warn('RoValra: Failed to load supported locales', error);
-        supportedLanguages = new Set([defaultLanguage]);
+        supportedLanguages = new Map([[defaultLanguage, defaultLanguage]]);
     });
 
 function getLanguageFromUrl(url = window.location.href) {
@@ -23,7 +25,7 @@ function getLanguageFromUrl(url = window.location.href) {
     const code = segment?.toLowerCase();
 
     if (neutralPrefixes.has(code)) return null;
-    return supportedLanguages.has(code) ? code : defaultLanguage;
+    return supportedLanguages.get(code) || defaultLanguage;
 }
 
 export async function getLanguage() {
