@@ -1451,6 +1451,10 @@
         "bonusItemFallback": "Zawiera przedmiot bonusowy",
         "noItems": "Nie znaleziono przedmiotów w sklepie.",
         "failedToLoad": "Nie udało się załadować przedmiotów ze sklepu.",
+        "offers": {
+            "expires": "Wygasa",
+            "inGameOnly": "Dotyczy wyłącznie zakupów dokonanych w grze."
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -1596,7 +1600,12 @@
         "unableToDetectUniverse": "Nie udało się wykryć tego uniwersum.",
         "stillScanning": "Trwa skanowanie Twoich odznak. Posiadane ukryte odznaki mogą pojawić się wkrótce.",
         "noneOwnedFound": "Nie znaleziono ukrytych odznak z tej gry, które posiadasz.",
-        "failedToLoad": "Nie udało się załadować posiadanych ukrytych odznak."
+        "noneFound": "Nie znaleziono ukrytych odznak w tej grze.",
+        "noPublicBadges": "Ta gra nie ma żadnych publicznych odznak.",
+        "failedToLoad": "Nie udało się wczytać ukrytych odznak.",
+        "rolimonsSource": "Ukryte odznaki udostępnione przez Rolimon's.",
+        "viewOnRolimons": "Zobacz grę w serwisie Rolimon's",
+        "openBadgeOnRolimons": "Otwórz odznakę w serwisie Rolimon's"
     },
     "antiBots": {
         "reviewMembers": "Sprawdź wybranych członków ({{count}}):",
@@ -1698,7 +1707,13 @@
             "previewGui": "Podgląd GUI",
             "togglePreviewVisibility": "Przełącz widoczność w podglądzie",
             "noMatchingInstances": "Nie znaleziono pasujących instancji",
-            "loadError": "Nie udało się załadować."
+            "loadError": "Nie udało się wczytać.",
+            "previewMesh": "Podgląd modelu 3D",
+            "previewImage": "Podgląd obrazu",
+            "loadingImage": "Wczytywanie obrazu...",
+            "imageLoadError": "Nie udało się wczytać obrazu.",
+            "loadingMesh": "Wczytywanie modelu 3D...",
+            "meshLoadError": "Nie udało się wczytać modelu 3D."
         }
     },
     "priceFloor": {
