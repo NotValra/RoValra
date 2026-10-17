@@ -107,6 +107,7 @@ import { init as initGameBanner } from './core/ui/games/banner.js';
 import { init as bannertest } from './features/games/banner.js';
 import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
+import { init as initShopOffers } from './features/games/tab/shopOffers.js';
 import { init as initDeveloperProductsSection } from './features/games/DeveloperProductsSection.js';
 import { init as initDeveloperProductAutoBuy } from './features/games/developerProductAutoBuy.js';
 import { init as initBtrDonationWarning } from './features/games/btrDonationWarning.js';
@@ -398,6 +399,7 @@ const featureRoutes = [
         features: [
             initFreeBadgeQuota,
             initDevProductLoader,
+            initShopOffers,
             initSubplaces,
             initTotalSpentGames,
             initEvents,

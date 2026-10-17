@@ -479,6 +479,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            shopOffersEnabled: {
+                label: 'Show In-game Discounts',
+                description: [
+                    'This shows active Roblox discounts for in-game purchases.',
+                    'So you dont have to join a game to see it.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             QuickOutfitsEnabled: {
                 label: 'settings.experiences.QuickOutfitsEnabled.title',
                 description: [
