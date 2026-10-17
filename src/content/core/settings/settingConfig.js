@@ -35,6 +35,10 @@ export const SETTINGS_CONFIG = {
                         value: 'en',
                     },
                     {
+                        label: languageLabel('Japanese', 'ja'),
+                        value: 'ja',
+                    },
+                    {
                         label: languageLabel('Russian (Русский)', 'ru'),
                         value: 'ru',
                     },
