@@ -1445,6 +1445,10 @@
         "bonusItemFallback": "Includes a bonus item",
         "noItems": "No shop items found.",
         "failedToLoad": "Failed to load shop items.",
+        "offers": {
+            "expires": "Expires",
+            "inGameOnly": "Only applies to purchases made in-game."
+        },
         "sections": {
             "robux": "Robux"
         },
