@@ -158,10 +158,18 @@ const applyProfileGameCardFix = () => {
     if (!window.location.href.includes('profile')) return;
 
     const css = `
-        .profile-favorite-experiences .css-1jynqc0-carouselContainer,
+        .profile-favorite-experiences .css-1jynqc0-carouselContainer {
+            height: 250px !important;
+        }
         .profile-favorite-experiences .css-1i465w8-carousel {
             height: 250px !important;
-            overflow: visible !important;
+            box-sizing: content-box !important;
+            padding-block: 8px !important;
+            margin-block: -8px !important;
+        }
+        .profile-favorite-experiences .css-1i465w8-carousel > * {
+            box-sizing: border-box !important;
+            padding-inline: 5px !important;
         }
     `;
     const style = document.createElement('style');
@@ -204,10 +212,18 @@ const applyProfileCreationsGameCardFix = () => {
     if (!window.location.href.includes('profile')) return;
 
     const css = `
-        .profile-experiences .css-1jynqc0-carouselContainer,
+        .profile-experiences .css-1jynqc0-carouselContainer {
+            height: 250px !important;
+        }
         .profile-experiences .css-1i465w8-carousel {
             height: 250px !important;
-            overflow: visible !important;
+            box-sizing: content-box !important;
+            padding-block: 8px !important;
+            margin-block: -8px !important;
+        }
+        .profile-experiences .css-1i465w8-carousel > * {
+            box-sizing: border-box !important;
+            padding-inline: 5px !important;
         }
     `;
     const style = document.createElement('style');

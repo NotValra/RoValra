@@ -502,9 +502,7 @@ const detectAndAddSaveButton = () => {
 export const createAndShowPopup = (onSave, initialState = null) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-        alert(
-            methodText('loginRequired'),
-        );
+        alert(methodText('loginRequired'));
         return;
     }
 
@@ -1548,9 +1546,7 @@ const executeCartPurchase = async (
     };
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-        alert(
-            methodText('loginRequired'),
-        );
+        alert(methodText('loginRequired'));
         return;
     }
 
@@ -1579,11 +1575,7 @@ const executeCartPurchase = async (
     } else {
         result = await new Promise((resolve) => {
             chrome.storage.local.get(
-                [
-                    'RobuxPlaceId',
-                    'useRoValraGroup',
-                    'useSoberSupportDeeplinks',
-                ],
+                ['RobuxPlaceId', 'useRoValraGroup', 'useSoberSupportDeeplinks'],
                 resolve,
             );
         });
@@ -1591,8 +1583,7 @@ const executeCartPurchase = async (
 
     const savedPlaceId = result.RobuxPlaceId;
     const useRoValraGroup = result.useRoValraGroup === true;
-    const useSoberSupportDeeplinks =
-        result.useSoberSupportDeeplinks === true;
+    const useSoberSupportDeeplinks = result.useSoberSupportDeeplinks === true;
 
     if (!savedPlaceId) {
         alert(
@@ -1699,7 +1690,11 @@ const executeCartPurchase = async (
     } else {
         ownershipChecks = await Promise.all(
             cartItems.map((item) =>
-                checkItemOwnership(currentUserId, item.id, item.type || 'Asset'),
+                checkItemOwnership(
+                    currentUserId,
+                    item.id,
+                    item.type || 'Asset',
+                ),
             ),
         );
     }
@@ -1911,11 +1906,7 @@ const executeCartPurchase = async (
     });
     const launchData = launchDataParts.join(',');
 
-    launch40MethodGame(
-        placeIdToUse,
-        launchData,
-        useSoberSupportDeeplinks,
-    );
+    launch40MethodGame(placeIdToUse, launchData, useSoberSupportDeeplinks);
 };
 
 const execute40MethodPurchase = async (
@@ -1934,9 +1925,7 @@ const execute40MethodPurchase = async (
     };
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-        alert(
-            methodText('loginRequired'),
-        );
+        alert(methodText('loginRequired'));
         return;
     }
 
@@ -1946,11 +1935,7 @@ const execute40MethodPurchase = async (
     } else {
         result = await new Promise((resolve) => {
             chrome.storage.local.get(
-                [
-                    'RobuxPlaceId',
-                    'useRoValraGroup',
-                    'useSoberSupportDeeplinks',
-                ],
+                ['RobuxPlaceId', 'useRoValraGroup', 'useSoberSupportDeeplinks'],
                 resolve,
             );
         });
@@ -1958,8 +1943,7 @@ const execute40MethodPurchase = async (
 
     const savedPlaceId = result.RobuxPlaceId;
     const useRoValraGroup = result.useRoValraGroup === true;
-    const useSoberSupportDeeplinks =
-        result.useSoberSupportDeeplinks === true;
+    const useSoberSupportDeeplinks = result.useSoberSupportDeeplinks === true;
 
     if (!savedPlaceId) {
         alert(
@@ -2358,11 +2342,7 @@ const execute40MethodPurchase = async (
             ? actualPlaceId
             : savedPlaceId;
 
-    launch40MethodGame(
-        placeIdToUse,
-        launchData,
-        useSoberSupportDeeplinks,
-    );
+    launch40MethodGame(placeIdToUse, launchData, useSoberSupportDeeplinks);
 };
 
 const addSaveButton = (modal) => {
@@ -2919,8 +2899,8 @@ export function init() {
         chrome.storage &&
         chrome.storage.local
     ) {
-        chrome.storage.local.get('SaveLotsRobuxEnabled', (result) => {
-            if (result.SaveLotsRobuxEnabled === true) {
+        chrome.storage.local.get('SaveLotsRobuxEnabledv1', (result) => {
+            if (result.SaveLotsRobuxEnabledv1 === true) {
                 fetchCatalogMetadata();
 
                 const itemId = getPlaceIdFromUrl();

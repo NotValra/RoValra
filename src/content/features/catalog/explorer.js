@@ -18,6 +18,12 @@ import { settings } from '../../core/settings/getSettings.js';
 import { isDarkMode } from '../../core/theme.js';
 import { CLASS_ORDER } from '../../core/utils/vendor/classOrder.js';
 import { PROP_CATEGORY } from '../../core/utils/vendor/propGroups.js';
+import { backgroundRendererRequests } from '../../core/utils/renderer.js';
+import { API, fileMeshToTHREEGeometry } from 'roavatar-renderer';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+backgroundRendererRequests();
 
 // Sorts instances like the Studio Explorer: by class order (Workspace, Players,
 // Lighting... first), then alphabetically. Unknown classes sink to the bottom.
@@ -3054,6 +3060,46 @@ async function fetchImageUrls(assetIds, originalAssetIds) {
     return imageMap;
 }
 
+function widenModal(wrapper) {
+    let parent = wrapper.parentElement;
+    while (parent && parent !== document.body) {
+        if (parent.dataset.rovalraModalWidened) return;
+        const computedMaxWidth = getComputedStyle(parent).maxWidth;
+        if (computedMaxWidth && computedMaxWidth !== 'none') {
+            parent.dataset.rovalraModalWidened = 'true';
+            parent.dataset.rovalraOrigWidth = parent.style.width;
+            parent.dataset.rovalraOrigMaxWidth = parent.style.maxWidth;
+            parent.style.maxWidth = '95vw';
+            parent.style.width = '1400px';
+            return;
+        }
+        parent = parent.parentElement;
+    }
+}
+
+function restoreModal(wrapper) {
+    let parent = wrapper.parentElement;
+    while (parent && parent !== document.body) {
+        if (parent.dataset.rovalraModalWidened) {
+            parent.style.width = parent.dataset.rovalraOrigWidth || '';
+            parent.style.maxWidth = parent.dataset.rovalraOrigMaxWidth || '';
+            delete parent.dataset.rovalraModalWidened;
+            delete parent.dataset.rovalraOrigWidth;
+            delete parent.dataset.rovalraOrigMaxWidth;
+            return;
+        }
+        parent = parent.parentElement;
+    }
+}
+
+function resetPreviewPane(previewPane) {
+    if (previewPane.rovalraCleanup) {
+        previewPane.rovalraCleanup();
+        previewPane.rovalraCleanup = null;
+    }
+    previewPane.replaceChildren();
+}
+
 async function openGuiViewer(
     instance,
     wrapper,
@@ -3062,24 +3108,11 @@ async function openGuiViewer(
     registerHighlightCallback,
     registerRerenderCallback,
 ) {
-    previewPane.replaceChildren();
+    resetPreviewPane(previewPane);
     previewPane.style.display = 'flex';
     previewPane.style.flexDirection = 'column';
 
-    let parent = wrapper.parentElement;
-    let originalModalWidth = '';
-    let originalModalMaxWidth = '';
-    while (parent && parent !== document.body) {
-        const computedMaxWidth = getComputedStyle(parent).maxWidth;
-        if (computedMaxWidth && computedMaxWidth !== 'none') {
-            originalModalWidth = parent.style.width;
-            originalModalMaxWidth = parent.style.maxWidth;
-            parent.style.maxWidth = '95vw';
-            parent.style.width = '1400px';
-            break;
-        }
-        parent = parent.parentElement;
-    }
+    widenModal(wrapper);
 
     const toolbar = document.createElement('div');
     toolbar.className = 'rovalra-explorer-gui-toolbar';
@@ -3104,15 +3137,7 @@ async function openGuiViewer(
         if (registerHighlightCallback) registerHighlightCallback(null);
         if (registerRerenderCallback) registerRerenderCallback(null);
 
-        let p = wrapper.parentElement;
-        while (p && p !== document.body) {
-            if (p.style.width === '1400px') {
-                p.style.width = originalModalWidth;
-                p.style.maxWidth = originalModalMaxWidth;
-                break;
-            }
-            p = p.parentElement;
-        }
+        restoreModal(wrapper);
     });
     toolbar.appendChild(closeBtn);
 
@@ -3345,6 +3370,328 @@ async function openGuiViewer(
 
 // --- END SCREENGUI VIEWER LOGIC ---
 
+// --- BEGIN MESH VIEWER LOGIC ---
+
+const PREVIEW_ICON = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5m0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>')}`;
+
+function getContentAssetId(props, keys) {
+    for (const key of keys) {
+        const value = props[key];
+        if (typeof value !== 'string') continue;
+        const id = getRobloxAssetId(value) || value.trim().match(/^\d+$/)?.[0];
+        if (id) return id;
+    }
+    return null;
+}
+
+function getMeshEntry(inst, parent = null) {
+    if (inst.ClassName !== 'MeshPart' && inst.ClassName !== 'SpecialMesh')
+        return null;
+
+    const props = inst.Properties || {};
+    const meshId = getContentAssetId(props, ['MeshId', 'MeshContent']);
+    if (!meshId) return null;
+
+    const surface = (inst.Children || []).find(
+        (c) => c.ClassName === 'SurfaceAppearance',
+    );
+    const textureId =
+        getContentAssetId(props, [
+            'TextureID',
+            'TextureId',
+            'TextureContent',
+        ]) ||
+        (surface &&
+            getContentAssetId(surface.Properties || {}, [
+                'ColorMap',
+                'ColorMapContent',
+            ]));
+
+    const colorSource = inst.ClassName === 'SpecialMesh' ? parent : inst;
+
+    const name = getInstanceName(inst);
+    return {
+        meshId,
+        textureId,
+        color: colorSource?.Properties?.Color,
+        scale: inst.ClassName === 'SpecialMesh' ? props.Scale : null,
+        label:
+            inst.ClassName === 'SpecialMesh' && parent
+                ? `${getInstanceName(parent)} / ${name} (${inst.ClassName})`
+                : `${name} (${inst.ClassName})`,
+    };
+}
+
+function toThreeColor(value) {
+    if (value && typeof value === 'object' && 'r' in value) {
+        const c = (v) => (v <= 1 ? v : v / 255);
+        return new THREE.Color().setRGB(
+            c(value.r),
+            c(value.g),
+            c(value.b),
+            THREE.SRGBColorSpace,
+        );
+    }
+    if (typeof value === 'number') {
+        return new THREE.Color().setRGB(
+            ((value >>> 16) & 255) / 255,
+            ((value >>> 8) & 255) / 255,
+            (value & 255) / 255,
+            THREE.SRGBColorSpace,
+        );
+    }
+    return new THREE.Color(0xa3a2a5);
+}
+
+function toLocalGeometry(source) {
+    const geometry = new THREE.BufferGeometry();
+    for (const name of ['position', 'normal', 'uv']) {
+        const attr = source.getAttribute(name);
+        if (attr) {
+            geometry.setAttribute(
+                name,
+                new THREE.BufferAttribute(attr.array, attr.itemSize),
+            );
+        }
+    }
+    const index = source.getIndex();
+    if (index) geometry.setIndex(new THREE.BufferAttribute(index.array, 1));
+    if (!geometry.getAttribute('normal')) geometry.computeVertexNormals();
+    return geometry;
+}
+
+async function loadMeshTexture(textureId) {
+    const imageMap = await fetchImageUrls([textureId], []);
+    const url = imageMap.get(String(textureId));
+    if (!url) return null;
+
+    const response = await callRobloxApi({
+        fullUrl: url,
+        method: 'GET',
+        credentials: 'omit',
+        useBackground: true,
+        responseType: 'arrayBuffer',
+    });
+    if (!response.ok) return null;
+
+    const blobUrl = URL.createObjectURL(
+        new Blob([await response.arrayBuffer()], { type: 'image/png' }),
+    );
+    try {
+        const texture = await new THREE.TextureLoader().loadAsync(blobUrl);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        return texture;
+    } finally {
+        URL.revokeObjectURL(blobUrl);
+    }
+}
+
+function openPreviewShell(wrapper, previewPane, label, tooltip, loadingText) {
+    resetPreviewPane(previewPane);
+    previewPane.style.display = 'flex';
+    previewPane.style.flexDirection = 'column';
+
+    widenModal(wrapper);
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'rovalra-explorer-gui-toolbar';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'rovalra-explorer-source-btn';
+    closeBtn.textContent = ts('createRoblox.explorer.closePreview');
+    closeBtn.addEventListener('click', () => {
+        resetPreviewPane(previewPane);
+        previewPane.style.display = 'none';
+        restoreModal(wrapper);
+    });
+    toolbar.appendChild(closeBtn);
+
+    const title = document.createElement('span');
+    title.className = 'rovalra-explorer-mesh-title';
+    title.textContent = label;
+    title.title = tooltip;
+    toolbar.appendChild(title);
+
+    const area = document.createElement('div');
+    area.className = 'rovalra-explorer-mesh-area';
+
+    const status = document.createElement('div');
+    status.className = 'rovalra-explorer-mesh-status';
+    status.textContent = loadingText;
+    area.appendChild(status);
+
+    previewPane.appendChild(toolbar);
+    previewPane.appendChild(area);
+
+    return { area, status };
+}
+
+async function openImageViewer(imageId, label, wrapper, previewPane) {
+    const { area, status } = openPreviewShell(
+        wrapper,
+        previewPane,
+        label,
+        `Image ${imageId}`,
+        ts('createRoblox.explorer.loadingImage'),
+    );
+    area.classList.add('rovalra-explorer-image-area');
+
+    const imageMap = await fetchImageUrls([imageId], []);
+    const url = imageMap.get(String(imageId));
+    if (!area.isConnected) return;
+    if (!url) {
+        status.textContent = ts('createRoblox.explorer.imageLoadError');
+        return;
+    }
+
+    const img = document.createElement('img');
+    img.className = 'rovalra-explorer-image-preview';
+    img.alt = label;
+    img.onload = () => status.remove();
+    img.onerror = () => {
+        img.remove();
+        status.textContent = ts('createRoblox.explorer.imageLoadError');
+    };
+    img.src = url;
+    area.appendChild(img);
+}
+
+async function openMeshViewer(entry, wrapper, previewPane) {
+    const { area, status } = openPreviewShell(
+        wrapper,
+        previewPane,
+        entry.label,
+        `Mesh ${entry.meshId}`,
+        ts('createRoblox.explorer.loadingMesh'),
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    area.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 10000);
+    scene.add(camera);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.6));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyLight.position.set(1, 1, 1);
+    camera.add(keyLight);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    let disposed = false;
+    let frame = 0;
+    let geometry = null;
+    let material = null;
+    let texture = null;
+
+    const resize = () => {
+        const w = area.clientWidth;
+        const h = area.clientHeight;
+        if (w <= 0 || h <= 0) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+    };
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(area);
+
+    const cleanup = () => {
+        if (disposed) return;
+        disposed = true;
+        cancelAnimationFrame(frame);
+        resizeObserver.disconnect();
+        controls.dispose();
+        geometry?.dispose();
+        material?.dispose();
+        texture?.dispose();
+        renderer.dispose();
+        renderer.forceContextLoss();
+    };
+    previewPane.rovalraCleanup = cleanup;
+
+    const loop = () => {
+        if (!renderer.domElement.isConnected) {
+            if (previewPane.rovalraCleanup === cleanup)
+                previewPane.rovalraCleanup = null;
+            cleanup();
+            return;
+        }
+        controls.update();
+        renderer.render(scene, camera);
+        frame = requestAnimationFrame(loop);
+    };
+
+    try {
+        const [fileMesh, loadedTexture] = await Promise.all([
+            API.Asset.GetMesh(entry.meshId),
+            entry.textureId
+                ? loadMeshTexture(entry.textureId).catch((e) => {
+                      console.warn('[RoValra Explorer] Texture failed:', e);
+                      return null;
+                  })
+                : null,
+        ]);
+        if (!fileMesh || fileMesh instanceof Response) {
+            throw new Error('Mesh could not be loaded');
+        }
+
+        const sourceGeometry = fileMeshToTHREEGeometry(fileMesh, false);
+        geometry = toLocalGeometry(sourceGeometry);
+        sourceGeometry.dispose();
+        texture = loadedTexture;
+
+        if (disposed) {
+            geometry.dispose();
+            texture?.dispose();
+            return;
+        }
+
+        geometry.center();
+        material = new THREE.MeshStandardMaterial({
+            color: texture ? 0xffffff : toThreeColor(entry.color),
+            map: texture,
+            roughness: 0.8,
+            metalness: 0,
+            side: THREE.DoubleSide,
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        const s = entry.scale;
+        if (s && typeof s.x === 'number') {
+            mesh.scale.set(s.x || 1, s.y || 1, s.z || 1);
+        }
+        scene.add(mesh);
+
+        const box = new THREE.Box3().setFromObject(mesh);
+        const radius = Math.max(
+            box.getBoundingSphere(new THREE.Sphere()).radius,
+            0.01,
+        );
+        const distance =
+            (radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2))) * 1.1;
+        camera.position.set(0.5, 0.35, -1).normalize().multiplyScalar(distance);
+        camera.near = distance / 100;
+        camera.far = distance * 100;
+        camera.updateProjectionMatrix();
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        status.remove();
+        resize();
+        loop();
+    } catch (e) {
+        console.error('[RoValra Explorer] Mesh preview failed:', e);
+        if (!disposed) {
+            status.textContent = ts('createRoblox.explorer.meshLoadError');
+            cleanup();
+        }
+    }
+}
+
+// --- END MESH VIEWER LOGIC ---
+
 function buildExplorer(roots, expandAll) {
     const wrapper = document.createElement('div');
     wrapper.className = 'rovalra-explorer';
@@ -3489,6 +3836,18 @@ function buildExplorer(roots, expandAll) {
         }
     }
 
+    function triggerMeshPreview(entry) {
+        previewHighlightFn = null;
+        guiViewerRerender = null;
+        openMeshViewer(entry, wrapper, previewPane);
+    }
+
+    function triggerImagePreview(imageId, label) {
+        previewHighlightFn = null;
+        guiViewerRerender = null;
+        openImageViewer(imageId, label, wrapper, previewPane);
+    }
+
     function triggerGuiPreview(instance) {
         openGuiViewer(
             instance,
@@ -3546,7 +3905,22 @@ function buildExplorer(roots, expandAll) {
             headerActions.appendChild(guiBtn);
         }
 
-        propsPane.appendChild(header);
+        const meshEntry = getMeshEntry(instance, parentMap.get(instance));
+        if (meshEntry) {
+            const meshBtn = document.createElement('button');
+            meshBtn.type = 'button';
+            meshBtn.className = 'rovalra-explorer-source-btn';
+            meshBtn.textContent = ts('createRoblox.explorer.previewMesh');
+            meshBtn.addEventListener('click', () => {
+                triggerMeshPreview(meshEntry);
+            });
+            headerActions.appendChild(meshBtn);
+        }
+
+        const stickyTop = document.createElement('div');
+        stickyTop.className = 'rovalra-explorer-props-sticky';
+        stickyTop.appendChild(header);
+        propsPane.appendChild(stickyTop);
 
         // --- PROPERTIES SEARCH BAR ---
         const propsSearchContainer = document.createElement('div');
@@ -3563,7 +3937,7 @@ function buildExplorer(roots, expandAll) {
         propsSearchWrapper.classList.add('rovalra-explorer-search-input');
 
         propsSearchContainer.appendChild(propsSearchWrapper);
-        propsPane.appendChild(propsSearchContainer);
+        stickyTop.appendChild(propsSearchContainer);
 
         if (keys.length === 0) {
             const empty = document.createElement('div');
@@ -3693,6 +4067,42 @@ function buildExplorer(roots, expandAll) {
                     assetLinkId = rawValue.trim();
                 }
             }
+            const previewKind = !assetLinkId
+                ? null
+                : /^mesh(id|content)$/i.test(label)
+                  ? 'mesh'
+                  : /(texture|image|map|decal|skybox)/i.test(label)
+                    ? 'image'
+                    : null;
+            if (previewKind) {
+                const previewBtn = document.createElement('button');
+                previewBtn.type = 'button';
+                previewBtn.className = 'rovalra-explorer-asset-preview';
+                previewBtn.title = ts(
+                    previewKind === 'mesh'
+                        ? 'createRoblox.explorer.previewMesh'
+                        : 'createRoblox.explorer.previewImage',
+                );
+                const previewIcon = document.createElement('span');
+                previewIcon.className = 'rovalra-explorer-asset-link-icon';
+                applyMaskIcon(previewIcon, PREVIEW_ICON);
+                previewBtn.appendChild(previewIcon);
+                previewBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const title = `${getInstanceName(instance)}.${label}`;
+                    if (previewKind === 'mesh') {
+                        triggerMeshPreview(
+                            meshEntry?.meshId === assetLinkId
+                                ? meshEntry
+                                : { meshId: assetLinkId, label: title },
+                        );
+                    } else {
+                        triggerImagePreview(assetLinkId, title);
+                    }
+                });
+                valueCell.appendChild(previewBtn);
+            }
+
             if (assetLinkId) {
                 const link = document.createElement('a');
                 link.className = 'rovalra-explorer-asset-link';
@@ -4365,9 +4775,7 @@ function addGameButton(contextMenu) {
     if (!placeId) return;
 
     if (contextMenu.dataset.rovalraExplorerPageKey !== pageKey) {
-        contextMenu
-            .querySelector('.rovalra-explorer-game-btn')
-            ?.remove();
+        contextMenu.querySelector('.rovalra-explorer-game-btn')?.remove();
         contextMenu.dataset.rovalraExplorerPageKey = pageKey;
     } else if (contextMenu.querySelector('.rovalra-explorer-game-btn')) {
         return;

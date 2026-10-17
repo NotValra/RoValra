@@ -2380,7 +2380,12 @@
         "unableToDetectUniverse": "Unable to detect this universe.",
         "stillScanning": "Still scanning your badges. Hidden badges you own may appear soon.",
         "noneOwnedFound": "No hidden badges that you own were found for this experience.",
-        "failedToLoad": "Failed to load hidden badges you own."
+        "noneFound": "No hidden badges were found for this experience.",
+        "noPublicBadges": "This experience has no public badges.",
+        "failedToLoad": "Failed to load hidden badges.",
+        "rolimonsSource": "Hidden badges provided by Rolimon's.",
+        "viewOnRolimons": "View game on Rolimon's",
+        "openBadgeOnRolimons": "Open badge on Rolimon's"
     },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
@@ -2482,7 +2487,13 @@
             "previewGui": "Preview GUI",
             "togglePreviewVisibility": "Toggle visibility in preview",
             "noMatchingInstances": "No matching instances found",
-            "loadError": "Failed to load."
+            "loadError": "Failed to load.",
+            "previewMesh": "Preview Mesh",
+            "previewImage": "Preview Image",
+            "loadingImage": "Loading image...",
+            "imageLoadError": "Failed to load image.",
+            "loadingMesh": "Loading mesh...",
+            "meshLoadError": "Failed to load mesh."
         }
     },
     "priceFloor": {

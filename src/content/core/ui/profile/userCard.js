@@ -13,6 +13,10 @@ import {
 import { CUSTOM_ADDED_TAGS } from '../../utils/purifyCfg.js';
 import { ts } from '../../locale/i18n.js';
 import { safeHtml } from '../../packages/dompurify.js';
+import {
+    attachUserCardTooltip,
+    refreshUserCardTooltip,
+} from './userCardTooltip.js';
 
 async function isSubplaceHoverCardEnabled() {
     return (
@@ -98,6 +102,11 @@ export function updateUserCardPresence(
     const presence = PRESENCE_MAP[presenceType] || PRESENCE_MAP[0];
     const presenceTitle =
         presenceType === 2 && gameName ? gameName : presence.title;
+    card.rovalraPresence = presenceData || {
+        userPresenceType: presenceType,
+        lastLocation: gameName || '',
+    };
+    refreshUserCardTooltip(card);
     const icon = card.querySelector('[data-testid="presence-icon"]');
     if (icon) {
         icon.className = presence.class;
@@ -161,6 +170,7 @@ export function createUserCard({
     isOpaque = false,
     hidePresence = false,
     presenceData = null,
+    showTooltip = false,
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
     const showSublabel = showUsername && gameName ? true : showUsername;
@@ -249,6 +259,14 @@ export function createUserCard({
                 .catch(() => { });
         }
     }
+
+    tileContainer.rovalraPresence = presenceData || {
+        userPresenceType: presenceInfo,
+        lastLocation: gameName || '',
+    };
+    if (showTooltip && Number(userId) > 0) {
+        attachUserCardTooltip(tileContainer, { userId, displayName });
+    }
     return tileContainer;
 }
 
@@ -263,6 +281,7 @@ export function createFriendTile(
         isHidden,
         isVerified = false,
         isSubscribed = false,
+        showTooltip = false,
     } = options;
     const hasProvidedPresence = Object.prototype.hasOwnProperty.call(
         options,
@@ -288,6 +307,7 @@ export function createFriendTile(
         presenceData: suppliedPresence,
         isVerified,
         isSubscribed,
+        showTooltip: showTooltip && !isHidden,
     });
 
     if (
