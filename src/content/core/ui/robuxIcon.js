@@ -407,6 +407,35 @@ function buildEstimateStyle(fiatSettings) {
     };
 }
 
+const devexUsdCache = new Map();
+
+function getDevexUsdAmount(robuxAmount) {
+    if (!devexUsdCache.has(robuxAmount)) {
+        devexUsdCache.set(
+            robuxAmount,
+            callRobloxApiJson({
+                subdomain: 'billing',
+                endpoint: `/v1/estimated-fiat?robuxAmount=${robuxAmount}`,
+            })
+                .then((data) => {
+                    const standardUsd = data.usdAmountMicro / 1e6;
+                    if (!data.shouldDisplayEffectiveO18Robux || !robuxAmount)
+                        return standardUsd;
+                    const o18Robux = Math.min(
+                        data.effectiveO18Robux,
+                        robuxAmount,
+                    );
+                    return (
+                        o18Robux * data.effectiveO18ToUsdRate +
+                        (robuxAmount - o18Robux) * (standardUsd / robuxAmount)
+                    );
+                })
+                .catch(() => robuxAmount * DEVEX_USD_RATE),
+        );
+    }
+    return devexUsdCache.get(robuxAmount);
+}
+
 async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
     const fiatSettings = await getRobuxFiatSettings();
     if (!fiatSettings.robuxFiatEstimatesEnabled) return null;
@@ -415,7 +444,7 @@ async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
     const style = buildEstimateStyle(fiatSettings);
 
     if (fiatSettings.robuxFiatRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
-        const usdAmount = robuxAmount * DEVEX_USD_RATE;
+        const usdAmount = await getDevexUsdAmount(robuxAmount);
         const convertedAmount = await convertCurrencyAmount(
             usdAmount,
             'USD',

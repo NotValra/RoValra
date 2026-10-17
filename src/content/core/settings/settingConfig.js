@@ -1871,7 +1871,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                contributors: ['193520242', '447170745'],
+                contributors: ['193520242', '447170745', '2239549101'],
                 experimental:
                     'Sometimes shows the wrong amount. And it might causes some issues on the site.',
                 childSettings: {
