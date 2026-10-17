@@ -88,7 +88,7 @@ async function attachContributors(container, config, isChild = false) {
 
         addTooltip(
             link,
-            `${displayName || id} contributed in the making of this feature.`,
+            ts('settings.contributed', { username: displayName }),
             { position: 'top' },
         );
 
@@ -594,7 +594,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         document.body.appendChild(tempDiv);
         let maxItemWidth = 0;
         dropdownOptions.forEach((item) => {
-            tempDiv.textContent = item.label;
+            tempDiv.textContent = ts(item.label);
             maxItemWidth = Math.max(maxItemWidth, tempDiv.clientWidth);
         });
         document.body.removeChild(tempDiv);
@@ -606,7 +606,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         dropdownOptions.forEach((opt) => {
             const option = document.createElement('option');
             option.value = opt.value;
-            option.textContent = opt.label;
+            option.textContent = ts(opt.label);
             hiddenSelect.appendChild(option);
         });
 
@@ -624,7 +624,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
     } else if (setting.type === 'input') {
         const { container, input } = createStyledInput({
             id: settingName,
-            label: setting.placeholder || 'Enter value',
+            label: ts(setting.placeholder) || 'Enter value',
             placeholder: ' ',
         });
 
@@ -1031,7 +1031,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         return createThemeVariablesEditor();
     } else if (setting.type === 'button') {
         const button = createButton(
-            setting.buttonText || ts('settings.ui.controls.clickMe'),
+            ts(setting.buttonText) || ts('settings.ui.controls.clickMe'),
             'secondary',
         );
         button.dataset.settingName = settingName;
@@ -1054,7 +1054,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         for (const buttonConfig of setting.buttons || []) {
             const button = createButton(
-                buttonConfig.text || ts('settings.ui.controls.clickMe'),
+                ts(buttonConfig.text) || ts('settings.ui.controls.clickMe'),
                 buttonConfig.type || 'secondary',
                 { id: buttonConfig.id },
             );
@@ -1100,9 +1100,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             row.style.gap = '8px';
 
             const { container: inputContainer, input } = createStyledInput({
-                label:
-                    setting.placeholder ||
-                    ts('settings.ui.controls.enterValue'),
+                label: ts(setting.placeholder) || ts('settings.ui.controls.enterValue'),
                 placeholder: ' ',
             });
             input.value = value;
@@ -1133,7 +1131,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         };
 
         const addBtn = createButton(
-            setting.addButtonText || ts('settings.ui.controls.add'),
+            ts(setting.addButtonText) || ts('settings.ui.controls.add'),
             'secondary',
         );
         addBtn.style.marginTop = '8px';
@@ -1173,13 +1171,13 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     controlsContainer.className = 'setting-controls';
 
     const label = document.createElement('label');
-    label.textContent = setting.label;
+    label.textContent = ts(setting.label);
     controlsContainer.appendChild(label);
 
     if (setting.experimental) {
         const experimentalPill = createPill(
             ts('settings.ui.controls.experimental'),
-            setting.experimental,
+            ts(setting.experimental),
             'experimental',
         );
         controlsContainer.appendChild(experimentalPill);
@@ -1187,7 +1185,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     if (setting.beta) {
         const betaPill = createPill(
             ts('settings.ui.controls.beta'),
-            setting.beta,
+            ts(setting.beta),
             'beta',
         );
         controlsContainer.appendChild(betaPill);
@@ -1195,7 +1193,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     if (setting.deprecated) {
         const deprecatedPill = createPill(
             ts('settings.ui.controls.deprecated'),
-            setting.deprecated,
+            ts(setting.deprecated),
             'deprecated',
         );
         controlsContainer.appendChild(deprecatedPill);
@@ -1242,7 +1240,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
             // No need in sanitizing, it's trusted data
-            ((descElement.innerHTML = parseMarkdown(String(desc), themeColors)), // Verified
+            ((descElement.innerHTML = parseMarkdown(String(ts(desc)), themeColors)), // Verified
                 settingContainer.appendChild(descElement));
         });
     }
@@ -1319,13 +1317,13 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             childControls.className = 'setting-controls';
 
             const childLabel = document.createElement('label');
-            childLabel.textContent = childSetting.label;
+            childLabel.textContent = ts(childSetting.label);
             childControls.appendChild(childLabel);
 
             if (childSetting.experimental) {
                 const experimentalPill = createPill(
                     ts('settings.ui.controls.experimental'),
-                    childSetting.experimental,
+                    ts(childSetting.experimental),
                     'experimental',
                 );
                 childControls.appendChild(experimentalPill);
@@ -1333,7 +1331,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             if (childSetting.beta) {
                 const betaPill = createPill(
                     ts('settings.ui.controls.beta'),
-                    childSetting.beta,
+                    ts(childSetting.beta),
                     'beta',
                 );
                 childControls.appendChild(betaPill);
@@ -1341,7 +1339,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             if (childSetting.deprecated) {
                 const deprecatedPill = createPill(
                     ts('settings.ui.controls.deprecated'),
-                    childSetting.deprecated,
+                    ts(childSetting.deprecated),
                     'deprecated',
                 );
                 childControls.appendChild(deprecatedPill);
@@ -1394,7 +1392,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
                     ((childDescElement.innerHTML = parseMarkdown(
-                        String(desc),
+                        String(ts(desc)),
                         themeColors,
                     )), // Verified
                         childContainer.appendChild(childDescElement));

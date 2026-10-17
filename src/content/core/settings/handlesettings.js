@@ -1472,8 +1472,8 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         name,
                         settingsContent,
                         isLocked,
-                        conf.donatorReason ||
-                            'This is a donator-exclusive feature.',
+                        ts(conf.donatorReason) ||
+                            ts('settings.donatorExclusive'),
                         true,
                     );
                     if (isLocked) return true;
@@ -1483,7 +1483,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     if (currentSettings[name] === true) {
                         await handleSaveSettings(name, false);
                     }
-                    applyLockedState(name, settingsContent, true, conf.locked);
+                    applyLockedState(name, settingsContent, true, ts(conf.locked));
                     return true;
                 }
                 if (!handledLockState) {
