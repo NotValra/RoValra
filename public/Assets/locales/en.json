@@ -1190,7 +1190,8 @@
             "hiddenBadgesEnabled": {
                 "title": "Hidden Badges",
                 "desc1": "Adds a Hidden Badges tab to experience pages.",
-                "desc2": "This only shows hidden badges of a game that you obtained."
+                "desc2": "This will show all badges normally hidden on the games page.",
+                "desc3": "Hidden badges information powered by [Rolimon's](https://www.rolimons.com/)"
             },
             "badgeLayoutToggleEnabled": {
                 "title": "Badge Layout Toggle",

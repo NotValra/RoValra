@@ -1079,9 +1079,10 @@
                 }
             },
             "hiddenBadgesEnabled": {
-                "title": "隱藏徽章",
-                "desc1": "此功能會在體驗頁面新增一個「隱藏徽章」標籤頁。",
-                "desc2": "此功能僅顯示您已獲得的遊戲中的隱藏徽章。"
+                "title": "已隱藏徽章",
+                "desc1": "此功能會在體驗頁面新增一個「已隱藏徽章」標籤頁。",
+                "desc2": "此功能將顯示遊戲頁面上通常已隱藏的所有徽章。",
+                "desc3": "已隱藏徽章資訊由 [Rolimon's](https://www.rolimons.com/) 提供支援。"
             },
             "badgeLayoutToggleEnabled": {
                 "title": "徽章版面切換",
