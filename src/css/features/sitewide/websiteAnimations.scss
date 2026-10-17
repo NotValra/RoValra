@@ -1,0 +1,432 @@
+// Keep controls still while editing layouts or interacting with disabled UI.
+$inactive: ':where(:disabled, .disabled, .disabled *, .rovalra-btn-disabled, [aria-disabled="true"], [aria-disabled="true"] *, [aria-busy="true"], [inert], [inert] *, [draggable="true"], [draggable="true"] *, [aria-grabbed="true"], [aria-grabbed="true"] *, .rovalra-home-layout-editor *, .rovalra-sidebar-layout-editor *, .rovalra-topbar-layout-editor *, .rovalra-home-layout-drag-source *, .rovalra-home-layout-drag-clone *, .rovalra-sidebar-layout-drag-source *, .rovalra-sidebar-layout-drag-clone *, .rovalra-topbar-layout-drag-source *, .rovalra-topbar-layout-drag-clone *)';
+
+// Animate visual children, keeping the clickable area in place through a press.
+@mixin feedback(
+    $offset,
+    $zoom,
+    $target,
+    $press-scale: var(--rovalra-motion-press-scale)
+) {
+    #{$target} {
+        transition:
+            translate var(--rovalra-motion-duration) var(--rovalra-motion-ease),
+            scale var(--rovalra-motion-duration) var(--rovalra-motion-ease);
+    }
+    &:focus-visible {
+        #{$target} {
+            translate: $offset;
+            scale: $zoom;
+        }
+    }
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            #{$target} {
+                translate: $offset;
+                scale: $zoom;
+            }
+        }
+    }
+    &:active {
+        #{$target} {
+            translate: 0 0;
+            scale: $press-scale;
+            transition-duration: 90ms;
+        }
+    }
+}
+
+@mixin surface {
+    transition:
+        box-shadow var(--rovalra-motion-duration) ease,
+        background-color var(--rovalra-motion-duration) ease,
+        border-color var(--rovalra-motion-duration) ease,
+        color var(--rovalra-motion-duration) ease;
+    &:focus-visible,
+    &:focus-within {
+        box-shadow: var(--rovalra-motion-shadow);
+    }
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            box-shadow: var(--rovalra-motion-shadow);
+        }
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html[data-rovalra-motion-style] {
+        --rovalra-motion-duration: 220ms;
+        --rovalra-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --rovalra-motion-slide: 240ms;
+        --rovalra-motion-distance: 3px;
+        --rovalra-motion-lift: -3px;
+        --rovalra-motion-zoom: 1.02;
+        --rovalra-motion-icon-zoom: 1.08;
+        --rovalra-motion-press-scale: 0.985;
+        --rovalra-motion-accent: var(--rovalra-playbutton-color, #335fff);
+        --rovalra-motion-shadow:
+            0 3px 10px rgb(0 0 0 / 14%), inset 0 0 0 1px rgb(128 128 128 / 24%);
+        &[data-rovalra-motion-style='subtle'] {
+            --rovalra-motion-duration: 180ms;
+            --rovalra-motion-slide: 200ms;
+            --rovalra-motion-distance: 2px;
+            --rovalra-motion-lift: -1px;
+            --rovalra-motion-zoom: 1.01;
+            --rovalra-motion-icon-zoom: 1.04;
+            --rovalra-motion-press-scale: 0.995;
+            --rovalra-motion-shadow: inset 0 0 0 1px rgb(128 128 128 / 20%);
+        }
+        &[data-rovalra-motion-style='lively'] {
+            --rovalra-motion-duration: 280ms;
+            --rovalra-motion-slide: 300ms;
+            --rovalra-motion-distance: 5px;
+            --rovalra-motion-lift: -5px;
+            --rovalra-motion-zoom: 1.035;
+            --rovalra-motion-icon-zoom: 1.14;
+            --rovalra-motion-press-scale: 0.97;
+            --rovalra-motion-shadow:
+                0 5px 16px rgb(0 0 0 / 18%),
+                inset 0 0 0 1px rgb(128 128 128 / 30%);
+        }
+    }
+
+    @keyframes rovalra-website-reveal {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @media (min-width: 768px) {
+        html[data-rovalra-animate-sidebar='true'] {
+            .left-nav[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'] {
+                transition: width var(--rovalra-motion-slide)
+                    var(--rovalra-motion-ease);
+                &[data-rovalra-sidebar-hover-expanded='true'] {
+                    nav li > a > span:not(:first-of-type),
+                    nav li > button > span:not(:first-of-type),
+                    .roseal-left-nav-item .nav-item-text {
+                        animation: rovalra-website-reveal 140ms ease-out 40ms
+                            backwards;
+                    }
+                }
+            }
+            main.container-main[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'] {
+                transition:
+                    margin-left var(--rovalra-motion-slide)
+                        var(--rovalra-motion-ease),
+                    width var(--rovalra-motion-slide) var(--rovalra-motion-ease);
+            }
+        }
+    }
+
+    html[data-rovalra-animate-sidebar='true']
+        .left-nav
+        nav
+        :is(a[href], button, .roseal-left-nav-item .nav-item-link):not(
+            #{$inactive}
+        ) {
+        @include feedback(var(--rovalra-motion-distance) 0, 1, '> span');
+        @include surface;
+    }
+
+    html[data-rovalra-animate-cards='true'] {
+        :is(a.game-card-link[href], a.sdui-game-tile-wrapper[href]):not(
+            #{$inactive}
+        ) {
+            // Keep the rounded frame inside the carousel's clipping boundary.
+            @include feedback(
+                0 0,
+                var(--rovalra-motion-zoom),
+                ':is(.game-card-thumb-container, .featured-game-icon-container, .sdui-tile-image-container) > img, :is(.game-card-thumb-container, .featured-game-icon-container, .sdui-tile-image-container) > .thumbnail-2d-container > img',
+                1
+            );
+        }
+        a.item-card-link[href]:not(#{$inactive}) {
+            @include feedback(
+                0 var(--rovalra-motion-lift),
+                var(--rovalra-motion-zoom),
+                '.item-card-thumb-container'
+            );
+        }
+        a.rovalra-item-card-link[href]:not(#{$inactive}) {
+            @include feedback(
+                0 var(--rovalra-motion-lift),
+                var(--rovalra-motion-zoom),
+                '> .rovalra-item-thumb-container'
+            );
+        }
+        :is(
+                .friends-carousel-tile,
+                #friends-web-app .avatar-card,
+                #friend-tile-button
+            )
+            a.avatar-card-link[href]:not(#{$inactive}) {
+            @include feedback(
+                0 var(--rovalra-motion-lift),
+                var(--rovalra-motion-zoom),
+                '> .thumbnail-2d-container'
+            );
+        }
+        button.rovalra-profile-subplace-row:not(#{$inactive}) {
+            @include surface;
+            @include feedback(
+                0 0,
+                var(--rovalra-motion-icon-zoom),
+                '> .rovalra-profile-subplace-row-icon'
+            );
+        }
+        :is(.profile-carousel .base-tile, #player-badges-container .badge-list)
+            a[href*='/badges/']:not(#{$inactive}) {
+            @include feedback(
+                0 0,
+                var(--rovalra-motion-zoom),
+                '> .base-tile-thumbnail-wrapper > .thumbnail-2d-container > img, > .thumbnail-2d-container > img'
+            );
+        }
+        :is(
+            .rbx-game-server-item > .card-content,
+            .rovalra-server-card,
+            .groups-list-items-container a.groups-list-item
+        ):not(#{$inactive}) {
+            @include surface;
+        }
+    }
+
+    html[data-rovalra-animate-buttons='true'] {
+        :is(
+            button.foundation-web-button,
+            a.foundation-web-button[href],
+            :where(#user-profile-header-bg) :is(button, a[href]).radius-circle,
+            button.rovalra-ui-btn,
+            button.btn-primary-md,
+            button.btn-control-md,
+            button.btn-secondary-md,
+            button.btn-alert-md,
+            button.btn-growth-md,
+            button.btn-buy-md
+        ):not(
+            .left-nav *,
+            .rovalra-overlay-btn,
+            .foundation-web-icon-button,
+            .foundation-web-close-affordance,
+            #{$inactive}
+        ) {
+            @include surface;
+            @include feedback(0 -1px, var(--rovalra-motion-zoom), '> span');
+            &:active {
+                box-shadow: inset 0 2px 5px rgb(0 0 0 / 20%);
+                transition-duration: 90ms;
+            }
+        }
+        button.foundation-web-icon-button:not(.left-nav *, #{$inactive}) {
+            @include surface;
+            @include feedback(
+                0 -1px,
+                var(--rovalra-motion-icon-zoom),
+                '> .icon'
+            );
+        }
+        .rbx-navbar-icon-group :is(button, a[href]):not(#{$inactive}) {
+            @include feedback(
+                0 -1px,
+                var(--rovalra-motion-icon-zoom),
+                '> .rbx-menu-item .icon, > .rbx-menu-item > :is(icon, svg)'
+            );
+        }
+        button.rovalra-gamelaunch-action-button:not(#{$inactive}) {
+            @include surface;
+        }
+        .rovalra-bookmark-control:not(#{$inactive}) {
+            @include feedback(
+                0 -1px,
+                var(--rovalra-motion-icon-zoom),
+                '> icon'
+            );
+        }
+        .rovalra-bookmark-card {
+            transition: opacity var(--rovalra-motion-duration) ease;
+        }
+        [data-testid='carousel-scroll-arrow']:not(#{$inactive}) {
+            @include feedback(
+                0 0,
+                var(--rovalra-motion-icon-zoom),
+                '> [data-testid="carousel-scroll-arrow-icon"]'
+            );
+            &.left {
+                @include feedback(
+                    calc(-1 * var(--rovalra-motion-distance)) 0,
+                    var(--rovalra-motion-icon-zoom),
+                    '> [data-testid="carousel-scroll-arrow-icon"]'
+                );
+            }
+            &.right {
+                @include feedback(
+                    var(--rovalra-motion-distance) 0,
+                    var(--rovalra-motion-icon-zoom),
+                    '> [data-testid="carousel-scroll-arrow-icon"]'
+                );
+            }
+        }
+        button.foundation-web-close-affordance:not(#{$inactive}) {
+            @include surface;
+            @include feedback(0 0, var(--rovalra-motion-icon-zoom), '> .icon');
+        }
+    }
+
+    html[data-rovalra-animate-navigation='true'] {
+        :is(
+            #header ul.nav.rbx-navbar.hidden-xs.hidden-sm > li > a[href],
+            .rbx-tab > .rbx-tab-heading,
+            a.profile-tab,
+            #unified-menu a.menu-option-content[href]
+        ):not(#{$inactive}) {
+            transition:
+                box-shadow var(--rovalra-motion-duration) ease,
+                color var(--rovalra-motion-duration) ease;
+            &:focus-visible {
+                box-shadow: inset 0 -2px #fff;
+            }
+            @media (hover: hover) and (pointer: fine) {
+                &:hover {
+                    box-shadow: inset 0 -2px #fff;
+                }
+            }
+        }
+        .rbx-tab > .rbx-tab-heading:not(#{$inactive}) {
+            > .text-lead {
+                display: inline-block;
+            }
+            @include feedback(
+                0 -1px,
+                var(--rovalra-motion-zoom),
+                '> .text-lead'
+            );
+        }
+    }
+
+    html[data-rovalra-animate-menus='true'] {
+        // Leave popup positioning and closed-state animations to Roblox.
+        [data-radix-popper-content-wrapper]
+            > [data-state='open']:is(
+                .foundation-web-menu,
+                :has(> .foundation-web-menu)
+            ):not(#{$inactive}),
+        :is(
+            .open > :is(.dropdown-menu, .rbx-dropdown-menu),
+            #settings-popover-menu,
+            #buy-robux-popover .dropdown-menu,
+            .friend-tile-dropdown:not(.friend-tile-dropdown--iarc) > ul,
+            .friend-tile-dropdown--iarc > .in-game-friend-card--iarc,
+            #right-navigation-header .search-overlay .new-dropdown-menu,
+            .rovalra-dropdown-content-panel[data-state='open']
+        ):not(
+            [hidden],
+            [aria-hidden='true'],
+            [data-state='closed'],
+            #{$inactive}
+        ) {
+            animation: rovalra-website-reveal var(--rovalra-motion-duration)
+                var(--rovalra-motion-ease);
+        }
+        button.rovalra-dropdown-trigger:not(#{$inactive}) {
+            @include surface;
+            @include feedback(var(--rovalra-motion-distance) 0, 1, '> .grow-1');
+        }
+        :is(
+            button.rovalra-dropdown-item,
+            .foundation-web-menu .foundation-web-menu-item,
+            .rovalra-game-input
+                .game-search-dropdown
+                button.foundation-web-menu-item
+        ):not([data-disabled], #{$inactive}) {
+            @include feedback(var(--rovalra-motion-distance) 0, 1, '> .grow-1');
+        }
+        .rovalra-pill-toggle > [data-value]:not(#{$inactive}) {
+            @include feedback(0 -1px, var(--rovalra-motion-zoom), '> span');
+        }
+        .rovalra-side-panel-item:not(.loading, #{$inactive}) {
+            @include surface;
+            @include feedback(
+                var(--rovalra-motion-distance) 0,
+                1,
+                '> div:first-child'
+            );
+        }
+        .rovalra-global-overlay > .rovalra-overlay-content:not(#{$inactive}) {
+            animation: rovalra-website-reveal var(--rovalra-motion-duration)
+                ease-out;
+        }
+        .sg-system-feedback
+            .alert-system-feedback
+            > .alert[role='alert'].on
+            > .alert-content {
+            animation: rovalra-website-reveal var(--rovalra-motion-duration)
+                ease-out;
+        }
+    }
+
+    html[data-rovalra-animate-forms='true'] {
+        button.btn-toggle:not(#{$inactive}) {
+            @include surface;
+            @include feedback(
+                0 0,
+                var(--rovalra-motion-icon-zoom),
+                '> .toggle-flip'
+            );
+            > .toggle-flip {
+                // Keep the native checked/unchecked slide alongside hover feedback.
+                transition:
+                    transform var(--rovalra-motion-duration)
+                        var(--rovalra-motion-ease),
+                    left var(--rovalra-motion-duration)
+                        var(--rovalra-motion-ease),
+                    right var(--rovalra-motion-duration)
+                        var(--rovalra-motion-ease),
+                    scale var(--rovalra-motion-duration)
+                        var(--rovalra-motion-ease);
+            }
+        }
+        button[role='checkbox']:not(#{$inactive}) {
+            @include feedback(
+                0 0,
+                var(--rovalra-motion-icon-zoom),
+                '> :is(.icon-radio-check-circle, .icon-radio-check-circle-filled)'
+            );
+        }
+        :is(
+            #settings-search-input,
+            .rovalra-game-input .game-search-input,
+            .rovalra-catalog-input-base
+        ):not(#{$inactive}, :has(input:disabled)) {
+            transition: box-shadow var(--rovalra-motion-duration) ease;
+            &:focus-within {
+                box-shadow: 0 0 0 3px
+                    color-mix(
+                        in srgb,
+                        var(--rovalra-motion-accent) 28%,
+                        transparent
+                    );
+            }
+        }
+    }
+
+    html[data-rovalra-animate-panels='true'] {
+        :is(
+            #game-detail-page .tab-content > .tab-pane.active,
+            #friends-web-app .rovalra-mutuals-pane.active,
+            .profile-tab-content-wrapper > .tab-pane.active,
+            .foundation-web-dialog-content[role='dialog'][data-state='open'],
+            .rovalra-purchase-overlay
+                > .foundation-web-dialog-content[role='dialog'],
+            .rovalra-gamelaunch-info-container.is-visible,
+            .rovalra-side-panel.show,
+            #rovalra-globe-panel.show
+        ):not(#{$inactive}) {
+            animation: rovalra-website-reveal var(--rovalra-motion-duration)
+                ease-out;
+        }
+    }
+}

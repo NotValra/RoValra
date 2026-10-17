@@ -9,6 +9,8 @@ import {
 } from '../../thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../locale/i18n.js';
+import { setExpandingSectionVisible } from '../expandingSection.js';
+import { closePopupWithMotion } from '../motion.js';
 
 export async function showPurchaseModal(
     itemId,
@@ -25,9 +27,13 @@ export async function showPurchaseModal(
     backdrop.style.height = '100vh';
     backdrop.style.zIndex = '10000';
 
+    const previousOverflow = document.body.style.overflow;
+    let closed = false;
     const close = () => {
-        backdrop.remove();
-        document.body.style.overflow = '';
+        if (closed) return;
+        closed = true;
+        closePopupWithMotion(backdrop, 'panels', () => backdrop.remove());
+        document.body.style.overflow = previousOverflow;
     };
 
     const modal = document.createElement('div');
@@ -216,7 +222,10 @@ export async function showPurchaseModal(
                 const isOpen = trigger.getAttribute('aria-expanded') === 'true';
                 const nextState = isOpen ? 'closed' : 'open';
                 trigger.setAttribute('aria-expanded', !isOpen);
-                content.style.display = isOpen ? 'none' : 'block';
+                setExpandingSectionVisible(content, !isOpen, {
+                    display: 'block',
+                    focusTarget: trigger,
+                });
                 content.setAttribute('data-state', nextState);
                 content.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
                 chevron.style.transform = isOpen

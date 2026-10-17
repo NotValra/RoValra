@@ -73,6 +73,8 @@ export function createProfileCarouselSection({
           })
         : carouselContainer;
     if (scrollId) scrollContainer.id = scrollId;
+    if (includeScrollButtons)
+        scrollContainer.classList.add('rovalra-carousel-scroll');
 
     const list = document.createElement('div');
     list.className = 'css-1i465w8-carousel';

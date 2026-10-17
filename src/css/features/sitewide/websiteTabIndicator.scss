@@ -1,0 +1,36 @@
+.rovalra-tab-indicator {
+    display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html[data-rovalra-animate-navigation='true'] {
+        .rovalra-tab-indicator-positioned {
+            position: relative;
+        }
+
+        .rovalra-tab-indicator-ready {
+            > .rovalra-tab-indicator {
+                position: absolute;
+                display: block;
+                height: 2px;
+                min-height: 0;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                border-radius: 2px;
+                background: #fff;
+                list-style: none;
+                pointer-events: none;
+                transform-origin: 0 0;
+            }
+
+            // Keep border widths so replacing the native line never shifts tabs.
+            > .rbx-tab,
+            > .rbx-tab > .rbx-tab-heading,
+            > li > a.profile-tab {
+                border-bottom-color: transparent !important;
+                box-shadow: none !important;
+            }
+        }
+    }
+}

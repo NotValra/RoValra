@@ -2,6 +2,20 @@
 import { createCloseButton } from './closeButton.js';
 import { createAssetIcon } from './general/toast.js';
 import DOMPurify from 'dompurify';
+import { closePopupWithMotion } from './motion.js';
+
+const openOverlays = new Set();
+let previousBodyOverflow = '';
+
+function releaseRemovedOverlays() {
+    const hadOverlays = openOverlays.size > 0;
+    for (const overlay of openOverlays) {
+        if (!overlay.isConnected) openOverlays.delete(overlay);
+    }
+    if (hadOverlays && openOverlays.size === 0) {
+        document.body.style.overflow = previousBodyOverflow;
+    }
+}
 
 export function createOverlay({
     title,
@@ -94,13 +108,25 @@ export function createOverlay({
         content.appendChild(footer);
     }
 
+    releaseRemovedOverlays();
     overlay.appendChild(content);
     document.body.appendChild(overlay);
+    if (openOverlays.size === 0) {
+        previousBodyOverflow = document.body.style.overflow;
+    }
+    openOverlays.add(overlay);
     document.body.style.overflow = 'hidden';
 
+    let closed = false;
     const close = () => {
-        overlay.remove();
-        document.body.style.overflow = '';
+        if (closed) return;
+        closed = true;
+        closePopupWithMotion(overlay, 'menus', () => overlay.remove());
+        openOverlays.delete(overlay);
+        releaseRemovedOverlays();
+        if (openOverlays.size === 0) {
+            document.body.style.overflow = previousBodyOverflow;
+        }
         if (typeof onClose === 'function') {
             onClose();
         }
