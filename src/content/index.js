@@ -49,6 +49,7 @@ import { init as initCustomRobloxBanner } from './features/sitewide/customRoblox
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initHideFriendRequestCount } from './features/sitewide/hideFriendRequestCount.js';
+import { init as initDebugOverlay } from './features/developer/debugOverlay.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
 import { init as initSidebarVerifiedBadge } from './features/sitewide/sidebarVerifiedBadge.js';
@@ -294,6 +295,7 @@ const featureRoutes = [
             initSidebarCollapse,
             initSidebarLayout,
             initHideFriendRequestCount,
+            initDebugOverlay,
             initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,
