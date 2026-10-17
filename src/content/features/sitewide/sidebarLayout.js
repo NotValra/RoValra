@@ -445,7 +445,8 @@ function getOrCreateSidebarLayoutButton(sidebar) {
 
 function addSidebarLayoutButton(sidebar) {
     const button = getOrCreateSidebarLayoutButton(sidebar);
-    if (button.parentElement !== sidebar) sidebar.appendChild(button);
+    const host = sidebar.querySelector('nav')?.parentElement ?? sidebar;
+    if (button.parentElement !== host) host.appendChild(button);
     sidebar.dataset.rovalraSidebarLayoutReady = 'true';
 }
 
