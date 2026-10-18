@@ -563,19 +563,19 @@
         "loadingMore": "正在加载更多游戏..."
     },
     "userOutfits": {
-        "loading": "正在加载形象...",
+        "loading": "正在加载服装...",
         "back": "返回",
         "totalPrice": "总价：",
         "loadingItems": "正在加载道具...",
-        "noItems": "此形象没有道具。",
+        "noItems": "此服装没有道具。",
         "errorLoadingItems": "无法加载道具。",
-        "buttonText": "显示形象",
-        "overlayTitle": "用户形象",
-        "overlayTitleUser": "{{displayName}} 的形象",
-        "noOutfits": "此用户没有形象。",
+        "buttonText": "显示服装",
+        "overlayTitle": "用户服装",
+        "overlayTitleUser": "{{displayName}} 的服装",
+        "noOutfits": "此用户没有服装。",
         "inventoryPrivate": "此用户的道具库已隐藏。",
         "errorNoUserId": "无法从页面中认识用户 ID。",
-        "errorFetch": "无法加载形象。"
+        "errorFetch": "无法加载服装。"
     },
     "donationLink": {
         "donate": "捐赠",
@@ -1150,7 +1150,7 @@
                 "desc1": "此功能会在体验商店页面添加一个商店标签，将游戏内商店带到网站上。"
             },
             "QuickOutfitsEnabled": {
-                "title": "快速装备形象",
+                "title": "快速装备服装",
                 "desc1": "此功能允许您在体验页面上快速切换您的虚拟形象。"
             },
             "privateGameViewerEnabled": {
@@ -1535,7 +1535,7 @@
             "categorizeWearingEnabled": {
                 "title": "改进当前穿着",
                 "desc1": "将个人资料中的「当前穿着」部分分为道具、表情动作、身体部位和动画等类别。",
-                "desc2": "同时改进了道具卡片，使其看起来更美观，并添加了整套形象的总价。",
+                "desc2": "同时改进了道具卡片，使其看起来更美观，并添加了整套服装的总价。",
                 "desc3": "此功能的设计灵感主要来自 [RoSeal](https://www.roseal.live/) 的一个功能。",
                 "CategorizeBodyParts": {
                     "title": "将身体部位归入单独的类别",
@@ -1559,8 +1559,8 @@
                 }
             },
             "useroutfitsEnabled": {
-                "title": "用户形象",
-                "desc1": "此功能可以在用户的​​个人资料中查看已保存的形象。"
+                "title": "用户服装",
+                "desc1": "此功能可以在用户的​​个人资料中查看已保存的服装。"
             },
             "RoValraBadgesEnable": {
                 "title": "RoValra 徽章",
@@ -1765,7 +1765,43 @@
             }
         },
         "avatar": {
-            "title": "虚拟形象"
+            "title": "虚拟形象",
+            "forceR6Enabled": {
+                "title": "移除 R6 兼容性警告",
+                "desc1": "切换到 R6 虚拟形象类型时移除 R6 兼容性警告。"
+            },
+            "multiEquipEnabled": {
+                "title": "多重装备",
+                "desc1": "无需使用高级选项即可无缝装备多个物道具，例如饰品。"
+            },
+            "stickyAvatarEnabled": {
+                "title": "黏性虚拟形象预览",
+                "desc1": "强制虚拟形象预览始终显示在虚拟形象编辑器中。"
+            },
+            "avatarFiltersEnabled": {
+                "title": "虚拟形象筛选器",
+                "desc1": "向虚拟形象页面添加筛选器，允许您按特效道具、限量道具、下架/上架道具等进行筛选。"
+            },
+            "searchbarEnabled": {
+                "title": "在虚拟形象页面添加搜索栏",
+                "desc1": "方便您在虚拟形象编辑器中快速搜索道具。"
+            },
+            "bodyColorsEnabled": {
+                "title": "自定义身体颜色",
+                "desc1": "在虚拟形象编辑器中为身体颜色添加自定义颜色，让您不再局限于 Roblox 的默认调色板。",
+                "desc2": "您选择的颜色会保存在预设值旁边，方便您重复使用。右键单击已保存的颜色即可将其删除。"
+            },
+            "gameOutfitsEnabled": {
+                "title": "每个体验的服装",
+                "desc1": "允许您设置一套服装，在游戏时自动装备，一套用于 R6 体验，一套用于 R15 体验。",
+                "desc2": "允许您选择自己虚拟形象类型的体验，将使用与您当前类型匹配的两种服装之一。",
+                "desc3": "可以从各个体验页面为其设置专属服装，该服装将覆盖之前的设置。"
+            },
+            "avatarRotatorEnabled": {
+                "title": "虚拟形象轮换器",
+                "desc1": "添加虚拟形象轮换器，允许您按设置的刷新率轮换不同的虚拟形象。",
+                "desc2": "允许您在每次加入体验或重生时装备一个随机虚拟形象。"
+            }
         },
         "transactions": {
             "title": "交易记录"
@@ -2381,16 +2417,16 @@
         "description": "您最近加入过的服务器。"
     },
     "quickOutfits": {
-        "errorFetching": "获取形象时发生错误",
+        "errorFetching": "获取服装时发生错误",
         "equipping": "装备中...",
         "equipped": "已装备！",
         "failed": "失败",
         "error": "错误：",
-        "noUserId": "未找到用于快速形象的已验证用户 ID。",
-        "loading": "正在加载形象...",
-        "title": "快速形象",
-        "noneFound": "未找到形象。",
-        "success": "已成功装备形象。"
+        "noUserId": "未找到用于快速服装的已验证用户 ID。",
+        "loading": "正在加载服装...",
+        "title": "快速服装",
+        "noneFound": "未找到服装。",
+        "success": "已成功装备服装。"
     },
     "btrDonationWarning": {
         "title": "重要提示：马上禁用 BTRoblox",
@@ -3189,15 +3225,15 @@
     },
     "avatar": {
         "gameOutfits": {
-            "button": "游戏形象",
-            "title": "体验使用的形象",
-            "hint": "选择在游玩 R6 或 R15 体验时装备的形象。",
+            "button": "游戏服装",
+            "title": "体验使用的服装",
+            "hint": "选择在游玩 R6 或 R15 体验时装备的服装。",
             "r6": "R6 体验",
             "r15": "R15 体验",
             "none": "不要更改",
-            "gameTitle": "此体验的形象",
-            "gameHint": "这将覆盖 R6 和 R15 体验的默认形象设置。",
-            "useGlobal": "使用我的默认形象"
+            "gameTitle": "此体验的服装",
+            "gameHint": "这将覆盖 R6 和 R15 体验的默认服装设置。",
+            "useGlobal": "使用我的默认服装"
         },
         "bodyColors": {
             "addCustom": "选择自定义颜色",

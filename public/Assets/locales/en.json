@@ -1768,7 +1768,43 @@
             }
         },
         "avatar": {
-            "title": "Avatar"
+            "title": "Avatar",
+            "forceR6Enabled": {
+                "title": "Remove R6 Warning",
+                "desc1": "Removes the R6 warning when switching to R6."
+            },
+            "multiEquipEnabled": {
+                "title": "Multi-Equip",
+                "desc1": "Allows you to equip multiple items like accessories seamlessly without having to use the advanced tab."
+            },
+            "stickyAvatarEnabled": {
+                "title": "Sticky Avatar Preview",
+                "desc1": "This forces the avatar preview to always be in view on the avatar editor."
+            },
+            "avatarFiltersEnabled": {
+                "title": "Avatar Filters",
+                "desc1": "Adds filters to the avatar page, allowing you to filter by effect items, limited, offsale / onsale and more."
+            },
+            "searchbarEnabled": {
+                "title": "Adds a Searchbar to the Avatar Page",
+                "desc1": "Allowing you to quickly search for items in the avatar editor."
+            },
+            "bodyColorsEnabled": {
+                "title": "Custom Body Colors",
+                "desc1": "Adds a custom color to the body colors in the avatar editor, so you are not limited to Roblox's preset palette.",
+                "desc2": "Colors you pick are saved next to the presets so you can reuse them. Right click a saved color to remove it."
+            },
+            "gameOutfitsEnabled": {
+                "title": "Outfits Per Experience",
+                "desc1": "Lets you set an outfit that gets equipped automatically when you play, one for R6 experiences and one for R15 experiences.",
+                "desc2": "Experiences that let you choose your own avatar type use whichever of the two matches the type you are currently on.",
+                "desc3": "Individual experiences can be given their own outfit from their page, which overrides both."
+            },
+            "avatarRotatorEnabled": {
+                "title": "Avatar Rotator",
+                "desc1": "Adds an avatar Rotator allowing you to Rotate between different avatars on a set interval.",
+                "desc2": "Allowing you to have a random avatar equipped every time you join an experience or respawn."
+            }
         },
         "transactions": {
             "title": "Transactions"

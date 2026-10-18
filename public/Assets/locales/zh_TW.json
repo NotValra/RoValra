@@ -1766,7 +1766,43 @@
             }
         },
         "avatar": {
-            "title": "虛擬人偶"
+            "title": "虛擬人偶",
+            "forceR6Enabled": {
+                "title": "移除 R6 相容性警告",
+                "desc1": "切換到 R6 虛擬人偶類型時移除 R6 相容性警告。"
+            },
+            "multiEquipEnabled": {
+                "title": "多重裝備",
+                "desc1": "無需使用進階選項即可無縫裝備多個道具，例如飾品。"
+            },
+            "stickyAvatarEnabled": {
+                "title": "黏性虛擬人偶預覽",
+                "desc1": "強制虛擬人偶預覽總是顯示在虛擬人偶編輯器中。"
+            },
+            "avatarFiltersEnabled": {
+                "title": "虛擬人偶篩選器",
+                "desc1": "在虛擬人偶頁面上新增篩選器，讓您可以按特效道具、限量道具、下架/上架道具等進行篩選。"
+            },
+            "searchbarEnabled": {
+                "title": "在虛擬人偶頁面新增搜尋欄",
+                "desc1": "方便您在虛擬人偶編輯器中快速搜尋道具。"
+            },
+            "bodyColorsEnabled": {
+                "title": "自訂身體顏色",
+                "desc1": "在虛擬人偶編輯器中為身體顏色新增自訂顏色，讓您不再局限於 Roblox 的預設調色板。",
+                "desc2": "您選擇的顏色會儲存在預設值旁邊，方便您重複使用。右鍵點選已儲存的顏色即可刪除。"
+            },
+            "gameOutfitsEnabled": {
+                "title": "每個體驗的外觀",
+                "desc1": "允許您設定一套外觀，在遊戲時自動裝備，一套用於 R6 體驗，一套用於 R15 體驗。",
+                "desc2": "允許您選擇自己虛擬人偶類型的體驗，將使用與您當前類型匹配的兩種外觀之一。",
+                "desc3": "可以從各個體驗頁面為其設定專屬外觀，此外觀將覆蓋先前的設定。"
+            },
+            "avatarRotatorEnabled": {
+                "title": "虛擬人偶輪換器",
+                "desc1": "新增虛擬人偶輪換器，讓您可以按設定的重新整理率輪換不同的虛擬人偶。",
+                "desc2": "允許您在每次加入體驗或重設角色時裝備一個隨機虛擬人偶。"
+            }
         },
         "transactions": {
             "title": "交易記錄"
@@ -2013,7 +2049,7 @@
                 "donateUsd": "捐贈（最低 $1）",
                 "donateRobux": "捐贈（最低 5 Robux）",
                 "parentApprovalTitle": "幫助 RoValra 獲得更多支援！",
-                "parentApprovalMessage": "使用遊戲通行證時，RoValra 可以獲得更高的捐贈分成。我們偵測到您至少連結了一個家長帳號。您可以申請解鎖遊戲體驗，以便 RoValra 獲得比使用 2D（和 3D）服裝更高的分成。",
+                "parentApprovalMessage": "使用遊戲通行證時，RoValra 可以獲得更高的捐贈分成。我們偵測到您至少連結了一個家長帳號。您可以申請解鎖遊戲體驗，以便 RoValra 獲得比使用 2D（和 3D）外觀更高的分成。",
                 "useMarketplace": "使用市集",
                 "currencyLabel": "捐贈貨幣",
                 "donateWith": "使用以下方式捐贈",

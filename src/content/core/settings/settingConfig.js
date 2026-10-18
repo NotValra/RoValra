@@ -1783,49 +1783,49 @@ export const SETTINGS_CONFIG = {
         title: 'settings.avatar.title',
         settings: {
             forceR6Enabled: {
-                label: 'Remove R6 Warning',
-                description: ['Removes the R6 warning when switching to R6.'],
+                label: 'settings.avatar.forceR6Enabled.title',
+                description: ['settings.avatar.forceR6Enabled.desc1'],
                 type: 'checkbox',
                 default: true,
             },
             multiEquipEnabled: {
-                label: 'Multi-Equip',
+                label: 'settings.avatar.multiEquipEnabled.title',
                 description: [
-                    'Allows you to equip multiple items like accessories seamlessly without having to use the advanced tab.',
+                    'settings.avatar.multiEquipEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '126448532'],
             },
             stickyAvatarEnabled: {
-                label: 'Sticky Avatar Preview',
+                label: 'settings.avatar.stickyAvatarEnabled.title',
                 description:
-                    'This forces the avatar preview to always be in view on the avatar editor.',
+                    'settings.avatar.stickyAvatarEnabled.desc1',
                 type: 'checkbox',
                 default: true,
                 contributors: ['587159802'],
             },
             avatarFiltersEnabled: {
-                label: 'Avatar Filters',
+                label: 'settings.avatar.avatarFiltersEnabled.title',
                 description: [
-                    'Adds filters to the avatar page, allowing you to filter by effect items, limited, offsale / onsale and more.',
+                    'settings.avatar.avatarFiltersEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             searchbarEnabled: {
-                label: 'Adds a Searchbar to the Avatar Page',
+                label: 'settings.avatar.searchbarEnabled.title',
                 description: [
-                    'Allowing you to quickly search for items in the avatar editor.',
+                    'settings.avatar.searchbarEnabled.desc1',
                 ],
                 type: 'checkbox',
                 default: true,
             },
             bodyColorsEnabled: {
-                label: 'Custom Body Colors',
+                label: 'settings.avatar.bodyColorsEnabled.title',
                 description: [
-                    "Adds a custom color to the body colors in the avatar editor, so you are not limited to Roblox's preset palette.",
-                    'Colors you pick are saved next to the presets so you can reuse them. Right click a saved color to remove it.',
+                    'settings.avatar.bodyColorsEnabled.desc1',
+                    'settings.avatar.bodyColorsEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1833,11 +1833,11 @@ export const SETTINGS_CONFIG = {
                 contributors: ['4489102289'],
             },
             gameOutfitsEnabled: {
-                label: 'Outfits Per Experience',
+                label: 'settings.avatar.gameOutfitsEnabled.title',
                 description: [
-                    'Lets you set an outfit that gets equipped automatically when you play, one for R6 experiences and one for R15 experiences.',
-                    'Experiences that let you choose your own avatar type use whichever of the two matches the type you are currently on.',
-                    'Individual experiences can be given their own outfit from their page, which overrides both.',
+                    'settings.avatar.gameOutfitsEnabled.desc1',
+                    'settings.avatar.gameOutfitsEnabled.desc2',
+                    'settings.avatar.gameOutfitsEnabled.desc3',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -1845,10 +1845,10 @@ export const SETTINGS_CONFIG = {
                 contributors: ['4489102289'],
             },
             avatarRotatorEnabled: {
-                label: 'Avatar Rotator',
+                label: 'settings.avatar.avatarRotatorEnabled.title',
                 description: [
-                    'Adds an avatar Rotator allowing you to Rotate between different avatars on a set interval.',
-                    'Allowing you to have a random avatar equipped every time you join an experience or respawn.',
+                    'settings.avatar.avatarRotatorEnabled.desc1',
+                    'settings.avatar.avatarRotatorEnabled.desc2',
                 ],
                 type: 'checkbox',
                 default: true,
