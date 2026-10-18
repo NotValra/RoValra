@@ -514,6 +514,8 @@
         "overlayText": "Hidden Experiences",
         "noHiddenGames": "This user has no hidden experiences.",
         "buttonText": "Hidden Experiences",
+        "publicExperiences": "Public Experiences",
+        "hiddenExperiences": "Hidden Experiences",
         "labels": {
             "sort": "Sort",
             "order": "Order",
@@ -698,6 +700,111 @@
             },
             "errors": {
                 "invalidUrl": "Enter a valid https image URL."
+            }
+        },
+        "variables": {
+            "intro": "Pick a Roblox theme above to use it as-is, or change any color below to customize it. Changes apply live.",
+            "presetNone": "None",
+            "opacity": "Opacity",
+            "reset": "Reset",
+            "resetAll": "Reset Colors",
+            "saved": {
+                "title": "My Themes",
+                "noTheme": "No theme",
+                "unsaved": "Unsaved theme",
+                "editingLabel": "{{name}} (editing)",
+                "statusNone": "No theme equipped, Roblox looks the way it normally does.",
+                "statusUnsaved": "You're using colors that aren't saved as a theme yet.",
+                "statusEditing": "Editing {{name}}. Save to keep your changes.",
+                "statusEquipped": "{{name}} is equipped.",
+                "namePlaceholder": "Theme name",
+                "save": "Save",
+                "delete": "Delete",
+                "export": "Export",
+                "import": "Import",
+                "defaultName": "My Theme",
+                "importedName": "Imported Theme",
+                "saved": "Theme saved!",
+                "updated": "Theme updated!",
+                "deleted": "Theme deleted.",
+                "imported": "Theme imported!",
+                "nameRequired": "Enter a name for your theme first.",
+                "limitReached": "You can only save up to {{count}} themes.",
+                "invalidFile": "That file isn't a RoValra theme.",
+                "fileTooLarge": "That file is too large to be a theme.",
+                "deleteTitle": "Delete theme",
+                "deleteMessage": "Are you sure you want to delete this saved theme?"
+            },
+            "modes": {
+                "editingDark": "Editing dark mode colors",
+                "editingLight": "Editing light mode colors"
+            },
+            "tokens": {
+                "surface-0": "Page Background",
+                "surface-100": "Surface 100",
+                "surface-200": "Surface 200",
+                "surface-300": "Surface 300",
+                "common-navigation-bar": "Navigation Bar",
+                "over-media-0": "Over Media 0",
+                "over-media-100": "Over Media 100",
+                "over-media-200": "Over Media 200",
+                "over-media-300": "Over Media 300",
+                "common-backdrop": "Backdrop",
+                "content-emphasis": "Emphasis Text",
+                "content-default": "Default Text",
+                "content-muted": "Muted Text",
+                "content-link": "Link Text",
+                "stroke-default": "Stroke Default",
+                "stroke-emphasis": "Stroke Emphasis",
+                "stroke-muted": "Stroke Muted",
+                "common-heavy-divider": "Heavy Divider",
+                "shift-100": "Shift 100",
+                "shift-200": "Shift 200",
+                "shift-300": "Shift 300",
+                "shift-400": "Shift 400",
+                "system-emphasis": "Emphasis",
+                "system-contrast": "Contrast",
+                "system-alert": "Alert",
+                "system-success": "Success",
+                "system-warning": "Warning",
+                "system-neutral": "Neutral",
+                "action-emphasis-background": "Primary Background",
+                "action-emphasis-foreground": "Primary Text",
+                "action-standard-background": "Standard Background",
+                "action-standard-foreground": "Standard Text",
+                "action-soft-emphasis-background": "Soft Background",
+                "action-soft-emphasis-foreground": "Soft Text",
+                "action-subtle-border": "Subtle Border",
+                "action-alert-foreground": "Alert Text",
+                "action-over-media-background": "Over Media Background",
+                "action-over-media-foreground": "Over Media Text"
+            },
+            "presets": {
+                "classic": "Classic",
+                "circuit-rush": "Circuit Rush",
+                "cosmic-dust": "Cosmic Dust",
+                "electric-lime": "Electric Lime",
+                "hyper-plum": "Hyper Plum",
+                "inferno-blast": "Inferno Blast",
+                "kinetic-energy": "Kinetic Energy",
+                "lava-glow": "Lava Glow",
+                "nebula-drift": "Nebula Drift",
+                "nitro-frost": "Nitro Frost",
+                "pixel-pop": "Pixel Pop",
+                "polar-freeze": "Polar Freeze",
+                "quantum-pulse": "Quantum Pulse",
+                "star-burst": "Star Burst",
+                "super-charge": "Super Charge"
+            },
+            "builtIn": {
+                "veryDark": "Very dark theme"
+            },
+            "groups": {
+                "surfaces": "Surfaces",
+                "content": "Text",
+                "strokes": "Strokes & Shifts",
+                "system": "System",
+                "actions": "Buttons"
             }
         }
     },
@@ -906,6 +1013,7 @@
                     "addedToWebsite": "Added the plus thems index to the website so users are only able to use correct and specified themes."
                 },
                 "locales": {
+                    "madeDe": "Helped make the German locale",
                     "madeRo": "Helped make the Romanian locale",
                     "madeEs": "Helped make the Spanish locale",
                     "madeRu": "Helped make the Russian locale",
@@ -1287,7 +1395,9 @@
         "noSearchHistory": "You don't have any search history.",
         "deleteSearchHistoryTitle": "Delete Search History",
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
-        "delete": "Delete"
+        "delete": "Delete",
+        "itemValue": "Value",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "{{count}} Friends own",
@@ -1347,6 +1457,10 @@
         "bonusItemFallback": "Includes a bonus item",
         "noItems": "No shop items found.",
         "failedToLoad": "Failed to load shop items.",
+        "offers": {
+            "expires": "Expires",
+            "inGameOnly": "Only applies to purchases made in-game."
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -1464,6 +1578,24 @@
             "all": "No events found."
         }
     },
+    "badgeSort": {
+        "label": "Sort badges",
+        "seeMore": "See More",
+        "updated": "Updated",
+        "created": "Created",
+        "options": {
+            "default": "Default",
+            "updated": "Recently Updated",
+            "newest": "Newest",
+            "oldest": "Oldest",
+            "mostWon": "Most Won",
+            "leastWon": "Least Won",
+            "wonYesterday": "Most Won Yesterday",
+            "rarest": "Rarest",
+            "easiest": "Easiest",
+            "name": "Name (A-Z)"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "Badges",
@@ -1474,7 +1606,12 @@
         "unableToDetectUniverse": "Unable to detect this universe.",
         "stillScanning": "Still scanning your badges. Hidden badges you own may appear soon.",
         "noneOwnedFound": "No hidden badges that you own were found for this experience.",
-        "failedToLoad": "Failed to load hidden badges you own."
+        "noneFound": "No hidden badges were found for this experience.",
+        "noPublicBadges": "This experience has no public badges.",
+        "failedToLoad": "Failed to load hidden badges.",
+        "rolimonsSource": "Hidden badges provided by Rolimon's.",
+        "viewOnRolimons": "View game on Rolimon's",
+        "openBadgeOnRolimons": "Open badge on Rolimon's"
     },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
@@ -1576,7 +1713,13 @@
             "previewGui": "Preview GUI",
             "togglePreviewVisibility": "Toggle visibility in preview",
             "noMatchingInstances": "No matching instances found",
-            "loadError": "Failed to load."
+            "loadError": "Failed to load.",
+            "previewMesh": "Preview Mesh",
+            "previewImage": "Preview Image",
+            "loadingImage": "Loading image...",
+            "imageLoadError": "Failed to load image.",
+            "loadingMesh": "Loading mesh...",
+            "meshLoadError": "Failed to load mesh."
         }
     },
     "priceFloor": {
@@ -1946,10 +2089,18 @@
         "label": "{{count}} Place Visits",
         "tooltip": "Total Community Place Visits"
     },
+    "groupFundsPill": {
+        "label": "{{count}} Funds",
+        "tooltip": "Community Funds",
+        "privateTooltip": "These funds aren't public. RoValra shows them to you because of your role.",
+        "roleTooltip": "RoValra shows these funds to you because of your role."
+    },
     "groups": {
         "createdLabel": "Created",
         "joinedLabel": "Joined",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "hidden": "Hidden",
+        "hiddenTooltip": "This community hides its member list, so join dates can only be seen by its members."
     },
     "showcase": {
         "tab": "Showcase",
@@ -2086,6 +2237,11 @@
         "rotatePreview": "Rotate preview",
         "itemOnly": "Show item only"
     },
+    "freeBadgeQuota": {
+        "label": "Free Badges",
+        "value": "{{count}} left today",
+        "tooltip": "Badges this experience can still create for free. Roblox allows 5 free badges per experience every 24 hours."
+    },
     "groupFilters": {
         "sort": {
             "default": "Default",
@@ -2094,7 +2250,11 @@
             "newest": "Newest",
             "oldest": "Oldest"
         },
-        "tooltip": "Sort by when the user joined the community"
+        "tooltip": "Sort by when the user joined the community",
+        "view": {
+            "row": "Row",
+            "grid": "Grid"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",
@@ -2297,5 +2457,12 @@
         "contentType": "Content type",
         "redirected": "Redirected",
         "copy": "Copy"
+    },
+    "notifications": {
+        "newTrade": "New trade",
+        "tradeFrom": "From {{name}}",
+        "tradeStats": "{{value}} Value | {{rap}} RAP",
+        "friendPlaying": "{{name}} is playing",
+        "unknownGame": "An experience"
     }
 }

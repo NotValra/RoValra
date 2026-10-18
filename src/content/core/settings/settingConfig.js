@@ -4,6 +4,7 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
+import { DEFAULT_THEME_VARIABLES } from '../themeVariables.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
 
 function languageLabel(label, language) {
@@ -34,7 +35,18 @@ export const SETTINGS_CONFIG = {
                         value: 'en',
                     },
                     {
-                        label: languageLabel('Brazilian Portuguese (Português (Brasil))', 'pt'),
+                        label: languageLabel('Russian (Русский)', 'ru'),
+                        value: 'ru',
+                    },
+                    {
+                        label: languageLabel('German (Deutsch)', 'de'),
+                        value: 'de',
+                    },
+                    {
+                        label: languageLabel(
+                            'Brazilian Portuguese (Português (Brasil))',
+                            'pt',
+                        ),
                         value: 'pt',
                     },
                     {
@@ -57,13 +69,14 @@ export const SETTINGS_CONFIG = {
                         value: 'id',
                     },
                     {
-                        label: languageLabel('Russian (Русский)', 'ru'),
-                        value: 'ru',
-                    },
-                    {
                         label: languageLabel('Spanish (Español)', 'es'),
                         value: 'es',
                     },
+                    {
+                        label: languageLabel('French (Français)', 'fr'),
+                        value: 'fr',
+                    },
+
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
@@ -111,7 +124,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            SaveLotsRobuxEnabled: {
+            SaveLotsRobuxEnabledv1: {
                 label: 'Save 10%-40% Robux on Purchases',
                 description: [
                     'This adds a button allowing you to save 40% on items on the marketplace.',
@@ -430,6 +443,16 @@ export const SETTINGS_CONFIG = {
                     'This allows you to view past events on experiences and how many are going.',
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    eventsTabEnabled: {
+                        label: 'Separate Events Tab',
+                        description:
+                            'Moves experience events from About to their own tab.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['127238'],
+                    },
+                },
             },
             EnableGameTrailer: {
                 label: 'Experience Trailer',
@@ -464,6 +487,15 @@ export const SETTINGS_CONFIG = {
                 label: 'View In-Game Shop',
                 description:
                     'This adds a Shop tab to the experience store page, bringing the in-game shop to the website.',
+                type: 'checkbox',
+                default: true,
+            },
+            shopOffersEnabled: {
+                label: 'Show In-game Discounts',
+                description: [
+                    'This shows active Roblox discounts for in-game purchases.',
+                    'So you dont have to join a game to see it.',
+                ],
                 type: 'checkbox',
                 default: true,
             },
@@ -546,7 +578,8 @@ export const SETTINGS_CONFIG = {
                 label: 'Hidden Badges',
                 description: [
                     'Adds a Hidden Badges tab to experience pages.',
-                    'This only shows hidden badges of a game that you obtained.',
+                    'This will show all badges normally hidden on the games page.',
+                    "Hidden badges information powered by [Rolimon's](https://www.rolimons.com/)",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -559,6 +592,16 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            badgeSortEnabled: {
+                label: 'Badge Sorting',
+                description: [
+                    'Adds a Sort dropdown to experience badge sections.',
+                    'Sort by recently updated, newest, oldest, most or least won, won yesterday, rarity, or name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3050364170'],
             },
             badgeOwnershipEnabled: {
                 label: 'Dim Unowned Badges',
@@ -577,6 +620,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: [476449201],
+            },
+            freeBadgeQuotaEnabled: {
+                label: 'Free Badge Quota',
+                description: [
+                    'Shows how many badges an experience can still create for free today in its stats.',
+                    'Roblox lets each experience create 5 free badges every 24 hours.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3050364170'],
             },
             gameStatTimestampsEnabled: {
                 label: 'Detailed Created / Updated Dates',
@@ -881,7 +934,6 @@ export const SETTINGS_CONFIG = {
                         donatorTier: 1,
                         donatorReason:
                             'Donator Tier 1 is required to display your app theme on your own profile',
-                        dependsOn: ['FreeRobloxPlusThemesEnabledv3'],
                     },
                 },
                 contributors: ['650766686'],
@@ -1078,6 +1130,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['447170745', '3602693727'],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_group_filters_view',
             },
             trustedConnectionsEnabledv3: {
                 label: 'Trusted Friends',
@@ -1134,6 +1187,7 @@ export const SETTINGS_CONFIG = {
                     'Shows when a user joined a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '3050364170'],
             },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
@@ -1724,6 +1778,16 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['587159802'],
             },
+            groupFundsPillEnabled: {
+                label: 'Community Funds Pill',
+                description: [
+                    "Shows a community's funds as a pill on its page if your role can see them, even when they aren't public.",
+                    'Clicking it opens the revenue summary.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['74884'],
+            },
         },
     },
     Avatar: {
@@ -2090,16 +2154,7 @@ export const SETTINGS_CONFIG = {
                 locked: 'Roblox made their own version of this.',
                 isPermanent: true,
             },
-            FreeRobloxPlusThemesEnabledv3: {
-                label: 'Free Roblox Plus Themes',
-                description: [
-                    'Allows you to use Roblox Plus Themes on the site without Roblox Plus',
-                ],
-                type: 'checkbox',
-                default: true,
-                contributors: ['447170745', '4866259395', '650766686'],
-                dependedBy: ['displayAppThemeOwnProfile'],
-            },
+
             currencyTransferEnabled: {
                 label: 'Send Robux',
                 description: [
@@ -2245,6 +2300,15 @@ export const SETTINGS_CONFIG = {
                         contributors: ['4632962611'],
                     },
                 },
+            },
+            hideFriendRequestCountEnabled: {
+                label: 'Hide Friend Request Count',
+                description: [
+                    'Hides the friend request count beside Friends in the sidebar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
             },
             sidebarLayoutEnabled: {
                 label: 'Sidebar Layout',
@@ -2457,6 +2521,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    itemSearchEnabled: {
+                        label: 'Quick Item Search',
+                        description:
+                            'Shows limited items whose Rolimons acronym matches what you searched, like 8BRC for the 8-Bit Royal Crown.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             searchHistoryEnabled: {
@@ -2508,6 +2579,31 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            browserNotificationsEnabled: {
+                label: 'Browser Notifications',
+                description:
+                    'Sends browser notifications for the things you pick below.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['notifications'],
+                storageKey: ['rovalra_notifications_state'],
+                contributors: ['2239549101'],
+                childSettings: {
+                    tradeNotificationsEnabled: {
+                        label: 'Trades',
+                        description: 'Notifies you when you get a new trade.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    friendNotificationsEnabled: {
+                        label: 'Pinned Friends',
+                        description:
+                            'Notifies you when a pinned friend joins an experience.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
                 description: [
@@ -2557,8 +2653,16 @@ export const SETTINGS_CONFIG = {
                     "This feature sends server IDs and place IDs to RoValra's API when you browse the site.",
                     'This data is used for the server uptime and the Total Servers features.',
                     'Leaving this feature on will help improve the Server Uptime and Total Servers features.',
-                    '**No personal data is sent, not even user ID or username—only the server IDs and the place ID.**',
-                    '**No data that could link the server IDs or place IDs to you is sent or logged.**',
+                    'This can use extra bandwidth compared to other features, if you are in limited bandwidth it is recommended to turn this off.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            ServerdataLegacyEnabled: {
+                label: 'Use Legacy Server Data Submission',
+                description: [
+                    'Sends only server IDs and place IDs.',
+                    'Pretty much nerdy experimental development stuff.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -2640,6 +2744,14 @@ export const SETTINGS_CONFIG = {
                             "Prevents your username from being moved up to a place where it's harder to read because of extensions adding features.",
                         type: 'checkbox',
                         default: true,
+                    },
+                    themeScrollbarFixEnabled: {
+                        label: 'Match the scrollbar to your theme',
+                        description:
+                            'Fixes the page scrollbar showing up light on dark theme, or dark on light theme, and makes it blend in with the page.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['74884'],
                     },
                 },
             },
@@ -3059,6 +3171,28 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            CustomThemeVariablesEnabled: {
+                label: 'Custom Theme Colors',
+                description: [
+                    'Lets you use any Roblox theme, like Nebula Drift, and change the color variables Roblox uses for its themes.',
+                    'Picking a Roblox Plus theme applies it for free without requiring Roblox Plus. Any colors you change are layered on top of it, for both dark and light mode.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    customThemeVariables: {
+                        label: 'Roblox Plus Themes',
+                        type: 'themeVariables',
+                        default: DEFAULT_THEME_VARIABLES,
+                    },
+                    customThemeVariableSaved: {
+                        label: 'Saved Themes',
+                        type: 'savedThemeVariables',
+                        default: [],
+                        hidden: true,
+                    },
+                },
+            },
             customRobloxBannerEnabled: {
                 label: 'Roblox Logo Customization',
                 description: [
@@ -3179,11 +3313,50 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            cursorBuddyEnabled: {
+                label: 'Cursor Buddy',
+                description: [
+                    'A cute little buddy follows your cursor around Roblox.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['476449201'],
+                childSettings: {
+                    cursorBuddyCompanion: {
+                        label: 'Buddy',
+                        type: 'select',
+                        options: [
+                            { label: 'Oneko', value: 'cat' },
+                            { label: 'Kitten', value: 'kitten' },
+                        ],
+                        default: 'cat',
+                    },
+                    cursorBuddySize: {
+                        label: 'Size',
+                        description: 'Choose how big your buddy looks.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 24,
+                        max: 128,
+                        step: 1,
+                        default: 32,
+                    },
+                    cursorBuddyFollowSpeed: {
+                        label: 'Follow Speed',
+                        description:
+                            'Choose how quickly your buddy follows your cursor.',
+                        type: 'input',
+                        inputType: 'number',
+                        min: 40,
+                        max: 600,
+                        step: 10,
+                        default: 240,
+                    },
+                },
+            },
             customScrollbarEnabled: {
                 label: 'Customize Scroll Bar',
-                description: [
-                    'Make Roblox scrollbars look the way you want.',
-                ],
+                description: ['Make Roblox scrollbars look the way you want.'],
                 type: 'checkbox',
                 default: false,
                 contributors: ['476449201'],
@@ -3196,7 +3369,8 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarWidth: {
                         label: 'Width',
-                        description: 'Set the scrollbar width in pixels (1-24).',
+                        description:
+                            'Set the scrollbar width in pixels (1-24).',
                         type: 'input',
                         inputType: 'number',
                         min: 1,
@@ -3205,7 +3379,8 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarRadius: {
                         label: 'Border Radius',
-                        description: 'Set the scrollbar corner radius in pixels (0-24).',
+                        description:
+                            'Set the scrollbar corner radius in pixels (0-24).',
                         type: 'input',
                         inputType: 'number',
                         min: 0,
@@ -3214,13 +3389,15 @@ export const SETTINGS_CONFIG = {
                     },
                     customScrollbarThumbColor: {
                         label: 'Thumb Color',
-                        description: 'Set the color of the moving scrollbar thumb.',
+                        description:
+                            'Set the color of the moving scrollbar thumb.',
                         type: 'color',
                         default: '#4f545c',
                     },
                     customScrollbarTrackColor: {
                         label: 'Track Color',
-                        description: 'Set the background color of the scrollbar.',
+                        description:
+                            'Set the background color of the scrollbar.',
                         type: 'color',
                         default: '#202124',
                     },

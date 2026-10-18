@@ -1,0 +1,30 @@
+.rovalra-shop-offers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.rovalra-shop-offer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rovalra-shop-offer-pills {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.rovalra-shop-offer-pill {
+    background-color: #335fff !important;
+    color: #fff !important;
+}
+
+.rovalra-shop-offer-note {
+    color: var(--rovalra-secondary-text-color);
+    font-size: 13px;
+}

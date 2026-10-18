@@ -152,6 +152,29 @@ export function observeGameLaunch(callback) {
     };
 }
 
+function toSafeId(value) {
+    const id = Number.parseInt(value, 10);
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
+function toJsLiteral(value) {
+    if (value === undefined) return 'undefined';
+    return JSON.stringify(value)
+        .replace(/</g, '\\u003c')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
+}
+
+function toJsString(value) {
+    return value == null ? toJsLiteral(value) : toJsLiteral(String(value));
+}
+
+const ALLOWED_DEEPLINK_PROTOCOLS = new Set([
+    'roblox:',
+    'roblox-player:',
+    'roblox-studio:',
+]);
+
 function runLaunch(placeId, codeToInject) {
     if (!preLaunchHook) {
         executeLaunchScript(codeToInject);
@@ -177,29 +200,38 @@ function executeLaunchScript(codeToInject) {
 }
 
 export function launchGame(placeId, jobId = null) {
+    const pId = toSafeId(placeId);
+    if (!pId) return;
+
     const joinFunction = jobId
-        ? `Roblox.GameLauncher.joinGameInstance(parseInt('${placeId}', 10), '${jobId}')`
-        : `Roblox.GameLauncher.joinGameInstance(parseInt('${placeId}', 10))`;
+        ? `Roblox.GameLauncher.joinGameInstance(${pId}, ${toJsString(jobId)})`
+        : `Roblox.GameLauncher.joinGameInstance(${pId})`;
     const codeToInject = `if (typeof Roblox?.GameLauncher?.joinGameInstance === 'function') { ${joinFunction}; }`;
-    runLaunch(placeId, codeToInject);
+    runLaunch(pId, codeToInject);
 }
 
 export function launchPrivateGame(placeId, accessCode, linkCode) {
-    const joinFunction = `Roblox.GameLauncher.joinPrivateGame(parseInt('${placeId}', 10), '${accessCode}', '${linkCode}')`;
+    const pId = toSafeId(placeId);
+    if (!pId) return;
+
+    const joinFunction = `Roblox.GameLauncher.joinPrivateGame(${pId}, ${toJsString(accessCode)}, ${toJsString(linkCode)})`;
     const codeToInject = `if (typeof Roblox?.GameLauncher?.joinPrivateGame === 'function') { ${joinFunction}; }`;
-    runLaunch(placeId, codeToInject);
+    runLaunch(pId, codeToInject);
 }
 
 export function launchMultiplayerGame(placeId, launchData = {}) {
+    const pId = toSafeId(placeId);
+    if (!pId) return;
+
     window.__rovalra_skipNextLaunch = true;
 
     const joinData = { launchData };
-    const codeToInject = `if (typeof Roblox.GameLauncher.joinMultiplayerGame === 'function') { Roblox.GameLauncher.joinMultiplayerGame(${placeId}, false, false, null, null, ${JSON.stringify(joinData)}); }`;
-    runLaunch(placeId, codeToInject);
+    const codeToInject = `if (typeof Roblox.GameLauncher.joinMultiplayerGame === 'function') { Roblox.GameLauncher.joinMultiplayerGame(${pId}, false, false, null, null, ${toJsLiteral(joinData)}); }`;
+    runLaunch(pId, codeToInject);
 }
 
 export function followUser(userId) {
-    const uId = parseInt(userId, 10);
+    const uId = toSafeId(userId);
     if (!uId) return;
 
     const placeLauncherUrl = `https://assetgame.roblox.com/game/PlaceLauncher.ashx?request=RequestFollowUser&userId=${uId}&is30=false`;
@@ -209,7 +241,7 @@ export function followUser(userId) {
         if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && typeof Roblox.GameLauncher.followPlayerIntoGame === 'function') {
             Roblox.GameLauncher.followPlayerIntoGame(${uId});
         } else {
-            window.location.href = '${deepLink}';
+            window.location.href = ${toJsString(deepLink)};
         }
     `;
 
@@ -230,7 +262,7 @@ export function followUser(userId) {
 }
 
 export function openWebChat(userId) {
-    const uId = parseInt(userId, 10);
+    const uId = toSafeId(userId);
     if (!uId) return;
 
     const codeToInject = `
@@ -242,18 +274,17 @@ export function openWebChat(userId) {
 }
 
 export async function launchStudioForGame(placeId) {
+    placeId = toSafeId(placeId);
+    if (!placeId) return;
+
     try {
         const gameDetails = await callRobloxApiJson({
             subdomain: 'games',
             endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
         });
 
-        if (
-            gameDetails &&
-            gameDetails.length > 0 &&
-            gameDetails[0].universeId
-        ) {
-            const universeId = gameDetails[0].universeId;
+        const universeId = toSafeId(gameDetails?.[0]?.universeId);
+        if (universeId) {
             const editFunction = `Roblox.GameLauncher.editGameInStudio(${placeId}, ${universeId})`;
             const codeToInject = `if (typeof Roblox?.GameLauncher?.editGameInStudio === 'function') { ${editFunction}; }`;
             executeLaunchScript(codeToInject);
@@ -268,13 +299,21 @@ export async function launchStudioForGame(placeId) {
             error,
         );
         const uri = `roblox-studio:launchmode:edit+task:EditPlace+placeId:${placeId}`;
-        const codeToInject = `window.location.href = '${uri}';`;
+        const codeToInject = `window.location.href = ${toJsString(uri)};`;
         executeLaunchScript(codeToInject);
     }
 }
 
 export function launchDeeplink(url) {
-    const safeUrl = url.replace(/'/g, "\\'");
-    const codeToInject = `if (typeof Roblox?.GameLauncher?.openProtocolUrl === 'function') { Roblox.GameLauncher.openProtocolUrl('${safeUrl}'); } else { window.location.href = '${safeUrl}'; }`;
+    let protocol = null;
+    try {
+        protocol = new URL(url).protocol;
+    } catch (error) {}
+    if (!ALLOWED_DEEPLINK_PROTOCOLS.has(protocol)) {
+        return;
+    }
+
+    const safeUrl = toJsString(url);
+    const codeToInject = `if (typeof Roblox?.GameLauncher?.openProtocolUrl === 'function') { Roblox.GameLauncher.openProtocolUrl(${safeUrl}); } else { window.location.href = ${safeUrl}; }`;
     executeLaunchScript(codeToInject);
 }

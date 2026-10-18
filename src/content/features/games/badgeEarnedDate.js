@@ -1,4 +1,4 @@
-import { callRobloxApi } from '../../core/api.js';
+import { getBadgeAwardedDate } from '../../core/apis/badges.js';
 import { getBadgeIdFromUrl } from '../../core/idExtractor.js';
 import { observeChildren, observeElement } from '../../core/observer.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
@@ -7,45 +7,11 @@ import { settings } from '../../core/settings/getSettings.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 
 const MARKER = 'data-rovalra-badge-earned-date';
-const cache = new Map();
-const pending = new Map();
 const observed = new WeakSet();
 
-function isValidDate(value) {
-    const date = new Date(value);
-    return Boolean(value) && !Number.isNaN(date.getTime());
-}
-
 async function getAwardedDate(userId, badgeId) {
-    const key = `${userId}:${badgeId}`;
-    if (cache.has(key)) return cache.get(key);
-    if (pending.has(key)) return pending.get(key);
-
-    const promise = callRobloxApi({
-        subdomain: 'badges',
-        endpoint: `/v1/users/${userId}/badges/${badgeId}/awarded-date`,
-    })
-        .then(async (response) => {
-            if (!response.ok) {
-                cache.set(key, null);
-                return null;
-            }
-            const data = await response.json();
-            const awardedDate = data?.awardedDate || data?.date;
-            const validAwardedDate = isValidDate(awardedDate)
-                ? awardedDate
-                : null;
-            cache.set(key, validAwardedDate);
-            return validAwardedDate;
-        })
-        .catch(() => {
-            cache.set(key, null);
-            return null;
-        })
-        .finally(() => pending.delete(key));
-
-    pending.set(key, promise);
-    return promise;
+    const result = await getBadgeAwardedDate(userId, badgeId);
+    return result?.awardedDate || null;
 }
 
 function getTargetDataContainer(target) {

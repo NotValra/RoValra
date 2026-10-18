@@ -5,6 +5,7 @@ import {
     getQueuedThumbnail,
 } from '../../../core/thumbnail/thumbnails.js';
 import { createPillToggle } from '../../../core/ui/general/pillToggle.js';
+import { createTab } from '../../../core/ui/games/tab.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { ts } from '../../../core/locale/i18n.js';
@@ -600,6 +601,7 @@ export async function checkAndInjectEvents(tabContainer, placeId) {
         ]);
 
         if (active.length === 0 && past.length === 0) return;
+        if (!target.isConnected || getPlaceIdFromUrl() !== placeId) return;
 
         if (document.querySelector('.virtual-event-game-details-container'))
             return;
@@ -628,24 +630,93 @@ export function init() {
     if (hasLoaded) return;
     hasLoaded = true;
 
-    chrome.storage.local.get({ EnableImprovedEvents: true }, (settings) => {
+    const defaults = { EnableImprovedEvents: true, eventsTabEnabled: true };
+    chrome.storage.local.get(defaults, (settings) => {
         if (!settings.EnableImprovedEvents) return;
 
         if (document.getElementById('tab-events')) return;
 
         const activeRequests = [];
+        let eventsTab = null;
+
+        const moveEventsToTab = () => {
+            if (
+                !settings.eventsTabEnabled ||
+                document.readyState !== 'complete'
+            )
+                return;
+            if (document.getElementById('tab-events')) return;
+
+            const eventsContainer = document.querySelector(
+                '.virtual-event-game-details-container[data-rovalra-events-loaded="true"]',
+            );
+            const container = document.getElementById('horizontal-tabs');
+            const contentContainer = document.querySelector(
+                '.tab-content.rbx-tab-content',
+            );
+            if (!eventsContainer || !container || !contentContainer) return;
+
+            if (
+                eventsTab &&
+                (eventsTab.tab.parentElement !== container ||
+                    eventsTab.contentPane.parentElement !== contentContainer)
+            ) {
+                eventsTab.tab.remove();
+                eventsTab.contentPane.remove();
+                eventsTab = null;
+            }
+
+            if (!eventsTab) {
+                // Keep #tab-events reserved for native tabs and other extensions.
+                eventsTab = createTab({
+                    id: 'rovalra-events',
+                    label: ts('events.title'),
+                    container,
+                    contentContainer,
+                    hash: '#!/events',
+                });
+                eventsTab.tab.querySelector('a').href = '#!/events';
+            }
+            if (eventsContainer.parentElement !== eventsTab.contentPane) {
+                eventsTab.contentPane.appendChild(eventsContainer);
+            }
+        };
+
+        const onHashChange = () => {
+            if (
+                window.location.hash === '#!/events' &&
+                eventsTab?.tab.isConnected &&
+                !eventsTab.tab.classList.contains('active')
+            ) {
+                eventsTab.tab.click();
+            }
+        };
 
         const deactivateAll = () => {
             activeRequests.forEach((req) => {
-                req.active = false;
+                req.disconnect();
             });
             activeRequests.length = 0;
+            window.removeEventListener('load', moveEventsToTab);
+            window.removeEventListener('hashchange', onHashChange);
+            if (eventsTab?.tab.classList.contains('active')) {
+                document
+                    .querySelector(
+                        '#horizontal-tabs .rbx-tab:not(#tab-rovalra-events) a',
+                    )
+                    ?.click();
+            }
+            eventsTab?.tab.remove();
+            eventsTab?.contentPane.remove();
+            eventsTab = null;
         };
 
         const req1 = observeElement('#tab-events', () => {
             deactivateAll();
             document
-                .querySelectorAll('.virtual-event-game-details-container')
+                .querySelectorAll(
+                    '.virtual-event-game-details-container[data-rovalra-events-loaded="true"]',
+                )
                 .forEach((el) => el.remove());
         });
         activeRequests.push(req1);
@@ -655,7 +726,6 @@ export function init() {
             (eventsContainer) => {
                 if (document.getElementById('tab-events')) {
                     deactivateAll();
-                    eventsContainer.remove();
                     return;
                 }
 
@@ -671,6 +741,7 @@ export function init() {
                 if (!placeId) return;
 
                 loadAndRenderEvents(eventsContainer, placeId);
+                moveEventsToTab();
             },
             { multiple: true },
         );
@@ -709,5 +780,17 @@ export function init() {
             { multiple: true },
         );
         activeRequests.push(req4);
+
+        if (settings.eventsTabEnabled) {
+            activeRequests.push(
+                observeElement(
+                    '#horizontal-tabs, .tab-content.rbx-tab-content',
+                    moveEventsToTab,
+                    { multiple: true },
+                ),
+            );
+            window.addEventListener('load', moveEventsToTab, { once: true });
+            window.addEventListener('hashchange', onHashChange);
+        }
     });
 }

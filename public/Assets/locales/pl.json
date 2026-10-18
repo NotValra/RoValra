@@ -380,7 +380,11 @@
         "myProfile": "Mój profil",
         "disabled": "Wyłączone",
         "show": "Pokaż",
-        "hide": "Ukryj"
+        "hide": "Ukryj",
+        "add": "Dodaj",
+        "addButton": "Dodaj przycisk",
+        "buttonPlaceholder1": "Nazwa",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra nie może znaleźć żadnych obsługiwanych elementów górnego paska.",
@@ -630,7 +634,8 @@
         "setActive": "Ustaw jako aktywne",
         "noServersFound": "Nie znaleziono serwerów prywatnych o statusie: {{status}}.",
         "byCreator": "Autor: ",
-        "allowJoining": "Zezwól na dołączanie"
+        "allowJoining": "Zezwól na dołączanie",
+        "friendsAllowed": "Dozwoleni znajomi"
     },
     "firstAccount": {
         "label": "Pierwsze konto",
@@ -697,6 +702,11 @@
     },
     "lastEquipped": {
         "label": "Ostatnio założone"
+    },
+    "ownedItemPrice": {
+        "label": "Cena",
+        "free": "Darmowe",
+        "offSale": "Wycofane ze sprzedaży"
     },
     "pendingRobux": {
         "tooltip": "To szacunkowa liczba Robux z salda oczekującego, które staną się dostępne jutro, wyliczona na podstawie Twoich transakcji. Rzeczywista kwota może się różnić, a szacunek może być niedokładny.",
@@ -890,11 +900,13 @@
                     "addedToWebsite": "Dodano indeks motywów Plus do strony, aby użytkownicy mogli używać tylko poprawnych i określonych motywów."
                 },
                 "locales": {
+                    "madeDe": "Pomoc przy tworzeniu wersji niemieckiej",
                     "madeRo": "Pomoc przy tworzeniu wersji rumuńskiej",
                     "madeEs": "Pomoc przy tworzeniu wersji hiszpańskiej",
                     "madeRu": "Pomoc przy tworzeniu wersji rosyjskiej",
                     "madeFr": "Pomoc przy tworzeniu wersji francuskiej",
-                    "madeZh": "Pomoc przy tworzeniu wersji chińskiej"
+                    "madeZh": "Pomoc przy tworzeniu wersji chińskiej",
+                    "madeVi": "Pomoc przy tworzeniu wersji wietnamskiej"
                 }
             },
             "ui": {
@@ -1083,7 +1095,12 @@
                 "followTerms": "Obrazy muszą być zgodne z Warunkami Roblox",
                 "joinDiscord": "Dołącz do Discorda RoValra",
                 "agree": "Zgadzam się",
-                "agreeCountdown": "Zgadzam się ({{count}})"
+                "agreeCountdown": "Zgadzam się ({{count}})",
+                "preview": "Podgląd",
+                "previewTitle": "Podgląd niestandardowej odznaki",
+                "previewDescription": "Prześlij obraz WEBP, aby zobaczyć, jak będzie wyglądał jako odznaka na Twoim profilu. Obraz jest przechowywany wyłącznie w pamięci i nigdy nie jest przesyłany ani zapisywany. Zniknie po opuszczeniu strony lub jej odświeżeniu.",
+                "previewTooltip": "Podgląd odznaki",
+                "previewDone": "Gotowe"
             },
             "githubSponsorBadge": {
                 "title": "Odznaka profilu GitHub Sponsors",
@@ -1440,6 +1457,24 @@
             "active": "Brak trwających i nadchodzących wydarzeń.",
             "past": "Brak minionych wydarzeń.",
             "all": "Nie znaleziono wydarzeń."
+        }
+    },
+    "badgeSort": {
+        "label": "Sortuj odznaki",
+        "seeMore": "Zobacz więcej",
+        "updated": "Zaktualizowano",
+        "created": "Utworzono",
+        "options": {
+            "default": "Domyślnie",
+            "updated": "Ostatnio zaktualizowane",
+            "newest": "Najnowsze",
+            "oldest": "Najstarsze",
+            "mostWon": "Najczęściej zdobywane",
+            "leastWon": "Najrzadziej zdobywane",
+            "wonYesterday": "Najczęściej zdobywane wczoraj",
+            "rarest": "Najrzadsze",
+            "easiest": "Najłatwiejsze",
+            "name": "Nazwa (A–Z)"
         }
     },
     "hiddenBadges": {
@@ -1931,7 +1966,9 @@
     "groups": {
         "createdLabel": "Utworzono",
         "joinedLabel": "Dołączono",
-        "unknown": "Nieznane"
+        "unknown": "Nieznane",
+        "hidden": "Ukryte",
+        "hiddenTooltip": "Ta społeczność ukrywa listę członków, dlatego daty dołączenia mogą zobaczyć tylko jej członkowie."
     },
     "showcase": {
         "tab": "Wizytówka",
@@ -2076,7 +2113,11 @@
             "newest": "Najnowsze",
             "oldest": "Najstarsze"
         },
-        "tooltip": "Sortuj według daty dołączenia użytkownika do społeczności"
+        "tooltip": "Sortuj według daty dołączenia użytkownika do społeczności",
+        "view": {
+            "row": "Lista",
+            "grid": "Siatka"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",

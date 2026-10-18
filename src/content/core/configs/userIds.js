@@ -1,6 +1,7 @@
 export const CREATOR_USER_ID = '447170745';
 
 export const CONTRIBUTOR_USER_IDS = [
+    '127238', // Companion
     '4489102289', // v6u1
     '1337447242',
     '109176680',
@@ -42,6 +43,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
     '1256003470', // Jk28b
+    '74884', // awkward222
 ];
 
 export const TESTER_USER_IDS = [
@@ -60,6 +62,8 @@ export const TRANSLATOR_USER_IDS = [
     '3733653415', // kurdo3660
     '16147087', // Edward667
     '587930109', // hnguyen1910
+    '11785214974', // DevinHmmm
+    '2490953439', // xMrReks
 ];
 
 export const ARTIST_USER_IDS = [

@@ -1,6 +1,7 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
 import { updateGameBookmarks } from './gameBookmarks.js';
+import { setupNotifications } from './notifications.js';
 
 // --- Constants & State ---
 
@@ -401,10 +402,18 @@ async function callRobloxApiBackground(options) {
         body = null,
         headers = {},
         fullUrl = null,
+        isRovalraApi = false,
     } = options;
 
     let url;
-    if (fullUrl) {
+    if (isRovalraApi) {
+        if (subdomain !== 'apis') {
+            throw new Error(
+                'Unsupported RoValra subdomain for background fetch',
+            );
+        }
+        url = `https://apis.rovalra.com${endpoint}`;
+    } else if (fullUrl) {
         const parsedUrl = new URL(fullUrl);
         if (parsedUrl.hostname !== 'setup.rbxcdn.com') {
             throw new Error('Unsupported fullUrl host for background fetch');
@@ -421,6 +430,9 @@ async function callRobloxApiBackground(options) {
     }
 
     const fetchOptions = { method, headers: { ...headers } };
+    if (isRovalraApi) {
+        fetchOptions.credentials = 'omit';
+    }
 
     if (body) {
         if (typeof body === 'object') {
@@ -431,7 +443,12 @@ async function callRobloxApiBackground(options) {
         }
     }
 
-    if (method !== 'GET' && method !== 'HEAD' && state.csrfTokenCache) {
+    if (
+        !isRovalraApi &&
+        method !== 'GET' &&
+        method !== 'HEAD' &&
+        state.csrfTokenCache
+    ) {
         fetchOptions.headers['X-CSRF-TOKEN'] = state.csrfTokenCache;
     }
 
@@ -458,7 +475,12 @@ async function callRobloxApiBackground(options) {
         }
     }
 
-    if (response.status === 403 && method !== 'GET' && method !== 'HEAD') {
+    if (
+        !isRovalraApi &&
+        response.status === 403 &&
+        method !== 'GET' &&
+        method !== 'HEAD'
+    ) {
         const newCsrf = response.headers.get('x-csrf-token');
         if (newCsrf) {
             state.csrfTokenCache = newCsrf;
@@ -2608,3 +2630,4 @@ updateAvatarRotator();
 setupContextMenuListener();
 updateBannedUserListener();
 updatePrivateGameListener();
+setupNotifications(callRobloxApiBackground);

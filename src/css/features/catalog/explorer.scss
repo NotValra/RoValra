@@ -88,10 +88,71 @@
     border-bottom: 1px solid var(--rovalra-exp-border);
 }
 
-.rovalra-explorer-props-search {
+.rovalra-explorer-mesh-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #cdd0d6;
+}
+
+.rovalra-explorer-mesh-area {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    background: #111214;
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.rovalra-explorer-image-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    background-color: #111214;
+    background-image:
+        linear-gradient(45deg, #1c1d20 25%, transparent 25%),
+        linear-gradient(-45deg, #1c1d20 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1c1d20 75%),
+        linear-gradient(-45deg, transparent 75%, #1c1d20 75%);
+    background-size: 20px 20px;
+    background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0;
+}
+
+.rovalra-explorer-image-preview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.rovalra-explorer-mesh-status {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cdd0d6;
+    pointer-events: none;
+}
+
+.rovalra-explorer-props-sticky {
     position: sticky;
     top: 0;
     z-index: 2;
+    background: var(--rovalra-exp-bg);
 }
 
 .rovalra-explorer-search-input {
@@ -132,8 +193,6 @@
 }
 
 .rovalra-explorer-props-header {
-    position: sticky;
-    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -321,6 +380,22 @@
     align-items: center;
     color: inherit;
     opacity: 0.7;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.rovalra-explorer-asset-preview {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
 
     &:hover {
         opacity: 1;
