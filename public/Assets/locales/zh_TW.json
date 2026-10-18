@@ -517,6 +517,8 @@
         "overlayText": "已隱藏的體驗",
         "noHiddenGames": "此使用者沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
+        "publicExperiences": "公開的體驗",
+        "hiddenExperiences": "已隱藏的體驗",
         "labels": {
             "sort": "排序",
             "order": "順序",
@@ -701,6 +703,111 @@
             },
             "errors": {
                 "invalidUrl": "請輸入有效的 https 圖片 URL。"
+            }
+        },
+        "variables": {
+            "intro": "選擇上方一個 Roblox 主題即可直接使用，或變更下方任意顏色進行自訂。變更將即時生效。",
+            "presetNone": "無",
+            "opacity": "不透明度",
+            "reset": "重設",
+            "resetAll": "重設顏色",
+            "saved": {
+                "title": "我的主題",
+                "noTheme": "無主題",
+                "unsaved": "未儲存的主題",
+                "editingLabel": "{{name}}（正在編輯）",
+                "statusNone": "未裝備主題，Roblox 的外觀與平常相同。",
+                "statusUnsaved": "您目前使用的顏色尚未儲存為主題。",
+                "statusEditing": "正在編輯 {{name}}。儲存以保留變更。",
+                "statusEquipped": "{{name}} 已裝備中。",
+                "namePlaceholder": "主題名稱",
+                "save": "儲存",
+                "delete": "刪除",
+                "export": "匯出",
+                "import": "匯入",
+                "defaultName": "我的主題",
+                "importedName": "已匯入的主題",
+                "saved": "主題已儲存！",
+                "updated": "主題已更新！",
+                "deleted": "主題已刪除。",
+                "imported": "主題已匯入！",
+                "nameRequired": "請先輸入主題名稱。",
+                "limitReached": "您最多只能儲存 {{count}} 個主題。",
+                "invalidFile": "此檔案不是 RoValra 主題。",
+                "fileTooLarge": "此檔案太大，無法作為主題。",
+                "deleteTitle": "刪除主題",
+                "deleteMessage": "您確定要刪除此已儲存的主題嗎？"
+            },
+            "modes": {
+                "editingDark": "正在編輯深色模式顏色",
+                "editingLight": "正在編輯淺色模式顏色"
+            },
+            "tokens": {
+                "surface-0": "頁面背景",
+                "surface-100": "表面 100",
+                "surface-200": "表面 200",
+                "surface-300": "表面 300",
+                "common-navigation-bar": "導覽列",
+                "over-media-0": "覆蓋媒體 0",
+                "over-media-100": "覆蓋媒體 100",
+                "over-media-200": "覆蓋媒體 200",
+                "over-media-300": "覆蓋媒體 300",
+                "common-backdrop": "幃幕",
+                "content-emphasis": "強調文字",
+                "content-default": "預設文字",
+                "content-muted": "靜音文字",
+                "content-link": "連結文字",
+                "stroke-default": "預設描邊",
+                "stroke-emphasis": "強調描邊",
+                "stroke-muted": "弱化描邊",
+                "common-heavy-divider": "粗分隔線",
+                "shift-100": "變化 100",
+                "shift-200": "變化 200",
+                "shift-300": "變化 300",
+                "shift-400": "變化 400",
+                "system-emphasis": "強調",
+                "system-contrast": "對比",
+                "system-alert": "警報",
+                "system-success": "成功",
+                "system-warning": "警告",
+                "system-neutral": "中性",
+                "action-emphasis-background": "主要背景",
+                "action-emphasis-foreground": "主要文字",
+                "action-standard-background": "標準背景",
+                "action-standard-foreground": "標準文字",
+                "action-soft-emphasis-background": "柔和背景",
+                "action-soft-emphasis-foreground": "柔和文字",
+                "action-subtle-border": "柔和邊框",
+                "action-alert-foreground": "警報文字",
+                "action-over-media-background": "覆蓋媒體背景",
+                "action-over-media-foreground": "覆蓋媒體文字"
+            },
+            "presets": {
+                "classic": "經典",
+                "circuit-rush": "電路衝擊",
+                "cosmic-dust": "宇宙塵埃",
+                "electric-lime": "電光青檸",
+                "hyper-plum": "超極梅花",
+                "inferno-blast": "烈焰衝擊",
+                "kinetic-energy": "動能",
+                "lava-glow": "熔岩光芒",
+                "nebula-drift": "星雲漂移",
+                "nitro-frost": "硝基霜",
+                "pixel-pop": "像素彈出",
+                "polar-freeze": "極地凍結",
+                "quantum-pulse": "量子脈衝",
+                "star-burst": "星爆",
+                "super-charge": "超級充電"
+            },
+            "builtIn": {
+                "veryDark": "非常暗主題"
+            },
+            "groups": {
+                "surfaces": "表面",
+                "content": "文字",
+                "strokes": "筆觸與偏移",
+                "system": "系統",
+                "actions": "按鈕"
             }
         }
     },
@@ -1570,7 +1677,7 @@
             },
             "friendsCarouselRedesignEnabled": {
                 "title": "App 風格的好友名單",
-                "desc1": "將首頁好友名單替換為 Roblox App 中的箭頭導航名單。"
+                "desc1": "將首頁好友名單替換為 Roblox App 中的箭頭導覽名單。"
             },
             "friendLabelsEnabled": {
                 "title": "好友標籤",
@@ -1671,7 +1778,7 @@
             "title": "Roblox Plus"
         },
         "navigation": {
-            "title": "導航"
+            "title": "導覽"
         },
         "miscellaneous": {
             "title": "其他設定"
@@ -2196,6 +2303,10 @@
         "bonusItemFallback": "包含獎勵道具",
         "noItems": "找不到商店道具。",
         "failedToLoad": "無法載入商店道具",
+        "offers": {
+            "expires": "過期於",
+            "inGameOnly": "僅適用於遊戲內購買。"
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -2313,6 +2424,24 @@
             "all": "找不到任何活動。"
         }
     },
+    "badgeSort": {
+        "label": "徽章排序",
+        "seeMore": "查看更多",
+        "updated": "已更新",
+        "created": "已建立",
+        "options": {
+            "default": "預設",
+            "updated": "最近更新",
+            "newest": "最新",
+            "oldest": "最舊",
+            "mostWon": "最多贏得",
+            "leastWon": "最少贏得",
+            "wonYesterday": "昨天最多贏得",
+            "rarest": "最稀有",
+            "easiest": "最容易",
+            "name": "名稱（A-Z）"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "徽章",
@@ -2323,7 +2452,10 @@
         "unableToDetectUniverse": "無法偵測到此宇宙。",
         "stillScanning": "仍在掃描您的徽章。您擁有的隱藏徽章可能很快就會出現。",
         "noneOwnedFound": "此體驗中找不到您擁有的隱藏徽章。",
-        "failedToLoad": "無法載入您擁有的隱藏徽章。"
+        "failedToLoad": "無法載入您擁有的隱藏徽章。",
+        "rolimonsSource": "已隱藏徽章由 Rolimon's 提供。",
+        "viewOnRolimons": "在 Rolimon's 上查看遊戲",
+        "openBadgeOnRolimons": "在 Rolimon's 上打開徽章"
     },
     "antiBots": {
         "reviewMembers": "審核 {{count}} 位以選取的成員：",
@@ -2795,10 +2927,18 @@
         "label": "{{count}} 地點參訪次數",
         "tooltip": "總社群地點參訪次數"
     },
+    "groupFundsPill": {
+        "label": "{{count}} 資金",
+        "tooltip": "社群資金",
+        "privateTooltip": "這些資金不公開。RoValra 會根據您的角色向您顯示這些資金。",
+        "roleTooltip": "RoValra 會根據您的角色向您顯示這些資金。"
+    },
     "groups": {
         "createdLabel": "建立日期：",
         "joinedLabel": "加入日期：",
-        "unknown": "未知"
+        "unknown": "未知",
+        "hidden": "已隱藏",
+        "hiddenTooltip": "此社群已隱藏了成員名單，因此只有此社群的成員才能看到加入日期。"
     },
     "showcase": {
         "tab": "展示",
@@ -3141,5 +3281,12 @@
         "contentType": "內容類型",
         "redirected": "已重新導向",
         "copy": "複製"
+    },
+    "notifications": {
+        "newTrade": "新交易",
+        "tradeFrom": "來自 {{name}}",
+        "tradeStats": "{{value}} 價值 | {{rap}} 近期平均價格(RAP)",
+        "friendPlaying": "{{name}} 正在遊玩",
+        "unknownGame": "未知體驗"
     }
 }

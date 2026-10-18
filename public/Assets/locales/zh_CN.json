@@ -516,6 +516,8 @@
         "overlayText": "已隐藏的体验",
         "noHiddenGames": "该用户没有已隐藏的体验。",
         "buttonText": "已隐藏的体验",
+        "publicExperiences": "公开的体验",
+        "hiddenExperiences": "已隐藏的体验",
         "labels": {
             "sort": "排序",
             "order": "顺序",
@@ -700,6 +702,111 @@
             },
             "errors": {
                 "invalidUrl": "请输入有效的 https 图像 URL。"
+            }
+        },
+        "variables": {
+            "intro": "选择上方一个 Roblox 主题即可直接使用，或更改下方任意颜色进行自定义。更改将实时生效。",
+            "presetNone": "无",
+            "opacity": "不透明度",
+            "reset": "重置",
+            "resetAll": "重置所有颜色",
+            "saved": {
+                "title": "我的主题",
+                "noTheme": "无主题",
+                "unsaved": "未保存的主题",
+                "editingLabel": "{{name}}（编辑中）",
+                "statusNone": "未装备主题，Roblox 的外观与平时相同。",
+                "statusUnsaved": "您当前使用的颜色尚未保存为主题。",
+                "statusEditing": "正在编辑 {{name}}。保存以保留更改。",
+                "statusEquipped": "{{name}} 已装备中。",
+                "namePlaceholder": "主题名称",
+                "save": "保存",
+                "delete": "删除",
+                "export": "导出",
+                "import": "导入",
+                "defaultName": "我的主题",
+                "importedName": "已导入的主题",
+                "saved": "主题已保存！",
+                "updated": "主题已更新！",
+                "deleted": "主题已删除。",
+                "imported": "主题已导入！",
+                "nameRequired": "请先输入主题名称。",
+                "limitReached": "您最多只能保存 {{count}} 个主题。",
+                "invalidFile": "该文件不是 RoValra 主题。",
+                "fileTooLarge": "该文件太大，不能作为主题。",
+                "deleteTitle": "删除主题",
+                "deleteMessage": "您确定要删除此已保存的主题吗？"
+            },
+            "modes": {
+                "editingDark": "编辑深色模式颜色",
+                "editingLight": "编辑浅色模式颜色"
+            },
+            "tokens": {
+                "surface-0": "页面背景",
+                "surface-100": "表面 100",
+                "surface-200": "表面 200",
+                "surface-300": "表面 300",
+                "common-navigation-bar": "导航栏",
+                "over-media-0": "覆盖媒体 0",
+                "over-media-100": "覆盖媒体 100",
+                "over-media-200": "覆盖媒体 200",
+                "over-media-300": "覆盖媒体 300",
+                "common-backdrop": "背景",
+                "content-emphasis": "强调文本",
+                "content-default": "默认文本",
+                "content-muted": "静音文本",
+                "content-link": "链接文本",
+                "stroke-default": "默认描边",
+                "stroke-emphasis": "强调描边",
+                "stroke-muted": "弱化描边",
+                "common-heavy-divider": "粗分隔线",
+                "shift-100": "变化 100",
+                "shift-200": "变化 200",
+                "shift-300": "变化 300",
+                "shift-400": "变化 400",
+                "system-emphasis": "强调",
+                "system-contrast": "对比度",
+                "system-alert": "警示",
+                "system-success": "成功",
+                "system-warning": "警告",
+                "system-neutral": "中性",
+                "action-emphasis-background": "主要背景",
+                "action-emphasis-foreground": "主要文本",
+                "action-standard-background": "标准背景",
+                "action-standard-foreground": "标准文本",
+                "action-soft-emphasis-background": "柔和背景",
+                "action-soft-emphasis-foreground": "柔和文本",
+                "action-subtle-border": "柔和边框",
+                "action-alert-foreground": "警示文本",
+                "action-over-media-background": "覆盖媒体背景",
+                "action-over-media-foreground": "覆盖媒体文本"
+            },
+            "presets": {
+                "classic": "经典",
+                "circuit-rush": "电路冲击",
+                "cosmic-dust": "宇宙尘埃",
+                "electric-lime": "电光青柠",
+                "hyper-plum": "超极梅花",
+                "inferno-blast": "烈焰冲击",
+                "kinetic-energy": "动能",
+                "lava-glow": "熔岩光芒",
+                "nebula-drift": "星云漂移",
+                "nitro-frost": "硝基霜",
+                "pixel-pop": "像素弹出",
+                "polar-freeze": "极地冻结",
+                "quantum-pulse": "量子脉冲",
+                "star-burst": "星爆",
+                "super-charge": "超级充电"
+            },
+            "builtIn": {
+                "veryDark": "非常暗主题"
+            },
+            "groups": {
+                "surfaces": "表面",
+                "content": "文本",
+                "strokes": "笔触和偏移",
+                "system": "系统",
+                "actions": "按钮"
             }
         }
     },
@@ -2195,6 +2302,10 @@
         "bonusItemFallback": "包含奖励道具",
         "noItems": "未找到商店道具。",
         "failedToLoad": "商店道具加载失败。",
+        "offers": {
+            "expires": "过期于",
+            "inGameOnly": "仅适用于游戏内购买。"
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -2312,6 +2423,24 @@
             "all": "未找到任何活动。"
         }
     },
+    "badgeSort": {
+        "label": "徽章排序",
+        "seeMore": "查看更多",
+        "updated": "已更新",
+        "created": "已创建",
+        "options": {
+            "default": "默认",
+            "updated": "最近更新",
+            "newest": "最新",
+            "oldest": "最旧",
+            "mostWon": "最多赢得",
+            "leastWon": "最少赢得",
+            "wonYesterday": "昨天最多赢得",
+            "rarest": "最稀有",
+            "easiest": "最容易",
+            "name": "名称（A-Z）"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "徽章",
@@ -2322,7 +2451,10 @@
         "unableToDetectUniverse": "无法检测到此宇宙。",
         "stillScanning": "仍在扫描您的徽章。您拥有的隐藏徽章可能很快就会出现。",
         "noneOwnedFound": "该体验中未找到您拥有的隐藏徽章。",
-        "failedToLoad": "加载您拥有的隐藏徽章失败。"
+        "failedToLoad": "加载您拥有的隐藏徽章失败。",
+        "rolimonsSource": "已隐藏徽章由 Rolimon's 提供。",
+        "viewOnRolimons": "在 Rolimon's 上查看游戏",
+        "openBadgeOnRolimons": "在 Rolimon's 上打开徽章"
     },
     "antiBots": {
         "reviewMembers": "审核 {{count}} 位选定成员：",
@@ -2794,10 +2926,18 @@
         "label": "{{count}} 场景访问次数",
         "tooltip": "总社区场景访问次数"
     },
+    "groupFundsPill": {
+        "label": "{{count}} 资金",
+        "tooltip": "社区资金",
+        "privateTooltip": "这些资金不公开。RoValra 会根据您的角色向您显示这些资金。",
+        "roleTooltip": "RoValra 会根据您的角色向您显示这些资金。"
+    },
     "groups": {
         "createdLabel": "创建日期：",
         "joinedLabel": "加入日期：",
-        "unknown": "未知"
+        "unknown": "未知",
+        "hidden": "已隐藏",
+        "hiddenTooltip": "此社区已隐藏了成员列表，因此只有此社区的成员才能看到加入日期。"
     },
     "showcase": {
         "tab": "展示",
@@ -3140,5 +3280,12 @@
         "contentType": "内容类型",
         "redirected": "已重定向",
         "copy": "复制"
+    },
+    "notifications": {
+        "newTrade": "新交易",
+        "tradeFrom": "来自 {{name}}",
+        "tradeStats": "{{value}} 价值 | {{rap}} 近期平均价格(RAP)",
+        "friendPlaying": "{{name}} 正在游玩",
+        "unknownGame": "未知体验"
     }
 }
