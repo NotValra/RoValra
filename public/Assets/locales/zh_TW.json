@@ -1719,8 +1719,8 @@
                 "desc1": "顯示社群的已隱藏體驗。"
             },
             "pendingRobuxEnabled": {
-                "title": "取消待處理的 Robux",
-                "desc1": "顯示預計有多少待處理的 Robux 將在 24 小時內取消。",
+                "title": "預計發放待處理的 Robux",
+                "desc1": "顯示預計有多少待處理的 Robux 將在 24 小時內發放。",
                 "experimental": "可能不準確，並且根據銷售量，可能需要很長時間。"
             },
             "antibotsEnabled": {

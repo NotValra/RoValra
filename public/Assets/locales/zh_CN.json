@@ -1718,8 +1718,8 @@
                 "desc1": "显示社区的已隐藏体验。"
             },
             "pendingRobuxEnabled": {
-                "title": "取消待处理的 Robux",
-                "desc1": "显示预计有多少待处理的 Robux 将在 24 小时内取消。",
+                "title": "预计发放待处理的 Robux",
+                "desc1": "显示预计有多少待处理的 Robux 将在 24 小时内发放。",
                 "experimental": "可能不准确，并且根据销售量，可能需要很长时间。"
             },
             "antibotsEnabled": {
