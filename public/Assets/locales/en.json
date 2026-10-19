@@ -62,6 +62,14 @@
         "filterByUptime": "Filter servers by uptime (newest/oldest)",
         "filterByVersion": "Filter servers by game version"
     },
+    "profileExperienceSearch": {
+        "title": "Search Experiences",
+        "placeholder": "Search experiences...",
+        "loadMore": "Load more",
+        "noResults": "No experiences found.",
+        "loading": "Loading experiences...",
+        "incomplete": "Some experiences could not be loaded."
+    },
     "guidelines": {
         "title": "RoValra Guidelines",
         "message": "By using RoValra, you agree to follow our Terms of Use. Failure to follow these rules may result in the suspension of access to specific features, including status bubbles and pronouns.<br><br><b>Key Takeaways:</b><br>• You cannot direct users off-platform.<br>• You cannot do anything inappropriate.<br>• You must not violate the Roblox Terms of Service.<br><br>Read more at <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
