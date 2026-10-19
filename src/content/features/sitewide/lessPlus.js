@@ -47,7 +47,7 @@ function updateRobloxPlusNote(robloxPlusNote) {
         debugVerbose(`[lessPlus] Removing robloxPlus note from sidebar.`, {
             element: robloxPlusNote,
         });
-        sidebarItem.remove();
+        sidebarItem.style.display = 'none';
         return;
     }
 
