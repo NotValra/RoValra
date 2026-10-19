@@ -1621,7 +1621,7 @@ export const SETTINGS_CONFIG = {
                     'Shows the official Roblox Administrator badge beside names on supported user cards, including Home and the friends list.',
                 ],
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['127238'],
             },
             homeLayoutEnabled: {

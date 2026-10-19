@@ -1,16 +1,16 @@
 import { callRobloxApiJson } from '../api.js';
 import { get as getCache, set as setCache } from '../storage/cacheHandler.js';
 
-const ROBLOX_ADMIN_GROUP_ID = 1200769;
-const CACHE_SECTION = 'roblox_admin_group_membership';
+const CACHE_SECTION = 'roblox_admin_status';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const FAILURE_BACKOFF_MS = 30 * 1000;
-const MAX_CONCURRENT_REQUESTS = 4;
+const BATCH_SIZE = 50;
+const BATCH_DELAY_MS = 50;
 const MAX_PENDING_REQUESTS = 1000;
 const pendingRequests = new Map();
 const failedRequests = new Map();
-const requestQueue = [];
-let activeRequests = 0;
+const batchQueue = new Map();
+let batchTimer = null;
 
 function recordFailure(userId) {
     failedRequests.delete(userId);
@@ -20,7 +20,52 @@ function recordFailure(userId) {
     }
 }
 
-async function fetchAdminStatus(userId) {
+function settle(userId, resolve, result) {
+    pendingRequests.delete(userId);
+    resolve(result);
+}
+
+async function fetchBatch(batch) {
+    let profiles;
+    try {
+        const response = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: '/profile-platform-api/v1/profiles/batch/get',
+            method: 'POST',
+            body: {
+                profileType: 'User',
+                profileIds: batch.map(([userId]) => userId),
+                components: [{ component: 'UserProfileHeader' }],
+            },
+        });
+        profiles = response?.profiles;
+    } catch {
+        profiles = null;
+    }
+
+    for (const [userId, resolve] of batch) {
+        const isAdmin =
+            profiles?.[userId]?.components?.UserProfileHeader?.isRobloxAdmin;
+        if (typeof isAdmin !== 'boolean') {
+            recordFailure(userId);
+            settle(userId, resolve, null);
+            continue;
+        }
+        await setCache(CACHE_SECTION, userId, isAdmin, 'session');
+        settle(userId, resolve, isAdmin);
+    }
+}
+
+function flushQueue() {
+    batchTimer = null;
+    const entries = [...batchQueue];
+    batchQueue.clear();
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+        fetchBatch(entries.slice(i, i + BATCH_SIZE));
+    }
+}
+
+async function resolveAdminStatus(userId, resolve) {
     try {
         const cached = await getCache(
             CACHE_SECTION,
@@ -28,51 +73,18 @@ async function fetchAdminStatus(userId) {
             'session',
             CACHE_TTL_MS,
         );
-        if (typeof cached === 'boolean') return cached;
-
-        const groups = await callRobloxApiJson({
-            subdomain: 'groups',
-            endpoint: `/v1/users/${userId}/groups/roles?includeLocked=true`,
-            method: 'GET',
-            useBackground: true,
-        });
-        if (
-            !Array.isArray(groups?.data) ||
-            !groups.data.every(
-                (membership) =>
-                    ['string', 'number'].includes(
-                        typeof membership?.group?.id,
-                    ) &&
-                    Number.isSafeInteger(Number(membership?.group?.id)) &&
-                    Number(membership.group.id) > 0,
-            )
-        ) {
-            recordFailure(userId);
-            return null;
+        if (typeof cached === 'boolean') {
+            settle(userId, resolve, cached);
+            return;
         }
+    } catch {}
 
-        const isAdmin = groups.data.some(
-            (membership) =>
-                Number(membership.group.id) === ROBLOX_ADMIN_GROUP_ID,
-        );
-        await setCache(CACHE_SECTION, userId, isAdmin, 'session');
-        return isAdmin;
-    } catch {
-        recordFailure(userId);
-        return null;
-    }
-}
-
-function processQueue() {
-    while (activeRequests < MAX_CONCURRENT_REQUESTS && requestQueue.length) {
-        const { userId, resolve } = requestQueue.shift();
-        activeRequests++;
-        fetchAdminStatus(userId).then((result) => {
-            activeRequests--;
-            pendingRequests.delete(userId);
-            resolve(result);
-            processQueue();
-        });
+    batchQueue.set(userId, resolve);
+    if (batchQueue.size >= BATCH_SIZE) {
+        clearTimeout(batchTimer);
+        flushQueue();
+    } else if (!batchTimer) {
+        batchTimer = setTimeout(flushQueue, BATCH_DELAY_MS);
     }
 }
 
@@ -97,9 +109,8 @@ export function isRobloxAdmin(userId) {
     }
 
     const promise = new Promise((resolve) => {
-        requestQueue.push({ userId: key, resolve });
+        resolveAdminStatus(key, resolve);
     });
     pendingRequests.set(key, promise);
-    processQueue();
     return promise;
 }
