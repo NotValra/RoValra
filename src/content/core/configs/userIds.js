@@ -50,7 +50,7 @@ export const TESTER_USER_IDS = [
 ];
 
 export const TRANSLATOR_USER_IDS = [
-    '11785214974', // DevinHmmm
+    '11841995204', // Pheedel
     '1564574922', // bogdan-glitchm
     '10646979010', // rav4toy
     '3121706', // AuroxNova
