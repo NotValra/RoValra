@@ -1189,7 +1189,7 @@ function updateMainRigBodyVisibility() {
 
         //add _OriginalTransparency to parts, in case they should be transparent when "visible"
         if (!child.HasProperty("_OriginalTransparency") && child.HasProperty("Transparency")) {
-            child.addProperty(new Property("_OriginalTransparency", DataType.NonSerializable), child.Prop("Transparency"))
+            child.addProperty(new Property("_OriginalTransparency", DataType.NonSerializable), child.Prop("Transparency"));
         }
 
         const transparency = hideMainRigBody ? 1 : child.PropOrDefault("_OriginalTransparency", 0);
