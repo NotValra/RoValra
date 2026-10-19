@@ -572,7 +572,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                storageKey: 'rovalra_badges_v1',
+                indexedDbStore: 'badges',
             },
             badgeLayoutToggleEnabled: {
                 label: 'Badge Layout Toggle',
