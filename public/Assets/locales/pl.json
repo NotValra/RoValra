@@ -2083,6 +2083,9 @@
         "ariaLabel": "Nazwa użytkownika: @{{username}}",
         "nameWithUsername": "{{displayName}} (@{{username}})"
     },
+    "robloxAdminBadges": {
+        "badge": "Administrator Roblox"
+    },
     "placeVisits": {
         "label": "Odwiedziny miejsc: {{count}}",
         "tooltip": "Łączne odwiedziny miejsc społeczności"
