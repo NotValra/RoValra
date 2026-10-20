@@ -947,8 +947,8 @@
         "credits": {
             "contributorsTitle": "Contributors",
             "translatorsTitle": "Translators",
-            "featureCount_one": "{{count}} feature",
-            "featureCount_other": "{{count}} features",
+            "featureCount_one": "{{count}} contribution",
+            "featureCount_other": "{{count}} contributions",
             "contributorTooltips": {
                 "146089324": "WoozyNate made fisch, which is where the old RoValra logo is from. You should check out fisch!",
                 "1337447242": "Made the new logo and all store page images.",
@@ -959,8 +959,8 @@
             "sortLabel": "Sort contributors",
             "sortMost": "Most",
             "sortLeast": "Least",
-            "contributionCount_one": "Contributed to {{count}} feature",
-            "contributionCount_other": "Contributed to {{count}} features",
+            "contributionCount_one": "Contributed {{count}} things",
+            "contributionCount_other": "Contributed {{count}} things",
             "backendContributorsNote": "These people helped with non feature related things.",
             "loadingContributors": "Loading...",
             "failedToLoadContributors": "Failed to load contributors.",
