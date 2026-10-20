@@ -40,7 +40,8 @@ const STREAMER_ROBUX_BALANCE_SELECTOR =
     '#navbar-robux, #nav-robux-amount, #nav-robux-balance';
 const STREAMER_ROBUX_VISIBILITY_EVENT = 'rovalra-streamer-robux-visibility';
 
-const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
+const INLINE_FIAT_LOCATIONS =
+    '#navbar-robux, #buy-robux-popover, .rovalra-group-funds-section';
 const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 
