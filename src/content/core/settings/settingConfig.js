@@ -21,7 +21,7 @@ export const SETTINGS_CONFIG = {
         settings: {
             rovalraLanguage: {
                 label: 'RoValra Language',
-                contributors: [1564574922],
+                contributors: [1564574922, 127238],
                 description: [
                     'Manually configure a language for RoValra. Some translations may be missing.',
                     // it works on the setting page only once it figures out the language from other pages' URLs
@@ -204,7 +204,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_recently_viewed',
-                contributors: ['2239549101'],
+                contributors: ['2239549101', '127238'],
                 childSettings: {
                     recentlyViewedPriceChanges: {
                         label: 'Show Price Changes',
