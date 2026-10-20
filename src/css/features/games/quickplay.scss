@@ -45,7 +45,7 @@ $play-btn-bg: var(--rovalra-playbutton-color);
 }
 
 a.game-tile-styles.game-card-link,
-a.game-tile-styles.sdui-game-tile-wrapper {
+.game-tile-styles.sdui-game-tile-wrapper {
     position: relative;
     display: block;
     z-index: 2;
@@ -131,7 +131,7 @@ a.game-tile-styles.sdui-game-tile-wrapper {
     }
 }
 
-a.game-tile-styles.sdui-game-tile-wrapper {
+.game-tile-styles.sdui-game-tile-wrapper {
     display: flex;
 
     &::after {
@@ -150,7 +150,8 @@ a.game-tile-styles.sdui-game-tile-wrapper {
 
     &:hover,
     &.quick-play-hover-active {
-        [data-testid='sdui-tile-main-content'] [data-sdui-text] {
+        [data-testid='sdui-tile-main-content'] [data-sdui-text],
+        .sdui-game-tile-primary [data-sdui-text] {
             -webkit-line-clamp: 1 !important;
         }
 
