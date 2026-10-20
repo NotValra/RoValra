@@ -17,6 +17,8 @@ import {
     AccessoryAssetTypes,
     LayeredAssetTypes,
     CACHE as RENDERER_CACHE,
+    Property,
+    DataType,
 } from 'roavatar-renderer';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
@@ -1185,7 +1187,12 @@ function updateMainRigBodyVisibility() {
         if (!child.IsA('BasePart') || child.Prop('Name') === 'HumanoidRootPart')
             continue;
 
-        const transparency = hideMainRigBody ? 1 : 0;
+        //add _OriginalTransparency to parts, in case they should be transparent when "visible"
+        if (!child.HasProperty("_OriginalTransparency") && child.HasProperty("Transparency")) {
+            child.addProperty(new Property("_OriginalTransparency", DataType.NonSerializable), child.Prop("Transparency"));
+        }
+
+        const transparency = hideMainRigBody ? 1 : child.PropOrDefault("_OriginalTransparency", 0);
         if (child.Prop('Transparency') !== transparency) {
             child.setProperty('Transparency', transparency);
         }
