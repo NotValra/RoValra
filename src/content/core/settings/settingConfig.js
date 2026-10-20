@@ -390,6 +390,17 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            playGuardEnabled: {
+                label: 'Play Guard',
+                description: [
+                    'Stops you from launching a second experience while you are already in one.',
+                    'Play buttons get a lock icon and ask for confirmation first. The confirmation can be paused for a while.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: ['playGuardPausedUntil'],
+                contributors: ['1256003470'],
+            },
             wideGameTileStatsEnabled: {
                 label: 'Player Counts on Wide Tiles',
                 description: [
