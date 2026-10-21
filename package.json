@@ -1,6 +1,6 @@
 {
   "name": "rovalra",
-  "version": "2.6.16",
+  "version": "2.6.18",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "private": true,
   "scripts": {
@@ -28,6 +28,7 @@
     "yaml": "^2.9.0"
   },
   "dependencies": {
+    "dexie": "^4.4.6",
     "dompurify": "^3.4.11",
     "fflate": "^0.8.3",
     "fzstd": "^0.1.1",

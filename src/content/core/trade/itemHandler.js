@@ -1,5 +1,6 @@
 import { callRobloxApi } from '../api';
 import { calculateRisk, RISK_LEVELS } from './riskCalculator.js';
+import DOMPurify from '../packages/dompurify.js';
 
 const itemValueCache = new Map();
 const rolimonsCache = new Map();
@@ -38,12 +39,36 @@ document.addEventListener('rovalra-tradable-items-response', (e) => {
     }
 });
 
+function sanitizeRolimonsValue(value) {
+    if (typeof value === 'string') {
+        if (!/[<>&"']/.test(value)) return value;
+        return DOMPurify.sanitize(value, {
+            ALLOWED_TAGS: [],
+            ALLOWED_ATTR: [],
+        });
+    }
+    if (Array.isArray(value)) return value.map(sanitizeRolimonsValue);
+    if (value && typeof value === 'object') {
+        return Object.fromEntries(
+            Object.entries(value).map(([k, v]) => [
+                k,
+                sanitizeRolimonsValue(v),
+            ]),
+        );
+    }
+    return value;
+}
+
 export function getCachedItemValue(instanceId) {
     return itemValueCache.get(instanceId);
 }
 
 export function getCachedRolimonsItem(assetId) {
     return rolimonsCache.get(String(assetId));
+}
+
+export function getCachedRolimonsItems() {
+    return rolimonsCache;
 }
 
 export function getCachedRisk(assetId) {
@@ -72,7 +97,9 @@ export async function fetchRolimonsItems(ids) {
 
             rolimonsCache.clear();
             rolimonsCacheTimestamp.clear();
-            Object.entries(json.items).forEach(([id, data]) => {
+            Object.entries(json.items).forEach(([id, rawData]) => {
+                if (!/^\d+$/.test(id)) return;
+                const data = sanitizeRolimonsValue(rawData);
                 rolimonsCache.set(id, data);
                 rolimonsCacheTimestamp.set(id, fetchedAt);
 

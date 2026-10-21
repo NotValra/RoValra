@@ -133,6 +133,11 @@ const applyProfileUsernameSpacingFix = (enabled) => {
     (document.head || document.documentElement).appendChild(style);
 };
 
+const applyThemeScrollbarFix = (enabled) => {
+    if (!enabled) return;
+    document.documentElement.classList.add('rovalra-theme-scrollbar');
+};
+
 const applyCartRemoveButtonFix = () => {
     chrome.storage.local.get('FixCartRemoveButton', function (settings) {
         if (!settings.FixCartRemoveButton) return;
@@ -153,10 +158,18 @@ const applyProfileGameCardFix = () => {
     if (!window.location.href.includes('profile')) return;
 
     const css = `
-        .profile-favorite-experiences .css-1jynqc0-carouselContainer,
+        .profile-favorite-experiences .css-1jynqc0-carouselContainer {
+            height: 250px !important;
+        }
         .profile-favorite-experiences .css-1i465w8-carousel {
             height: 250px !important;
-            overflow: visible !important;
+            box-sizing: content-box !important;
+            padding-block: 8px !important;
+            margin-block: -8px !important;
+        }
+        .profile-favorite-experiences .css-1i465w8-carousel > * {
+            box-sizing: border-box !important;
+            padding-inline: 5px !important;
         }
     `;
     const style = document.createElement('style');
@@ -195,7 +208,65 @@ const applyProfileGameCardFix = () => {
         );
     });
 };
+const applyProfileCreationsGameCardFix = () => {
+    if (!window.location.href.includes('profile')) return;
 
+    const css = `
+        .profile-experiences .css-1jynqc0-carouselContainer {
+            height: 250px !important;
+        }
+        .profile-experiences .css-1i465w8-carousel {
+            height: 250px !important;
+            box-sizing: content-box !important;
+            padding-block: 8px !important;
+            margin-block: -8px !important;
+        }
+        .profile-experiences .css-1i465w8-carousel > * {
+            box-sizing: border-box !important;
+            padding-inline: 5px !important;
+        }
+    `;
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    import('../../core/ui/games/gameCard.js').then(({ createGameCard }) => {
+        observeElement(
+            '.profile-experiences .game-card-container',
+            (originalCard) => {
+                if (originalCard.dataset.fixed) return;
+                originalCard.dataset.fixed = 'true';
+
+                try {
+                    const link = originalCard.querySelector('.game-card-link');
+                    if (!link) return;
+
+                    const universeId = link.id || link.dataset.universeId;
+                    const placeId = getPlaceIdFromUrl(link.href);
+
+                    if (!universeId && !placeId) return;
+
+                    const newCard = universeId
+                        ? createGameCard({ gameId: universeId })
+                        : createGameCard({ placeId: placeId });
+
+                    const next = originalCard.nextElementSibling;
+                    if (next?.classList.contains('rovalra-game-card')) {
+                        next.remove();
+                    }
+                    originalCard.style.display = 'none';
+                    originalCard.after(newCard);
+                } catch (e) {
+                    console.warn(
+                        'RoValra: Failed to replace profile game card',
+                        e,
+                    );
+                }
+            },
+            { multiple: true },
+        );
+    });
+};
 // Cuz RoSeal is broken and im the only one having this issue i have to fix it myself 🙄
 const applyFriendsCarouselPaddingFix = async () => {
     const userId = await getAuthenticatedUserId();
@@ -342,6 +413,7 @@ export function init() {
             'cssfixesEnabled',
             'giantInvisibleLink',
             'profileUsernameSpacingFixEnabled',
+            'themeScrollbarFixEnabled',
         ],
         function (data) {
             if (data.cssfixesEnabled === true) {
@@ -354,9 +426,11 @@ export function init() {
                 applyProfileUsernameSpacingFix(
                     data.profileUsernameSpacingFixEnabled,
                 );
+                applyThemeScrollbarFix(data.themeScrollbarFixEnabled);
                 applyGameTitleFix();
                 applyCartRemoveButtonFix();
                 applyProfileGameCardFix();
+                applyProfileCreationsGameCardFix();
                 applyFriendsCarouselPaddingFix();
                 applyNavbarSearchWidthFix();
                 applyNotificationBellMarginFix();

@@ -3,7 +3,10 @@ import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
-import { getAvatarInventoryItem } from '../../core/utils/trackers/avatarInventory.js';
+import {
+    getAvatarInventoryItem,
+    onAvatarInventoryDataChanged,
+} from '../../core/utils/trackers/avatarInventory.js';
 
 const LAST_EQUIPPED_ROW_CLASS = 'rovalra-last-equipped-row';
 let isInitialized = false;
@@ -72,7 +75,9 @@ async function updateLastEquippedRow(priceRow) {
 }
 
 function updateCurrentItemPage() {
-    const priceRow = document.querySelector('#item-details .price-row-container');
+    const priceRow = document.querySelector(
+        '#item-details .price-row-container',
+    );
     if (priceRow) updateLastEquippedRow(priceRow);
 }
 
@@ -95,12 +100,8 @@ export async function init() {
         if (changes.lastEquippedEnabled) {
             isEnabled = changes.lastEquippedEnabled.newValue !== false;
             updateCurrentItemPage();
-            return;
         }
-
-        if (!changes.rovalra_avatar_inventory_v1)
-            return;
-
-        updateCurrentItemPage();
     });
+
+    onAvatarInventoryDataChanged(() => updateCurrentItemPage());
 }

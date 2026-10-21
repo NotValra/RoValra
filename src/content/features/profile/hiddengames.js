@@ -1,10 +1,15 @@
-import { observeChildren, observeElement } from '../../core/observer.js';
+import {
+    observeChildren,
+    observeElement,
+    observeIntersection,
+    observeResize,
+} from '../../core/observer.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
-import { createButton } from '../../core/ui/buttons.js';
+import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { createToggle } from '../../core/ui/general/toggle.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
-import { createOverlay } from '../../core/ui/overlay.js';
+import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
@@ -12,7 +17,6 @@ import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 const CONFIG = {
-    PAGE_SIZE: 50,
     ACCESS_FILTER: { PUBLIC: 2 },
     RETRY: {
         MAX_ATTEMPTS: 5,
@@ -192,7 +196,23 @@ const Api = {
         );
     },
 
-    async enrichGameData(games, state) {
+    async enrichGameData(games, state, { thumbnails = true } = {}) {
+        if (thumbnails) {
+            const thumbBatch = games.filter(
+                (g) => g && !state.thumbnails.has(g.id),
+            );
+            if (thumbBatch.length) {
+                const newThumbnails = await fetchThumbnailsBatch(
+                    thumbBatch,
+                    'GameIcon',
+                    '256x256',
+                );
+                newThumbnails.forEach((data, id) =>
+                    state.thumbnails.set(id, data),
+                );
+            }
+        }
+
         const batch = games.filter(
             (g) => g && (!state.likes.has(g.id) || !state.updated.has(g.id)),
         );
@@ -247,13 +267,6 @@ const Api = {
                 });
             }
         });
-
-        const newThumbnails = await fetchThumbnailsBatch(
-            batch,
-            'GameIcon',
-            '256x256',
-        );
-        newThumbnails.forEach((data, id) => state.thumbnails.set(id, data));
     },
 };
 
@@ -347,8 +360,48 @@ const UI = {
         return container;
     },
 
-    async injectButton(header, onClick) {
-        if (!header || header.querySelector('.rovalra-hidden-games-button'))
+    async createExperiencesToggle(anchor) {
+        let toggle;
+        const setShowingHidden = createInlineView(() => anchor ?? toggle);
+
+        toggle = createPillToggle({
+            options: [
+                {
+                    text: await t('hiddenGamesProfile.publicExperiences'),
+                    value: 'experiences',
+                },
+                {
+                    text: await t('hiddenGamesProfile.hiddenExperiences'),
+                    value: 'hidden',
+                },
+            ],
+            initialValue: 'experiences',
+            onChange: (value) => setShowingHidden(value === 'hidden'),
+        });
+        toggle.classList.add('rovalra-hidden-games-toggle');
+        return toggle;
+    },
+
+    async injectHeadingToggle(heading) {
+        const parent = heading.parentElement;
+        if (!parent) return;
+        if (parent.querySelector(':scope > .rovalra-hidden-games-toggle'))
+            return;
+
+        const toggle = await this.createExperiencesToggle(heading);
+        if (parent.querySelector(':scope > .rovalra-hidden-games-toggle'))
+            return;
+
+        heading.before(toggle);
+        const align = () => {
+            toggle.style.top = `${heading.offsetTop + (heading.offsetHeight - toggle.offsetHeight) / 2}px`;
+        };
+        align();
+        observeResize(heading, align);
+    },
+
+    async injectButton(header) {
+        if (!header || header.querySelector('.rovalra-hidden-games-toggle'))
             return;
 
         if (
@@ -357,22 +410,17 @@ const UI = {
         )
             return;
 
-        const btn = createButton(
-            await t('hiddenGamesProfile.buttonText'),
-            'secondary',
-        );
-        btn.classList.add('rovalra-hidden-games-button');
-        btn.style.marginLeft = '5px';
-        btn.addEventListener('click', onClick);
+        const toggle = await this.createExperiencesToggle(header);
+        toggle.style.marginLeft = '5px';
         const buttonContainer = header.querySelector('.container-buttons');
         if (buttonContainer) {
-            header.insertBefore(btn, buttonContainer);
+            header.insertBefore(toggle, buttonContainer);
         } else {
-            header.appendChild(btn);
+            header.appendChild(toggle);
         }
     },
 
-    async createEmptyState(onClick) {
+    async createEmptyState() {
         const container = document.createElement('div');
         container.className = 'rovalra-empty-state section';
 
@@ -380,17 +428,45 @@ const UI = {
         text.className = 'text-label';
         text.textContent = await t('hiddenGamesProfile.noPublicGames');
 
-        const btn = createButton(
-            await t('hiddenGamesProfile.buttonText'),
-            'secondary',
-        );
-        btn.classList.add('rovalra-hidden-games-button');
-        btn.addEventListener('click', onClick);
-
-        container.append(text, btn);
+        container.append(text, await this.createExperiencesToggle());
         return container;
     },
 };
+
+const STATS_SORTS = ['like-ratio', 'likes', 'dislikes', 'players'];
+const CARD_SIZE = { width: '150px', height: '240px' };
+
+function updateScrollButtonStates(container, leftBtn, rightBtn) {
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    const isScrollable = scrollWidth > clientWidth + 5;
+    leftBtn.style.display = isScrollable ? 'flex' : 'none';
+    rightBtn.style.display = isScrollable ? 'flex' : 'none';
+    leftBtn.classList.toggle('rovalra-btn-disabled', scrollLeft <= 5);
+    rightBtn.classList.toggle(
+        'rovalra-btn-disabled',
+        scrollLeft + clientWidth >= scrollWidth - 5,
+    );
+}
+
+function scrollByPage(container, list, direction) {
+    const card = list.firstElementChild;
+    if (!card) return;
+
+    const style = getComputedStyle(container);
+    const visibleWidth =
+        container.clientWidth -
+        parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight);
+    const gap = parseFloat(getComputedStyle(list).columnGap) || 0;
+    const step = card.offsetWidth + gap;
+    const cardsPerPage = Math.max(1, Math.floor((visibleWidth + gap) / step));
+    const currentIndex = Math.round(container.scrollLeft / step);
+
+    container.scrollTo({
+        left: Math.max(0, (currentIndex + direction * cardsPerPage) * step),
+        behavior: 'smooth',
+    });
+}
 
 class HiddenGamesManager {
     constructor(userId) {
@@ -400,64 +476,63 @@ class HiddenGamesManager {
         this.showAllGames = false;
         this.cache = sharedStatsCache;
         this.filters = { sort: 'default', order: 'desc' };
-        this.processedGames = [];
-        this.visibleCount = 0;
-        this.isLoading = false;
+        this.renderId = 0;
+        this.slotObservers = [];
+        this.pendingSlots = new Map();
+        this.flushTimer = null;
         this.elements = {};
     }
 
-    async openOverlay() {
-        const body = document.createElement('div');
+    async render(host) {
+        const scrollWrapper = document.createElement('div');
+        scrollWrapper.className = 'rovalra-hidden-games-scroll-wrapper';
+
+        const scrollContainer = document.createElement('div');
+        scrollContainer.className = 'rovalra-hidden-games-scroll-container';
 
         const list = document.createElement('div');
-        list.className = 'rovalra-hidden-games-list';
-        list.appendChild(
-            createShimmerGrid(12, { width: '150px', height: '240px' }),
-        );
+        list.className = 'rovalra-hidden-games-carousel';
+        list.appendChild(createShimmerGrid(8, CARD_SIZE));
+        scrollContainer.appendChild(list);
 
-        const loader = document.createElement('div');
-        loader.className = 'rovalra-load-more-container';
-        loader.classList.add('rovalra-hidden-games-list');
-        loader.style.paddingTop = '0';
-
-        body.append(list, loader);
-
-        this.elements = { list, loader };
-
-        const { overlay } = createOverlay({
-            title: await t('hiddenGamesProfile.overlayText'),
-            bodyContent: body,
-            maxWidth: '1200px',
-            maxHeight: '85vh',
+        const { leftButton, rightButton } = createScrollButtons({
+            onLeftClick: () => scrollByPage(scrollContainer, list, -1),
+            onRightClick: () => scrollByPage(scrollContainer, list, 1),
         });
+        leftButton.classList.add('rovalra-scroll-btn', 'left');
+        rightButton.classList.add('rovalra-scroll-btn', 'right');
+
+        const updateButtons = () =>
+            updateScrollButtonStates(scrollContainer, leftButton, rightButton);
+        scrollContainer.addEventListener('scroll', updateButtons);
+
+        scrollWrapper.append(leftButton, scrollContainer, rightButton);
+        host.append(scrollWrapper);
+
+        this.elements = { list, scrollContainer, updateButtons };
+        updateButtons();
 
         const { all, hidden } = await Api.getUserGames(this.userId);
         this.ownedGames = all;
         this.hiddenGames = hidden;
 
         if (!this.ownedGames || this.ownedGames.length === 0) {
-            this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t('hiddenGamesProfile.noHiddenGames')}</p>`;
+            await this.showMessage('hiddenGamesProfile.noHiddenGames');
             return;
         }
 
         const filterPanel = await UI.createFilterPanel(
             this.handleFilterChange.bind(this),
         );
-        body.prepend(filterPanel);
+        host.prepend(filterPanel);
         this.elements.filterPanel = filterPanel;
 
-        const scrollContainer = overlay.querySelector('.rovalra-overlay-body');
-        if (scrollContainer) {
-            scrollContainer.addEventListener('scroll', () => {
-                const { scrollTop, clientHeight, scrollHeight } =
-                    scrollContainer;
-                if (scrollTop + clientHeight >= scrollHeight - 150) {
-                    this.loadMore();
-                }
-            });
-        }
-
         this.applyFilters();
+    }
+
+    async showMessage(key) {
+        this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t(key)}</p>`;
+        this.elements.updateButtons();
     }
 
     handleFilterChange(key, value) {
@@ -470,37 +545,27 @@ class HiddenGamesManager {
     }
 
     async applyFilters() {
-        if (this.isLoading) return;
-        this.isLoading = true;
+        const renderId = ++this.renderId;
+        this.clearSlots();
 
         this.elements.list.innerHTML = '';
-        this.elements.list.appendChild(
-            createShimmerGrid(12, { width: '150px', height: '240px' }),
-        );
-        this.visibleCount = 0;
+        this.elements.list.appendChild(createShimmerGrid(8, CARD_SIZE));
+        this.elements.scrollContainer.scrollLeft = 0;
 
         const source = this.showAllGames ? this.ownedGames : this.hiddenGames;
+        const { sort, order } = this.filters;
 
-        if (
-            ['default', 'like-ratio', 'likes', 'dislikes', 'players'].includes(
-                this.filters.sort,
-            )
-        ) {
-            await Api.enrichGameData(source, this.cache);
+        if (STATS_SORTS.includes(sort)) {
+            await Api.enrichGameData(source, this.cache, {
+                thumbnails: false,
+            });
+            if (renderId !== this.renderId) return;
         }
 
-        const { sort, order } = this.filters;
         const orderMultiplier = order === 'desc' ? -1 : 1;
         let sorted = [...source];
 
-        if (sort === 'default') {
-            sorted.sort(
-                (a, b) =>
-                    (new Date(this.cache.updated.get(a.id) || 0).getTime() -
-                        new Date(this.cache.updated.get(b.id) || 0).getTime()) *
-                    orderMultiplier,
-            );
-        } else if (sort === 'like-ratio') {
+        if (sort === 'like-ratio') {
             sorted.sort(
                 (a, b) =>
                     ((this.cache.likes.get(a.id)?.ratio || 0) -
@@ -532,59 +597,114 @@ class HiddenGamesManager {
             sorted.sort(
                 (a, b) => a.name.localeCompare(b.name) * orderMultiplier,
             );
-        } else {
-            if (order === 'asc') {
-                sorted.reverse();
-            }
+        } else if (order === 'asc') {
+            sorted.reverse();
         }
 
-        this.processedGames = sorted;
-        this.isLoading = false;
-
         this.elements.list.innerHTML = '';
-        if (this.processedGames.length === 0) {
+        if (sorted.length === 0) {
             const emptyKey =
                 !this.showAllGames && source.length === 0
                     ? 'hiddenGamesProfile.noHiddenGames'
                     : 'hiddenGamesProfile.noMatches';
-            this.elements.list.innerHTML = safeHtml`<p class="rovalra-no-hidden-games-message">${await t(emptyKey)}</p>`;
-        } else {
-            await this.loadMore();
+            await this.showMessage(emptyKey);
+            return;
+        }
+
+        sorted.forEach((game) => this.createSlot(game));
+        this.elements.updateButtons();
+    }
+
+    createSlot(game) {
+        const slot = document.createElement('div');
+        slot.className = 'rovalra-hidden-game-slot';
+        slot.appendChild(createShimmerGrid(1, CARD_SIZE));
+        this.elements.list.appendChild(slot);
+
+        const observer = observeIntersection(
+            slot,
+            (entry) => {
+                if (!entry.isIntersecting) return;
+                observer.unobserve();
+                this.queueSlot(slot, game);
+            },
+            { root: this.elements.scrollContainer, rootMargin: '0px 300px' },
+        );
+        this.slotObservers.push(observer);
+    }
+
+    clearSlots() {
+        this.slotObservers.splice(0).forEach((o) => o.unobserve());
+        this.pendingSlots.clear();
+        clearTimeout(this.flushTimer);
+        this.flushTimer = null;
+    }
+
+    queueSlot(slot, game) {
+        this.pendingSlots.set(slot, game);
+        if (!this.flushTimer) {
+            this.flushTimer = setTimeout(() => this.flushSlots(), 100);
         }
     }
 
-    async loadMore() {
-        if (
-            this.visibleCount >= this.processedGames.length ||
-            this.elements.loader.innerHTML !== ''
-        )
-            return;
-
-        this.elements.loader.appendChild(
-            createShimmerGrid(12, { width: '150px', height: '240px' }),
-        );
+    async flushSlots() {
+        const renderId = this.renderId;
+        const batch = [...this.pendingSlots];
+        this.pendingSlots.clear();
+        this.flushTimer = null;
 
         try {
-            const nextBatch = this.processedGames.slice(
-                this.visibleCount,
-                this.visibleCount + CONFIG.PAGE_SIZE,
+            await Api.enrichGameData(
+                batch.map(([, game]) => game),
+                this.cache,
             );
-
-            if (nextBatch.length > 0) {
-                await Api.enrichGameData(nextBatch, this.cache);
-                nextBatch.forEach((game) => {
-                    this.elements.list.appendChild(
-                        createGameCard({ game, stats: this.cache }),
-                    );
-                });
-                this.visibleCount += nextBatch.length;
-            }
         } catch (err) {
-            console.warn('RoValra: Error loading more games', err);
-        } finally {
-            this.elements.loader.innerHTML = '';
+            console.warn('RoValra: Error loading hidden games', err);
         }
+        if (renderId !== this.renderId) return;
+
+        batch.forEach(([slot, game]) => {
+            if (!slot.isConnected) return;
+            slot.replaceChildren(createGameCard({ game, stats: this.cache }));
+        });
     }
+}
+
+function createInlineView(getAnchor) {
+    let panel = null;
+    const hiddenSiblings = [];
+
+    return (showingHidden) => {
+        const anchor = getAnchor();
+        const parent = anchor?.parentElement;
+        if (!parent) return;
+
+        if (showingHidden) {
+            for (const child of parent.children) {
+                if (
+                    child === anchor ||
+                    child === panel ||
+                    child.classList.contains('rovalra-hidden-games-toggle')
+                )
+                    continue;
+                hiddenSiblings.push([child, child.style.display]);
+                child.style.display = 'none';
+            }
+            if (!panel) {
+                panel = document.createElement('div');
+                panel.className = 'rovalra-hidden-games-inline';
+                anchor.after(panel);
+                const userId = getUserIdFromUrl();
+                if (userId) new HiddenGamesManager(userId).render(panel);
+            }
+            panel.style.display = '';
+        } else {
+            if (panel) panel.style.display = 'none';
+            hiddenSiblings
+                .splice(0)
+                .forEach(([el, display]) => (el.style.display = display));
+        }
+    };
 }
 
 let isInitialized = false;
@@ -593,18 +713,26 @@ export async function init() {
     if ((await settings.userGamesEnabled) !== true) return;
     isInitialized = true;
 
-    const handleButtonClick = () => {
-        const userId = getUserIdFromUrl();
-        if (!userId) return;
-        new HiddenGamesManager(userId).openOverlay();
-    };
-
     observeElement(
         '.profile-experiences.profile-game .container-header, .btr-profile-right .profile-game .container-header, .placeholder-games .container-header',
         (header) => {
             if (header.dataset.rovalraProcessed) return;
             header.dataset.rovalraProcessed = 'true';
-            UI.injectButton(header, handleButtonClick);
+            UI.injectButton(header);
+        },
+        { multiple: true },
+    );
+
+    observeElement(
+        '.profile-experiences .profile-carousel h2',
+        (heading) => {
+            if (
+                heading.dataset.rovalraHiddenToggle ||
+                heading.closest('.rovalra-hidden-games-inline')
+            )
+                return;
+            heading.dataset.rovalraHiddenToggle = 'true';
+            UI.injectHeadingToggle(heading);
         },
         { multiple: true },
     );
@@ -642,9 +770,7 @@ export async function init() {
                     continue;
 
                 content.innerHTML = '';
-                content.appendChild(
-                    await UI.createEmptyState(handleButtonClick),
-                );
+                content.appendChild(await UI.createEmptyState());
             }
         } finally {
             isCheckingEmptyState = false;

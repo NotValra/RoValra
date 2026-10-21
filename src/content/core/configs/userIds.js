@@ -1,6 +1,7 @@
 export const CREATOR_USER_ID = '447170745';
 
 export const CONTRIBUTOR_USER_IDS = [
+    '127238', // Companion
     '4489102289', // v6u1
     '1337447242',
     '109176680',
@@ -41,6 +42,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '200565345', // krampuszc
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
+    '74884', // awkward222
 ];
 
 export const TESTER_USER_IDS = [

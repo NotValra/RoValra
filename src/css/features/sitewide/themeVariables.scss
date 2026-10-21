@@ -1,0 +1,63 @@
+$rovalra-theme-variable-keys: (
+    surface-0,
+    surface-100,
+    surface-200,
+    surface-300,
+    common-navigation-bar,
+    over-media-0,
+    over-media-100,
+    over-media-200,
+    over-media-300,
+    common-backdrop,
+    content-emphasis,
+    content-default,
+    content-muted,
+    content-link,
+    stroke-default,
+    stroke-emphasis,
+    stroke-muted,
+    common-heavy-divider,
+    shift-100,
+    shift-200,
+    shift-300,
+    shift-400,
+    system-emphasis,
+    system-contrast,
+    system-alert,
+    system-success,
+    system-warning,
+    system-neutral,
+    action-emphasis-background,
+    action-emphasis-foreground,
+    action-standard-background,
+    action-standard-foreground,
+    action-soft-emphasis-background,
+    action-soft-emphasis-foreground,
+    action-subtle-border,
+    action-alert-foreground,
+    action-over-media-background,
+    action-over-media-foreground
+);
+
+@each $mode in dark, light {
+    @each $key in $rovalra-theme-variable-keys {
+        $root: ":root[data-rovalra-theme-vars~='#{$mode}-#{$key}']";
+
+        #{$root},
+        #{$root} [class*='theme-'],
+        #{$root} [class*='-theme'] {
+            --#{$mode}-mode-#{$key}: var(
+                --rovalra-theme-#{$mode}-#{$key}
+            ) !important;
+        }
+    }
+}
+
+.rovalra-theme-vars-probe {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+}

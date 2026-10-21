@@ -1,0 +1,126 @@
+.rovalra-theme-vars-preset-dropdown {
+    width: 200px;
+    max-width: 100%;
+    margin-left: auto;
+
+    .rovalra-dropdown-trigger {
+        width: 100%;
+    }
+}
+
+.rovalra-theme-vars-panel {
+    display: grid;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 12px;
+    background: var(--rovalra-container-background-color);
+}
+
+.rovalra-theme-vars-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.rovalra-theme-vars-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px 90px 38px auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-theme-vars-row-label {
+    overflow: hidden;
+    color: var(--rovalra-main-text-color);
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-theme-vars-row-edited .rovalra-theme-vars-row-label::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--rovalra-playbutton-color);
+    vertical-align: middle;
+}
+
+.rovalra-theme-vars-row input[type='color'] {
+    width: 36px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgb(66 65 65 / 45%);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+
+    &::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    &::-webkit-color-swatch {
+        border: 0;
+        border-radius: 5px;
+    }
+
+    &::-moz-color-swatch {
+        border: 0;
+        border-radius: 5px;
+    }
+}
+
+.rovalra-theme-vars-row input[type='range'] {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--rovalra-playbutton-color);
+}
+
+.rovalra-theme-vars-row-alpha {
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.rovalra-theme-vars-row-reset {
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: 11px;
+    visibility: hidden;
+}
+
+.rovalra-theme-vars-row-edited .rovalra-theme-vars-row-reset {
+    visibility: visible;
+}
+
+.rovalra-theme-vars-saved {
+    display: grid;
+    gap: 8px;
+}
+
+.rovalra-theme-vars-saved-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-theme-vars-saved-dropdown,
+.rovalra-theme-vars-saved-name {
+    flex: 1 1 180px;
+    min-width: 0;
+
+    .rovalra-dropdown-trigger {
+        width: 100%;
+    }
+}

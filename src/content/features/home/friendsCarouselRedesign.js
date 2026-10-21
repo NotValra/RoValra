@@ -13,14 +13,13 @@ import {
     createFriendTile,
     updateUserCardPresence,
 } from '../../core/ui/profile/userCard.js';
-import { followUser, openWebChat } from '../../core/utils/launcher.js';
+import { removeUserCardTooltip } from '../../core/ui/profile/userCardTooltip.js';
 
 const SETTING_NAME = 'friendsCarouselRedesignEnabled';
 const STYLE_ID = 'rovalra-friends-carousel-redesign-style';
 const SCROLL_CLASS = 'rovalra-friends-carousel-scroll';
 const WRAPPER_CLASS = 'rovalra-friends-carousel';
 const ARROW_CLASS = 'rovalra-fc-arrow';
-const HOVER_CARD_CLASS = 'rovalra-fc-hover-card';
 const HIDDEN_ATTR = 'data-rovalra-fc-hidden';
 
 const CAROUSEL_SELECTOR = '#HomeContainer .react-friends-carousel-container';
@@ -32,7 +31,6 @@ const FRIEND_ID_CAP = 500;
 const RENDER_CHUNK = 40;
 const PRESENCE_REFRESH_MS = 10_000;
 const PRESENCE_BATCH_SIZE = 100;
-const HOVER_SHOW_DELAY = 0;
 const THUMBNAIL_BATCH_DELAY_MS = 50;
 
 let enabled = false;
@@ -141,221 +139,16 @@ function ensureStyle() {
             -webkit-mask-image: url("${assets.chevronRightIcon}");
             mask-image: url("${assets.chevronRightIcon}");
         }
-
-        .${HOVER_CARD_CLASS} {
-            position: fixed;
-            z-index: 10000;
-            width: 260px;
-            display: block !important;
-        }
-
-        .${HOVER_CARD_CLASS} .in-game-friend-card--iarc {
-            background: var(--color-over-media-300, rgba(0, 0, 0, 0.75));
-        }
-
-        .${HOVER_CARD_CLASS} .rovalra-fc-hc-thumb {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            object-fit: cover;
-            flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .${HOVER_CARD_CLASS} a {
-            text-decoration: none;
-            color: inherit;
-        }
     `;
     document.head.appendChild(style);
 }
 
 const L = (key, options) => ts(`friendsCarouselRedesign.${key}`, options);
 
-const FOUNDATION_BTN_BASE =
-    'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-medium height-1000 padding-x-medium grow';
-const FOUNDATION_BTN_OVERLAY =
-    'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
-
-/* --------------------------- Hover card --------------------------- */
-
-let activeHoverCard = null;
-let hoverShowTimer = null;
-let hoverHideTimer = null;
-
-function removeHoverCard() {
-    clearTimeout(hoverShowTimer);
-    clearTimeout(hoverHideTimer);
-    activeHoverCard?.remove();
-    activeHoverCard = null;
-}
-
-function positionHoverCard(card, anchorRect) {
-    const margin = 8;
-    const { offsetWidth: w, offsetHeight: h } = card;
-
-    let left = anchorRect.left + anchorRect.width / 2 - w / 2;
-    left = Math.max(margin, Math.min(left, window.innerWidth - w - margin));
-
-    let top = anchorRect.bottom + margin;
-    if (top + h > window.innerHeight - margin) {
-        top = Math.max(margin, anchorRect.top - h - margin);
-    }
-
-    card.style.left = `${Math.round(left)}px`;
-    card.style.top = `${Math.round(top)}px`;
-}
-
 function el(tag, className) {
     const node = document.createElement(tag);
     if (className) node.className = className;
     return node;
-}
-
-function makeFoundationButton(label, emphasis) {
-    const btn = el(
-        'button',
-        `${FOUNDATION_BTN_BASE} ${
-            emphasis
-                ? 'bg-action-emphasis content-action-emphasis'
-                : 'bg-action-standard content-action-standard'
-        }`,
-    );
-    btn.type = 'button';
-    const span = el('span', 'flex items-center min-width-0 gap-small');
-    span.textContent = label;
-    btn.append(el('div', FOUNDATION_BTN_OVERLAY), span);
-    return btn;
-}
-
-function buildHoverCard({ userId, displayName, presence, placeThumb }) {
-    const name = displayName || L('friendFallback');
-
-    const wrapper = el(
-        'div',
-        `${HOVER_CARD_CLASS} friend-tile-dropdown friend-tile-dropdown--iarc`,
-    );
-    const card = el(
-        'div',
-        'in-game-friend-card--iarc flex flex-col items-start justify-center padding-y-large padding-x-large gap-medium radius-medium stroke-standard stroke-default bg-over-media-300 width-full',
-    );
-
-    const type = presence?.userPresenceType ?? 0;
-    const gameName = type === 2 ? presence?.lastLocation || '' : '';
-    const rootPlaceId = presence?.rootPlaceId || presence?.placeId || null;
-    const inGame = type === 2 && rootPlaceId;
-
-    if (inGame) {
-        const link = el(
-            'a',
-            'flex items-center gap-small width-full min-width-0',
-        );
-        link.href = `https://www.roblox.com/games/${rootPlaceId}`;
-
-        const thumb = el('img', 'rovalra-fc-hc-thumb');
-        thumb.alt = '';
-        if (placeThumb) thumb.src = placeThumb;
-
-        const info = el(
-            'span',
-            'friend-presence-info flex flex-col justify-center min-width-0 fill',
-        );
-        const line1 = el(
-            'span',
-            'friend-tile-is-playing text-body-medium content-default text-truncate-end text-no-wrap',
-        );
-        line1.textContent = L('isPlaying', { name });
-        const line2 = el(
-            'span',
-            'friend-tile-game-name text-title-medium content-emphasis text-truncate-end text-no-wrap',
-        );
-        line2.textContent = gameName;
-        info.append(line1, line2);
-        link.append(thumb, info);
-        card.appendChild(link);
-    } else {
-        const info = el(
-            'span',
-            'friend-presence-info flex flex-col justify-center min-width-0 fill width-full',
-        );
-        const line1 = el(
-            'span',
-            'friend-tile-game-name text-title-medium content-emphasis text-truncate-end text-no-wrap',
-        );
-        line1.textContent = name;
-        const line2 = el(
-            'span',
-            'friend-tile-is-playing text-body-medium content-default text-truncate-end text-no-wrap',
-        );
-        line2.textContent =
-            type === 1
-                ? L('online')
-                : type === 3
-                  ? L('inStudio')
-                  : L('offline');
-        info.append(line1, line2);
-        card.appendChild(info);
-    }
-
-    const actions = el(
-        'div',
-        'in-game-friend-card-actions flex flex-col self-stretch gap-small',
-    );
-
-    if (inGame) {
-        const joinBtn = makeFoundationButton(L('join'), true);
-        joinBtn.addEventListener('click', () => {
-            followUser(userId);
-            removeHoverCard();
-        });
-        actions.appendChild(joinBtn);
-    }
-
-    const chatBtn = makeFoundationButton(L('chat'), false);
-    chatBtn.addEventListener('click', () => {
-        openWebChat(userId);
-        removeHoverCard();
-    });
-    actions.appendChild(chatBtn);
-
-    const profileLink = el(
-        'a',
-        'foundation-web-link inline-flex items-center gap-xsmall content-emphasis no-underline motion-safe:transition-opacity hover:cursor-pointer hover:[opacity:0.8] radius-xsmall flex items-center justify-center self-stretch height-600 text-label-medium content-action-standard',
-    );
-    profileLink.href = `https://www.roblox.com/users/${userId}/profile`;
-    profileLink.textContent = L('viewProfile');
-    actions.appendChild(profileLink);
-
-    card.appendChild(actions);
-    wrapper.appendChild(card);
-
-    wrapper.addEventListener('mouseenter', () => clearTimeout(hoverHideTimer));
-    wrapper.addEventListener('mouseleave', () => {
-        hoverHideTimer = setTimeout(removeHoverCard, 120);
-    });
-
-    return wrapper;
-}
-
-function attachHoverCard(tile, data) {
-    tile.addEventListener('mouseenter', () => {
-        clearTimeout(hoverHideTimer);
-        clearTimeout(hoverShowTimer);
-        hoverShowTimer = setTimeout(() => {
-            removeHoverCard();
-            const card = buildHoverCard(data);
-            card.style.visibility = 'hidden';
-            document.body.appendChild(card);
-            positionHoverCard(card, tile.getBoundingClientRect());
-            card.style.visibility = '';
-            activeHoverCard = card;
-        }, HOVER_SHOW_DELAY);
-    });
-
-    tile.addEventListener('mouseleave', () => {
-        clearTimeout(hoverShowTimer);
-        hoverHideTimer = setTimeout(removeHoverCard, 120);
-    });
 }
 
 /* --------------------------- Carousel --------------------------- */
@@ -551,7 +344,7 @@ function createLazyThumbnailLoader() {
             container.replaceChildren(
                 createThumbnailElement(
                     thumbData,
-                    tile.rovalraHoverData?.displayName || '',
+                    tile.rovalraTooltipData?.displayName || '',
                     '',
                     { width: '90px', height: '90px' },
                 ),
@@ -572,42 +365,6 @@ function createLazyThumbnailLoader() {
     });
 
     return observer;
-}
-
-async function fetchChunkData(ids, onlinePresence) {
-    const presence = new Map(
-        ids.map((id) => [id, onlinePresence.get(id) || null]),
-    );
-
-    const placeIdByUser = new Map();
-    for (const [uid, p] of presence) {
-        if (p?.userPresenceType === 2) {
-            const placeId = p.rootPlaceId || p.placeId;
-            if (placeId) placeIdByUser.set(uid, placeId);
-        }
-    }
-
-    const placeThumbs = new Map();
-    if (placeIdByUser.size) {
-        const placeIds = [...new Set(placeIdByUser.values())];
-        const placeThumbList = await getBatchThumbnails(
-            placeIds,
-            'PlaceIcon',
-            '150x150',
-        ).catch(() => []);
-        const byPlace = new Map(
-            (placeThumbList || []).map((t) => [t.targetId, t.imageUrl]),
-        );
-        for (const [uid, placeId] of placeIdByUser) {
-            const url = byPlace.get(placeId) || byPlace.get(Number(placeId));
-            if (url) placeThumbs.set(uid, url);
-        }
-    }
-
-    return {
-        presence,
-        placeThumbs,
-    };
 }
 
 async function refreshCarouselPresence(scrollEl, token) {
@@ -648,7 +405,6 @@ async function refreshCarouselPresence(scrollEl, token) {
             if (!presenceById.has(userId)) continue;
 
             const presence = presenceById.get(userId);
-            tile.rovalraPresence = presence;
             updateUserCardPresence(
                 tile,
                 presence.userPresenceType ?? 0,
@@ -695,14 +451,7 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
 
     for (let i = 0; i < friends.length; i += RENDER_CHUNK) {
         const chunk = friends.slice(i, i + RENDER_CHUNK);
-        const ids = chunk.map((friend) => friend.id);
-        const { presence, placeThumbs } = await fetchChunkData(
-            ids,
-            onlinePresence,
-        );
-        if (token !== populateToken || !scrollEl.isConnected) return;
-
-        for (const friend of chunk) {
+                for (const friend of chunk) {
             const id = friend.id;
             const displayName =
                 (!friend.isDeleted && friend.combinedName) ||
@@ -718,27 +467,14 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                     isHidden: false,
                     isVerified: friend.isVerified || false,
                     isSubscribed: friend.hasRobloxSubscription === true,
-                    presence: presence.get(id),
+                    presence: onlinePresence.get(id) || null,
+                    showTooltip: true,
                 },
             );
             tile.dataset.rovalraUserId = String(id);
             tile.dataset.rovalraUsername = friend.username
                 ? `@${friend.username}`
                 : '';
-            tile.rovalraPresence = presence.get(id) || null;
-            tile.rovalraHoverData = {
-                userId: id,
-                displayName,
-                presence: presence.get(id) || null,
-                placeThumb: placeThumbs.get(id) || null,
-            };
-            attachHoverCard(tile, tile.rovalraHoverData);
-            tile.addEventListener('mouseenter', () => {
-                if (tile.rovalraHoverData) {
-                    tile.rovalraHoverData.presence =
-                        tile.rovalraPresence || null;
-                }
-            });
             scrollEl.appendChild(tile);
             thumbnailObserver.observe(tile);
         }
@@ -779,7 +515,7 @@ function applyToCarousel(carousel) {
 
 function teardown() {
     populateToken++;
-    removeHoverCard();
+    removeUserCardTooltip();
 
     document.querySelectorAll(`.${WRAPPER_CLASS}`).forEach((node) => {
         const scrollEl = node.querySelector(`.${SCROLL_CLASS}`);
