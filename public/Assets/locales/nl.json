@@ -1,0 +1,2456 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Delen",
+        "serverCopied": "Gekopieerd!",
+        "recentServerTitle": "Server",
+        "decalOptions": "Afbeeldingsopties"
+    },
+    "common": {
+        "select": "Selecteren...",
+        "search": "Zoeken",
+        "rovalraSettings": "RoValra-instellingen",
+        "filterItems": "Items filteren",
+        "applyFilter": "Filter toepassen",
+        "uploadFile": "Bestand uploaden",
+        "change": "Wijzigen",
+        "invalidFileFormat": "Ongeldig bestandsformaat.",
+        "invalidImageFile": "Ongeldig bestandsformaat. Upload een geldig afbeeldingsbestand.",
+        "fileProcessingFailed": "Bestandsverwerking mislukt. Probeer een ander bestand.",
+        "errorProcessingFile": "Fout bij verwerken van bestand. Probeer een ander bestand.",
+        "less": "Minder",
+        "more": "Meer",
+        "pastYear": "Afgelopen jaar",
+        "past6Months": "Afgelopen 6 maanden",
+        "past3Months": "Afgelopen 3 maanden",
+        "pastMonth": "Afgelopen maand",
+        "pastWeek": "Afgelopen week",
+        "unnamedProduct": "Naamloos product",
+        "offSale": "Niet te koop",
+        "robloxExperience": "Roblox-ervaring",
+        "subplace": "Sublocatie",
+        "subplaceUpper": "SUBLOCATIE",
+        "offline": "Offline",
+        "website": "Website",
+        "playing": "Aan het spelen",
+        "playingGame": "Speelt {{gameName}}",
+        "studio": "Studio",
+        "share": "Delen",
+        "copied": "Gekopieerd!",
+        "free": "Gratis",
+        "unknown": "Onbekend",
+        "somethingWentWrong": "Er is iets misgegaan",
+        "robloxPlusSubscriber": "Roblox Plus-abonnee",
+        "joinServerFull": "Deelnemen (Server vol)",
+        "id": "ID: ",
+        "profile": "Profiel",
+        "error": "Fout",
+        "rovalraDeveloper": "RoValra-ontwikkelaar",
+        "close": "Sluiten",
+        "confirmAction": "Actie bevestigen",
+        "areYouSure": "Weet je zeker dat je wilt doorgaan?",
+        "confirm": "Bevestigen",
+        "cancel": "Annuleren"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Gilberts bij jou in de buurt",
+        "title": "RoValra-regioselectie",
+        "automatic": "Automatisch",
+        "servers": "Servers: ",
+        "datacenters": "Datacenters: ",
+        "filterByRegion": "Servers filteren op regio",
+        "filterByRegionItem": "Filter op {{region}} ({{count}} servers)",
+        "filterByUptime": "Servers filteren op uptime (nieuwste/oudste)",
+        "filterByVersion": "Servers filteren op spelversie"
+    },
+    "guidelines": {
+        "title": "RoValra-richtlijnen",
+        "message": "Door RoValra te gebruiken, ga je akkoord met onze gebruiksvoorwaarden. Het niet naleven van deze regels kan resulteren in de opschorting van de toegang tot specifieke functies, waaronder statusbubbels en voornaamwoorden.<br><br><b>Belangrijkste punten:</b><br>• Je mag gebruikers niet naar externe platformen sturen.<br>• Je mag geen ongepaste dingen doen.<br>• Je mag de servicevoorwaarden van Roblox niet schenden.<br><br>Lees meer op <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "Ik begrijp het"
+    },
+    "review": {
+        "requestMessage": "Het lijkt erop dat je plezier hebt van RoValra!\n Zou je een beoordeling willen achterlaten?\n Dit helpt RoValra voor iedereen gratis te houden zonder betaalmuren.",
+        "leaveReview": "Beoordeling achterlaten",
+        "notNow": "Nu niet",
+        "doNotShowAgain": "Niet meer tonen",
+        "rateTitle": "Beoordeel RoValra",
+        "donationMessage": "Functies zoals de regioselectie draaien is niet gratis, en RoValra is volledig afhankelijk van donaties om die kosten te dekken.\n\nDoneren helpt ons om de servers draaiende te houden zodat functies zoals deze voor iedereen gratis kunnen blijven.",
+        "donate": "Doneren",
+        "donationTitle": "Wil je RoValra helpen ondersteunen?"
+    },
+    "heatmap": {
+        "updatesBetween": "Updates tussen {{start}} - {{end}} op {{date}}",
+        "updatesOn": "Updates op {{date}}",
+        "trackingSince": "Updategeschiedenis wordt pas bijgehouden sinds 15 februari 2026"
+    },
+    "profileFeatures": {
+        "title": "RoValra-functies"
+    },
+    "serverFilters": {
+        "newest": "Nieuwste servers",
+        "oldest": "Oudste servers",
+        "uptime": "Server-uptime",
+        "version": "Versie",
+        "enterVersion": "Voer versie in",
+        "region": "Regio",
+        "versionPlaceholder": "Versie"
+    },
+    "serverInfo": {
+        "loading": "Laden...",
+        "versionUnknown": "Onbekende versie",
+        "version": "Versie {{version}}",
+        "versionLabel": "Versie",
+        "regionTooltip": "Serverregio: {{region}}",
+        "performanceTooltip": "Serverprestaties",
+        "latest": " (Nieuwste)",
+        "oldest": " (Oudste)",
+        "serverFull": "Server is vol",
+        "privateServer": "Speelt in een privéserver",
+        "purchaseGame": "Koop het spel om regio's te zien.",
+        "currentVersionTooltip": "De laatst gepubliceerde versie."
+    },
+    "serverStats": {
+        "totalServers": "Totaal aantal servers",
+        "totalServersTooltip": "Totaal aantal servers dat RoValra bijhoudt onder deze ervaring",
+        "oldest": "Oudste",
+        "oldestTooltip": "De oudste versie waarop een server momenteel draait."
+    },
+    "preferredRegion": {
+        "criticalError": "De Roblox Join API reageert niet. Misschien moet je even wachten.\nDit wordt meestal veroorzaakt door een netwerkprobleem of een probleem met Roblox-servers. Als dit aanhoudt, probeer dan [Voorkeursregio](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) uit te schakelen of je browsercache te wissen.\nAls het probleem blijft optreden, meld dit dan in de RoValra Discord-server.\n\n---\n**Foutdetails:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Roblox stapt mogelijk af van de gamejoin-API. Dit valt buiten de macht van RoValra en heeft tijdelijk invloed op regioselectoren; we werken zo snel mogelijk aan een oplossing.\n\n---\n**Foutdetails:**\n{{detailMsg}}",
+        "detectingLocation": "Locatie detecteren...",
+        "closestRegion": "dichtstbijzijnde regio",
+        "inactiveRegion": "{{region}} wordt niet langer gebruikt als serverlocatie door Roblox.",
+        "scanningLocally": "Lokaal zoeken naar {{region}}...",
+        "regionApiUnavailable": "Regio-API niet beschikbaar. Zoeken naar {{region}}...",
+        "findingLowestLatency": "Server met de laagste latentie zoeken...",
+        "searchingInRegion": "Zoeken in {{region}}...",
+        "fallbackInactive": "De beste alternatieve servers via de API zijn inactief. Lokaal zoeken naar {{region}}...",
+        "noServersApi": "Geen servers gevonden in {{region}} via API. Lokaal zoeken...",
+        "loadBalancing": "{{region}} wordt gebruikt voor taakverdeling en is vermoedelijk alleen actief bij zware belasting. Zoeken...",
+        "foundJoining": "{{region}} gevonden! Deelnemen...",
+        "foundContinuing": "Gevonden: {{region}}. Zoektocht naar {{targetRegion}} voortzetten...",
+        "foundVerifying": "{{region}} gevonden! Verifiëren...",
+        "verifyingStatus": "Serverstatus verifiëren...",
+        "searchingClosest": "Zoeken naar de dichtstbijzijnde regio bij {{region}}...",
+        "noServersRunning": "Geen actieve {{region}}-servers.",
+        "joinRegion": "Deelnemen aan {{region}}",
+        "couldNotFindServers": "Kon geen servers vinden."
+    },
+    "purchaseModal": {
+        "title": "Item kopen",
+        "buy": "Kopen",
+        "savingWithPlus": "<span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span> besparen met Plus",
+        "subtotal": "Subtotaal",
+        "plusBenefit": "Plus-voordeel ({{percent}}% korting)",
+        "total": "Totaal",
+        "insufficientRobux": "Onvoldoende Robux",
+        "purchasing": "Kopen...",
+        "purchaseComplete": "Aankoop voltooid",
+        "successMessage": "Je hebt <b>{{itemName}}</b> met success gekocht",
+        "ok": "OK",
+        "purchaseError": "Aankoopfout",
+        "purchaseFailed": "Aankoop mislukt",
+        "unknownError": "Onbekende fout",
+        "errorLoadingTitle": "Fout bij laden van item",
+        "errorLoadingMessage": "We konden de informatie voor dit item niet ophalen. Details: {{errorMessage}}. Probeer het later opnieuw."
+    },
+    "avatarRotator": {
+        "stop": "Rotator stoppen",
+        "button": "Avatar-rotator",
+        "selectMinimum": "Selecteer ten minste 2 avatars",
+        "setRotators": "Instellen als rotators ({{count}})",
+        "selectedStatus": "Selecteer avatars om tussen te wisselen. ({{count}} geselecteerd)",
+        "loading": "Laden...",
+        "loadMore": "Meer laden",
+        "interval": "Interval (seconden)",
+        "loadingDetails": "Outfitgegevens laden...",
+        "active": "Rotators actief!",
+        "disable": "Uitschakelen",
+        "clearSelection": "Selectie wissen",
+        "title": "Avatar-rotator"
+    },
+    "avatarFilters": {
+        "filterItems": "Items filteren",
+        "filtering": "Filteren...",
+        "loading": "Laden...",
+        "creatorName": "Naam maker",
+        "minPrice": "Min. prijs",
+        "maxPrice": "Max. prijs",
+        "availability": "Beschikbaarheid",
+        "showAll": "Alles weergeven",
+        "onsaleOnly": "Alleen te koop",
+        "offsaleOnly": "Alleen niet te koop",
+        "effects": "Effecten",
+        "limiteds": "Limiteds"
+    },
+    "trading": {
+        "searchInventory": "Inventaris doorzoeken",
+        "continueSearch": "Zoektocht voortzetten",
+        "filterTrades": "Ruilen filteren",
+        "noResults": "Geen resultaten gevonden",
+        "copyProof": "Bewijs kopiëren",
+        "copied": "Gekopieerd!",
+        "value": "Waarde:",
+        "demand": "Vraag:",
+        "includeRobux": "Inclusief Robux",
+        "openUserOnRolimons": "Gebruiker openen op Rolimons",
+        "openOnRolimons": "{{type}} openen op Rolimons",
+        "projectedItem": "Geschat item",
+        "projected": "Geschat",
+        "rareItem": "Zeldzaam item",
+        "rap": "RAP",
+        "valueLabel": "Waarde",
+        "demandLabel": "Vraag",
+        "bundle": "bundel",
+        "item": "item",
+        "serial": "Serienummer",
+        "afterTax": "Na belasting",
+        "beforeTax": "Voor belasting",
+        "youGive": "Jij geeft",
+        "youGet": "Jij krijgt"
+    },
+    "onboarding": {
+        "title": "Welkom bij RoValra!",
+        "thankYou": "Bedankt voor het installeren van <strong>RoValra</strong>!",
+        "exploreFeatures": "Om instellingen te wijzigen en alle functies te ontdekken, kun je:",
+        "settingsInstruction": "Klik op het <strong>tandwielpictogram</strong> in de Roblox-balk en klik vervolgens op 'RoValra-instellingen'.",
+        "imageAlt": "Een handleiding die laat zien waar je de RoValra-instellingenknop kunt vinden op de Roblox-website.",
+        "description": "RoValra is een voor altijd gratis Roblox-extensie die kwaliteitsfuncties wil bieden voor iedereen!",
+        "gotIt": "Begrepen!"
+    },
+    "catalogDependencies": {
+        "scan": "Afhankelijkheden scannen",
+        "loading": "Informatie laden ({{count}})...",
+        "title": "Afhankelijkheden",
+        "unknown": "Onbekend",
+        "assetFallback": "Asset {{id}}",
+        "verifiedBadge": "Geverifieerde badge",
+        "by": "Door"
+    },
+    "catalogItemSales": {
+        "sales": "Verkopen",
+        "revenue": "Omzet",
+        "statsTooltip": "De verkoop- en omzetstatistieken komen uit een lek en zijn waarschijnlijk onnauwkeurig."
+    },
+    "fortyMethod": {
+        "loginRequired": "Kon je gebruikers-ID niet achterhalen. Zorg ervoor dat je bent ingelogd.",
+        "setupExperience": "Een ervaring instellen",
+        "specificTemplate": "Alleen een specifieke sjabloon werkt",
+        "selectGroup": "Selecteer een groep waarin je ervaringen kunt beheren. <br>De extensie maakt de ervaring dan voor je aan.",
+        "or": "OF",
+        "manualPlaceId": "Voer handmatig een Plaats-ID in <br> (Doe dit alleen als je weet wat je doet.)",
+        "donateSavedRobux": "Doneer bespaarde Robux aan RoValra",
+        "estimatedSavings": "De hieronder getoonde geschatte besparingen zijn bij benadering en kunnen onnauwkeurig zijn.",
+        "importantInformation": "Belangrijke informatie",
+        "acknowledge": "Ik ga akkoord",
+        "groupRequired": "Groep vereist",
+        "goBack": "Terug",
+        "ownershipDetected": "Eigendom gedetecteerd",
+        "understandContinue": "Ik begrijp het en ga door",
+        "createExperience": "Ervaring maken",
+        "createNewExperience": "Nieuwe ervaring maken",
+        "findingExperience": "Je ervaring zoeken",
+        "findingExperienceWait": "Even geduld terwijl we zoeken naar je zojuist gepubliceerde ervaring...",
+        "donateToRoValra": "Doneren aan RoValra",
+        "back": "Terug",
+        "validationWarning": "Validatiewaarschuwing",
+        "updateExperience": "Ervaring bijwerken",
+        "useAnyway": "Toch gebruiken",
+        "permissionRequired": "Toestemming vereist",
+        "backToGroupSelection": "Terug naar groepsselectie",
+        "experience": "Ervaring",
+        "loading": "Laden...",
+        "setupGame": "Je spel instellen",
+        "saveContinue": "Opslaan en doorgaan",
+        "creating": "Bezig met maken...",
+        "uploadingTemplate": "Sjabloon uploaden...",
+        "configuring": "Configureren...",
+        "done": "Klaar!",
+        "updating": "Bijwerken...",
+        "purchaseFailed": "Aankoop mislukt",
+        "gotIt": "Begrepen",
+        "confirmMethodPurchase": "Aankoop via 40%-methode bevestigen",
+        "confirmCartPurchase": "Winkelwagen-aankoop bevestigen",
+        "cancel": "Annuleren",
+        "alreadyOwned": "Al in bezit",
+        "joinToPurchase": "Neem deel aan het spel om te kopen",
+        "confirmPurchase": "Aankoop bevestigen",
+        "purchaseError": "Aankoopfout",
+        "ownerAccount": "<strong>Eigenaar-account:</strong> De groepseigenaar KAN NIET dezelfde account zijn waarmee je items koopt. De eigenaar moet een beveiligd alt-account zijn met tweestapsverificatie ingeschakeld en een sterk, uniek wachtwoord.",
+        "payouts": "<strong>Uitbetalingen:</strong> Alleen het eigenaarsaccount van de groep kan de bespaarde Robux uitbetalen vanuit de fondsen van de groep.",
+        "pendingRobux": "<strong>In afwachting van Robux:</strong> Houd er rekening mee dat na gebruik van deze functie de Robux ongeveer een maand in afwachting blijven voordat ze kunnen worden uitbetaald.",
+        "groupRequiredBody": "Om de 40%-methode met je eigen groep te gebruiken, heb je een groep nodig waarin je ervaringen kunt beheren.",
+        "groupRequiredImportant": "<strong>Belangrijk:</strong> Om dit correct te laten werken, moet de groep eigendom zijn van een veilig alternatief account. Je hoofdaccount (degene die je gebruikt om items te kopen) moet een rol hebben met machtigingen om groepservaringen te maken en te beheren.",
+        "groupRequiredDonate": "Als je geen geschikte groep hebt, kun je RoValra in plaats daarvan steunen door onze ervaring te gebruiken om de aankoop af te handelen. Hierdoor krijgt RoValra de bespaarde Robux ❤️",
+        "ownershipBody": "De 40%-methode werkt niet als jij de eigenaar bent van deze groep. Selecteer een andere groep of draag het eigendom over aan een beveiligd alt-account.",
+        "experienceAccepted": "Ervaring geaccepteerd",
+        "experienceAcceptedSpecific": "<strong>Alleen specifieke ervaringen werken.</strong> Zorg ervoor dat deze ervaring is ingesteld met de vereiste scripts om in-game aankopen af te handelen.",
+        "experienceAcceptedGroup": "Zorg ervoor dat de ervaring toebehoort aan een groep <strong>die je beheert, maar niet eigendom is van dit account</strong>. Bij voorkeur is de groep eigendom van een alt. Als je de groep zelf bezit, werkt de 40%-methode niet.",
+        "experienceAcceptedPending": "De bespaarde Robux blijft ongeveer een maand in afwachting voor uitbetaling. Gebruik een veilig alt-account als groepseigenaar voor uitbetalingen.",
+        "createExperienceBody": "Maak een nieuwe ervaring voor deze groep om de 40%-methode te gebruiken.",
+        "createNewExperienceBody": "Om een nieuwe ervaring te maken voor deze methode:",
+        "createStepOne": "Open de niet-gekopieerde (uncopylocked) ervaring in Studio:",
+        "openStudio": "Studio openen",
+        "createStepTwo": "Ga in Studio naar <strong>Bestand > Spelinstellingen > Beveiliging > Zet \"Verkopen door derden toestaan\" aan > Bestand > Publiceren naar Roblox als...</strong>",
+        "createStepThree": "Selecteer deze groep in de lijst met makers.",
+        "createStepFour": "Klik op <strong>Maken</strong> en de ervaring wordt gepubliceerd",
+        "createPublishedBody": "Klik na publicatie op onderstaande knop en we zoeken en selecteren deze automatisch voor je.",
+        "publishedGame": "Ik heb het spel gepubliceerd",
+        "saveSettingsUnavailable": "Kan instellingen niet opslaan. Opslag-API niet beschikbaar.",
+        "groupsLoadFailed": "Kan groepen niet laden. Vernieuw de pagina en probeer het opnieuw.",
+        "noGroupSelected": "Geen groep geselecteerd. Probeer het opnieuw."
+    },
+    "risk": {
+        "projected": "Item is gemarkeerd als geschat (projected).",
+        "rapMuchHigher": "RAP is veel hoger dan de waarde, de waarde kan stijgen.",
+        "rapHigher": "RAP is hoger dan de waarde, de waarde kan stijgen.",
+        "rapMuchLower": "RAP is veel lager dan de waarde, de waarde kan dalen.",
+        "rapHigherSales": "RAP is hoger dan het aantal verkopen, maar de beste prijs bevestigt dit.",
+        "rapUnusuallyHigh": "RAP is ongewoon hoog in vergelijking met de recente stabiele verkoopprijs.",
+        "rapHigherStable": "RAP is hoger dan de stabiele prijs (geleidelijk stijgend).",
+        "bestPriceMuchLower": "Beste prijs is aanzienlijk lager dan RAP.",
+        "bestPriceLower": "Beste prijs is lager dan RAP.",
+        "bestPriceHigher": "Beste prijs is hoger dan RAP.",
+        "bestPriceSlightlyHigher": "Beste prijs is iets hoger dan RAP.",
+        "sufferingProjection": "Item heeft last van schatting/manipulatie.",
+        "stableTrend": "Stabiele prijstrend."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Selecteer en gebruik elk thema zonder Roblox Plus."
+    },
+    "items": {
+        "hiddenFromMarketplace": "Dit item is verborgen in de marktplaats",
+        "notFound": "Niet gevonden",
+        "failedToLoad": "Laden mislukt",
+        "onHold": "In de wacht",
+        "faeItem": "FAE-item"
+    },
+    "inventory": {
+        "openRolimons": "Openen in Rolimon's",
+        "searchPlaceholder": "Zoeken op itemnaam..."
+    },
+    "games": {
+        "failedToLoad": "Spel laden mislukt"
+    },
+    "gameBookmarks": {
+        "bookmark": "Bladwijzer",
+        "saved": "Opgeslagen als bladwijzer",
+        "title": "Bladwijzers",
+        "uncategorized": "Niet-gecategoriseerd",
+        "create": "+ Nieuwe categorie maken",
+        "categoryName": "Categorienaam",
+        "createSave": "Maken en opslaan",
+        "save": "Wijzigingen opslaan",
+        "deleteCategory": "Categorie verwijderen",
+        "deleteCategoryConfirm": "Weet je het zeker? Hiermee wordt de categorie verwijderd en wordt deze uit elk spel met een bladwijzer verwijderd.",
+        "confirm": "Verwijderen",
+        "cancel": "Annuleren",
+        "remove": "Bladwijzer verwijderen",
+        "error": "Kan bladwijzer niet opslaan. Probeer het opnieuw.",
+        "loading": "Spel laden…",
+        "all": "Alles",
+        "topic": "Spellen met bladwijzer",
+        "empty": "Geen spellen met bladwijzer in deze categorie."
+    },
+    "homeLayout": {
+        "untitled": "Naamloos",
+        "empty": "RoValra kon de lay-out niet vinden, vernieuw de pagina en probeer het opnieuw.",
+        "reset": "Resetten",
+        "save": "Opslaan",
+        "overlayTitle": "Startpagina-lay-out",
+        "button": "Lay-out aanpassen",
+        "edit": "Bewerken",
+        "settingsTitle": "Categorie-instellingen",
+        "visibility": "Zichtbaarheid",
+        "visibilityDescription": "Kies of deze categorie op de startpagina verschijnt.",
+        "accurateContinue": "Nauwkeurig doorgaan",
+        "accurateContinueDescription": "Sorteer 'Doorgaan' op wanneer je elk spel voor het laatst hebt gespeeld.",
+        "enable": "Inschakelen",
+        "disable": "Uitschakelen",
+        "show": "Tonen",
+        "hide": "Verbergen"
+    },
+    "sidebarLayout": {
+        "untitled": "Naamloos",
+        "empty": "RoValra kon geen zijbalkknoppen vinden.",
+        "reset": "Resetten",
+        "save": "Opslaan",
+        "overlayTitle": "Zijbalklay-out",
+        "button": "Lay-out aanpassen",
+        "myProfile": "Mijn profiel",
+        "disabled": "Uitgeschakeld",
+        "show": "Tonen",
+        "hide": "Verbergen",
+        "add": "Toevoegen",
+        "addButton": "Knop toevoegen",
+        "buttonPlaceholder1": "Naam",
+        "buttonPlaceholder2": "URL"
+    },
+    "topbarLayout": {
+        "empty": "RoValra kon geen ondersteunde items in de bovenste balk vinden.",
+        "reset": "Resetten",
+        "save": "Opslaan",
+        "overlayTitle": "Lay-out bovenste balk",
+        "button": "Lay-out bovenste balk",
+        "disabled": "Vereist",
+        "show": "Tonen",
+        "hide": "Verbergen",
+        "labels": {
+            "logo": "Roblox-logo",
+            "charts": "Grafieken",
+            "marketplace": "Marktplaats",
+            "create": "Maken",
+            "robux": "Robux",
+            "search": "Zoeken",
+            "profile": "Profiel",
+            "qol": "Status",
+            "topbarLayout": "Lay-out bovenste balk",
+            "notifications": "Meldingen",
+            "robuxBalance": "Robux-saldo",
+            "settings": "Instellingen"
+        }
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Vorige vrienden",
+        "nextFriends": "Meer vrienden",
+        "isPlaying": "{{name}} is aan het spelen",
+        "online": "Online",
+        "inStudio": "In Studio",
+        "offline": "Offline",
+        "friendFallback": "Vriend",
+        "join": "Deelnemen",
+        "chat": "Chatten",
+        "viewProfile": "Profiel bekijken"
+    },
+    "friendLabels": {
+        "menuAction": "Vriendenlabel instellen",
+        "dialogTitle": "Label {{displayName}}",
+        "inputLabel": "Vriendenlabel",
+        "inputPlaceholder": "Goede vrienden, School,",
+        "existingLabels": "Bestaande labels",
+        "friendFallback": "Vriend",
+        "save": "Opslaan",
+        "remove": "Verwijderen",
+        "cancel": "Annuleren"
+    },
+    "underratedGames": {
+        "topic": "Onderschatte spellen",
+        "subtitle": "Onderschatte spellen handmatig geselecteerd door de RoValra-gemeenschap.",
+        "rotates": "Roteert",
+        "suggestOnDiscord": "Stel onderschatte spellen voor op {{discord}}",
+        "ageRestrictionWarning": "Sommige van deze spellen zijn mogelijk vergrendeld voor 16+ vanwege de 250 HEP-vereiste van Roblox."
+    },
+    "playtime": {
+        "topic": "Speeltijd",
+        "period": "Speeltijdperiode",
+        "today": "Vandaag",
+        "thisWeek": "Deze week",
+        "thisMonth": "Deze maand",
+        "thisYear": "Dit jaar",
+        "allTime": "Totaal",
+        "hours": "{{value}} uur",
+        "minutes": "{{value}} minuten"
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} wederzijdse vriend",
+        "pill_other": "{{count}} wederzijdse vrienden",
+        "tooltip": "Vrienden die je gemeen hebt met deze gebruiker",
+        "tab": "Wederzijdse",
+        "title": "Wederzijdse vrienden ({{count}})",
+        "empty": "Je hebt geen wederzijdse vrienden met deze gebruiker."
+    },
+    "trustedFriends": {
+        "pendingConnection": "Vertrouwde vriend in afwachting",
+        "pendingRequest": "Verzoek tot vertrouwde vriend in afwachting",
+        "addConnection": "Vertrouwde vriend toevoegen",
+        "addConfirmation": "Weet je zeker dat je een verzoek tot vertrouwde vriend wilt sturen?",
+        "sendRequest": "Verzoek verzenden",
+        "sending": "Verzenden...",
+        "requestSent": "Verzoek tot vertrouwde vriend verzonden!",
+        "requestFailed": "Verzenden van verzoek tot vertrouwde vriend mislukt.",
+        "errorSending": "Fout bij verzenden",
+        "acceptConnection": "Vertrouwde vriend accepteren",
+        "acceptConfirmation": "Weet je zeker dat je dit verzoek tot vertrouwde vriend wilt accepteren?",
+        "accept": "Accepteren",
+        "accepting": "Accepteren...",
+        "requestAccepted": "Verzoek tot vertrouwde vriend geaccepteerd!",
+        "acceptFailed": "Accepteren van verzoek tot vertrouwde vriend mislukt.",
+        "errorAccepting": "Fout bij accepteren",
+        "removeConnection": "Vertrouwde vriend verwijderen",
+        "removeConfirmation": "Weet je zeker dat je deze vertrouwde vriend wilt verwijderen?",
+        "remove": "Verwijderen",
+        "removing": "Verwijderen...",
+        "connectionRemoved": "Vertrouwde vriend verwijderd!",
+        "removeFailed": "Verwijderen van vertrouwde vriend mislukt.",
+        "errorRemoving": "Fout bij verwijderen"
+    },
+    "chatEligibility": {
+        "canChat": "Je kunt met deze gebruiker chatten.",
+        "cannotChat": "Deze gebruiker valt buiten je leeftijdsbereik voor chatten.",
+        "ageCheckRequired": "Deze gebruiker heeft geen leeftijdscontrole voltooid."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Draagt momenteel",
+        "items": "Items",
+        "cosmetics": "Cosmetica",
+        "bodyParts": "Lichaamsdelen",
+        "animations": "Animaties",
+        "emotes": "Emotes"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Gebruiker heeft geen openbare ervaringen",
+        "overlayText": "Verborgen ervaringen",
+        "noHiddenGames": "Deze gebruiker heeft geen verborgen ervaringen.",
+        "buttonText": "Verborgen ervaringen",
+        "publicExperiences": "Openbare ervaringen",
+        "hiddenExperiences": "Verborgen ervaringen",
+        "labels": {
+            "sort": "Sorteren",
+            "order": "Volgorde",
+            "showAll": "Alle spellen weergeven"
+        },
+        "sort": {
+            "default": "Standaard",
+            "likeRatio": "Vond-ik-leuk-ratio",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Spelers",
+            "name": "Naam (Z-A)"
+        },
+        "order": {
+            "descending": "Aflopend",
+            "ascending": "Oplopend"
+        },
+        "noMatches": "Geen ervaringen komen overeen met de filters.",
+        "loading": "Laden..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Verborgen groepservaringen (totaal {{count}})",
+        "noHiddenGames": "Deze groep heeft geen verborgen ervaringen.",
+        "buttonText": "Verborgen ervaringen",
+        "labels": {
+            "sort": "Sorteren",
+            "order": "Volgorde",
+            "showAll": "Alle spellen weergeven"
+        },
+        "sort": {
+            "recentlyUpdated": "Recent bijgewerkt",
+            "likeRatio": "Vond-ik-leuk-ratio",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Spelers",
+            "name": "Naam (Z-A)"
+        },
+        "order": {
+            "descending": "Aflopend",
+            "ascending": "Oplopend"
+        },
+        "noMatches": "Geen verborgen ervaringen komen overeen met de huidige filters.",
+        "loadingMore": "Meer spellen laden..."
+    },
+    "userOutfits": {
+        "loading": "Outfits laden...",
+        "back": "Terug",
+        "totalPrice": "Totaalprijs:",
+        "loadingItems": "Items laden...",
+        "noItems": "Deze outfit heeft geen items.",
+        "errorLoadingItems": "Kon items niet laden.",
+        "buttonText": "Outfits weergeven",
+        "overlayTitle": "Gebruikersoutfits",
+        "overlayTitleUser": "Outfits van {{displayName}}",
+        "noOutfits": "Deze gebruiker heeft geen outfits.",
+        "inventoryPrivate": "De inventaris van de gebruiker is privé.",
+        "errorNoUserId": "Kon het gebruikers-ID niet van de pagina halen.",
+        "errorFetch": "Kon outfits niet ophalen."
+    },
+    "donationLink": {
+        "donate": "Doneren",
+        "overlayTitle": "Pls Donate",
+        "description": "Hiermee start \"PLS DONATE\" waar je een offline donatie kunt doen.\n\nVanwege kosten van Roblox (30%) en het spel (10%) ontvangt de gebruiker 60% van het gedoneerde bedrag.\n\nBij binnenkomst verschijnt de gebruikersinterface \"Offline Donations\" met hun gebruikersnaam al ingevuld. Klik gewoon op de cadeaubonknop om hun kraam te openen en een gamepass te kopen om te doneren.",
+        "joinButton": "Deelnemen aan Pls Donate",
+        "goBackButton": "Ga terug",
+        "loadingGamePasses": "Gamepasses laden...",
+        "priceLowToHigh": "Prijs (laag naar hoog)",
+        "priceHighToLow": "Prijs (hoog naar laag)",
+        "userGamePasses": "Gamepasses van {{username}}",
+        "copyDonationLink": "Donatielink kopiëren",
+        "copyLinkDescription": "Hiermee kopieer je een speciale link naar dit profiel. Wanneer een RoValra-gebruiker deze opent, verschijnt dit donatiemenu automatisch.<br><br><strong>Opmerking:</strong> Alleen RoValra-gebruikers zien het donatievenster, anderen zien het standaardprofiel.",
+        "copyLinkButton": "Link kopiëren",
+        "copySuccess": "Donatielink succesvol gekopieerd!",
+        "noGamePassesFound": "Geen gamepasses gevonden voor de spellen van {{username}}.",
+        "errorLoading": "Fout bij laden van gamepasses: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Direct deelnemen",
+        "stopJoining": "Deelnemen stoppen",
+        "description": "Hiermee wordt automatisch geprobeerd om deel te nemen aan de gebruiker zodra deze zich in een ervaring bevindt.<br><br>Hiervoor moet de gebruiker hebben ingesteld dat iedereen kan deelnemen of moet je bevriend metgeen zijn.",
+        "searchPlaceholder": "Zoek naar een ervaring of voer een Plaats-ID in (optioneel)",
+        "continue": "Doorgaan",
+        "cancel": "Annuleren",
+        "confirmTitle": "Actie bevestigen"
+    },
+    "rap": {
+        "error": "Fout",
+        "private": "Privé",
+        "openInRolimons": "Openen in Rolimon's",
+        "thisUser": "deze gebruiker",
+        "rolimonsRedirect": "Je staat op het punt te worden doorgestuurd naar het profiel van {{username}} op Rolimon's, een externe website voor ruilen en itemwaarden.<br><br>Wil je doorgaan?",
+        "continueToRolimons": "Doorgaan naar Rolimon's",
+        "user": "Gebruiker",
+        "loadingItems": "Meer items laden...",
+        "noItemsMatch": "Geen items komen overeen met je zoekopdracht.",
+        "collectiblesTitle": "Verzamelobjecten van {{displayName}} ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "Verzamelobjecten van {{displayName}} ({{totalRapString}} Waarde)",
+        "inventoryPrivateOrNoLimiteds": "De inventaris van deze gebruiker is privé of bevat geen limiteds.",
+        "searchByName": "Zoeken op itemnaam",
+        "itemAmount": "Aantal in bezit van dit item: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Verzenden"
+    },
+    "privateServer": {
+        "processingTitle": "Servers verwerken",
+        "starting": "Starten...",
+        "cancel": "Annuleren",
+        "cancelling": "Annuleren...",
+        "activating": "Activeren",
+        "inactivating": "Inactief maken",
+        "progressText": "{{actionText}} server {{current}} van {{total}}...",
+        "unknownApiError": "Er is een onbekende API-fout opgetreden.",
+        "processCancelled": "Proces geannuleerd. <span class=\"success-text\">{{count}} server(s) verwerkt.</span>",
+        "completed": "Voltooid: <span class=\"success-text\">{{successCount}} gelukt</span>, <span class=\"error-text\">{{errorCount}} mislukt</span>.",
+        "processingComplete": "Verwerking voltooid",
+        "confirmationTitle": "Actie bevestigen",
+        "confirmationMessage": "Je staat op het punt om {{count}} privéserver(s) in te stellen als {{action}}.",
+        "confirmationJoinable": "Hiermee wordt de privéserver toegankelijk om aan deel te nemen.",
+        "confirmationUnjoinable": "Hiermee wordt de privéserver ontoegankelijk om aan deel te nemen.",
+        "confirmationReversible": "Je kunt dit later altijd weer wijzigen.",
+        "confirm": "Bevestigen",
+        "deselectAll": "Deselecteer alles",
+        "selectAll": "Alles selecteren",
+        "bulkInactivate": "Massaal inactief maken",
+        "bulkActivate": "Massaal activeren",
+        "setInactive": "Instellen als inactief",
+        "setActive": "Instellen als actief",
+        "noServersFound": "Geen {{status}} privéservers gevonden.",
+        "byCreator": "Door ",
+        "allowJoining": "Deelnemen toestaan",
+        "friendsAllowed": "Vrienden toegestaan"
+    },
+    "firstAccount": {
+        "label": "Eerste account",
+        "yes": "Ja",
+        "no": "Nee",
+        "tooltip": "Dit laat zien of Roblox denkt dat jouw account je eerste account is. <br>Deze informatie komt rechtstreeks van Roblox, maar is mogelijk niet accuraat.",
+        "createdDate": "Eerste account aangemaakt op: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "In het programma voor vertrouwde makers",
+        "yes": "Ja",
+        "no": "Nee",
+        "tooltip": "Een manier gevonden om dit te controleren en ik vond het wel cool :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Thema",
+        "light": "Licht",
+        "dark": "Donker"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Afbeeldingsinstellingen aanpassen",
+            "source": "Afbeeldingsbron",
+            "opacity": "Afbeeldingsdoorzichtbaarheid",
+            "customSize": "Aangepaste schaal",
+            "blur": "Vervaging",
+            "overrideTopbarSidebar": "Transparante modus",
+            "size": {
+                "label": "Achtergrondgrootte",
+                "cover": "Bedekken (cover)",
+                "contain": "Passend maken (contain)",
+                "auto": "Automatisch",
+                "custom": "Aangepast"
+            },
+            "position": {
+                "label": "Achtergrondpositie",
+                "center": "Midden",
+                "top": "Boven",
+                "bottom": "Onder",
+                "left": "Links",
+                "right": "Rechts",
+                "topleft": "Linksboven",
+                "topright": "Rechtsboven",
+                "bottomleft": "Linksonder",
+                "bottomright": "Rechtsonder"
+            },
+            "overlay": {
+                "color": "Overlay-kleur",
+                "opacity": "Overlay-doorzichtbaarheid"
+            },
+            "errors": {
+                "invalidUrl": "Voer een geldige https-afbeeldings-URL in."
+            }
+        },
+        "variables": {
+            "intro": "Kies hierboven een Roblox-thema om het direct te gebruiken, of wijzig hieronder een kleur om het aan te passen. Wijzigingen worden direct doorgevoerd.",
+            "presetNone": "Geen",
+            "opacity": "Doorzichtbaarheid",
+            "reset": "Resetten",
+            "resetAll": "Kleuren resetten",
+            "saved": {
+                "title": "Mijn thema's",
+                "noTheme": "Geen thema",
+                "unsaved": "Niet-opgeslagen thema",
+                "editingLabel": "{{name}} (bewerken)",
+                "statusNone": "Geen thema ingesteld, Roblox ziet er normaal uit.",
+                "statusUnsaved": "Je gebruikt kleuren die nog niet als thema zijn opgeslagen.",
+                "statusEditing": "{{name}} bewerken. Sla op om je wijzigingen te behouden.",
+                "statusEquipped": "{{name}} is ingesteld.",
+                "namePlaceholder": "Themanaam",
+                "save": "Opslaan",
+                "delete": "Verwijderen",
+                "export": "Exporteren",
+                "import": "Importeren",
+                "defaultName": "Mijn thema",
+                "importedName": "Geïmporteerd thema",
+                "saved": "Thema opgeslagen!",
+                "updated": "Thema bijgewerkt!",
+                "deleted": "Thema verwijderd.",
+                "imported": "Thema geïmporteerd!",
+                "nameRequired": "Voer eerst een naam in voor je thema.",
+                "limitReached": "Je kunt maximaal {{count}} thema's opslaan.",
+                "invalidFile": "Dat bestand is geen RoValra-thema.",
+                "fileTooLarge": "Dat bestand is te groot om een thema te zijn.",
+                "deleteTitle": "Thema verwijderen",
+                "deleteMessage": "Weet je zeker dat je dit opgeslagen thema wilt verwijderen?"
+            },
+            "modes": {
+                "editingDark": "Kleuren voor donkere modus bewerken",
+                "editingLight": "Kleuren voor lichte modus bewerken"
+            },
+            "tokens": {
+                "surface-0": "Paginabestand achtergrond",
+                "surface-100": "Oppervlak 100",
+                "surface-200": "Oppervlak 200",
+                "surface-300": "Oppervlak 300",
+                "common-navigation-bar": "Navigatiebalk",
+                "over-media-0": "Over media 0",
+                "over-media-100": "Over media 100",
+                "over-media-200": "Over media 200",
+                "over-media-300": "Over media 300",
+                "common-backdrop": "Achtergrondlaag",
+                "content-emphasis": "Benadrukte tekst",
+                "content-default": "Standaardtekst",
+                "content-muted": "Gedimde tekst",
+                "content-link": "Linktekst",
+                "stroke-default": "Standaardrand",
+                "stroke-emphasis": "Benadrukte rand",
+                "stroke-muted": "Gedimde rand",
+                "common-heavy-divider": "Zware scheidingslijn",
+                "shift-100": "Verschuiving 100",
+                "shift-200": "Verschuiving 200",
+                "shift-300": "Verschuiving 300",
+                "shift-400": "Verschuiving 400",
+                "system-emphasis": "Nadruk",
+                "system-contrast": "Contrast",
+                "system-alert": "Waarschuwing",
+                "system-success": "Succes",
+                "system-warning": "Let op",
+                "system-neutral": "Neutraal",
+                "action-emphasis-background": "Primaire achtergrond",
+                "action-emphasis-foreground": "Primaire tekst",
+                "action-standard-background": "Standaard achtergrond",
+                "action-standard-foreground": "Standaard tekst",
+                "action-soft-emphasis-background": "Zachte achtergrond",
+                "action-soft-emphasis-foreground": "Zachte tekst",
+                "action-subtle-border": "Subtiele rand",
+                "action-alert-foreground": "Waarschuwingstekst",
+                "action-over-media-background": "Achtergrond over media",
+                "action-over-media-foreground": "Tekst over media"
+            },
+            "presets": {
+                "classic": "Klassiek",
+                "circuit-rush": "Circuit Rush",
+                "cosmic-dust": "Cosmisch stof",
+                "electric-lime": "Elektrisch limoen",
+                "hyper-plum": "Hyper Pruim",
+                "inferno-blast": "Inferno Blast",
+                "kinetic-energy": "Kinetische energie",
+                "lava-glow": "Lava Glow",
+                "nebula-drift": "Neveldrift",
+                "nitro-frost": "Nitro Frost",
+                "pixel-pop": "Pixel Pop",
+                "polar-freeze": "Polaire vorst",
+                "quantum-pulse": "Kwantumpuls",
+                "star-burst": "Star Burst",
+                "super-charge": "Super Charge"
+            },
+            "builtIn": {
+                "veryDark": "Zeer donker thema"
+            },
+            "groups": {
+                "surfaces": "Oppervlakken",
+                "content": "Tekst",
+                "strokes": "Randen en verschuivingen",
+                "system": "Systeem",
+                "actions": "Knoppen"
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Niet te koop",
+        "text": "Vorige prijs:",
+        "lastOnSale": "Laatst te koop",
+        "for": "voor"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Ontgrendeld"
+    },
+    "lastEquipped": {
+        "label": "Laatst ingesteld"
+    },
+    "ownedItemPrice": {
+        "label": "Prijs",
+        "free": "Gratis",
+        "offSale": "Niet te koop"
+    },
+    "pendingRobux": {
+        "tooltip": "Dit is een schatting van hoeveel Robux van je saldo in afwachting morgen beschikbaar komt, op basis van je transactiegegevens. Het werkelijke bedrag kan afwijken en dit kan onnauwkeurig zijn.",
+        "loading": "Laden...",
+        "error": "Fout: {{message}}",
+        "insufficientData": "Onvoldoende gegevens",
+        "insufficientDataTooltip": "Niet genoeg transactiegeschiedenis om een nauwkeurige schatting te maken. Wacht tot er meer transacties zijn voltooid.",
+        "label": "Morgen vrijkomende Robux"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Verdiensten berekenen",
+        "calculateEarned": "Verdiende bedrag berekenen",
+        "pausedMessage": "Berekening gepauzeerd. Hervat om door te gaan met tellen.",
+        "resumeCalculation": "Berekening hervatten",
+        "startNewCalculation": "Nieuwe berekening starten",
+        "description": "Bereken je totale verdiende Robux uit verkopen en groepsuitbetalingen.",
+        "startCalculation": "Berekening starten",
+        "transactionsScanned": "Gescande transacties",
+        "totalRobuxEarned": "Totaal aantal verdiende Robux",
+        "breakdownLabel": "Uitsplitsing van inkomstenbronnen",
+        "calculatingTitle": "Totale verdiende Robux berekenen",
+        "scanningHistory": "Totale verdiende Robux berekenen...",
+        "rateLimited": "API-limiet bereikt. Nog steeds aan het tellen...",
+        "calculationComplete": "Berekening voltooid",
+        "allScanned": "Klaar met het scannen van de totale verdiende Robux.",
+        "newCalculation": "Nieuwe berekening",
+        "errorTitle": "Er is een fout opgetreden",
+        "retry": "Opnieuw proberen",
+        "robloxLimitError": "Roblox gaf een interne serverfout terug. Kan waarschijnlijk geen transacties meer scannen vanwege beperkingen van Roblox.",
+        "noEarnings": "Nog geen inkomsten gevonden.",
+        "other": "Overig",
+        "groupPayout": "Groepsuitbetaling"
+    },
+    "totalSpent": {
+        "other": "Overig",
+        "na": "N.v.t.",
+        "calculatingTitle": "Berekenen",
+        "calculatingRobuxTitle": "Totaal uitgegeven Robux berekenen",
+        "calculatingMoneyTitle": "Totaal uitgegeven geld berekenen",
+        "calculatingText": "Berekenen...",
+        "calculatingRobuxText": "Totaal uitgegeven Robux berekenen...",
+        "calculatingMoneyText": "Totaal uitgegeven geld berekenen...",
+        "rateLimited": "API-limiet bereikt. Nog steeds aan het tellen...",
+        "calculationComplete": "Berekening voltooid",
+        "allScanned": "Alle relevante transacties zijn gescand.",
+        "robuxAllScanned": "Klaar met het scannen van totaal uitgegeven Robux.",
+        "moneyAllScanned": "Klaar met het scannen van totaal uitgegeven geld.",
+        "newCalculation": "Nieuwe berekening",
+        "errorTitle": "Er is een fout opgetreden",
+        "retry": "Opnieuw proberen",
+        "calculateSpend": "Uitgaven berekenen",
+        "pausedMessage": "Berekening gepauzeerd. Hervat om door te gaan met tellen.",
+        "resumeCalculation": "Berekening hervatten",
+        "startNewCalculation": "Nieuwe berekening starten",
+        "description": "Selecteer een modus om je transactiegeschiedenis te berekenen.",
+        "calculateRobux": "Uitgegeven Robux berekenen",
+        "calculateMoney": "Uitgegeven geld berekenen",
+        "transactionsScanned": "Gescande transacties",
+        "totalRobuxSpent": "Totaal uitgegeven Robux",
+        "totalMoneySpent": "Totaal uitgegeven (ongeveer)",
+        "itemTypeBreakdown": "Uitsplitsing per itemtype",
+        "premiumBreakdown": "Uitsplitsing van Premium-abonnement",
+        "purchaseBreakdown": "Uitsplitsing van Robux-aankopen",
+        "noItems": "Nog geen items gevonden.",
+        "pack": "Pakket",
+        "stipend": "Toelage",
+        "errorUserId": "Kon gebruikers-ID niet ophalen.",
+        "robloxLimitError": "Roblox gaf een interne serverfout terug. Kan waarschijnlijk geen transacties meer scannen vanwege beperkingen van Roblox.",
+        "errorRetries": "Mislukt na meerdere pogingen. Laatste fout: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Totaal uitgegeven",
+        "loading": "Laden...",
+        "failedToLoad": "Laden mislukt",
+        "singlePurchase": "1 aankoop",
+        "multiplePurchases": "{{count}} aankopen",
+        "stillCalculating": "Totaal uitgegeven wordt nog berekend."
+    },
+    "spentPerGame": {
+        "title": "Totaal uitgegeven per spel",
+        "disclaimer": "Dit kan onnauwkeurig zijn vanwege beperkingen van Roblox",
+        "mostSpent": "Meest uitgegeven",
+        "mostPurchases": "Meeste aankopen",
+        "noPurchases": "Geen spelaankopen gevonden.",
+        "singlePurchase": "1 aankoop",
+        "multiplePurchases": "{{count}} aankopen",
+        "loadMore": "Meer laden (nog {{remaining}} over)",
+        "searchPlaceholder": "Spellen zoeken",
+        "loading": "Speluitgaven laden…",
+        "scanInProgress": "Transacties worden gescand. Dit kan even duren.",
+        "loadError": "Kan speluitgaven niet laden."
+    },
+    "spentPerCreator": {
+        "title": "Totaal uitgegeven per maker",
+        "disclaimer": "Dit kan onnauwkeurig zijn vanwege beperkingen van Roblox",
+        "mostSpent": "Meest uitgegeven",
+        "mostPurchases": "Meeste aankopen",
+        "noPurchases": "Geen aankopen bij makers gevonden.",
+        "unknownCreator": "Onbekende maker",
+        "includeGameCreators": "Inclusief spelmakers",
+        "singlePurchase": "1 aankoop",
+        "multiplePurchases": "{{count}} aankopen",
+        "loadMore": "Meer laden (nog {{remaining}} over)",
+        "searchPlaceholder": "Makers zoeken",
+        "loading": "Uitgaven van maker laden…",
+        "scanInProgress": "Transacties worden gescand. Dit kan even duren.",
+        "loadError": "Kan uitgaven van maker niet laden."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Informatie",
+            "credits": "Bijdragers",
+            "donatorPerks": "Donateursvoordelen",
+            "settings": "Instellingen",
+            "accountStanding": "Accountstatus",
+            "store": "Winkel"
+        },
+        "info": {
+            "title": "RoValra-informatie!",
+            "desc1": "RoValra is een extensie die basisfuncties voor gebruikersgemak gratis en toegankelijk probeert te maken voor iedereen door alles volledig open-source te maken.",
+            "desc2": "Sommige gratis functies zijn nog steeds afhankelijk van RoValra-servers en kosten geld om te draaien.",
+            "desc3": "Donaties van supporters helpen om die kosten te dekken, waardoor RoValra meer functies gratis kan houden voor iedereen en tegelijkertijd kan blijven verbeteren. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra is een passieproject en is dat altijd geweest.",
+            "suggestions": "Als je suggesties hebt voor functies, laat het me dan weten in mijn Discord-server of via GitHub",
+            "bugs": "Als je bugs vindt, laat het me dan weten in mijn Discord-server of via GitHub",
+            "review": "Als je deze extensie leuk vindt, overweeg dan om <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">een beoordeling achter te laten</a>, dat helpt enorm <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Discord-server",
+            "github": "GitHub-repository",
+            "support": "RoValra steunen",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Bijdragers",
+            "translatorsTitle": "Vertalers",
+            "featureCount_one": "{{count}} functie",
+            "featureCount_other": "{{count}} functies",
+            "contributorTooltips": {
+                "146089324": "WoozyNate heeft fisch gemaakt, waar het oude RoValra-logo vandaan komt. Je moet fisch eens bekijken!",
+                "1337447242": "Heeft het nieuwe logo en alle winkelpagina-afbeeldingen gemaakt.",
+                "795922138": "Bedenker van de naam 'RoValra' als grap, wat te grappig was om niet te gebruiken.",
+                "2974594300": "UI-verbeteringen, bugfixes en andere bijdragen.",
+                "170038374": "Heeft concepten gemaakt waarop sommige RoValra-functies zijn gebaseerd."
+            },
+            "sortLabel": "Bijdragers sorteren",
+            "sortMost": "Meeste",
+            "sortLeast": "Minste",
+            "contributionCount_one": "Bijgedragen aan {{count}} functie",
+            "contributionCount_other": "Bijgedragen aan {{count}} functies",
+            "backendContributorsNote": "Deze mensen hielpen met niet-functiegerelateerde zaken.",
+            "loadingContributors": "Laden...",
+            "failedToLoadContributors": "Laden van bijdragers mislukt.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Vertalersbadge en WoozyNate-badge toegevoegd",
+                    "nateGilbertFix": "Nates badge weer veranderd naar gilbert"
+                },
+                "caching": {
+                    "hashmap": "Hashmap toegevoegd aan de cache-handler"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "De zijbalk gerepareerd voor een Roblox-update"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "RBXM-parser desynchronisatie en CFRAME-formaat gerepareerd"
+                },
+                "markdown": {
+                    "untrustedMd": "Beperkte markdown-parser toegevoegd voor niet-vertrouwde gebruikers"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Geïntegreerde instellingen-API toegevoegd"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Credits verbeterd in de bijdragerslijst",
+                    "nonSettingCredits": "Credits toegevoegd voor functies en verbeteringen die geen eigen instellingen hebben"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Nieuwe indicatoren voor donateursniveaus toegevoegd"
+                },
+                "iconElement": {
+                    "addIcons": "Het `<icon>`-element toegevoegd waarmee Builder Icons, Material Icons en RoValra Icons kunnen worden gebruikt.",
+                    "addElement": "Het basis `<icon>`-element toegevoegd waarmee Builder Icons kunnen worden gebruikt. Eerder werd het ingebouwde `<i>`-element met klassen gebruikt.",
+                    "makeRoValraIcons": "Een lettertype toegevoegd voor RoValra Icons + een nieuwe bouwmethode voor de website.",
+                    "addBuilderIconsWOFF": "Hosting voor Builder Icons toegevoegd op de RoValra-website, evenals andere lettertypebestanden die kleiner in omvang zijn."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "De index van plus-thema's toegevoegd aan de website zodat gebruikers alleen correcte en opgegeven thema's kunnen gebruiken."
+                },
+                "locales": {
+                    "madeDe": "Geholpen bij het maken van de Duitse vertaling",
+                    "madeRo": "Geholpen bij het maken van de Roemeense vertaling",
+                    "madeEs": "Geholpen bij het maken van de Spaanse vertaling",
+                    "madeRu": "Geholpen bij het maken van de Russische vertaling",
+                    "madeFr": "Geholpen bij het maken van de Franse vertaling",
+                    "madeZh": "Geholpen bij het maken van de Chinese vertaling",
+                    "madeVi": "Geholpen bij het maken van de Vietnamese vertaling"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "Bijdragen van {{user}}",
+                    "contributor": "Bijdrager",
+                    "featureName": "Functie",
+                    "featureKey": "(Dev) Functiesleutel"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "Donateursvoordelen!",
+            "subtitle": "Steun de ontwikkeling van RoValra en krijg exclusieve voordelen!",
+            "howToGet": "Hoe je voordelen krijgt",
+            "howToGetDesc": "Je kunt doneren door een gamepass te kopen in het ondersteuningsspel.",
+            "goToGame": "Ga naar het donatiespel",
+            "perkTiers": "Voordeligheidsniveaus",
+            "perk": "Voordeel",
+            "currentTier": "Huidig niveau",
+            "tier1": "Niveau 1: Supporter",
+            "tier1Desc": "Doneer <strong>een willekeurig bedrag</strong>",
+            "tier1Reward": "Donateur 1-badge",
+            "tier1DiscordRole": "Donateur 1 Discord-rol + extra Discord-voordelen.",
+            "tier1Feature": "Stel status en omgevingen in zonder een zin toe te voegen aan je 'Over mij'.",
+            "tier2": "Niveau 2: Supporter",
+            "tier2Desc": "Doneer <strong>200+ Robux</strong>",
+            "tier2Reward": "Donateur 2-badge",
+            "tier2DiscordRole": "Donateur 2 Discord-rol + geüpgradede Discord-voordelen.",
+            "tier3": "Niveau 3: Supporter",
+            "tier3Desc": "Doneer <strong>500+ Robux</strong>",
+            "tier3Reward": "Donateur 3-badge",
+            "tier3DiscordRole": "Donateur 3 Discord-rol + beste Discord-voordelen.",
+            "previousRewards": "+ Alle beloningen van vorige niveaus",
+            "moreComingSoon": "Binnenkort meer.",
+            "note": "Opmerking:\n- Badges kunnen na donatie enkele minuten nodig hebben om te verschijnen.\n- Ga naar het tabblad 'Profiel' in de instellingen om het zichtbaarheid van badges te beheren.\n- Doneren via commissies levert helaas geen donateursvoordelen op, dit is een beperking van Roblox.\n- Bij het doneren ga je akkoord met de [Gebruiksvoorwaarden van RoValra](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "Voer ten minste 2 tekens in om te zoeken.",
+            "noResults": "Geen instellingen gevonden voor \"{{query}}\"."
+        },
+        "ui": {
+            "common": {
+                "cancel": "Annuleren",
+                "okay": "Oké",
+                "ok": "OK",
+                "pleaseWait": "Even geduld...",
+                "loading": "Laden...",
+                "unknown": "Onbekend",
+                "user": "Gebruiker",
+                "unavailable": "Niet beschikbaar",
+                "notAvailable": "N.v.t."
+            },
+            "levels": {
+                "allGood": "Alles in orde",
+                "limited": "Beperkt",
+                "veryLimited": "Zeer beperkt",
+                "atRisk": "In gevaar",
+                "suspended": "Geschorst"
+            },
+            "search": {
+                "placeholder": "Instellingen doorzoeken..."
+            },
+            "controls": {
+                "clearStorage": "Opslag wissen",
+                "preview": "Voorvertoning",
+                "fadeStrength": "Vervaagsterkte",
+                "clickMe": "Klik op mij",
+                "enterValue": "Voer waarde in",
+                "remove": "Verwijderen",
+                "add": "Toevoegen",
+                "experimental": "Experimenteel",
+                "beta": "Bèta",
+                "deprecated": "Verouderd",
+                "invalidImageUrl": "Voer een geldige http:// of https:// afbeeldings-URL in.",
+                "enablePermission": "Schakel {{permission}}-toestemming in"
+            },
+            "badges": {
+                "visibility": "Zichtbaarheid van je donatiebadges in- of uitschakelen."
+            },
+            "locks": {
+                "donatorTierRequired": "RoValra-donateursniveau {{tier}} vereist",
+                "donatorPerk": "RoValra-donateursvoordeel (niveau {{tier}})",
+                "featureDisabled": "Deze functie is uitgeschakeld {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "Voordat je deze functie inschakelt",
+                "message": "Functies met deze labels zijn mogelijk instabiel of kunnen in de loop der tijd veranderen. Ze kunnen langere laadtijden, inconsistente gebruikersinterface, sitegerelateerde problemen of ander onverwacht gedrag veroorzaken.<br><br>Schakel dit alleen in als je begrijpt dat het mogelijk niet perfect werkt.",
+                "acknowledge": "Ik ga akkoord"
+            },
+            "environment": {
+                "exported": "Omgevings-JSON is naar de console geprint (F12).",
+                "imported": "Omgevingsconfiguratie succesvol geïmporteerd. De pagina wordt opnieuw geladen om wijzigingen toe te passen.",
+                "parseFailed": "Kan het JSON-bestand niet verwerken.",
+                "storageUsed": "Totaal gebruikte lokale opslag: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Voornaamwoorden mogen maximaal 15 tekens lang zijn.",
+                "filterRejected": "Het filter van Roblox heeft deze voornaamwoorden geweigerd. Probeer een andere waarde.",
+                "checkFailed": "Voornaamwoorden konden niet worden gecontroleerd door Roblox. Probeer het opnieuw.",
+                "filterBusy": "Het Roblox-voornaamwoordenfilter is bezet. Probeer het zo meteen opnieuw."
+            },
+            "port": {
+                "enableProfileNotes": "Schakel profielnotities in voordat je notities importeert of exporteert.",
+                "exportedOne": "{{count}} profielnotitie geëxporteerd.",
+                "exportedMany": "{{count}} profielnotities geëxporteerd.",
+                "exportFailed": "Profielnotities konden niet worden geëxporteerd.",
+                "notesTooLarge": "De back-up van profielnotities is te groot.",
+                "invalidNotesBackup": "Dit is geen geldige back-up van RoValra-profielnotities.",
+                "importedOne": "{{count}} profielnotitie geïmporteerd.",
+                "importedMany": "{{count}} profielnotities geïmporteerd.",
+                "notesReadFailed": "De back-up van profielnotities kon niet worden gelezen.",
+                "importFailed": "Profielnotities konden niet worden geïmporteerd.",
+                "exportUnexpectedError": "Er is een onverwachte fout opgetreden tijdens het exporteren.",
+                "exportError": "Fout bij exporteren van instellingen. Controleer de console voor details.",
+                "sanitizeError": "Fout bij opschonen van instellingen voor export. Controleer de console voor details.",
+                "invalidSettingsFile": "Dit lijkt geen geldig RoValra-instellingenbestand te zijn.",
+                "invalidSettingsData": "Fout: Het geïmporteerde instellingenbestand bevat ongeldige of potentieel gevaarlijke gegevens.",
+                "settingsTooLarge": "Fout: Instellingenbestand is te groot. Maximale grootte is 1MB.",
+                "importError": "Fout bij importeren van instellingen. Controleer de console voor details.",
+                "malformedSettings": "Het instellingenbestand is onjuist opgebouwd.",
+                "readFailed": "Kon het instellingenbestand niet lezen. Het is mogelijk beschadigd of heeft de verkeerde indeling.",
+                "importUnexpectedError": "Er is een onverwachte fout opgetreden tijdens het importeren.",
+                "exportSettings": "Instellingen exporteren",
+                "importSettings": "Instellingen importeren"
+            },
+            "changelogs": {
+                "title": "Wijzigingslogboeken",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Naamloze release",
+                "current": "Jouw versie",
+                "noNotes": "Er zijn geen wijzigingsnotities opgegeven voor deze release.",
+                "loading": "Wijzigingslogboeken laden...",
+                "empty": "Er zijn momenteel geen wijzigingslogboeken beschikbaar.",
+                "loadFailed": "Laden van wijzigingslogboeken mislukt. Probeer het later opnieuw."
+            },
+            "parentRequest": {
+                "sendingTitle": "Verzoek verzenden",
+                "sentTitle": "Verzoek verzonden!",
+                "sentBody": "Je verzoek is per e-mail naar je ouders en verzorgers verzonden.",
+                "experienceName": "De naam van de ervaring is",
+                "sendFailedTitle": "Verzenden van verzoek mislukt",
+                "sendFailedBody": "Het verzenden van je verzoek is om een onbekende reden mislukt. Misschien is je frequentie beperkt (ratelimited). Controleer de console voor meer details.",
+                "cancelingTitle": "Verzoek annuleren",
+                "canceledTitle": "Verzoek geannuleerd",
+                "canceledBody": "Je verzoek aan je ouders en verzorgers is geannuleerd.",
+                "cancelFailedTitle": "Annuleren van verzoek mislukt",
+                "cancelFailedBody": "Het annuleren van je deblokkeerverzoek is mislukt. Misschien is je frequentie beperkt (ratelimited). Controleer de console voor meer details.",
+                "sendUnblock": "Deblokkeerverzoek verzenden",
+                "alreadyRequestedTitle": "Al aangevraagd",
+                "alreadyRequestedBody": "Je hebt de ervaring al aangevraagd, gekkie!"
+            },
+            "donation": {
+                "donateUsd": "Doneren (min. $1 USD)",
+                "donateRobux": "Doneren (min. 5 Robux)",
+                "parentApprovalTitle": "Help RoValra meer te ondersteunen!",
+                "parentApprovalMessage": "RoValra krijgt een groter deel van de donatie bij gebruik van gamepasses. We zien dat je ten minste 1 gekoppeld ouderaccount hebt. Je kunt verzoeken om de ervaring te deblokkeren zodat RoValra een beter deel krijgt vergeleken met het gebruik van 2D- (en 3D-) kleding.",
+                "useMarketplace": "Marktplaats gebruiken",
+                "currencyLabel": "Donatievaluta",
+                "donateWith": "Doneren met",
+                "supportTitle": "Help RoValra te ondersteunen",
+                "supportDescription": "Krijg exclusieve cosmetische voordelen door te doneren",
+                "githubSponsors": "GitHub Sponsors",
+                "included": "Inbegrepen",
+                "notIncluded": "Niet inbegrepen",
+                "totalDonated": "Je totaal gedoneerd aan RoValra: {{amount}}",
+                "tierTooltip": "Jouw donateursniveau",
+                "topDonators": "Topdonateurs (Robux)"
+            },
+            "profileBadge": {
+                "title": "Aangepaste RoValra-profielbadge",
+                "description": "Krijg een aangepaste badge voor je profiel",
+                "iconLabel": "Pictogram voor aangepaste profielbadge",
+                "getUsd": "Krijgen ($5 USD)",
+                "getRobux": "Krijgen (4.000 Robux)",
+                "purchaseIntro": "Deze aankoop is voor mensen die RoValra echt willen steunen.",
+                "createTicket": "Ga na aankoop van dit item naar de RoValra Discord en maak een ticket aan. JE DISCORD-ACCOUNT MOET TEN MINSTE 30 DAGEN OUD ZIJN OM TE CLAIMEN",
+                "provideDetails": "Geef de staf de afbeelding en naam die je aangepaste profielbadge moet hebben.",
+                "countsTowardTier": "Het kopen van dit item telt mee voor RoValra-donateursniveaus.",
+                "visibility": "Deze aangepaste badges zijn alleen zichtbaar voor RoValra-gebruikers.",
+                "imageRequirements": "Afbeeldingsvereisten",
+                "webpRequirement": "De afbeelding moet een <strong>WEBP</strong>-bestand zijn dat kleiner is dan <strong>1 MB</strong>.",
+                "noRobloxBadges": "Officiële Roblox-svg's of badges kunnen niet worden gebruikt.",
+                "noOfficialRoValraBadges": "Officiële RoValra-badges zoals bijdragers- en artiestenbadges zijn niet toegestaan.",
+                "followTerms": "Afbeeldingen moeten de servicevoorwaarden van Roblox volgen",
+                "joinDiscord": "Word lid van de RoValra-Discord",
+                "agree": "Akkoord",
+                "agreeCountdown": "Akkoord ({{count}})",
+                "preview": "Voorvertoning",
+                "previewTitle": "Voorvertoning van aangepaste badge",
+                "previewDescription": "Upload een WEBP-afbeelding om te zien hoe deze eruit zou zien als badge op je profiel. De afbeelding wordt alleen in het geheugen bewaard en wordt nooit geüpload of opgeslagen; hij verdwijnt wanneer je de pagina verlaat of vernieuwt.",
+                "previewTooltip": "Badge-voorvertoning",
+                "previewDone": "Klaar"
+            },
+            "githubSponsorBadge": {
+                "title": "GitHub Sponsors-profielbadge",
+                "description": "Regenboog hart-profielbadge. Alleen voor GitHub Sponsors",
+                "get": "Krijgen (min. $1 USD)"
+            },
+            "store": {
+                "artist": "Artiest",
+                "artistTooltip": "{{name}} heeft deze avatarandere gemaakt.",
+                "free": "Gratis",
+                "owned": "In bezit",
+                "equipped": "Ingesteld",
+                "equip": "Instellen",
+                "buy": "Kopen",
+                "buyFor": "Kopen voor {{price}}",
+                "viewGamepass": "Gamepass bekijken",
+                "all": "Alles",
+                "new": "Nieuw",
+                "static": "STATISCH",
+                "animated": "GEANIMEERD",
+                "borderTitle": "Avatar-randenwinkel",
+                "borderDescription": "Avatar-randenwinkel, koop avatar-randen om RoValra en de artiesten direct te steunen. <strong>Donateursniveau 3 krijgt alle avatar-randen gratis.</strong> Het kopen van avatar-randen telt mee voor je donateursniveau!",
+                "loadingBorders": "Randen laden..."
+            },
+            "border": {
+                "bundleNotice": "(Inclusief zowel statische als geanimeerde varianten)",
+                "freeTier3Tooltip": "Gratis omdat je Donateursniveau 3 hebt!",
+                "ownedTooltip": "Je bezit deze rand!",
+                "freeTooltip": "Deze rand is gratis in te stellen.",
+                "supportNotice": "Het rechtstreeks kopen van de cosmetica steunt de artiest en RoValra",
+                "purchaseDelay": "Het kan tot een minuut duren voordat de avatarrand zichtbaar is na aankoop",
+                "parentApprovalTitle": "Actie van ouder vereist",
+                "parentApprovalMessage": "Om avatarranden te kopen, heb je toestemming van een ouder nodig.",
+                "noParentTitle": "Je kunt geen avatarranden gebruiken",
+                "noParentBody": "Roblox vereist dat je toestemming krijgt van een ouder, maar je hebt geen ouder gekoppeld aan je account. Als je avatarranden wilt gebruiken, moet je een ouderaccount koppelen en verzoeken om de ervaring te deblokkeren.",
+                "noBorders": "Geen randen beschikbaar.",
+                "currentPreview": "Voorvertoning huidige selectie",
+                "signInPreview": "Log in om randen op je avatar te bekijken.",
+                "noBordersInTab": "Geen randen gevonden in dit tabblad.",
+                "loadFailed": "Laden van randen mislukt. Probeer het later opnieuw.",
+                "unequipTooltip": "Klik om deze rand te verwijderen",
+                "equipTooltip": "Deze rand instellen",
+                "buyTooltip": "Deze rand kopen"
+            },
+            "appeal": {
+                "messageLabel": "Voer je beroepsbericht in (20-3000 tekens)",
+                "title": "Beroep indienen",
+                "submit": "Beroep indienen",
+                "invalidLength": "Beroepsbericht moet tussen 20 en 3000 tekens lang zijn.",
+                "submitFailed": "Indienen van beroep mislukt. Probeer het opnieuw."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Alles in orde",
+                    "none": "Geen / Geen beperkingen",
+                    "limited": "Beperkt",
+                    "veryLimited": "Zeer beperkt",
+                    "atRisk": "In gevaar",
+                    "suspended": "Geschorst"
+                },
+                "appealStatuses": {
+                    "notAppealed": "Geen beroep aangetekend",
+                    "pending": "Beroep in afwachting",
+                    "denied": "Beroep afgewezen",
+                    "accepted": "Beroep geaccepteerd"
+                },
+                "goodTitle": "Je account is in goede staat.",
+                "goodDescription": "Je hebt geen actieve overtredingen of beperkingen van het RoValra-veiligheidsteam.",
+                "temporaryTitle": "Je account is tijdelijk beperkt.",
+                "violationTitle": "We hebben een overtreding gevonden op je account.",
+                "statusDescription": "Je accountstatus is ingesteld op: {{status}}",
+                "policyTitle": "RoValra-veiligheidsbeleid",
+                "policyDescription": "Accounts die in overtreding zijn met de {{- termsLink}} of als risico worden beschouwd via detecties van derden, zullen specifieke functies uitgeschakeld krijgen. Houd er rekening mee dat hoewel specifieke online mogelijkheden kunnen worden beperkt, het RoValra-veiligheidsteam de extensie als geheel of volledig lokale functies <strong>nooit</strong> zal uitschakelen.",
+                "automatedAction": "Geautomatiseerde actie",
+                "manualReview": "Handmatige beoordeling",
+                "disabledFeatures": "Uitgeschakelde functies",
+                "moderatedContent": "Gemodereerde inhoud",
+                "violationDetails": "Details van overtreding",
+                "unknownReason": "Onbekende reden",
+                "moderated": "Gemodereerd",
+                "temporaryExpires": "Tijdelijke beperking verloopt",
+                "appealCase": "Beroepszaak",
+                "status": "Status",
+                "yourMessage": "Jouw bericht",
+                "response": "Reactie",
+                "reviewingAppeal": "Ons team bekijkt momenteel je beroep.",
+                "appealDecision": "In beroep gaan tegen deze beslissing"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "RoValra werkt mogelijk niet naar behoren wanneer {{extensions}} zijn ingeschakeld.",
+            "description": "We beloven geen ondersteuning voor {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Privacy-instellingen"
+        },
+        "noTogglesEnabled": "Er zijn geen schakelaars ingeschakeld! Ga naar de RoValra-instellingen om privacy-instellingen in te schakelen.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Iedereen",
+                "friendsFollowingFollowers": "Vrienden, volgers en personen die ik volg",
+                "friendsFollowing": "Vrienden en personen die ik volg",
+                "friends": "Vrienden",
+                "trustedFriends": "Vertrouwde vrienden",
+                "noOne": "Niemand"
+            },
+            "onlineStatus": {
+                "name": "Onlinestatus"
+            },
+            "joinStatus": {
+                "name": "Ervaringsstatus"
+            },
+            "privateServerPrivacy": {
+                "name": "Privéserver-privacy"
+            },
+            "inventoryPrivacy": {
+                "name": "Inventaris-privacy"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "Laden...",
+        "pending": "In afwachting:",
+        "noPermissions": "Geen toestemming"
+    },
+    "navigation": {
+        "transactions": "Transacties",
+        "apiDocs": "API-documentatie",
+        "incidentLearnMore": "Klik hier voor meer informatie.",
+        "incidentHideNotice": "Je kunt deze melding hier verbergen",
+        "rovalraApi": "RoValra-API"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Zijbalk invouwen",
+        "expandSidebar": "Zijbalk uitvouwen"
+    },
+    "voiceBanIndicator": {
+        "title": "Spraakverbod",
+        "liftsIn": "Wordt opgeheven over",
+        "noExpiry": "Geen vervaldatum opgegeven"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Leeftidsthema",
+        "options": {
+            "normal": "Normaal Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Roblox Gelekte Select (Startmodus)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Bèta-programma's in-/uitschakelen",
+        "noPrograms": "Je bent niet ingeschreven voor bèta-programma's.",
+        "allowlist": "Op een toelatingslijst",
+        "previousProgramsTitle": "Eerder ingeschreven bèta-programma's",
+        "previousProgramTooltip": "Dit bèta-programma is niet langer beschikbaar."
+    },
+    "quickSearch": {
+        "aborted": "Afgebroken",
+        "apiRequestFailed": "API-verzoek mislukt met status {{status}}",
+        "friendSearchError": "RoValra: Fout bij zoeken naar vriend",
+        "userSearchError": "RoValra: Fout bij zoeken naar gebruiker",
+        "gameSearchError": "RoValra: Fout bij zoeken naar spel",
+        "trustedConnection": "Jullie zijn vertrouwde vrienden",
+        "connection": "Jullie zijn vrienden",
+        "playing": "Speelt {{gameName}}",
+        "verifiedBadge": "Geverifieerde badge",
+        "verified": "Geverifieerd",
+        "permanentlyBanned": "Dit account is beëindigd of gedeactiveerd.",
+        "joinPreferredRegion": "Deelnemen aan voorkeursregio",
+        "bestRegionAuto": "Beste regio (automatisch)",
+        "searchHistory": "Zoekgeschiedenis",
+        "noSearchHistory": "Je hebt geen zoekgeschiedenis.",
+        "deleteSearchHistoryTitle": "Zoekgeschiedenis verwijderen",
+        "deleteSearchHistoryMessage": "Weet je zeker dat je dit zoekgeschiedenisitem wilt verwijderen?",
+        "delete": "Verwijderen",
+        "itemValue": "Waarde",
+        "itemRap": "RAP"
+    },
+    "friendOwnership": {
+        "pillLabel": "{{count}} vrienden bezitten dit",
+        "pillTooltip": "Bekijk welke vrienden dit item bezitten",
+        "overlayTitle": "{{count}} vrienden bezitten dit item",
+        "unknownUser": "Gebruiker {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Selecteer of neem deel aan voorkeursserverregio",
+        "tooltip": "Deelnemen aan voorkeursregio",
+        "tooltipWithRegion": "Deelnemen aan voorkeursregio<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Deelnemen aan voorkeursregio<br><b>Beste regio (automatisch)</b>"
+    },
+    "quickPlay": {
+        "loading": "Laden...",
+        "rateLimited": "Frequentielimiet bereikt (ratelimited). Opnieuw proberen...",
+        "loadError": "Kan servers niet laden.",
+        "noPrivateServers": "Geen actieve privéservers gevonden.",
+        "configure": "Configureren",
+        "copyLink": "Link kopiëren",
+        "copied": "Gekopieerd!",
+        "error": "Fout!",
+        "generateLink": "Nieuwe link genereren",
+        "joinClosestServer": "Deelnemen aan dichtstbijzijnde server",
+        "selectPreferredRegion": "Voorkeursregio selecteren",
+        "privateServers": "Privéservers"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Link genereren",
+        "regenerated": "Gegenereerd!"
+    },
+    "devProducts": {
+        "noProducts": "Geen ontwikkelaarsproducten gevonden.",
+        "loadError": "Kan ontwikkelaarsproducten voor dit spel niet laden.",
+        "passes": "Passes",
+        "developerProducts": "Ontwikkelaarsproducten",
+        "search": "Zoeken",
+        "sort": {
+            "created": "Sorteren op aanmaakdatum",
+            "price": "Sorteren op prijs",
+            "updated": "Sorteren op wijzigingsdatum",
+            "name": "Sorteren op naam"
+        },
+        "order": {
+            "ascending": "Oplopend sorteren",
+            "descending": "Aflopend sorteren"
+        }
+    },
+    "shop": {
+        "tab": "Winkel",
+        "all": "Alles",
+        "category": "Categorie",
+        "product": "Product",
+        "gamePass": "Gamepass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bonus: {{item}}",
+        "bonusItemFallback": "Inclusief een bonusitem",
+        "noItems": "Geen winkelitems gevonden.",
+        "failedToLoad": "Laden van winkelitems mislukt.",
+        "offers": {
+            "expires": "Verloopt",
+            "inGameOnly": "Geldt alleen voor aankopen gedaan in het spel."
+        },
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Product",
+            "GamePass": "Gamepass",
+            "Robux": "Robux-bundel"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Sublocaties",
+        "searchPlaceholder": "Sublocaties zoeken",
+        "loadMore": "Meer laden",
+        "rootPlace": "Hoofdlocatie",
+        "noSubplaces": "Geen sublocaties gevonden.",
+        "failedToLoad": "Laden van sublocaties mislukt.",
+        "labels": {
+            "sort": "Sorteren",
+            "order": "Volgorde"
+        },
+        "sort": {
+            "default": "Standaard",
+            "updated": "Recent bijgewerkt",
+            "created": "Recent aangemaakt",
+            "name": "Naam (Z-A)"
+        },
+        "order": {
+            "descending": "Aflopend",
+            "ascending": "Oplopend"
+        },
+        "banner": {
+            "title": "Je bekijkt momenteel een sublocatie van [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Sommige ervaringen schakelen deelname aan sublocaties mogelijk uit.",
+            "descriptionRestricted": "Deze sublocatie kan niet worden betreden vanwege toegangsbeperkingen.",
+            "descriptionJoinable": "Deze sublocatie kan worden betreden.",
+            "mainExperience": "de hoofdervaring"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Updates",
+        "title": "Updategeschiedenis",
+        "blocked": {
+            "eighteenPlus": "Updategeschiedenis werkt niet bij 18+-ervaringen",
+            "paidAccess": "Updategeschiedenis werkt niet bij betaalde ervaringen",
+            "subplace": "Updategeschiedenis werkt niet op sublocaties met toegangsbeperkingen",
+            "noDesktopSupport": "Updategeschiedenis wordt niet ondersteund op ervaringen zonder pc-ondersteuning"
+        }
+    },
+    "serverList": {
+        "clear": "Wissen",
+        "noServersApi": "Geen servers gevonden via de RoValra-API.",
+        "allServersInactive": "Alle servers in deze regio zijn inactief geworden",
+        "loadErrorApi": "Laden van servers van RoValra-API mislukt.",
+        "hide": "Verbergen",
+        "join": "Deelnemen",
+        "peopleMax": "{{playing}} van {{maxPlayers}} personen maximaal",
+        "pinPrivateServer": "Privéserver vastmaken",
+        "unpinPrivateServer": "Privéserver losmaken",
+        "playerCountUnknownTooltip": "Spelersaantal is onbekend, dit is een beperking van Roblox. De miniaturen zijn niet representatief voor de personen in het spel.",
+        "playerCountUnknownLabel": "Spelersaantal onbekend"
+    },
+    "recentServers": {
+        "title": "Recente servers",
+        "refresh": "Vernieuwen",
+        "noneFound": "Geen recente servers gevonden.",
+        "noActiveFound": "Geen actieve recente servers gevonden.",
+        "lastJoined": "Laatst bij aansloten: {{time}}",
+        "meAlt": "Ik",
+        "secondsAgo": "{{count}}s geleden",
+        "minutesAgo": "{{count}}m geleden",
+        "hoursAgo": "{{count}}u geleden",
+        "daysAgo": "{{count}}d geleden",
+        "description": "Recente servers waar je zojuist in was."
+    },
+    "quickOutfits": {
+        "errorFetching": "Fout bij ophalen van outfits",
+        "equipping": "Instellen...",
+        "equipped": "Ingesteld!",
+        "failed": "Mislukt",
+        "error": "Fout:",
+        "noUserId": "Geauthenticeerd gebruikers-ID niet gevonden voor snelle outfits.",
+        "loading": "Outfits laden...",
+        "title": "Snelle outfits",
+        "noneFound": "Geen outfits gevonden.",
+        "success": "Outfit succesvol ingesteld."
+    },
+    "btrDonationWarning": {
+        "title": "BELANGRIJK: schakel BTRoblox uit",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox is gedetecteerd. Dit kan interfereren met het aankoopproces van Roblox. Als je problemen hebt met aankopen, probeer BTRoblox tijdelijk uit te schakelen en laad de pagina opnieuw.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Schakel BTRoblox uit, laad deze pagina opnieuw en probeer je aankoop opnieuw.</p>",
+        "continue": "Toch doorgaan"
+    },
+    "botDetector": {
+        "tooltip": "Bots zijn accounts die geautomatiseerde scripts uitvoeren om items te farmen. Een enkele gebruiker kan soms 50+ bots tegelijk laten draaien. Houd er rekening mee dat dit geen fout is van de spelontwikkelaars. Deze informatie kan onnauwkeurig zijn als een ervaring voornamelijk wordt gespeeld door nieuwe Roblox-accounts.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> heeft veel bots",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> heeft enkele bots maar voornamelijk echte spelers",
+        "thisGame": "Dit spel"
+    },
+    "events": {
+        "title": "Evenementen",
+        "tabs": {
+            "upcoming": "Komend",
+            "past": "Afgelopen"
+        },
+        "buttons": {
+            "viewEvent": "Evenement bekijken",
+            "joinEvent": "Deelnemen aan evenement",
+            "unfollowEvent": "Evenement ontvolgen",
+            "notifyMe": "Breng me op de hoogte"
+        },
+        "loadMore": "Meer laden",
+        "releaseDate": "Releasedatum van evenement",
+        "empty": {
+            "active": "Geen lopende of aankomende evenementen.",
+            "past": "Geen afgelopen evenementen.",
+            "all": "Geen evenementen gevonden."
+        }
+    },
+    "badgeSort": {
+        "label": "Badges sorteren",
+        "seeMore": "Meer weergeven",
+        "updated": "Bijgewerkt",
+        "created": "Aangemaakt",
+        "options": {
+            "default": "Standaard",
+            "updated": "Recent bijgewerkt",
+            "newest": "Nieuwste",
+            "oldest": "Oudste",
+            "mostWon": "Meest gewonnen",
+            "leastWon": "Minst gewonnen",
+            "wonYesterday": "Meest gewonnen gisteren",
+            "rarest": "Zeldzaamste",
+            "easiest": "Makkelijkste",
+            "name": "Naam (A-Z)"
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Badges",
+            "hiddenBadges": "Verborgen badges"
+        },
+        "hiddenOwnedNotice": "Alleen verborgen badges die je hebt verkregen worden hier weergegeven.",
+        "unableToDetectPlace": "Kan deze plaats niet detecteren.",
+        "unableToDetectUniverse": "Kan dit universum niet detecteren.",
+        "stillScanning": "Je badges worden nog gescand. Verborgen badges die je bezit verschijnen binnenkort mogelijk.",
+        "noneOwnedFound": "Geen verborgen badges die je bezit gevonden voor deze ervaring.",
+        "noneFound": "Geen verborgen badges gevonden voor deze ervaring.",
+        "noPublicBadges": "Deze ervaring heeft geen openbare badges.",
+        "failedToLoad": "Laden van verborgen badges mislukt.",
+        "rolimonsSource": "Verborgen badges aangeboden door Rolimon's.",
+        "viewOnRolimons": "Spel bekijken op Rolimon's",
+        "openBadgeOnRolimons": "Badge openen op Rolimon's"
+    },
+    "antiBots": {
+        "reviewMembers": "{{count}} geselecteerde leden beoordelen:",
+        "botWarning": "<strong>Waarschuwing:</strong> Zorg ervoor dat dit bots zijn voordat je actie onderneemt.",
+        "banMembers": "Leden verbannen",
+        "kickMembers": "Leden kicken",
+        "cancel": "Annuleren",
+        "actionRequired": "Actie vereist ({{count}})",
+        "noPermission": "Je hebt geen toestemming om leden te verbannen of te kicken.",
+        "confirmBan": "Je staat op het punt om <strong>{{count}} lid/leden te verbannen</strong>. Ze worden permanent geblokkeerd.",
+        "confirmKick": "Je staat op het punt om <strong>{{count}} lid/leden te kicken</strong>. Ze kunnen op elk moment weer deelnemen.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Herinnering:</strong> Controleer botscores voordat je iemand verbant.</div>",
+        "yesAction": "Ja, {{action}}",
+        "confirmAction": "Actie bevestigen",
+        "processing": "{{current}} van {{total}} verwerken: {{displayName}}... Geschatte resttijd: {{time}}s",
+        "rateLimited": "Frequentielimiet bereikt. Opnieuw proberen over {{delay}}s...",
+        "apiError": "API-fout {{status}}",
+        "unknownError": "Onbekende fout",
+        "processComplete": "{{successCount}} van {{totalMembers}} leden zijn met succes {{actionType}}.",
+        "processFailed": "{{failedCount}} mislukt.",
+        "close": "Sluiten",
+        "score": "Score: {{score}}/100",
+        "actionCount": "Actie ({{count}})",
+        "unselectAll": "Deselecteer alles",
+        "selectAll": "Alles selecteren",
+        "antiBots": "Anti-bots",
+        "banByScore": "Verbannen op score",
+        "quickAction": "Snelle actie",
+        "members": "Leden",
+        "loadingMembers": "Leden laden...",
+        "selectMembersForAction": "Selecteer leden voor actie ({{count}} geladen)",
+        "noMembersFound": "Geen leden gevonden.",
+        "initializingScan": "Scan initialiseren...",
+        "scanStatus": "Gescand: {{loaded}} ({{percent}}%) | Geanalyseerd: {{processed}}",
+        "finalizingAnalysis": "Analyse afronden...",
+        "botsFound": "{{count}} vermoedelijke bots gevonden",
+        "noBotsFound": "Geen vermoedelijke bots gevonden",
+        "noBotsDetected": "Geen bots gedetecteerd.",
+        "errorRetry": "Fout - Opnieuw proberen",
+        "errorDuringScan": "Fout tijdens scan.",
+        "minBotScore": "Minimale botscore: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "Hiermee worden ongeveer <span id=\"rovalra-score-ban-count\">0</span> leden geselecteerd.",
+        "confirm": "Bevestigen",
+        "banKickByScore": "Verbannen/kicken op score",
+        "confirmCount": "Bevestigen ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Veel plezier!",
+        "close": "Sluiten",
+        "robloxExperience": "Roblox-ervaring",
+        "unknownExperience": "Onbekende ervaring",
+        "serverId": "Server-ID:",
+        "privateServer": "Privéserver",
+        "owner": "Eigenaar:",
+        "version": "Versie:",
+        "uptime": "Uptime:",
+        "rcc": "RCC:",
+        "serverChannel": "Serverkanaal:",
+        "production": "Productie",
+        "launchingRoblox": "Roblox starten",
+        "downloadRoblox": "Roblox downloaden",
+        "thanksDownloading": "Bedankt voor het downloaden van Roblox",
+        "downloadInstructions": "Volg onderstaande stappen om Roblox te installeren. Het downloaden begint over enkele sekonden. Als dat niet zo is, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">start de download opnieuw</a>.",
+        "installInstructions": "Installatie-instructies",
+        "step1": "Dubbelklik na het downloaden op het bestand <b>RobloxPlayerInstaller.exe</b> in je map Downloads.",
+        "step2": "Dubbelklik op <b>RobloxPlayerInstaller</b> om de app te installeren.",
+        "step3": "Volg de instructies om Roblox op je computer te installeren.",
+        "step4": "Nu het is geïnstalleerd, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">neem je deel aan de ervaring</a>.",
+        "mobileApp": "Vergeet de mobiele app niet",
+        "scanCode": "Scan deze code met de camera van je telefoon om Roblox te krijgen.",
+        "joiningServer": "Deelnemen aan server...",
+        "errorParsingUrl": "Fout bij parsen van URL",
+        "findingUser": "Gebruiker zoeken...",
+        "fetchingServerInfo": "Serverinformatie ophalen...",
+        "nonRootPlaceRestrictions": "Kan niet deelnemen: Beperkingen voor niet-hoofdlocatie.",
+        "waitingForRoblox": "Wachten op Roblox...",
+        "launching": "Starten..."
+    },
+    "createRoblox": {
+        "download": "Downloaden",
+        "downloadMesh": ".mesh downloaden",
+        "downloadObj": ".obj downloaden",
+        "explorer": {
+            "button": "Verkenner",
+            "title": "Verkenner",
+            "loading": "Laden...",
+            "selectInstance": "Selecteer een instantie om de eigenschappen ervan te bekijken",
+            "noProperties": "Geen eigenschappen",
+            "viewSource": "Bron bekijken",
+            "closePreview": "Voorvertoning sluiten",
+            "defaultDevice": "Standaard (1280x720)",
+            "fitToWindow": "Passend maken in venster",
+            "actualResolution": "Werkelijke resolutie",
+            "physicalSize": "Fysieke grootte",
+            "rotate": "Draaien",
+            "loadingPreview": "GUI-voorvertoning laden...",
+            "searchInstances": "Instanties zoeken... (2+ tekens)",
+            "searchProperties": "Eigenschappen zoeken...",
+            "previewGui": "GUI vooraf bekijken",
+            "togglePreviewVisibility": "Zichtbaarheid in voorvertoning schakelen",
+            "noMatchingInstances": "Geen overeenkomende instanties gevonden",
+            "loadError": "Laden mislukt.",
+            "previewMesh": "Mesh vooraf bekijken",
+            "previewImage": "Afbeelding vooraf bekijken",
+            "loadingImage": "Afbeelding laden...",
+            "imageLoadError": "Laden van afbeelding mislukt.",
+            "loadingMesh": "Mesh laden...",
+            "meshLoadError": "Laden van mesh mislukt."
+        }
+    },
+    "priceFloor": {
+        "label": "Prijsvloer:",
+        "status": "Dit item bevindt zich {{status}} de prijsvloer{{difference}}.",
+        "statusTypes": {
+            "above": "boven",
+            "below": "onder",
+            "at": "op"
+        },
+        "difference": " met {{diff}}",
+        "description": "De prijsvloer is een dynamisch bijgewerkte minimum prijs waarvoor een item kan worden verkocht."
+    },
+    "parentItem": {
+        "multipleBundles": "Dit item maakt deel uit van meerdere bundels",
+        "multipleBundlesDescription": "Dit item wordt waarschijnlijk gebruikt als sjabloon en is opgenomen in meerdere bundels.",
+        "partOfBundle": "Dit item maakt deel uit van de bundel [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Je bekijkt momenteel een item uit een bundel."
+    },
+    "rovalraBadges": {
+        "userVerified": "Gebruiker is geïdentificeerd met ID.",
+        "userNotVerified": "Gebruiker is niet geïdentificeerd met ID.",
+        "userAgeVerified": "Leeftijd van gebruiker is gecontroleerd.",
+        "userNotAgeVerified": "Leeftijd van gebruiker is niet gecontroleerd.",
+        "userAgeVerificationMayBeInaccurate": "Dit kan onnauwkeurig zijn"
+    },
+    "friendsSince": {
+        "friended": "Vrienden geworden op",
+        "lastSeen": "Gezien",
+        "age": "Leeftijd",
+        "friendedVia": "Vrienden geworden via",
+        "originFrom": "Van",
+        "originSearch": "Zoeken",
+        "originInGame": "In spel",
+        "originProfile": "Profiel",
+        "originQQContacts": "QQ-contacten",
+        "originWeChatContacts": "WeChat-contacten",
+        "originQrCode": "QR-code",
+        "originProfileShare": "Profiel delen",
+        "originPhoneContacts": "Telefooncontacten",
+        "originPeopleYouMayKnow": "Mensen die je misschien kent",
+        "originschoolmemberlist": "Ledenlijst school",
+        "originFriendLink": "Vriendenlink",
+        "originSocialTabsPage": "Sociale tabbladen-pagina",
+        "originUnknown": "Onbekend"
+    },
+    "lastPlayed": {
+        "together": "Meest samen gespeeld"
+    },
+    "avatarDownload": {
+        "button": "Avatar downloaden",
+        "title": "Avatar downloaden",
+        "size": "Resolutie:",
+        "downloadPortrait": "Portret PNG",
+        "downloadBust": "Buste PNG",
+        "downloadAvatar": "Avatar PNG",
+        "downloading": "Downloaden...",
+        "failed": "Downloaden van avatar mislukt. Probeer het later opnieuw."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Vriendschap verbreken bevestigen",
+        "confirmUnfriends": "Vriendschappen verbreken bevestigen",
+        "descriptionSingle": "Je staat op het punt om de vriendschap met 1 vriend te verbreken. Deze actie kan niet ongedaan worden gemaakt.",
+        "descriptionPlural": "Je staat op het punt om de vriendschap met {{count}} vrienden te verbreken. Deze actie kan niet ongedaan worden gemaakt.",
+        "cancel": "Annuleren",
+        "unfriend": "Vriendschap verbreken",
+        "unfriendCount": "Vriendschap verbreken ({{count}})",
+        "unfriendCountAction": "Vriendschap met {{count}} vriend verbreken",
+        "unfriendCountActionPlural": "Vriendschap met {{count}} vrienden verbreken",
+        "unfriending": "Vriendschap verbreken...",
+        "bulkUnfriend": "Massaal vriendschappen verbreken",
+        "exitBulkMode": "Massamodus verlaten",
+        "successMessage": "Vriendschap met {{successCount}}/{{totalCount}} vrienden succesvol verbroken!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Massaal badges verwijderen",
+        "exit": "Massamodus verlaten",
+        "delete": "Badges verwijderen",
+        "deleteCount": "Badges verwijderen ({{count}})",
+        "confirmTitle": "Badgeverwijdering bevestigen",
+        "finalTitle": "Weet je het heel zeker?",
+        "finalDescription": "Hiermee worden {{count}} badges permanent uit je inventaris verwijderd.",
+        "descriptionSingle": "Je staat op het punt om 1 badge uit je inventaris te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+        "descriptionPlural": "Je staat op het punt om {{count}} badges uit je inventaris te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+        "deletingProgress": "Badges verwijderen... {{current}}/{{total}}",
+        "cancel": "Annuleren",
+        "success": "{{successCount}}/{{totalCount}} badges verwijderd."
+    },
+    "blockUser": {
+        "block": "Blokkeren",
+        "unblock": "Deblokkeren",
+        "blockTitle": "{{username}} blokkeren",
+        "unblockTitle": "{{username}} deblokkeren",
+        "blockTitleGeneric": "Gebruiker blokkeren",
+        "unblockTitleGeneric": "Gebruiker deblokkeren",
+        "blockMessage": "Ze kunnen je geen ruilen meer sturen. Je kunt eventuele bestaande ruilen nog steeds weigeren, maar je kunt ze niet accepteren of tegenvoorstellen doen.",
+        "unblockMessage": "Ze kunnen je weer ruilen sturen en je kunt eventuele bestaande ruilen accepteren of er een tegenvoorstel voor doen.",
+        "cancel": "Annuleren"
+    },
+    "unfriendDetector": {
+        "title_one": "Verbroken vriendschap gedetecteerd",
+        "title_other": "Verbroken vriendschappen gedetecteerd",
+        "description_one": "Deze vriend heeft je verwijderd sinds je de laatste keer speelde:",
+        "description_other": "Deze {{count}} vrienden hebben je verwijderd sinds je de laatste keer speelde:",
+        "viewProfile": "Profiel van {{name}} bekijken",
+        "dismiss": "Sluiten"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Verlaten bevestigen",
+        "confirmLeaves": "Verlatingen bevestigen",
+        "descriptionSingle": "Je staat op het punt om 1 community te verlaten. Deze actie kan niet ongedaan worden gemaakt.",
+        "descriptionPlural": "Je staat op het punt om {{count}} communities te verlaten. Deze actie kan niet ongedaan worden gemaakt.",
+        "cancel": "Annuleren",
+        "leave": "Verlaten",
+        "leaveCount": "Verlaten ({{count}})",
+        "leaveCountAction": "{{count}} community verlaten",
+        "leaveCountActionPlural": "{{count}} communities verlaten",
+        "leaving": "Verlaten...",
+        "bulkLeave": "Massaal verlaten",
+        "exitBulkMode": "Massamodus verlaten",
+        "successMessage": "{{successCount}}/{{totalCount}} communities succesvol verlaten!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Je saldo na deze transactie zal zijn"
+    },
+    "recentlyViewed": {
+        "title": "Onlangs bekeken",
+        "clear": "Wissen",
+        "remove": "Verwijderen",
+        "cheaper": "{{value}} Robux goedkoper dan toen je het bekeken",
+        "pricier": "{{value}} Robux duurder dan toen je het bekeken",
+        "offSale": "Niet meer te koop",
+        "backOnSale": "Weer te koop"
+    },
+    "tradeRecentItems": {
+        "offer": "Onlangs aangeboden",
+        "request": "Onlangs aangevraagd",
+        "clear": "Wissen"
+    },
+    "tradeQuickActions": {
+        "minValue": "Minimale waarde die ze geven",
+        "hideLosses": "Verliezen verbergen",
+        "bulkTitle": "Massa-actie",
+        "bulkHint": "Weigert elke ontvangen ruil waarbij je waarde verliest. Je bevestigt eerst.",
+        "declineLosses": "Verliezende ruilen weigeren",
+        "loadingTrades": "Ontvangen ruilen laden...",
+        "checking": "Ruilen controleren {{done}}/{{total}}...",
+        "noLosses": "Geen verliezende ontvangen ruilen gevonden",
+        "confirmTitle": "Verliezende ruilen weigeren",
+        "confirmMessage": "{{count}} van je {{total}} ontvangen ruilen zijn een verlies in waarde ({{value}} totaal). Wil je ze allemaal weigeren? Dit kan niet ongedaan worden gemaakt.",
+        "declineConfirm": "Weigeren",
+        "declining": "Weigeren {{done}}/{{total}}...",
+        "declined": "{{count}} ruilen geweigerd",
+        "declinedWithFailures": "{{count}} ruilen geweigerd, {{failed}} mislukt"
+    },
+    "time": {
+        "justNow": "zojuist",
+        "secondsAgo": "{{count}}s geleden",
+        "minutesAgo": "{{count}}m geleden",
+        "hoursAgo": "{{count}}u geleden",
+        "daysAgo": "{{count}}d geleden",
+        "weeksAgo": "{{count}}w geleden",
+        "monthsAgo": "{{count}}mnd geleden",
+        "yearsAgo": "{{count}}j geleden",
+        "secondsFromNow": "over {{count}}s",
+        "minutesFromNow": "over {{count}}m",
+        "hoursFromNow": "over {{count}}u",
+        "daysFromNow": "over {{count}}d",
+        "weeksFromNow": "over {{count}}w",
+        "monthsFromNow": "over {{count}}mnd",
+        "yearsFromNow": "over {{count}}j",
+        "months": {
+            "jan": "Jan",
+            "feb": "Feb",
+            "mar": "Mrt",
+            "apr": "Apr",
+            "may": "Mei",
+            "jun": "Jun",
+            "jul": "Jul",
+            "aug": "Aug",
+            "sep": "Sep",
+            "oct": "Okt",
+            "nov": "Nov",
+            "dec": "Dec"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Over",
+            "store": "Winkel",
+            "servers": "Servers"
+        },
+        "servers": {
+            "title": "Jouw privéservers",
+            "description": "Speel in je eigen ruimte, in je eentje of met mensen die je uitnodigt",
+            "friendsTitle": "Servers waar mijn vrienden in zijn",
+            "publicTitle": "Andere servers",
+            "privateServer": "Privéserver",
+            "players": "{{playing}} van {{maxPlayers}} personen maximaal",
+            "join": "Deelnemen",
+            "loadMore": "Meer laden",
+            "loading": "Servers laden...",
+            "noServers": "Geen servers gevonden.",
+            "loadError": "Kan servers niet laden.",
+            "ownerAvatar": "Servereigenaar",
+            "playerAvatar": "Speler",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Privé-ervaring",
+        "experienceIsPrivate": "Deze ervaring is privé.",
+        "unknown": "Onbekend",
+        "rovalraNotice": "Alleen RoValra-gebruikers kunnen deze pagina bekijken.",
+        "unavailable": "Niet beschikbaar",
+        "favorite": {
+            "add": "Toevoegen aan favorieten",
+            "remove": "Verwijderen uit favorieten",
+            "favorited": "Toegevoegd aan favorieten",
+            "favorite": "Favoriet"
+        },
+        "notify": {
+            "tooltip": "Meldingen inschakelen",
+            "label": "Melden"
+        },
+        "description": {
+            "title": "Beschrijving",
+            "noDescription": "Geen beschrijving beschikbaar."
+        },
+        "stats": {
+            "active": "Actief",
+            "favorites": "Favorieten",
+            "visits": "Bezoeken",
+            "maxPlayers": "Max. spelers",
+            "genre": "Genre",
+            "subgenre": "Subgenre",
+            "created": "Aangemaakt",
+            "updated": "Bijgewerkt",
+            "voiceChat": "Spraakchat",
+            "supported": "Ondersteund",
+            "unsupported": "Niet ondersteund"
+        },
+        "reportAbuse": "Misbruik melden",
+        "badges": {
+            "title": "Badges",
+            "noBadges": "Nog geen badges",
+            "rarity": "Zeldzaamheid",
+            "wonYesterday": "Gisteren gewonnen",
+            "wonEver": "Ooit gewonnen"
+        },
+        "subscriptions": {
+            "title": "Abonnementen",
+            "subscribe": "Abonneren"
+        },
+        "passes": {
+            "title": "Passes",
+            "showOffSale": "Niet te koop weergeven",
+            "noPasses": "Geen passes beschikbaar",
+            "offSale": "Niet te koop",
+            "owned": "In bezit",
+            "buy": "Kopen"
+        },
+        "disabled": "Privé- / gemodereerde spellen bekijken is uitgeschakeld",
+        "disabledDescription": "Om privé- en gemodereerde spellen te bekijken moet je de instelling hier inschakelen:",
+        "disabledLinkText": "Privé- / gemodereerde spellen bekijken",
+        "products": {
+            "title": "Producten",
+            "buy": "Kopen"
+        },
+        "moderated": "Gemodereerd"
+    },
+    "gamePassViewer": {
+        "type": "Type",
+        "typeValue": "Pass",
+        "productId": "Product-ID",
+        "price": "Prijs",
+        "owned": "In bezit",
+        "ownedItem": "Item in bezit",
+        "free": "Gratis",
+        "ownedNotice": "Dit item is beschikbaar in je inventaris.",
+        "inventory": "Inventaris",
+        "by": "Door",
+        "usePassIn": "Gebruik deze pass in:",
+        "rovalraNoticeDescription": "Deze gamepass is inactief en kan niet worden gekocht vanwege beperkingen van Roblox, mogelijk gerelateerd aan accountleeftijd of zichtbaarheid van het spel."
+    },
+    "playabilityStatus": {
+        "0": "Deze ervaring is niet beschikbaar",
+        "1": "Deze ervaring is speelbaar",
+        "2": "Gasten kunnen niet deelnemen aan deze ervaring",
+        "3": "Deze ervaring is gemodereerd omdat deze de communitynormen van Roblox heeft geschonden",
+        "4": "Deze ervaring is onjuist geconfigureerd",
+        "5": "Deze ervaring is privé",
+        "6": "Alleen vrienden kunnen deelnemen aan deze ervaring",
+        "7": "Alleen communityleden kunnen deelnemen aan deze ervaring",
+        "8": "Deze ervaring is beperkt op jouw apparaat",
+        "9": "Deze ervaring wordt beoordeeld omdat deze mogelijk de communitynormen van Roblox heeft geschonden",
+        "10": "Aankoop vereist om te spelen",
+        "11": "Je account is beperkt",
+        "12": "Deze ervaring is tijdelijk niet beschikbaar",
+        "13": "Deze ervaring heeft geen gepubliceerde versie",
+        "14": "Deze ervaring is geblokkeerd om nalevingsredenen",
+        "15": "Deze ervaring is niet beschikbaar in jouw regio",
+        "16": "Deze ervaring is geblokkeerd om regionale nalevingsredenen",
+        "17": "Deze ervaring is beperkt door ouderlijk toezicht",
+        "18": "Deze ervaring is geblokkeerd door ouderlijk toezicht",
+        "19": "Deze ervaring heeft een leeftijdsbeperking",
+        "20": "Verificatie vereist voor 18+-ervaringen",
+        "21": "Aankoop vereist om te spelen",
+        "22": "Aankoop beperkt op dit apparaat",
+        "23": "Deze ervaring heeft geen beoordeling",
+        "24": "Deze ervaring heeft een leeftijdsbeperking op basis van inhoudsbeschrijving",
+        "25": "Deze ervaring is gemodereerd vanwege een onnauwkeurige volwassenheidsbeoordeling.",
+        "unknown": "Deze ervaring is niet beschikbaar"
+    },
+    "bannedUsers": {
+        "connections": "Vrienden",
+        "followers": "Volgers",
+        "following": "Volgend",
+        "about": "Over",
+        "creations": "Creaties",
+        "experiences": "Ervaringen",
+        "bannedStatus": "Verbannen",
+        "seeAll": "Alles weergeven",
+        "hiddenUser": "Verborgen gebruiker",
+        "communities": "Communities",
+        "badges": "Badges",
+        "noExperiences": "Deze gebruiker heeft geen openbare ervaringen.",
+        "favorites": "Favorieten",
+        "joinedDate": "Lid geworden",
+        "store": "Winkel",
+        "members": "Leden",
+        "accountForgotten": "Account vergeten"
+    },
+    "copyId": {
+        "copyId": "{{type}}-ID kopiëren",
+        "copyUniverseId": "Universum-ID kopiëren",
+        "types": {
+            "bundle": "Bundel",
+            "asset": "Asset",
+            "gamePass": "GamePass",
+            "badge": "Badge",
+            "community": "Community",
+            "event": "Evenement",
+            "developerProduct": "Ontwikkelaarsproduct",
+            "place": "Plaats",
+            "universe": "Universum",
+            "user": "Gebruiker"
+        }
+    },
+    "viewid": {
+        "viewId": "ID's bekijken",
+        "popup": {
+            "title": "Item-ID's",
+            "button": {
+                "copy": "Gegevens kopiëren",
+                "copyMd": "Markdown-gegevens kopiëren"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Vrienden die {{gameName}} spelen",
+        "join": "Deelnemen"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Gebruikersnaam: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "placeVisits": {
+        "label": "{{count}} plaatsbezoeken",
+        "tooltip": "Totaal aantal plaatsbezoeken van community"
+    },
+    "groupFundsPill": {
+        "label": "{{count}} fondsen",
+        "tooltip": "Communityfondsen",
+        "privateTooltip": "Deze fondsen zijn niet openbaar. RoValra toont ze aan jou vanwege je rol.",
+        "roleTooltip": "RoValra toont deze fondsen aan jou vanwege je rol."
+    },
+    "groups": {
+        "createdLabel": "Aangemaakt",
+        "joinedLabel": "Lid geworden",
+        "unknown": "Onbekend",
+        "hidden": "Verborgen",
+        "hiddenTooltip": "Deze community verbergt de ledenlijst, dus lidmaatschapsdata kunnen alleen worden gezien door leden ervan."
+    },
+    "showcase": {
+        "tab": "Vitrine",
+        "favoriteGame": "Favoriete ervaring",
+        "favoriteGroup": "Favoriete community",
+        "favoriteDecal": "Kunstvitrine",
+        "chooseGame": "Kies een ervaring om uit te lichten op je profiel.",
+        "noFeaturedGame": "Nog geen uitgelichte ervaring. :C",
+        "chooseGroup": "Kies een community om uit te lichten op je profiel.",
+        "noFeaturedGroup": "Nog geen uitgelichte community. :,(",
+        "chooseDecal": "Voer een decal-ID in om een afbeelding uit te lichten op je profiel.",
+        "noFeaturedDecal": "Nog geen uitgelichte afbeelding. :C",
+        "searchGame": "Zoek naar een ervaring om uit te lichten",
+        "searchGroup": "Zoek naar een community om uit te lichten",
+        "clearGame": "Favoriete ervaring wissen",
+        "clearGroup": "Favoriete community wissen",
+        "gameOptions": "Opties voor favoriete ervaring",
+        "groupOptions": "Opties voor favoriete community",
+        "decalId": "Decal-ID",
+        "decalImageOptions": "Afbeeldingsopties",
+        "openImagePage": "Afbeeldingspagina openen",
+        "report": "Melden",
+        "clearDecal": "Afbeelding wissen",
+        "by": "Door",
+        "maturity": "Volwassenheidsbeoordeling",
+        "maturityUnavailable": "Volwassenheidsbeoordeling niet beschikbaar",
+        "members": "{{count}} leden",
+        "noResultsGame": "Kan ervaring niet vinden.",
+        "noResultsGroup": "Kan community niet vinden.",
+        "unknownExperience": "Onbekende ervaring",
+        "unknownCommunity": "Onbekende community",
+        "verifiedBadge": "Geverifieerd badge-pictogram"
+    },
+    "profileCustomization": {
+        "pill": "Aanpassing",
+        "pillTooltip": "Wissel je avatarranden en -frames af.",
+        "title": "Profiel aanpassen",
+        "tabBorders": "Avatarranden",
+        "tabFrames": "Frames",
+        "currentPreview": "Voorvertoning huidige selectie",
+        "unequip": "Verwijderen",
+        "unequipTooltip": "Klik om deze rand te verwijderen",
+        "equip": "Instellen",
+        "equipTooltip": "Deze rand instellen",
+        "equipped": "Ingesteld",
+        "getMore": "Meer halen",
+        "owned": "In bezit",
+        "unowned": "Niet in bezit",
+        "unownedTooltip": "Je bezit deze rand nog niet.",
+        "all": "Alles",
+        "new": "Nieuw",
+        "static": "STATISCH",
+        "animated": "GEANIMEERD",
+        "free": "Gratis",
+        "noBorders": "Geen randen gevonden.",
+        "noBordersInTab": "Geen randen gevonden in dit tabblad.",
+        "noFrames": "Geen frames gevonden.",
+        "noFramesInTab": "Geen frames gevonden in dit tabblad.",
+        "none": "Geen",
+        "failedToLoad": "Laden van je randen mislukt. Probeer het later opnieuw."
+    },
+    "profileFrame": {
+        "storeTitle": "Profielrameswinkel",
+        "storeDesc": "Profielrames omringen de hele avatarweergave op je profiel. Het kopen van frames steunt RoValra en de artiesten direct, en telt mee voor je donateursniveau. Frames zijn niet inbegrepen in de Donateursniveau 3-ontgrendeling, die geldt alleen voor avatarranden.",
+        "tabBorders": "Avatarranden",
+        "tabFrames": "Frames",
+        "loading": "Frames laden...",
+        "currentPreview": "Voorvertoning huidig frame",
+        "all": "Alles",
+        "new": "Nieuw",
+        "static": "STATISCH",
+        "animated": "GEANIMEERD",
+        "equip": "Instellen",
+        "equipTooltip": "Dit frame instellen",
+        "equipped": "Ingesteld",
+        "unequipTooltip": "Klik om dit frame te verwijderen",
+        "unequip": "Verwijderen",
+        "buy": "Kopen",
+        "buyFor": "Kopen voor {{price}}",
+        "viewItem": "Item bekijken",
+        "buyTooltip": "Dit frame kopen",
+        "owned": "In bezit",
+        "ownedTooltip": "Je bezit dit frame!",
+        "free": "Gratis",
+        "freeTooltip": "Dit frame is gratis in te stellen.",
+        "localOnly": "Lokaal opgeslagen",
+        "localOnlyTooltip": "RoValra kon dit frame nog niet opslaan op je account, dus het is alleen zichtbaar voor jou in deze browser.",
+        "noFrames": "Geen frames beschikbaar.",
+        "noFramesInTab": "Geen frames gevonden in dit tabblad.",
+        "failedToLoad": "Laden van frames mislukt. Probeer het later opnieuw."
+    },
+    "profileNotes": {
+        "ariaLabel": "Privéprofielnotitie",
+        "heading": "Notitie (alleen zichtbaar voor jou)",
+        "headingTooltip": "Deze notitie wordt alleen in deze browser opgeslagen en wordt nooit verzonden naar Roblox of RoValra.",
+        "addNote": "Klik om een notitie toe te voegen",
+        "editAriaLabel": "Privéprofielnotitie bewerken",
+        "addAriaLabel": "Privéprofielnotitie toevoegen",
+        "displayTooltip": "Klik om te bewerken. Notities worden alleen in deze browser opgeslagen.",
+        "inputPlaceholder": "Voeg een privénotitie toe",
+        "inputTooltip": "Wordt opgeslagen wanneer je ergens anders klikt. Druk op Escape om te annuleren of Ctrl+Enter om op te slaan."
+    },
+    "profilePronouns": {
+        "label": "Voornaamwoorden",
+        "ariaLabel": "Voornaamwoorden: {{pronouns}}"
+    },
+    "profileEdit": {
+        "featuresTitle": "RoValra-functies",
+        "profilePronouns": "Profielvoornaamwoorden",
+        "profileBadges": "Profielbadges",
+        "pronounsPlaceholder": "Voer je voornaamwoorden in",
+        "donatorPerks": "Donateursvoordelen",
+        "usernameCustomizations": "Gebruikersnaam-aanpassingen"
+    },
+    "profile": {
+        "socialLinks": "Sociale links",
+        "currencyTransfer": "Robux verzenden",
+        "currencyTransferConfirmation": "Hiermee wordt de Roblox-client geopend zodat je robux kunt verzenden.",
+        "openClient": "Client openen"
+    },
+    "animations": {
+        "idle": "In rust",
+        "walk": "Lopen",
+        "fall": "Vallen",
+        "climb": "Klimmen",
+        "run": "Rollen/Rennen",
+        "jump": "Pringen",
+        "swim": "Zwemmen"
+    },
+    "itemRender": {
+        "renderOptions": "Weergave-opties",
+        "darkLighting": "Donkere belichting",
+        "baseplate": "Basisplaat",
+        "rotatePreview": "Voorvertoning draaien",
+        "itemOnly": "Alleen item weergeven"
+    },
+    "freeBadgeQuota": {
+        "label": "Gratis badges",
+        "value": "nog {{count}} over vandaag",
+        "tooltip": "Badges die deze ervaring nog gratis kan aanmaken. Roblox staat 5 gratis badges per ervaring toe elke 24 uur."
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Standaard",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Nieuwste",
+            "oldest": "Oudste"
+        },
+        "tooltip": "Sorteren op wanneer de gebruiker lid werd van de community",
+        "view": {
+            "row": "Rij",
+            "grid": "Raster"
+        }
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Bezoeken",
+        "members": "Leden",
+        "ccuTooltip": "Huidige spelers verspreid over openbare ervaringen gemaakt door deze gebruiker.",
+        "visitsTooltip": "Levenslange bezoeken verspreid over openbare ervaringen gemaakt door deze gebruiker.",
+        "membersTooltip": "Leden verspreid over communities in eigendom van deze gebruiker."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Je hebt {{robux}} bespaard toen je Plus had",
+            "percentOffSmall": "In-game items, avatars en meer",
+            "percentOff": "{{percent}} korting",
+            "itemsBoughtSmall": "Items gekocht met Plus-korting",
+            "privateServersCreatedSmall": "Privéservers gratis aangemaakt",
+            "robuxSentSmall": "Robux verzonden naar vrienden",
+            "delayNotice": "Alle hier getoonde gegevens lopen 1 dag achter"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Dagelijkse limiet over",
+            "monthlyLimitLeft": "Maandelijkse limiet over",
+            "sentToday": "Vandaag verzonden",
+            "sentThisMonth": "Deze maand verzonden",
+            "nextRefill": "Volgende aanvulling",
+            "leftAfter": "{{amount}} over",
+            "refillNote": "Elke overboeking telt mee voor de maandelijkse limiet gedurende 30 dagen, waarna die Robux weer beschikbaar komt.",
+            "caption": "Dagelijkse limiet is {{dailyLimit}}. Maandelijkse limiet is {{monthlyLimit}}. Wordt elke 5 minuten bijgewerkt. De resterende bedragen zijn schattingen en kunnen onnauwkeurig zijn."
+        },
+        "referral": {
+            "reward": "Krijg 100 Robux gratis en help RoValra te ondersteunen!",
+            "details": "Alleen nieuwe Roblox Plus-gebruikers komen in aanmerking. RoValra ontvangt ook 100 Robux wanneer je je abonneert via de verwijzingscode van RoValra.",
+            "button": "Abonneren met de verwijzingscode van RoValra"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Oorspronkelijke prijs: <b>{{originalPrice}} Robux</b><br>Wordt momenteel weergegeven als <b>Gratis</b> vanwege Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Robux verzenden",
+                "openInApp": "Openen in app"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Kan geen Robux verzenden",
+                "deletedAccountBody": "Het account van deze gebruiker is verwijderd, er kunnen geen Robux naar worden verzonden"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Robux verzenden",
+                    "titleSilly": "stuur bobux :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "Te verzenden hoeveelheid Robux",
+                    "mutedNotice": "Robux worden direct en zonder kosten verzonden",
+                    "minRobux": "Je moet ten minste {{robuxAmount}} Robux verzenden",
+                    "maxRobux": "Je mag niet meer dan {{robuxAmount}} Robux verzenden",
+                    "notEnoughRobux": "Je hebt niet genoeg Robux",
+                    "nextBtn": "Volgende"
+                },
+                "step2": {
+                    "sendBtn": "Verzenden",
+                    "editBtn": "Bewerken",
+                    "mutedNotice": "Geen annuleringen. Je hebt mogelijk leeftijdscontrole of toestemming van ouders nodig.",
+                    "transferErrorGeneric": "Er is een onbekende fout opgetreden.",
+                    "transferErrorNoMessage": "Onbekende fout opgetreden zonder opgegeven bericht",
+                    "transferSuccessBody": "De overboeking is geslaagd!",
+                    "transferSuccessBodySilly": "overboeking was prima! heel erg cool",
+                    "transferSuccessOkBtnSilly": "elektrische boogaloo",
+                    "userInfoFriendTime": "Vrienden sinds {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} wederzijdse vriend",
+                    "userInfoMutualFriends_other": "{{count}} wederzijdse vrienden",
+                    "userInfoJoin": "Lid geworden in {{year}}",
+                    "paramPassedError": "Er is een onbekende fout opgetreden! Controleer de console en meld het probleem aan RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Vragen",
+                    "sendRobuxBody": "Om Robux te verzenden heb je toestemming van een ouder nodig",
+                    "receiveRobuxBody": "Om Robux te ontvangen heb je toestemming van een ouder nodig",
+                    "askTitle": "Om toestemming vragen",
+                    "askTitleSilly": "vraag ouders om permissies",
+                    "errorSending": "Er is een onbekende fout opgetreden, controleer de console en meld het aan RoValra",
+                    "errorReceivingTitle": "Er is een fout opgetreden bij het accepteren van de Robux",
+                    "errorReceivingBody": "Er is een onbekende fout opgetreden, je hebt deze Robux-overboeking mogelijk al geaccepteerd. Controleer de console voor details.",
+                    "errorReceivingOkBtnSilly": "aach",
+                    "successfulAskTitle": "Verzoek verzonden",
+                    "successfulAskTitleSilly": "we hebben je ouders op de hoogte gebracht, bereid je voor...",
+                    "successfulAskBody": "We hebben het verzoek per e-mail naar je ouders en verzorgers verzonden!",
+                    "successfulAskOkBtnSilly": "nou heel erg cool, bedankt"
+                },
+                "plusNeeded": {
+                    "body": "Helaas heb je Roblox Plus nodig om Robux te kunnen verzenden, dit maakt deel uit van het Roblox Plus-abonnement.",
+                    "bodySilly": "je hebt geen bobloc plus :c dus je kan geen bobux sturen naar mensen omdat het verplicht is 3:",
+                    "buyPlusBtn": "Roblox Plus kopen",
+                    "buyPlusBtnSilly": "haal le bobloc plus c:",
+                    "okBtnSilly": "oepsie de oepsie is okee :c"
+                }
+            }
+        }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Sommige instellingen zijn verwijderd/vervangen"
+            },
+            "deleted": "De volgende instellingen zijn recentelijk verwijderd, vergrendeld of verouderd verklaard:",
+            "replaced": "De volgende instellingen zijn recentelijk vervangen of gewijzigd:"
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Speloutfits",
+            "title": "Outfits voor ervaringen",
+            "hint": "Kies de outfit die wordt aangetrokken wanneer je een R6- of R15-ervaring speelt.",
+            "r6": "R6-ervaringen",
+            "r15": "R15-ervaringen",
+            "none": "Niet wijzigen",
+            "gameTitle": "Outfit voor deze ervaring",
+            "gameHint": "Dit overschrijft de ingestelde outfit voor R6- en R15-ervaringen.",
+            "useGlobal": "Mijn standaard gebruiken"
+        },
+        "bodyColors": {
+            "addCustom": "Kies een aangepaste kleur",
+            "savedColor": "{{hex}}, klik met rechtermuisknop om te verwijderen",
+            "applyFailed": "Kon je lichaamskleuren niet bijwerken. Probeer het over een moment opnieuw."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "Bovenaan vastmaken",
+        "unpin": "Losmaken"
+    },
+    "richLinks": {
+        "by": "Door {{name}}",
+        "members": "{{count}} leden",
+        "playing": "{{count}} aan het spelen",
+        "visits": "{{count}} bezoeken",
+        "loading": "Laden...",
+        "free": "Gratis",
+        "offSale": "Niet te koop"
+    },
+    "privateApiDocs": {
+        "title": "RoValra-API",
+        "loading": "API-documentatie laden...",
+        "loadFailed": "Laden van API-documentatie mislukt: {{error}}",
+        "noAccess": "Je hebt geen toegang tot deze documenten.",
+        "serverError": "De server reageerde met {{status}}.",
+        "invalidSpec": "De server heeft een ongeldig OpenAPI-document geretourneerd.",
+        "baseUrl": "Basis-URL: {{url}}",
+        "apiVersion": "API-versie",
+        "openApiVersion": "OpenAPI-versie",
+        "server": "Server",
+        "sendToken": "Verzend mijn RoValra-toegangstoken",
+        "filterLabel": "Eindpunten filteren",
+        "filterPlaceholder": "Pad, samenvatting of tag",
+        "hideDeprecated": "Verouderde verbergen",
+        "noEndpoints": "Geen eindpunten gevonden.",
+        "deprecated": "Verouderd",
+        "deprecatedTooltip": "Dit eindpunt is verouderd.",
+        "authRequired": "Authenticatie vereist",
+        "authOptional": "Authenticatie optioneel",
+        "schemeNotSent": "Vereist {{name}}, wat deze pagina niet meestuurt.",
+        "operationId": "Bewerking-ID",
+        "security": "Auth: {{schemes}}",
+        "securityOptional": "Auth: {{schemes}} (optioneel)",
+        "securityTooltip": "Beveiligingsvereisten",
+        "parameters": "Parameters",
+        "noParameters": "Geen parameters",
+        "tryItOut": "Proberen",
+        "name": "Naam",
+        "description": "Beschrijving",
+        "required": "vereist",
+        "availableValues": "Beschikbare waarden: {{values}}",
+        "requestBody": "Verzoektekst (request body)",
+        "requestContentType": "Inhoudstype van verzoek",
+        "exampleValue": "Voorbeeldwaarde",
+        "schema": "Schema",
+        "responses": "Antwoorden",
+        "noResponses": "Geen gedocumenteerde antwoorden",
+        "code": "Code",
+        "details": "Details",
+        "execute": "Uitvoeren",
+        "clear": "Wissen",
+        "missingParams": "Ontbrekende verplichte parameters: {{params}}",
+        "invalidJson": "Verzoektekst is geen geldige JSON: {{error}}",
+        "bodyRequired": "Een verzoektekst is vereist.",
+        "confirmTitle": "Verzoek verzenden?",
+        "confirmMessage": "Hiermee wordt een {{method}}-verzoek verzonden naar {{path}}. Ga alleen door als je begrijpt wat het doet.",
+        "send": "Verzenden",
+        "sending": "Verzoek verzenden...",
+        "requestFailed": "Verzoek mislukt: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "Verzoek-URL",
+        "serverResponse": "Serverantwoord",
+        "responseBody": "Antwoordtekst",
+        "responseHeaders": "Antwoordheaders",
+        "emptyResponse": "(leeg antwoord)",
+        "responseImage": "Antwoordafbeelding",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Verzoekduur",
+        "contentType": "Inhoudstype",
+        "redirected": "Doorgestuurd",
+        "copy": "Kopiëren"
+    },
+    "notifications": {
+        "newTrade": "Nieuwe ruil",
+        "tradeFrom": "Van {{name}}",
+        "tradeStats": "{{value}} Waarde | {{rap}} RAP",
+        "friendPlaying": "{{name}} is aan het spelen",
+        "unknownGame": "Een ervaring"
+    }
+}
