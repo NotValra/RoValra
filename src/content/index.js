@@ -57,6 +57,7 @@ import { init as initBackgroundImage } from './features/sitewide/backgroundImage
 import { init as initFreeRobloxPlusThemes } from './features/sitewide/freeRobloxPlusThemes.js';
 import { init as initVoiceBanIndicator } from './features/sitewide/voiceBanIndicator.js';
 import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
+import { init as initFriendRequestNotifications } from './features/sitewide/friendRequestNotifications.js';
 import { initSitewide as initSitewideAppThemesOnProfiles } from './features/profile/appThemesOnProfiles.js';
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
@@ -297,6 +298,7 @@ const featureRoutes = [
             initFreeRobloxPlusThemes,
             initCustomThemeEditor,
             initReceiveRobuxNotificationCenter,
+            initFriendRequestNotifications,
             initGameOutfits,
             initSitewideAppThemesOnProfiles,
             initQuickPrivacyTogglesNav,

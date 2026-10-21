@@ -51,6 +51,11 @@
         "confirm": "Confirm",
         "cancel": "Cancel"
     },
+
+    "friendRequestBell": {
+        "request": "sent you a friend request.",
+        "view": "View Request"
+    },
     "regionSelector": {
         "gilbertsInYourArea": "Gilberts In Your Area",
         "title": "RoValra Region Selector",
