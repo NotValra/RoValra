@@ -420,7 +420,9 @@
         "friendFallback": "Friend",
         "join": "Join",
         "chat": "Chat",
-        "viewProfile": "View Profile"
+        "viewProfile": "View Profile",
+        "canJoin": "You can play together",
+        "notJoinable": "User not currently joinable."
     },
     "friendLabels": {
         "menuAction": "Set Friend Label",
