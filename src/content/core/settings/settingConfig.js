@@ -6,6 +6,7 @@ import {
 import { DEFAULT_BACKGROUND_IMAGE } from '../backgroundImage.js';
 import { DEFAULT_THEME_VARIABLES } from '../themeVariables.js';
 import { getTranslationProgress } from '../locale/translationProgress.js';
+import { ts } from '../locale/i18n.js';
 
 function languageLabel(label, language) {
     const progress = getTranslationProgress(language);
@@ -289,6 +290,17 @@ export const SETTINGS_CONFIG = {
     Games: {
         title: 'Experiences',
         settings: {
+            publicGameDiscoveryEnabled: {
+                get label() {
+                    return ts('publicGameDiscovery.settingLabel');
+                },
+                get description() {
+                    return [ts('publicGameDiscovery.settingDescription')];
+                },
+                type: 'checkbox',
+                default: false,
+                contributors: ['1955001309'], // mattstellar
+            },
             gameBookmarksEnabled: {
                 label: 'Game Bookmarks',
                 description: [

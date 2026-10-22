@@ -132,12 +132,15 @@ function getRequestKey({
     headers = {},
     body = null,
     fullUrl = null,
+    credentials,
 }) {
     const bodyStr =
         body && typeof body === 'object' ? JSON.stringify(body) : body || '';
     const headersStr = JSON.stringify(headers || {});
     const target = fullUrl || `${isRovalraApi}|${subdomain}|${endpoint}`;
-    return `${target}|${method.toUpperCase()}|${bodyStr}|${headersStr}`;
+    const effectiveCredentials =
+        credentials ?? (isRovalraApi ? 'omit' : 'include');
+    return `${target}|${method.toUpperCase()}|${bodyStr}|${headersStr}|${effectiveCredentials}`;
 }
 
 function isRovalraAuthEndpoint(options) {
@@ -595,7 +598,7 @@ export async function callRobloxApi(options) {
             }
         }
 
-        if (!isRovalraApi && !useBackground) {
+        if (!isRovalraApi && !useBackground && credentials !== 'omit') {
             try {
                 const authenticatedUserId = await getAuthenticatedUserId();
                 const batHeaders = await hbaClient.generateBaseHeaders(
