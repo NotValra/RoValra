@@ -1,3 +1,5 @@
+import { ts } from '../../core/locale/i18n.js';
+
 const MB = 1024 * 1024;
 const FRAME_WINDOW = 240;
 const LAG_WINDOW = 50;
@@ -338,7 +340,10 @@ export async function refreshAsync() {
         }),
         chrome.storage.local.getBytesInUse(null).then(async (bytes) => {
             const items = await chrome.storage.local.get(null);
-            asyncInfo.extStorage = `${Object.keys(items).length} keys, ${fmtBytes(bytes)}`;
+            asyncInfo.extStorage = ts('debugOverlay.values.keys', {
+                count: Object.keys(items).length,
+                size: fmtBytes(bytes),
+            });
         }),
     ].filter(Boolean);
 
@@ -378,7 +383,10 @@ function getStorageSize(storage) {
         const key = storage.key(index);
         bytes += (key.length + (storage.getItem(key) ?? '').length) * 2;
     }
-    return `${storage.length} keys, ${fmtBytes(bytes)}`;
+    return ts('debugOverlay.values.keys', {
+        count: storage.length,
+        size: fmtBytes(bytes),
+    });
 }
 
 function getMeta(name, attribute) {
@@ -444,7 +452,10 @@ export const SECTIONS = [
                 id: 'longFrames',
                 read: () =>
                     perf.loaf
-                        ? `${perf.loaf} (worst ${fmtMs(perf.worstLoaf)})`
+                        ? ts('debugOverlay.values.worst', {
+                              count: perf.loaf,
+                              time: fmtMs(perf.worstLoaf),
+                          })
                         : '0',
             },
             {
@@ -471,7 +482,9 @@ export const SECTIONS = [
             {
                 id: 'uptime',
                 read: () =>
-                    `${fmt((performance.now() - startedAt) / 1000, 0)} s`,
+                    ts('debugOverlay.values.seconds', {
+                        count: fmt((performance.now() - startedAt) / 1000, 0),
+                    }),
             },
         ],
     },

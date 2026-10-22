@@ -1,4 +1,5 @@
 import { settings } from '../../core/settings/getSettings.js';
+import { observeResize } from '../../core/observer.js';
 import { ts } from '../../core/locale/i18n.js';
 import { ChangeIcon, Icon } from '../../core/ui/buildericon.js';
 import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
@@ -41,7 +42,7 @@ let lastFrame = 0;
 let rafId = null;
 let updateTimer = null;
 let tickCount = 0;
-let resizeObserver = null;
+let resizeHandle = null;
 let saveTimer = null;
 
 function getHost() {
@@ -155,7 +156,7 @@ function onResize() {
 }
 
 function observeSize() {
-    resizeObserver = new ResizeObserver(() => {
+    resizeHandle = observeResize(overlay, () => {
         if (
             !overlay ||
             state.hidden ||
@@ -174,7 +175,6 @@ function observeSize() {
             saveState();
         }, SAVE_DELAY_MS);
     });
-    resizeObserver.observe(overlay);
 }
 
 function closePopup() {
@@ -412,7 +412,8 @@ function unmount() {
     closePopup();
     stopLoops();
     stopCollectors();
-    resizeObserver?.disconnect();
+    resizeHandle?.unobserve();
+    resizeHandle = null;
     clearTimeout(saveTimer);
     document.removeEventListener('keydown', onKeydown);
     window.removeEventListener('resize', onResize);

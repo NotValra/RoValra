@@ -2475,6 +2475,11 @@
             "extensionId": "Extension ID",
             "manifest": "Manifest",
             "path": "Path"
+        },
+        "values": {
+            "worst": "{{count}} (worst {{time}})",
+            "keys": "{{count}} keys, {{size}}",
+            "seconds": "{{count}} s"
         }
     },
     "richLinks": {
