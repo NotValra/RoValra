@@ -2095,6 +2095,16 @@
         "hidden": "Hidden",
         "hiddenTooltip": "This community hides its member list, so join dates can only be seen by its members."
     },
+    "statusBubble": {
+        "imageLabel": "Status Image",
+        "decalId": "Decal ID",
+        "removeImage": "Remove Image",
+        "decalNotFound": "Couldn't find a decal with that ID.",
+        "tier3Perk": "Status Images are a Donator Tier 3 Perk",
+        "clickToReport": "Click to Report",
+        "imageThumbnail": "{{name}} thumbnail",
+        "imageSaveFailed": "Your status was saved, but the status image could not be updated."
+    },
     "showcase": {
         "tab": "Showcase",
         "favoriteGame": "Favourite experience",

@@ -1259,6 +1259,26 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    statusImagesEnabled: {
+                        label: 'Status Images',
+                        description: [
+                            'Allows you to add an image to your status bubble using a decal ID.',
+                            '**The image is saved on RoValras database so anyone with RoValra can view it.**',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to add images to your status.',
+                    },
+                    hideStatusImages: {
+                        label: 'Hide Status Images',
+                        description: [
+                            "Hides images in other users' status bubbles.",
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             donationbuttonEnable: {

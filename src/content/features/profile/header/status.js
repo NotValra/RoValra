@@ -22,7 +22,12 @@ import {
     observeUserCardElements,
 } from '../../../core/profile/userCardElements.js';
 import { settings } from '../../../core/settings/getSettings.js';
+import { ts } from '../../../core/locale/i18n.js';
+import { getCurrentUserTier } from '../../../core/settings/handlesettings.js';
+import { getDecal, openDecalReport } from '../../../core/apis/decals.js';
+import { createThumbnailElement } from '../../../core/thumbnail/thumbnails.js';
 const MAX_STATUS_LENGTH = 128;
+const STATUS_IMAGE_MIN_TIER = 3;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
 const homeStatusControllers = new WeakMap();
@@ -168,7 +173,148 @@ function createStatusHelpText() {
     return helpText;
 }
 
-function openEditStatusOverlay(currentStatus, onSave) {
+async function getStatusImageMode() {
+    if ((await getCurrentUserTier()) < STATUS_IMAGE_MIN_TIER) return 'locked';
+    return (await settings.statusImagesEnabled) ? 'editable' : 'hidden';
+}
+
+function truncateStatus(statusText) {
+    return statusText.length > MAX_STATUS_LENGTH
+        ? statusText.substring(0, MAX_STATUS_LENGTH) + '...'
+        : statusText;
+}
+
+function createStatusImage(decal) {
+    const imageWrap = document.createElement('div');
+    imageWrap.className = 'rovalra-status-bubble-image-wrap';
+    imageWrap.appendChild(
+        createThumbnailElement(
+            decal.thumbnail,
+            ts('statusBubble.imageThumbnail', { name: decal.name }),
+            'rovalra-status-bubble-image',
+            { width: '100%', height: 'auto' },
+        ),
+    );
+    return imageWrap;
+}
+
+function createLockedStatusImageEditor() {
+    const container = document.createElement('div');
+    container.className =
+        'rovalra-status-image-editor rovalra-status-image-editor-locked';
+
+    const label = document.createElement('p');
+    label.className = 'text-label-medium';
+    label.textContent = ts('statusBubble.imageLabel');
+
+    const { container: inputContainer, input } = createStyledInput({
+        id: 'rovalra-status-image-input',
+        label: ts('statusBubble.decalId'),
+    });
+    inputContainer.classList.add('rovalra-status-image-input');
+    input.disabled = true;
+
+    const perkText = document.createElement('p');
+    perkText.className = 'text-description rovalra-status-image-perk';
+    perkText.textContent = ts('statusBubble.tier3Perk');
+
+    container.append(label, inputContainer, perkText);
+    return container;
+}
+
+function createStatusImageEditor(currentDecal) {
+    const container = document.createElement('div');
+    container.className = 'rovalra-status-image-editor';
+
+    const label = document.createElement('p');
+    label.className = 'text-label-medium';
+    label.textContent = ts('statusBubble.imageLabel');
+
+    const preview = document.createElement('div');
+    preview.className = 'rovalra-status-image-preview';
+
+    const { container: inputContainer, input } = createStyledInput({
+        id: 'rovalra-status-image-input',
+        label: ts('statusBubble.decalId'),
+        value: currentDecal ? String(currentDecal.decalId) : '',
+    });
+    inputContainer.classList.add('rovalra-status-image-input');
+    input.inputMode = 'numeric';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-control-xs';
+    removeBtn.textContent = ts('statusBubble.removeImage');
+
+    const errorDisplay = document.createElement('p');
+    errorDisplay.className = 'text-error';
+    errorDisplay.style.display = 'none';
+
+    container.append(label, preview, inputContainer, removeBtn, errorDisplay);
+
+    let selectedDecal = currentDecal;
+
+    const renderPreview = () => {
+        preview.replaceChildren();
+        if (selectedDecal)
+            preview.appendChild(createStatusImage(selectedDecal));
+        preview.style.display = selectedDecal ? '' : 'none';
+        removeBtn.style.display = selectedDecal ? '' : 'none';
+    };
+
+    const showError = (message) => {
+        errorDisplay.textContent = message || '';
+        errorDisplay.style.display = message ? 'block' : 'none';
+    };
+
+    const resolveInput = async () => {
+        const value = input.value.trim();
+        if (!value) {
+            selectedDecal = null;
+            showError('');
+            renderPreview();
+            return true;
+        }
+        if (Number(value) === selectedDecal?.decalId) return true;
+
+        const decal = /^\d+$/.test(value) ? await getDecal(value) : null;
+        if (!decal) {
+            showError(ts('statusBubble.decalNotFound'));
+            return false;
+        }
+        selectedDecal = decal;
+        showError('');
+        renderPreview();
+        return true;
+    };
+
+    input.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        resolveInput();
+    });
+    input.addEventListener('blur', () => resolveInput());
+    removeBtn.addEventListener('click', () => {
+        input.value = '';
+        selectedDecal = null;
+        showError('');
+        renderPreview();
+    });
+
+    renderPreview();
+
+    return {
+        element: container,
+        async getChange() {
+            if (!(await resolveInput())) throw new Error('invalid-decal');
+            if ((selectedDecal?.decalId || 0) === (currentDecal?.decalId || 0))
+                return undefined;
+            return selectedDecal;
+        },
+    };
+}
+
+function openEditStatusOverlay(currentStatus, currentDecal, imageMode, onSave) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -188,6 +334,14 @@ function openEditStatusOverlay(currentStatus, onSave) {
     input.maxLength = MAX_STATUS_LENGTH;
 
     container.appendChild(inputContainer);
+
+    const imageEditor =
+        imageMode === 'editable' ? createStatusImageEditor(currentDecal) : null;
+    if (imageEditor) {
+        container.appendChild(imageEditor.element);
+    } else if (imageMode === 'locked') {
+        container.appendChild(createLockedStatusImageEditor());
+    }
 
     container.appendChild(createStatusHelpText());
 
@@ -225,7 +379,16 @@ function openEditStatusOverlay(currentStatus, onSave) {
         saveBtn.disabled = true;
         saveBtn.textContent = 'Saving...';
 
-        const result = await onSave(newStatus);
+        let imageChange;
+        try {
+            imageChange = await imageEditor?.getChange();
+        } catch {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+            return;
+        }
+
+        const result = await onSave(newStatus, imageChange);
 
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save';
@@ -259,22 +422,14 @@ async function addStatusBubble(avatarContainer) {
 
         const profileSettings = await getUserSettings(userId);
 
-        const { status } = profileSettings;
-        let statusText = status;
+        let statusText = profileSettings.status || '';
+        const statusImageId =
+            !isOwnProfile && (await settings.hideStatusImages)
+                ? 0
+                : profileSettings.status_image || 0;
+        let statusDecal = null;
 
-        if (!statusText && !isOwnProfile) return;
-
-        if (!statusText) {
-            if (isOwnProfile) {
-                statusText = '...';
-            } else {
-                return;
-            }
-        }
-
-        if (statusText.length > MAX_STATUS_LENGTH) {
-            statusText = statusText.substring(0, MAX_STATUS_LENGTH) + '...';
-        }
+        if (!statusText && !statusImageId && !isOwnProfile) return;
 
         const bubbleWrapper = document.createElement('div');
         bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
@@ -282,42 +437,74 @@ async function addStatusBubble(avatarContainer) {
         const bubble = document.createElement('div');
         bubble.className = 'rovalra-status-bubble text-label-medium';
 
-        renderStatusBubbleContent(bubble, statusText);
+        const textContainer = document.createElement('div');
+        textContainer.className = 'rovalra-status-bubble-text';
+        bubble.appendChild(textContainer);
 
+        const renderBubble = () => {
+            const textToRender =
+                statusText || (isOwnProfile && !statusDecal ? '...' : '');
+            renderStatusBubbleContent(
+                textContainer,
+                truncateStatus(textToRender),
+            );
+            textContainer.hidden = !textToRender;
+
+            bubble
+                .querySelector(':scope > .rovalra-status-bubble-image-wrap')
+                ?.remove();
+            if (statusDecal) {
+                const image = createStatusImage(statusDecal);
+                if (!isOwnProfile) {
+                    image.classList.add(
+                        'rovalra-status-bubble-image-reportable',
+                    );
+                    addTooltip(image, ts('statusBubble.clickToReport'));
+                    image.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openDecalReport(statusDecal);
+                    });
+                }
+                bubble.appendChild(image);
+            }
+
+            if (isOwnProfile) {
+                addTooltip(
+                    bubble,
+                    statusText || statusDecal
+                        ? 'Click to edit'
+                        : 'Click to add a status',
+                );
+            }
+        };
+
+        renderBubble();
         bubbleWrapper.appendChild(bubble);
         avatarContainer.appendChild(bubbleWrapper);
 
+        if (statusImageId) {
+            getDecal(statusImageId).then((decal) => {
+                statusDecal = decal;
+                if (!statusDecal && !statusText && !isOwnProfile) {
+                    bubbleWrapper.remove();
+                    return;
+                }
+                renderBubble();
+            });
+        }
+
         if (isOwnProfile) {
             bubble.style.cursor = 'pointer';
-            const tooltipText =
-                statusText === '...'
-                    ? 'Click to add a status'
-                    : 'Click to edit';
-            addTooltip(bubble, tooltipText);
-
-            const updateBubbleUI = (newStatus) => {
-                statusText = newStatus || '...';
-                const textToRender = newStatus
-                    ? newStatus.length > MAX_STATUS_LENGTH
-                        ? newStatus.substring(0, MAX_STATUS_LENGTH) + '...'
-                        : newStatus
-                    : '...';
-
-                renderStatusBubbleContent(bubble, textToRender);
-
-                const newTooltipText =
-                    statusText === '...'
-                        ? 'Click to add a status'
-                        : 'Click to edit';
-                addTooltip(bubble, newTooltipText);
-            };
 
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
-                ensureTouAgreement(() => {
+                ensureTouAgreement(async () => {
+                    const imageMode = await getStatusImageMode();
                     openEditStatusOverlay(
-                        statusText === '...' ? '' : statusText,
-                        async (newStatus) => {
+                        statusText,
+                        statusDecal,
+                        imageMode,
+                        async (newStatus, imageChange) => {
                             try {
                                 const updatedValue =
                                     await updateUserSettingViaApi(
@@ -325,20 +512,39 @@ async function addStatusBubble(avatarContainer) {
                                         newStatus,
                                         { throwOnError: true },
                                     );
-                                if (typeof updatedValue === 'string') {
-                                    updateBubbleUI(updatedValue);
-                                    showSystemAlert(
-                                        'Status updated successfully!',
-                                        'success',
-                                    );
-                                    return true;
+                                if (typeof updatedValue !== 'string') {
+                                    return false;
                                 }
-                                return false;
+                                statusText = updatedValue;
+
+                                if (imageChange !== undefined) {
+                                    const updatedImage =
+                                        await updateUserSettingViaApi(
+                                            'status_image',
+                                            imageChange?.decalId || 0,
+                                            { throwOnError: true },
+                                        );
+                                    if (updatedImage === false) {
+                                        renderBubble();
+                                        return ts(
+                                            'statusBubble.imageSaveFailed',
+                                        );
+                                    }
+                                    statusDecal = imageChange;
+                                }
+
+                                renderBubble();
+                                showSystemAlert(
+                                    'Status updated successfully!',
+                                    'success',
+                                );
+                                return true;
                             } catch (error) {
                                 console.error(
                                     'RoValra: Failed to update status via API.',
                                     error,
                                 );
+                                renderBubble();
                                 if (error?.userMessage) {
                                     return error.userMessage;
                                 }
@@ -348,11 +554,11 @@ async function addStatusBubble(avatarContainer) {
                     );
                 });
             });
-        } else if (REPORTING_ENABLED) {
-            bubble.style.cursor = 'pointer';
-            addTooltip(bubble, 'Report status');
+        } else if (REPORTING_ENABLED && statusText) {
+            textContainer.style.cursor = 'pointer';
+            addTooltip(textContainer, 'Report status');
 
-            bubble.addEventListener('click', (e) => {
+            textContainer.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showConfirmationPrompt({
                     title: 'Report Status',
