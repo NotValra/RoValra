@@ -26,6 +26,7 @@ import {
 import { getUserDisplayName } from '../apis/users.js';
 import { createUserCard } from '../ui/profile/userCard.js';
 import { getAuthenticatedUserId } from '../user.js';
+import { clearStore as clearIndexedDbStore } from '../storage/indexedDb.js';
 import { getBorders } from '../configs/borders.js';
 import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
 import { createThemeVariablesEditor } from '../../features/sitewide/themeVariablesEditor.js';
@@ -164,7 +165,7 @@ async function attachContributors(container, config, isChild = false) {
     }
 }
 
-function createClearStorageButton(storageKey, inputElement, settingType) {
+function createClearStorageButton(setting, inputElement) {
     const btn = createButton('', 'secondary');
     btn.classList.remove('btn-control-md');
     btn.classList.add('btn-control-xs');
@@ -195,9 +196,20 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
             confirmText: 'Clear',
             confirmType: 'secondary',
             cancelType: 'primary',
-            onConfirm: () => {
-                chrome.storage.local.remove(storageKey, () => {
-                    if (settingType === 'file' && inputElement) {
+            onConfirm: async () => {
+                if (setting.indexedDbStore) {
+                    await clearIndexedDbStore(setting.indexedDbStore).catch(
+                        (error) =>
+                            console.warn(
+                                'RoValra: Failed to clear IndexedDB store',
+                                error,
+                            ),
+                    );
+                }
+                if (!setting.storageKey) return;
+
+                chrome.storage.local.remove(setting.storageKey, () => {
+                    if (setting.type === 'file' && inputElement) {
                         const uploadApi =
                             inputElement._uploadApi ||
                             inputElement.rovalraFileUpload;
@@ -1201,13 +1213,9 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
     const inputElement = generateSettingInput(settingName, setting, REGIONS);
 
-    if (setting.storageKey) {
+    if (setting.storageKey || setting.indexedDbStore) {
         controlsContainer.appendChild(
-            createClearStorageButton(
-                setting.storageKey,
-                inputElement,
-                setting.type,
-            ),
+            createClearStorageButton(setting, inputElement),
         );
     }
 
@@ -1351,13 +1359,9 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 REGIONS,
             );
 
-            if (childSetting.storageKey) {
+            if (childSetting.storageKey || childSetting.indexedDbStore) {
                 childControls.appendChild(
-                    createClearStorageButton(
-                        childSetting.storageKey,
-                        childInput,
-                        childSetting.type,
-                    ),
+                    createClearStorageButton(childSetting, childInput),
                 );
             }
 

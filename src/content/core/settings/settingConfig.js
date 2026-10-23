@@ -572,7 +572,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                storageKey: 'rovalra_badges_v1',
+                indexedDbStore: 'badges',
             },
             badgeLayoutToggleEnabled: {
                 label: 'settings.experiences.badgeLayoutToggleEnabled.title',
@@ -1259,6 +1259,26 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    statusImagesEnabled: {
+                        label: 'Status Images',
+                        description: [
+                            'Allows you to add an image to your status bubble using a decal ID.',
+                            '**The image is saved on RoValras database so anyone with RoValra can view it.**',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to add images to your status.',
+                    },
+                    hideStatusImages: {
+                        label: 'Hide Status Images',
+                        description: [
+                            "Hides images in other users' status bubbles.",
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             donationbuttonEnable: {
@@ -1625,6 +1645,15 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['760897332', '3598865306'],
             },
+            robloxAdminBadgesEnabled: {
+                label: 'Roblox Admin Badges',
+                description: [
+                    'Shows the official Roblox Administrator badge beside names on supported user cards, including Home and the friends list.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['127238'],
+            },
             homeLayoutEnabled: {
                 label: 'settings.home.homeLayoutEnabled.title',
                 description: [
@@ -1871,7 +1900,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                contributors: ['193520242', '447170745'],
+                contributors: ['193520242', '447170745', '2239549101'],
                 experimental:
                     'Sometimes shows the wrong amount. And it might causes some issues on the site.',
                 childSettings: {
@@ -3564,6 +3593,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['10646979010'],
+            },
+            debugOverlayEnabled: {
+                label: 'Debug Overlay',
+                description: [
+                    'Shows a debug overlay with performance, loading and graphics information.',
+                    'Press F3 to show or hide it.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
             },
             alwaysShowAccountStandingTab: {
                 label: ['Always show Account Standing tab'],

@@ -47,6 +47,7 @@
 @use 'features/home/hideAddFriendsButton.scss';
 @use 'features/sitewide/friendGameLink.scss';
 @use 'features/sitewide/friendUsernames.scss';
+@use 'features/sitewide/robloxAdminBadges.scss';
 @use 'features/sitewide/pinned_friends.scss';
 @use 'features/sitewide/wideGameTileStats.scss';
 @use 'components/region_filters.scss';
@@ -64,6 +65,7 @@
 @use 'features/sitewide/themeScrollbar.scss';
 @use 'features/sitewide/less_plus.scss';
 @use 'features/sitewide/kids_theme_text.scss';
+@use 'features/developer/debug_overlay.scss';
 @use 'features/plus/sendRobux.scss';
 @use 'features/sitewide/viewid.scss';
 @use 'features/sitewide/item_search.scss';

@@ -437,7 +437,9 @@
         "friendFallback": "Friend",
         "join": "Join",
         "chat": "Chat",
-        "viewProfile": "View Profile"
+        "viewProfile": "View Profile",
+        "canJoin": "You can play together",
+        "notJoinable": "User not currently joinable."
     },
     "friendLabels": {
         "menuAction": "Set Friend Label",
@@ -1833,8 +1835,8 @@
         "credits": {
             "contributorsTitle": "Contributors",
             "translatorsTitle": "Translators",
-            "featureCount_one": "{{count}} feature",
-            "featureCount_other": "{{count}} features",
+            "featureCount_one": "{{count}} contribution",
+            "featureCount_other": "{{count}} contributions",
             "contributorTooltips": {
                 "146089324": "WoozyNate made fisch, which is where the old RoValra logo is from. You should check out fisch!",
                 "1337447242": "Made the new logo and all store page images.",
@@ -1845,8 +1847,8 @@
             "sortLabel": "Sort contributors",
             "sortMost": "Most",
             "sortLeast": "Least",
-            "contributionCount_one": "Contributed to {{count}} feature",
-            "contributionCount_other": "Contributed to {{count}} features",
+            "contributionCount_one": "Contributed {{count}} things",
+            "contributionCount_other": "Contributed {{count}} things",
             "backendContributorsNote": "These people helped with non feature related things.",
             "loadingContributors": "Loading...",
             "failedToLoadContributors": "Failed to load contributors.",
@@ -2960,6 +2962,9 @@
         "ariaLabel": "Username: @{{username}}",
         "nameWithUsername": "{{displayName}} (@{{username}})"
     },
+    "robloxAdminBadges": {
+        "badge": "Roblox Administrator"
+    },
     "placeVisits": {
         "label": "{{count}} Place Visits",
         "tooltip": "Total Community Place Visits"
@@ -2976,6 +2981,16 @@
         "unknown": "Unknown",
         "hidden": "Hidden",
         "hiddenTooltip": "This community hides its member list, so join dates can only be seen by its members."
+    },
+    "statusBubble": {
+        "imageLabel": "Status Image",
+        "decalId": "Decal ID",
+        "removeImage": "Remove Image",
+        "decalNotFound": "Couldn't find a decal with that ID.",
+        "tier3Perk": "Status Images are a Donator Tier 3 Perk",
+        "clickToReport": "Click to Report",
+        "imageThumbnail": "{{name}} thumbnail",
+        "imageSaveFailed": "Your status was saved, but the status image could not be updated."
     },
     "showcase": {
         "tab": "Showcase",
@@ -3264,6 +3279,129 @@
     "pinnedFriends": {
         "pin": "Pin to top",
         "unpin": "Unpin"
+    },
+    "debugOverlay": {
+        "title": "RoValra Debug",
+        "popout": "Pop out into a separate window",
+        "collapse": "Collapse debug overlay",
+        "hide": "Hide debug overlay",
+        "performance": {
+            "title": "Performance",
+            "fps": "FPS",
+            "frameTime": "Frame avg / max",
+            "frameLow": "1% low",
+            "jank": "Janky frames",
+            "loopLag": "Loop lag avg / max",
+            "longTasks": "Long tasks",
+            "blocking": "Blocking time",
+            "longFrames": "Long frames",
+            "jsHeap": "JS heap used / total / max",
+            "domNodes": "DOM nodes",
+            "uptime": "Overlay uptime"
+        },
+        "vitals": {
+            "title": "Web Vitals",
+            "fcp": "FCP",
+            "lcp": "LCP",
+            "cls": "CLS",
+            "inp": "Slowest interaction"
+        },
+        "loading": {
+            "title": "Loading",
+            "readyState": "Ready state",
+            "navType": "Navigation",
+            "protocol": "Protocol",
+            "redirect": "Redirect",
+            "dns": "DNS",
+            "connect": "Connect",
+            "ttfb": "TTFB",
+            "download": "Download",
+            "domInteractive": "DOM interactive",
+            "domContentLoaded": "DOMContentLoaded",
+            "load": "Load",
+            "documentSize": "Document size",
+            "pageWeight": "Page weight",
+            "requests": "Requests",
+            "cacheHit": "Cache hits",
+            "slowest": "Slowest",
+            "largest": "Largest"
+        },
+        "resources": {
+            "title": "Resources",
+            "scripts": "Scripts",
+            "styles": "Styles",
+            "images": "Images",
+            "fetchXhr": "Fetch / XHR",
+            "iframes": "Iframes",
+            "other": "Other"
+        },
+        "requests": {
+            "title": "RoValra Requests",
+            "inFlight": "In flight",
+            "total": "Total",
+            "failed": "Failed",
+            "avgLatency": "Avg latency",
+            "lastRequest": "Last request",
+            "lastFailure": "Last failure"
+        },
+        "graphics": {
+            "title": "Graphics / 3D",
+            "glContexts": "WebGL contexts alive / created",
+            "glSizes": "WebGL canvas sizes",
+            "glPixels": "WebGL pixels",
+            "canvases": "Canvas elements",
+            "videos": "Video elements",
+            "imageElements": "Image elements",
+            "svgs": "SVG elements"
+        },
+        "display": {
+            "title": "Viewport",
+            "viewport": "Viewport",
+            "pixelRatio": "Pixel ratio",
+            "scroll": "Scroll / page height"
+        },
+        "storage": {
+            "title": "Storage",
+            "origin": "Site storage",
+            "localStorage": "localStorage",
+            "sessionStorage": "sessionStorage",
+            "cookies": "Cookies",
+            "extStorage": "RoValra storage"
+        },
+        "errors": {
+            "title": "Errors",
+            "jsErrors": "Script errors",
+            "rejections": "Unhandled rejections",
+            "consoleErrors": "console.error",
+            "consoleWarns": "console.warn",
+            "lastError": "Last error"
+        },
+        "page": {
+            "title": "Page",
+            "pageTitle": "Title",
+            "url": "URL",
+            "referrer": "Referrer",
+            "charset": "Charset",
+            "visibility": "Visibility",
+            "focus": "Focused",
+            "compat": "Compat mode",
+            "lang": "Language",
+            "theme": "Roblox theme",
+            "userId": "User ID",
+            "csrf": "CSRF token"
+        },
+        "rovalra": {
+            "title": "RoValra",
+            "version": "Version",
+            "extensionId": "Extension ID",
+            "manifest": "Manifest",
+            "path": "Path"
+        },
+        "values": {
+            "worst": "{{count}} (worst {{time}})",
+            "keys": "{{count}} keys, {{size}}",
+            "seconds": "{{count}} s"
+        }
     },
     "richLinks": {
         "by": "By {{name}}",
