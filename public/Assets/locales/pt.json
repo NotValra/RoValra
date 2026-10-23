@@ -13,8 +13,8 @@
         "applyFilter": "Aplicar filtro",
         "uploadFile": "Carregar arquivo",
         "change": "Alterar",
-        "invalidFileFormat": "Formato de arquivo invalido.",
-        "invalidImageFile": "Formato de arquivo invalido. Carregue uma imagem válida.",
+        "invalidFileFormat": "Formato de arquivo inválido.",
+        "invalidImageFile": "Formato de arquivo inválido. Carregue uma imagem válida.",
         "fileProcessingFailed": "O processamento do arquivo falhou. Tente utilizar outro arquivo.",
         "errorProcessingFile": "Erro processando o arquivo. Tente utilizar outro arquivo.",
         "less": "Menos",
@@ -233,7 +233,7 @@
         "statsTooltip": "Os dados de vendas e receita gerada vieram de um vazamento e provavelmente estão imprecisos."
     },
     "fortyMethod": {
-        "loginRequired": "Não conseguimos identificar seu ID de usuário. Você está logado à uma conta?",
+        "loginRequired": "Não conseguimos identificar seu ID de usuário. Você está logado em uma conta?",
         "setupExperience": "Configurar um jogo",
         "specificTemplate": "Apenas um template específico funciona",
         "selectGroup": "Selecione um grupo no qual você tem permissão de gerenciar os jogos. <br>A extensão criará o jogo para você.",
@@ -279,13 +279,13 @@
         "ownerAccount": "<strong>Conta do dono:</strong> O dono do grupo NÃO PODE ser a mesma conta que está comprando os itens. O dono deve ser uma conta alternativa e segura com Verificação de Duas Etapas ativada e uma senha forte e única.",
         "payouts": "<strong>Pagamentos:</strong> Apenas o dono do grupo pode lhe pagar o Robux economizado, por meio dos fundos do grupo.",
         "pendingRobux": "<strong>Robux pendente:</strong> Fique ciente que após utilizar esse recurso, o Robux ficará pendente por aproximadamente um mês até que ele possa ser devolvido.",
-        "groupRequiredBody": "Para utilizad o método dos 40% com seu próprio grupo, você precisa de um grupo no qual você tem permissão de gerenciar os jogos dele.",
+        "groupRequiredBody": "Para utilizar o método dos 40% com seu próprio grupo, você precisa de um grupo no qual você tem permissão de gerenciar os jogos dele.",
         "groupRequiredImportant": "<strong>Importante:</strong> Para que isso funcione corretamente, o dono do grupo deve ser uma conta alternativa segura. Sua conta principal (a que você está usando para comprar os itens) deve ter um cargo com permissão para criar e editar jogos desse grupo.",
-        "groupRequiredDonate": "Caso você não tenha um grupo, você optar por apoiar a RoValra, utilizando nosso jogo para processar a compra, o que doará os Robux economizados à RoValra ❤️",
+        "groupRequiredDonate": "Caso você não tenha um grupo, você pode optar por apoiar a RoValra, utilizando nosso jogo para processar a compra, o que doará os Robux economizados à RoValra ❤️",
         "ownershipBody": "O método dos 40% não irá funcionar se você for o dono desse grupo. Selecione um grupo diferente ou transfira a posse desse grupo para uma conta alternativa segura.",
         "experienceAccepted": "Jogo aceito",
-        "experienceAcceptedSpecific": "<strong>Apenas jogos específicos funcionam.</strong> Garanta que esse jogo está configurada com os scripts necessários para lidar com compras no jogo.",
-        "experienceAcceptedGroup": "Certifique-se que o jogo é de um grupo <strong>que você controla, mas que não é possuída por essa conta</strong>. De preferência, a posse do grupo deve ser de uma alt. Se você é dono do grupo, o método dos 40% não funcionará.",
+        "experienceAcceptedSpecific": "<strong>Apenas jogos específicos funcionam.</strong> Garanta que esse jogo está configurado com os scripts necessários para lidar com compras no jogo.",
+        "experienceAcceptedGroup": "Certifique-se de que o jogo é de um grupo <strong>que você controla, mas que não é possuída por essa conta</strong>. De preferência, a posse do grupo deve ser de uma alt. Se você é dono do grupo, o método dos 40% não funcionará.",
         "experienceAcceptedPending": "O Robux economizado ficará pendente por aproximadamente um mês antes de liberar o pagamento. Use uma conta alt segura como dona do grupo para receber o Robux de volta.",
         "createExperienceBody": "Crie um novo jogo nesse grupo para usar o método dos 40%.",
         "createNewExperienceBody": "Para criar um novo jogo para esse método:",
@@ -411,8 +411,8 @@
         }
     },
     "friendsCarouselRedesign": {
-        "prevFriends": "Amigos anteriores",
-        "nextFriends": "Mais amigos",
+        "prevFriends": "Amizades anteriores",
+        "nextFriends": "Mais amizades",
         "isPlaying": "{{name}} está jogando",
         "online": "Online",
         "inStudio": "No Studio",
@@ -502,6 +502,8 @@
         "overlayText": "Jogos ocultos",
         "noHiddenGames": "O jogador não tem jogos ocultos.",
         "buttonText": "Jogos ocultos",
+        "publicExperiences": "Jogos públicos",
+        "hiddenExperiences": "Jogos ocultos",
         "labels": {
             "sort": "Classificar",
             "order": "Ordenar",
@@ -596,7 +598,7 @@
         "continueToRolimons": "Continuar e acessar o Rolimon's",
         "user": "Usuário",
         "loadingItems": "Carregando mais itens...",
-        "noItemsMatch": "Nenhum item ",
+        "noItemsMatch": "Nenhum item corresponde à sua pesquisa.",
         "collectiblesTitle": "Colecionáveis de {{displayName}} (RAP {{totalRapString}})",
         "collectiblesTitleValue": "Colecionáveis de {{displayName}} (Valor {{totalRapString}})",
         "inventoryPrivateOrNoLimiteds": "O inventário desse usuário é privado ou não tem limiteds.",
@@ -631,7 +633,7 @@
         "setInactive": "Definir como inativo",
         "setActive": "Definir como ativo",
         "noServersFound": "Nenhum servidor privado {{status}} encontrado.",
-        "byCreator": "De",
+        "byCreator": "De ",
         "allowJoining": "Permitir entrada",
         "friendsAllowed": "Permitir amizades"
     },
@@ -687,6 +689,111 @@
             "errors": {
                 "invalidUrl": "Insira um link https válido de imagem."
             }
+        },
+        "variables": {
+            "intro": "Escolha um tema do Roblox acima para utilizá-lo como ele é, ou mude qualquer cor abaixo para personalizá-lo. As mudanças se aplicam instantâneamente.",
+            "presetNone": "Nenhum",
+            "opacity": "Opacidade",
+            "reset": "Reiniciar",
+            "resetAll": "Redefinir cores",
+            "saved": {
+                "title": "Meus temas",
+                "noTheme": "Nenhum tema",
+                "unsaved": "Tema não salvo",
+                "editingLabel": "{{name}} (editando)",
+                "statusNone": "Nenhum tema equipado, o Roblox está como ele normalmente é.",
+                "statusUnsaved": "Você está usando cores que não estão salvas como um tema ainda.",
+                "statusEditing": "Editando {{name}}. Salve para manter suas mudanças.",
+                "statusEquipped": "{{name}} está equipado.",
+                "namePlaceholder": "Nome do tema",
+                "save": "Salvar",
+                "delete": "Excluir",
+                "export": "Exportar",
+                "import": "Importar",
+                "defaultName": "Meus temas",
+                "importedName": "Tema importado",
+                "saved": "Tema salvo!",
+                "updated": "Tema atualizado!",
+                "deleted": "Tema excluído.",
+                "imported": "Tema importado!",
+                "nameRequired": "Insira um nome para o seu tema primeiro.",
+                "limitReached": "Você pode salvar até {{count}} temas.",
+                "invalidFile": "Esse arquivo não é um tema da RoValra.",
+                "fileTooLarge": "Esse arquivo é muito grande para ser um tema.",
+                "deleteTitle": "Excluir tema",
+                "deleteMessage": "Você tem certeza que deseja excluir esse tema salvo?"
+            },
+            "modes": {
+                "editingDark": "Editando cores do modo escuro",
+                "editingLight": "Editando cores do modo claro"
+            },
+            "tokens": {
+                "surface-0": "Fundo da página",
+                "surface-100": "Superfície 100",
+                "surface-200": "Superfície 200",
+                "surface-300": "Superfície 300",
+                "common-navigation-bar": "Barra de navegação",
+                "over-media-0": "Sobre mídia 0",
+                "over-media-100": "Sobre mídia 100",
+                "over-media-200": "Sobre mídia 200",
+                "over-media-300": "Sobre mídia 300",
+                "common-backdrop": "Fundo das janelas",
+                "content-emphasis": "Texto com destaque",
+                "content-default": "Texto padrão",
+                "content-muted": "Texto atenuado",
+                "content-link": "Texto com link",
+                "stroke-default": "Contorno padrão",
+                "stroke-emphasis": "Contorno de destaque",
+                "stroke-muted": "Contorno atenuado",
+                "common-heavy-divider": "Divisor forte",
+                "shift-100": "Variação 100",
+                "shift-200": "Variação 200",
+                "shift-300": "Variação 300",
+                "shift-400": "Variação 400",
+                "system-emphasis": "Destaque",
+                "system-contrast": "Contraste",
+                "system-alert": "Alerta",
+                "system-success": "Sucesso",
+                "system-warning": "Alerta",
+                "system-neutral": "Neutro",
+                "action-emphasis-background": "Fundo primário",
+                "action-emphasis-foreground": "Texto primário",
+                "action-standard-background": "Fundo padrão",
+                "action-standard-foreground": "Texto padrão",
+                "action-soft-emphasis-background": "Fundo suave",
+                "action-soft-emphasis-foreground": "Texto suave",
+                "action-subtle-border": "Borda sútil",
+                "action-alert-foreground": "Texto de alerta",
+                "action-over-media-background": "Fundo sobre mídia",
+                "action-over-media-foreground": "Texto sobre mídia"
+            },
+            "presets": {
+                "classic": "Clássico",
+                "circuit-rush": "Corrida no Circuito",
+                "cosmic-dust": "Pó Cósmico",
+                "electric-lime": "Verde-limão Elétrico",
+                "hyper-plum": "Hiper Ameixa",
+                "inferno-blast": "Inferno Blast",
+                "kinetic-energy": "Energia Cinética",
+                "lava-glow": "Brilho de Lava",
+                "nebula-drift": "Vagando na Nebulosa",
+                "nitro-frost": "Gelo Nitro",
+                "pixel-pop": "Pop de Pixels",
+                "polar-freeze": "Gelo Polar",
+                "quantum-pulse": "Pulso Quântico",
+                "star-burst": "Explosão Estelar",
+                "super-charge": "Supercarga"
+            },
+            "builtIn": {
+                "veryDark": "Tema muito escuro"
+            },
+            "groups": {
+                "surfaces": "Superfícies",
+                "content": "Texto",
+                "strokes": "Contornos e veriações",
+                "system": "Sistema",
+                "actions": "Botões"
+            }
         }
     },
     "previousPrice": {
@@ -716,7 +823,7 @@
     },
     "totalEarned": {
         "calculateEarnings": "Calcular ganhos",
-        "calculateEarned": "Calcular ganhado",
+        "calculateEarned": "Calcular ganhos",
         "pausedMessage": "Cálculo pausado. Retome para continuar a contagem",
         "resumeCalculation": "Retomar cálculo",
         "startNewCalculation": "Iniciar novo cálculo",
@@ -769,8 +876,8 @@
         "premiumBreakdown": "Detalhamento de assinatura Premium",
         "purchaseBreakdown": "Detalhamento de compras de Robux",
         "noItems": "Nenhum item encontrado ainda.",
-        "pack": "Pack",
-        "stipend": "Stipend",
+        "pack": "Pacote",
+        "stipend": "Mesada de assinatura",
         "errorUserId": "Não foi possível identificar o ID do usuário.",
         "robloxLimitError": "A Roblox retornou um erro interno de servidor. Provavelmente não será possível escanear mais transações por conta das limitações da Roblox.",
         "errorRetries": "Falhas após diversas tentativas. Último erro: {{error}}"
@@ -843,7 +950,7 @@
             "featureCount_one": "{{count}} recurso",
             "featureCount_other": "{{count}} recursos",
             "contributorTooltips": {
-                "146089324": "WoozyNate é quem criou o fisch, de onde a logo antiga do RoValra veio. Você deveria dar uma olhada no fisch!",
+                "146089324": "WoozyNate é quem criou o fisch, de onde a logo antiga da RoValra veio. Você deveria dar uma olhada no fisch!",
                 "170038374": "Criou conceitos que basearam alguns recursos da RoValra.",
                 "795922138": "Teve a ideia do nome 'RoValra' como uma piada, que era muito engraçada pra não ser usada.",
                 "1337447242": "Fez a nova logo e todas as imagens da página da loja.",
@@ -894,8 +1001,10 @@
                     "addedToWebsite": "Adicionou o índice de temas plus para o site para que os usuários só pudessem utilizar os temas corretos e especificados."
                 },
                 "locales": {
+                    "madeDe": "Ajudou a traduzir a extensão pra Alemão",
                     "madeRo": "Ajudou a traduzir a extensão pra Romeno",
                     "madeEs": "Ajudou a traduzir a extensão pra Espanhol",
+                    "madePt": "Ajudou a traduzir a extensão pro Português (Brasil)",
                     "madeRu": "Ajudou a traduzir a extensão pra Russo",
                     "madeFr": "Ajudou a traduzir a extensão pra Francês",
                     "madeZh": "Ajudou a traduzir a extensão pra Chinês",
@@ -915,7 +1024,7 @@
             "title": "Benefícios dos apoiadores!",
             "subtitle": "Apoie o desenvolvimento da RoValra e ganhe benefícios exclusivos!",
             "howToGet": "Como conseguir benefícios",
-            "howToGetDesc": "Você pode doar comprando uma gamepass no noso jogo de apoio.",
+            "howToGetDesc": "Você pode doar comprando uma gamepass no nosso jogo de apoio.",
             "goToGame": "Ir para o jogo de doação",
             "perkTiers": "Níveis de apoiadores",
             "perk": "Benefício",
@@ -1196,9 +1305,9 @@
         "dropdowns": {
             "shared": {
                 "allUsers": "Todos",
-                "friendsFollowingFollowers": "Amigos, seguindo e seguidores",
+                "friendsFollowingFollowers": "Amizades, seguindo e seguidores",
                 "friendsFollowing": "Amigos e seguindo",
-                "friends": "Amigos",
+                "friends": "Amizades",
                 "trustedFriends": "Amizades confiáveis",
                 "noOne": "Ninguém"
             },
@@ -1275,7 +1384,9 @@
         "noSearchHistory": "Você não tem nada no histórico de busca.",
         "deleteSearchHistoryTitle": "Excluir histórico de busca",
         "deleteSearchHistoryMessage": "Tem certeza de que deseja excluir essa entrada no histórico de busca?",
-        "delete": "Excluir"
+        "delete": "Excluir",
+        "itemValue": "Valor",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "{{count}} amigos possuem",
@@ -1335,6 +1446,10 @@
         "bonusItemFallback": "Inclui um item bônus",
         "noItems": "Nenhum item encontrado na loja.",
         "failedToLoad": "Falha ao carregar itens da loja.",
+        "offers": {
+            "expires": "Expira",
+            "inGameOnly": "Apenas se aplica à compras feitas dentro de um jogo."
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -1452,6 +1567,24 @@
             "all": "Nenhum evento encontrado."
         }
     },
+    "badgeSort": {
+        "label": "Ordenar emblemas",
+        "seeMore": "Ver mais",
+        "updated": "Atualizado",
+        "created": "Criado",
+        "options": {
+            "default": "Padrão",
+            "updated": "Atualizado recentemente",
+            "newest": "Mais novo",
+            "oldest": "Mais velho",
+            "mostWon": "Mais ganhados",
+            "leastWon": "Menos ganhados",
+            "wonYesterday": "Mais ganhados ontem",
+            "rarest": "Mais raros",
+            "easiest": "Mais fáceis",
+            "name": "Nome (A-Z)"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "Emblemas",
@@ -1461,8 +1594,13 @@
         "unableToDetectPlace": "Não foi possível detectar essa place.",
         "unableToDetectUniverse": "Não foi possível detectar esse universo.",
         "stillScanning": "Ainda escaneando seus emblemas. Emblemas ocultos que você possui devem aparecer em breve.",
-        "noneOwnedFound": "Não foi encontrad nenhum emblema oculto que você possui nesse jogo.",
-        "failedToLoad": "Falha ao carregar seus emblemas ocultos."
+        "noneOwnedFound": "Não foi encontrado nenhum emblema oculto que você possui nesse jogo.",
+        "noneFound": "Não foi encontrado nenhum emblema oculto nesse jogo.",
+        "noPublicBadges": "Esse jogo não tem emblemas públicos.",
+        "failedToLoad": "Falha ao carregar seus emblemas ocultos.",
+        "rolimonsSource": "Emblemas ocultos fornecidos pelo Rolimon's.",
+        "viewOnRolimons": "Ver jogo no Rolimon's.",
+        "openBadgeOnRolimons": "Abrir emblema no Rolimon's."
     },
     "antiBots": {
         "reviewMembers": "Revisar {{count}} membros selecionados:",
@@ -1479,7 +1617,7 @@
         "confirmAction": "Confirmar ação",
         "processing": "Processando {{current}} de {{total}}: {{displayName}}... Tempo estimado restante: {{time}}s",
         "rateLimited": "Limite de tentativas excedido. Tentando novamente em {{delay}}s...",
-        "apiError": "Erro {{status}} na API ",
+        "apiError": "Erro {{status}} na API",
         "unknownError": "Erro desconhecido",
         "processComplete": "{{successCount}} de {{totalMembers}} membros foram {{actionType}} com sucesso",
         "processFailed": "{{failedCount}} falhou.",
@@ -1488,7 +1626,7 @@
         "actionCount": "Ação ({{count}})",
         "unselectAll": "Desmarcar todos",
         "selectAll": "Marcar todos",
-        "antiBots": "Anti Bots",
+        "antiBots": "Anti-bots",
         "banByScore": "Banir por pontuação",
         "quickAction": "Ação rápida",
         "members": "Membros",
@@ -1564,7 +1702,13 @@
             "previewGui": "Prévia da GUI",
             "togglePreviewVisibility": "Ativar a visibilidade na prévia",
             "noMatchingInstances": "Nenhuma instância correspondente encontrada",
-            "loadError": "Falha ao carregar."
+            "loadError": "Falha ao carregar.",
+            "previewMesh": "Visualizar mesh",
+            "previewImage": "Visualizar imagem",
+            "loadingImage": "Carregando imagem...",
+            "imageLoadError": "Falha ao carregar imagem.",
+            "loadingMesh": "Carregando mesh...",
+            "meshLoadError": "Falha ao carregar mesh."
         }
     },
     "priceFloor": {
@@ -1727,14 +1871,14 @@
         "hoursAgo": "{{count}}h atrás",
         "daysAgo": "{{count}} dia(s) atrás",
         "weeksAgo": "{{count}} semana(s) atrás",
-        "monthsAgo": "{{count}} mes(es) atrás",
+        "monthsAgo": "{{count}} mês(es) atrás",
         "yearsAgo": "{{count}} ano(s) atrás",
         "secondsFromNow": "em {{count}}s",
         "minutesFromNow": "em {{count}} min",
         "hoursFromNow": "em {{count}}h",
         "daysFromNow": "em {{count}} dia(s)",
         "weeksFromNow": "em {{count}} semana(s)",
-        "monthsFromNow": "em {{count}} mes(es)",
+        "monthsFromNow": "em {{count}} mês(es)",
         "yearsFromNow": "em {{count}} ano(s)",
         "months": {
             "jan": "Jan",
@@ -1845,7 +1989,7 @@
         "ownedNotice": "Esse item está disponível no seu inventário.",
         "inventory": "Inventário",
         "by": "De",
-        "usePassIn": "Use esse passe em: ",
+        "usePassIn": "Use esse passe em:",
         "rovalraNoticeDescription": "Essa gamepass está inativa e não pode ser comprada devido a limitações da Roblox, possivelmente relacionadas à idade da conta ou a visibilidade do jogo."
     },
     "playabilityStatus": {
@@ -1878,7 +2022,7 @@
         "unknown": "Esse jogo está indisponível"
     },
     "bannedUsers": {
-        "connections": "Amigos",
+        "connections": "Amizades",
         "followers": "Seguidores",
         "following": "Seguindo",
         "about": "Sobre",
@@ -1934,14 +2078,22 @@
         "label": "{{count}} visitas na place",
         "tooltip": "Total de visitas em jogos da comunidade"
     },
+    "groupFundsPill": {
+        "label": "{{count}} Fundos",
+        "tooltip": "Fundos da comunidade",
+        "privateTooltip": "Esses fundos não são públicos. A RoValra mostra esses fundos para você devido ao seu cargo.",
+        "roleTooltip": "A RoValra mostra esses fundos para você devido ao seu cargo."
+    },
     "groups": {
         "createdLabel": "Criado",
         "joinedLabel": "Se juntou",
-        "unknown": "Desconhecido"
+        "unknown": "Desconhecido",
+        "hidden": "Ocultos",
+        "hiddenTooltip": "Essa comunidade tem sua lista de membros ocultada, então, as datas de entrada só podem ser vistas pelos seus membros."
     },
     "showcase": {
-        "tab": "Showcase",
-        "favoriteGame": "Jogos favoritos",
+        "tab": "Vitrine",
+        "favoriteGame": "Jogo favorito",
         "favoriteGroup": "Comunidades favoritas",
         "favoriteDecal": "Vitrine de artes",
         "chooseGame": "Escolha um jogo para destacar no seu perfil.",
@@ -2074,6 +2226,11 @@
         "rotatePreview": "Rotacionar prévia",
         "itemOnly": "Mostrar apenas o item"
     },
+    "freeBadgeQuota": {
+        "label": "Emblemas grátis",
+        "value": "{{count}} restante(s) hoje",
+        "tooltip": "Emblemas que esse jogo ainda pode criar gratuitamente. A Roblox permite a criação de 5 emblemas de graça por jogo a cada 24 horas."
+    },
     "groupFilters": {
         "sort": {
             "default": "Padrão",
@@ -2082,7 +2239,11 @@
             "newest": "Mais novo",
             "oldest": "Mais velho"
         },
-        "tooltip": "Ordenar por quando o usuário entrou na comunidade"
+        "tooltip": "Ordenar por quando o usuário entrou na comunidade",
+        "view": {
+            "row": "Linha",
+            "grid": "Grade"
+        }
     },
     "creatorStats": {
         "ccu": "Jogadores ativos",
@@ -2285,5 +2446,13 @@
         "contentType": "Tipo de conteúdo",
         "redirected": "Redirecionado",
         "copy": "Copiar"
+    },
+    "notifications": {
+        "newTrade": "Nova troca",
+        "tradeFrom": "De {{name}}",
+        "tradeStats": "{{value}} valor | {{rap}} RAP",
+        "friendPlaying": "{{name}} está jogando",
+        "unknownGame": "Um jogo"
     }
 }
+
