@@ -1,0 +1,69 @@
+.rovalra-hero-units {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.rovalra-hero-unit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: var(--color-surface-100);
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+
+    .rovalra-hero-unit-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        flex: 1 1 240px;
+        min-width: 0;
+        color: #fff;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+
+        h2,
+        p {
+            margin: 0;
+            color: inherit;
+        }
+    }
+
+    .rovalra-hero-unit-pill {
+        margin-top: 4px;
+        text-shadow: none;
+    }
+
+    .rovalra-hero-unit-items {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
+    .rovalra-hero-unit-item {
+        flex: 0 0 auto;
+        box-sizing: content-box;
+        width: 150px;
+        padding: 8px;
+        border-radius: 10px;
+        background-color: color-mix(
+            in srgb,
+            var(--color-surface-100) 10%,
+            transparent
+        );
+        background-size: cover;
+        background-position: center;
+
+        .rovalra-item-thumb-container:not(.shimmer) {
+            background-color: transparent;
+        }
+    }
+}

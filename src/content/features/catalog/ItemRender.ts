@@ -2069,9 +2069,9 @@ async function asyncInit() {
         { multiple: true },
     );
 
-    //recently viewed item cards
+    //recently viewed and hero unit item cards
     observeElement(
-        '.rovalra-recently-viewed-item .rovalra-item-card',
+        '.rovalra-recently-viewed-item .rovalra-item-card, .rovalra-hero-unit-item .rovalra-item-card',
         (element: HTMLElement) => {
             const itemLinkElement = element.querySelector(
                 'a.rovalra-item-card-link',

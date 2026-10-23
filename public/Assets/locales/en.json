@@ -1845,6 +1845,9 @@
         "offSale": "Went off sale",
         "backOnSale": "Back on sale"
     },
+    "heroUnits": {
+        "ends": "Ends"
+    },
     "tradeRecentItems": {
         "offer": "Recently offered",
         "request": "Recently requested",

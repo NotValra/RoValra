@@ -215,6 +215,13 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            heroUnitsEnabled: {
+                label: 'Marketplace Hero Units',
+                description:
+                    'Adds the featured hero units, like seasonal item collections, to the top of the Marketplace landing page with when they end.',
+                type: 'checkbox',
+                default: true,
+            },
             bonusItemEnabled: {
                 label: 'Robux Purchase Bonus Item Selector',
                 description:
