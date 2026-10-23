@@ -1537,7 +1537,7 @@ function getDonatorSettingsPerkRows() {
         )) {
             if (setting.donatorTier) {
                 rows.push({
-                    label: createDonatorPerkLink(settingName, setting.label),
+                    label: createDonatorPerkLink(settingName, ts(setting.label)),
                     minTier: setting.donatorTier,
                 });
             }
@@ -1549,7 +1549,7 @@ function getDonatorSettingsPerkRows() {
                         rows.push({
                             label: createDonatorPerkLink(
                                 childName,
-                                childSetting.label,
+                                ts(childSetting.label),
                             ),
                             minTier: childSetting.donatorTier,
                         });
@@ -1749,7 +1749,7 @@ function getContributions() {
                     if (contributions[String(contributor)] === undefined)
                         contributions[String(contributor)] = [];
                     contributions[String(contributor)].push({
-                        feature: settingData.label,
+                        feature: ts(settingData.label),
                         key: settingName,
                     });
                 }
@@ -1757,7 +1757,7 @@ function getContributions() {
                 if (contributions[String(CREATOR_USER_ID)] === undefined)
                     contributions[String(CREATOR_USER_ID)] = [];
                 contributions[String(CREATOR_USER_ID)].push({
-                    feature: settingData.label,
+                    feature: ts(settingData.label),
                     key: settingName,
                 });
             }
@@ -5064,7 +5064,7 @@ export async function handleSearch(event) {
                 !searchResults.some((res) => res.name === settingName)
             ) {
                 searchResults.push({
-                    category: category.title,
+                    category: ts(category.title),
                     name: settingName,
                     config: settingDef,
                 });

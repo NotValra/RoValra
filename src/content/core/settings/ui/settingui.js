@@ -284,7 +284,7 @@ export async function buildSettingsPage({
                 return;
             dropdownItems.push({
                 value: sectionName.toLowerCase(),
-                label: SETTINGS_CONFIG[sectionName].title,
+                label: ts(SETTINGS_CONFIG[sectionName].title),
             });
         });
 
@@ -591,7 +591,7 @@ function createUnifiedMenu({
             return;
         const listItem = createSidebarItem(
             sectionName,
-            SETTINGS_CONFIG[sectionName].title,
+            ts(SETTINGS_CONFIG[sectionName].title),
             loadTabContent,
         );
         menuList.appendChild(listItem);
@@ -694,7 +694,7 @@ function addDeveloperTabUI({ menuList, loadTabContent, renderMobileDropdown }) {
     if (menuList && loadTabContent) {
         const devItem = createSidebarItem(
             'Developer',
-            SETTINGS_CONFIG.Developer.title,
+            ts(SETTINGS_CONFIG.Developer.title),
             loadTabContent,
         );
 
@@ -724,7 +724,7 @@ function updateFunStuffTabUI({
     if (enabled && !existingItem && menuList && loadTabContent) {
         const funItem = createSidebarItem(
             'FunStuff',
-            SETTINGS_CONFIG.FunStuff.title,
+            ts(SETTINGS_CONFIG.FunStuff.title),
             loadTabContent,
         );
         const developerItem = document.getElementById('developer-tab');

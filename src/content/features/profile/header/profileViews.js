@@ -3,6 +3,7 @@ import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { observeChildren, observeElement } from '../../../core/observer.js';
 import { settings as rovalraSettings } from '../../../core/settings/getSettings.js';
 import { createPill } from '../../../core/ui/general/pill.js';
+import { t, ts } from '../../../core/locale/i18n.js';
 
 function getViewCount(settings) {
     const count = Number(settings?.Views);
@@ -14,7 +15,7 @@ function createProfileViewsContent(views) {
     content.className = 'rovalra-profile-views-content';
 
     const text = document.createElement('span');
-    text.textContent = `${views.toLocaleString()} Profile Views`;
+    text.textContent = ts('profileViews.label', { views: views.toLocaleString() }); 
 
     content.append(text);
     return content;
@@ -105,7 +106,7 @@ async function initProfileViews() {
 
             const pill = createPill(
                 createProfileViewsContent(views),
-                'Profile views from RoValra users. This counts total profile views, not unique users.',
+                ts('profileViews.tooltip'),
                 { size: 'small' },
             );
             pill.classList.add('rovalra-profile-views-pill');

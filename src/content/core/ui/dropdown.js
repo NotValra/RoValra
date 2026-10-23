@@ -2,6 +2,7 @@
 
 import { createDropdownContent } from './selects.js';
 import { createShimmerBlock } from './shimmer.js';
+import { ts } from '../locale/i18n.js';
 
 let openDropdowns = [];
 
@@ -136,7 +137,7 @@ export function createDropdown({
                 }
             }
 
-            const textNode = document.createTextNode(selectedItem.label);
+            const textNode = document.createTextNode(ts(selectedItem.label));
             triggerValueSpan.appendChild(textNode);
             trigger.removeAttribute('data-placeholder');
         } else {
@@ -373,4 +374,3 @@ export function createDropdownMenu({
 
     return { panel: contentPanel, toggle };
 }
-import { ts } from '../locale/i18n.js';
