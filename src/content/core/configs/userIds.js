@@ -42,11 +42,11 @@ export const CONTRIBUTOR_USER_IDS = [
     '200565345', // krampuszc
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
-    '74884', // awkward222
+    '74884' // awkward222
 ];
 
 export const TESTER_USER_IDS = [
-    '1163412141', //Tino
+    '1163412141' //Tino
 ];
 
 export const TRANSLATOR_USER_IDS = [
@@ -63,13 +63,14 @@ export const TRANSLATOR_USER_IDS = [
     '587930109', // hnguyen1910
     '11785214974', // DevinHmmm
     '2490953439', // xMrReks
+    '8259815479' // vcleapz
 ];
 
 export const ARTIST_USER_IDS = [
     '1337447242',
     '48255812',
     '1040942162',
-    '4866259395',
+    '4866259395'
 ];
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
@@ -90,6 +91,6 @@ export const TRUSTED_USER_IDS = new Set(
         alice_badge_user_id,
         GILBERT_USER_ID,
         '1996279003', // Bloodraven (stinky)
-        '129425241', // sky (jailbreak tester *blushes slightly*)
+        '129425241' // sky (jailbreak tester *blushes slightly*)
     ].map((id) => String(id)),
 );
