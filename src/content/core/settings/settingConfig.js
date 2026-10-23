@@ -3709,6 +3709,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            simulateRoValraApiTimeout: {
+                label: ['Simulate RoValra Region API Timeout'],
+                description: [
+                    'Makes the preferred region search wait the full 5 second RoValra API limit without finding a server, then fall back to scanning locally. Useful for testing the fallback user experience.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             simulateRobloxJoinErrors: {
                 label: ['Simulate Roblox Join Errors'],
                 description: [

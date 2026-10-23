@@ -29,6 +29,7 @@ export { getStateCodeFromRegion };
 
 const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
 const MAX_SERVER_PAGES = Infinity;
+const ROVALRA_API_SEARCH_TIMEOUT_MS = 5000;
 
 let userRequestedStop = false;
 let isCurrentlyFetchingData = false;
@@ -75,6 +76,17 @@ async function isServerActive(placeId, gameId) {
     } catch (e) {
         return false;
     }
+}
+
+function withDeadline(promise, deadline, timeoutValue) {
+    let timer;
+    const timeout = new Promise((resolve) => {
+        timer = setTimeout(
+            () => resolve(timeoutValue),
+            Math.max(0, deadline - Date.now()),
+        );
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 async function fetchServerDetailsWrapper(server, placeId) {
@@ -128,6 +140,7 @@ export async function performJoinAction(
         const settings = await chrome.storage.local.get({
             preferredRegionUseRobloxLatencyv1: true,
             preferredRegionLocalSearchEnabled: false,
+            simulateRoValraApiTimeout: false,
         });
         const forceLocalSearch =
             settings.preferredRegionLocalSearchEnabled === true;
@@ -187,6 +200,7 @@ export async function performJoinAction(
         }
 
         let runManualScan = true;
+        let rovalraDeadline = 0;
         let manualScanReason = forceLocalSearch
             ? ts('preferredRegion.scanningLocally', { region: shortTargetName })
             : ts('preferredRegion.regionApiUnavailable', {
@@ -223,13 +237,36 @@ export async function performJoinAction(
                         region: shortTargetName,
                     }),
                 );
-                rovalraResult = await ClosestServer.findServerViaRovalraApi(
-                    placeId,
-                    universeId,
-                    preferredRegionCode,
-                    failedRegionNames,
-                    joinedServerIds,
-                    () => userRequestedStop,
+                rovalraDeadline = Date.now() + ROVALRA_API_SEARCH_TIMEOUT_MS;
+                const rovalraStopCheck = () =>
+                    userRequestedStop || Date.now() >= rovalraDeadline;
+
+                const searchRovalra = async () => {
+                    if (settings.simulateRoValraApiTimeout) {
+                        return new Promise(() => {});
+                    }
+                    const result = await ClosestServer.findServerViaRovalraApi(
+                        placeId,
+                        universeId,
+                        preferredRegionCode,
+                        failedRegionNames,
+                        joinedServerIds,
+                        rovalraStopCheck,
+                    );
+                    if (result?.status === 'FOUND_FALLBACK') {
+                        const candidate = result.servers[0];
+                        const cId = candidate.server_id || candidate.id;
+                        result.isActive = !!(
+                            cId && (await isServerActive(placeId, cId))
+                        );
+                    }
+                    return result;
+                };
+
+                rovalraResult = await withDeadline(
+                    searchRovalra(),
+                    rovalraDeadline,
+                    { status: 'TIMED_OUT' },
                 );
             }
 
@@ -238,10 +275,10 @@ export async function performJoinAction(
                 runManualScan = false;
             } else if (rovalraResult?.status === 'FOUND_FALLBACK') {
                 const candidate = rovalraResult.servers[0];
-                const cId = candidate.server_id || candidate.id;
-                if (cId && (await isServerActive(placeId, cId))) {
+                if (rovalraResult.isActive) {
                     bestServerFoundSoFar = candidate;
-                    bestServerFoundSoFar.id = cId;
+                    bestServerFoundSoFar.id =
+                        candidate.server_id || candidate.id;
                     bestServerRegionCode = rovalraResult.regionCode;
                     runManualScan = false;
                 } else {
@@ -250,6 +287,11 @@ export async function performJoinAction(
                         region: shortTargetName,
                     });
                 }
+            } else if (rovalraResult?.status === 'TIMED_OUT') {
+                runManualScan = true;
+                manualScanReason = ts('preferredRegion.apiTimedOut', {
+                    region: shortTargetName,
+                });
             } else if (rovalraResult?.status === 'NO_SERVERS') {
                 runManualScan = true;
                 manualScanReason = ts('preferredRegion.noServersApi', {
@@ -285,7 +327,7 @@ export async function performJoinAction(
                 try {
                     const response = await callRobloxApi({
                         subdomain: 'games',
-                        endpoint: `/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100${nextCursor ? `&cursor=${encodeURIComponent(nextCursor)}` : ''}`,
+                        endpoint: `/v2/games/${placeId}/servers/Public?cursor=${encodeURIComponent(nextCursor || '')}&sortOrder=Desc&excludeFullGames=true&orderBy=Recommended`,
                     });
 
                     if (!response.ok) {
@@ -446,17 +488,23 @@ export async function performJoinAction(
             if (
                 preferredRegionCode &&
                 !forceLocalSearch &&
-                !userRequestedStop
+                !userRequestedStop &&
+                Date.now() < rovalraDeadline
             ) {
                 updateLoadingOverlayText(
                     ts('preferredRegion.searchingClosest', {
                         region: shortTargetName,
                     }),
                 );
-                const apiFallback = await ClosestServer.findClosestServerViaApi(
-                    placeId,
-                    preferredRegionCode,
-                    userRequestedStop,
+                const apiFallback = await withDeadline(
+                    ClosestServer.findClosestServerViaApi(
+                        placeId,
+                        preferredRegionCode,
+                        () =>
+                            userRequestedStop || Date.now() >= rovalraDeadline,
+                    ),
+                    rovalraDeadline,
+                    null,
                 );
 
                 if (apiFallback) {

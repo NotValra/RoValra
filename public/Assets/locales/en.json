@@ -126,6 +126,7 @@
         "searchingInRegion": "Searching in {{region}}...",
         "fallbackInactive": "Next best servers via API are inactive. Scanning locally for {{region}}...",
         "noServersApi": "No servers found in {{region}} via API. Scanning locally...",
+        "apiTimedOut": "RoValras Region Finder is taking too long to find {{region}}, likely cause of Roblox changes. Falling back to finding {{region}} locally.",
         "loadBalancing": "{{region}} is used for load balancing and is likely only active under heavy load. Scanning...",
         "foundJoining": "Found {{region}}! Joining...",
         "foundContinuing": "Found: {{region}}. Continuing search for {{targetRegion}}...",
