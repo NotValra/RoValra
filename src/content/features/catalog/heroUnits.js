@@ -10,6 +10,8 @@ import { settings } from '../../core/settings/getSettings.js';
 const LANDING_PAGE_REGEX = /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/catalog\/?$/i;
 const TOP_BAR_SELECTOR = '.catalog-search-options-top-bar';
 const WRAPPER_SELECTOR = '.organic-items-wrapper';
+const ROSEAL_CONTAINER_SELECTOR = '.roseal-items-container';
+const LANDING_CONTAINER_SELECTOR = '.marketplace-landing-container';
 const SCREEN_SIZE = 'xLarge';
 
 let widgetsPromise = null;
@@ -115,10 +117,34 @@ function isLandingPage() {
     );
 }
 
-async function update() {
-    const wrapper = document.querySelector(WRAPPER_SELECTOR);
+function placeHeroContainer() {
+    if (document.querySelector(ROSEAL_CONTAINER_SELECTOR)) {
+        const landing = document.querySelector(LANDING_CONTAINER_SELECTOR);
+        if (!landing) return false;
+        if (landing.firstElementChild !== heroContainer) {
+            landing.prepend(heroContainer);
+        }
+        return true;
+    }
 
-    if (!wrapper || !isLandingPage()) {
+    const wrapper = document.querySelector(WRAPPER_SELECTOR);
+    if (!wrapper) return false;
+    if (wrapper.previousElementSibling !== heroContainer) {
+        wrapper.before(heroContainer);
+    }
+    return true;
+}
+
+function hasTarget() {
+    return Boolean(
+        document.querySelector(ROSEAL_CONTAINER_SELECTOR)
+            ? document.querySelector(LANDING_CONTAINER_SELECTOR)
+            : document.querySelector(WRAPPER_SELECTOR),
+    );
+}
+
+async function update() {
+    if (!hasTarget() || !isLandingPage()) {
         if (heroContainer) heroContainer.style.display = 'none';
         return;
     }
@@ -135,10 +161,7 @@ async function update() {
         return update();
     }
 
-    heroContainer.style.display = '';
-    if (wrapper.previousElementSibling !== heroContainer) {
-        wrapper.before(heroContainer);
-    }
+    heroContainer.style.display = placeHeroContainer() ? '' : 'none';
 }
 
 export async function init() {
@@ -155,4 +178,6 @@ export async function init() {
         onRemove: update,
     });
     observeElement(WRAPPER_SELECTOR, update);
+    observeElement(ROSEAL_CONTAINER_SELECTOR, update, { onRemove: update });
+    observeElement(LANDING_CONTAINER_SELECTOR, update);
 }
