@@ -66,4 +66,8 @@
             background-color: transparent;
         }
     }
+
+    &.dark-theme .icon-robux-16x16 {
+        filter: brightness(0) invert(1);
+    }
 }

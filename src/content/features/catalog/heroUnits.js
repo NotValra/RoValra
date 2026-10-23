@@ -58,7 +58,10 @@ function createHeroUnit(widget) {
     const unit = document.createElement('div');
     unit.className = 'rovalra-hero-unit';
     const background = getBackgroundUrl(template.widgetStyle);
-    if (background) unit.style.backgroundImage = `url("${background}")`;
+    if (background) {
+        unit.style.backgroundImage = `url("${background}")`;
+        unit.classList.add('dark-theme');
+    }
 
     const info = document.createElement('div');
     info.className = 'rovalra-hero-unit-info';

@@ -47,6 +47,7 @@ body:where(.light-theme),
 }
 
 style-test-element.dark-theme,
+.rovalra-hero-unit.dark-theme,
 body:where(.dark-theme),
 :root.dark-theme,
 :root[color-scheme='dark'] {
