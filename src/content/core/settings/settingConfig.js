@@ -2907,6 +2907,20 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    hideRobuxIconOnly: {
+                        label: 'Robux Icon Only',
+                        description: [
+                            "Hides the 'Hidden' text beside the Robux icon in the top navigation.",
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['4632962611'],
+                        condition: {
+                            parent: 'hideRobux',
+                            value: true,
+                            hide: false,
+                        },
+                    },
                     hideRobuxRevealOnClick: {
                         label: 'Reveal Robux on click',
                         description: [
