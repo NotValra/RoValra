@@ -120,8 +120,7 @@ import { init as initEvents } from './features/games/about/events.js';
 import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
-import { init as initSpentPerGame } from './features/transactions/spentPerGame.js';
-import { init as initSpentPerCreator } from './features/transactions/spentPerCreator.js';
+import { init as initSpending } from './features/transactions/spending.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
@@ -507,8 +506,7 @@ const featureRoutes = [
         paths: ['/transactions'],
         features: [
             initTotalSpent,
-            initSpentPerGame,
-            initSpentPerCreator,
+            initSpending,
             initPendingRobuxTrans,
             initTotalEarned,
         ],

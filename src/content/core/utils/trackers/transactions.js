@@ -7,10 +7,12 @@ import { runExclusiveScan } from './scanLock.js';
 const TRANSACTIONS_STORE = 'transactions';
 const LEGACY_TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 const LEGACY_TRANSACTION_SCAN_LOCKS_KEY = 'rovalra_transaction_scan_locks';
-const TRANSACTIONS_STORAGE_VERSION = 5;
+const TRANSACTIONS_STORAGE_VERSION = 7;
 const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
 const TRANSACTION_REQUEST_DELAY = 5000;
-const TRANSACTION_MAX_INTERNAL_ERRORS = 3;
+const TRANSACTION_MAX_INTERNAL_ERRORS = 5;
+const TRANSACTION_MAX_INTERNAL_ERROR_DELAY = 60 * 1000;
+const TRANSACTION_MAX_INTERNAL_ERROR_RUNS = 3;
 const TRANSACTION_MAX_INCREMENTAL_PAGES = 5;
 const LATEST_TRANSACTION_HASH_COUNT = 2;
 
@@ -58,7 +60,7 @@ export async function getTransactions() {
     if (!data) return [];
 
     return Object.entries(data.transactions || {})
-        .map(([idHash, tx]) => ({ idHash, ...tx }))
+        .map(([id, tx]) => ({ id, ...tx }))
         .sort((a, b) => (b.created || 0) - (a.created || 0));
 }
 
@@ -247,14 +249,15 @@ async function fetchTransactionsPage(userId, cursor = null) {
 }
 
 function processTransaction(transaction) {
-    if (!transaction?.idHash || !transaction.currency || !transaction.agent)
-        return null;
+    const id = transaction?.purchaseToken || transaction?.idHash;
+    if (!id || !transaction.currency || !transaction.agent) return null;
 
     const created = Date.parse(transaction.created);
-    const place = transaction.details?.place;
+    const details = transaction.details;
+    const place = details?.place;
 
     return {
-        idHash: String(transaction.idHash),
+        id: String(id),
         amount: Math.abs(transaction.currency.amount || 0),
         created: Number.isFinite(created) ? created : null,
         creatorId: String(transaction.agent.id || 0),
@@ -262,6 +265,9 @@ function processTransaction(transaction) {
         creatorName: transaction.agent.name || 'Unknown',
         universeId: place?.universeId ? String(place.universeId) : null,
         gameName: place?.name || null,
+        itemId: details?.id ? String(details.id) : null,
+        itemName: details?.name || null,
+        itemType: details?.type || null,
     };
 }
 
@@ -351,6 +357,8 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
     let foundMatch = false;
     let emptyPageCount = 0;
     let internalErrorCount = 0;
+    let internalErrorCursor = existingData.internalErrorCursor ?? null;
+    let internalErrorRuns = existingData.internalErrorRuns || 0;
     const transactions = { ...(existingData.transactions || {}) };
     let latestTransactionHashes = existingData.latestTransactionHashes || [];
     let aggregated = {
@@ -369,6 +377,8 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
             transactions,
             latestTransactionHashes,
             scanCursor: isIncremental ? null : cursor,
+            internalErrorCursor: isIncremental ? null : internalErrorCursor,
+            internalErrorRuns: isIncremental ? 0 : internalErrorRuns,
             isFullyScanned: isIncremental || scanFinished,
             isScanning: !isIncremental && !scanFinished,
             storageVersion: TRANSACTIONS_STORAGE_VERSION,
@@ -385,26 +395,44 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
             internalErrorCount++;
 
             if (internalErrorCount >= TRANSACTION_MAX_INTERNAL_ERRORS) {
+                if (isIncremental) break;
+
+                internalErrorRuns =
+                    internalErrorCursor === cursor ? internalErrorRuns + 1 : 1;
+                internalErrorCursor = cursor;
+                const giveUp =
+                    internalErrorRuns >= TRANSACTION_MAX_INTERNAL_ERROR_RUNS;
                 console.warn(
-                    'RoValra: Treating repeated Roblox transaction internal errors as end of scan',
+                    giveUp
+                        ? 'RoValra: Treating repeated Roblox transaction internal errors as end of scan'
+                        : 'RoValra: Roblox transaction internal errors, resuming scan later',
                     {
                         userId,
                         cursor,
                         status: page.status,
-                        internalErrorCount,
+                        internalErrorRuns,
                     },
                 );
-                await persistTransactionData(true);
+                await persistTransactionData(giveUp);
                 break;
             }
 
             await sleep(
-                Math.max(TRANSACTION_REQUEST_DELAY, page.rateLimitDelay || 0),
+                Math.max(
+                    Math.min(
+                        TRANSACTION_REQUEST_DELAY *
+                            2 ** (internalErrorCount - 1),
+                        TRANSACTION_MAX_INTERNAL_ERROR_DELAY,
+                    ),
+                    page.rateLimitDelay || 0,
+                ),
             );
             continue;
         }
 
         internalErrorCount = 0;
+        internalErrorCursor = null;
+        internalErrorRuns = 0;
         const data = page.body;
 
         if (!data.data || data.data.length === 0) {
@@ -423,14 +451,14 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
         for (const processed of processedPage) {
             if (
                 isIncremental &&
-                latestTransactionHashes.includes(processed.idHash)
+                latestTransactionHashes.includes(processed.id)
             ) {
                 foundMatch = true;
                 break;
             }
 
-            const { idHash, ...record } = processed;
-            transactions[idHash] = record;
+            const { id, ...record } = processed;
+            transactions[id] = record;
         }
 
         if (pagesChecked === 0) {
@@ -438,7 +466,7 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
                 ...new Set([
                     ...processedPage
                         .slice(0, LATEST_TRANSACTION_HASH_COUNT)
-                        .map((tx) => tx.idHash),
+                        .map((tx) => tx.id),
                     ...latestTransactionHashes,
                 ]),
             ].slice(0, LATEST_TRANSACTION_HASH_COUNT);

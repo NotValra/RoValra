@@ -923,6 +923,29 @@
         "scanInProgress": "Transaction scan in progress. This may take a while.",
         "loadError": "Unable to load creator spending."
     },
+    "spending": {
+        "title": "Spending",
+        "disclaimer": "This can be inaccurate due to Roblox limitations",
+        "byMonth": "By month",
+        "byYear": "By year",
+        "creators": "Creators",
+        "games": "Experiences",
+        "searchPlaceholder": "Search",
+        "showingPeriod": "Showing {{period}}",
+        "back": "Back",
+        "viewPurchases": "View purchases",
+        "robuxAmount": "{{amount}} Robux",
+        "mostExpensive": "Most expensive",
+        "cheapest": "Cheapest",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "unknownItem": "Unknown item",
+        "unknownGame": "Unknown experience",
+        "noPurchases": "No purchases found.",
+        "noPurchasesInPeriod": "No purchases in this period.",
+        "scanInProgress": "Transaction scan in progress. This may take a while.",
+        "loadError": "Unable to load spending."
+    },
     "settings": {
         "tabs": {
             "info": "Info",

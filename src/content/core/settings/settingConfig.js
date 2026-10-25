@@ -681,6 +681,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 indexedDbStore: 'transactions',
+                dependedBy: ['spendingEnabled'],
             },
             OldestVersionEnabled: {
                 label: 'Oldest Server Version',
@@ -1964,21 +1965,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            spentPerGameEnabled: {
-                label: 'Spent Per Experience',
+            spendingEnabled: {
+                label: 'Spending Breakdown',
                 description: [
-                    'Shows how much Robux you have spent on each experience on the transactions page.',
+                    'Shows a timeline of how much Robux you have spent, along with how much you have spent on each creator and experience on the transactions page.',
+                    'Click a month or year to filter by it, or use **View purchases** to see everything you bought from a creator or experience.',
+                    'Uses the transaction scan from **Total Spent on Experience**.',
                 ],
                 type: 'checkbox',
                 default: true,
-            },
-            spentPerCreatorEnabled: {
-                label: 'Spent Per Creator',
-                description: [
-                    'Shows how much Robux you have spent on each user and group on the transactions page.',
-                ],
-                type: 'checkbox',
-                default: true,
+                indexedDbStore: 'transactions',
+                dependsOn: ['TotalSpentGamesEnabled'],
             },
             totalearnedEnabled: {
                 label: 'Total Earned',
