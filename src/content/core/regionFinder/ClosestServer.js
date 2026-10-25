@@ -59,7 +59,7 @@ export function getRegionDistance(code1, code2) {
 export async function findClosestServerViaApi(
     placeId,
     originRegionId,
-    userRequestedStop,
+    userRequestedStopCheck,
 ) {
     const origin = REGIONS[originRegionId];
     if (!origin) return null;
@@ -82,7 +82,7 @@ export async function findClosestServerViaApi(
     const regionsToCheck = regionsWithDistance.slice(0, 10);
 
     for (const { id, region } of regionsToCheck) {
-        if (userRequestedStop) return null;
+        if (userRequestedStopCheck?.()) return null;
 
         let url = `/v1/servers/region?place_id=${placeId}`;
         if (region.country)
@@ -99,7 +99,7 @@ export async function findClosestServerViaApi(
                 const data = await response.json();
                 if (data.servers && data.servers.length > 0) {
                     for (const server of data.servers) {
-                        if (userRequestedStop) return null;
+                        if (userRequestedStopCheck?.()) return null;
 
                         try {
                             const joinRes = await callRobloxApi({
@@ -514,6 +514,7 @@ async function attemptJoinServers(
             if (res.ok) {
                 const info = await res.json();
                 if (info.joinScript) {
+                    if (stopCheck && stopCheck()) return false;
                     joinedServerIds.add(serverId);
                     hideLoadingOverlay(true);
                     launchGame(placeId, serverId);

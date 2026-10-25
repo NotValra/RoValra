@@ -1,6 +1,8 @@
 import { getBatchThumbnails } from '../../thumbnail/thumbnails.js';
 import { ts } from '../../locale/i18n.js';
 import { followUser, openWebChat } from '../../utils/launcher.js';
+import { callRobloxApiJson } from '../../api.js';
+import { createShimmerBlock } from '../shimmer.js';
 
 const TOOLTIP_CLASS = 'rovalra-user-card-tooltip';
 const HIDE_DELAY_MS = 120;
@@ -12,7 +14,10 @@ const FOUNDATION_BTN_BASE =
 const FOUNDATION_BTN_OVERLAY =
     'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
 
+const JOINABILITY_TTL_MS = 30 * 1000;
+
 const placeThumbCache = new Map();
+const joinabilityCache = new Map();
 
 let activeTooltip = null;
 let activeAnchor = null;
@@ -55,6 +60,39 @@ function getPlaceThumb(placeId) {
         );
     }
     return placeThumbCache.get(key);
+}
+
+function getJoinability(userId) {
+    const key = String(userId);
+    const cached = joinabilityCache.get(key);
+    if (cached && cached.expires > Date.now()) return cached.promise;
+
+    const promise = callRobloxApiJson({
+        subdomain: 'apis',
+        endpoint: '/profile-platform-api/v1/profiles/batch/get',
+        method: 'POST',
+        body: {
+            profileType: 'User',
+            profileIds: [key],
+            components: [{ component: 'JoinUserActions' }],
+        },
+    })
+        .then((response) => {
+            const actions =
+                response?.profiles?.[key]?.components?.JoinUserActions
+                    ?.actions || [];
+            return actions.find((a) => a?.joinability)?.joinability || null;
+        })
+        .catch(() => {
+            joinabilityCache.delete(key);
+            return null;
+        });
+
+    joinabilityCache.set(key, {
+        promise,
+        expires: Date.now() + JOINABILITY_TTL_MS,
+    });
+    return promise;
 }
 
 function onViewportChange() {
@@ -184,6 +222,27 @@ function buildTooltip({ userId, displayName, presence }) {
     );
 
     if (inGame) {
+        const joinStatus = el(
+            'span',
+            'rovalra-uct-join-status text-body-small content-default',
+        );
+        joinStatus.appendChild(
+            createShimmerBlock({ width: '60%', height: '16px' }),
+        );
+        actions.appendChild(joinStatus);
+        getJoinability(userId).then((joinability) => {
+            if (joinability === 'Joinable') {
+                joinStatus.textContent = L('canJoin');
+            } else if (joinability === 'NotJoinable') {
+                joinStatus.textContent = L('notJoinable');
+            } else {
+                joinStatus.remove();
+                if (activeTooltip === wrapper && activeAnchor) {
+                    positionTooltip(wrapper, activeAnchor);
+                }
+            }
+        });
+
         const joinBtn = makeFoundationButton(L('join'), true);
         joinBtn.addEventListener('click', () => {
             followUser(userId);

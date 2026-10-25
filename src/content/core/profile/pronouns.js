@@ -53,7 +53,8 @@ export function normalizeProfilePronouns(value) {
     const normalized = truncateProfilePronouns(
         replacePronounSpecialCharacters(String(value).trim()),
     );
-    return normalized || null;
+    if (!normalized || /^[|\s]*$/.test(normalized)) return null;
+    return normalized;
 }
 
 export async function getProfilePronounsForUser(userId) {

@@ -8,7 +8,10 @@ import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { createToggle } from '../../core/ui/general/toggle.js';
 import { createProfileHeaderButton } from '../../core/ui/profile/header/button.js';
 import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
-import { getTransactionData } from '../../core/utils/trackers/transactions.js';
+import {
+    getTransactionData,
+    onTransactionDataChanged,
+} from '../../core/utils/trackers/transactions.js';
 import { createShimmerBlock } from '../../core/ui/shimmer.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
@@ -16,7 +19,6 @@ import { getAssets } from '../../core/assets.js';
 
 const ROW_SELECTOR = '#transactions-web-app .summary table.summary tr';
 const ROW_MARKER = 'data-rovalra-spent-per-creator';
-const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 const PAGE_SIZE = 5;
 const SORTS = [
     { value: 'spent', label: 'spentPerCreator.mostSpent' },
@@ -328,8 +330,7 @@ function addSection(table) {
             loading = false;
         }
     };
-    chrome.storage.onChanged.addListener(async (changes, areaName) => {
-        if (areaName !== 'local' || !changes[TRANSACTIONS_DATA_KEY]) return;
+    onTransactionDataChanged(async () => {
         const latest = await getTransactionData();
         if (isScanning && !latest?.isScanning) {
             transactionData = null;

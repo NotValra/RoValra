@@ -3,7 +3,10 @@ import { getPlaceDetails } from '../../core/apis/games.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { observeElement } from '../../core/observer.js';
-import { getGameBadges } from '../../core/utils/trackers/badges.js';
+import {
+    getGameBadges,
+    onBadgeDataChanged,
+} from '../../core/utils/trackers/badges.js';
 import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import {
@@ -14,7 +17,6 @@ import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 
-const BADGES_STORAGE_KEY = 'rovalra_badges_v1';
 const DETAILS_CACHE_SECTION = 'badge_details';
 const PUBLIC_BADGES_CACHE_SECTION = 'universe_public_badges';
 const HIDDEN_LIST_CLASS = 'rovalra-hidden-badges-list';
@@ -25,6 +27,7 @@ const INJECTED_SECTION_ID = 'rovalra-hidden-badges-section';
 
 let initialized = false;
 let storageRefreshTimer = null;
+let lastPlaceBadgeState = null;
 const hiddenBadgeMemoryCache = new Map();
 
 async function getLocaleText() {
@@ -340,10 +343,7 @@ function renderBadgeRows(
         rolimonsLink.href = `https://www.rolimons.com/gamebadge/${badge.id}`;
         rolimonsLink.target = '_blank';
         rolimonsLink.rel = 'noopener noreferrer';
-        rolimonsLink.setAttribute(
-            'aria-label',
-            localeText.openBadgeOnRolimons,
-        );
+        rolimonsLink.setAttribute('aria-label', localeText.openBadgeOnRolimons);
 
         const rolimonsIcon = document.createElement('img');
         rolimonsIcon.src = getAssets().rolimonsIcon;
@@ -411,6 +411,20 @@ async function loadHiddenBadgeData(placeId, localeText) {
         }
         hiddenBadgeIds = owned.badgeIds;
         isScanning = owned.isScanning;
+    } else {
+        try {
+            const owned = await getOwnedHiddenBadgeIds(placeId);
+            if (!owned.universeMissing) {
+                hiddenBadgeIds = [
+                    ...new Set([
+                        ...hiddenBadgeIds,
+                        ...owned.badgeIds.map(String),
+                    ]),
+                ];
+            }
+        } catch (error) {
+            console.warn('RoValra: Failed to load owned hidden badges', error);
+        }
     }
 
     if (hiddenBadgeIds.length === 0) {
@@ -607,22 +621,18 @@ export async function init() {
         multiple: true,
     });
 
-    chrome.storage.onChanged.addListener((changes, area) => {
-        if (area !== 'local' || !changes[BADGES_STORAGE_KEY]) return;
-
+    onBadgeDataChanged(async () => {
         const placeId = getPlaceIdFromUrl();
         if (!placeId) return;
 
-        const cached = hiddenBadgeMemoryCache.get(String(placeId));
-        if (cached && !cached.ownedOnly) return;
-
-        const { oldValue, newValue } = changes[BADGES_STORAGE_KEY];
-        const getPlaceState = (data) =>
-            JSON.stringify([
-                data?.places?.[String(placeId)]?.badgeIds || [],
-                !!data?.isScanning,
-            ]);
-        if (getPlaceState(oldValue) === getPlaceState(newValue)) return;
+        const { badges, isScanning } = await getGameBadges(placeId);
+        const placeState = JSON.stringify([
+            placeId,
+            badges.map((badge) => badge.badgeId),
+            isScanning,
+        ]);
+        if (placeState === lastPlaceBadgeState) return;
+        lastPlaceBadgeState = placeState;
 
         clearTimeout(storageRefreshTimer);
         storageRefreshTimer = setTimeout(() => {
