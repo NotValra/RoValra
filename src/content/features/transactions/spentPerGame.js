@@ -11,6 +11,7 @@ import { getUniversesDetails } from '../../core/apis/games.js';
 import {
     getAllGameSpending,
     getTransactionData,
+    onTransactionDataChanged,
 } from '../../core/utils/trackers/transactions.js';
 import { createShimmerBlock } from '../../core/ui/shimmer.js';
 import { ts } from '../../core/locale/i18n.js';
@@ -19,7 +20,6 @@ import { getAssets } from '../../core/assets.js';
 
 const ROW_SELECTOR = '#transactions-web-app .summary table.summary tr';
 const ROW_MARKER = 'data-rovalra-spent-per-game';
-const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 const INITIAL_GAME_COUNT = 5;
 const GAME_PAGE_SIZE = 5;
 
@@ -418,9 +418,7 @@ function addSpentPerGameSection(table) {
         }
     };
 
-    chrome.storage.onChanged.addListener(async (changes, areaName) => {
-        if (areaName !== 'local' || !changes[TRANSACTIONS_DATA_KEY]) return;
-
+    onTransactionDataChanged(async () => {
         const latestData = await getTransactionData();
         if (isScanning && !latestData?.isScanning) {
             loadedGames = null;

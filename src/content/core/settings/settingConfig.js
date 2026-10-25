@@ -680,7 +680,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                storageKey: 'rovalra_transactions_v2',
+                indexedDbStore: 'transactions',
             },
             OldestVersionEnabled: {
                 label: 'Oldest Server Version',
