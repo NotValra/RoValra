@@ -1,5 +1,5 @@
+import DOMPurify from '../../core/packages/dompurify.js';
 import { observeAttributes, observeElement } from '../../core/observer.js';
-import { ts } from '../../core/locale/i18n.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { settings } from '../../core/settings/getSettings.js';
 
