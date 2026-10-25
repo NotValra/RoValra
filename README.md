@@ -26,7 +26,7 @@
 
 - **Website:** https://rovalra.com
 - **Features:** https://www.rovalra.com/features/
-- **FAQ & Support:** https://www.rovalra.com/support/
+- **FAQ** https://www.rovalra.com/support/
 
 > [!WARNING]
 > RoValra is only distributed through the official [website](https://rovalra.com), [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli) and [FireFox](https://addons.mozilla.org/en-US/firefox/addon/rovalra-roblox-improved-/)
@@ -83,6 +83,7 @@ Important take aways of the terms:
 - Your project cannot be an Extension or use the API in anyway that might make users feel your Project is a worthy replacement for RoValra.
 - You need to add proper credits to https://www.rovalra.com in your project.
 - You cannot expect our services to stay online at all time, downtime causing issues with your project is not our responsibility
+- Scraping of any kind is **NOT** allowed without prior written permission from Valra.
 - We may block you from using our API at any point without prior notice.
 
 Please make sure to read the Terms of Use fully before using our API.
