@@ -20,11 +20,6 @@ let savedCollapsedState = false;
 let expandOnHover = false;
 let suppressHoverUntilLeave = false;
 
-function getToggleLabel(collapsed) {
-    return collapsed
-        ? ts('sidebarCollapse.expandSidebar')
-        : ts('sidebarCollapse.collapseSidebar');
-}
 
 function isCollapsed(leftNav) {
     return leftNav?.dataset.rovalraSidebarCollapsed === 'true';
