@@ -976,6 +976,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                locked: 'Due to people selling RoValra profile views as a service.',
+                isPermanent: true,
             },
             creatorStatsEnabled: {
                 label: 'Creator Stats',
