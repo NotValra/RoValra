@@ -76,6 +76,17 @@ function consumeProfilePronounsInputAgreement() {
     return true;
 }
 
+const MODERATION_REJECTION_MESSAGES = [
+    'This feature has been disabled for your account due to moderation.',
+    'Your account has been suspended for violating terms of service.',
+];
+
+function isModerationRejection(error) {
+    if (error?.userMessage) return true;
+    const message = error?.response?.message || error?.response?.error;
+    return MODERATION_REJECTION_MESSAGES.includes(message);
+}
+
 async function prepareProfilePronounsUpdate(value) {
     const normalizedValue = normalizeProfilePronouns(value);
     const authenticatedUserId = await getAuthenticatedUserId();
@@ -147,6 +158,14 @@ async function prepareProfilePronounsUpdate(value) {
         }
         apiSynced = true;
     } catch (error) {
+        if (isModerationRejection(error)) {
+            console.error('RoValra: Failed to update pronouns via API.', error);
+            restoreProfilePronounsInput(previousValue);
+            if (error?.userMessage) {
+                showSystemAlert(error.userMessage, 'warning');
+            }
+            return { shouldSave: false };
+        }
         console.warn(
             'RoValra: Pronouns will remain local because API sync failed.',
             error,
