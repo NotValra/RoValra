@@ -1,7 +1,22 @@
 import { getAssets } from '../../assets.js';
-import { callRobloxApi } from '../../api.js';
+import { callRobloxApi, callRobloxApiJson } from '../../api.js';
 import { SETTINGS_CONFIG } from '../settingConfig.js';
 import { createDropdown } from '../../ui/dropdown.js';
+import { createRadioButton } from '../../ui/general/radio.js';
+import {
+    createThumbnailElement,
+    getBatchThumbnails,
+} from '../../thumbnail/thumbnails.js';
+import {
+    SETTING_STATUSES,
+    buildSearchQuery,
+    parseSearchQuery,
+} from '../searchQuery.js';
+import { Icon } from '../../ui/buildericon.js';
+import {
+    CREATOR_USER_ID,
+    CONTRIBUTOR_USER_IDS,
+} from '../../configs/userIds.js';
 import { t, ts } from '../../locale/i18n.js';
 
 const ACCOUNT_STANDING_TAB_IDS = new Set([
@@ -469,6 +484,255 @@ function stripInlineStyles(container) {
     });
 }
 
+function getContributorSettingCounts() {
+    const counts = new Map();
+    const add = (ids) =>
+        ids.forEach((id) => counts.set(id, (counts.get(id) || 0) + 1));
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const setting of Object.values(category.settings || {})) {
+            if (setting.hidden) continue;
+            const ids = new Set((setting.contributors || []).map(String));
+            if (!setting.contributors) ids.add(String(CREATOR_USER_ID));
+            for (const child of Object.values(setting.childSettings || {})) {
+                (child.contributors || []).forEach((id) => ids.add(String(id)));
+            }
+            add(ids);
+        }
+    }
+    return counts;
+}
+
+async function getContributorFilterItems() {
+    const counts = getContributorSettingCounts();
+    const ids = [
+        ...new Set([
+            String(CREATOR_USER_ID),
+            ...CONTRIBUTOR_USER_IDS.map(String),
+        ]),
+    ].filter((id) => counts.has(id));
+    const users = await callRobloxApiJson({
+        subdomain: 'users',
+        endpoint: '/v1/users',
+        method: 'POST',
+        body: { userIds: ids.map(Number), excludeBannedUsers: false },
+    }).catch(() => null);
+    const usersById = new Map(
+        (users?.data || []).map((user) => [String(user.id), user]),
+    );
+    const thumbnails = await getBatchThumbnails(
+        ids,
+        'AvatarHeadshot',
+        '150x150',
+    ).catch(() => []);
+    const thumbsById = new Map(
+        thumbnails.map((thumb) => [String(thumb.targetId), thumb]),
+    );
+    return ids
+        .map((id) => ({
+            id,
+            displayName: usersById.get(id)?.displayName || id,
+            name: usersById.get(id)?.name || '',
+            thumbnail: thumbsById.get(id),
+            hasVerifiedBadge: usersById.get(id)?.hasVerifiedBadge === true,
+            count: counts.get(id),
+        }))
+        .sort((a, b) => b.count - a.count);
+}
+
+function createContributorFilterRow(contributor) {
+    const row = document.createElement('a');
+    row.className =
+        'avatar-card-link rovalra-donator-card rovalra-settings-search-contributor';
+    row.href = `https://www.roblox.com/users/${contributor.id}/profile`;
+    row.dataset.contributorId = contributor.id;
+    row.title = contributor.displayName;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar-card-image';
+    avatar.append(
+        createThumbnailElement(
+            contributor.thumbnail,
+            contributor.displayName,
+            '',
+            {
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+            },
+        ),
+    );
+
+    const name = document.createElement('span');
+    name.className = 'rovalra-settings-search-contributor-name';
+    name.textContent = contributor.displayName;
+
+    const count = document.createElement('span');
+    count.className = 'rovalra-settings-search-contributor-count';
+    count.textContent = String(contributor.count);
+
+    row.append(avatar, name);
+    if (contributor.hasVerifiedBadge) {
+        const verified = document.createElement('img');
+        verified.className = 'rovalra-contributor-verified';
+        verified.src = getAssets().verifiedBadge;
+        verified.alt = ts('quickSearch.verifiedBadge');
+        verified.title = ts('quickSearch.verified');
+        row.append(verified);
+    }
+    row.append(count);
+    return row;
+}
+
+function createSearchFilters(searchInput, runSearch) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rovalra-settings-search-filters';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'rovalra-settings-search-filter';
+    button.setAttribute('aria-label', ts('settings.ui.search.filters'));
+    button.title = ts('settings.ui.search.filters');
+    button.append(Icon({ icon: 'filter_list', material: true, size: '20px' }));
+
+    const panel = document.createElement('div');
+    panel.className = 'rovalra-settings-search-panel';
+    panel.hidden = true;
+
+    const apply = (changes) => {
+        const parsed = parseSearchQuery(searchInput.value);
+        searchInput.value = buildSearchQuery({ ...parsed, ...changes });
+        updateState();
+        runSearch(searchInput.value);
+    };
+
+    const statusTitle = document.createElement('div');
+    statusTitle.className = 'rovalra-settings-search-panel-title';
+    statusTitle.textContent = ts('settings.ui.search.status');
+    panel.append(statusTitle);
+
+    const statusToggles = new Map();
+    for (const status of SETTING_STATUSES) {
+        const row = document.createElement('label');
+        row.className = 'rovalra-settings-search-panel-row';
+        const toggle = createRadioButton({
+            checked: true,
+            onChange: (checked) => {
+                const hiddenStatuses = new Set(
+                    parseSearchQuery(searchInput.value).hiddenStatuses,
+                );
+                if (checked) hiddenStatuses.delete(status);
+                else hiddenStatuses.add(status);
+                apply({ hiddenStatuses });
+            },
+        });
+        statusToggles.set(status, toggle);
+        const label = document.createElement('span');
+        label.textContent = ts(`settings.ui.search.statuses.${status}`);
+        row.append(toggle, label);
+        panel.append(row);
+    }
+
+    const contributorTitle = document.createElement('div');
+    contributorTitle.className = 'rovalra-settings-search-panel-title';
+    contributorTitle.textContent = ts('settings.ui.search.contributor');
+    const contributorSlot = document.createElement('div');
+    contributorSlot.className = 'rovalra-settings-search-panel-contributor';
+    panel.append(contributorTitle, contributorSlot);
+
+    const contributorInput = document.createElement('input');
+    contributorInput.type = 'search';
+    contributorInput.className = 'rovalra-settings-search-contributor-input';
+    contributorInput.placeholder = ts(
+        'settings.ui.search.contributorPlaceholder',
+    );
+    const contributorList = document.createElement('div');
+    contributorList.className = 'rovalra-settings-search-contributor-list';
+    contributorSlot.append(contributorInput, contributorList);
+
+    let contributorRows = null;
+    const allRow = document.createElement('button');
+    allRow.type = 'button';
+    allRow.className = 'rovalra-settings-search-contributor is-all';
+    allRow.dataset.contributorId = '';
+    allRow.textContent = ts('settings.ui.search.allSettings');
+
+    const filterContributorRows = () => {
+        const term = contributorInput.value.trim().toLowerCase();
+        for (const { row, contributor } of contributorRows || []) {
+            row.hidden =
+                !!term &&
+                !`${contributor.displayName} ${contributor.name}`
+                    .toLowerCase()
+                    .includes(term);
+        }
+        allRow.hidden = !!term;
+    };
+    contributorInput.addEventListener('input', filterContributorRows);
+
+    contributorList.addEventListener('click', (event) => {
+        const row = event.target.closest('[data-contributor-id]');
+        if (!row) return;
+        event.preventDefault();
+        const id = row.dataset.contributorId;
+        apply({ contributor: id ? `#${id}` : null });
+    });
+
+    const loadContributors = async () => {
+        if (contributorRows) return;
+        contributorRows = [];
+        const contributors = await getContributorFilterItems();
+        contributorRows = contributors.map((contributor) => ({
+            contributor,
+            row: createContributorFilterRow(contributor),
+        }));
+        contributorList.replaceChildren(
+            allRow,
+            ...contributorRows.map(({ row }) => row),
+        );
+        filterContributorRows();
+        updateState();
+    };
+
+    function updateState() {
+        const parsed = parseSearchQuery(searchInput.value);
+        button.classList.toggle('is-active', parsed.hasFilters);
+        for (const [status, toggle] of statusToggles) {
+            toggle.setChecked(!parsed.hiddenStatuses.has(status));
+        }
+        const contributorId = parsed.contributor?.match(/^#?(\d+)$/)?.[1];
+        contributorList
+            .querySelectorAll('[data-contributor-id]')
+            .forEach((row) =>
+                row.classList.toggle(
+                    'is-selected',
+                    row.dataset.contributorId === (contributorId || ''),
+                ),
+            );
+    }
+
+    const setPanelOpen = (isOpen) => {
+        panel.hidden = !isOpen;
+        button.classList.toggle('is-open', isOpen);
+        if (isOpen) loadContributors();
+    };
+
+    button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setPanelOpen(panel.hidden);
+    });
+    panel.addEventListener('click', (event) => event.stopPropagation());
+    document.addEventListener('click', (event) => {
+        if (!panel.hidden && !wrapper.contains(event.target)) {
+            setPanelOpen(false);
+        }
+    });
+    searchInput.addEventListener('input', updateState);
+
+    wrapper.append(button, panel);
+    updateState();
+    return wrapper;
+}
+
 function createUnifiedMenu({
     handleSearch,
     debounce,
@@ -534,7 +798,13 @@ function createUnifiedMenu({
         }
     });
 
-    searchListItem.appendChild(searchInput);
+    const searchFilters = createSearchFilters(searchInput, (query) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('rovalra', 'search');
+        history.replaceState(null, '', url.pathname + url.search + '#!/search');
+        handleSearch({ target: { value: query } });
+    });
+    searchListItem.append(searchInput, searchFilters);
     menuList.appendChild(searchListItem);
 
     const staticItems = buttonData.filter((item) =>
