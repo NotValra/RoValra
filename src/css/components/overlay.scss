@@ -106,6 +106,61 @@
     text-align: left;
 }
 
+.rovalra-overlay-body .rovalra-profile-badges-master-setting {
+    margin: 0 0 12px;
+    padding: 4px 16px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: color-mix(in srgb, currentColor 8%, transparent);
+
+    .setting-controls > label {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .setting-controls > .btn-toggle {
+        right: 0;
+    }
+}
+
+.rovalra-overlay-body .rovalra-profile-badges-list {
+    padding: 4px 16px;
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    border-radius: 12px;
+
+    .rovalra-profile-badge-setting + .rovalra-profile-badge-setting {
+        border-top: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+    }
+
+    .rovalra-profile-badge-setting {
+        margin: 0;
+    }
+
+    .setting-controls {
+        justify-content: flex-start;
+    }
+
+    .setting-controls > label {
+        margin: 0;
+        padding: 0 56px 0 0;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .setting-controls > .btn-toggle {
+        right: 0;
+    }
+}
+
+.rovalra-overlay-body .rovalra-profile-badge-preview {
+    flex-shrink: 0;
+    margin-right: 12px;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
 .rovalra-overlay-body
     .rovalra-profile-pronouns-editor
     .setting-controls

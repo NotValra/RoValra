@@ -1041,7 +1041,8 @@
                     "title": "{{user}}'s Contributions",
                     "contributor": "Contributor",
                     "featureName": "Feature",
-                    "featureKey": "(Dev) Feature Key"
+                    "featureKey": "(Dev) Feature Key",
+                    "viewInSettings": "View all in settings"
                 }
             }
         },
@@ -1095,7 +1096,18 @@
                 "suspended": "Suspended"
             },
             "search": {
-                "placeholder": "Search Settings..."
+                "placeholder": "Search Settings...",
+                "filters": "Filters",
+                "status": "Show",
+                "contributor": "Contributor",
+                "contributorPlaceholder": "Search contributors...",
+                "allSettings": "All contributors",
+                "statuses": {
+                    "deprecated": "Deprecated",
+                    "experimental": "Experimental",
+                    "beta": "Beta",
+                    "locked": "Locked"
+                }
             },
             "controls": {
                 "clearStorage": "Clear Storage",

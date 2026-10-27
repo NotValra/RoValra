@@ -4,6 +4,8 @@ import {
     setBadgeVisibility,
 } from '../../core/settings/badgeSettings.js';
 import { ts } from '../../core/locale/i18n.js';
+import { BADGE_CONFIG } from '../../core/configs/badges.js';
+import { getAssets } from '../../core/assets.js';
 import {
     registerProfileEditCategory,
     registerProfileEditFeature,
@@ -30,7 +32,12 @@ function notifyProfileEditValue(value) {
     );
 }
 
-function createSettingRow(labelText, toggle, className = '') {
+function getBadgeImage(key) {
+    const assetName = BADGE_CONFIG[key]?.iconAssetName;
+    return (assetName && getAssets()[assetName]) || null;
+}
+
+function createSettingRow(labelText, toggle, className = '', imageUrl = null) {
     const setting = document.createElement('div');
     setting.className = `setting rovalra-profile-badge-setting ${className}`.trim();
 
@@ -38,6 +45,13 @@ function createSettingRow(labelText, toggle, className = '') {
     controls.className = 'setting-controls';
     const label = document.createElement('label');
     label.textContent = labelText;
+    if (imageUrl) {
+        const preview = document.createElement('img');
+        preview.className = 'rovalra-profile-badge-preview';
+        preview.src = imageUrl;
+        preview.alt = '';
+        controls.append(preview);
+    }
     controls.append(label, toggle);
     setting.appendChild(controls);
     return setting;
@@ -85,9 +99,9 @@ async function createBadgeOverlay() {
         ),
     );
 
-    const divider = document.createElement('div');
-    divider.className = 'setting-label-divider';
-    body.appendChild(divider);
+    const badgeList = document.createElement('div');
+    badgeList.className = 'rovalra-profile-badges-list';
+    body.appendChild(badgeList);
 
     const updateSummary = () => {
         notifyProfileEditValue(getVisibilitySummary(badgeSettings));
@@ -109,8 +123,13 @@ async function createBadgeOverlay() {
             },
         });
         childToggles.push(toggle);
-        body.appendChild(
-            createSettingRow(formatBadgeLabel(key), toggle),
+        badgeList.appendChild(
+            createSettingRow(
+                formatBadgeLabel(key),
+                toggle,
+                '',
+                getBadgeImage(key),
+            ),
         );
     });
 
