@@ -228,6 +228,22 @@
         "verifiedBadge": "Verified Badge",
         "by": "By"
     },
+    "betterGraphs": {
+        "summary": "Average price over selected period",
+        "series": {
+            "price": "Recent Average Price",
+            "rap": "RAP (estimated)",
+            "volume": "Volume"
+        },
+        "ranges": {
+            "30d": "30 Days",
+            "90d": "90 Days",
+            "180d": "180 Days",
+            "1y": "1 Year",
+            "all": "All Time"
+        },
+        "rapNote": "Past RAP is estimated from daily sales"
+    },
     "catalogItemSales": {
         "sales": "Sales",
         "revenue": "Revenue",
