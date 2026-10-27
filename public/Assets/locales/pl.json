@@ -126,6 +126,7 @@
         "searchingInRegion": "Wyszukiwanie w regionie {{region}}...",
         "fallbackInactive": "Kolejne najlepsze serwery z API są nieaktywne. Lokalne skanowanie w poszukiwaniu: {{region}}...",
         "noServersApi": "API nie znalazło serwerów w regionie {{region}}. Skanowanie lokalne...",
+        "apiTimedOut": "Wyszukiwanie regionu {{region}} przez Region Finder w RoValra trwa zbyt długo, prawdopodobnie z powodu zmian wprowadzonych przez Roblox. Przechodzenie do lokalnego wyszukiwania regionu {{region}}.",
         "loadBalancing": "{{region}} służy do równoważenia obciążenia i prawdopodobnie jest aktywny tylko przy dużym ruchu. Skanowanie...",
         "foundJoining": "Znaleziono {{region}}! Dołączanie...",
         "foundContinuing": "Znaleziono: {{region}}. Dalsze wyszukiwanie: {{targetRegion}}...",
@@ -420,7 +421,9 @@
         "friendFallback": "Znajomy",
         "join": "Dołącz",
         "chat": "Czat",
-        "viewProfile": "Zobacz profil"
+        "viewProfile": "Wyświetl profil",
+        "canJoin": "Możecie grać razem",
+        "notJoinable": "Nie można obecnie dołączyć do użytkownika."
     },
     "friendLabels": {
         "menuAction": "Ustaw etykietę znajomego",
@@ -922,6 +925,29 @@
         "scanInProgress": "Trwa skanowanie transakcji. Może to chwilę potrwać.",
         "loadError": "Nie udało się załadować wydatków u twórców."
     },
+    "spending": {
+        "title": "Wydatki",
+        "disclaimer": "Dane mogą być niedokładne ze względu na ograniczenia Roblox",
+        "byMonth": "Według miesiąca",
+        "byYear": "Według roku",
+        "creators": "Twórcy",
+        "games": "Gry",
+        "searchPlaceholder": "Szukaj",
+        "showingPeriod": "Wyświetlanie: {{period}}",
+        "back": "Wstecz",
+        "viewPurchases": "Wyświetl zakupy",
+        "robuxAmount": "{{amount}} Robux",
+        "mostExpensive": "Najdroższe",
+        "cheapest": "Najtańsze",
+        "newest": "Najnowsze",
+        "oldest": "Najstarsze",
+        "unknownItem": "Nieznany przedmiot",
+        "unknownGame": "Nieznana gra",
+        "noPurchases": "Nie znaleziono zakupów.",
+        "noPurchasesInPeriod": "Brak zakupów w tym okresie.",
+        "scanInProgress": "Trwa skanowanie transakcji. Może to chwilę potrwać.",
+        "loadError": "Nie udało się wczytać danych o wydatkach."
+    },
     "settings": {
         "tabs": {
             "info": "Informacje",
@@ -949,10 +975,10 @@
         "credits": {
             "contributorsTitle": "Współtwórcy",
             "translatorsTitle": "Tłumacze",
-            "featureCount_one": "{{count}} funkcja",
-            "featureCount_few": "{{count}} funkcje",
-            "featureCount_many": "{{count}} funkcji",
-            "featureCount_other": "{{count}} funkcji",
+            "featureCount_one": "{{count}} wkład",
+            "featureCount_few": "{{count}} wkłady",
+            "featureCount_many": "{{count}} wkładów",
+            "featureCount_other": "{{count}} wkładów",
             "contributorTooltips": {
                 "146089324": "WoozyNate stworzył fisch, z którego pochodzi stare logo RoValra. Warto sprawdzić fisch!",
                 "1337447242": "Zaprojektował nowe logo i wszystkie grafiki na stronę w sklepie.",
@@ -963,10 +989,10 @@
             "sortLabel": "Sortuj współtwórców",
             "sortMost": "Najwięcej",
             "sortLeast": "Najmniej",
-            "contributionCount_one": "Wkład w {{count}} funkcję",
-            "contributionCount_few": "Wkład w {{count}} funkcje",
-            "contributionCount_many": "Wkład w {{count}} funkcji",
-            "contributionCount_other": "Wkład w {{count}} funkcji",
+            "contributionCount_one": "Wkład w {{count}} rzecz",
+            "contributionCount_few": "Wkład w {{count}} rzeczy",
+            "contributionCount_many": "Wkład w {{count}} rzeczy",
+            "contributionCount_other": "Wkład w {{count}} rzeczy",
             "backendContributorsNote": "Te osoby pomogły przy rzeczach niezwiązanych z konkretnymi funkcjami.",
             "loadingContributors": "Ładowanie...",
             "failedToLoadContributors": "Nie udało się załadować współtwórców.",
@@ -1852,6 +1878,9 @@
         "offSale": "Wycofany ze sprzedaży",
         "backOnSale": "Znów w sprzedaży"
     },
+    "heroUnits": {
+        "ends": "Koniec"
+    },
     "tradeRecentItems": {
         "offer": "Ostatnio oferowane",
         "request": "Ostatnio żądane",
@@ -2102,6 +2131,16 @@
         "unknown": "Nieznane",
         "hidden": "Ukryte",
         "hiddenTooltip": "Ta społeczność ukrywa listę członków, dlatego daty dołączenia mogą zobaczyć tylko jej członkowie."
+    },
+    "statusBubble": {
+        "imageLabel": "Obraz statusu",
+        "decalId": "ID naklejki",
+        "removeImage": "Usuń obraz",
+        "decalNotFound": "Nie znaleziono naklejki o podanym ID.",
+        "tier3Perk": "Obrazy statusu są dostępne dla wspierających na poziomie 3.",
+        "clickToReport": "Kliknij, aby zgłosić",
+        "imageThumbnail": "Miniatura: {{name}}",
+        "imageSaveFailed": "Status został zapisany, ale nie udało się zaktualizować obrazu."
     },
     "showcase": {
         "tab": "Wizytówka",
@@ -2388,6 +2427,129 @@
     "pinnedFriends": {
         "pin": "Przypnij na górze",
         "unpin": "Odepnij"
+    },
+    "debugOverlay": {
+        "title": "Debugowanie RoValra",
+        "popout": "Otwórz w osobnym oknie",
+        "collapse": "Zwiń panel debugowania",
+        "hide": "Ukryj panel debugowania",
+        "performance": {
+            "title": "Wydajność",
+            "fps": "FPS",
+            "frameTime": "Średni / maks. czas klatki",
+            "frameLow": "Najniższe 1% FPS",
+            "jank": "Klatki z przycięciami",
+            "loopLag": "Średnie / maks. opóźnienie pętli",
+            "longTasks": "Długotrwałe zadania",
+            "blocking": "Czas blokowania",
+            "longFrames": "Długie klatki",
+            "jsHeap": "Pamięć sterty JS: użyta / całkowita / maks.",
+            "domNodes": "Węzły DOM",
+            "uptime": "Czas działania panelu"
+        },
+        "vitals": {
+            "title": "Kluczowe wskaźniki strony",
+            "fcp": "FCP",
+            "lcp": "LCP",
+            "cls": "CLS",
+            "inp": "Najwolniejsza interakcja"
+        },
+        "loading": {
+            "title": "Ładowanie",
+            "readyState": "Stan gotowości",
+            "navType": "Typ nawigacji",
+            "protocol": "Protokół",
+            "redirect": "Przekierowanie",
+            "dns": "DNS",
+            "connect": "Łączenie",
+            "ttfb": "Czas do pierwszego bajtu (TTFB)",
+            "download": "Pobieranie",
+            "domInteractive": "DOM gotowy do interakcji",
+            "domContentLoaded": "Załadowanie DOM",
+            "load": "Pełne załadowanie",
+            "documentSize": "Rozmiar dokumentu",
+            "pageWeight": "Całkowity rozmiar strony",
+            "requests": "Żądania",
+            "cacheHit": "Trafienia w pamięci podręcznej",
+            "slowest": "Najwolniejsze",
+            "largest": "Największe"
+        },
+        "resources": {
+            "title": "Zasoby",
+            "scripts": "Skrypty",
+            "styles": "Arkusze stylów",
+            "images": "Obrazy",
+            "fetchXhr": "Fetch / XHR",
+            "iframes": "Ramki iframe",
+            "other": "Inne"
+        },
+        "requests": {
+            "title": "Żądania RoValra",
+            "inFlight": "W trakcie",
+            "total": "Łącznie",
+            "failed": "Nieudane",
+            "avgLatency": "Średnie opóźnienie",
+            "lastRequest": "Ostatnie żądanie",
+            "lastFailure": "Ostatni błąd"
+        },
+        "graphics": {
+            "title": "Grafika / 3D",
+            "glContexts": "Aktywne / utworzone konteksty WebGL",
+            "glSizes": "Rozmiary obszarów roboczych WebGL",
+            "glPixels": "Piksele WebGL",
+            "canvases": "Elementy canvas",
+            "videos": "Elementy wideo",
+            "imageElements": "Elementy obrazów",
+            "svgs": "Elementy SVG"
+        },
+        "display": {
+            "title": "Obszar widoku",
+            "viewport": "Obszar widoku",
+            "pixelRatio": "Współczynnik pikseli",
+            "scroll": "Przewinięcie / wysokość strony"
+        },
+        "storage": {
+            "title": "Pamięć",
+            "origin": "Dane witryny",
+            "localStorage": "localStorage",
+            "sessionStorage": "sessionStorage",
+            "cookies": "Pliki cookie",
+            "extStorage": "Pamięć RoValra"
+        },
+        "errors": {
+            "title": "Błędy",
+            "jsErrors": "Błędy skryptów",
+            "rejections": "Nieobsłużone odrzucenia obietnic",
+            "consoleErrors": "Błędy konsoli",
+            "consoleWarns": "Ostrzeżenia konsoli",
+            "lastError": "Ostatni błąd"
+        },
+        "page": {
+            "title": "Strona",
+            "pageTitle": "Tytuł",
+            "url": "URL",
+            "referrer": "Strona odsyłająca",
+            "charset": "Kodowanie znaków",
+            "visibility": "Widoczność",
+            "focus": "Aktywne okno",
+            "compat": "Tryb zgodności",
+            "lang": "Język",
+            "theme": "Motyw Roblox",
+            "userId": "ID użytkownika",
+            "csrf": "Token CSRF"
+        },
+        "rovalra": {
+            "title": "RoValra",
+            "version": "Wersja",
+            "extensionId": "ID rozszerzenia",
+            "manifest": "Manifest",
+            "path": "Ścieżka"
+        },
+        "values": {
+            "worst": "{{count}} (najgorszy wynik: {{time}})",
+            "keys": "{{count}} kluczy, {{size}}",
+            "seconds": "{{count}} s"
+        }
     },
     "richLinks": {
         "by": "Autor: {{name}}",
