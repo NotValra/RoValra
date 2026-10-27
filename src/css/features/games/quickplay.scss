@@ -139,6 +139,7 @@ a.game-tile-styles.game-card-link,
         left: -5px;
         width: calc(100% + 10px);
         height: calc(100% + 10px);
+        z-index: -1;
     }
 
     [data-testid='sdui-tile-footer-content'] {
