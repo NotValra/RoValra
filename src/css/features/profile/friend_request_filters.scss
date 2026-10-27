@@ -1,0 +1,193 @@
+.request-tab-header {
+    .rovalra-request-filters {
+        position: relative;
+        margin: 4px 8px 0 auto;
+        line-height: normal;
+
+        & + .ignore-button {
+            margin-left: 0;
+        }
+    }
+
+    // Same block layout as the native "Ignore all" button so the text lines up
+    .rovalra-request-filters-toggle {
+        display: block;
+        white-space: nowrap;
+
+        > icon {
+            display: inline-block;
+            margin-right: 4px;
+            vertical-align: top;
+        }
+
+        &.rovalra-active {
+            color: var(--color-content-emphasis, #fff);
+            font-weight: 600;
+        }
+    }
+}
+
+.rovalra-request-filters-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1010;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    text-align: left;
+    font-weight: 400;
+}
+
+.rovalra-request-filters-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: min(60vh, 560px);
+    padding: 16px 16px 4px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.rovalra-request-filters-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .rovalra-dropdown-chevron {
+        transition: transform 150ms ease;
+
+        &.rovalra-open {
+            transform: rotate(180deg);
+        }
+    }
+}
+
+.rovalra-request-filters-badge-summary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.rovalra-request-filters-badge-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+.rovalra-request-filters-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 8px;
+    min-height: 36px;
+
+    > .rovalra-pill-toggle {
+        flex-shrink: 0;
+        align-self: center !important;
+        margin-left: auto;
+    }
+}
+
+.rovalra-request-filters-badge-label {
+    display: inline-flex;
+    flex: 1 0 auto;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.rovalra-request-filters-badge-icon {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.rovalra-request-filters-verified-check {
+    position: absolute;
+    color: #fff;
+}
+
+.rovalra-badge-excluded {
+    opacity: 0.45;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -2px;
+        right: -2px;
+        height: 2px;
+        border-radius: 1px;
+        background-color: var(--color-system-alert, #f45b52);
+        transform: rotate(-45deg);
+    }
+}
+
+.rovalra-request-filters-range {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rovalra-request-filters-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.rovalra-input-error {
+    .rovalra-catalog-input-fieldset,
+    .rovalra-catalog-input-base.Mui-focused .rovalra-catalog-input-fieldset {
+        border-color: var(--color-system-alert, #f45b52) !important;
+    }
+
+    .rovalra-catalog-input-label {
+        color: var(--color-system-alert, #f45b52) !important;
+    }
+}
+
+.rovalra-request-filters-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px 16px;
+
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+}
+
+.rovalra-request-filter-status {
+    margin: -4px 0 12px;
+}
+
+.rovalra-requests-filtered > .avatar-cards:not(.rovalra-filtered-requests),
+.rovalra-requests-filtered-parent > .pager-holder {
+    display: none !important;
+}
+
+.rovalra-filtered-requests-more {
+    display: block;
+    margin: 12px auto 0;
+}
+
+.rovalra-request-filters-range input[type='number'] {
+    appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        margin: 0;
+        appearance: none;
+    }
+}

@@ -1792,6 +1792,46 @@
         "userNotAgeVerified": "User is not age checked.",
         "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
     },
+    "friendRequestFilters": {
+        "filters": "Filters",
+        "badgesTitle": "Badges",
+        "countsTitle": "Counts",
+        "joinedTitle": "Joined",
+        "badges": {
+            "premium": "Premium",
+            "plus": "Roblox Plus",
+            "verified": "Verified",
+            "admin": "Roblox Admin"
+        },
+        "ranges": {
+            "mutuals": "Mutual Friends",
+            "friends": "Friends",
+            "followers": "Followers",
+            "followings": "Following"
+        },
+        "any": "Any",
+        "has": "Has",
+        "hasNot": "Doesn't have",
+        "min": "Min",
+        "max": "Max",
+        "from": "From",
+        "to": "To",
+        "reset": "Reset",
+        "apply": "Apply",
+        "accept": "Accept",
+        "ignore": "Ignore",
+        "loadMore": "Load More",
+        "mutualFriends": "{{count}} mutual friends",
+        "loadingRequests": "Loading requests... ({{count}})",
+        "checkingRequests": "Checking requests... {{progress}}%",
+        "showingOf": "Showing {{count}} of {{total}} requests",
+        "showing": "Showing {{count}} requests",
+        "loadFailed": "Failed to load friend requests.",
+        "actionFailed": "Failed to respond to the friend request.",
+        "minAboveMax": "The minimum can't be higher than the maximum.",
+        "limitMax": "Based on your current friend requests, the highest you can set is {{max}}.",
+        "limitMin": "Based on your current friend requests, the lowest you can set is {{min}}."
+    },
     "friendsSince": {
         "friended": "Friended",
         "lastSeen": "Seen",
