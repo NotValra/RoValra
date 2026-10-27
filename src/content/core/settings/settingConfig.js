@@ -1187,6 +1187,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['2020751790'],
             },
+            followsYouEnabled: {
+                label: 'Follows You Indicator',
+                description:
+                    'Shows a "Follows you" label beside the username on the profile of anyone who follows you.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
             groupRoleEnabled: {
                 label: 'Show Community Roles',
                 description:

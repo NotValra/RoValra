@@ -176,6 +176,7 @@ import { init as initLastPlayed } from './features/profile/header/lastplayed.js'
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
 import { init as initCreatorStats } from './features/profile/header/creatorStats.js';
 import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
+import { init as initFollowsYou } from './features/profile/header/followsYou.js';
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
@@ -477,6 +478,7 @@ const featureRoutes = [
             initBulkBadgeRemover,
             initLastPlayed,
             initProfilePronouns,
+            initFollowsYou,
             initProfileNotes,
             initCreatorStats,
             initProfileViews,

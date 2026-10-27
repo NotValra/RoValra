@@ -2269,6 +2269,9 @@
         "label": "Pronouns",
         "ariaLabel": "Pronouns: {{pronouns}}"
     },
+    "followsYou": {
+        "label": "Follows you"
+    },
     "profileEdit": {
         "featuresTitle": "RoValra Features",
         "profilePronouns": "Profile Pronouns",
