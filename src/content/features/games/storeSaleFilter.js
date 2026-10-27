@@ -3,6 +3,7 @@ import { settings } from '../../core/settings/getSettings.js';
 import { ts } from '../../core/locale/i18n.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { createPassCard, fetchAllGamePasses } from './privateGames.js';
 
 export const STORE_SALE_FILTER_EVENT = 'rovalra-store-sale-filter-change';
@@ -122,7 +123,7 @@ export async function init() {
     mode = null;
 
     if (
-        !window.location.pathname.startsWith('/games/') ||
+        !getPlaceIdFromUrl() ||
         !(await settings.storeSaleFilterEnabled)
     ) {
         return;

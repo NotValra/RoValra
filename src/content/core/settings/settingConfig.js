@@ -484,7 +484,7 @@ export const SETTINGS_CONFIG = {
                 description:
                     'Adds a sale status filter to the store tab of experiences to show on sale, off sale or all passes and developer products.',
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['2239549101'],
             },
             shopWidgetsEnabled: {
