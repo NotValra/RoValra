@@ -824,6 +824,17 @@
         "insufficientDataTooltip": "Not enough transaction history to make an accurate estimate. Please wait for more transactions to complete.",
         "label": "Unpending Robux tomorrow"
     },
+    "gameVisibility": {
+        "makePublic": "Make Public",
+        "makePrivate": "Make Private",
+        "makePublicTitle": "Make experience public?",
+        "makePublicMessage": "Everyone will be able to find and join this experience.",
+        "makePrivateTitle": "Make experience private?",
+        "makePrivateMessage": "Only you and people with access will be able to join this experience.",
+        "nowPublic": "The experience is now public.",
+        "nowPrivate": "The experience is now private.",
+        "failed": "Couldn't change the experience visibility."
+    },
     "totalEarned": {
         "calculateEarnings": "Calculate Earnings",
         "calculateEarned": "Calculate Earned",
