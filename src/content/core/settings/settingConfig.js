@@ -116,10 +116,10 @@ export const SETTINGS_CONFIG = {
             betterGraphsEnabled: {
                 label: 'Better Graphs',
                 description: [
-                    'Replaces the price chart of limited items with one graph showing price, RAP and volume, with full history and series you can hide.',
+                    'Replaces the price chart of limited items with one graph RAP and volume, with full history and series you can hide.',
                 ],
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['2239549101'],
             },
             itemSalesEnabled: {
