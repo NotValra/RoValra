@@ -9,7 +9,6 @@
 
 .rovalra-better-graph {
     --rovalra-graph-price: #00b06f;
-    --rovalra-graph-rap: #3c64fa;
     --rovalra-graph-volume: color-mix(in srgb, currentColor 45%, transparent);
     --rovalra-graph-muted: color-mix(in srgb, currentColor 60%, transparent);
     --rovalra-graph-grid: color-mix(in srgb, currentColor 14%, transparent);
@@ -98,9 +97,6 @@
     &.rovalra-series-price {
         stroke: var(--rovalra-graph-price);
     }
-    &.rovalra-series-rap {
-        stroke: var(--rovalra-graph-rap);
-    }
 }
 
 .rovalra-better-graph-bar {
@@ -122,9 +118,6 @@
 
     &.rovalra-series-price {
         fill: var(--rovalra-graph-price);
-    }
-    &.rovalra-series-rap {
-        fill: var(--rovalra-graph-rap);
     }
 }
 
@@ -220,10 +213,6 @@
 
 .rovalra-series-price .rovalra-better-graph-marker {
     color: var(--rovalra-graph-price);
-}
-
-.rovalra-series-rap .rovalra-better-graph-marker {
-    color: var(--rovalra-graph-rap);
 }
 
 .rovalra-series-volume .rovalra-better-graph-marker {

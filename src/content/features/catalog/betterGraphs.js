@@ -11,7 +11,6 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const ROOT_CLASS = 'rovalra-better-graph';
 const ACTIVE_CLASS = 'rovalra-better-graph-active';
 const DAY_MS = 86400000;
-const RAP_WEIGHT = 0.1;
 const MAX_POINTS = 140;
 const LINE_HEIGHT = 200;
 const VOLUME_HEIGHT = 48;
@@ -29,21 +28,10 @@ const RANGES = [
     { key: '1y', days: 365 },
     { key: 'all', days: Infinity },
 ];
-const SERIES = ['price', 'rap', 'volume'];
-const LINE_SERIES = ['price', 'rap'];
+const SERIES = ['price', 'volume'];
+const LINE_SERIES = ['price'];
 
 let observer = null;
-
-export function estimateRapHistory(points) {
-    let rap = null;
-    return points.map((point) => {
-        if (rap === null) rap = point.price;
-        for (let i = 0; i < point.volume; i++) {
-            rap += (point.price - rap) * RAP_WEIGHT;
-        }
-        return Math.round(rap);
-    });
-}
 
 export function bucketPoints(points, maxPoints = MAX_POINTS) {
     const size = Math.ceil(points.length / maxPoints);
@@ -184,11 +172,6 @@ async function loadData(assetId) {
         .sort((a, b) => a.date - b.date);
     if (points.length < 2) return null;
 
-    const rapHistory = estimateRapHistory(points);
-    points.forEach((point, index) => {
-        point.rap = rapHistory[index];
-    });
-    points.at(-1).rap = Number(resale.recentAveragePrice) || points.at(-1).rap;
     return { points };
 }
 
@@ -251,7 +234,6 @@ function createChart(root, data) {
         item.type = 'button';
         item.className = `rovalra-better-graph-legend-item rovalra-series-${series}`;
         item.dataset.series = series;
-        if (series === 'rap') item.title = ts('betterGraphs.rapNote');
         const marker = document.createElement('span');
         marker.className = 'rovalra-better-graph-marker';
         const label = document.createElement('span');
