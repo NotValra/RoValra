@@ -28,6 +28,7 @@ import { initAuthenticatedUserLanguageTracking } from './core/utils/trackers/lan
 import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
+import { init as initStoreSaleFilter } from './features/games/storeSaleFilter.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initRichRobloxLinks } from './features/sitewide/richRobloxLinks.js';
 import { init as initViewIds } from './features/sitewide/viewid.js';
@@ -413,6 +414,7 @@ const featureRoutes = [
             initBadgeOwnership,
             initBadgeEarnedDate,
             initBadgeSort,
+            initStoreSaleFilter,
         ],
     },
     {

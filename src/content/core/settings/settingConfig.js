@@ -479,6 +479,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '10646979010'],
             },
+            storeSaleFilterEnabled: {
+                label: 'Store Sale Filter',
+                description:
+                    'Adds a sale status filter to the store tab of experiences to show on sale, off sale or all passes and developer products.',
+                type: 'checkbox',
+                default: false,
+                contributors: ['2239549101'],
+            },
             shopWidgetsEnabled: {
                 label: 'View In-Game Shop',
                 description:
