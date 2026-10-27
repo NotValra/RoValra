@@ -228,6 +228,20 @@
         "verifiedBadge": "Verified Badge",
         "by": "By"
     },
+    "betterGraphs": {
+        "summary": "Average price over selected period",
+        "series": {
+            "price": "Recent Average Price",
+            "volume": "Volume"
+        },
+        "ranges": {
+            "30d": "30 Days",
+            "90d": "90 Days",
+            "180d": "180 Days",
+            "1y": "1 Year",
+            "all": "All Time"
+        }
+    },
     "catalogItemSales": {
         "sales": "Sales",
         "revenue": "Revenue",

@@ -113,6 +113,15 @@ export const SETTINGS_CONFIG = {
     Marketplace: {
         title: 'Marketplace',
         settings: {
+            betterGraphsEnabled: {
+                label: 'Better Graphs',
+                description: [
+                    'Replaces the price chart of limited items with one graph RAP and volume, with full history and series you can hide.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
             itemSalesEnabled: {
                 label: 'Item Sales',
                 contributors: [447170745],

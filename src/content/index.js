@@ -76,6 +76,7 @@ import { init as initBodyColors } from './features/avatar/bodyColors.js';
 import { init as initGameOutfits } from './features/avatar/gameOutfits.js';
 
 // Catalog
+import { init as initBetterGraphs } from './features/catalog/betterGraphs.js';
 import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
 import { init as initDependencies } from './features/catalog/depenencies.js';
@@ -334,6 +335,7 @@ const featureRoutes = [
     {
         paths: ['/catalog', '/bundles'],
         features: [
+            initBetterGraphs,
             initDependencies,
             initItemSales,
             initPriceFloor,
