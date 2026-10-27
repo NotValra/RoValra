@@ -1443,6 +1443,12 @@
         "regenerateLink": "Generate Link",
         "regenerated": "Generated!"
     },
+    "storeSaleFilter": {
+        "label": "Sale status",
+        "onSale": "On sale",
+        "offSale": "Off sale",
+        "all": "All"
+    },
     "devProducts": {
         "noProducts": "No developer products found.",
         "loadError": "Unable to load developer products for this game.",
