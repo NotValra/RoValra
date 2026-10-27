@@ -1,13 +1,20 @@
-import { observeElement, observeText } from '../../../core/observer.js';
+import {
+    observeAttributes,
+    observeElement,
+    observeText,
+} from '../../../core/observer.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { ts } from '../../../core/locale/i18n.js';
+import { createDropdown } from '../../../core/ui/dropdown.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { createPillToggle } from '../../../core/ui/general/pillToggle.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
+import { getAssets } from '../../../core/assets.js';
+import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
 import {
     getMultiProfileInsights,
     INSIGHT_CASES,
@@ -15,28 +22,29 @@ import {
 } from '../../../core/apis/users.js';
 
 const HEADER_SELECTOR = '.request-tab-header';
+const NATIVE_CAPTION_SELECTOR =
+    '.friends-content .avatar-card:not(.rovalra-filtered-request-card) .avatar-card-caption';
 const HEADER_BATCH_SIZE = 25;
 const INSIGHTS_BATCH_SIZE = 100;
 const MAX_CONCURRENT_BATCHES = 4;
 const PAGE_SIZE = 36;
 const COUNT_API_CAP = 500;
 
-const BADGE_FILTERS = ['premium', 'plus', 'verified', 'admin'];
+// Premium is left out, Roblox hides it for other users in every batched API
+const BADGE_FILTERS = ['plus', 'verified', 'admin'];
 const RANGE_FILTERS = ['mutuals', 'friends', 'followers', 'followings'];
-
-const ORIGIN_KEYS = {
-    InGame: 'originInGame',
-    UserProfile: 'originProfile',
-    PlayerSearch: 'originSearch',
-    UserSearch: 'originSearch',
-    QrCode: 'originQrCode',
-    ProfileShare: 'originProfileShare',
-    PhoneContactImporter: 'originPhoneContacts',
-    FriendRecommendations: 'originPeopleYouMayKnow',
-};
+const SORT_KEYS = [
+    'sent',
+    'mutuals',
+    'friends',
+    'followers',
+    'followings',
+    'joined',
+];
 
 const userDataCache = new Map();
 let filters = createEmptyFilters();
+let sort = { key: 'sent', descending: true };
 let renderedMatches = [];
 let renderedCount = 0;
 let applyToken = 0;
@@ -44,6 +52,7 @@ let requestsPromise = null;
 let cachedRequests = null;
 let loadProgressListener = null;
 let limitsPromise = null;
+let limitsReady = false;
 
 function createEmptyFilters() {
     return {
@@ -55,17 +64,27 @@ function createEmptyFilters() {
     };
 }
 
+function countActiveFilters(current) {
+    const badges = BADGE_FILTERS.filter(
+        (key) => current.badges[key] !== 'any',
+    ).length;
+    const ranges = RANGE_FILTERS.filter(
+        (key) =>
+            current.ranges[key].min !== null ||
+            current.ranges[key].max !== null,
+    ).length;
+    const joined =
+        current.joined.from !== null || current.joined.to !== null ? 1 : 0;
+    return badges + ranges + joined;
+}
+
 function hasActiveFilters(current) {
-    return (
-        BADGE_FILTERS.some((key) => current.badges[key] !== 'any') ||
-        RANGE_FILTERS.some(
-            (key) =>
-                current.ranges[key].min !== null ||
-                current.ranges[key].max !== null,
-        ) ||
-        current.joined.from !== null ||
-        current.joined.to !== null
-    );
+    return countActiveFilters(current) > 0;
+}
+
+// The API already returns requests newest first
+function isDefaultSort(current) {
+    return current.key === 'sent' && current.descending;
 }
 
 function parseNumber(value) {
@@ -182,13 +201,22 @@ async function fetchHeaderBatch(userIds) {
             username: header.names?.username || '',
             displayName:
                 header.names?.displayName || header.names?.username || '',
-            premium: header.isPremium === true,
             plus: header.isRobloxPlus === true,
             verified: header.isVerified === true,
             admin: header.isRobloxAdmin === true,
-            friends: header.counts?.friendsCount ?? null,
-            followers: header.counts?.followersCount ?? null,
-            followings: header.counts?.followingsCount ?? null,
+            // Hidden counts come back as 0, so they are treated as unknown
+            friends:
+                header.counts?.isFriendsCountEnabled === false
+                    ? null
+                    : (header.counts?.friendsCount ?? null),
+            followers:
+                header.counts?.isFollowersCountEnabled === false
+                    ? null
+                    : (header.counts?.followersCount ?? null),
+            followings:
+                header.counts?.isFollowingsCountEnabled === false
+                    ? null
+                    : (header.counts?.followingsCount ?? null),
         });
     }
 }
@@ -233,9 +261,11 @@ async function runBatches(batches, onBatchDone) {
     );
 }
 
-async function enrichUsers(userIds, current, onProgress) {
+async function enrichUsers(userIds, current, onProgress, sortKey) {
     const needsJoined =
-        current.joined.from !== null || current.joined.to !== null;
+        current.joined.from !== null ||
+        current.joined.to !== null ||
+        sortKey === 'joined';
 
     const missingHeader = userIds.filter((id) => !getCachedUser(id).hasHeader);
     const missingJoined = needsJoined
@@ -283,14 +313,62 @@ function matchesFilters(request, current) {
     return true;
 }
 
-function getFooterText(request) {
-    const mutuals = request.mutualFriendsList?.length || 0;
-    if (mutuals > 0) {
-        return ts('friendRequestFilters.mutualFriends', { count: mutuals });
+function getSortValue(request, key) {
+    if (key === 'sent') return Date.parse(request.friendRequest?.sentAt);
+    if (key === 'mutuals') return request.mutualFriendsList?.length ?? 0;
+    return getCachedUser(request.id)[key];
+}
+
+function sortRequests(requests, current) {
+    if (isDefaultSort(current)) return requests;
+    const direction = current.descending ? -1 : 1;
+
+    return requests
+        .map((request, index) => ({
+            request,
+            index,
+            value: getSortValue(request, current.key),
+        }))
+        .sort((a, b) => {
+            const aKnown = Number.isFinite(a.value);
+            const bKnown = Number.isFinite(b.value);
+            // Unknown values always go last, whatever the direction
+            if (aKnown !== bKnown) return aKnown ? -1 : 1;
+            if (!aKnown || a.value === b.value) return a.index - b.index;
+            return (a.value - b.value) * direction;
+        })
+        .map(({ request }) => request);
+}
+
+// Shows the value the list is sorted by, the sent date is always in the footer
+function createSortValueLabel(request) {
+    const key = sort.key;
+    if (key === 'sent') return null;
+
+    const label = document.createElement('div');
+    label.className = 'avatar-card-label rovalra-request-sort-value';
+
+    if (key === 'joined') {
+        const joined = getCachedUser(request.id).joined;
+        if (!joined) {
+            label.textContent = ts('friendRequestFilters.footer.unknown');
+            return label;
+        }
+        label.classList.add('rovalra-request-date');
+        label.append(
+            document.createTextNode(ts('friendRequestFilters.footer.joined')),
+            createInteractiveTimestamp(joined),
+        );
+        return label;
     }
-    const originKey = ORIGIN_KEYS[request.friendRequest?.originSourceType];
-    if (!originKey) return '';
-    return `${ts('friendsSince.originFrom')} ${ts(`friendsSince.${originKey}`)}`;
+
+    const value = getSortValue(request, key);
+    label.textContent = Number.isFinite(value)
+        ? ts(`friendRequestFilters.footer.${key}`, {
+              count: value.toLocaleString(),
+          })
+        : ts('friendRequestFilters.footer.unknown');
+    return label;
 }
 
 async function respondToRequest(userId, accept, card) {
@@ -311,11 +389,6 @@ async function respondToRequest(userId, accept, card) {
             (request) => String(request.id) !== String(userId),
         );
         renderedCount = Math.max(0, renderedCount - 1);
-        updateStatus(
-            ts('friendRequestFilters.showing', {
-                count: renderedMatches.length,
-            }),
-        );
     } catch (err) {
         console.error('RoValra: Failed to respond to friend request.', err);
         showSystemAlert(ts('friendRequestFilters.actionFailed'), 'warning');
@@ -366,11 +439,13 @@ function createRequestCard(request, thumbnailUrl) {
     usernameLabel.className = 'avatar-card-label';
     usernameLabel.textContent = user.username ? `@${user.username}` : '';
     nameWrapper.append(nameContainer, usernameLabel);
+    const sortValueLabel = createSortValueLabel(request);
+    if (sortValueLabel) nameWrapper.appendChild(sortValueLabel);
 
-    const footer = document.createElement('div');
-    footer.className = 'avatar-card-footer avatar-card-label';
-    footer.textContent = getFooterText(request);
-    caption.append(nameWrapper, footer);
+    caption.appendChild(nameWrapper);
+    if (request.friendRequest?.sentAt) {
+        caption.appendChild(createSentLabel(request.friendRequest.sentAt));
+    }
 
     content.append(avatar, caption);
 
@@ -485,10 +560,12 @@ function renderMatches(matches) {
     renderNextPage();
 }
 
-async function applyFilters(current) {
+async function applyView() {
     const token = ++applyToken;
+    const current = filters;
+    const currentSort = sort;
 
-    if (!hasActiveFilters(current)) {
+    if (!hasActiveFilters(current) && isDefaultSort(currentSort)) {
         restoreNativeList();
         return;
     }
@@ -526,19 +603,16 @@ async function applyFilters(current) {
                     );
                 }
             },
+            currentSort.key,
         );
         if (token !== applyToken) return;
 
-        const matches = requests.filter((request) =>
-            matchesFilters(request, current),
+        const matches = sortRequests(
+            requests.filter((request) => matchesFilters(request, current)),
+            currentSort,
         );
         renderMatches(matches);
-        updateStatus(
-            ts('friendRequestFilters.showingOf', {
-                count: matches.length,
-                total: requests.length,
-            }),
-        );
+        updateStatus(null);
     } catch (err) {
         console.error('RoValra: Failed to filter friend requests.', err);
         if (token === applyToken) {
@@ -577,7 +651,6 @@ function createBadgeIcon(key) {
     icon.setAttribute('size', 'small');
     icon.className = 'rovalra-request-filters-badge-icon';
     icon.textContent = {
-        premium: 'premium',
         plus: 'roblox-plus',
         admin: 'tilt',
     }[key];
@@ -585,53 +658,8 @@ function createBadgeIcon(key) {
 }
 
 function createBadgeSelector(draft) {
-    const selector = document.createElement('div');
-    selector.className = 'rovalra-request-filters-badges';
-
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.className =
-        'rovalra-dropdown-trigger relative clip group/interactable focus-visible:outline-focus disabled:outline-none flex items-center justify-between width-full bg-none stroke-standard radius-medium height-1000 padding-x-medium text-body-medium stroke-default content-default';
-    trigger.setAttribute('aria-expanded', 'false');
-
-    const presentation = document.createElement('div');
-    presentation.setAttribute('role', 'presentation');
-    /* eslint-disable rovalra/check-css-vars -- These are Roblox class names, not RoValra CSS references. */
-    presentation.className =
-        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
-    /* eslint-enable rovalra/check-css-vars */
-
-    const summary = document.createElement('span');
-    summary.className = 'rovalra-request-filters-badge-summary';
-
-    const chevron = document.createElement('span');
-    chevron.className =
-        'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
-
-    trigger.append(presentation, summary, chevron);
-
-    const updateSummary = () => {
-        summary.replaceChildren();
-        const active = BADGE_FILTERS.filter(
-            (key) => draft.badges[key] !== 'any',
-        );
-        if (!active.length) {
-            summary.textContent = ts('friendRequestFilters.any');
-            return;
-        }
-        for (const key of active) {
-            const icon = createBadgeIcon(key);
-            if (draft.badges[key] === 'hasNot') {
-                icon.classList.add('rovalra-badge-excluded');
-            }
-            summary.appendChild(icon);
-        }
-    };
-
-    const menu = document.createElement('div');
-    menu.className =
-        'rovalra-request-filters-badge-menu bg-surface-200 radius-medium';
-    menu.hidden = true;
+    const list = document.createElement('div');
+    list.className = 'rovalra-request-filters-badges';
 
     for (const key of BADGE_FILTERS) {
         const row = document.createElement('div');
@@ -653,38 +681,33 @@ function createBadgeSelector(draft) {
             initialValue: draft.badges[key],
             onChange: (value) => {
                 draft.badges[key] = value;
-                updateSummary();
             },
         });
 
         row.append(label, toggle);
-        menu.appendChild(row);
+        list.appendChild(row);
     }
 
-    trigger.addEventListener('click', () => {
-        menu.hidden = !menu.hidden;
-        trigger.setAttribute('aria-expanded', String(!menu.hidden));
-        chevron.classList.toggle('rovalra-open', !menu.hidden);
-    });
-
-    updateSummary();
-    selector.append(trigger, menu);
-    return selector;
+    return list;
 }
 
 function getAvailableRange(key) {
     if (!cachedRequests?.length) return null;
-    const values = [];
+    // Counts other than mutuals are only known once every request is checked
+    if (key !== 'mutuals' && !limitsReady) return null;
+
+    let min = Infinity;
+    let max = -Infinity;
     for (const request of cachedRequests) {
         const value =
             key === 'mutuals'
                 ? (request.mutualFriendsList?.length ?? 0)
                 : getCachedUser(request.id)[key];
-        if (typeof value === 'number') values.push(value);
+        if (typeof value !== 'number') continue;
+        min = Math.min(min, value);
+        max = Math.max(max, value);
     }
-    // Counts other than mutuals are only known once every request is checked
-    if (values.length < cachedRequests.length) return null;
-    return { min: Math.min(...values), max: Math.max(...values) };
+    return Number.isFinite(min) ? { min, max } : null;
 }
 
 function getRangeError(key, { min, max }) {
@@ -794,10 +817,21 @@ function toDateInputValue(timestamp) {
 }
 
 function createDateInput(id, labelText, value, onInput) {
-    const { container, input } = createStyledInput({ id, label: labelText });
+    const { container, input, label } = createStyledInput({
+        id,
+        label: labelText,
+    });
     input.type = 'date';
     if (value !== null) input.value = toDateInputValue(value);
-    container.querySelector('label')?.classList.add('MuiInputLabel-shrink');
+
+    // Date inputs always show their own placeholder, so the label has to stay raised.
+    // The styled input lowers it on blur when empty, these listeners run right after.
+    const keepLabelRaised = () => label.classList.add('MuiInputLabel-shrink');
+    keepLabelRaised();
+    for (const event of ['focus', 'blur', 'input']) {
+        input.addEventListener(event, keepLabelRaised);
+    }
+
     input.addEventListener('input', () => onInput(input.value));
     return container;
 }
@@ -809,21 +843,95 @@ async function prefetchLimits(onReady) {
     limitsPromise ??= enrichUsers(
         requests.map((request) => String(request.id)),
         createEmptyFilters(),
-    ).catch(() => {
-        limitsPromise = null;
-    });
+    )
+        .then(() => {
+            limitsReady = true;
+        })
+        .catch(() => {
+            limitsPromise = null;
+        });
     await limitsPromise;
     onReady();
 }
 
+function getDirectionLabels(key) {
+    const isDate = key === 'sent' || key === 'joined';
+    return {
+        desc: ts(
+            isDate
+                ? 'friendRequestFilters.newestFirst'
+                : 'friendRequestFilters.descending',
+        ),
+        asc: ts(
+            isDate
+                ? 'friendRequestFilters.oldestFirst'
+                : 'friendRequestFilters.ascending',
+        ),
+    };
+}
+
+function createSortSection(draftSort) {
+    const section = document.createElement('div');
+    section.className = 'rovalra-request-filters-sort';
+
+    const directionSlot = document.createElement('div');
+    const renderDirection = () => {
+        const labels = getDirectionLabels(draftSort.key);
+        directionSlot.replaceChildren(
+            createPillToggle({
+                options: [
+                    { text: labels.desc, value: 'desc' },
+                    { text: labels.asc, value: 'asc' },
+                ],
+                initialValue: draftSort.descending ? 'desc' : 'asc',
+                onChange: (value) => {
+                    draftSort.descending = value === 'desc';
+                },
+            }),
+        );
+    };
+
+    const dropdown = createDropdown({
+        items: SORT_KEYS.map((key) => ({
+            value: key,
+            label: ts(`friendRequestFilters.sort.${key}`),
+        })),
+        initialValue: draftSort.key,
+        onValueChange: (value) => {
+            draftSort.key = value;
+            renderDirection();
+        },
+    });
+    dropdown.element.classList.add('rovalra-request-filters-sort-select');
+
+    renderDirection();
+    section.append(dropdown.element, directionSlot);
+    return { section, destroy: dropdown.destroy };
+}
+
 function createFiltersPanel(onApply) {
     let draft = structuredClone(filters);
+    let draftSort = { ...sort };
+    let destroySort = null;
     let validators = [];
 
     const panel = document.createElement('div');
     panel.className =
         'rovalra-request-filters-panel foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
     panel.addEventListener('click', (e) => e.stopPropagation());
+
+    const header = document.createElement('div');
+    header.className = 'rovalra-request-filters-header';
+    const logo = document.createElement('img');
+    logo.src = getAssets().rovalraIcon;
+    logo.dataset.rovalraAsset = 'rovalraIcon';
+    logo.alt = '';
+    logo.width = 24;
+    logo.height = 24;
+    const title = document.createElement('span');
+    title.className = 'text-heading-small content-emphasis';
+    title.textContent = ts('friendRequestFilters.title');
+    header.append(logo, title);
 
     const body = document.createElement('div');
     body.className = 'rovalra-request-filters-body';
@@ -847,20 +955,30 @@ function createFiltersPanel(onApply) {
 
     const renderBody = () => {
         validators = [];
-        body.replaceChildren(
+        destroySort?.();
+        const sortSection = createSortSection(draftSort);
+        destroySort = sortSection.destroy;
+
+        const left = document.createElement('div');
+        left.className = 'rovalra-request-filters-column';
+        left.append(
+            createSectionTitle(ts('friendRequestFilters.sortTitle')),
+            sortSection.section,
             createSectionTitle(ts('friendRequestFilters.badgesTitle')),
             createBadgeSelector(draft),
+        );
+
+        const right = document.createElement('div');
+        right.className = 'rovalra-request-filters-column';
+        right.appendChild(
             createSectionTitle(ts('friendRequestFilters.countsTitle')),
         );
         for (const key of RANGE_FILTERS) {
             const { row, validate } = createRangeRow(key, draft, validateAll);
             validators.push(validate);
-            body.appendChild(row);
+            right.appendChild(row);
         }
 
-        body.appendChild(
-            createSectionTitle(ts('friendRequestFilters.joinedTitle')),
-        );
         const dates = document.createElement('div');
         dates.className = 'rovalra-request-filters-inputs';
         dates.append(
@@ -877,16 +995,24 @@ function createFiltersPanel(onApply) {
                 (value) => (draft.joined.to = parseDate(value, true)),
             ),
         );
-        body.appendChild(dates);
+        right.append(
+            createSectionTitle(ts('friendRequestFilters.joinedTitle')),
+            dates,
+        );
+
+        body.replaceChildren(left, right);
         validateAll();
     };
 
     resetButton.addEventListener('click', () => {
         draft = createEmptyFilters();
+        draftSort = { key: 'sent', descending: true };
         renderBody();
     });
     applyButton.addEventListener('click', () => {
-        if (!applyButton.disabled) onApply(structuredClone(draft));
+        if (!applyButton.disabled) {
+            onApply(structuredClone(draft), { ...draftSort });
+        }
     });
 
     renderBody();
@@ -894,7 +1020,8 @@ function createFiltersPanel(onApply) {
         if (panel.isConnected) validateAll();
     });
 
-    panel.append(body, actions);
+    panel.append(header, body, actions);
+    panel.rovalraDestroy = () => destroySort?.();
     return panel;
 }
 
@@ -916,18 +1043,28 @@ function attachFilters(header) {
     toggleIcon.textContent = 'filter_list';
     const toggleLabel = document.createElement('span');
     toggleLabel.textContent = ts('friendRequestFilters.filters');
-    toggleButton.append(toggleIcon, toggleLabel);
+    const toggleCount = document.createElement('span');
+    toggleCount.className = 'rovalra-request-filters-count';
+    toggleButton.append(toggleIcon, toggleLabel, toggleCount);
 
     const updateToggle = () => {
-        toggleButton.classList.toggle(
-            'rovalra-active',
-            hasActiveFilters(filters),
+        const count =
+            countActiveFilters(filters) + (isDefaultSort(sort) ? 0 : 1);
+        toggleButton.classList.toggle('rovalra-active', count > 0);
+        toggleCount.hidden = count === 0;
+        toggleCount.textContent = String(count);
+        toggleButton.setAttribute(
+            'aria-label',
+            count > 0
+                ? ts('friendRequestFilters.filtersActive', { count })
+                : ts('friendRequestFilters.filters'),
         );
     };
     updateToggle();
 
     let panel = null;
     const closePanel = () => {
+        panel?.rovalraDestroy?.();
         panel?.remove();
         panel = null;
         toggleButton.setAttribute('aria-expanded', 'false');
@@ -939,11 +1076,12 @@ function attachFilters(header) {
             closePanel();
             return;
         }
-        panel = createFiltersPanel((nextFilters) => {
+        panel = createFiltersPanel((nextFilters, nextSort) => {
             filters = nextFilters;
+            sort = nextSort;
             updateToggle();
             closePanel();
-            applyFilters(filters);
+            applyView();
         });
         toggleButton.setAttribute('aria-expanded', 'true');
         wrapper.appendChild(panel);
@@ -959,6 +1097,7 @@ function attachFilters(header) {
     document.addEventListener('click', handleDocumentClick);
 
     wrapper.appendChild(toggleButton);
+
     const ignoreAllButton = header.querySelector('.ignore-button');
     if (ignoreAllButton) {
         ignoreAllButton.before(wrapper);
@@ -967,7 +1106,52 @@ function attachFilters(header) {
     }
 
     initRequestCount(header);
-    if (hasActiveFilters(filters)) applyFilters(filters);
+    if (hasActiveFilters(filters) || !isDefaultSort(sort)) applyView();
+}
+
+function createSentLabel(sentAt) {
+    const label = document.createElement('div');
+    label.className =
+        'avatar-card-footer avatar-card-label rovalra-request-sent rovalra-request-date';
+    label.append(
+        document.createTextNode(ts('friendRequestFilters.footer.sent')),
+        createInteractiveTimestamp(sentAt),
+    );
+    return label;
+}
+
+// Roblox reuses its request cards between pages, so the label follows the card's profile link
+function renderNativeSentDate(caption) {
+    if (!caption.closest('.friends-content')?.querySelector(HEADER_SELECTOR)) {
+        return;
+    }
+    const link = caption.querySelector('a.avatar-name[href]');
+    if (!link) return;
+
+    const update = async () => {
+        const userId = getUserIdFromUrl(link.href);
+        const existing = caption.querySelector(
+            ':scope > .rovalra-request-sent',
+        );
+        if (existing?.dataset.userId === String(userId)) return;
+
+        const requests = userId ? await loadRequests().catch(() => null) : null;
+        if (getUserIdFromUrl(link.href) !== userId) return;
+        const sentAt = requests?.find(
+            (request) => String(request.id) === String(userId),
+        )?.friendRequest?.sentAt;
+
+        caption.querySelector(':scope > .rovalra-request-sent')?.remove();
+        caption.classList.toggle('rovalra-has-sent-date', Boolean(sentAt));
+        if (!sentAt) return;
+
+        const label = createSentLabel(sentAt);
+        label.dataset.userId = String(userId);
+        caption.appendChild(label);
+    };
+
+    update();
+    observeAttributes(link, update, ['href']);
 }
 
 function trackNativeResponses(e) {
@@ -982,6 +1166,9 @@ export async function init() {
     if ((await settings.friendRequestFiltersEnabled) === false) return;
 
     document.addEventListener('click', trackNativeResponses, true);
+    observeElement(NATIVE_CAPTION_SELECTOR, renderNativeSentDate, {
+        multiple: true,
+    });
     observeElement(HEADER_SELECTOR, attachFilters, {
         onRemove: () => {
             applyToken++;

@@ -3,10 +3,6 @@
         position: relative;
         margin: 4px 8px 0 auto;
         line-height: normal;
-
-        & + .ignore-button {
-            margin-left: 0;
-        }
     }
 
     // Same block layout as the native "Ignore all" button so the text lines up
@@ -16,13 +12,36 @@
 
         > icon {
             display: inline-block;
-            margin-right: 4px;
             vertical-align: top;
+        }
+
+        > icon + span {
+            margin-left: 4px;
         }
 
         &.rovalra-active {
             color: var(--color-content-emphasis, #fff);
             font-weight: 600;
+        }
+    }
+
+    .rovalra-request-filters-count {
+        display: inline-block;
+        min-width: 16px;
+        height: 16px;
+        margin-left: 6px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background-color: var(--color-system-emphasis, #335fff);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        vertical-align: top;
+
+        &[hidden] {
+            display: none;
         }
     }
 }
@@ -32,75 +51,75 @@
     top: calc(100% + 8px);
     right: 0;
     z-index: 1010;
-    width: 400px;
+    width: 760px;
     max-width: calc(100vw - 32px);
     text-align: left;
     font-weight: 400;
 }
 
+.rovalra-request-filters-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 16px 0;
+
+    img {
+        flex-shrink: 0;
+        object-fit: contain;
+    }
+}
+
 .rovalra-request-filters-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    padding: 16px 16px 4px;
+}
+
+.rovalra-request-filters-column {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: min(60vh, 560px);
-    padding: 16px 16px 4px;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.rovalra-request-filters-badges {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    .rovalra-dropdown-chevron {
-        transition: transform 150ms ease;
-
-        &.rovalra-open {
-            transform: rotate(180deg);
-        }
-    }
-}
-
-.rovalra-request-filters-badge-summary {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
     min-width: 0;
 }
 
-.rovalra-request-filters-badge-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 8px;
-
-    &[hidden] {
-        display: none;
+// Two columns only fit on wide screens, narrow ones fall back to a scrolling list
+@media (max-width: 820px) {
+    .rovalra-request-filters-body {
+        grid-template-columns: minmax(0, 1fr);
+        max-height: 70vh;
+        overflow-y: auto;
     }
 }
 
-.rovalra-request-filters-badge-row {
+.rovalra-request-filters-sort {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rovalra-request-filters-badges {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 4px 8px;
-    min-height: 36px;
+    gap: 4px 12px;
+}
+
+.rovalra-request-filters-badge-row {
+    display: contents;
 
     > .rovalra-pill-toggle {
-        flex-shrink: 0;
         align-self: center !important;
-        margin-left: auto;
+        justify-self: end;
     }
 }
 
 .rovalra-request-filters-badge-label {
     display: inline-flex;
-    flex: 1 0 auto;
     align-items: center;
     gap: 8px;
+    min-height: 36px;
     white-space: nowrap;
 }
 
@@ -117,26 +136,11 @@
     color: #fff;
 }
 
-.rovalra-badge-excluded {
-    opacity: 0.45;
-
-    &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: -2px;
-        right: -2px;
-        height: 2px;
-        border-radius: 1px;
-        background-color: var(--color-system-alert, #f45b52);
-        transform: rotate(-45deg);
-    }
-}
-
 .rovalra-request-filters-range {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
 }
 
 .rovalra-request-filters-inputs {
@@ -190,4 +194,13 @@
         margin: 0;
         appearance: none;
     }
+}
+
+.rovalra-has-sent-date > .avatar-card-footer:not(.rovalra-request-sent) {
+    display: none !important;
+}
+
+.rovalra-request-date {
+    display: flex;
+    gap: 3px;
 }
