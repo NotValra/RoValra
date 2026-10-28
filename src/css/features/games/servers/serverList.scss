@@ -1,0 +1,273 @@
+.rovalra-private-server-filters-host {
+    position: relative;
+    padding-right: 120px;
+
+    > .rovalra-private-server-filters {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        z-index: 1010;
+        transform: translateY(-50%);
+    }
+}
+
+.rovalra-private-server-filters-toggle {
+    icon {
+        display: block;
+    }
+
+    &.rovalra-active {
+        color: var(--color-content-emphasis, #fff);
+        font-weight: 600;
+    }
+}
+
+.rovalra-private-server-filters-count {
+    min-width: 16px;
+    height: 16px;
+    margin-left: 2px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background-color: var(--color-system-emphasis, #335fff);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+.rovalra-private-server-filters-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1010;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    text-align: left;
+    font-weight: 400;
+}
+
+.rovalra-private-server-filters-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 16px 0;
+
+    img {
+        flex-shrink: 0;
+        object-fit: contain;
+    }
+}
+
+.rovalra-private-server-filters-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 16px 4px;
+
+    > [hidden] {
+        display: none;
+    }
+}
+
+.rovalra-private-server-filters-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px 16px;
+}
+
+[data-rovalra-section-type='private'] [data-private-server-id] {
+    order: var(--rovalra-private-server-order, 0);
+
+    &[data-rovalra-private-server-hidden] {
+        display: none !important;
+    }
+}
+
+.rovalra-private-server-plus-icon {
+    vertical-align: -2px;
+}
+
+.rovalra-private-server-more {
+    position: relative;
+    flex: none;
+}
+
+.rovalra-private-server-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 1010;
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+    padding: 6px;
+}
+
+.rovalra-private-server-menu-item {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: var(--color-state-hover);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+}
+
+.rovalra-private-server-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 6px 10px;
+    font-weight: 400;
+}
+
+#game-instances .rbx-refresh.refresh-link-icon {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 32px;
+    padding: 0 8px !important;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--color-action-standard-background);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+
+    &::after {
+        position: static;
+        flex: none;
+        order: -1;
+    }
+
+    &:hover {
+        background-image: linear-gradient(
+            var(--color-state-hover),
+            var(--color-state-hover)
+        );
+    }
+}
+
+#rbx-public-running-games {
+    .server-list-options {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+
+        > * {
+            margin: 0 !important;
+        }
+
+        .select-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .select-label {
+            padding: 0;
+            line-height: 40px;
+        }
+
+        select.rbx-select {
+            height: 40px;
+            font-size: 14px;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            padding: 0 4px;
+        }
+    }
+
+    .rovalra-stats-container {
+        gap: 8px;
+        margin: 8px 0 0 !important;
+    }
+
+    .rovalra-region-stats-bar {
+        height: 44px;
+        margin: 0 !important;
+        padding: 0 12px !important;
+        border-radius: 8px;
+    }
+}
+
+.rovalra-server-filters {
+    position: relative;
+    z-index: 1010;
+}
+
+.rovalra-server-filters-toggle.rovalra-active {
+    color: var(--color-content-emphasis, #fff);
+    box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.rovalra-server-filters-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 1010;
+    width: 280px;
+    text-align: left;
+
+    &[hidden] {
+        display: none;
+    }
+
+    #rovalra-main-controls {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        margin: 0 !important;
+        padding: 12px 16px 16px;
+
+        > * {
+            width: 100%;
+            margin: 0 !important;
+        }
+
+        .rovalra-dropdown-trigger,
+        .rovalra-ui-btn {
+            width: 100% !important;
+            height: 40px;
+            min-height: 40px;
+        }
+    }
+}
+
+.rovalra-server-filters-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 16px 0;
+
+    img {
+        flex-shrink: 0;
+        object-fit: contain;
+    }
+}

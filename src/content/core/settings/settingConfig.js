@@ -748,6 +748,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '2239549101'],
                 childSettings: {
                     PrivateServerGridEnabled: {
                         label: 'Private Server Grid',
@@ -867,6 +868,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '2239549101'],
                 childSettings: {
                     privateServerFriendsToggleEnabled: {
                         label: 'Friends Allowed Toggle',

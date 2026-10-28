@@ -8,6 +8,10 @@ import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import DOMPurify from 'dompurify';
 import { createToggle } from '../../core/ui/general/toggle.js';
+import { createDropdown } from '../../core/ui/dropdown.js';
+import { createPillToggle } from '../../core/ui/general/pillToggle.js';
+import { getAssets } from '../../core/assets.js';
+import { getUserProfileData } from '../../core/apis/users.js';
 
 const privateServerContext = {
     serverLocations: {},
@@ -37,6 +41,376 @@ export async function getVipServerDetails(vipServerId) {
         vipServerDetailsCache.set(vipServerId, null);
         return null;
     }
+}
+
+const PRIVATE_SECTION_SELECTOR = '[data-rovalra-section-type="private"]';
+const PRIVATE_ROW_SELECTOR =
+    '.flex.items-center.justify-between.padding-y-medium';
+const SORT_KEYS = ['default', 'players', 'name', 'owner'];
+const PLAYER_FILTERS = ['any', 'hasPlayers', 'empty'];
+const OWNER_FILTERS = ['any', 'mine', 'others'];
+
+let sort = { key: 'default', descending: true };
+let filters = { players: 'any', owner: 'any' };
+let servers = new Map();
+let serversPlaceId = null;
+let loadToken = 0;
+
+function isDefaultView() {
+    return (
+        sort.key === 'default' &&
+        filters.players === 'any' &&
+        filters.owner === 'any'
+    );
+}
+
+function countActive() {
+    return (
+        (sort.key === 'default' ? 0 : 1) +
+        (filters.players === 'any' ? 0 : 1) +
+        (filters.owner === 'any' ? 0 : 1)
+    );
+}
+
+async function loadServers(placeId) {
+    const token = ++loadToken;
+    const next = new Map();
+    let cursor = '';
+    do {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/${placeId}/private-servers?limit=100${cursor ? `&cursor=${cursor}` : ''}`,
+        }).catch(() => null);
+        (data?.data || []).forEach((server) =>
+            next.set(String(server.vipServerId), server),
+        );
+        cursor = data?.nextPageCursor;
+    } while (cursor);
+    if (token === loadToken) {
+        servers = next;
+        serversPlaceId = placeId;
+    }
+    return servers;
+}
+
+function getSortValue(server, key) {
+    if (key === 'players') return server.playing || 0;
+    if (key === 'name') return (server.name || '').toLowerCase();
+    if (key === 'owner') return (server.owner?.name || '').toLowerCase();
+    return 0;
+}
+
+function matchesFilters(server, myUserId) {
+    if (filters.players === 'hasPlayers' && !(server.playing > 0)) return false;
+    if (filters.players === 'empty' && server.playing > 0) return false;
+    const isMine = String(server.owner?.id) === String(myUserId);
+    if (filters.owner === 'mine' && !isMine) return false;
+    if (filters.owner === 'others' && isMine) return false;
+    return true;
+}
+
+function getRows(section) {
+    return [
+        ...section.querySelectorAll(
+            `${PRIVATE_ROW_SELECTOR}[data-private-server-id]`,
+        ),
+    ];
+}
+
+async function applyView(section) {
+    const rows = getRows(section);
+    if (isDefaultView()) {
+        rows.forEach((row) => {
+            row.style.removeProperty('--rovalra-private-server-order');
+            delete row.dataset.rovalraPrivateServerHidden;
+        });
+        return;
+    }
+
+    const placeId = getPlaceIdFromUrl();
+    if (serversPlaceId !== placeId || !servers.size) await loadServers(placeId);
+    const myUserId = await getAuthenticatedUserId();
+
+    const entries = rows.map((row, index) => ({
+        row,
+        index,
+        server: servers.get(row.getAttribute('data-private-server-id')),
+    }));
+    const sorted =
+        sort.key === 'default'
+            ? entries
+            : [...entries].sort((a, b) => {
+                  if (!a.server || !b.server) return a.index - b.index;
+                  const first = getSortValue(a.server, sort.key);
+                  const second = getSortValue(b.server, sort.key);
+                  const result =
+                      typeof first === 'string'
+                          ? first.localeCompare(second)
+                          : first - second;
+                  return (
+                      (sort.descending ? -result : result) || a.index - b.index
+                  );
+              });
+
+    sorted.forEach(({ row, server }, order) => {
+        row.style.setProperty('--rovalra-private-server-order', String(order));
+        if (server && !matchesFilters(server, myUserId)) {
+            row.dataset.rovalraPrivateServerHidden = 'true';
+        } else {
+            delete row.dataset.rovalraPrivateServerHidden;
+        }
+    });
+}
+
+function createFiltersSectionTitle(text) {
+    const title = document.createElement('div');
+    title.className = 'text-heading-small content-emphasis';
+    title.textContent = text;
+    return title;
+}
+
+function createChoice(options, value, onChange) {
+    return createPillToggle({
+        options: options.map((option) => ({
+            text: ts(`privateServer.filters.${option.label}`),
+            value: option.value,
+        })),
+        initialValue: value,
+        onChange,
+    });
+}
+
+function createFiltersPanel(onApply) {
+    let draftSort = { ...sort };
+    let draftFilters = { ...filters };
+    let destroyDropdown = null;
+
+    const panel = document.createElement('div');
+    panel.className =
+        'rovalra-private-server-filters-panel foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
+    panel.addEventListener('click', (event) => event.stopPropagation());
+
+    const header = document.createElement('div');
+    header.className = 'rovalra-private-server-filters-header';
+    const logo = document.createElement('img');
+    logo.src = getAssets().rovalraIcon;
+    logo.dataset.rovalraAsset = 'rovalraIcon';
+    logo.alt = '';
+    logo.width = 24;
+    logo.height = 24;
+    const title = document.createElement('span');
+    title.className = 'text-heading-small content-emphasis';
+    title.textContent = ts('privateServer.filters.title');
+    header.append(logo, title);
+
+    const body = document.createElement('div');
+    body.className = 'rovalra-private-server-filters-body';
+
+    const renderBody = () => {
+        destroyDropdown?.();
+        const directionSlot = document.createElement('div');
+        const renderDirection = () => {
+            directionSlot.replaceChildren(
+                createChoice(
+                    [
+                        { label: 'descending', value: 'desc' },
+                        { label: 'ascending', value: 'asc' },
+                    ],
+                    draftSort.descending ? 'desc' : 'asc',
+                    (value) => (draftSort.descending = value === 'desc'),
+                ),
+            );
+            directionSlot.hidden = draftSort.key === 'default';
+        };
+        const dropdown = createDropdown({
+            items: SORT_KEYS.map((key) => ({
+                value: key,
+                label: ts(`privateServer.filters.sort.${key}`),
+            })),
+            initialValue: draftSort.key,
+            onValueChange: (value) => {
+                draftSort.key = value;
+                renderDirection();
+            },
+        });
+        destroyDropdown = dropdown.destroy;
+        renderDirection();
+
+        body.replaceChildren(
+            createFiltersSectionTitle(ts('privateServer.filters.sortTitle')),
+            dropdown.element,
+            directionSlot,
+            createFiltersSectionTitle(ts('privateServer.filters.playersTitle')),
+            createChoice(
+                PLAYER_FILTERS.map((value) => ({ label: value, value })),
+                draftFilters.players,
+                (value) => (draftFilters.players = value),
+            ),
+            createFiltersSectionTitle(ts('privateServer.filters.ownerTitle')),
+            createChoice(
+                OWNER_FILTERS.map((value) => ({
+                    label: value === 'any' ? 'anyone' : value,
+                    value,
+                })),
+                draftFilters.owner,
+                (value) => (draftFilters.owner = value),
+            ),
+        );
+    };
+
+    const actions = document.createElement('div');
+    actions.className = 'rovalra-private-server-filters-actions';
+    const resetButton = document.createElement('button');
+    resetButton.type = 'button';
+    resetButton.className = 'btn-secondary-md btn-min-width';
+    resetButton.textContent = ts('privateServer.filters.reset');
+    resetButton.addEventListener('click', () => {
+        draftSort = { key: 'default', descending: true };
+        draftFilters = { players: 'any', owner: 'any' };
+        renderBody();
+    });
+    const applyButton = document.createElement('button');
+    applyButton.type = 'button';
+    applyButton.className = 'btn-cta-md btn-min-width';
+    applyButton.textContent = ts('privateServer.filters.apply');
+    applyButton.addEventListener('click', () =>
+        onApply({ ...draftSort }, { ...draftFilters }),
+    );
+    actions.append(resetButton, applyButton);
+
+    renderBody();
+    panel.append(header, body, actions);
+    panel.rovalraDestroy = () => destroyDropdown?.();
+    return panel;
+}
+
+function attachPrivateServerFilters(section) {
+    const header = section?.firstElementChild;
+    if (header?.firstElementChild?.tagName !== 'H3') return;
+    if (header.querySelector('.rovalra-private-server-filters')) return;
+    header.classList.add('rovalra-private-server-filters-host');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rovalra-private-server-filters';
+
+    const toggleButton = document.createElement('button');
+    toggleButton.type = 'button';
+    toggleButton.className =
+        'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard rovalra-private-server-filters-toggle';
+    const hover = document.createElement('div');
+    hover.setAttribute('role', 'presentation');
+    hover.className =
+        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
+    const content = document.createElement('span');
+    content.className = 'flex items-center min-width-0 gap-xsmall';
+    const icon = document.createElement('icon');
+    icon.setAttribute('material', '');
+    icon.setAttribute('size', '16px');
+    icon.textContent = 'filter_list';
+    const label = document.createElement('span');
+    label.className = 'padding-y-xsmall text-truncate-end text-no-wrap';
+    label.textContent = ts('privateServer.filters.button');
+    const count = document.createElement('span');
+    count.className = 'rovalra-private-server-filters-count';
+    content.append(icon, label, count);
+    toggleButton.append(hover, content);
+
+    const updateToggle = () => {
+        const active = countActive();
+        toggleButton.classList.toggle('rovalra-active', active > 0);
+        count.hidden = active === 0;
+        count.textContent = String(active);
+    };
+    updateToggle();
+
+    let panel = null;
+    const closePanel = () => {
+        panel?.rovalraDestroy?.();
+        panel?.remove();
+        panel = null;
+        toggleButton.setAttribute('aria-expanded', 'false');
+    };
+
+    toggleButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (panel) {
+            closePanel();
+            return;
+        }
+        panel = createFiltersPanel((nextSort, nextFilters) => {
+            sort = nextSort;
+            filters = nextFilters;
+            servers = new Map();
+            updateToggle();
+            closePanel();
+            applyView(section);
+        });
+        toggleButton.setAttribute('aria-expanded', 'true');
+        wrapper.appendChild(panel);
+    });
+
+    const handleDocumentClick = (event) => {
+        if (!wrapper.isConnected) {
+            document.removeEventListener('click', handleDocumentClick);
+            return;
+        }
+        if (panel && !wrapper.contains(event.target)) closePanel();
+    };
+    document.addEventListener('click', handleDocumentClick);
+
+    wrapper.appendChild(toggleButton);
+    header.appendChild(wrapper);
+    if (!isDefaultView()) applyView(section);
+}
+
+let hasPlusPromise = null;
+function hasRobloxPlus() {
+    hasPlusPromise ??= getAuthenticatedUserId()
+        .then((userId) => (userId ? getUserProfileData([userId]) : null))
+        .then(
+            (data) => data?.profileDetails?.[0]?.hasRobloxSubscription === true,
+        )
+        .catch(() => false);
+    return hasPlusPromise;
+}
+
+async function addPlusIcon(row) {
+    if (!row.querySelector('.icon-filled-person-play')) return;
+    if (!row.closest(PRIVATE_SECTION_SELECTOR)) return;
+    const subtitle = row.querySelector('.content-muted');
+    if (!subtitle || subtitle.dataset.rovalraPlusIncluded) return;
+    if (!(await hasRobloxPlus())) return;
+
+    subtitle.dataset.rovalraPlusIncluded = 'true';
+    const plusIcon = document.createElement('span');
+    plusIcon.setAttribute('role', 'presentation');
+    plusIcon.className =
+        'icon icon-regular-roblox-plus size-[var(--icon-size-small)] rovalra-private-server-plus-icon';
+    subtitle.replaceChildren(
+        `${ts('privateServer.filters.includedWith')} `,
+        plusIcon,
+        ` ${ts('privateServer.filters.plus')}`,
+    );
+}
+
+function onPrivateServerRowAdded(row) {
+    const section = row.closest(PRIVATE_SECTION_SELECTOR);
+    if (section?.querySelector(PRIVATE_SECTION_SELECTOR)) return;
+    if (!section) return;
+    addPlusIcon(row);
+    if (row.hasAttribute('data-private-server-id')) {
+        if (!isDefaultView()) applyView(section);
+        return;
+    }
+    const watcher = observeAttributes(
+        row,
+        () => {
+            if (!row.hasAttribute('data-private-server-id')) return;
+            watcher.disconnect();
+            if (!isDefaultView()) applyView(section);
+        },
+        ['data-private-server-id'],
+    );
 }
 
 export async function init() {
@@ -109,6 +483,27 @@ export async function init() {
                 { multiple: true },
             );
 
+            if (enableDetails) {
+                observeElement(
+                    PRIVATE_SECTION_SELECTOR,
+                    attachPrivateServerFilters,
+                    { multiple: true },
+                );
+                observeElement(
+                    `${PRIVATE_SECTION_SELECTOR} > div > h3:first-child`,
+                    (title) =>
+                        attachPrivateServerFilters(
+                            title.closest(PRIVATE_SECTION_SELECTOR),
+                        ),
+                    { multiple: true },
+                );
+                observeElement(
+                    `${PRIVATE_SECTION_SELECTOR} ${PRIVATE_ROW_SELECTOR}`,
+                    onPrivateServerRowAdded,
+                    { multiple: true },
+                );
+            }
+
             observeElement(
                 '.flex.items-center.justify-between.padding-y-medium.width-full',
                 (el) => {
@@ -137,7 +532,6 @@ export async function init() {
                                     addModernPrivateServerControls(
                                         el,
                                         btnContainer,
-                                        getPlaceIdFromUrl(),
                                     );
                             }
                             return true;
@@ -388,169 +782,39 @@ async function addOwnerControls(serverItem, privateServerId) {
     }
 }
 
-export async function addModernPrivateServerControls(
-    el,
-    btnContainer,
-    placeId,
-) {
-    const privateServerId = el.getAttribute('data-private-server-id');
-    if (!privateServerId) return;
-
-    const isOwner = el.getAttribute('data-rovalra-is-owner') === 'true';
-    if (!isOwner) return;
-
-    const details = await getVipServerDetails(privateServerId);
-    if (!details || details.subscription?.expired) return;
-
-    btnContainer.className =
-        'flex flex-col items-center gap-xsmall grow-0 shrink-0 basis-auto';
-
-    const nativeJoinBtn = btnContainer.querySelector('button');
-    if (nativeJoinBtn) {
-        nativeJoinBtn.setAttribute('data-rovalra-join-button', 'true');
-    }
-
-    const configureBtn = btnContainer.querySelector(
-        'a.foundation-web-icon-button[aria-label="Configure"]',
-    );
-    const nativeJoinBtnWrapper = nativeJoinBtn
-        ? nativeJoinBtn.closest('div')
-        : null;
-
-    if (configureBtn && nativeJoinBtnWrapper) {
-        const configureJoinRow = document.createElement('div');
-        configureJoinRow.className = 'flex flex-row items-center gap-xsmall';
-        configureJoinRow.style.cssText =
-            'width: 200px; min-width: 200px; max-width: 200px;';
-
-        configureBtn.remove();
-        nativeJoinBtnWrapper.remove();
-
-        nativeJoinBtnWrapper.style.cssText =
-            'width: 163px !important; min-width: 163px !important; max-width: 163px !important;';
-
-        nativeJoinBtn.style.cssText =
-            'width: 100% !important; min-width: 100% !important;';
-
-        configureJoinRow.appendChild(configureBtn);
-        configureJoinRow.appendChild(nativeJoinBtnWrapper);
-        btnContainer.prepend(configureJoinRow);
-    }
-
-    const buttonsRow = document.createElement('div');
-    buttonsRow.className = 'flex flex-row';
-    buttonsRow.style.cssText =
-        'width: 200px; min-width: 200px; max-width: 200px; gap: 5px;';
-    const shareBtnWrapper = document.createElement('div');
-    shareBtnWrapper.className = 'rovalra-share-btn-container';
-    shareBtnWrapper.style.cssText =
-        'width: 95px; min-width: 95px; max-width: 95px;';
-    shareBtnWrapper.innerHTML = DOMPurify.sanitize(`
-        <button type="button" ${!details.link ? 'disabled' : ''} style="opacity: ${!details.link ? '0.5' : '1'}" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard width-full rovalra-share-btn">
-            <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
-            <span class="flex items-center min-width-0 gap-xsmall">
-                <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('quickPlay.copyLink', { defaultValue: 'Copy Link' })}</span>
-            </span>
-        </button>
-    `);
-
-    const shareBtn = shareBtnWrapper.querySelector('button');
-    shareBtn.onclick = async (e) => {
+function createMenuItem(text, onClick) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className =
+        'rovalra-private-server-menu-item text-body-medium content-default';
+    item.textContent = text;
+    item.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const currentDetails = await getVipServerDetails(privateServerId);
-        if (currentDetails?.link) {
-            navigator.clipboard
-                .writeText(currentDetails.link)
-                .then(async () => {
-                    const span = shareBtn.querySelector('.text-no-wrap');
-                    const originalText = span.textContent;
-                    span.textContent = await t('localizationFallbacks.serverCopied');
-                    setTimeout(() => {
-                        span.textContent = originalText;
-                    }, 1000);
-                });
-        }
-    };
-
-    const generateLinkWrapper = document.createElement('div');
-    generateLinkWrapper.className = 'rovalra-generate-link-container';
-    generateLinkWrapper.style.cssText =
-        'width: 100px; min-width: 100px; max-width: 100px;';
-    generateLinkWrapper.innerHTML = DOMPurify.sanitize(`
-        <button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard width-full rovalra-generate-link-btn">
-            <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
-            <span class="flex items-center min-width-0 gap-xsmall">
-                <span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('privateServerPage.regenerateLink', { defaultValue: 'Regenerate Link' })}</span>
-            </span>
-        </button>
-    `);
-
-    const generateLinkBtn = generateLinkWrapper.querySelector('button');
-    generateLinkBtn.onclick = async (e) => {
-        e.stopPropagation();
-        const span = generateLinkBtn.querySelector('.text-no-wrap');
-        const originalText = span.textContent;
-        generateLinkBtn.disabled = true;
-
-        try {
-            const response = await callRobloxApi({
-                subdomain: 'games',
-                endpoint: `/v1/vip-servers/${privateServerId}`,
-                method: 'PATCH',
-                body: { newJoinCode: true },
-            });
-
-            if (response.ok) {
-                vipServerDetailsCache.delete(privateServerId);
-                const newDetails = await getVipServerDetails(privateServerId);
-                if (newDetails?.accessCode) {
-                    el.setAttribute('data-access-code', newDetails.accessCode);
-                }
-
-                const currentShareBtn =
-                    btnContainer.querySelector('.rovalra-share-btn');
-                if (currentShareBtn) {
-                    currentShareBtn.disabled = !newDetails?.link;
-                    currentShareBtn.style.opacity = currentShareBtn.disabled
-                        ? '0.5'
-                        : '1';
-                }
-
-                span.textContent = await t('privateServerPage.regenerated', {
-                    defaultValue: 'Regenerated!',
-                });
-            } else {
-                span.textContent = await t('quickPlay.error');
-            }
-        } catch (error) {
-            console.error('Error regenerating private server link:', error);
-            span.textContent = await t('quickPlay.error');
-        }
-
+        item.disabled = true;
+        const result = await onClick().catch(() => false);
+        item.textContent =
+            result === false ? ts('quickPlay.error') : result || text;
         setTimeout(() => {
-            span.textContent = originalText;
-            generateLinkBtn.disabled = false;
+            item.textContent = text;
+            item.disabled = false;
         }, 1000);
-    };
-
-    buttonsRow.appendChild(generateLinkWrapper);
-    buttonsRow.appendChild(shareBtnWrapper);
-    btnContainer.appendChild(buttonsRow);
-
-    const friendJoinRow = document.createElement('div');
-    friendJoinRow.className = 'flex flex-row items-center';
-    friendJoinRow.style.cssText =
-        'width: 200px; min-width: 200px; max-width: 200px; justify-content: space-between; margin-top: 4px; padding: 0 2px;';
-
-    const toggleLabel = document.createElement('span');
-    toggleLabel.style.cssText =
-        'font-size: 12px; color: var(--color-text-secondary);';
-    toggleLabel.textContent = ts('privateServer.allowJoining', {
-        defaultValue: 'Allow Joining',
     });
+    return item;
+}
 
+function createMenuToggle(text, toggle) {
+    const row = document.createElement('label');
+    row.className =
+        'rovalra-private-server-menu-toggle text-body-medium content-default';
+    const label = document.createElement('span');
+    label.textContent = text;
+    row.append(label, toggle);
+    return row;
+}
+
+function createAllowJoiningToggle(privateServerId, active) {
     const toggle = createToggle({
-        checked: details.active !== false,
+        checked: active !== false,
         onChange: async (newState) => {
             try {
                 const response = await callRobloxApi({
@@ -559,49 +823,143 @@ export async function addModernPrivateServerControls(
                     method: 'PATCH',
                     body: { active: newState },
                 });
-
-                if (response.ok) {
-                    vipServerDetailsCache.delete(privateServerId);
-                    const updatedDetails =
-                        await getVipServerDetails(privateServerId);
-
-                    if (updatedDetails) {
-                        const currentShareBtn =
-                            btnContainer.querySelector('.rovalra-share-btn');
-                        if (currentShareBtn) {
-                            currentShareBtn.disabled = !updatedDetails.link;
-                            currentShareBtn.style.opacity =
-                                currentShareBtn.disabled ? '0.5' : '1';
-                        }
-                    }
-                } else {
-                    toggle.setChecked(!newState);
-                }
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                vipServerDetailsCache.delete(privateServerId);
             } catch (error) {
                 console.error('Error toggling allow joining:', error);
                 toggle.setChecked(!newState);
             }
         },
     });
+    return toggle;
+}
 
-    friendJoinRow.appendChild(toggleLabel);
-    friendJoinRow.appendChild(toggle);
-    btnContainer.appendChild(friendJoinRow);
+function createPrivateServerMenu(el, privateServerId, details) {
+    const menu = document.createElement('div');
+    menu.className =
+        'rovalra-private-server-menu foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
+    menu.addEventListener('click', (e) => e.stopPropagation());
 
+    const copyItem = createMenuItem(ts('quickPlay.copyLink'), async () => {
+        const currentDetails = await getVipServerDetails(privateServerId);
+        if (!currentDetails?.link) return false;
+        await navigator.clipboard.writeText(currentDetails.link);
+        return t('localizationFallbacks.serverCopied');
+    });
+    copyItem.disabled = !details.link;
+
+    const regenerateItem = createMenuItem(
+        ts('privateServerPage.regenerateLink'),
+        async () => {
+            const response = await callRobloxApi({
+                subdomain: 'games',
+                endpoint: `/v1/vip-servers/${privateServerId}`,
+                method: 'PATCH',
+                body: { newJoinCode: true },
+            });
+            if (!response.ok) return false;
+            vipServerDetailsCache.delete(privateServerId);
+            const newDetails = await getVipServerDetails(privateServerId);
+            if (newDetails?.accessCode) {
+                el.setAttribute('data-access-code', newDetails.accessCode);
+            }
+            copyItem.disabled = !newDetails?.link;
+            return t('privateServerPage.regenerated');
+        },
+    );
+
+    menu.append(
+        copyItem,
+        regenerateItem,
+        createMenuToggle(
+            ts('privateServer.allowJoining'),
+            createAllowJoiningToggle(privateServerId, details.active),
+        ),
+    );
     if (showFriendsAllowedToggle) {
-        const friendsRow = friendJoinRow.cloneNode(false);
-        const friendsLabel = toggleLabel.cloneNode(false);
-        friendsLabel.textContent = ts('privateServer.friendsAllowed', {
-            defaultValue: 'Friends Allowed',
-        });
-
-        friendsRow.append(
-            friendsLabel,
-            createFriendsAllowedToggle(
-                privateServerId,
-                details.permissions?.friendsAllowed,
+        menu.append(
+            createMenuToggle(
+                ts('privateServer.friendsAllowed'),
+                createFriendsAllowedToggle(
+                    privateServerId,
+                    details.permissions?.friendsAllowed,
+                ),
             ),
         );
-        btnContainer.appendChild(friendsRow);
+    }
+    return menu;
+}
+
+export async function addModernPrivateServerControls(el, btnContainer) {
+    const privateServerId = el.getAttribute('data-private-server-id');
+    if (!privateServerId) return;
+    if (el.getAttribute('data-rovalra-is-owner') !== 'true') return;
+    if (btnContainer.querySelector('.rovalra-private-server-more')) return;
+
+    const details = await getVipServerDetails(privateServerId);
+    if (!details || details.subscription?.expired) return;
+    if (btnContainer.querySelector('.rovalra-private-server-more')) return;
+
+    const nativeJoinBtn = btnContainer.querySelector('button');
+    if (nativeJoinBtn) {
+        nativeJoinBtn.setAttribute('data-rovalra-join-button', 'true');
+    }
+    const configureBtn = btnContainer.querySelector(
+        'a.foundation-web-icon-button',
+    );
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rovalra-private-server-more';
+
+    const moreBtn = document.createElement('button');
+    moreBtn.type = 'button';
+    moreBtn.className = configureBtn
+        ? configureBtn.className
+        : 'foundation-web-icon-button relative clip group/interactable';
+    moreBtn.setAttribute('aria-label', ts('privateServer.moreOptions'));
+    moreBtn.setAttribute('aria-expanded', 'false');
+    const hover = document.createElement('div');
+    hover.setAttribute('role', 'presentation');
+    hover.className =
+        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)]';
+    const icon = document.createElement('icon');
+    icon.setAttribute('material', '');
+    icon.setAttribute('size', '20px');
+    icon.className = 'content-action-standard';
+    icon.textContent = 'more_horiz';
+    moreBtn.append(hover, icon);
+    wrapper.appendChild(moreBtn);
+
+    let menu = null;
+    const closeMenu = () => {
+        menu?.remove();
+        menu = null;
+        moreBtn.setAttribute('aria-expanded', 'false');
+    };
+    moreBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (menu) {
+            closeMenu();
+            return;
+        }
+        const currentDetails =
+            (await getVipServerDetails(privateServerId)) || details;
+        menu = createPrivateServerMenu(el, privateServerId, currentDetails);
+        moreBtn.setAttribute('aria-expanded', 'true');
+        wrapper.appendChild(menu);
+    });
+    const handleDocumentClick = (e) => {
+        if (!wrapper.isConnected) {
+            document.removeEventListener('click', handleDocumentClick);
+            return;
+        }
+        if (menu && !wrapper.contains(e.target)) closeMenu();
+    };
+    document.addEventListener('click', handleDocumentClick);
+
+    if (configureBtn) {
+        configureBtn.after(wrapper);
+    } else {
+        btnContainer.prepend(wrapper);
     }
 }
