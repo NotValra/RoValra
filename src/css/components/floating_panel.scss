@@ -68,6 +68,14 @@
     }
 }
 
+:root:fullscreen canvas[data-rovalra-fullscreen-canvas] {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+}
+
 body.rovalra-overlay-popout {
     margin: 0;
     background: var(--color-surface-0, #121416);
