@@ -13,6 +13,7 @@ const LINK_CLASS =
 
 let lastObservedPath = window.location.pathname;
 let locationWatcherStarted = false;
+const pinnedLinkIds = new Set();
 
 function normalizePath(href) {
     if (!href) return '';
@@ -126,6 +127,16 @@ function startLocationWatcher() {
     }, 1000);
 }
 
+export function getCommunityInsertionAnchor(communityItem) {
+    let anchor = communityItem;
+    while (
+        pinnedLinkIds.has(anchor.nextElementSibling?.dataset.rovalraSidebarItem)
+    ) {
+        anchor = anchor.nextElementSibling;
+    }
+    return anchor;
+}
+
 export function initSidebarLink({
     id,
     path,
@@ -134,7 +145,10 @@ export function initSidebarLink({
     settingKeys,
     legacySelectors = [],
     openInNewTab = false,
+    pinBelowCommunities = false,
 }) {
+    if (pinBelowCommunities) pinnedLinkIds.add(id);
+
     const itemSelector = `[data-rovalra-sidebar-item="${id}"]`;
     const linkSelector = `a[data-rovalra-sidebar-link="${id}"]`;
     const settingValues = new Map();
@@ -233,7 +247,10 @@ export function initSidebarLink({
         const newItem = createItem(sidebar, communityLink);
         if (!communityItem || !newItem) return;
 
-        communityItem.insertAdjacentElement('afterend', newItem);
+        const anchor = pinBelowCommunities
+            ? communityItem
+            : getCommunityInsertionAnchor(communityItem);
+        anchor.insertAdjacentElement('afterend', newItem);
         updateActiveState(sidebar);
         attachStateSync(sidebar);
     };

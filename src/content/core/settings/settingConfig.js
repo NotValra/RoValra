@@ -2323,6 +2323,13 @@ export const SETTINGS_CONFIG = {
                 deprecated: 'Replaced by Privacy Toggles in Navigation.',
                 hidden: true,
             },
+            rovalraStoreSidebarLinkEnabled: {
+                label: 'RoValra Store sidebar link',
+                description:
+                    'Adds a RoValra Store link below Communities in the Roblox sidebar that opens the RoValra store.',
+                type: 'checkbox',
+                default: true,
+            },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
                 description: ['Adds a button to collapse the Roblox sidebar.'],

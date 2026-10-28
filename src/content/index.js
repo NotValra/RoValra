@@ -42,6 +42,7 @@ import { init as initCustomFavicon } from './features/sitewide/customFavicon.js'
 import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { init as initWebClientLink } from './features/navigation/webclientlink.js';
+import { init as initRoValraStoreLink } from './features/navigation/storelink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
@@ -282,6 +283,7 @@ const featureRoutes = [
             initGroupFunds,
             initTransactionsLink,
             initWebClientLink,
+            initRoValraStoreLink,
             initStatus,
             initCustomFont,
             initCyrillicFont,

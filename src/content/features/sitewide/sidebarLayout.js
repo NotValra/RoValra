@@ -31,9 +31,9 @@ const DEFAULT_LOCALE = {
     disabled: 'Disabled',
     show: 'Show',
     hide: 'Hide',
-    addButton: "Add button",
-    buttonPlaceholder1: "Name",
-    buttonPlaceholder2: "URL",
+    addButton: 'Add button',
+    buttonPlaceholder1: 'Name',
+    buttonPlaceholder2: 'URL',
 };
 
 let savedOrder = [];
@@ -125,7 +125,8 @@ function addCustomButton(buttonName, buttonLink) {
         if (!customButtons.some((item) => item.name === name)) {
             customButtons.push({ name, href });
             const key = `custom:${name}`;
-            if (savedOrder.length && !savedOrder.includes(key)) savedOrder.push(key);
+            if (savedOrder.length && !savedOrder.includes(key))
+                savedOrder.push(key);
             chrome.storage.local.set({
                 [CUSTOM_STORAGE_KEY]: customButtons,
                 [ORDER_STORAGE_KEY]: savedOrder,
@@ -140,7 +141,8 @@ function addCustomButton(buttonName, buttonLink) {
 
     customButtons.forEach(({ name, href }) => {
         const key = `custom:${name}`;
-        if (list.querySelector(`[data-rovalra-sidebar-layout-key="${key}"]`)) return;
+        if (list.querySelector(`[data-rovalra-sidebar-layout-key="${key}"]`))
+            return;
 
         const li = document.createElement('li');
         li.dataset.rovalraSidebarLayoutKey = key;
@@ -257,32 +259,31 @@ function getSidebarItems(sidebar) {
     return sidebarItems;
 }
 
-function saveOriginalOrder(sidebarItems) {
-    sidebarItems.forEach((item) => {
-        if (!originalOrder.includes(item.key)) {
-            originalOrder.push(item.key);
-        }
+function mergeOrder(order, sidebarItems) {
+    const merged = [...order];
+    sidebarItems.forEach((item, index) => {
+        if (merged.includes(item.key)) return;
+        const previousKey = sidebarItems[index - 1]?.key;
+        const previousIndex = previousKey ? merged.indexOf(previousKey) : -1;
+        merged.splice(previousIndex + 1, 0, item.key);
     });
+    return merged;
+}
+
+function saveOriginalOrder(sidebarItems) {
+    originalOrder = mergeOrder(originalOrder, sidebarItems);
 }
 
 function getOrderedSidebarItems(sidebarItems) {
-    const order = savedOrder.length ? savedOrder : originalOrder;
-    const orderIndex = new Map(order.map((key, index) => [key, index]));
-    const originalIndex = new Map(
-        sidebarItems.map((item, index) => [item.key, index]),
+    const order = mergeOrder(
+        savedOrder.length ? savedOrder : originalOrder,
+        sidebarItems,
     );
+    const orderIndex = new Map(order.map((key, index) => [key, index]));
 
-    return [...sidebarItems].sort((left, right) => {
-        const leftIndex = orderIndex.get(left.key);
-        const rightIndex = orderIndex.get(right.key);
-
-        if (leftIndex !== undefined && rightIndex !== undefined) {
-            return leftIndex - rightIndex;
-        }
-        if (leftIndex !== undefined) return -1;
-        if (rightIndex !== undefined) return 1;
-        return originalIndex.get(left.key) - originalIndex.get(right.key);
-    });
+    return [...sidebarItems].sort(
+        (left, right) => orderIndex.get(left.key) - orderIndex.get(right.key),
+    );
 }
 
 function applySidebarOrder(sidebarItems) {
@@ -384,7 +385,6 @@ function openSidebarLayoutOverlay() {
         },
     });
 
-
     const saveButton = createButton(locale.save, 'primary', {
         disabled: !list,
         onClick: () => {
@@ -475,12 +475,12 @@ async function loadSavedLayout() {
         ? data[HIDDEN_STORAGE_KEY].map(String)
         : [];
     customButtons = Array.isArray(data[CUSTOM_STORAGE_KEY])
-        ? data[CUSTOM_STORAGE_KEY]
-              .filter((item) => item && item.name)
-              .map((item) => ({
+        ? data[CUSTOM_STORAGE_KEY].filter((item) => item && item.name).map(
+              (item) => ({
                   name: String(item.name),
                   href: String(item.href || ''),
-              }))
+              }),
+          )
         : [];
 }
 

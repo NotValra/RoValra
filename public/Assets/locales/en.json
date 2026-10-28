@@ -1385,6 +1385,7 @@
         "transactions": "Transactions",
         "apiDocs": "API Docs",
         "webClient": "Web Client",
+        "rovalraStore": "RoValra Store",
         "incidentLearnMore": "Click here to learn more.",
         "incidentHideNotice": "You can hide this notice here",
         "rovalraApi": "RoValra API"
