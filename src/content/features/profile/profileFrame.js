@@ -7,6 +7,7 @@ import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
+import { ts } from '../../core/locale/i18n.js';
 
 // Wraps both the fullbody and portrait thumbnails, so framing it frames the lot.
 const HOLDER_SELECTOR = '.thumbnail-holder.thumbnail-holder-position';
@@ -14,6 +15,11 @@ const FRAME_CLASS = 'rovalra-profile-frame';
 const FRAME_SELECTOR = `.${FRAME_CLASS}`;
 const SYNC_EVENT = 'rovalra:syncProfileFrame';
 const SETTING_NAME = 'profileFrameEnabled';
+
+const PREVIEW_STORAGE_KEY = 'rovalra:frameStorePreview';
+const PREVIEW_MAX_AGE_MS = 60 * 1000;
+
+let activePreview = null;
 
 // How far the frame extends past the banner, so artwork can sit outside it.
 // Keep it a ratio, not a flat px value: the same frame is drawn on the 300px
@@ -208,6 +214,10 @@ export function setFrameRenderMode(holder, enabled) {
 }
 
 export async function getEnabledFrameLink(userId) {
+    if (activePreview && String(activePreview.userId) === String(userId)) {
+        return activePreview.link;
+    }
+
     const settings = await loadSettings().catch(() => null);
     if (!settings?.profileFrameEnabled) return null;
 
@@ -229,6 +239,69 @@ export async function resolveFrameLink(userId) {
     const settings = await loadSettings().catch(() => null);
     const localChoice = settings?.profileFrameChoice;
     return localChoice && localChoice !== 'none' ? localChoice : null;
+}
+
+export function startFramePreview(frame, userId) {
+    if (!frame?.link || !userId) return;
+
+    try {
+        sessionStorage.setItem(
+            PREVIEW_STORAGE_KEY,
+            JSON.stringify({
+                link: frame.link,
+                label: frame.label || '',
+                userId: String(userId),
+                returnUrl: `${window.location.pathname}${window.location.search}`,
+                createdAt: Date.now(),
+            }),
+        );
+    } catch {
+        return;
+    }
+
+    window.location.href = `/users/${encodeURIComponent(userId)}/profile`;
+}
+
+function consumeFramePreview(profileUserId) {
+    let preview = null;
+    try {
+        preview = JSON.parse(sessionStorage.getItem(PREVIEW_STORAGE_KEY));
+        sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+    } catch {
+        return null;
+    }
+
+    if (!preview?.link) return null;
+    if (String(preview.userId) !== String(profileUserId)) return null;
+    if (Date.now() - (preview.createdAt || 0) > PREVIEW_MAX_AGE_MS) return null;
+
+    return preview;
+}
+
+function showPreviewBar(preview) {
+    const bar = document.createElement('div');
+    bar.className = 'rovalra-frame-preview-bar';
+
+    const text = document.createElement('span');
+    text.className = 'rovalra-frame-preview-bar-text';
+    text.textContent = ts('profileFrame.previewBanner', {
+        frame: preview.label,
+        interpolation: { escapeValue: false },
+    });
+
+    const backButton = document.createElement('button');
+    backButton.type = 'button';
+    backButton.className = 'btn-primary-md rovalra-frame-preview-bar-button';
+    backButton.textContent = ts('profileFrame.backToStore');
+    backButton.onclick = () => {
+        window.location.href =
+            preview.returnUrl && preview.returnUrl.startsWith('/')
+                ? preview.returnUrl
+                : '/rovalra-store?tab=frames';
+    };
+
+    bar.append(text, backButton);
+    document.body.appendChild(bar);
 }
 
 function watchHolders(frameLink) {
@@ -269,6 +342,18 @@ export async function init() {
         if (!profileUserId) return;
 
         startObserving();
+
+        if (!activePreview) {
+            activePreview = consumeFramePreview(profileUserId);
+            if (activePreview) showPreviewBar(activePreview);
+        }
+        if (
+            activePreview &&
+            String(activePreview.userId) === String(profileUserId)
+        ) {
+            watchHolders(activePreview.link);
+            return;
+        }
 
         const applyCurrentFrame = async () => {
             // Re-read the setting every time rather than trusting the value from

@@ -73,7 +73,10 @@ import {
     applyBorderToContainer,
     findInBorders,
 } from '../profile/avatarBorder.js';
-import { applyFrameToHolder } from '../profile/profileFrame.js';
+import {
+    applyFrameToHolder,
+    startFramePreview,
+} from '../profile/profileFrame.js';
 import {
     getUserDisplayName,
     getUserProfileData,
@@ -4160,7 +4163,7 @@ function createFrameEquipButton({
 }) {
     const btnContainer = document.createElement('div');
     btnContainer.style.cssText =
-        'margin-top: 8px; width: 100%; display: flex; justify-content: center;';
+        'margin-top: 8px; width: 100%; display: flex; justify-content: center; gap: 6px;';
 
     const text = isSelected
         ? ts('profileFrame.equipped')
@@ -4177,7 +4180,7 @@ function createFrameEquipButton({
     pill.dataset.frameEquipBtn = frame.value;
     pill.dataset.frameOwned = isOwned ? 'true' : 'false';
     pill.style.cssText =
-        'width: 100%; justify-content: center; font-size: 12px; font-weight: 700;';
+        'flex: 1; justify-content: center; font-size: 12px; font-weight: 700;';
 
     pill.onclick = (event) => {
         event.stopPropagation();
@@ -4193,6 +4196,21 @@ function createFrameEquipButton({
     };
 
     btnContainer.appendChild(pill);
+
+    if (authedUserData?.userId) {
+        const previewPill = createPill(
+            ts('profileFrame.preview'),
+            ts('profileFrame.previewTooltip'),
+            { isButton: true },
+        );
+        previewPill.classList.add('rovalra-frame-store-preview-pill');
+        previewPill.onclick = (event) => {
+            event.stopPropagation();
+            startFramePreview(frame, authedUserData.userId);
+        };
+        btnContainer.appendChild(previewPill);
+    }
+
     return btnContainer;
 }
 
@@ -4300,10 +4318,21 @@ async function openFrameOverlay(
         }
     }
 
+    const actions = [actionBtn];
+    if (authedUserData?.userId) {
+        const previewBtn = document.createElement('button');
+        previewBtn.className = 'btn-control-md btn-min-width';
+        previewBtn.style.width = '100%';
+        previewBtn.textContent = ts('profileFrame.previewOnProfile');
+        previewBtn.onclick = () =>
+            startFramePreview(frame, authedUserData.userId);
+        actions.unshift(previewBtn);
+    }
+
     const { close } = createOverlay({
         title: frame.label,
         bodyContent: body,
-        actions: [actionBtn],
+        actions,
         maxWidth: '400px',
     });
 }
