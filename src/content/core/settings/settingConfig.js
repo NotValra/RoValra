@@ -3516,6 +3516,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            webClientSidebarLinkEnabled: {
+                label: 'Web Client sidebar link',
+                description:
+                    'Adds a Web Client link below Communities in the Roblox sidebar that opens play.roblox.com.',
+                type: 'checkbox',
+                default: false,
+            },
         },
     },
     PublicDeveloper: {

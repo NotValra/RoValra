@@ -133,6 +133,7 @@ export function initSidebarLink({
     createIcon,
     settingKeys,
     legacySelectors = [],
+    openInNewTab = false,
 }) {
     const itemSelector = `[data-rovalra-sidebar-item="${id}"]`;
     const linkSelector = `a[data-rovalra-sidebar-link="${id}"]`;
@@ -200,6 +201,10 @@ export function initSidebarLink({
 
         setLinkLabel(link, getLabel());
         link.setAttribute('href', path);
+        if (openInNewTab) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+        }
         link.dataset.rovalraSidebarLink = id;
         item.dataset.rovalraSidebarItem = id;
 

@@ -41,6 +41,7 @@ import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
 import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
+import { init as initWebClientLink } from './features/navigation/webclientlink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
@@ -279,6 +280,7 @@ const featureRoutes = [
             initBannedUsers,
             initGroupFunds,
             initTransactionsLink,
+            initWebClientLink,
             initStatus,
             initCustomFont,
             initCyrillicFont,

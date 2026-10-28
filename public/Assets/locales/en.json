@@ -1384,6 +1384,7 @@
     "navigation": {
         "transactions": "Transactions",
         "apiDocs": "API Docs",
+        "webClient": "Web Client",
         "incidentLearnMore": "Click here to learn more.",
         "incidentHideNotice": "You can hide this notice here",
         "rovalraApi": "RoValra API"
