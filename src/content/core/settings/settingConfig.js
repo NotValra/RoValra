@@ -76,7 +76,6 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('French (Français)', 'fr'),
                         value: 'fr',
                     },
-
                     {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
@@ -98,6 +97,10 @@ export const SETTINGS_CONFIG = {
                     {
                         label: languageLabel('Vietnamese (Tiếng Việt)', 'vi'),
                         value: 'vi',
+                    },
+                    {
+                        label: languageLabel('Dutch (Nederlands)', 'nl'),
+                        value: 'nl',
                     },
                     { label: 'Automatic', value: 'auto' },
                 ],
