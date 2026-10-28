@@ -3496,7 +3496,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Play: {
-        title: 'Roblox Web Client',
+        title: 'Roblox Website Client',
         settings: {
             channelOverlayEnabled: {
                 label: 'Channel Overlay',
@@ -3506,6 +3506,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            serverLocationOverlayEnabled: {
+                label: 'Server Location Overlay',
+                description: [
+                    'Shows a notification on play.roblox.com with the location, version and channel of the server you joined.',
+                    'Click the notification or press F3 to open an overlay with the same info.',
+                ],
+                type: 'checkbox',
+                default: true,
             },
         },
     },

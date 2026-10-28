@@ -2459,6 +2459,21 @@
         "apply": "Apply",
         "reset": "Reset"
     },
+    "serverLocationOverlay": {
+        "title": "Server Location",
+        "collapse": "Collapse server location overlay",
+        "hide": "Hide overlay, press F3 to open it again",
+        "waiting": "Join a game to see where its server is.",
+        "location": "Location",
+        "version": "Server Version",
+        "channel": "Server Channel",
+        "unknown": "Unknown",
+        "unknownLocation": "Unknown server location",
+        "production": "Production",
+        "appName": "RoValra",
+        "dismiss": "Dismiss",
+        "toastDetails": "Version {{version}} · {{channel}}"
+    },
     "debugOverlay": {
         "title": "RoValra Debug",
         "popout": "Pop out into a separate window",
