@@ -4,10 +4,14 @@ const PINNED_KEY = 'rovalra_pinned_friends';
 const ICON_URL = 'public/Assets/icon-128.png';
 const ROLIMONS_URL = 'https://apis.rovalra.com/v1/rolimons/limiteds';
 const ROLIMONS_TTL = 10 * 60 * 1000;
+const SESSIONS_ENDPOINT = '/token-metadata-service/v1/sessions?desiredLimit=25';
+const MAX_SESSION_PAGES = 8;
+const SECURITY_URL = 'https://www.roblox.com/my/account#!/security';
 const SETTING_DEFAULTS = {
     browserNotificationsEnabled: false,
     tradeNotificationsEnabled: true,
     friendNotificationsEnabled: true,
+    loginNotificationsEnabled: true,
 };
 
 let api;
@@ -24,6 +28,7 @@ async function getEnabled() {
     return {
         trades: on && settings.tradeNotificationsEnabled,
         friends: on && settings.friendNotificationsEnabled,
+        logins: on && settings.loginNotificationsEnabled,
     };
 }
 
@@ -47,12 +52,13 @@ function format(text, values) {
     return text.replace(/\{\{(\w+)\}\}/g, (_, key) => values[key] ?? '');
 }
 
-function notify(id, title, message) {
+function notify(id, title, message, extra = {}) {
     chrome.notifications.create(id, {
         type: 'basic',
         iconUrl: chrome.runtime.getURL(ICON_URL),
         title,
         message,
+        ...extra,
     });
 }
 
@@ -190,6 +196,137 @@ async function checkFriends(previous, strings) {
     return playing;
 }
 
+async function getSessions() {
+    const sessions = [];
+    let cursor = '';
+    for (let page = 0; page < MAX_SESSION_PAGES; page++) {
+        const data = await getJson({
+            subdomain: 'apis',
+            endpoint: cursor
+                ? `${SESSIONS_ENDPOINT}&nextCursor=${encodeURIComponent(cursor)}`
+                : SESSIONS_ENDPOINT,
+        });
+        if (!Array.isArray(data?.sessions)) return null;
+        sessions.push(...data.sessions);
+        if (!data.hasMore || !data.nextCursor)
+            return { sessions, complete: true };
+        cursor = data.nextCursor;
+    }
+    return { sessions, complete: false };
+}
+
+// Roblox signs sessions out by their token, so only a hash of it gets stored.
+async function hashToken(token) {
+    const digest = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(token),
+    );
+    return [...new Uint8Array(digest)]
+        .slice(0, 12)
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+// City is left out on purpose, mobile data and ISPs hop between nearby cities.
+function regionOf(session) {
+    const { country, subdivision } = session.location || {};
+    return country ? `${country}|${subdivision || ''}` : null;
+}
+
+function describeSession(session, strings, hidePlace) {
+    const { type, value, os } = session.agent || {};
+    // Browsers come with a name, the Roblox app and Studio only have a type.
+    const name =
+        value || { App: strings.robloxApp, Studio: strings.robloxStudio }[type];
+    const device = [name, os].filter(Boolean).join(' · ');
+    const { city, subdivision, country } = session.location || {};
+    const place = hidePlace
+        ? ''
+        : [city, subdivision, country].filter(Boolean).join(', ');
+    return [device || strings.unknownDevice, place].filter(Boolean).join(' · ');
+}
+
+async function checkLogins(previous, strings) {
+    const result = await getSessions();
+    if (!result) return previous;
+
+    const { streamermode } = await chrome.storage.local.get({
+        streamermode: false,
+    });
+    const known = previous?.sessions;
+    const current = new Map();
+    for (const session of result.sessions) {
+        if (session.token) current.set(await hashToken(session.token), session);
+    }
+
+    // Each session remembers the regions it has been used from.
+    // If the list got cut short, keep the ones we didn't get to see.
+    const sessions = result.complete ? {} : { ...known };
+    const familiarRegions = new Set(Object.values(known || {}).flat());
+    for (const [hash, session] of current) {
+        const region = regionOf(session);
+        const regions = known?.[hash] || [];
+        sessions[hash] =
+            region && !regions.includes(region)
+                ? [...regions, region].slice(-5)
+                : regions;
+
+        // First check just learns which sessions already exist.
+        if (!known) continue;
+
+        const details = describeSession(session, strings, streamermode);
+        if (!(hash in known)) {
+            // Opening Roblox or Studio from a session you already have spawns
+            // a child session, those shouldn't count as a new login.
+            const parent = session.parentSessionToken
+                ? await hashToken(session.parentSessionToken)
+                : null;
+            const parentRegions = parent ? known[parent] : null;
+            const spawnedByKnownSession =
+                parentRegions &&
+                (!region ||
+                    !parentRegions.length ||
+                    parentRegions.includes(region));
+            // A brand new parent already gets its own notification.
+            const spawnedByNewSession =
+                parent && !parentRegions && current.has(parent);
+            if (
+                session.isCurrentSession ||
+                spawnedByKnownSession ||
+                spawnedByNewSession
+            )
+                continue;
+
+            // Roblox only marks a device as trusted when it's confident it's
+            // you, so those get a quiet heads up instead of an alarm. Someone
+            // else on your own computer looks the same, so it still shows up.
+            if (session.isTrustedSession && familiarRegions.has(region)) {
+                notify(`rovalra-login-${hash}`, strings.trustedLogin, details, {
+                    contextMessage: strings.trustedLoginHint,
+                });
+            } else {
+                notify(`rovalra-login-${hash}`, strings.newLogin, details, {
+                    contextMessage: strings.newLoginHint,
+                    requireInteraction: true,
+                    priority: 2,
+                });
+            }
+        } else if (region && regions.length && !regions.includes(region)) {
+            notify(
+                `rovalra-location-${hash}-${regions.length}`,
+                strings.newLocation,
+                details,
+                {
+                    contextMessage: strings.newLocationHint,
+                    requireInteraction: true,
+                    priority: 2,
+                },
+            );
+        }
+    }
+    return { sessions };
+}
+
 async function check() {
     const enabled = await getEnabled();
     const { [STATE_KEY]: state = {} } =
@@ -203,16 +340,22 @@ async function check() {
         state.friends = await checkFriends(state.friends, strings);
     else delete state.friends;
 
+    if (enabled.logins) state.logins = await checkLogins(state.logins, strings);
+    else delete state.logins;
+
     await chrome.storage.local.set({ [STATE_KEY]: state });
 }
 
 function onClicked(id) {
     const [, type, placeId] = id.split('-');
-    const url =
-        type === 'trade'
-            ? 'https://www.roblox.com/trades'
-            : `https://www.roblox.com/games/${placeId}`;
-    chrome.tabs.create({ url });
+    const urls = {
+        trade: 'https://www.roblox.com/trades',
+        login: SECURITY_URL,
+        location: SECURITY_URL,
+    };
+    chrome.tabs.create({
+        url: urls[type] || `https://www.roblox.com/games/${placeId}`,
+    });
     chrome.notifications.clear(id);
 }
 
@@ -221,8 +364,8 @@ export async function syncNotifications() {
     if (granted && !chrome.notifications.onClicked.hasListener(onClicked))
         chrome.notifications.onClicked.addListener(onClicked);
 
-    const { trades, friends } = await getEnabled();
-    const enabled = trades || friends;
+    const { trades, friends, logins } = await getEnabled();
+    const enabled = trades || friends || logins;
     if (enabled && !interval) {
         interval = setInterval(() => check().catch(() => {}), CHECK_INTERVAL);
         check().catch(() => {});

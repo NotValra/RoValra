@@ -2628,7 +2628,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 requiredPermissions: ['notifications'],
                 storageKey: ['rovalra_notifications_state'],
-                contributors: ['2239549101'],
+                contributors: ['2239549101', '3365639978'],
                 childSettings: {
                     tradeNotificationsEnabled: {
                         label: 'Trades',
@@ -2640,6 +2640,16 @@ export const SETTINGS_CONFIG = {
                         label: 'Pinned Friends',
                         description:
                             'Notifies you when a pinned friend joins an experience.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    loginNotificationsEnabled: {
+                        label: 'New Logins',
+                        description: [
+                            'Notifies you when your account gets logged in on a new device, or when one of your sessions gets used from a different region.',
+                            'Click the notification to sign the device out from your security settings. Your location is hidden if Streamer Mode is on.',
+                            "Trusted logins from a region you already use get a quieter notification, since that's usually just you.",
+                        ],
                         type: 'checkbox',
                         default: true,
                     },

@@ -2675,6 +2675,15 @@
         "tradeFrom": "From {{name}}",
         "tradeStats": "{{value}} Value | {{rap}} RAP",
         "friendPlaying": "{{name}} is playing",
-        "unknownGame": "An experience"
+        "unknownGame": "An experience",
+        "newLogin": "New login to your Roblox account",
+        "newLoginHint": "Not you? Click to sign it out.",
+        "trustedLogin": "New login on a trusted device",
+        "trustedLoginHint": "Roblox thinks this was you. Click if it wasn't.",
+        "newLocation": "Your Roblox account was used from a new region",
+        "newLocationHint": "If this was you or a VPN, you can ignore it.",
+        "unknownDevice": "Unknown device",
+        "robloxApp": "Roblox App",
+        "robloxStudio": "Roblox Studio"
     }
 }
