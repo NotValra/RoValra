@@ -1594,6 +1594,12 @@
         "noneFound": "No outfits found.",
         "success": "Successfully equipped outfit."
     },
+    "roGoldWarning": {
+        "title": "RoValra is not compatible with RoGold",
+        "detected": "It looks like RoGold is enabled. Because of changes in RoGold's recent site rework, RoValra is unable to work correctly while both extensions are running.",
+        "notOurFault": "These changes come from RoGold, so this is not something RoValra is able to fix on its side.",
+        "choice": "If you'd like to use RoValra, you can turn RoGold off at any time from your browser's extensions page and reload Roblox. The choice is entirely yours, and you can switch it back on whenever you want."
+    },
     "btrDonationWarning": {
         "title": "IMPORTANT: disable BTRoblox",
         "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox was detected. It may interfere with Roblox’s purchase flow. If you have trouble purchasing, try disabling BTRoblox temporarily and reload the page.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Please disable BTRoblox, reload this page, and then try your purchase again.</p>",

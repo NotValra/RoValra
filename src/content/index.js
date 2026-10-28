@@ -69,6 +69,7 @@ import { initSitewide as initSitewideAppThemesOnProfiles } from './features/prof
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
 import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
+import { init as initRoGoldWarning } from './features/sitewide/roGoldWarning.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -321,6 +322,7 @@ const featureRoutes = [
             initQuickPrivacyTogglesNav,
             initCustomScrollbar,
             initRoValraIncidentTracker,
+            initRoGoldWarning,
         ],
     },
     // pretty much just the 40% method
