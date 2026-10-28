@@ -2448,6 +2448,17 @@
         "pin": "Pin to top",
         "unpin": "Unpin"
     },
+    "channelOverlay": {
+        "title": "Channel",
+        "collapse": "Collapse channel overlay",
+        "hide": "Hide overlay, press F2 to open it again",
+        "live": "LIVE",
+        "unknown": "Waiting for client settings...",
+        "change": "Change channel",
+        "placeholder": "LIVE or a channel name",
+        "apply": "Apply",
+        "reset": "Reset"
+    },
     "debugOverlay": {
         "title": "RoValra Debug",
         "popout": "Pop out into a separate window",

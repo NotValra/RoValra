@@ -59,6 +59,12 @@ const LayeredAssetTypes = [
     const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
     const THUMBNAIL_BACKGROUND_SETTING = 'disableThumbnailBackground';
     const THUMBNAIL_PROFILE_FRAME_SETTING = 'disableThumbnailProfileFrame';
+    const CHANNEL_HOST = 'play.roblox.com';
+    const CHANNEL_OVERRIDE_KEY = 'rovalra_channelOverride';
+    const CHANNEL_CURRENT_KEY = 'rovalra_currentChannel';
+    const LIVE_CHANNEL = 'LIVE';
+    const CLIENT_SETTINGS_URL =
+        /^https:\/\/clientsettings(?:cdn)?\.roblox\.com\/v2\/settings\/application\/WebClientApp(?:\/bucket\/([^/?#]+))?\/?([?#].*)?$/i;
     const GAME_SERVERS_REQUEST_PATH =
         /^\/v[12]\/games\/\d+\/(?:servers\/(?:Public|Friend)|private-servers)\/?$/;
 
@@ -451,8 +457,60 @@ const LayeredAssetTypes = [
         }
     }
 
-    async function rewriteGameServersFetchArgs(args, requestUrl) {
-        const rewrittenUrl = rewriteGameServersRequestUrl(requestUrl);
+    function getChannelOverride() {
+        try {
+            return localStorage.getItem(CHANNEL_OVERRIDE_KEY)?.trim() || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function reportChannel(channel) {
+        try {
+            sessionStorage.setItem(CHANNEL_CURRENT_KEY, channel);
+        } catch (e) {}
+        document.dispatchEvent(
+            new CustomEvent('rovalra-channel-detected', {
+                detail: { channel },
+            }),
+        );
+    }
+
+    // No bucket means LIVE, otherwise the bucket is the channel
+    function rewriteClientSettingsRequestUrl(url) {
+        if (typeof url !== 'string' || location.hostname !== CHANNEL_HOST) {
+            return url;
+        }
+
+        const match = url.match(CLIENT_SETTINGS_URL);
+        if (!match) return url;
+
+        const requested = match[1]
+            ? decodeURIComponent(match[1])
+            : LIVE_CHANNEL;
+        const override = getChannelOverride();
+        const channel = override ?? requested;
+        reportChannel(
+            channel.toUpperCase() === LIVE_CHANNEL ? LIVE_CHANNEL : channel,
+        );
+
+        if (!override || override === requested) return url;
+
+        const rest = match[2] ?? '';
+        if (override.toUpperCase() === LIVE_CHANNEL) {
+            return `https://clientsettingscdn.roblox.com/v2/settings/application/WebClientApp${rest}`;
+        }
+        return `https://clientsettings.roblox.com/v2/settings/application/WebClientApp/bucket/${encodeURIComponent(override)}${rest}`;
+    }
+
+    function rewriteRequestUrl(url) {
+        return rewriteClientSettingsRequestUrl(
+            rewriteGameServersRequestUrl(url),
+        );
+    }
+
+    async function rewriteRequestFetchArgs(args, requestUrl) {
+        const rewrittenUrl = rewriteRequestUrl(requestUrl);
         if (rewrittenUrl === requestUrl) return args;
 
         const [input, init] = args;
@@ -933,9 +991,9 @@ const LayeredAssetTypes = [
     window.fetch = async function (...args) {
         const [url] = args;
         const originalRequestUrl = getRequestUrl(url);
-        const requestUrl = rewriteGameServersRequestUrl(originalRequestUrl);
+        const requestUrl = rewriteRequestUrl(originalRequestUrl);
 
-        args = await rewriteGameServersFetchArgs(args, originalRequestUrl);
+        args = await rewriteRequestFetchArgs(args, originalRequestUrl);
         args = await rewriteThumbnailFetchArgs(args, requestUrl);
 
         let response = await originalFetch(...args);
@@ -1206,7 +1264,7 @@ const LayeredAssetTypes = [
 
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
         if (typeof url === 'string') {
-            url = rewriteGameServersRequestUrl(url);
+            url = rewriteRequestUrl(url);
         }
         if (
             typeof url === 'string' &&

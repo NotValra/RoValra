@@ -3495,6 +3495,20 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
+    Play: {
+        title: 'Roblox Web Client',
+        settings: {
+            channelOverlayEnabled: {
+                label: 'Channel Overlay',
+                description: [
+                    'Shows an overlay on play.roblox.com with your channel, which you can change.',
+                    'It opens automatically whenever you are on play.roblox.com. Press F2 to show or hide it.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+        },
+    },
     PublicDeveloper: {
         title: 'Developer',
         settings: {
