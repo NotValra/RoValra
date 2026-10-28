@@ -3,10 +3,10 @@
         "serverShare": "分享",
         "serverCopied": "已複製！",
         "recentServerTitle": "伺服器",
-        "decalOptions": "圖片選項"
+        "decalOptions": "圖像選項"
     },
     "common": {
-        "select": "選取...",
+        "select": "選擇...",
         "search": "搜尋",
         "rovalraSettings": "RoValra 設定",
         "filterItems": "篩選道具",
@@ -14,18 +14,18 @@
         "uploadFile": "上傳檔案",
         "change": "變更",
         "invalidFileFormat": "無效檔案格式。",
-        "invalidImageFile": "無效檔案格式。請上傳有效的圖片。",
+        "invalidImageFile": "無效檔案格式。請上傳有效的圖像。",
         "fileProcessingFailed": "檔案處理失敗。請嘗試上傳其他檔案。",
         "errorProcessingFile": "檔案處理過程中發生錯誤。請嘗試上傳其他檔案。",
         "less": "更少",
         "more": "更多",
-        "pastYear": "過去一年",
-        "past6Months": "過去六個月",
-        "past3Months": "過去三個月",
-        "pastMonth": "過去一個月",
-        "pastWeek": "過去一週",
+        "pastYear": "1 年以內",
+        "past6Months": "6 個月以內",
+        "past3Months": "3 個月以內",
+        "pastMonth": "1 個月以內",
+        "pastWeek": "前一週",
         "unnamedProduct": "未命名產品",
-        "offSale": "已下架",
+        "offSale": "下架",
         "robloxExperience": "Roblox 體驗",
         "subplace": "子地點",
         "subplaceUpper": "子地點",
@@ -38,7 +38,7 @@
         "copied": "已複製！",
         "free": "免費",
         "unknown": "未知",
-        "somethingWentWrong": "發生問題",
+        "somethingWentWrong": "發生錯誤",
         "robloxPlusSubscriber": "Roblox Plus 訂閱者",
         "joinServerFull": "加入（伺服器已滿）",
         "id": "ID: ",
@@ -47,8 +47,8 @@
         "rovalraDeveloper": "RoValra 開發者",
         "close": "關閉",
         "confirmAction": "確認操作",
-        "areYouSure": "你確定要繼續嗎？",
-        "confirm": "確定",
+        "areYouSure": "您確定要繼續嗎？",
+        "confirm": "確認",
         "cancel": "取消"
     },
     "regionSelector": {
@@ -60,25 +60,27 @@
         "filterByRegion": "按地區篩選伺服器",
         "filterByRegionItem": "按 {{region}} 篩選（{{count}} 個伺服器）",
         "filterByUptime": "按執行時間篩選伺服器（最新/最舊）",
-        "filterByVersion": "按遊戲版本篩選伺服器"
+        "filterByVersion": "按遊戲版本篩選伺服器",
+        "searchingServers": "正在搜尋伺服器...（已找到 {{count}} 個）",
+        "filterDisabledByRoblox": "由於 Roblox 方面的原因，此篩選條件已在此體驗中停用。"
     },
     "guidelines": {
-        "title": "RoValra 使用條款",
-        "message": "使用 RoValra 即表示您同意遵守我們的使用條款。違反這些規則可能會導致您無法存取某些功能，包括狀態氣泡和代名詞。<br><br><b>重點：</b><br>• 您不准引導使用者離開平台。<br>• 您不准進行任何不當行為。<br>• 您不准違反 Roblox 使用條件。<br><br>若要瞭解更多資訊，請訪問 <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
-        "confirm": "我瞭解"
+        "title": "RoValra 規範",
+        "message": "使用 RoValra 即表示您同意遵守我們的使用條款。違反這些規則可能會導致您無法存取某些功能，包括狀態氣泡和代名詞。<br><br><b>重點：</b><br>• 您不得引導使用者離開平台。<br>• 您不得進行任何不當行為。<br>• 您不得違反 Roblox 服務條款。<br><br>若要了解更多資訊，請前往 <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>。",
+        "confirm": "我了解"
     },
     "review": {
-        "requestMessage": "看來您從 RoValra 那裡獲得了價值！\n 您能否為我們的擴充功能留下評分？\n 這有助於維持 RoValra 的免費使用，讓所有人都能無需付費使用功能。",
-        "leaveReview": "留下評分",
-        "notNow": "暫時不要",
-        "doNotShowAgain": "不要再次顯示",
+        "requestMessage": "看來 RoValra 對您很有幫助！\n 您願意為我們留下評論嗎？\n 這有助於 RoValra 繼續免費提供給所有人，不設付費牆。",
+        "leaveReview": "留下評論",
+        "notNow": "下次再說",
+        "doNotShowAgain": "不要再顯示",
         "rateTitle": "為 RoValra 評分",
         "donationMessage": "執行地區選擇器等功能並非免費，RoValra 完全依賴捐贈來支付這些費用。\n\n捐贈有助於我們維持伺服器執行，從而使此類功能能夠繼續免費供所有人使用。",
         "donate": "捐贈",
-        "donationTitle": "想幫助支援 RoValra 嗎？"
+        "donationTitle": "想幫助支持 RoValra 嗎？"
     },
     "heatmap": {
-        "updatesBetween": "{{date}} 期間 {{start}} - {{end}} 的更新",
+        "updatesBetween": "{{date}} {{start}} - {{end}} 期間的更新",
         "updatesOn": "{{date}} 的更新",
         "trackingSince": "更新歷史記錄僅從 2026 年 2 月 15 日開始追蹤。"
     },
@@ -99,31 +101,34 @@
         "versionUnknown": "版本未知",
         "version": "版本 {{version}}",
         "versionLabel": "版本",
+        "regionTooltip": "伺服器地區：{{region}}",
+        "performanceTooltip": "伺服器效能",
         "latest": "（最新）",
         "oldest": "（最舊）",
         "serverFull": "伺服器已滿",
         "privateServer": "在私人伺服器上進行遊戲",
         "purchaseGame": "購買遊戲即可查看地區。",
-        "currentVersionTooltip": "已發佈目前版本。"
+        "currentVersionTooltip": "目前發佈的版本。"
     },
     "serverStats": {
-        "totalServers": "總數伺服器",
+        "totalServers": "伺服器總數",
         "totalServersTooltip": "RoValra 在此體驗下追蹤的伺服器總數",
         "oldest": "最舊",
         "oldestTooltip": "伺服器目前執行的最舊版本。"
     },
     "preferredRegion": {
-        "criticalError": "Roblox 加入 API 沒有回應。您可能需要稍等片刻。\n這通常是由網路問題或 Roblox 伺服器問題引起的。如果問題仍然存在，請嘗試停用[首選地區](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search)或清除瀏覽器快取。\n如果問題持續存在，請在 RoValra 的 Discord 伺服器上檢舉。\n\n---\n**錯誤詳情：**\n{{detailMsg}}",
+        "criticalError": "Roblox 加入 API 沒有回應。您可能需要稍等片刻。\n這通常是由網路問題或 Roblox 伺服器問題引起的。如果問題仍然存在，請嘗試停用[首選地區](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search)或清除瀏覽器快取。\n如果問題持續存在，請在 RoValra 的 Discord 伺服器上回報。\n\n---\n**錯誤詳情：**\n{{detailMsg}}",
         "criticalErrorApiMoved": "Roblox 可能正在逐步棄用 gamejoin API。這並非 RoValra 所能控制，並且會暫時影響地區選擇器；我們正在盡快修復。\n\n---\n**錯誤詳情：**\n{{detailMsg}}",
         "detectingLocation": "正在偵測您的位置...",
         "closestRegion": "最接近的地區",
-        "inactiveRegion": "{{region}} 已不再被 Roblox 作為伺服器位置。",
+        "inactiveRegion": "{{region}} 已不再被 Roblox 用作伺服器位置。",
         "scanningLocally": "正在本地掃描 {{region}}...",
         "regionApiUnavailable": "地區 API 無法使用。正在掃描 {{region}}...",
         "findingLowestLatency": "正在尋找延遲最低的伺服器...",
         "searchingInRegion": "正在 {{region}} 中搜尋...",
         "fallbackInactive": "透過 API 找到的下一個最佳伺服器均已失效。正在本地掃描 {{region}}...",
         "noServersApi": "透過 API 在 {{region}} 內找不到伺服器。正在本地掃描...",
+        "apiTimedOut": "RoValra 地區搜尋器尋找 {{region}} 的時間過長，可能是 Roblox 的變更所致。正在改為於本地尋找 {{region}}。",
         "loadBalancing": "{{region}} 用於負載平衡，可能僅在高負載情況下才會啟動。正在掃描...",
         "foundJoining": "已找到 {{region}}！正在加入...",
         "foundContinuing": "已找到：{{region}}。正在繼續搜尋 {{targetRegion}}...",
@@ -141,10 +146,10 @@
         "subtotal": "小計",
         "plusBenefit": "Plus 權益（可享 {{percent}}% 折扣）",
         "total": "合計",
-        "insufficientRobux": "Robux 餘額不足",
+        "insufficientRobux": "Robux 不足",
         "purchasing": "正在購買...",
         "purchaseComplete": "購買完成",
-        "successMessage": "您已成功購買<b>{{itemName}}</b>",
+        "successMessage": "您已成功購買 <b>{{itemName}}</b>",
         "ok": "確定",
         "purchaseError": "購買錯誤",
         "purchaseFailed": "購買失敗",
@@ -160,8 +165,8 @@
         "selectedStatus": "選擇要輪換顯示的虛擬人偶。（已選取 {{count}} 個虛擬人偶）",
         "loading": "正在載入...",
         "loadMore": "載入更多",
-        "interval": "重新整理率（秒）",
-        "loadingDetails": "正在載入外觀詳情...",
+        "interval": "間隔（秒）",
+        "loadingDetails": "正在載入服飾詳情...",
         "active": "輪換器已啟用！",
         "disable": "停用",
         "clearSelection": "清除選取",
@@ -174,29 +179,37 @@
         "creatorName": "創作者名稱",
         "minPrice": "最低價格",
         "maxPrice": "最高價格",
-        "availability": "可得性",
+        "availability": "販賣狀態",
         "showAll": "顯示全部",
-        "onsaleOnly": "僅限售賣中道具",
-        "offsaleOnly": "僅限已下架道具",
+        "onsaleOnly": "僅限販賣中道具",
+        "offsaleOnly": "僅限下架道具",
         "effects": "效果",
         "limiteds": "限量道具"
+    },
+    "tradeCompletedDate": {
+        "completedOn": "完成於",
+        "created": "建立時間：",
+        "sent": "傳送時間：",
+        "received": "收到時間：",
+        "completed": "完成時間：",
+        "notFound": "未找到"
     },
     "trading": {
         "searchInventory": "搜尋道具欄",
         "continueSearch": "繼續搜尋",
-        "filterTrades": "篩選交易請求",
+        "filterTrades": "篩選交易",
         "noResults": "找不到結果",
         "copyProof": "複製證明",
         "copied": "已複製！",
         "value": "價值：",
         "demand": "需求量：",
         "includeRobux": "包含 Robux",
-        "openUserOnRolimons": "在 Rolimons 上打開使用者",
-        "openOnRolimons": "在 Rolimons 上打開{{type}}",
+        "openUserOnRolimons": "在 Rolimons 上開啟使用者",
+        "openOnRolimons": "在 Rolimons 上開啟 {{type}}",
         "projectedItem": "虛高價格的道具",
         "projected": "虛高價格",
         "rareItem": "稀有道具",
-        "rap": "近期平均價格 (RAP)",
+        "rap": "近期平均價格（RAP）",
         "valueLabel": "價值",
         "demandLabel": "需求量",
         "bundle": "組合",
@@ -204,16 +217,22 @@
         "serial": "序號",
         "afterTax": "稅後",
         "beforeTax": "稅前",
-        "youGive": "你給出",
-        "youGet": "你取得"
+        "youGive": "您給出",
+        "youGet": "您將獲得"
+    },
+    "updateChangelog": {
+        "title": "RoValra 已更新",
+        "fromVersion": "舊版 v{{version}}",
+        "description": "查看更新日誌，了解此版本的變更內容。",
+        "viewChangelog": "查看更新內容"
     },
     "onboarding": {
-        "title": "歡迎使用《RoValra》！",
-        "thankYou": "謝謝你安裝<strong>《RoValra》</strong>！",
-        "exploreFeatures": "若要變更設定並瞭解所有功能，您可以：",
-        "settingsInstruction": "點觸 Roblox 標題列中的<strong>齒輪圖示</strong>，然後點觸「RoValra 設定」。",
+        "title": "歡迎使用 RoValra！",
+        "thankYou": "謝謝您安裝 <strong>RoValra</strong>！",
+        "exploreFeatures": "若要變更設定並了解所有功能，您可以：",
+        "settingsInstruction": "按下 Roblox 標題列中的<strong>齒輪圖示</strong>，然後按下「RoValra 設定」。",
         "imageAlt": "本指南將向您展示如何在 Roblox 網站上找到 RoValra 設定按鈕。",
-        "description": "《RoValra》是一款永久免費的 Roblox 擴充功能，致力於提升所有玩家的遊戲體驗！",
+        "description": "RoValra 是一款永久免費的 Roblox 擴充功能，致力於提升所有玩家的遊戲體驗！",
         "gotIt": "知道了！"
     },
     "catalogDependencies": {
@@ -221,9 +240,23 @@
         "loading": "正在載入資訊（{{count}}）...",
         "title": "依賴關係",
         "unknown": "未知",
-        "assetFallback": "資產 {{id}}",
-        "verifiedBadge": "已驗證徽章",
+        "assetFallback": "素材 {{id}}",
+        "verifiedBadge": "驗證徽章",
         "by": "創作者："
+    },
+    "betterGraphs": {
+        "summary": "所選期間的平均價格",
+        "series": {
+            "price": "近期平均價格",
+            "volume": "數量"
+        },
+        "ranges": {
+            "30d": "30 天",
+            "90d": "90 天",
+            "180d": "180 天",
+            "1y": "1 年",
+            "all": "歷來"
+        }
     },
     "catalogItemSales": {
         "sales": "銷售量",
@@ -231,23 +264,23 @@
         "statsTooltip": "銷售量和收入統計數據來自洩露資訊，很可能不準確。"
     },
     "fortyMethod": {
-        "loginRequired": "無法認識你的使用者 ID。請確認你已登入了。",
+        "loginRequired": "無法識別您的使用者 ID。請確認您已登入。",
         "setupExperience": "設定一個體驗",
         "specificTemplate": "只有特定的遊戲模板才能奏效。",
         "selectGroup": "選擇您可以管理體驗的群組。<br>擴充功能將為您建立新的體驗。",
-        "or": "或者",
+        "or": "或",
         "manualPlaceId": "手動輸入地點 ID<br>（僅當您知道自己在做什麼時才執行此操作。）",
         "donateSavedRobux": "將已節省的 Robux 捐贈給 RoValra",
         "estimatedSavings": "之後顯示的預計節省金額為近似值，可能不準確。",
         "importantInformation": "重要資訊",
-        "acknowledge": "我已閱讀並同意",
+        "acknowledge": "我已了解",
         "groupRequired": "需要群組",
         "goBack": "返回",
-        "ownershipDetected": "偵測到擁有權",
-        "understandContinue": "我瞭解並繼續",
-        "createExperience": "建立體驗",
+        "ownershipDetected": "偵測到所有權",
+        "understandContinue": "我明白並繼續",
+        "createExperience": "創作體驗",
         "createNewExperience": "建立新的體驗",
-        "findingExperience": "正在尋找你的體驗",
+        "findingExperience": "正在尋找您的體驗",
         "findingExperienceWait": "請稍候，我們正在尋找您新發佈的體驗...",
         "donateToRoValra": "捐贈給 RoValra",
         "back": "返回",
@@ -258,15 +291,15 @@
         "backToGroupSelection": "返回群組選取",
         "experience": "體驗",
         "loading": "正在載入...",
-        "setupGame": "設定你的遊戲",
+        "setupGame": "設定您的遊戲",
         "saveContinue": "儲存並繼續",
         "creating": "正在建立...",
         "uploadingTemplate": "正在上傳模板...",
-        "configuring": "正在配置...",
+        "configuring": "正在設定...",
         "done": "已完成！",
         "updating": "正在更新...",
         "purchaseFailed": "購買失敗",
-        "gotIt": "得到了",
+        "gotIt": "知道了",
         "confirmMethodPurchase": "確認 40% 折扣購買方式",
         "confirmCartPurchase": "確認購物車購買",
         "cancel": "取消",
@@ -274,43 +307,43 @@
         "joinToPurchase": "加入遊戲進行購買",
         "confirmPurchase": "確認購買",
         "purchaseError": "購買錯誤",
-        "ownerAccount": "<strong>擁有者帳號：</strong> 群組擁有者不能與您購買道具的帳號相同。擁有者應使用已啟用雙重驗證 (2FA) 且密碼強度高、獨一無二的安全備用帳號。",
+        "ownerAccount": "<strong>所有者帳號：</strong>群組所有者不能與您購買道具的帳號相同。所有者應使用已啟用雙步驟驗證（2FA）且密碼強度高、獨一無二的安全備用帳號。",
         "payouts": "<strong>支付：</strong>只有群組所有者的帳號才能從群組資金中支付已節省的 Robux。",
-        "pendingRobux": "<strong>待處理 Robux：</strong>請注意，使用此功能後，Robux 將處理約一個月才能進行支付。",
-        "groupRequiredBody": "若要使用 40% 折扣方式與自己的群組一起使用，您需要一個可以管理體驗的群組。",
-        "groupRequiredImportant": "<strong>重要：</strong>為了正常使用此功能，群組必須由安全的備用帳號建立。您的主帳號（用於購買道具的帳號）應具有建立和管理群組體驗權限的身份。",
-        "groupRequiredDonate": "如果你沒有合適的群組，你也可以透過我們的體驗來支援 RoValra，這樣 RoValra 就能收到已節省的 Robux ❤️",
-        "ownershipBody": "如果您是此群組的擁有者，則 40% 折扣方式將無法使用。請選擇其他群組或將擁有權轉移到安全的備用帳號。",
+        "pendingRobux": "<strong>待處理 Robux：</strong>請注意，使用此功能後，Robux 將待處理約一個月才能進行支付。",
+        "groupRequiredBody": "若要在自己的群組中使用 40% 折扣方式，您需要一個可以管理體驗的群組。",
+        "groupRequiredImportant": "<strong>重要：</strong>為了正常使用此功能，群組必須由安全的備用帳號擁有。您的主帳號（用於購買道具的帳號）應具有建立和管理群組體驗權限的身分。",
+        "groupRequiredDonate": "如果您沒有合適的群組，您也可以透過我們的體驗來支持 RoValra，這樣 RoValra 就能收到已節省的 Robux ❤️",
+        "ownershipBody": "如果您是此群組的所有者，則 40% 折扣方式將無法使用。請選擇其他群組或將所有權轉移到安全的備用帳號。",
         "experienceAccepted": "體驗已接受",
         "experienceAcceptedSpecific": "<strong>只有特定的體驗才能有效。</strong>請確認此體驗已設定好處理遊戲內購買所需的指令碼。",
-        "experienceAcceptedGroup": "請確認體驗屬於您<strong>可控制的群組，但群組並非由此帳號擁有。</strong>最好由您的小號擁有此群組。如果您擁有此群組，則 40% 折扣方式將無法使用。",
-        "experienceAcceptedPending": "已節省的 Robux 將大約等待一個月後才能進行支付。請使用安全的備用帳號作為群組擁有者進行支付。",
+        "experienceAcceptedGroup": "請確認體驗屬於您<strong>可控制的群組，但群組並非由此帳號擁有。</strong>最好由您的備用帳號擁有此群組。如果您擁有此群組，則 40% 折扣方式將無法使用。",
+        "experienceAcceptedPending": "已節省的 Robux 將大約等待一個月後才能進行支付。請使用安全的備用帳號作為群組所有者進行支付。",
         "createExperienceBody": "為此群組建立一個使用 40% 折扣方式的新體驗。",
         "createNewExperienceBody": "若要建立使用折扣方法的新體驗：",
-        "createStepOne": "在 Studio 中開啟此體驗：",
+        "createStepOne": "在 Studio 中開啟未受複製保護的體驗：",
         "openStudio": "開啟 Studio",
         "createStepTwo": "在 Studio 中，前往<strong>檔案 > 遊戲/體驗設定 > 安全性 > 開啟「允許第三方買賣」> 檔案 > 發佈至 Roblox 為...</strong>",
         "createStepThree": "從創作者名單中選擇此群組。",
-        "createStepFour": "點觸<strong>創作</strong>，體驗內容將會被發佈。",
-        "createPublishedBody": "發佈後，點觸下面的按鈕，我們會自動為您找到並選擇它。",
+        "createStepFour": "按下<strong>創作</strong>，體驗內容將會被發佈。",
+        "createPublishedBody": "發佈後，按下下面的按鈕，我們會自動為您找到並選擇它。",
         "publishedGame": "我已經發佈了遊戲",
         "saveSettingsUnavailable": "無法儲存設定。儲存 API 無法使用。",
         "groupsLoadFailed": "無法載入群組。請重新整理頁面然後重試。",
         "noGroupSelected": "未選擇群組。請重試。"
     },
     "risk": {
-        "projected": "此道具被標記為虛高價格",
-        "rapMuchHigher": "近期平均價格(RAP)遠高於價值，價值可能上漲。",
-        "rapHigher": "近期平均價格(RAP)高於價值，價值可能上漲。",
-        "rapMuchLower": "近期平均價格(RAP)遠低於價值，價值可能下跌。",
-        "rapHigherSales": "近期平均價格(RAP)高於銷售量，但最優價格證實了這一點。",
-        "rapUnusuallyHigh": "近期平均價格(RAP)與近期穩定銷售價格相比異常高。",
-        "rapHigherStable": "近期平均價格(RAP)高於穩定價格（逐漸增加中）。",
-        "bestPriceMuchLower": "最優價格遠低於近期平均價格(RAP)。",
-        "bestPriceLower": "最優價格低於近期平均價格(RAP)。",
-        "bestPriceHigher": "最優價格高於近期平均價格(RAP)。",
-        "bestPriceSlightlyHigher": "最優價格略高於近期平均價格(RAP)。",
-        "sufferingProjection": "此道具已收到虛高價格影響。",
+        "projected": "此道具被標記為虛高價格。",
+        "rapMuchHigher": "近期平均價格（RAP）遠高於價值，價值可能上漲。",
+        "rapHigher": "近期平均價格（RAP）高於價值，價值可能上漲。",
+        "rapMuchLower": "近期平均價格（RAP）遠低於價值，價值可能下跌。",
+        "rapHigherSales": "近期平均價格（RAP）高於銷售價格，但最佳價格證實了這一點。",
+        "rapUnusuallyHigh": "近期平均價格（RAP）與近期穩定銷售價格相比異常高。",
+        "rapHigherStable": "近期平均價格（RAP）高於穩定價格（逐漸增加中）。",
+        "bestPriceMuchLower": "最佳價格遠低於近期平均價格（RAP）。",
+        "bestPriceLower": "最佳價格低於近期平均價格（RAP）。",
+        "bestPriceHigher": "最佳價格高於近期平均價格（RAP）。",
+        "bestPriceSlightlyHigher": "最佳價格略高於近期平均價格（RAP）。",
+        "sufferingProjection": "此道具已受到虛高價格影響。",
         "stableTrend": "價格走勢穩定。"
     },
     "freeRobloxPlusThemes": {
@@ -320,11 +353,11 @@
         "hiddenFromMarketplace": "此道具已從市集中隱藏",
         "notFound": "未找到",
         "failedToLoad": "無法載入",
-        "onHold": "等待中",
+        "onHold": "存放中",
         "faeItem": "年齡驗證道具"
     },
     "inventory": {
-        "openRolimons": "在 Rolimon's 上打開",
+        "openRolimons": "在 Rolimon's 上開啟",
         "searchPlaceholder": "按道具名稱搜尋..."
     },
     "games": {
@@ -340,7 +373,7 @@
         "createSave": "建立並儲存",
         "save": "儲存變更",
         "deleteCategory": "刪除類別",
-        "deleteCategoryConfirm": "你確定嗎？這樣做會刪除此類別，並將其從所有已收藏至書籤的遊戲中移除。",
+        "deleteCategoryConfirm": "您確定嗎？這樣做會刪除此類別，並將其從所有已收藏至書籤的遊戲中移除。",
         "confirm": "刪除",
         "cancel": "取消",
         "remove": "移除書籤",
@@ -351,7 +384,7 @@
         "empty": "此類別中沒有已收藏至書籤的遊戲。"
     },
     "homeLayout": {
-        "untitled": "未命名",
+        "untitled": "無標題",
         "empty": "RoValra 找不到版面，請重新整理頁面然後重試。",
         "reset": "重設",
         "save": "儲存",
@@ -362,14 +395,14 @@
         "visibility": "可見度",
         "visibilityDescription": "選擇是否在首頁顯示此類別。",
         "accurateContinue": "準確繼續名單",
-        "accurateContinueDescription": "按您上次玩每個遊戲的時間排序繼續。",
+        "accurateContinueDescription": "按您上次遊玩各遊戲的時間排序「繼續」名單。",
         "enable": "啟用",
         "disable": "停用",
         "show": "顯示",
         "hide": "隱藏"
     },
     "sidebarLayout": {
-        "untitled": "未命名",
+        "untitled": "無標題",
         "empty": "RoValra 找不到任何側邊欄按鈕。",
         "reset": "重設",
         "save": "儲存",
@@ -378,7 +411,11 @@
         "myProfile": "我的個人檔案",
         "disabled": "已停用",
         "show": "顯示",
-        "hide": "隱藏"
+        "hide": "隱藏",
+        "add": "新增",
+        "addButton": "新增按鈕",
+        "buttonPlaceholder1": "名稱",
+        "buttonPlaceholder2": "網址"
     },
     "topbarLayout": {
         "empty": "RoValra 找不到任何支援的頂部欄項目。",
@@ -386,13 +423,13 @@
         "save": "儲存",
         "overlayTitle": "頂部欄版面",
         "button": "頂部欄版面",
-        "disabled": "必需的",
+        "disabled": "必要",
         "show": "顯示",
         "hide": "隱藏",
         "labels": {
             "logo": "Roblox 標誌",
             "charts": "圖表",
-            "marketplace": "商集",
+            "marketplace": "市集",
             "create": "創作",
             "robux": "Robux",
             "search": "搜尋",
@@ -404,21 +441,29 @@
             "settings": "設定"
         }
     },
+    "homeGreeting": {
+        "morning": "早安，{{name}}",
+        "afternoon": "午安，{{name}}",
+        "evening": "晚安，{{name}}",
+        "night": "晚安，{{name}}"
+    },
     "friendsCarouselRedesign": {
-        "prevFriends": "以前好友",
+        "prevFriends": "上一頁好友",
         "nextFriends": "更多好友",
         "isPlaying": "{{name}} 正在遊玩",
-        "online": "線上",
+        "online": "在線",
         "inStudio": "在 Studio 中",
         "offline": "離線",
         "friendFallback": "好友",
         "join": "加入",
         "chat": "聊天",
-        "viewProfile": "查看個人檔案"
+        "viewProfile": "檢視個人檔案",
+        "canJoin": "可以一起遊玩",
+        "notJoinable": "目前無法加入此使用者。"
     },
     "friendLabels": {
         "menuAction": "設定好友標籤",
-        "dialogTitle": "標籤 {{displayName}}",
+        "dialogTitle": "為 {{displayName}} 設定標籤",
         "inputLabel": "好友標籤",
         "inputPlaceholder": "密友、學校、",
         "existingLabels": "現有標籤",
@@ -428,10 +473,10 @@
         "cancel": "取消"
     },
     "underratedGames": {
-        "topic": "比較低估的遊戲",
-        "subtitle": "RoValra 社群精選的比較低估的遊戲。",
+        "topic": "被低估的遊戲",
+        "subtitle": "RoValra 社群精選的被低估的遊戲。",
         "rotates": "輪換",
-        "suggestOnDiscord": "在 {{discord}} 上建議比較低估的遊戲",
+        "suggestOnDiscord": "在 {{discord}} 上建議被低估的遊戲",
         "ageRestrictionWarning": "由於 Roblox 要求至少有 250 名高度參與的玩家，部分遊戲可能僅限 16 歲以上玩家遊玩。"
     },
     "playtime": {
@@ -441,41 +486,54 @@
         "thisWeek": "本週",
         "thisMonth": "本月",
         "thisYear": "今年",
-        "allTime": "所有時間",
+        "allTime": "歷來",
         "hours": "{{value}} 小時",
-        "minutes": "{{value}} 分鐘"
+        "minutes": "{{value}} 分鐘",
+        "totalLabel": "總遊玩時間：",
+        "mostPlayed": "最常遊玩",
+        "playedOn": "於 {{date}} 遊玩",
+        "weekOf": "{{date}} 當週",
+        "noActivity": "沒有遊玩時間",
+        "moreGames": "還有 {{count}} 個",
+        "public": "向所有人顯示遊玩時間",
+        "publicTooltip": "讓所有使用 RoValra 的人都能看到您的遊玩時間。",
+        "publicLocked": "需要捐贈者等級 3 才能公開您的遊玩時間。",
+        "publicFailed": "無法更新遊玩時間的可見度，請稍後再試。",
+        "sampleGame": "體驗 {{number}}",
+        "previewOwnTitle": "尚未記錄任何遊玩時間",
+        "previewOwnText": "在 RoValra 設定中開啟「遊玩時間追蹤」後遊玩體驗，記錄就會顯示在這裡。"
     },
     "mutualFriends": {
         "pill_one": "{{count}} 位共同好友",
         "pill_other": "{{count}} 位共同好友",
-        "tooltip": "你與這位使用者有哪些共同好友。",
-        "tab": "共同好友",
-        "title": "共同好友 ({{count}})",
-        "empty": "你與這位使用者沒有共同好友。"
+        "tooltip": "您與這位使用者的共同好友",
+        "tab": "共同聯絡對象",
+        "title": "共同好友（{{count}}）",
+        "empty": "您與這位使用者沒有共同好友。"
     },
     "trustedFriends": {
-        "pendingConnection": "待處理信任好友",
-        "pendingRequest": "待處理信任好友請求",
-        "addConnection": "新增信任好友",
-        "addConfirmation": "您確定要傳送信任好友請求嗎？",
+        "pendingConnection": "待處理信任的好友",
+        "pendingRequest": "待處理信任的好友邀請",
+        "addConnection": "新增信任的好友",
+        "addConfirmation": "您確定要傳送信任的好友邀請嗎？",
         "sendRequest": "傳送請求",
         "sending": "正在傳送...",
-        "requestSent": "已傳送信任好友請求！",
-        "requestFailed": "無法傳送信任好友請求。",
+        "requestSent": "已傳送信任的好友邀請！",
+        "requestFailed": "無法傳送信任的好友邀請。",
         "errorSending": "傳送時發生錯誤",
-        "acceptConnection": "接受信任好友",
-        "acceptConfirmation": "您確定要接受此信任好友請求嗎？",
+        "acceptConnection": "接受信任的好友邀請",
+        "acceptConfirmation": "您確定要接受此信任的好友邀請嗎？",
         "accept": "接受",
         "accepting": "正在接受...",
-        "requestAccepted": "已接受信任好友請求！",
-        "acceptFailed": "無法接受信任好友請求。",
+        "requestAccepted": "已接受信任的好友邀請！",
+        "acceptFailed": "無法接受信任的好友邀請。",
         "errorAccepting": "接受時發生錯誤",
-        "removeConnection": "移除信任好友",
-        "removeConfirmation": "您確定要移除此信任好友嗎？",
+        "removeConnection": "移除信任的好友",
+        "removeConfirmation": "您確定要移除此信任的好友嗎？",
         "remove": "移除",
         "removing": "正在移除...",
-        "connectionRemoved": "已移除信任好友！",
-        "removeFailed": "無法移除信任好友。",
+        "connectionRemoved": "信任的好友已移除！",
+        "removeFailed": "無法移除信任的好友。",
         "errorRemoving": "移除時發生錯誤"
     },
     "chatEligibility": {
@@ -496,6 +554,8 @@
         "overlayText": "已隱藏的體驗",
         "noHiddenGames": "此使用者沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
+        "publicExperiences": "公開的體驗",
+        "hiddenExperiences": "已隱藏的體驗",
         "labels": {
             "sort": "排序",
             "order": "順序",
@@ -507,7 +567,7 @@
             "likes": "喜歡",
             "dislikes": "不喜歡",
             "players": "玩家",
-            "name": "名稱 (Z-A)"
+            "name": "名稱（Z-A）"
         },
         "order": {
             "descending": "降序",
@@ -517,7 +577,7 @@
         "loading": "正在載入..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "已隱藏的群組體驗 (共 {{count}} 個）",
+        "overlayTitle": "已隱藏的群組體驗（共 {{count}} 個）",
         "noHiddenGames": "此群組沒有已隱藏的體驗。",
         "buttonText": "已隱藏的體驗",
         "labels": {
@@ -531,7 +591,7 @@
             "likes": "喜歡",
             "dislikes": "不喜歡",
             "players": "玩家",
-            "name": "名稱 (Z-A)"
+            "name": "名稱（Z-A）"
         },
         "order": {
             "descending": "降序",
@@ -541,36 +601,36 @@
         "loadingMore": "正在載入更多遊戲..."
     },
     "userOutfits": {
-        "loading": "正在載入外觀...",
+        "loading": "正在載入服飾...",
         "back": "返回",
         "totalPrice": "總價：",
         "loadingItems": "正在載入道具...",
-        "noItems": "此外觀沒有道具。",
+        "noItems": "此服飾沒有道具。",
         "errorLoadingItems": "無法載入道具。",
-        "buttonText": "顯示外觀",
-        "overlayTitle": "使用者外觀",
-        "overlayTitleUser": "{{displayName}} 的外觀",
-        "noOutfits": "此使用者沒有外觀。",
+        "buttonText": "顯示服飾",
+        "overlayTitle": "使用者服飾",
+        "overlayTitleUser": "{{displayName}} 的服飾",
+        "noOutfits": "此使用者沒有服飾。",
         "inventoryPrivate": "此使用者的道具欄已隱藏。",
-        "errorNoUserId": "無法從頁面中認識使用者 ID。",
-        "errorFetch": "無法載入外觀。"
+        "errorNoUserId": "無法從頁面中判斷使用者 ID。",
+        "errorFetch": "無法載入服飾。"
     },
     "donationLink": {
         "donate": "捐贈",
         "overlayTitle": "《PLS DONATE》",
-        "description": "這將啟動《PLS DONATE》遊戲，您可以在這裡進行離線捐贈。\n\n由於 Roblox (30%) 和遊戲 (10%) 會收取費用，使用者將收到捐贈金額的 60%。\n\n加入後，「離線捐贈」介面將自動顯示，並預先填寫您的使用者名稱。只需點擊禮物按鈕即可開啟您的捐贈頁面，購買遊戲通行證進行捐贈。",
+        "description": "這將啟動《PLS DONATE》遊戲，您可以在這裡進行離線捐贈。\n\n由於 Roblox（30%）和遊戲（10%）會收取費用，使用者將收到捐贈金額的 60%。\n\n加入後，「離線捐贈」介面將自動顯示，並預先填寫對方的使用者名稱。只需按下禮物按鈕即可開啟對方的攤位，購買特權證進行捐贈。",
         "joinButton": "加入《PLS DONATE》",
         "goBackButton": "返回",
-        "loadingGamePasses": "正在載入遊戲通行證...",
-        "priceLowToHigh": "價格（從低到高）",
-        "priceHighToLow": "價格（從高到低）",
-        "userGamePasses": "{{username}} 的遊戲通行證",
+        "loadingGamePasses": "正在載入特權證...",
+        "priceLowToHigh": "價格（由低到高）",
+        "priceHighToLow": "價格（由高到低）",
+        "userGamePasses": "{{username}} 的特權證",
         "copyDonationLink": "複製捐贈連結",
-        "copyLinkDescription": "這將複製指向此個人檔案的特殊連結。當 RoValra 使用者打開此連結時，捐贈選單將自動出現。<br><br><strong>注意：</strong>只有 RoValra 使用者才能看到捐贈窗口，其他使用者將看到標準個人檔案。",
+        "copyLinkDescription": "這將複製指向此個人檔案的特殊連結。當 RoValra 使用者開啟此連結時，捐贈選單將自動出現。<br><br><strong>注意：</strong>只有 RoValra 使用者才能看到捐贈視窗，其他使用者將看到標準個人檔案。",
         "copyLinkButton": "複製連結",
         "copySuccess": "捐贈連結已成功複製！",
-        "noGamePassesFound": "找不到 {{username}} 的遊戲通行證。",
-        "errorLoading": "無法載入遊戲通行證：{{message}}"
+        "noGamePassesFound": "找不到 {{username}} 的特權證。",
+        "errorLoading": "無法載入特權證：{{message}}"
     },
     "instantJoiner": {
         "instantJoin": "即時加入",
@@ -584,15 +644,15 @@
     "rap": {
         "error": "錯誤",
         "private": "私人",
-        "openInRolimons": "在 Rolimon's 上打開",
+        "openInRolimons": "在 Rolimon's 上開啟",
         "thisUser": "此使用者",
         "rolimonsRedirect": "您即將被重新導向至 {{username}} 在 Rolimon's 上的個人檔案頁面，Rolimon's 是一個用於交易和道具價值的外部網站。<br><br>您想繼續嗎？",
         "continueToRolimons": "繼續至 Rolimon's",
         "user": "使用者",
         "loadingItems": "正在載入更多道具...",
         "noItemsMatch": "沒有找到符合您搜尋條件的道具。",
-        "collectiblesTitle": "{{displayName}} 的收藏品（近期平均價格(RAP)：{{totalRapString}}）",
-        "collectiblesTitleValue": "{{displayName}} 的收藏品 (價值：{{totalRapString}})",
+        "collectiblesTitle": "{{displayName}} 的收藏品（近期平均價格（RAP）：{{totalRapString}}）",
+        "collectiblesTitleValue": "{{displayName}} 的收藏品（價值：{{totalRapString}}）",
         "inventoryPrivateOrNoLimiteds": "此使用者的道具欄已隱藏或沒有限量道具。",
         "searchByName": "按道具名稱搜尋",
         "itemAmount": "擁有此道具的數量：{{quantity}}"
@@ -601,38 +661,65 @@
         "send": "傳送"
     },
     "privateServer": {
+        "moreOptions": "更多選項",
+        "filters": {
+            "button": "篩選條件",
+            "title": "私人伺服器篩選條件",
+            "sortTitle": "排序方式",
+            "sort": {
+                "default": "預設",
+                "players": "玩家",
+                "name": "名稱",
+                "owner": "主人"
+            },
+            "descending": "由高到低",
+            "ascending": "由低到高",
+            "playersTitle": "玩家",
+            "any": "任何",
+            "hasPlayers": "有玩家",
+            "empty": "沒有玩家",
+            "ownerTitle": "主人",
+            "anyone": "任何人",
+            "mine": "我的",
+            "others": "其他人",
+            "reset": "重設",
+            "apply": "套用",
+            "includedWith": "內含於",
+            "plus": "Plus 方案"
+        },
         "processingTitle": "正在處理伺服器",
         "starting": "正在啟動...",
         "cancel": "取消",
         "cancelling": "正在取消...",
-        "activating": "已活躍",
-        "inactivating": "非活躍",
-        "progressText": "{{actionText}} 伺服器 {{current}} 共 {{total}} 個...",
+        "activating": "正在啟用",
+        "inactivating": "正在停用",
+        "progressText": "{{actionText}} 第 {{current}} 個伺服器（共 {{total}} 個）...",
         "unknownApiError": "發生未知 API 錯誤。",
-        "processCancelled": "處理已取消。<span class=\"success-text\">已處理{{count}}個伺服器。</span>",
-        "completed": "已完成：<span class=\"success-text\">{{successCount}} 個成功</span>, <span class=\"error-text\">{{errorCount}} 個失敗</span>。",
-        "processingComplete": "處理已完成",
+        "processCancelled": "處理已取消。<span class=\"success-text\">已處理 {{count}} 個伺服器。</span>",
+        "completed": "已完成：<span class=\"success-text\">{{successCount}} 個成功</span>，<span class=\"error-text\">{{errorCount}} 個失敗</span>。",
+        "processingComplete": "處理完畢",
         "confirmationTitle": "確認操作",
         "confirmationMessage": "您即將把 {{count}} 個私人伺服器設定為{{action}}。",
         "confirmationJoinable": "這將允許使用者加入私人伺服器。",
         "confirmationUnjoinable": "這將不允許使用者加入私人伺服器。",
-        "confirmationReversible": "你之後隨時可以改回來。",
-        "confirm": "確定",
+        "confirmationReversible": "您之後隨時可以改回來。",
+        "confirm": "確認",
         "deselectAll": "取消全選",
         "selectAll": "全選",
         "bulkInactivate": "批次停用",
         "bulkActivate": "批次啟用",
         "setInactive": "設定為非活躍",
         "setActive": "設定為活躍",
-        "noServersFound": "找不到 {{status}} 個人伺服器。",
+        "noServersFound": "找不到 {{status}} 私人伺服器。",
         "byCreator": "創作者：",
-        "allowJoining": "允許加入"
+        "allowJoining": "允許加入",
+        "friendsAllowed": "允許好友加入"
     },
     "firstAccount": {
         "label": "首個帳號",
         "yes": "是",
         "no": "否",
-        "tooltip": "這顯示 Roblox 是否認為您的帳號是您的第一個帳號。 <br>此資訊直接來自 Roblox，但有可能不準確的。",
+        "tooltip": "這顯示 Roblox 是否認為您的帳號是您的第一個帳號。<br>此資訊直接來自 Roblox，但可能不準確。",
         "createdDate": "首次建立帳號：{{date}}"
     },
     "trustedCreator": {
@@ -643,21 +730,21 @@
     },
     "legacyThemeSwitcher": {
         "label": "主題",
-        "light": "淺色",
-        "dark": "深色"
+        "light": "明亮",
+        "dark": "黑暗"
     },
     "customThemeEditor": {
         "background": {
-            "title": "自訂圖片設定",
-            "source": "圖片來源",
-            "opacity": "圖片不透明度",
+            "title": "自訂圖像設定",
+            "source": "圖像來源",
+            "opacity": "圖像不透明度",
             "customSize": "自訂縮放",
             "blur": "模糊",
             "overrideTopbarSidebar": "透明模式",
             "size": {
                 "label": "背景大小",
-                "cover": "封面",
-                "contain": "包含",
+                "cover": "填滿",
+                "contain": "完整顯示",
                 "auto": "自動",
                 "custom": "自訂"
             },
@@ -674,28 +761,138 @@
                 "bottomright": "右下側"
             },
             "overlay": {
-                "color": "顏色顔色",
+                "color": "疊加顏色",
                 "opacity": "疊加不透明度"
             },
             "errors": {
-                "invalidUrl": "請輸入有效的 https 圖片 URL。"
+                "invalidUrl": "請輸入有效的 https 圖像 URL。"
+            }
+        },
+        "variables": {
+            "intro": "在上方選擇一個 Roblox 主題直接使用，或修改下方任一顏色進行自訂。變更會即時套用。",
+            "presetNone": "無",
+            "opacity": "不透明度",
+            "reset": "重設",
+            "resetAll": "重設顏色",
+            "saved": {
+                "title": "我的主題",
+                "noTheme": "無主題",
+                "unsaved": "未儲存的主題",
+                "editingLabel": "{{name}}（編輯中）",
+                "statusNone": "未裝備主題，Roblox 會維持原本的外觀。",
+                "statusUnsaved": "您正在使用尚未儲存為主題的顏色。",
+                "statusEditing": "正在編輯 {{name}}。儲存即可保留您的變更。",
+                "statusEquipped": "已裝備 {{name}}。",
+                "namePlaceholder": "主題名稱",
+                "save": "儲存",
+                "delete": "刪除",
+                "export": "匯出",
+                "import": "匯入",
+                "defaultName": "我的主題",
+                "importedName": "匯入的主題",
+                "saved": "主題已儲存！",
+                "updated": "主題已更新！",
+                "deleted": "主題已刪除。",
+                "imported": "主題已匯入！",
+                "nameRequired": "請先輸入主題名稱。",
+                "limitReached": "您最多只能儲存 {{count}} 個主題。",
+                "invalidFile": "該檔案不是 RoValra 主題。",
+                "fileTooLarge": "檔案過大，無法作為主題。",
+                "deleteTitle": "刪除主題",
+                "deleteMessage": "您確定要刪除這個已儲存的主題嗎？"
+            },
+            "modes": {
+                "editingDark": "正在編輯深色模式顏色",
+                "editingLight": "正在編輯淺色模式顏色"
+            },
+            "tokens": {
+                "surface-0": "頁面背景",
+                "surface-100": "表面 100",
+                "surface-200": "表面 200",
+                "surface-300": "表面 300",
+                "common-navigation-bar": "導覽列",
+                "over-media-0": "媒體覆蓋層 0",
+                "over-media-100": "媒體覆蓋層 100",
+                "over-media-200": "媒體覆蓋層 200",
+                "over-media-300": "媒體覆蓋層 300",
+                "common-backdrop": "背景遮罩",
+                "content-emphasis": "強調文字",
+                "content-default": "預設文字",
+                "content-muted": "次要文字",
+                "content-link": "連結文字",
+                "stroke-default": "預設描邊",
+                "stroke-emphasis": "強調描邊",
+                "stroke-muted": "次要描邊",
+                "common-heavy-divider": "粗分隔線",
+                "shift-100": "色調偏移 100",
+                "shift-200": "色調偏移 200",
+                "shift-300": "色調偏移 300",
+                "shift-400": "色調偏移 400",
+                "system-emphasis": "強調",
+                "system-contrast": "對比",
+                "system-alert": "警示",
+                "system-success": "成功",
+                "system-warning": "警告",
+                "system-neutral": "中性",
+                "action-emphasis-background": "主要背景",
+                "action-emphasis-foreground": "主要文字",
+                "action-standard-background": "標準背景",
+                "action-standard-foreground": "標準文字",
+                "action-soft-emphasis-background": "柔和背景",
+                "action-soft-emphasis-foreground": "柔和文字",
+                "action-subtle-border": "淡化邊框",
+                "action-alert-foreground": "警示文字",
+                "action-over-media-background": "媒體覆蓋層背景",
+                "action-over-media-foreground": "媒體覆蓋層文字"
+            },
+            "presets": {
+                "classic": "經典",
+                "circuit-rush": "賽道狂飆深綠",
+                "cosmic-dust": "宇宙粉塵紫",
+                "electric-lime": "電動萊姆綠",
+                "hyper-plum": "超深紫紅色",
+                "inferno-blast": "烈焰火海深紅",
+                "kinetic-energy": "動能橄欖綠",
+                "lava-glow": "熔岩閃光紅",
+                "nebula-drift": "星雲漂浮靛藍",
+                "nitro-frost": "氮氣冰霜藍",
+                "pixel-pop": "像素爆破洋紅",
+                "polar-freeze": "極地冰凍藍",
+                "quantum-pulse": "量子脈動紫",
+                "star-burst": "星爆洋紅色",
+                "super-charge": "強力增壓綠"
+            },
+            "builtIn": {
+                "veryDark": "極暗主題"
+            },
+            "groups": {
+                "surfaces": "表面",
+                "content": "文字",
+                "strokes": "描邊與色調偏移",
+                "system": "系統",
+                "actions": "按鈕"
             }
         }
     },
     "previousPrice": {
-        "offSale": "已下架",
+        "offSale": "下架",
         "text": "原價：",
-        "lastOnSale": "最後售賣時間",
-        "for": "適用時間"
+        "lastOnSale": "最後販售於",
+        "for": "售價"
     },
     "badgeEarnedDate": {
         "unlocked": "已解鎖於"
     },
     "lastEquipped": {
-        "label": "最後使用"
+        "label": "最後裝備"
+    },
+    "ownedItemPrice": {
+        "label": "價格",
+        "free": "免費",
+        "offSale": "下架"
     },
     "pendingRobux": {
-        "tooltip": "根據您的交易記錄，這是您預計明天將有多少待處理餘額中的 Robux 可用。實際數量可能會有所不同，並且此估算可能不准確。",
+        "tooltip": "根據您的交易記錄，這是您預計明天將有多少待處理餘額中的 Robux 可用。實際數量可能會有所不同，並且此估算可能不準確。",
         "loading": "正在載入...",
         "error": "錯誤：{{message}}",
         "insufficientData": "資料不足",
@@ -708,13 +905,13 @@
         "pausedMessage": "計算已暫停。恢復以繼續計算。",
         "resumeCalculation": "恢復計算",
         "startNewCalculation": "開始新的計算",
-        "description": "計算您透過銷售和群組支付所獲得的 Robux 總額。",
+        "description": "計算您透過買賣和群組支付所獲得的 Robux 總額。",
         "startCalculation": "開始計算",
         "transactionsScanned": "已掃描的交易",
         "totalRobuxEarned": "已賺 Robux 總額",
         "breakdownLabel": "收益來源明細",
-        "calculatingTitle": "正在計算 Robux 總額",
-        "scanningHistory": "正在計算 Robux 總額...",
+        "calculatingTitle": "正在計算已賺 Robux 總額",
+        "scanningHistory": "正在計算已賺 Robux 總額...",
         "rateLimited": "API 速率受限。仍在計算...",
         "calculationComplete": "計算完成",
         "allScanned": "已完成已賺 Robux 總額的掃描。",
@@ -801,6 +998,29 @@
         "scanInProgress": "交易掃描正在進行中。這可能需要一些時間。",
         "loadError": "無法載入創作者消費額。"
     },
+    "spending": {
+        "title": "消費",
+        "disclaimer": "受 Roblox 限制，此資料可能不準確",
+        "byMonth": "按月",
+        "byYear": "按年",
+        "creators": "創作者",
+        "games": "體驗",
+        "searchPlaceholder": "搜尋",
+        "showingPeriod": "顯示 {{period}}",
+        "back": "返回",
+        "viewPurchases": "查看購買記錄",
+        "robuxAmount": "{{amount}} Robux",
+        "mostExpensive": "最貴",
+        "cheapest": "最便宜",
+        "newest": "最新",
+        "oldest": "最舊",
+        "unknownItem": "未知道具",
+        "unknownGame": "未知體驗",
+        "noPurchases": "找不到購買記錄。",
+        "noPurchasesInPeriod": "此期間沒有購買記錄。",
+        "scanInProgress": "正在掃描交易記錄，可能需要一段時間。",
+        "loadError": "無法載入消費資料。"
+    },
     "settings": {
         "tabs": {
             "info": "資訊",
@@ -812,27 +1032,27 @@
         },
         "info": {
             "title": "RoValra 資訊！",
-            "desc1": "《RoValra》是一款永久免費的 Roblox 擴充功能，致力於提升所有玩家的遊戲體驗！並且完全開源。",
-            "desc2": "部分免費功能仍依賴 RoValra 伺服器，運作需要付費。",
-            "desc3": "支援者的捐贈有助於支付這些費用，使 RoValra 能夠為所有人提供更多免費功能，並不斷改進。<icon style=\"color:#c13ad9\" filled>heart</icon>",
-            "desc4": "RoValra 是一個充滿熱情的專案，一直以來都是如此。",
+            "desc1": "RoValra 是一款擴充功能，致力於透過完全開源，讓所有人都能免費使用基本的便利功能。",
+            "desc2": "部分免費功能仍依賴 RoValra 伺服器，需要花錢維持運作。",
+            "desc3": "支持者的捐贈有助於支付這些費用，使 RoValra 能夠為所有人提供更多免費功能，並不斷改進。<icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra 一直以來都是出於熱愛而開發的專案。",
             "suggestions": "如果您有任何功能建議，請在我的 Discord 伺服器或 GitHub 上告訴我。",
             "bugs": "如果您發現任何錯誤，請在我的 Discord 伺服器或 GitHub 上告訴我。",
-            "review": "如果您喜歡這個擴充功能，請考慮<a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">留下評分</a>，這對我們幫助很大。<icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "review": "如果您喜歡這個擴充功能，請考慮<a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">留下評論</a>，這對我們幫助很大。<icon style=\"color:#c13ad9\" filled>heart</icon>",
             "discord": "Discord 伺服器",
-            "github": "Github 程式碼庫",
-            "support": "支援 RoValra",
+            "github": "GitHub 程式碼庫",
+            "support": "支持 RoValra",
             "tiktok": "ValraWantBanana",
             "x": "ValraSwag"
         },
         "credits": {
             "contributorsTitle": "貢獻者",
             "translatorsTitle": "翻譯者",
-            "featureCount_one": "{{count}} 則功能",
-            "featureCount_other": "{{count}} 則功能",
+            "featureCount_one": "{{count}} 項貢獻",
+            "featureCount_other": "{{count}} 項貢獻",
             "contributorTooltips": {
-                "146089324": "WoozyNate 是《Fisch》的創作者，RoValra 的舊標誌也是來自《Fisch》。你應該去看一下《Fisch》！",
-                "1337447242": "設計了新的標誌和所有商店頁面的圖片。",
+                "146089324": "WoozyNate 是《Fisch》的創作者，RoValra 的舊標誌也是來自《Fisch》。您應該去看一下《Fisch》！",
+                "1337447242": "設計了新的標誌和所有商店頁面的圖像。",
                 "795922138": "「RoValra」這個名字是開玩笑想出來的，之後發現太好笑了，所以就用了。",
                 "2974594300": "使用者介面改進、錯誤修復及其他貢獻。",
                 "170038374": "構思了一些概念，RoValra 的部分功能就是基於這些概念設計的。"
@@ -840,21 +1060,21 @@
             "sortLabel": "排序貢獻者名單",
             "sortMost": "最多",
             "sortLeast": "最少",
-            "contributionCount_one": "對 {{count}} 則功能做出貢獻",
-            "contributionCount_other": "對 {{count}} 則功能做出貢獻",
+            "contributionCount_one": "貢獻了 {{count}} 項",
+            "contributionCount_other": "貢獻了 {{count}} 項",
             "backendContributorsNote": "這些人協助處理與功能無關的工作。",
             "loadingContributors": "正在載入...",
             "failedToLoadContributors": "無法載入貢獻者。",
             "otherContributions": {
                 "badges": {
                     "translatorAndNate": "新增了翻譯者徽章和 WoozyNate 徽章",
-                    "nateGilbertFix": "將 Nate 的徽章修復為 Gilbert。"
+                    "nateGilbertFix": "將 Nate 的徽章改回 Gilbert"
                 },
                 "caching": {
                     "hashmap": "已將雜湊表新增至快取處理程序"
                 },
                 "sidebar": {
-                    "rblxUpdateFix": "修復了 Roblox 更新的側邊欄"
+                    "rblxUpdateFix": "因應 Roblox 更新修復了側邊欄"
                 },
                 "rbxm": {
                     "fixDesyncCframe": "修正了 RBXM 解析器不同步和 CFRAME 格式問題"
@@ -870,23 +1090,25 @@
                     "nonSettingCredits": "為沒有獨立設定的功能和改進新增了貢獻者資訊"
                 },
                 "donatorTierPage": {
-                    "newIndicators": "新增了捐贈者等級指標"
+                    "newIndicators": "新增了捐贈者等級的新標示"
                 },
                 "iconElement": {
                     "addIcons": "新增了 `<icon>` 元素，允許使用 Builder 圖示、Material 圖示和 RoValra 圖示。",
-                    "addElement": "新增了基礎的 `<icon>` 元素，允許使用 Builder Icons。之前將使用內建的 `<i>` 元素及其類別名稱。",
+                    "addElement": "新增了基礎的 `<icon>` 元素，允許使用 Builder Icons。先前原本打算使用內建的 `<i>` 元素搭配類別。",
                     "makeRoValraIcons": "為 RoValra 圖示新增了字體 + 為網站新增了新的建置方法。",
                     "addBuilderIconsWOFF": "在 RoValra 網站上新增了 Builder 圖示的託管，以及體積更小的不同字體檔案。"
                 },
                 "displayAppThemeUserProfile": {
-                    "addedToWebsite": "在網站上新增了主題索引，以便使用者只能使用正確且指定的主題。"
+                    "addedToWebsite": "在網站上新增了 Plus 主題索引，以便使用者只能使用正確且指定的主題。"
                 },
                 "locales": {
+                    "madeDe": "協助進行德文在地化",
                     "madeRo": "協助進行羅馬尼亞文在地化",
                     "madeEs": "協助進行西班牙文在地化",
                     "madeRu": "協助進行俄文在地化",
                     "madeFr": "協助進行法文在地化",
-                    "madeZh": "協助進行繁體中文/簡體中文在地化"
+                    "madeZh": "協助進行繁體中文/簡體中文在地化",
+                    "madeVi": "協助進行越南文在地化"
                 }
             },
             "ui": {
@@ -894,39 +1116,40 @@
                     "title": "{{user}} 的貢獻",
                     "contributor": "貢獻者",
                     "featureName": "功能",
-                    "featureKey": "（開發者）功能鍵"
+                    "featureKey": "（開發者）功能識別碼",
+                    "viewInSettings": "在設定中查看全部"
                 }
             }
         },
         "donatorPerks": {
             "title": "捐贈者特權！",
-            "subtitle": "支援 RoValra 的開發，即可獲取專屬特權！",
+            "subtitle": "支持 RoValra 的開發，即可獲取專屬特權！",
             "howToGet": "如何獲取特權",
-            "howToGetDesc": "您可以透過在支援遊戲中購買遊戲通行證進行捐贈。",
+            "howToGetDesc": "您可以透過在捐贈遊戲中購買特權證進行捐贈。",
             "goToGame": "前往捐贈遊戲",
             "perkTiers": "特權等級",
             "perk": "特權",
             "currentTier": "目前等級",
-            "tier1": "等級 1：支援者",
+            "tier1": "等級 1：支持者",
             "tier1Desc": "捐贈<strong>任何金額</strong>",
             "tier1Reward": "等級 1 捐贈者徽章",
-            "tier1DiscordRole": "等級 1 捐贈者 Discord 身份 + 額外 Discord 特權。",
+            "tier1DiscordRole": "等級 1 捐贈者 Discord 身分 + 額外 Discord 特權。",
             "tier1Feature": "無需在「關於我」中新增字串即可設定狀態和環境。",
-            "tier2": "等級 2：支援者",
+            "tier2": "等級 2：支持者",
             "tier2Desc": "捐贈 <strong>200+ Robux</strong>",
             "tier2Reward": "等級 2 捐贈者徽章",
-            "tier2DiscordRole": "等級 2 捐贈者 Discord 身份 + 升級版 Discord 特權。",
-            "tier3": "等級 3：支援者",
+            "tier2DiscordRole": "等級 2 捐贈者 Discord 身分 + 升級版 Discord 特權。",
+            "tier3": "等級 3：支持者",
             "tier3Desc": "捐贈 <strong>500+ Robux</strong>",
-            "tier3Reward": "等級 2 捐贈者徽章",
-            "tier3DiscordRole": "等級 3 捐贈者 Discord 身份 + 最佳 Discord 特權。",
+            "tier3Reward": "等級 3 捐贈者徽章",
+            "tier3DiscordRole": "等級 3 捐贈者 Discord 身分 + 最佳 Discord 特權。",
             "previousRewards": "+ 所有先前等級的獎勵",
             "moreComingSoon": "更多內容即將推出。",
             "note": "備註：\n- 徽章可能需要幾分鐘才能在捐贈後顯示。\n- 若要管理徽章的可見度，請前往「個人檔案」設定標籤。\n- 透過抽成捐贈很遺憾不會給予捐贈者特權，這是 Roblox 的限制。\n- 捐贈時，您同時也同意 [RoValra 的使用條款](https://www.rovalra.com/tou/)"
         },
         "search": {
             "minLength": "請輸入至少 2 個字元進行搜尋。",
-            "noResults": "找不到\"{{query}}\"的設定。"
+            "noResults": "找不到「{{query}}」的設定。"
         },
         "ui": {
             "common": {
@@ -945,24 +1168,35 @@
                 "limited": "受限制",
                 "veryLimited": "受嚴格限制",
                 "atRisk": "存在風險",
-                "suspended": "已停權"
+                "suspended": "已停用"
             },
             "search": {
-                "placeholder": "搜尋設定..."
+                "placeholder": "搜尋設定...",
+                "filters": "篩選條件",
+                "status": "顯示",
+                "contributor": "貢獻者",
+                "contributorPlaceholder": "搜尋貢獻者...",
+                "allSettings": "所有貢獻者",
+                "statuses": {
+                    "deprecated": "已淘汰",
+                    "experimental": "實驗",
+                    "beta": "Beta 測試",
+                    "locked": "已鎖定"
+                }
             },
             "controls": {
                 "clearStorage": "清除儲存空間",
                 "preview": "預覽",
-                "fadeStrength": "淡入淡出強度",
-                "clickMe": "點觸我",
+                "fadeStrength": "漸層過渡強度",
+                "clickMe": "按下我",
                 "enterValue": "輸入值",
                 "remove": "移除",
                 "add": "新增",
-                "experimental": "實驗性功能",
-                "beta": "測試版",
+                "experimental": "實驗",
+                "beta": "Beta 測試",
                 "deprecated": "已淘汰",
-                "invalidImageUrl": "輸入有效的 http:// 或 https:// 圖片 URL。",
-                "enablePermission": "啟用{{permission}}權限"
+                "invalidImageUrl": "輸入有效的 http:// 或 https:// 圖像 URL。",
+                "enablePermission": "啟用 {{permission}} 權限"
             },
             "badges": {
                 "visibility": "切換捐贈徽章的可見度。"
@@ -974,14 +1208,14 @@
             },
             "featureStatus": {
                 "title": "啟用此功能前",
-                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導致加載時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您瞭解此功能可能無法完美執行時才啟用它。",
-                "acknowledge": "我已閱讀並同意"
+                "message": "帶有這些標籤的功能可能不穩定，或會隨時間變化。它們可能會導致載入時間延長、使用者介面不一致、網站相關問題或其他意外行為。<br><br>僅當您了解此功能可能無法完美運作時才啟用它。",
+                "acknowledge": "我已了解"
             },
             "environment": {
-                "exported": "環境 JSON 已列印到控制台 (F12)。",
-                "imported": "環境配置匯入成功。頁面將重新載入以套用變更。",
+                "exported": "環境 JSON 已輸出到控制台（F12）。",
+                "imported": "環境設定匯入成功。頁面將重新載入以套用變更。",
                 "parseFailed": "無法解析 JSON 檔案。",
-                "storageUsed": "本地儲存空​​間已使用：{{size}}"
+                "storageUsed": "本地儲存空間總使用量：{{size}}"
             },
             "pronouns": {
                 "tooLong": "代名詞必須少於或等於 15 個字元。",
@@ -991,22 +1225,22 @@
             },
             "port": {
                 "enableProfileNotes": "匯入或匯出備註前啟用個人檔案備註。",
-                "exportedOne": "已匯出 {{count}} 個人檔案備註。",
-                "exportedMany": "已匯出 {{count}} 個人檔案備註。",
+                "exportedOne": "已匯出 {{count}} 則個人檔案備註。",
+                "exportedMany": "已匯出 {{count}} 則個人檔案備註。",
                 "exportFailed": "無法匯出個人檔案備註。",
                 "notesTooLarge": "個人檔案備註備份過大。",
                 "invalidNotesBackup": "這不是有效的 RoValra 個人檔案備註備份。",
-                "importedOne": "已匯入 {{count}} 個人檔案備註。",
-                "importedMany": "已匯入 {{count}} 個人檔案備註。",
+                "importedOne": "已匯入 {{count}} 則個人檔案備註。",
+                "importedMany": "已匯入 {{count}} 則個人檔案備註。",
                 "notesReadFailed": "無法讀取個人檔案備註備份。",
                 "importFailed": "無法匯入個人檔案備註。",
                 "exportUnexpectedError": "匯出過程中發生意外錯誤。",
-                "exportError": "匯出設定時發生錯誤。請查看控制台以瞭解詳情。",
-                "sanitizeError": "清理設定時發生錯誤。匯出設定時發生錯誤。請查看控制台以瞭解詳情。",
+                "exportError": "匯出設定時發生錯誤。請查看控制台以了解詳情。",
+                "sanitizeError": "清理要匯出的設定時發生錯誤。請查看控制台以了解詳情。",
                 "invalidSettingsFile": "此檔案似乎不是有效的 RoValra 設定檔案。",
                 "invalidSettingsData": "錯誤：匯入的設定檔包含無效或潛在危險的資料。",
-                "settingsTooLarge": "錯誤：設定檔案過大。最大大小為 1MB。",
-                "importError": "匯入設定時發生錯誤。請查看控制台以瞭解詳情。",
+                "settingsTooLarge": "錯誤：設定檔案過大。最大大小為 1 MB。",
+                "importError": "匯入設定時發生錯誤。請查看控制台以了解詳情。",
                 "malformedSettings": "設定檔案格式錯誤。",
                 "readFailed": "無法讀取設定檔案。檔案可能已損壞或格式錯誤。",
                 "importUnexpectedError": "匯入過程中發生意外錯誤。",
@@ -1018,64 +1252,69 @@
                 "github": "GitHub",
                 "chrome": "Chrome",
                 "untitledRelease": "未命名更新",
-                "current": "你的版本",
-                "noNotes": "本次更新未提供變更日誌。",
+                "current": "您的版本",
+                "noNotes": "本次更新未提供更新日誌。",
                 "loading": "正在載入更新日誌...",
                 "empty": "目前暫無更新日誌。",
                 "loadFailed": "無法載入更新日誌，請稍後再試。"
             },
             "parentRequest": {
                 "sendingTitle": "正在傳送請求",
-                "sentTitle": "請求已傳送！",
+                "sentTitle": "已傳送請求！",
                 "sentBody": "您的請求已透過電子郵件傳送給您的家長和監護人。",
                 "experienceName": "體驗名稱為",
                 "sendFailedTitle": "無法傳送請求",
-                "sendFailedBody": "您的請求無法傳送，原因未知。您可能已被限速。請查看控制台以瞭解更多詳情。",
+                "sendFailedBody": "您的請求無法傳送，原因未知。您可能已被限速。請查看控制台以了解更多詳情。",
                 "cancelingTitle": "正在取消請求",
                 "canceledTitle": "請求已取消",
                 "canceledBody": "您傳送給家長和監護人的請求已被取消。",
                 "cancelFailedTitle": "無法取消請求",
                 "cancelFailedBody": "無法取消您的解除封鎖請求。您可能已被限速。請查看控制台以了解更多詳情。",
                 "sendUnblock": "傳送解除封鎖請求",
-                "alreadyRequestedTitle": "已經請求了",
-                "alreadyRequestedBody": "傻瓜，你已經請求過這個體驗了！"
+                "alreadyRequestedTitle": "已提出請求",
+                "alreadyRequestedBody": "傻瓜，您已經請求過這個體驗了！"
             },
             "donation": {
-                "donateUsd": "捐贈（最低 $1）",
+                "donateUsd": "捐贈（最低 $1 美元）",
                 "donateRobux": "捐贈（最低 5 Robux）",
-                "parentApprovalTitle": "幫助 RoValra 獲得更多支援！",
-                "parentApprovalMessage": "使用遊戲通行證時，RoValra 可以獲得更高的捐贈分成。我們偵測到您至少連結了一個家長帳號。您可以申請解鎖遊戲體驗，以便 RoValra 獲得比使用 2D（和 3D）服裝更高的分成。",
+                "parentApprovalTitle": "幫助 RoValra 獲得更多支持！",
+                "parentApprovalMessage": "使用特權證時，RoValra 可以獲得更高的捐贈分成。我們偵測到您至少連結了一個家長帳號。您可以申請解除封鎖此體驗，以便 RoValra 獲得比使用 2D（和 3D）服裝更高的分成。",
                 "useMarketplace": "使用市集",
                 "currencyLabel": "捐贈貨幣",
                 "donateWith": "使用以下方式捐贈",
-                "supportTitle": "幫助支援 RoValra",
-                "supportDescription": "捐贈即可獲得專屬外觀飾品特權",
-                "githubSponsors": "GitHub 贊助者",
+                "supportTitle": "幫助支持 RoValra",
+                "supportDescription": "捐贈即可獲得專屬外觀特權",
+                "githubSponsors": "GitHub Sponsors",
                 "included": "已包含",
                 "notIncluded": "未包含",
                 "totalDonated": "您向 RoValra 捐贈的總額：{{amount}}",
                 "tierTooltip": "您的捐贈者等級",
-                "topDonators": "頂級捐贈者（Robux）"
+                "topDonators": "捐贈排行榜（Robux）"
             },
             "profileBadge": {
                 "title": "自訂 RoValra 個人檔案徽章",
-                "description": "為你的個人檔案取得自訂徽章",
+                "description": "為您的個人檔案取得自訂徽章",
                 "iconLabel": "自訂個人檔案徽章圖示",
                 "getUsd": "取得（$5 美元）",
-                "getRobux": "取得 (4,000 Robux）",
-                "purchaseIntro": "此道具是為真正想要支援 RoValra 的使用者而設。",
-                "createTicket": "購買此道具後，請進入 RoValra 的 Discord 伺服器建立票證。",
-                "provideDetails": "職員提供您希望自訂個人檔案徽章使用的圖片和名稱。",
+                "getRobux": "取得（4,000 Robux）",
+                "purchaseIntro": "此道具是為真正想要支持 RoValra 的使用者而設。",
+                "createTicket": "購買此道具後，請進入 RoValra 的 Discord 伺服器建立票證。您的 Discord 帳號必須註冊滿 30 天才能領取。",
+                "provideDetails": "向職員提供您希望自訂個人檔案徽章使用的圖像和名稱。",
                 "countsTowardTier": "購買此道具將計入 RoValra 捐贈者等級。",
                 "visibility": "這些自訂徽章僅對 RoValra 使用者可見。",
-                "imageRequirements": "圖片要求",
-                "webpRequirement": "圖片必須是小於 <strong>1 MB</strong> 的 <strong>WEBP</strong> 檔案。",
+                "imageRequirements": "圖像要求",
+                "webpRequirement": "圖像必須是小於 <strong>1 MB</strong> 的 <strong>WEBP</strong> 檔案。",
                 "noRobloxBadges": "禁止使用官方 Roblox 的 SVG 或徽章。",
-                "noOfficialRoValraBadges": "禁止使用官方 RoValra 徽章。（例如：貢獻者和藝術家徽章）",
-                "followTerms": "圖片必須遵守 Roblox 使用條款",
-                "joinDiscord": "加入 RoValra 的 Discord 伺服器。",
+                "noOfficialRoValraBadges": "禁止使用官方 RoValra 徽章（例如：貢獻者和藝術家徽章）。",
+                "followTerms": "圖像必須遵守 Roblox 使用條款",
+                "joinDiscord": "加入 RoValra 的 Discord 伺服器",
                 "agree": "同意",
-                "agreeCountdown": "同意（{{count}}）"
+                "agreeCountdown": "同意（{{count}}）",
+                "preview": "預覽",
+                "previewTitle": "預覽自訂徽章",
+                "previewDescription": "上傳 WEBP 圖像，即可預覽它作為個人檔案徽章的外觀。圖像只會保留在記憶體中，不會被上傳或儲存，離開或重新整理頁面後就會消失。",
+                "previewTooltip": "徽章預覽",
+                "previewDone": "完成"
             },
             "githubSponsorBadge": {
                 "title": "GitHub 贊助者個人檔案徽章",
@@ -1091,7 +1330,7 @@
                 "equip": "裝備",
                 "buy": "購買",
                 "buyFor": "以 {{price}} 購買",
-                "viewGamepass": "查看遊戲通行證",
+                "viewGamepass": "查看特權證",
                 "all": "全部",
                 "new": "新增",
                 "static": "靜態",
@@ -1107,25 +1346,25 @@
                 "freeTooltip": "此邊框可免費裝備。",
                 "supportNotice": "直接購買這些裝飾品將支持藝術家和 RoValra。",
                 "purchaseDelay": "購買後，虛擬人偶邊框可能需要最多一分鐘才會顯示。",
-                "parentApprovalTitle": "需要家長操作。",
+                "parentApprovalTitle": "需要家長操作",
                 "parentApprovalMessage": "要購買虛擬人偶邊框，您需要獲得家長的許可。",
-                "noParentTitle": "您無法使用虛擬人偶邊框。",
-                "noParentBody": "Roblox 要求您獲得家長的許可，但您的帳號未連結任何家長。如果您想使用虛擬人偶邊框，您需要連結一個家長帳號並申請解鎖。",
+                "noParentTitle": "您無法使用虛擬人偶邊框",
+                "noParentBody": "Roblox 要求您獲得家長的許可，但您的帳號未連結任何家長。如果您想使用虛擬人偶邊框，您需要連結一個家長帳號並申請解除封鎖此體驗。",
                 "noBorders": "無可用邊框。",
                 "currentPreview": "目前選取預覽",
-                "signInPreview": "登入後預覽虛擬人偶邊框。",
+                "signInPreview": "登入即可在您的虛擬人偶上預覽邊框。",
                 "noBordersInTab": "此標籤頁中找不到邊框。",
                 "loadFailed": "無法載入邊框。請稍後再試。",
-                "unequipTooltip": "點觸以解除裝備此邊框",
+                "unequipTooltip": "按下以卸下此邊框",
                 "equipTooltip": "裝備此邊框",
                 "buyTooltip": "購買此邊框"
             },
             "appeal": {
-                "messageLabel": "請輸入您的申訴訊息（20-3000個字元）",
-                "title": "提交申訴",
-                "submit": "提交申訴",
-                "invalidLength": "申訴訊息長度必須在 20 到 3000 個字元之間。",
-                "submitFailed": "無法提交申訴，請重試。"
+                "messageLabel": "請輸入您的上訴訊息（20-3000 個字元）",
+                "title": "提交上訴",
+                "submit": "提交上訴",
+                "invalidLength": "上訴訊息長度必須在 20 到 3000 個字元之間。",
+                "submitFailed": "無法提交上訴，請重試。"
             },
             "standing": {
                 "levels": {
@@ -1134,21 +1373,21 @@
                     "limited": "受限制",
                     "veryLimited": "受嚴格限制",
                     "atRisk": "存在風險",
-                    "suspended": "已停權"
+                    "suspended": "已停用"
                 },
                 "appealStatuses": {
-                    "notAppealed": "未申訴",
-                    "pending": "申訴待審核",
-                    "denied": "申訴已拒絕",
-                    "accepted": "申訴已接受"
+                    "notAppealed": "未上訴",
+                    "pending": "上訴待審核",
+                    "denied": "上訴遭拒",
+                    "accepted": "已接受上訴"
                 },
-                "goodTitle": "您的帳號狀態良好。.",
+                "goodTitle": "您的帳號狀態良好。",
                 "goodDescription": "您沒有任何來自 RoValra 安全團隊的有效違規或限制。",
                 "temporaryTitle": "您的帳號已被暫時限制。",
                 "violationTitle": "我們發現您的帳號有違規行為。",
                 "statusDescription": "您的帳號狀態已設定為：{{status}}",
                 "policyTitle": "RoValra 安全政策",
-                "policyDescription": "違反 {{- termsLink}} 或被第三方檢測認定為存在風險的帳號，其特定功能將被停用。請注意，雖然某些在線功能可能會受到限制，但 RoValra 安全團隊<strong>絕對不會</strong>停用整個擴充功能或完全本地化的功能。",
+                "policyDescription": "違反 {{- termsLink}} 或被第三方檢測認定為存在風險的帳號，其特定功能將被停用。請注意，雖然某些線上功能可能會受到限制，但 RoValra 安全團隊<strong>絕對不會</strong>停用整個擴充功能或完全在本機執行的功能。",
                 "automatedAction": "自動操作",
                 "manualReview": "人工審核",
                 "disabledFeatures": "已停用功能",
@@ -1156,13 +1395,13 @@
                 "violationDetails": "違規行為詳情",
                 "unknownReason": "未知原因",
                 "moderated": "遭到過濾",
-                "temporaryExpires": "臨時限製到期",
-                "appealCase": "申訴案件",
+                "temporaryExpires": "臨時限制到期",
+                "appealCase": "上訴案件",
                 "status": "狀態",
                 "yourMessage": "您的訊息",
                 "response": "回覆",
-                "reviewingAppeal": "我們的團隊正在審核您的申訴。",
-                "appealDecision": "對此決定提出申訴"
+                "reviewingAppeal": "我們的團隊正在審核您的上訴。",
+                "appealDecision": "對此決定提出上訴"
             }
         },
         "compatibilityWarning": {
@@ -1172,7 +1411,7 @@
     },
     "privacyToggles": {
         "nav": {
-            "tooltip": "隱私權設定"
+            "tooltip": "隱私設定"
         },
         "noTogglesEnabled": "未啟用任何開關！請前往 RoValra 設定啟用隱私權設定開關。",
         "dropdowns": {
@@ -1181,11 +1420,11 @@
                 "friendsFollowingFollowers": "好友、追蹤者和我追蹤的人",
                 "friendsFollowing": "好友和我追蹤的人",
                 "friends": "好友",
-                "trustedFriends": "受信任好友",
+                "trustedFriends": "信任的聯絡對象",
                 "noOne": "沒有人"
             },
             "onlineStatus": {
-                "name": "線上狀態"
+                "name": "上線狀態"
             },
             "joinStatus": {
                 "name": "體驗狀態"
@@ -1198,18 +1437,6 @@
             }
         }
     },
-    "qolToggles": {
-        "onlineStatus": "線上狀態",
-        "joinStatus": "體驗狀態",
-        "privateServerPrivacy": "私人伺服器隱私權",
-        "inventoryVisibility": "道具欄可見度",
-        "everyone": "所有人",
-        "friendsFollowingAndFollowers": "好友、追蹤者和我追蹤的人",
-        "friendsAndFollowing": "好友和我追蹤的人",
-        "friends": "好友",
-        "trustedFriends": "受信任好友",
-        "noOne": "沒有人"
-    },
     "groupFunds": {
         "loading": "正在載入...",
         "pending": "待處理：",
@@ -1218,7 +1445,9 @@
     "navigation": {
         "transactions": "交易",
         "apiDocs": "API 文件",
-        "incidentLearnMore": "點觸此處瞭解更多。",
+        "webClient": "網頁用戶端",
+        "rovalraStore": "RoValra 商店",
+        "incidentLearnMore": "按下此處了解更多。",
         "incidentHideNotice": "您可以在此處隱藏此通知。",
         "rovalraApi": "RoValra API"
     },
@@ -1228,7 +1457,7 @@
     },
     "voiceBanIndicator": {
         "title": "語音聊天已禁止",
-        "liftsIn": "解除禁止於",
+        "liftsIn": "距離解除還有",
         "noExpiry": "未提供有效期限"
     },
     "ageTheme": {
@@ -1245,11 +1474,11 @@
         }
     },
     "betaPrograms": {
-        "toggleTooltip": "切換測試版計劃",
-        "noPrograms": "您未參與任何測試版計劃。",
+        "toggleTooltip": "切換 Beta 計劃",
+        "noPrograms": "您未參與任何 Beta 計劃。",
         "allowlist": "在允許名單中",
-        "previousProgramsTitle": "之前參與過的測試版計劃",
-        "previousProgramTooltip": "此測試版計劃已停止提供。"
+        "previousProgramsTitle": "之前參與過的 Beta 計劃",
+        "previousProgramTooltip": "此 Beta 計劃已停止提供。"
     },
     "quickSearch": {
         "aborted": "已中止",
@@ -1257,10 +1486,10 @@
         "friendSearchError": "RoValra：好友搜尋錯誤",
         "userSearchError": "RoValra：使用者搜尋錯誤",
         "gameSearchError": "RoValra：遊戲搜尋錯誤",
-        "trustedConnection": "您是受信任的好友",
-        "connection": "您是好友",
+        "trustedConnection": "您們是信任的好友",
+        "connection": "您們是好友",
         "playing": "正在遊玩 {{gameName}}",
-        "verifiedBadge": "已驗證徽章",
+        "verifiedBadge": "驗證徽章",
         "verified": "已驗證",
         "permanentlyBanned": "此使用者已被永久停權或停用了帳號。",
         "joinPreferredRegion": "加入首選地區",
@@ -1269,7 +1498,9 @@
         "noSearchHistory": "您沒有任何搜尋記錄。",
         "deleteSearchHistoryTitle": "刪除搜尋記錄",
         "deleteSearchHistoryMessage": "您確定要刪除此搜尋記錄嗎？",
-        "delete": "刪除"
+        "delete": "刪除",
+        "itemValue": "價值",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "{{count}} 位好友擁有",
@@ -1281,14 +1512,14 @@
         "ariaLabel": "選擇或加入首選伺服器地區",
         "tooltip": "加入首選地區",
         "tooltipWithRegion": "加入首選地區<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "加入首選地區<br><b>最佳區域（自動）</b>"
+        "tooltipBestRegion": "加入首選地區<br><b>最佳地區（自動）</b>"
     },
     "quickPlay": {
         "loading": "正在載入...",
         "rateLimited": "速率受限，正在重試...",
         "loadError": "無法載入伺服器。",
-        "noPrivateServers": "找不到活動的私人伺服器。",
-        "configure": "配置",
+        "noPrivateServers": "找不到活躍的私人伺服器。",
+        "configure": "設定",
         "copyLink": "複製連結",
         "copied": "已複製！",
         "error": "錯誤！",
@@ -1301,14 +1532,20 @@
         "regenerateLink": "生成連結",
         "regenerated": "已生成！"
     },
+    "storeSaleFilter": {
+        "label": "販賣狀態",
+        "onSale": "販賣中",
+        "offSale": "下架",
+        "all": "全部"
+    },
     "devProducts": {
         "noProducts": "找不到開發者產品。",
         "loadError": "無法載入此遊戲的開發者產品。",
-        "passes": "通行證",
+        "passes": "特權證",
         "developerProducts": "開發者產品",
         "search": "搜尋",
         "sort": {
-            "created": "按建立時間排序",
+            "created": "按創作時間排序",
             "price": "按價格排序",
             "updated": "按更新時間排序",
             "name": "按名稱排序"
@@ -1323,18 +1560,22 @@
         "all": "全部",
         "category": "類別",
         "product": "產品",
-        "gamePass": "遊戲通行證",
+        "gamePass": "特權證",
         "robuxAmount": "{{amount}} Robux",
         "bonusItem": "獎勵道具：{{item}}",
         "bonusItemFallback": "包含獎勵道具",
         "noItems": "找不到商店道具。",
-        "failedToLoad": "無法載入商店道具",
+        "failedToLoad": "無法載入商店道具。",
+        "offers": {
+            "expires": "到期於",
+            "inGameOnly": "僅適用於在遊戲內進行的購買。"
+        },
         "sections": {
             "robux": "Robux"
         },
         "types": {
             "Product": "產品",
-            "GamePass": "遊戲通行證",
+            "GamePass": "特權證",
             "Robux": "Robux 禮包"
         }
     },
@@ -1342,7 +1583,7 @@
         "tabTitle": "子地點",
         "searchPlaceholder": "搜尋子地點",
         "loadMore": "載入更多",
-        "rootPlace": "初始地點",
+        "rootPlace": "根地點",
         "noSubplaces": "找不到子地點。",
         "failedToLoad": "無法載入子地點。",
         "labels": {
@@ -1352,8 +1593,8 @@
         "sort": {
             "default": "預設",
             "updated": "最近更新",
-            "created": "最近建立",
-            "name": "名稱 (Z-A)"
+            "created": "最近創作",
+            "name": "名稱（Z-A）"
         },
         "order": {
             "descending": "降序",
@@ -1385,10 +1626,10 @@
         "hide": "隱藏",
         "join": "加入",
         "peopleMax": "{{playing}} 人，最多 {{maxPlayers}} 人",
-        "pinPrivateServer": "釘選私人伺服器",
-        "unpinPrivateServer": "解除釘選私人伺服器",
-        "playerCountUnknownTooltip": "玩家人數未知，這是 Roblox 的限制。縮圖無法代表遊戲中的玩家人數。",
-        "playerCountUnknownLabel": "玩家人數未知。"
+        "pinPrivateServer": "置頂私人伺服器",
+        "unpinPrivateServer": "取消置頂私人伺服器",
+        "playerCountUnknownTooltip": "玩家人數未知，這是 Roblox 的限制。縮圖無法代表遊戲中的實際玩家。",
+        "playerCountUnknownLabel": "玩家人數未知"
     },
     "recentServers": {
         "title": "最近的伺服器",
@@ -1404,24 +1645,53 @@
         "description": "您最近加入過的伺服器。"
     },
     "quickOutfits": {
-        "errorFetching": "取得外觀時發生錯誤",
+        "errorFetching": "取得服飾時發生錯誤",
         "equipping": "正在裝備...",
         "equipped": "已裝備！",
         "failed": "失敗",
         "error": "錯誤：",
-        "noUserId": "快速外觀找不到已驗證的使用者 ID。",
-        "loading": "正在載入外觀...",
-        "title": "快速外觀",
-        "noneFound": "找不到外觀。",
-        "success": "已成功裝備外觀。"
+        "noUserId": "快速服飾找不到已驗證的使用者 ID。",
+        "loading": "正在載入服飾...",
+        "title": "快速服飾",
+        "noneFound": "找不到服飾。",
+        "success": "已成功穿戴服飾。"
+    },
+    "roGoldWarning": {
+        "title": "RoValra 與 RoGold 不相容",
+        "detected": "您似乎已啟用 RoGold。由於 RoGold 近期對網站介面進行改版，兩個擴充功能同時執行時，RoValra 無法正常運作。",
+        "notOurFault": "這些變更來自 RoGold，因此 RoValra 無法自行解決此問題。",
+        "choice": "如果您想使用 RoValra，可以隨時在瀏覽器的擴充功能頁面停用 RoGold，然後重新載入 Roblox。這完全由您決定，您也可以隨時重新啟用它。",
+        "openSource": "RoValra 也是完全開源的，因此更加安全。任何人都可以閱讀程式碼，清楚了解它做了哪些事，也都可以參與貢獻。",
+        "viewSource": "在 GitHub 上查看原始碼",
+        "extensionSupportTitle": "與您的其他擴充功能相容",
+        "extensionSupport": "RoValra 支援許多其他擴充功能，包括但不限於 RoSeal、RoPro、RoQoL 等。",
+        "extensionSupportRoGold": "相比之下，RoGold 不支援任何其他擴充功能。",
+        "featureCountTitle": "{{count}} 項功能",
+        "featureCount": "啟用 RoGold 期間，您總共會錯過 {{count}} 項 RoValra 功能。",
+        "noPaywallTitle": "功能不設付費牆",
+        "noPaywall": "RoValra 認為便利功能永遠不應被鎖在付費牆後。",
+        "noPaywallRoGold": "與 RoGold 不同，RoValra 中唯一需要付費的只有外觀或與外觀相關的功能。這些功能純粹影響外觀，不會改變 RoValra 為您帶來的各項改善。",
+        "openSourceTitle": "開源",
+        "missingOut": "啟用 RoGold 期間，您會錯過以下功能：",
+        "next": "下一步",
+        "back": "返回",
+        "stepCounter": "第 {{current}} 步（共 {{total}} 步）",
+        "regionSelectorTitle": "地區選擇器",
+        "regionSelectorDescription": "RoValra 提供目前最好的免費地區選擇器，甚至比付費方案更好。您可以加入所選地區的伺服器，或讓 RoValra 自動找出離您最近的地區，以獲得最低延遲。",
+        "saveRobuxTitle": "節省 Robux",
+        "saveRobuxDescription": "只需按下一個按鈕，即可在市集購買時節省 40% 的 Robux。",
+        "quickPlayTitle": "快速遊玩",
+        "quickPlayDescription": "直接從首頁加入體驗，無需開啟體驗頁面，還能加入您的首選地區和私人伺服器。",
+        "hiddenGamesTitle": "已隱藏的體驗",
+        "hiddenGamesDescription": "查看使用者在個人檔案或群組中隱藏的體驗。"
     },
     "btrDonationWarning": {
-        "title": "重要提示：立即停用 BTRoblox",
-        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">我們偵測到 BTRoblox 擴充功能。它可能會幹擾 Roblox 的購買流程。如果您遇到購買問題，請嘗試暫時停用 BTRoblox 並重新載入頁面。</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">請停用 BTRoblox 並重新載入頁面，然後再次嘗試購買。</p>",
+        "title": "重要提示：停用 BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">我們偵測到 BTRoblox 擴充功能。它可能會干擾 Roblox 的購買流程。如果您遇到購買問題，請嘗試暫時停用 BTRoblox 並重新載入頁面。</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">請停用 BTRoblox 並重新載入頁面，然後再次嘗試購買。</p>",
         "continue": "仍然繼續"
     },
     "botDetector": {
-        "tooltip": "機器人是指執行自動指令碼來研磨道具的帳號。單一使用者有時可以執行 50 多個機器人。請注意，這並非遊戲開發者的過錯。如果某個遊戲主要由新 Roblox 帳號遊玩，則此資訊可能不準確。",
+        "tooltip": "機器人是指執行自動指令碼來刷道具的帳號。單一使用者有時可以執行 50 多個機器人。請注意，這並非遊戲開發者的過錯。如果某個體驗主要由新 Roblox 帳號遊玩，則此資訊可能不準確。",
         "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> 有許多機器人。",
         "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> 有一些機器人，但大部分是真人玩家。",
         "thisGame": "此遊戲"
@@ -1446,40 +1716,63 @@
             "all": "找不到任何活動。"
         }
     },
+    "badgeSort": {
+        "label": "排序徽章",
+        "seeMore": "查看更多",
+        "updated": "更新於",
+        "created": "建立於",
+        "options": {
+            "default": "預設",
+            "updated": "最近更新",
+            "newest": "最新",
+            "oldest": "最舊",
+            "mostWon": "贏得次數最多",
+            "leastWon": "贏得次數最少",
+            "wonYesterday": "昨天贏得最多",
+            "rarest": "最稀有",
+            "easiest": "最簡單",
+            "name": "名稱（A-Z）"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "徽章",
-            "hiddenBadges": "已隱藏徽章"
+            "hiddenBadges": "隱藏徽章"
         },
         "hiddenOwnedNotice": "此處僅顯示您已獲得的隱藏徽章。",
         "unableToDetectPlace": "無法偵測到此地點。",
         "unableToDetectUniverse": "無法偵測到此宇宙。",
         "stillScanning": "仍在掃描您的徽章。您擁有的隱藏徽章可能很快就會出現。",
         "noneOwnedFound": "此體驗中找不到您擁有的隱藏徽章。",
-        "failedToLoad": "無法載入您擁有的隱藏徽章。"
+        "noneFound": "此體驗中找不到隱藏徽章。",
+        "noPublicBadges": "此體驗沒有公開的徽章。",
+        "failedToLoad": "無法載入隱藏徽章。",
+        "rolimonsSource": "隱藏徽章資料由 Rolimon's 提供。",
+        "viewOnRolimons": "在 Rolimon's 上查看遊戲",
+        "openBadgeOnRolimons": "在 Rolimon's 上開啟徽章"
     },
     "antiBots": {
-        "reviewMembers": "審核 {{count}} 位以選取的成員：",
+        "reviewMembers": "審核 {{count}} 位已選取的成員：",
         "botWarning": "<strong>警告：</strong>請在執行操作前確認這些是機器人。",
-        "banMembers": "封禁成員",
+        "banMembers": "將成員停權",
         "kickMembers": "踢出成員",
         "cancel": "取消",
-        "actionRequired": "需要執行操作 ({{count}})",
+        "actionRequired": "需要執行操作（{{count}}）",
         "noPermission": "您沒有封禁或踢出成員的權限。",
         "confirmBan": "您即將<strong>封禁 {{count}} 位成員。</strong>他們將被永久封鎖。",
         "confirmKick": "您即將<strong>踢出 {{count}} 位成員。</strong>他們可以隨時重新加入。",
         "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>提醒：</strong>封禁前請先確認機器人評分。</div>",
         "yesAction": "是，{{action}}",
         "confirmAction": "確認操作",
-        "processing": "正在處理 {{current}} 共 {{total}} 個成員：{{displayName}}... 預期剩餘時間：{{time}} 秒",
+        "processing": "正在處理第 {{current}} 位（共 {{total}} 位）：{{displayName}}... 預計剩餘時間：{{time}} 秒",
         "rateLimited": "速率受限。將在 {{delay}} 秒後重試...",
         "apiError": "API 錯誤 {{status}}",
         "unknownError": "未知錯誤",
-        "processComplete": "{{successCount}} 共 {{totalMembers}} 個成員已成功被{{actionType}}了。",
+        "processComplete": "已成功對 {{totalMembers}} 位成員中的 {{successCount}} 位執行 {{actionType}}。",
         "processFailed": "{{failedCount}} 個失敗。",
         "close": "關閉",
         "score": "評分：{{score}}/100",
-        "actionCount": "操作次數 ({{count}})",
+        "actionCount": "執行操作（{{count}}）",
         "unselectAll": "取消全選",
         "selectAll": "全選",
         "antiBots": "反機器人",
@@ -1490,7 +1783,7 @@
         "selectMembersForAction": "選擇要操作的成員（已載入 {{count}} 個成員）",
         "noMembersFound": "找不到成員。",
         "initializingScan": "正在初始化掃描...",
-        "scanStatus": "已掃描：{{loaded}} ({{percent}}%) | 已分析：{{processed}}",
+        "scanStatus": "已掃描：{{loaded}}（{{percent}}%）| 已分析：{{processed}}",
         "finalizingAnalysis": "正在完成分析...",
         "botsFound": "發現 {{count}} 個疑似機器人",
         "noBotsFound": "未發現疑似機器人",
@@ -1499,9 +1792,9 @@
         "errorDuringScan": "掃描期間發生錯誤。",
         "minBotScore": "最低機器人評分：<span id=\"rovalra-score-value\">50</span>",
         "scoreImpact": "這將選擇大約 <span id=\"rovalra-score-ban-count\">0</span> 位成員。",
-        "confirm": "確定",
-        "banKickByScore": "按評分封鎖/踢出",
-        "confirmCount": "確定 ({{count}})"
+        "confirm": "確認",
+        "banKickByScore": "按評分封禁/踢出",
+        "confirmCount": "確認（{{count}}）"
     },
     "revertLogo": {
         "haveFun": "祝您玩得愉快！",
@@ -1510,10 +1803,10 @@
         "unknownExperience": "未知體驗",
         "serverId": "伺服器 ID：",
         "privateServer": "私人伺服器",
-        "owner": "擁有者：",
+        "owner": "所有者：",
         "version": "版本：",
         "uptime": "執行時間：",
-        "rcc": "Roblox 雲端運算服務 (RCC)：",
+        "rcc": "Roblox 雲端運算服務（RCC）：",
         "serverChannel": "伺服器頻道：",
         "production": "生產環境",
         "launchingRoblox": "正在啟動 Roblox",
@@ -1531,7 +1824,7 @@
         "errorParsingUrl": "解析 URL 時發生錯誤",
         "findingUser": "正在尋找使用者...",
         "fetchingServerInfo": "正在取得伺服器資訊...",
-        "nonRootPlaceRestrictions": "無法加入：非初始地點限制。",
+        "nonRootPlaceRestrictions": "無法加入：非根地點限制。",
         "waitingForRoblox": "正在等待 Roblox...",
         "launching": "正在啟動..."
     },
@@ -1547,7 +1840,7 @@
             "noProperties": "無屬性",
             "viewSource": "查看原始碼",
             "closePreview": "關閉預覽",
-            "defaultDevice": "預設 (1280x720)",
+            "defaultDevice": "預設（1280x720）",
             "fitToWindow": "符合視窗",
             "actualResolution": "實際解析度",
             "physicalSize": "實際尺寸",
@@ -1558,36 +1851,102 @@
             "previewGui": "預覽使用者介面",
             "togglePreviewVisibility": "切換預覽可見度",
             "noMatchingInstances": "找不到符合的實例",
-            "loadError": "無法載入。"
+            "loadError": "無法載入。",
+            "previewMesh": "預覽網格",
+            "previewImage": "預覽圖像",
+            "loadingImage": "正在載入圖片...",
+            "imageLoadError": "無法載入圖像。",
+            "loadingMesh": "正在載入網格...",
+            "meshLoadError": "無法載入網格。"
         }
     },
     "priceFloor": {
         "label": "價格底線：",
-        "status": "此道具的價格為{{status}}最低價格{{difference}}.",
+        "status": "此道具的價格{{status}}價格底線{{difference}}。",
         "statusTypes": {
             "above": "高於",
             "below": "低於",
-            "at": "在"
+            "at": "等於"
         },
-        "difference": "相差 {{diff}}",
+        "difference": "，相差 {{diff}}",
         "description": "價格底線是道具可以出售的動態更新的最低價格。"
     },
     "parentItem": {
         "multipleBundles": "此道具屬於多個組合",
         "multipleBundlesDescription": "此道具可能用作模板，並包含在多個組合中。",
-        "partOfBundle": "此道具屬於[{{bundleName}}]({{bundleUrl}})組合",
+        "partOfBundle": "此道具屬於 [{{bundleName}}]({{bundleUrl}}) 組合",
         "viewingFromBundle": "您目前正在檢視組合中的一個道具。"
     },
     "rovalraBadges": {
-        "userVerified": "使用者已通過身份驗證。",
-        "userNotVerified": "使用者尚未通過身份驗證。",
+        "userVerified": "使用者已通過身分驗證。",
+        "userNotVerified": "使用者尚未通過身分驗證。",
         "userAgeVerified": "使用者已通過年齡驗證。",
         "userNotAgeVerified": "使用者尚未通過年齡驗證。",
         "userAgeVerificationMayBeInaccurate": "此資訊可能不準確。"
     },
+    "friendRequestFilters": {
+        "title": "邀請篩選條件",
+        "filters": "篩選條件",
+        "badgesTitle": "徽章",
+        "countsTitle": "數量",
+        "joinedTitle": "加入日期",
+        "badges": {
+            "plus": "Roblox Plus",
+            "verified": "已驗證",
+            "admin": "Roblox 管理員"
+        },
+        "ranges": {
+            "mutuals": "共同好友",
+            "friends": "好友",
+            "followers": "追蹤者",
+            "followings": "追蹤中"
+        },
+        "any": "任何",
+        "has": "擁有",
+        "hasNot": "未擁有",
+        "min": "最低",
+        "max": "最高",
+        "from": "從",
+        "to": "到",
+        "reset": "重設",
+        "apply": "套用",
+        "accept": "接受",
+        "ignore": "忽略",
+        "loadMore": "載入更多",
+        "loadingRequests": "正在載入邀請...（{{count}}）",
+        "checkingRequests": "正在檢查邀請... {{progress}}%",
+        "loadFailed": "無法載入好友邀請。",
+        "actionFailed": "無法回應好友邀請。",
+        "minAboveMax": "最低值不能高於最高值。",
+        "limitMax": "根據您目前的好友邀請，最高只能設定為 {{max}}。",
+        "limitMin": "根據您目前的好友邀請，最低只能設定為 {{min}}。",
+        "filtersActive": "篩選條件（{{count}} 個已啟用）",
+        "ascending": "由低到高",
+        "newestFirst": "由新到舊",
+        "oldestFirst": "由舊到新",
+        "sortTitle": "排序方式",
+        "descending": "由高到低",
+        "sort": {
+            "sent": "傳送日期",
+            "mutuals": "共同好友",
+            "friends": "好友",
+            "followers": "追蹤者",
+            "followings": "追蹤中",
+            "joined": "加入日期"
+        },
+        "footer": {
+            "sent": "傳送於",
+            "joined": "加入於",
+            "mutuals": "{{count}} 位共同好友",
+            "friends": "{{count}} 位好友",
+            "followers": "{{count}} 位追蹤者",
+            "followings": "追蹤 {{count}} 人",
+            "unknown": "已隱藏"
+        }
+    },
     "friendsSince": {
         "friended": "已新增好友",
-        "lastSeen": "已線上",
+        "lastSeen": "上次上線",
         "age": "年齡",
         "friendedVia": "透過此方式新增好友",
         "originFrom": "來自",
@@ -1595,14 +1954,14 @@
         "originInGame": "遊戲內",
         "originProfile": "個人檔案",
         "originQQContacts": "QQ 聯絡人",
-        "originWeChatContacts": "WeChat（微信）聯絡人",
+        "originWeChatContacts": "微信聯絡人",
         "originQrCode": "QR 碼",
         "originProfileShare": "個人檔案分享",
         "originPhoneContacts": "手機聯絡人",
-        "originPeopleYouMayKnow": "你可能認識的人",
+        "originPeopleYouMayKnow": "您可能認識",
         "originschoolmemberlist": "學校成員名單",
         "originFriendLink": "好友連結",
-        "originSocialTabsPage": "社群標籤頁",
+        "originSocialTabsPage": "社交標籤頁",
         "originUnknown": "未知"
     },
     "lastPlayed": {
@@ -1614,7 +1973,7 @@
         "size": "解析度：",
         "downloadPortrait": "肖像 PNG",
         "downloadBust": "胸像 PNG",
-        "downloadAvatar": "頭像 PNG",
+        "downloadAvatar": "虛擬人偶 PNG",
         "downloading": "下載中...",
         "failed": "無法下載虛擬人偶。請稍後重試。"
     },
@@ -1625,21 +1984,21 @@
         "descriptionPlural": "您即將刪除 {{count}} 位好友。此操作無法復原。",
         "cancel": "取消",
         "unfriend": "刪除好友",
-        "unfriendCount": "刪除好友 ({{count}})",
+        "unfriendCount": "刪除好友（{{count}}）",
         "unfriendCountAction": "刪除 {{count}} 位好友",
         "unfriendCountActionPlural": "刪除 {{count}} 位好友",
         "unfriending": "正在刪除好友...",
-        "bulkUnfriend": "批量刪除好友",
-        "exitBulkMode": "退出批量模式",
+        "bulkUnfriend": "批次刪除好友",
+        "exitBulkMode": "退出批次模式",
         "successMessage": "已成功刪除 {{successCount}}/{{totalCount}} 位好友！"
     },
     "bulkBadgeRemover": {
-        "bulk": "批量移除徽章",
-        "exit": "退出批量模式",
+        "bulk": "批次移除徽章",
+        "exit": "退出批次模式",
         "delete": "刪除徽章",
-        "deleteCount": "刪除徽章 ({{count}})",
+        "deleteCount": "刪除徽章（{{count}}）",
         "confirmTitle": "確認刪除徽章",
-        "finalTitle": "你真的確定嗎？",
+        "finalTitle": "您真的確定嗎？",
         "finalDescription": "這將從您的道具欄中永久刪除 {{count}} 個徽章。",
         "descriptionSingle": "您即將從您的道具欄中刪除 1 個徽章。此操作無法復原。",
         "descriptionPlural": "您即將從您的道具欄中刪除 {{count}} 個徽章。此操作無法復原。",
@@ -1651,11 +2010,11 @@
         "block": "封鎖",
         "unblock": "解除封鎖",
         "blockTitle": "封鎖 {{username}}",
-        "unblockTitle": "解除封鎖 {{username}}",
+        "unblockTitle": "解除封鎖「{{username}}」",
         "blockTitleGeneric": "封鎖使用者",
         "unblockTitleGeneric": "解除封鎖使用者",
-        "blockMessage": "他們將無法再向您傳送交易請求。您仍然可以拒絕任何現有的交易請求，但您將無法接受或提出反建議。",
-        "unblockMessage": "他們將可以再次向您傳送交易請求，您也可以接受或提出反建議。",
+        "blockMessage": "他們將無法再向您傳送交易請求。您仍然可以拒絕任何現有的交易請求，但您將無法接受或反提。",
+        "unblockMessage": "他們將可以再次向您傳送交易請求，您也可以接受或反提任何現有的交易。",
         "cancel": "取消"
     },
     "unfriendDetector": {
@@ -1673,12 +2032,12 @@
         "descriptionPlural": "您即將離開 {{count}} 個社群。此操作無法復原。",
         "cancel": "取消",
         "leave": "離開",
-        "leaveCount": "離開 ({{count}})",
+        "leaveCount": "離開（{{count}}）",
         "leaveCountAction": "離開 {{count}} 個社群",
         "leaveCountActionPlural": "離開 {{count}} 個社群",
         "leaving": "正在離開...",
-        "bulkLeave": "批量離開",
-        "exitBulkMode": "退出批量模式",
+        "bulkLeave": "批次離開",
+        "exitBulkMode": "退出批次模式",
         "successMessage": "已成功離開 {{successCount}}/{{totalCount}} 個社群！"
     },
     "purchasePrompt": {
@@ -1690,8 +2049,15 @@
         "remove": "移除",
         "cheaper": "比您瀏覽時便宜 {{value}} Robux",
         "pricier": "比您瀏覽時貴 {{value}} Robux",
-        "offSale": "已下架",
+        "offSale": "下架",
         "backOnSale": "重新上架"
+    },
+    "heroUnits": {
+        "ends": "結束於"
+    },
+    "rovalraAds": {
+        "ad": "廣告",
+        "tooltip": "此道具是 RoValra 廣告，由 RoValra 加入您的推薦內容中。您可以在 RoValra 設定中關閉此功能。此廣告並非個人化廣告。目前為實驗性功能。"
     },
     "tradeRecentItems": {
         "offer": "最近提供",
@@ -1701,8 +2067,8 @@
     "tradeQuickActions": {
         "minValue": "他們給的最小值",
         "hideLosses": "隱藏虧損",
-        "bulkTitle": "批量操作",
-        "bulkHint": "拒絕所有虧損的交易。請先確認。",
+        "bulkTitle": "批次操作",
+        "bulkHint": "拒絕所有讓您虧損價值的已收到交易。執行前會先請您確認。",
         "declineLosses": "拒絕虧損的交易",
         "loadingTrades": "正在載入已收到的交易...",
         "checking": "正在檢查 {{done}}/{{total}} 個交易...",
@@ -1731,29 +2097,29 @@
         "monthsFromNow": "{{count}} 個月後",
         "yearsFromNow": "{{count}} 年後",
         "months": {
-            "jan": "一月",
-            "feb": "二月",
-            "mar": "三月",
-            "apr": "四月",
-            "may": "五月",
-            "jun": "六月",
-            "jul": "七月",
-            "aug": "八月",
-            "sep": "九月",
-            "oct": "十月",
-            "nov": "十一月",
-            "dec": "十二月"
+            "jan": "1 月",
+            "feb": "2 月",
+            "mar": "3 月",
+            "apr": "4 月",
+            "may": "5 月",
+            "jun": "6 月",
+            "jul": "7 月",
+            "aug": "8 月",
+            "sep": "9 月",
+            "oct": "10 月",
+            "nov": "11 月",
+            "dec": "12 月"
         }
     },
     "privateGames": {
         "tabs": {
             "about": "介紹",
-            "store": "伺服器",
-            "servers": "商店"
+            "store": "商店",
+            "servers": "伺服器"
         },
         "servers": {
-            "title": "你的私人伺服器",
-            "description": "在個人的空間裡獨自遊玩，或是與你邀請的人員一起遊玩",
+            "title": "您的私人伺服器",
+            "description": "在個人的空間裡獨自遊玩，或是與您邀請的人員一起遊玩",
             "friendsTitle": "我的好友所在的伺服器",
             "publicTitle": "其他伺服器",
             "privateServer": "私人伺服器",
@@ -1763,19 +2129,19 @@
             "loading": "正在載入伺服器...",
             "noServers": "找不到伺服器。",
             "loadError": "無法載入伺服器。",
-            "ownerAvatar": "伺服器擁有者",
+            "ownerAvatar": "伺服器所有者",
             "playerAvatar": "玩家",
             "morePlayers": "+{{count}}"
         },
         "privateExperience": "私人體驗",
-        "experienceIsPrivate": "此體驗為私人。",
+        "experienceIsPrivate": "此為私人體驗。",
         "unknown": "未知",
         "rovalraNotice": "只有 RoValra 使用者才能檢視此頁面。",
         "unavailable": "無法使用",
         "favorite": {
-            "add": "新增至最愛",
+            "add": "設為最愛",
             "remove": "從最愛移除",
-            "favorited": "已設為最愛",
+            "favorited": "從最愛移除",
             "favorite": "設為最愛"
         },
         "notify": {
@@ -1802,7 +2168,7 @@
         "reportAbuse": "檢舉濫用",
         "badges": {
             "title": "徽章",
-            "noBadges": "沒有徽章",
+            "noBadges": "尚無徽章",
             "rarity": "稀有度",
             "wonYesterday": "昨天贏得",
             "wonEver": "歷來贏得"
@@ -1813,9 +2179,9 @@
         },
         "passes": {
             "title": "特權證",
-            "showOffSale": "顯示已下架",
+            "showOffSale": "顯示下架",
             "noPasses": "沒有特權證",
-            "offSale": "已下架",
+            "offSale": "下架",
             "owned": "已擁有",
             "buy": "購買"
         },
@@ -1839,16 +2205,16 @@
         "ownedNotice": "此道具在您的道具欄。",
         "inventory": "道具欄",
         "by": "創作者：",
-        "usePassIn": "在此遊戲使用此特權證：",
-        "rovalraNoticeDescription": "此遊戲通行證已失效，無法購買，原因可能是 Roblox 的限制，也可能與帳號年齡或遊戲可見度有關。"
+        "usePassIn": "在此使用此特權證：",
+        "rovalraNoticeDescription": "此特權證已失效，無法購買，原因可能是 Roblox 的限制，也可能與帳號年齡或遊戲可見度有關。"
     },
     "playabilityStatus": {
         "0": "此體驗無法使用",
         "1": "此體驗可玩",
         "2": "訪客無法加入此體驗",
-        "3": "此體驗因違反 Roblox 社群準則而被審查",
-        "4": "此體驗配置錯誤",
-        "5": "此體驗為私人",
+        "3": "此體驗因違反 Roblox 社群準則而遭到過濾",
+        "4": "此體驗設定錯誤",
+        "5": "此為私人體驗",
         "6": "只有好友才能加入此體驗",
         "7": "只有社群成員才能加入此體驗",
         "8": "此體驗在您的裝置上受限",
@@ -1858,24 +2224,24 @@
         "12": "此體驗暫時無法使用",
         "13": "此體驗沒有已發佈版本",
         "14": "此體驗因合規性原因已被封鎖",
-        "15": "此體驗在您所在的地區無法可用",
+        "15": "此體驗在您所在的地區無法使用",
         "16": "此體驗因地區合規性原因已被封鎖",
         "17": "此體驗受家長監護限制",
-        "18": "此體驗受家長監護已被封鎖",
+        "18": "此體驗已被家長監護封鎖",
         "19": "此體驗有年齡限制",
         "20": "需要驗證才能遊玩 18 歲以上體驗",
         "21": "需要購買才能遊玩",
         "22": "此裝置上無法購買",
         "23": "此體驗未經過評級",
         "24": "此體驗受內容描述符年齡限制",
-        "25": "此體驗因成熟度評級不準確而被經過審核",
+        "25": "此體驗因成熟度評級不準確而遭到過濾。",
         "unknown": "此體驗無法使用"
     },
     "bannedUsers": {
         "connections": "好友",
         "followers": "追蹤者",
         "following": "追蹤中",
-        "about": "關於",
+        "about": "介紹",
         "creations": "作品",
         "experiences": "體驗",
         "bannedStatus": "已停權",
@@ -1888,15 +2254,15 @@
         "joinedDate": "加入日期",
         "store": "商店",
         "members": "成員",
-        "accountForgotten": "帳號已忘記"
+        "accountForgotten": "帳號已被遺忘"
     },
     "copyId": {
-        "copyId": "複製{{type}} ID",
+        "copyId": "複製 {{type}} ID",
         "copyUniverseId": "複製宇宙 ID",
         "types": {
             "bundle": "組合",
-            "asset": "資產",
-            "gamePass": "遊戲通行證",
+            "asset": "素材",
+            "gamePass": "特權證",
             "badge": "徽章",
             "community": "社群",
             "event": "活動",
@@ -1924,14 +2290,35 @@
         "ariaLabel": "使用者名稱：@{{username}}",
         "nameWithUsername": "{{displayName}} (@{{username}})"
     },
+    "robloxAdminBadges": {
+        "badge": "Roblox 管理員"
+    },
     "placeVisits": {
         "label": "{{count}} 地點參訪次數",
         "tooltip": "總社群地點參訪次數"
     },
+    "groupFundsPill": {
+        "label": "{{count}} 資金",
+        "tooltip": "社群資金",
+        "privateTooltip": "這些資金並未公開。RoValra 依據您的身分向您顯示這些資金。",
+        "roleTooltip": "RoValra 依據您的身分向您顯示這些資金。"
+    },
     "groups": {
         "createdLabel": "建立日期：",
         "joinedLabel": "加入日期：",
-        "unknown": "未知"
+        "unknown": "未知",
+        "hidden": "已隱藏",
+        "hiddenTooltip": "此社群隱藏了成員名單，因此只有其成員才能看到加入日期。"
+    },
+    "statusBubble": {
+        "imageLabel": "狀態圖像",
+        "decalId": "貼花 ID",
+        "removeImage": "移除圖像",
+        "decalNotFound": "找不到此 ID 的貼花。",
+        "tier3Perk": "狀態圖像是等級 3 捐贈者特權",
+        "clickToReport": "按下以檢舉",
+        "imageThumbnail": "{{name}} 縮圖",
+        "imageSaveFailed": "您的狀態已儲存，但無法更新狀態圖像。"
     },
     "showcase": {
         "tab": "展示",
@@ -1942,8 +2329,8 @@
         "noFeaturedGame": "暫無精選體驗。:C",
         "chooseGroup": "選擇一個社群展示在您的個人檔案中。",
         "noFeaturedGroup": "暫無精選社群。:,(",
-        "chooseDecal": "輸入貼花 ID 以在個人檔案中展示圖片。",
-        "noFeaturedDecal": "暫無精選圖片。:C",
+        "chooseDecal": "輸入貼花 ID 以在個人檔案中展示圖像。",
+        "noFeaturedDecal": "暫無精選圖像。:C",
         "searchGame": "搜尋要展示的體驗",
         "searchGroup": "搜尋要展示的社群",
         "clearGame": "清除最愛體驗",
@@ -1951,10 +2338,10 @@
         "gameOptions": "最愛體驗選項",
         "groupOptions": "最愛社群選項",
         "decalId": "貼花 ID",
-        "decalImageOptions": "圖片選項",
-        "openImagePage": "開啟圖片頁面",
+        "decalImageOptions": "圖像選項",
+        "openImagePage": "開啟圖像頁面",
         "report": "檢舉",
-        "clearDecal": "清除圖片",
+        "clearDecal": "清除圖像",
         "by": "創作者：",
         "maturity": "成年適宜內容",
         "maturityUnavailable": "成年適宜內容無法使用",
@@ -1967,13 +2354,13 @@
     },
     "profileCustomization": {
         "pill": "自訂",
-        "pillTooltip": "切換你的虛擬人偶邊框和框架。",
+        "pillTooltip": "切換您的虛擬人偶邊框和外框。",
         "title": "個人檔案自訂",
         "tabBorders": "虛擬人偶邊框",
-        "tabFrames": "框架",
+        "tabFrames": "外框",
         "currentPreview": "目前選取預覽",
-        "unequip": "解除裝備",
-        "unequipTooltip": "點觸以解除裝備此邊框",
+        "unequip": "卸下",
+        "unequipTooltip": "按下以卸下此邊框",
         "equip": "裝備",
         "equipTooltip": "裝備此邊框",
         "equipped": "裝備中",
@@ -1988,55 +2375,63 @@
         "free": "免費",
         "noBorders": "未找到邊框。",
         "noBordersInTab": "此標籤頁未找到邊框。",
-        "noFrames": "未找到框架。",
-        "noFramesInTab": "此標籤頁未找到框架。",
+        "noFrames": "未找到外框。",
+        "noFramesInTab": "此標籤頁未找到外框。",
         "none": "無",
         "failedToLoad": "無法載入邊框。請稍後重試。"
     },
     "profileFrame": {
-        "storeTitle": "個人檔案框架商店",
-        "storeDesc": "個人檔案框架會環繞您個人檔案頁面上的整個虛擬人偶顯示區域。購買框架可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含框架，此等級僅包含虛擬人偶邊框。",
+        "storeTitle": "個人檔案外框商店",
+        "storeDesc": "個人檔案外框會環繞您個人檔案頁面上的整個虛擬人偶顯示區域。購買外框可直接支持 RoValra 和藝術家，並計入您的捐贈者等級。捐贈者等級 3 的解鎖內容不包含外框，此等級僅包含虛擬人偶邊框。",
         "tabBorders": "虛擬人偶邊框",
-        "tabFrames": "框架",
-        "loading": "正在載入框架...",
-        "currentPreview": "目前框架預覽",
+        "tabFrames": "外框",
+        "loading": "正在載入外框...",
+        "currentPreview": "目前外框預覽",
         "all": "全部",
         "new": "新增",
         "static": "靜態",
         "animated": "動態",
         "equip": "裝備",
-        "equipTooltip": "裝備此框架",
+        "equipTooltip": "裝備這個外框",
         "equipped": "裝備中",
-        "unequipTooltip": "點觸以解除裝備此框架",
-        "unequip": "解除裝備",
+        "unequipTooltip": "按下以卸下這個外框",
+        "unequip": "卸下",
         "buy": "購買",
         "buyFor": "以 {{price}} 購買",
         "viewItem": "檢視道具",
-        "buyTooltip": "購買此框架",
+        "buyTooltip": "購買這個外框",
+        "preview": "預覽",
+        "previewTooltip": "在您的個人檔案上試用這個外框，重新整理後即會恢復",
+        "previewOnProfile": "在個人檔案上預覽",
+        "previewBanner": "正在預覽 {{frame}}。只有您能看到，重新整理後就會消失。",
+        "backToStore": "返回商店",
         "owned": "已擁有",
-        "ownedTooltip": "您擁有此框架！",
+        "ownedTooltip": "您擁有這個外框！",
         "free": "免費",
-        "freeTooltip": "此框架可免費裝備。",
+        "freeTooltip": "這個外框可免費裝備。",
         "localOnly": "已儲存至本機",
-        "localOnlyTooltip": "RoValra 無法將此框架儲存到您的帳號，因此它僅在此瀏覽器上可見。",
-        "noFrames": "沒有可用的框架。",
-        "noFramesInTab": "此標籤頁未找到框架。",
-        "failedToLoad": "無法載入框架。請稍後重試。"
+        "localOnlyTooltip": "RoValra 暫時無法將這個外框儲存到您的帳號，因此只有您能在此瀏覽器上看到它。",
+        "noFrames": "沒有可用的外框。",
+        "noFramesInTab": "此標籤頁未找到外框。",
+        "failedToLoad": "無法載入外框。請稍後重試。"
     },
     "profileNotes": {
         "ariaLabel": "私人個人檔案備註",
         "heading": "備註（只有您看得到）",
         "headingTooltip": "此備註只儲存在此瀏覽器中，絕不會傳送到 Roblox 或 RoValra。",
-        "addNote": "點觸以新增備註",
+        "addNote": "按下以新增備註",
         "editAriaLabel": "編輯私人個人檔案備註",
         "addAriaLabel": "新增私人個人檔案備註",
-        "displayTooltip": "點觸以編輯。備註僅儲存在此瀏覽器中。",
+        "displayTooltip": "按下以編輯。備註僅儲存在此瀏覽器中。",
         "inputPlaceholder": "新增私人備註",
-        "inputTooltip": "點觸外部時儲存。按 Esc 鍵取消，或按 Ctrl+Enter 鍵儲存。"
+        "inputTooltip": "在外部按一下即可儲存。按 Esc 鍵取消，或按 Ctrl+Enter 鍵儲存。"
     },
     "profilePronouns": {
         "label": "代名詞",
         "ariaLabel": "代名詞：{{pronouns}}"
+    },
+    "followsYou": {
+        "label": "追蹤了您"
     },
     "profileEdit": {
         "featuresTitle": "RoValra 功能",
@@ -2047,10 +2442,10 @@
         "usernameCustomizations": "使用者名稱自訂"
     },
     "profile": {
-        "socialLinks": "社群連結",
+        "socialLinks": "社交連結",
         "currencyTransfer": "傳送 Robux",
-        "currencyTransferConfirmation": "這將開啟 Roblox 客戶端，允許您傳送 Robux。",
-        "openClient": "開啟客戶端"
+        "currencyTransferConfirmation": "這將開啟 Roblox 用戶端，允許您傳送 Robux。",
+        "openClient": "開啟用戶端"
     },
     "animations": {
         "idle": "閒置",
@@ -2068,6 +2463,11 @@
         "rotatePreview": "旋轉預覽",
         "itemOnly": "僅顯示道具"
     },
+    "freeBadgeQuota": {
+        "label": "免費徽章",
+        "value": "今日剩餘 {{count}} 個",
+        "tooltip": "此體驗仍可免費建立的徽章數量。Roblox 允許每個體驗每 24 小時免費建立 5 個徽章。"
+    },
     "groupFilters": {
         "sort": {
             "default": "預設",
@@ -2076,38 +2476,42 @@
             "newest": "最新",
             "oldest": "最舊"
         },
-        "tooltip": "按使用者加入社群的時間排序"
+        "tooltip": "按使用者加入社群的時間排序",
+        "view": {
+            "row": "橫列",
+            "grid": "方格"
+        }
     },
     "creatorStats": {
         "ccu": "目前活躍使用者",
         "visits": "參訪次數",
         "members": "成員",
-        "ccuTooltip": "此使用者所建立的公共體驗中的目前玩家數。",
-        "visitsTooltip": "此使用者所建立的公共體驗的累積參訪次數。",
+        "ccuTooltip": "此使用者所建立的公開體驗中的目前玩家數。",
+        "visitsTooltip": "此使用者所建立的公開體驗的累積參訪次數。",
         "membersTooltip": "此使用者擁有的社群的成員數。"
     },
     "plus": {
         "stats": {
             "robux": "您擁有 Plus 會員資格時節省了 {{robux}}",
-            "percentOffSmall": "遊戲內道具、虛擬人偶等",
+            "percentOffSmall": "遊戲內物品、虛擬人偶等",
             "percentOff": "{{percent}} 折扣",
-            "itemsBoughtSmall": "使用 Plus 會員折扣購買的道具",
+            "itemsBoughtSmall": "透過 Plus 折扣購買的物品",
             "privateServersCreatedSmall": "免費建立的私人伺服器",
-            "robuxSentSmall": "傳送給好友的 Robux",
-            "delayNotice": "此處顯示的所有資料均延遲 1 天"
+            "robuxSentSmall": "已傳送 Robux 給好友",
+            "delayNotice": "此處顯示的所有資料都會延遲 1 天"
         },
         "transferLimits": {
             "dailyLimitLeft": "每日剩餘限額",
             "monthlyLimitLeft": "每月剩餘限額",
             "sentToday": "今天已傳送",
             "sentThisMonth": "本月已傳送",
-            "nextRefill": "下次儲值",
+            "nextRefill": "下次額度恢復",
             "leftAfter": "剩餘 {{amount}}",
             "refillNote": "每次轉帳計入每月限額，有效期為 30 天，之後這些 Robux 將再次可用。",
             "caption": "每日限額為 {{dailyLimit}}。每月限額為 {{monthlyLimit}}。每 5 分鐘更新一次。其餘數值為預估值，可能不準確。"
         },
         "referral": {
-            "reward": "免費獲得 100 Robux 並支援 RoValra！",
+            "reward": "免費獲得 100 Robux 並支持 RoValra！",
             "details": "僅限新 Roblox Plus 使用者。使用 RoValra 的推薦碼訂閱，RoValra 也將獲得 100 Robux。",
             "button": "使用 RoValra 的推薦碼訂閱"
         },
@@ -2146,23 +2550,23 @@
                     "transferSuccessBody": "轉帳成功！",
                     "transferSuccessBodySilly": "轉帳成功！太棒了！",
                     "transferSuccessOkBtnSilly": "電動布加洛舞！",
-                    "userInfoFriendTime": "新增好友於 {{time, relativetime}}",
+                    "userInfoFriendTime": "成為好友於 {{time, relativetime}}",
                     "userInfoMutualFriends_one": "{{count}} 位共同好友",
                     "userInfoMutualFriends_other": "{{count}} 位共同好友",
                     "userInfoJoin": "加入年份：{{year}}",
                     "paramPassedError": "發生未知錯誤！請檢查控制台並將問題回報給 RoValra。"
                 },
                 "parentPerms": {
-                    "askBtn": "請求",
+                    "askBtn": "詢問",
                     "sendRobuxBody": "傳送 Robux 需要家長許可",
                     "receiveRobuxBody": "接收 Robux 需要家長許可",
                     "askTitle": "請求家長許可",
                     "askTitleSilly": "請求家長許可",
                     "errorSending": "發生未知錯誤，請檢查控制台並將問題回報給 RoValra",
                     "errorReceivingTitle": "接收 Robux 時發生錯誤",
-                    "errorReceivingBody": "發生未知錯誤，您可能已經接受了此次 Robux 轉帳。請檢查控制台以瞭解詳情。",
+                    "errorReceivingBody": "發生未知錯誤，您可能已經接受了此次 Robux 轉帳。請檢查控制台以了解詳情。",
                     "errorReceivingOkBtnSilly": "哎呀",
-                    "successfulAskTitle": "請求已傳送",
+                    "successfulAskTitle": "已傳送請求",
                     "successfulAskTitleSilly": "我們已通知您的家長，請準備...",
                     "successfulAskBody": "我們已透過電子郵件將請求傳送給您的家長和監護人！",
                     "successfulAskOkBtnSilly": "好的，太棒了，謝謝"
@@ -2177,16 +2581,25 @@
             }
         }
     },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "部分設定已被移除或取代"
+            },
+            "deleted": "以下設定最近已被刪除、鎖定或淘汰：",
+            "replaced": "以下設定最近已被取代或變更："
+        }
+    },
     "avatar": {
         "gameOutfits": {
-            "button": "遊戲外觀",
-            "title": "體驗使用的外觀",
-            "hint": "選擇在遊玩 R6 或 R15 體驗時裝備的外觀。",
+            "button": "遊戲服飾",
+            "title": "體驗使用的服飾",
+            "hint": "選擇在遊玩 R6 或 R15 體驗時裝備的服飾。",
             "r6": "R6 體驗",
             "r15": "R15 體驗",
             "none": "不要變更",
-            "gameTitle": "此體驗的外觀",
-            "gameHint": "這將覆蓋 R6 和 R15 體驗的預設外觀設定。",
+            "gameTitle": "此體驗的服飾",
+            "gameHint": "這將覆蓋 R6 和 R15 體驗的預設服飾設定。",
             "useGlobal": "使用我的預設值"
         },
         "bodyColors": {
@@ -2196,17 +2609,166 @@
         }
     },
     "pinnedFriends": {
-        "pin": "釘選至頂部",
-        "unpin": "解除釘選"
+        "pin": "置頂",
+        "unpin": "取消置頂"
+    },
+    "channelOverlay": {
+        "title": "頻道",
+        "collapse": "收合頻道疊加層",
+        "hide": "隱藏疊加層，按 F2 可再次開啟",
+        "live": "LIVE",
+        "unknown": "正在等待用戶端設定...",
+        "change": "換頻道",
+        "placeholder": "LIVE 或頻道名稱",
+        "apply": "套用",
+        "reset": "重設"
+    },
+    "serverLocationOverlay": {
+        "title": "伺服器位置",
+        "collapse": "收合伺服器位置疊加層",
+        "hide": "隱藏疊加層，按 F3 可再次開啟",
+        "waiting": "加入遊戲即可查看其伺服器位置。",
+        "location": "位置",
+        "version": "伺服器版本",
+        "channel": "伺服器頻道",
+        "unknown": "未知",
+        "unknownLocation": "未知的伺服器位置",
+        "production": "生產環境",
+        "appName": "RoValra",
+        "dismiss": "關閉",
+        "toastDetails": "版本 {{version}} · {{channel}}"
+    },
+    "debugOverlay": {
+        "title": "RoValra 偵錯",
+        "popout": "彈出至獨立視窗",
+        "collapse": "收合偵錯疊加層",
+        "hide": "隱藏偵錯疊加層",
+        "performance": {
+            "title": "效能",
+            "fps": "FPS",
+            "frameTime": "影格時間 平均 / 最大",
+            "frameLow": "1% 最低影格率",
+            "jank": "卡頓影格",
+            "loopLag": "事件迴圈延遲 平均 / 最大",
+            "longTasks": "長任務",
+            "blocking": "阻塞時間",
+            "longFrames": "長影格",
+            "jsHeap": "JS 堆積 已用 / 合計 / 上限",
+            "domNodes": "DOM 節點",
+            "uptime": "疊加層執行時間"
+        },
+        "vitals": {
+            "title": "Web Vitals",
+            "fcp": "FCP",
+            "lcp": "LCP",
+            "cls": "CLS",
+            "inp": "最慢互動"
+        },
+        "loading": {
+            "title": "載入",
+            "readyState": "就緒狀態",
+            "navType": "導覽",
+            "protocol": "通訊協定",
+            "redirect": "重新導向",
+            "dns": "DNS",
+            "connect": "連線",
+            "ttfb": "TTFB",
+            "download": "下載",
+            "domInteractive": "DOM 可互動",
+            "domContentLoaded": "DOMContentLoaded",
+            "load": "載入完成",
+            "documentSize": "文件大小",
+            "pageWeight": "頁面總大小",
+            "requests": "請求數",
+            "cacheHit": "快取命中",
+            "slowest": "最慢",
+            "largest": "最大"
+        },
+        "resources": {
+            "title": "資源",
+            "scripts": "指令碼",
+            "styles": "樣式",
+            "images": "圖片",
+            "fetchXhr": "Fetch / XHR",
+            "iframes": "Iframe",
+            "other": "其他"
+        },
+        "requests": {
+            "title": "RoValra 請求",
+            "inFlight": "進行中",
+            "total": "合計",
+            "failed": "失敗",
+            "avgLatency": "平均延遲",
+            "lastRequest": "最後一次請求",
+            "lastFailure": "最後一次失敗"
+        },
+        "graphics": {
+            "title": "圖形 / 3D",
+            "glContexts": "WebGL 情境 存活 / 已建立",
+            "glSizes": "WebGL 畫布大小",
+            "glPixels": "WebGL 像素",
+            "canvases": "Canvas 元素",
+            "videos": "影片元素",
+            "imageElements": "圖像元素",
+            "svgs": "SVG 元素"
+        },
+        "display": {
+            "title": "可視區域",
+            "viewport": "可視區域",
+            "pixelRatio": "像素比例",
+            "scroll": "捲動 / 頁面高度"
+        },
+        "storage": {
+            "title": "儲存空間",
+            "origin": "網站儲存空間",
+            "localStorage": "localStorage",
+            "sessionStorage": "sessionStorage",
+            "cookies": "Cookie",
+            "extStorage": "RoValra 儲存空間"
+        },
+        "errors": {
+            "title": "錯誤",
+            "jsErrors": "指令碼錯誤",
+            "rejections": "未處理的 Promise 拒絕",
+            "consoleErrors": "console.error",
+            "consoleWarns": "console.warn",
+            "lastError": "最後一次錯誤"
+        },
+        "page": {
+            "title": "頁面",
+            "pageTitle": "標題",
+            "url": "網址",
+            "referrer": "來源頁面",
+            "charset": "字元集",
+            "visibility": "可見度",
+            "focus": "已聚焦",
+            "compat": "相容模式",
+            "lang": "語言",
+            "theme": "Roblox 主題",
+            "userId": "使用者 ID",
+            "csrf": "CSRF 權杖"
+        },
+        "rovalra": {
+            "title": "RoValra",
+            "version": "版本",
+            "extensionId": "擴充功能 ID",
+            "manifest": "資訊清單",
+            "path": "路徑"
+        },
+        "values": {
+            "worst": "{{count}}（最差 {{time}}）",
+            "keys": "{{count}} 個鍵，{{size}}",
+            "seconds": "{{count}} 秒"
+        }
     },
     "richLinks": {
         "by": "創作者：{{name}}",
-        "members": "{{count}} 成員",
-        "playing": "{{count}} 正在遊玩",
-        "visits": "{{count}} 參訪次數",
+        "members": "{{count}} 位成員",
+        "playing": "{{count}} 人正在遊玩",
+        "visits": "{{count}} 次參訪",
         "loading": "正在載入...",
         "free": "免費",
-        "offSale": "已下架"
+        "offSale": "下架"
     },
     "privateApiDocs": {
         "title": "RoValra API",
@@ -2226,16 +2788,16 @@
         "noEndpoints": "未找到端點。",
         "deprecated": "已淘汰",
         "deprecatedTooltip": "此端點已淘汰。",
-        "authRequired": "需要授權",
-        "authOptional": "授權可略",
+        "authRequired": "需要驗證",
+        "authOptional": "驗證可省略",
         "schemeNotSent": "需要 {{name}}，但此頁面不會傳送。",
         "operationId": "操作 ID",
-        "security": "授權：{{schemes}}",
-        "securityOptional": "授權：{{schemes}}（可略）",
+        "security": "驗證：{{schemes}}",
+        "securityOptional": "驗證：{{schemes}}（可省略）",
         "securityTooltip": "安全需求",
         "parameters": "參數",
         "noParameters": "無參數",
-        "tryItOut": "試一下",
+        "tryItOut": "立即試用",
         "name": "名稱",
         "description": "說明",
         "required": "必填",
@@ -2245,14 +2807,14 @@
         "exampleValue": "範例值",
         "schema": "架構",
         "responses": "回應",
-        "noResponses": "無文件化的回應",
+        "noResponses": "文件中未列出回應",
         "code": "代碼",
         "details": "詳細資料",
         "execute": "執行",
         "clear": "清除",
         "missingParams": "缺少必要參數：{{params}}",
         "invalidJson": "請求主體不是有效的 JSON：{{error}}",
-        "bodyRequired": "請求體是必要的。",
+        "bodyRequired": "請求主體是必要的。",
         "confirmTitle": "傳送請求？",
         "confirmMessage": "這將向 {{path}} 傳送一個 {{method}} 請求。請僅在您了解其作用的情況下繼續。",
         "send": "傳送",
@@ -2262,13 +2824,20 @@
         "requestUrl": "請求 URL",
         "serverResponse": "伺服器回應",
         "responseBody": "回應主體",
-        "responseHeaders": "回應頭",
+        "responseHeaders": "回應標頭",
         "emptyResponse": "（空回應）",
-        "responseImage": "回應圖片",
+        "responseImage": "回應圖像",
         "duration": "{{ms}} 毫秒",
         "durationTooltip": "請求持續時間",
         "contentType": "內容類型",
         "redirected": "已重新導向",
         "copy": "複製"
+    },
+    "notifications": {
+        "newTrade": "新交易",
+        "tradeFrom": "來自 {{name}}",
+        "tradeStats": "價值 {{value}} | RAP {{rap}}",
+        "friendPlaying": "{{name}} 正在遊玩",
+        "unknownGame": "某個體驗"
     }
 }

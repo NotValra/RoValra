@@ -43,6 +43,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
     '74884', // awkward222
+    '4053286280', // yuna0x0
 ];
 
 export const TESTER_USER_IDS = [
@@ -63,6 +64,7 @@ export const TRANSLATOR_USER_IDS = [
     '587930109', // hnguyen1910
     '11785214974', // DevinHmmm
     '2490953439', // xMrReks
+    '4053286280', // yuna0x0
 ];
 
 export const ARTIST_USER_IDS = [
