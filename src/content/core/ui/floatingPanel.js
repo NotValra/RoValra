@@ -1,5 +1,6 @@
 import { observeResize } from '../observer.js';
 import { ts } from '../locale/i18n.js';
+import { getAssets } from '../assets.js';
 import { ChangeIcon, Icon } from './buildericon.js';
 import { createSquareButton } from './profile/header/squarebutton.js';
 import { addTooltip } from './tooltip.js';
@@ -58,6 +59,7 @@ function createSvgIcon(name) {
  * @param {string} [options.keybind] KeyboardEvent.key that toggles the panel.
  * @param {boolean} [options.popout] Show the pop out button.
  * @param {boolean} [options.customButtons] Use RoValra styled header buttons with svg icons instead of Roblox ones, for pages without Roblox's css or icon fonts.
+ * @param {boolean} [options.showLogo] Show the RoValra logo before the header title.
  * @param {boolean} [options.isolateInput] Keep keyboard and form field mouse events inside the panel from reaching the page. Create the panel early (at module load) so this runs before the page's own listeners.
  * @param {(context: { body: HTMLElement, track: (fn: () => void) => void, getState: () => object, saveState: (changes: object) => void }) => void} options.build
  * @param {(host: Window) => void} [options.onShow] Called whenever the panel becomes visible, with the window it lives in.
@@ -71,6 +73,7 @@ export function createFloatingPanel({
     keybind,
     popout: allowPopout = false,
     customButtons = false,
+    showLogo = true,
     isolateInput = false,
     build,
     onShow,
@@ -390,6 +393,14 @@ export function createFloatingPanel({
         updaters.push(() => {
             title.textContent = ts(titleKey);
         });
+        if (showLogo) {
+            const logo = createElement('img', 'rovalra-overlay-logo');
+            logo.src = getAssets().rovalraIcon;
+            logo.alt = '';
+            logo.draggable = false;
+            logo.dataset.rovalraAsset = 'rovalraIcon';
+            header.append(logo);
+        }
         header.append(title);
         headerIcons = { collapse: collapse.setIcon };
 

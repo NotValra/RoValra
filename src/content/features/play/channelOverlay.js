@@ -135,6 +135,7 @@ const panel = createFloatingPanel({
     },
     keybind: 'F2',
     customButtons: true,
+    showLogo: true,
     isolateInput: true,
     build,
 });

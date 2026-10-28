@@ -129,6 +129,7 @@ const panel = createFloatingPanel({
     },
     keybind: 'F3',
     customButtons: true,
+    showLogo: true,
     build,
 });
 
@@ -213,15 +214,25 @@ async function lookupServer(placeId, gameId) {
     return null;
 }
 
+function clearServer() {
+    lastGameId = null;
+    if (!currentServer) return;
+
+    currentServer = null;
+    serverUpdater?.();
+    dismissToast(activeToast);
+}
+
 async function onPresence(presence) {
     if (
         presence?.userPresenceType !== IN_GAME_PRESENCE ||
         !presence.gameId ||
-        !presence.placeId ||
-        presence.gameId === lastGameId
+        !presence.placeId
     ) {
+        clearServer();
         return;
     }
+    if (presence.gameId === lastGameId) return;
     const gameId = presence.gameId;
     lastGameId = gameId;
 
