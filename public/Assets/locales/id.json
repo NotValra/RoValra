@@ -99,6 +99,8 @@
         "versionUnknown": "Versi Tidak Diketahui",
         "version": "Versi {{version}}",
         "versionLabel": "Versi",
+        "regionTooltip": "Wilayah server: {{region}}",
+        "performanceTooltip": "Performa server",
         "latest": " (Terbaru)",
         "oldest": " (Terlama)",
         "serverFull": "Server Penuh",
@@ -124,6 +126,7 @@
         "searchingInRegion": "Mencari di {{region}}...",
         "fallbackInactive": "Server terbaik selanjutnya via API tidak aktif. Memindai secara lokal untuk {{region}}...",
         "noServersApi": "Tidak ada server ditemukan di {{region}} via API. Memindai secara lokal...",
+        "apiTimedOut": "Pencari Wilayah RoValra terlalu lama untuk menemukan {{region}}, kemungkinan karena perubahan Roblox. Beralih ke pencarian {{region}} secara lokal.",
         "loadBalancing": "{{region}} digunakan untuk load balancing dan kemungkinan hanya aktif saat beban tinggi. Memindai...",
         "foundJoining": "Ditemukan {{region}}! Bergabung...",
         "foundContinuing": "Ditemukan: {{region}}. Melanjutkan pencarian untuk {{targetRegion}}...",
@@ -378,7 +381,11 @@
         "myProfile": "Profil Saya",
         "disabled": "Nonaktif",
         "show": "Tampilkan",
-        "hide": "Sembunyikan"
+        "hide": "Sembunyikan",
+        "add": "Tambah",
+        "addButton": "Tambah tombol",
+        "buttonPlaceholder1": "Nama",
+        "buttonPlaceholder2": "URL"
     },
     "topbarLayout": {
         "empty": "RoValra tidak dapat menemukan item topbar yang didukung.",
@@ -414,7 +421,9 @@
         "friendFallback": "Teman",
         "join": "Gabung",
         "chat": "Chat",
-        "viewProfile": "Lihat Profil"
+        "viewProfile": "Lihat Profil",
+        "canJoin": "Anda dapat bermain bersama",
+        "notJoinable": "Pengguna tidak dapat digabung saat ini."
     },
     "friendLabels": {
         "menuAction": "Tetapkan Label Teman",
@@ -496,6 +505,8 @@
         "overlayText": "Pengalaman Tersembunyi",
         "noHiddenGames": "Pengguna ini tidak memiliki pengalaman tersembunyi.",
         "buttonText": "Pengalaman Tersembunyi",
+        "publicExperiences": "Pengalaman Publik",
+        "hiddenExperiences": "Pengalaman Tersembunyi",
         "labels": {
             "sort": "Urutkan",
             "order": "Urutan",
@@ -626,7 +637,8 @@
         "setActive": "Jadikan Aktif",
         "noServersFound": "Tidak ada server pribadi {{status}} yang ditemukan.",
         "byCreator": "Oleh ",
-        "allowJoining": "Izinkan Bergabung"
+        "allowJoining": "Izinkan Bergabung",
+        "friendsAllowed": "Teman Diizinkan"
     },
     "firstAccount": {
         "label": "Akun Pertama",
@@ -680,6 +692,111 @@
             "errors": {
                 "invalidUrl": "Masukkan URL gambar https yang valid."
             }
+        },
+        "variables": {
+            "intro": "Pilih tema Roblox di atas untuk menggunakannya apa adanya, atau ubah warna mana pun di bawah untuk menyesuaikannya. Perubahan diterapkan secara langsung.",
+            "presetNone": "Tidak Ada",
+            "opacity": "Opasitas",
+            "reset": "Atur Ulang",
+            "resetAll": "Atur Ulang Warna",
+            "saved": {
+                "title": "Tema Saya",
+                "noTheme": "Tanpa tema",
+                "unsaved": "Tema belum disimpan",
+                "editingLabel": "{{name}} (sedang diedit)",
+                "statusNone": "Tidak ada tema yang dipakai, Roblox tampil seperti biasa.",
+                "statusUnsaved": "Anda menggunakan warna yang belum disimpan sebagai tema.",
+                "statusEditing": "Mengedit {{name}}. Simpan untuk menyimpan perubahan Anda.",
+                "statusEquipped": "{{name}} sedang dipakai.",
+                "namePlaceholder": "Nama tema",
+                "save": "Simpan",
+                "delete": "Hapus",
+                "export": "Ekspor",
+                "import": "Impor",
+                "defaultName": "Tema Saya",
+                "importedName": "Tema yang Diimpor",
+                "saved": "Tema disimpan!",
+                "updated": "Tema diperbarui!",
+                "deleted": "Tema dihapus.",
+                "imported": "Tema diimpor!",
+                "nameRequired": "Masukkan nama untuk tema Anda terlebih dahulu.",
+                "limitReached": "Anda hanya dapat menyimpan hingga {{count}} tema.",
+                "invalidFile": "File tersebut bukan tema RoValra.",
+                "fileTooLarge": "File tersebut terlalu besar untuk menjadi tema.",
+                "deleteTitle": "Hapus tema",
+                "deleteMessage": "Apakah Anda yakin ingin menghapus tema tersimpan ini?"
+            },
+            "modes": {
+                "editingDark": "Mengedit warna mode gelap",
+                "editingLight": "Mengedit warna mode terang"
+            },
+            "tokens": {
+                "surface-0": "Latar Belakang Halaman",
+                "surface-100": "Permukaan 100",
+                "surface-200": "Permukaan 200",
+                "surface-300": "Permukaan 300",
+                "common-navigation-bar": "Bilah Navigasi",
+                "over-media-0": "Di Atas Media 0",
+                "over-media-100": "Di Atas Media 100",
+                "over-media-200": "Di Atas Media 200",
+                "over-media-300": "Di Atas Media 300",
+                "common-backdrop": "Backdrop",
+                "content-emphasis": "Teks Penekanan",
+                "content-default": "Teks Default",
+                "content-muted": "Teks Redup",
+                "content-link": "Teks Tautan",
+                "stroke-default": "Garis Default",
+                "stroke-emphasis": "Garis Penekanan",
+                "stroke-muted": "Garis Redup",
+                "common-heavy-divider": "Pembagi Tebal",
+                "shift-100": "Pergeseran 100",
+                "shift-200": "Pergeseran 200",
+                "shift-300": "Pergeseran 300",
+                "shift-400": "Pergeseran 400",
+                "system-emphasis": "Penekanan",
+                "system-contrast": "Kontras",
+                "system-alert": "Bahaya",
+                "system-success": "Berhasil",
+                "system-warning": "Peringatan",
+                "system-neutral": "Netral",
+                "action-emphasis-background": "Latar Belakang Utama",
+                "action-emphasis-foreground": "Teks Utama",
+                "action-standard-background": "Latar Belakang Standar",
+                "action-standard-foreground": "Teks Standar",
+                "action-soft-emphasis-background": "Latar Belakang Lembut",
+                "action-soft-emphasis-foreground": "Teks Lembut",
+                "action-subtle-border": "Border Halus",
+                "action-alert-foreground": "Teks Bahaya",
+                "action-over-media-background": "Latar Belakang Di Atas Media",
+                "action-over-media-foreground": "Teks Di Atas Media"
+            },
+            "presets": {
+                "classic": "Klasik",
+                "circuit-rush": "Circuit Rush",
+                "cosmic-dust": "Cosmic Dust",
+                "electric-lime": "Electric Lime",
+                "hyper-plum": "Hyper Plum",
+                "inferno-blast": "Inferno Blast",
+                "kinetic-energy": "Kinetic Energy",
+                "lava-glow": "Lava Glow",
+                "nebula-drift": "Nebula Drift",
+                "nitro-frost": "Nitro Frost",
+                "pixel-pop": "Pixel Pop",
+                "polar-freeze": "Polar Freeze",
+                "quantum-pulse": "Quantum Pulse",
+                "star-burst": "Star Burst",
+                "super-charge": "Super Charge"
+            },
+            "builtIn": {
+                "veryDark": "Tema sangat gelap"
+            },
+            "groups": {
+                "surfaces": "Permukaan",
+                "content": "Teks",
+                "strokes": "Garis & Pergeseran",
+                "system": "Sistem",
+                "actions": "Tombol"
+            }
         }
     },
     "previousPrice": {
@@ -693,6 +810,11 @@
     },
     "lastEquipped": {
         "label": "Terakhir Dipakai"
+    },
+    "ownedItemPrice": {
+        "label": "Harga",
+        "free": "Gratis",
+        "offSale": "Tidak Dijual"
     },
     "pendingRobux": {
         "tooltip": "Ini adalah perkiraan berapa banyak Robux dari saldo pending Anda yang akan tersedia besok, berdasarkan data transaksi Anda. Jumlah sebenarnya dapat berbeda. Dan ini mungkin tidak akurat.",
@@ -801,6 +923,29 @@
         "scanInProgress": "Pemindaian transaksi sedang berlangsung. Ini mungkin memerlukan waktu.",
         "loadError": "Tidak dapat memuat pengeluaran kreator."
     },
+    "spending": {
+        "title": "Pengeluaran",
+        "disclaimer": "Ini bisa tidak akurat karena keterbatasan Roblox",
+        "byMonth": "Per bulan",
+        "byYear": "Per tahun",
+        "creators": "Kreator",
+        "games": "Pengalaman",
+        "searchPlaceholder": "Cari",
+        "showingPeriod": "Menampilkan {{period}}",
+        "back": "Kembali",
+        "viewPurchases": "Lihat pembelian",
+        "robuxAmount": "{{amount}} Robux",
+        "mostExpensive": "Termahal",
+        "cheapest": "Termurah",
+        "newest": "Terbaru",
+        "oldest": "Terlama",
+        "unknownItem": "Item tidak diketahui",
+        "unknownGame": "Pengalaman tidak diketahui",
+        "noPurchases": "Tidak ada pembelian yang ditemukan.",
+        "noPurchasesInPeriod": "Tidak ada pembelian pada periode ini.",
+        "scanInProgress": "Pemindaian transaksi sedang berlangsung. Ini mungkin memakan waktu cukup lama.",
+        "loadError": "Tidak dapat memuat pengeluaran."
+    },
     "settings": {
         "tabs": {
             "info": "Info",
@@ -882,10 +1027,13 @@
                     "addedToWebsite": "Menambahkan index tema plus ke website sehingga pengguna hanya dapat menggunakan tema yang benar dan ditentukan."
                 },
                 "locales": {
+                    "madeDe": "Membantu membuat lokal bahasa Jerman",
                     "madeRo": "Membantu membuat lokal bahasa Rumania",
                     "madeEs": "Membantu membuat lokal bahasa Spanyol",
                     "madeRu": "Membantu membuat lokal bahasa Rusia",
                     "madeFr": "Membantu membuat lokal bahasa Prancis",
+                    "madeZh": "Membantu membuat lokal bahasa Tionghoa",
+                    "madeVi": "Membantu membuat lokal bahasa Vietnam",
                     "madeId": "Membantu membuat lokal bahasa Indonesia"
                 }
             },
@@ -1075,7 +1223,12 @@
                 "followTerms": "Gambar harus mengikuti ToS Roblox",
                 "joinDiscord": "Gabung Discord RoValra",
                 "agree": "Setuju",
-                "agreeCountdown": "Setuju ({{count}})"
+                "agreeCountdown": "Setuju ({{count}})",
+                "preview": "Pratinjau",
+                "previewTitle": "Pratinjau Badge Kustom",
+                "previewDescription": "Unggah gambar WEBP untuk melihat tampilannya sebagai badge di profil Anda. Gambar hanya disimpan di memori dan tidak pernah diunggah atau disimpan, gambar akan hilang saat Anda meninggalkan atau memuat ulang halaman.",
+                "previewTooltip": "Pratinjau Badge",
+                "previewDone": "Selesai"
             },
             "githubSponsorBadge": {
                 "title": "Badge Profil GitHub Sponsors",
@@ -1207,7 +1360,8 @@
         "transactions": "Transaksi",
         "apiDocs": "Dokumentasi API",
         "incidentLearnMore": "Klik di sini untuk mempelajari lebih lanjut.",
-        "incidentHideNotice": "Anda dapat menyembunyikan pemberitahuan ini di sini"
+        "incidentHideNotice": "Anda dapat menyembunyikan pemberitahuan ini di sini",
+        "rovalraApi": "RoValra API"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Lipat sidebar",
@@ -1256,7 +1410,9 @@
         "noSearchHistory": "Anda tidak memiliki riwayat pencarian.",
         "deleteSearchHistoryTitle": "Hapus Riwayat Pencarian",
         "deleteSearchHistoryMessage": "Apakah Anda yakin ingin menghapus entri riwayat pencarian ini?",
-        "delete": "Hapus"
+        "delete": "Hapus",
+        "itemValue": "Nilai",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "{{count}} Teman memiliki",
@@ -1316,6 +1472,10 @@
         "bonusItemFallback": "Termasuk item bonus",
         "noItems": "Tidak ada item toko ditemukan.",
         "failedToLoad": "Gagal memuat item toko.",
+        "offers": {
+            "expires": "Berakhir",
+            "inGameOnly": "Hanya berlaku untuk pembelian yang dilakukan di dalam game."
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -1433,6 +1593,24 @@
             "all": "Tidak ada event ditemukan."
         }
     },
+    "badgeSort": {
+        "label": "Urutkan badge",
+        "seeMore": "Lihat Selengkapnya",
+        "updated": "Diperbarui",
+        "created": "Dibuat",
+        "options": {
+            "default": "Default",
+            "updated": "Baru Diperbarui",
+            "newest": "Terbaru",
+            "oldest": "Terlama",
+            "mostWon": "Paling Banyak Dimenangkan",
+            "leastWon": "Paling Sedikit Dimenangkan",
+            "wonYesterday": "Paling Banyak Dimenangkan Kemarin",
+            "rarest": "Paling Langka",
+            "easiest": "Paling Mudah",
+            "name": "Nama (A-Z)"
+        }
+    },
     "hiddenBadges": {
         "tabs": {
             "badges": "Badge",
@@ -1443,7 +1621,12 @@
         "unableToDetectUniverse": "Tidak dapat mendeteksi universe ini.",
         "stillScanning": "Masih memindai badge Anda. Badge tersembunyi yang Anda miliki mungkin akan muncul segera.",
         "noneOwnedFound": "Tidak ada badge tersembunyi yang Anda miliki ditemukan untuk pengalaman ini.",
-        "failedToLoad": "Gagal memuat badge tersembunyi yang Anda miliki."
+        "noneFound": "Tidak ada badge tersembunyi yang ditemukan untuk pengalaman ini.",
+        "noPublicBadges": "Pengalaman ini tidak memiliki badge publik.",
+        "failedToLoad": "Gagal memuat badge tersembunyi yang Anda miliki.",
+        "rolimonsSource": "Badge tersembunyi disediakan oleh Rolimon's.",
+        "viewOnRolimons": "Lihat game di Rolimon's",
+        "openBadgeOnRolimons": "Buka badge di Rolimon's"
     },
     "antiBots": {
         "reviewMembers": "Tinjau {{count}} anggota terpilih:",
@@ -1545,7 +1728,13 @@
             "previewGui": "Pratinjau GUI",
             "togglePreviewVisibility": "Alihkan visibilitas dalam pratinjau",
             "noMatchingInstances": "Tidak ada instance yang cocok ditemukan",
-            "loadError": "Gagal memuat."
+            "loadError": "Gagal memuat.",
+            "previewMesh": "Pratinjau Mesh",
+            "previewImage": "Pratinjau Gambar",
+            "loadingImage": "Memuat gambar...",
+            "imageLoadError": "Gagal memuat gambar.",
+            "loadingMesh": "Memuat mesh...",
+            "meshLoadError": "Gagal memuat mesh."
         }
     },
     "priceFloor": {
@@ -1670,6 +1859,39 @@
     },
     "purchasePrompt": {
         "balanceAfter": "Saldo Anda setelah transaksi ini akan menjadi"
+    },
+    "recentlyViewed": {
+        "title": "Baru Dilihat",
+        "clear": "Bersihkan",
+        "remove": "Hapus",
+        "cheaper": "{{value}} Robux lebih murah dibanding saat Anda melihatnya",
+        "pricier": "{{value}} Robux lebih mahal dibanding saat Anda melihatnya",
+        "offSale": "Tidak lagi dijual",
+        "backOnSale": "Kembali dijual"
+    },
+    "heroUnits": {
+        "ends": "Berakhir"
+    },
+    "tradeRecentItems": {
+        "offer": "Baru ditawarkan",
+        "request": "Baru diminta",
+        "clear": "Bersihkan"
+    },
+    "tradeQuickActions": {
+        "minValue": "Nilai minimum yang mereka berikan",
+        "hideLosses": "Sembunyikan kerugian",
+        "bulkTitle": "Aksi massal",
+        "bulkHint": "Menolak setiap trade masuk yang membuat Anda rugi nilai. Anda akan diminta konfirmasi terlebih dahulu.",
+        "declineLosses": "Tolak trade yang merugikan",
+        "loadingTrades": "Memuat trade masuk...",
+        "checking": "Memeriksa trade {{done}}/{{total}}...",
+        "noLosses": "Tidak ada trade masuk yang merugikan",
+        "confirmTitle": "Tolak trade yang merugikan",
+        "confirmMessage": "{{count}} dari {{total}} trade masuk Anda merugikan secara nilai (total {{value}}). Tolak semuanya? Tindakan ini tidak dapat dibatalkan.",
+        "declineConfirm": "Tolak",
+        "declining": "Menolak {{done}}/{{total}}...",
+        "declined": "{{count}} trade ditolak",
+        "declinedWithFailures": "{{count}} trade ditolak, {{failed}} gagal"
     },
     "time": {
         "justNow": "baru saja",
@@ -1881,14 +2103,35 @@
         "ariaLabel": "Nama pengguna: @{{username}}",
         "nameWithUsername": "{{displayName}} (@{{username}})"
     },
+    "robloxAdminBadges": {
+        "badge": "Administrator Roblox"
+    },
     "placeVisits": {
         "label": "{{count}} Kunjungan Place",
         "tooltip": "Total Kunjungan Place Komunitas"
     },
+    "groupFundsPill": {
+        "label": "{{count}} Dana",
+        "tooltip": "Dana Komunitas",
+        "privateTooltip": "Dana ini tidak publik. RoValra menampilkannya kepada Anda karena peran Anda.",
+        "roleTooltip": "RoValra menampilkan dana ini kepada Anda karena peran Anda."
+    },
     "groups": {
         "createdLabel": "Dibuat",
         "joinedLabel": "Bergabung",
-        "unknown": "Tidak Diketahui"
+        "unknown": "Tidak Diketahui",
+        "hidden": "Tersembunyi",
+        "hiddenTooltip": "Komunitas ini menyembunyikan daftar anggotanya, sehingga tanggal bergabung hanya dapat dilihat oleh anggotanya."
+    },
+    "statusBubble": {
+        "imageLabel": "Gambar Status",
+        "decalId": "ID Decal",
+        "removeImage": "Hapus Gambar",
+        "decalNotFound": "Tidak dapat menemukan decal dengan ID tersebut.",
+        "tier3Perk": "Gambar Status adalah Perk Donator Tier 3",
+        "clickToReport": "Klik untuk Melaporkan",
+        "imageThumbnail": "Thumbnail {{name}}",
+        "imageSaveFailed": "Status Anda telah disimpan, tetapi gambar status tidak dapat diperbarui."
     },
     "showcase": {
         "tab": "Showcase",
@@ -2022,7 +2265,13 @@
         "renderOptions": "Opsi Render",
         "darkLighting": "Pencahayaan Gelap",
         "baseplate": "Baseplate",
-        "rotatePreview": "Putar pratinjau"
+        "rotatePreview": "Putar pratinjau",
+        "itemOnly": "Tampilkan item saja"
+    },
+    "freeBadgeQuota": {
+        "label": "Badge Gratis",
+        "value": "Sisa {{count}} hari ini",
+        "tooltip": "Badge yang masih dapat dibuat pengalaman ini secara gratis. Roblox mengizinkan 5 badge gratis per pengalaman setiap 24 jam."
     },
     "groupFilters": {
         "sort": {
@@ -2032,7 +2281,11 @@
             "newest": "Terbaru",
             "oldest": "Terlama"
         },
-        "tooltip": "Urutkan berdasarkan kapan pengguna bergabung dengan komunitas"
+        "tooltip": "Urutkan berdasarkan kapan pengguna bergabung dengan komunitas",
+        "view": {
+            "row": "Baris",
+            "grid": "Kisi"
+        }
     },
     "creatorStats": {
         "ccu": "CCU",
@@ -2057,6 +2310,9 @@
             "monthlyLimitLeft": "Sisa batas bulanan",
             "sentToday": "Dikirim hari ini",
             "sentThisMonth": "Dikirim bulan ini",
+            "nextRefill": "Pengisian ulang berikutnya",
+            "leftAfter": "Sisa {{amount}}",
+            "refillNote": "Setiap transfer dihitung dalam batas bulanan selama 30 hari, lalu Robux tersebut tersedia kembali.",
             "caption": "Batas harian adalah {{dailyLimit}}. Batas bulanan adalah {{monthlyLimit}}. Diperbarui setiap 5 menit. Sisa yang ditampilkan adalah perkiraan dan mungkin tidak akurat."
         },
         "referral": {
@@ -2130,6 +2386,15 @@
             }
         }
     },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Beberapa pengaturan telah dihapus/diganti"
+            },
+            "deleted": "Pengaturan berikut baru saja dihapus, dikunci, atau tidak digunakan lagi:",
+            "replaced": "Pengaturan berikut baru saja diganti atau diubah:"
+        }
+    },
     "avatar": {
         "gameOutfits": {
             "button": "Outfit Game",
@@ -2151,5 +2416,207 @@
     "pinnedFriends": {
         "pin": "Sematkan ke atas",
         "unpin": "Batalkan sematan"
+    },
+    "debugOverlay": {
+        "title": "Debug RoValra",
+        "popout": "Munculkan di jendela terpisah",
+        "collapse": "Ciutkan overlay debug",
+        "hide": "Sembunyikan overlay debug",
+        "performance": {
+            "title": "Performa",
+            "fps": "FPS",
+            "frameTime": "Rata-rata / maks frame",
+            "frameLow": "1% terendah",
+            "jank": "Frame tersendat",
+            "loopLag": "Lag loop rata-rata / maks",
+            "longTasks": "Tugas panjang",
+            "blocking": "Waktu pemblokiran",
+            "longFrames": "Frame panjang",
+            "jsHeap": "JS heap terpakai / total / maks",
+            "domNodes": "Node DOM",
+            "uptime": "Waktu aktif overlay"
+        },
+        "vitals": {
+            "title": "Web Vitals",
+            "fcp": "FCP",
+            "lcp": "LCP",
+            "cls": "CLS",
+            "inp": "Interaksi paling lambat"
+        },
+        "loading": {
+            "title": "Memuat",
+            "readyState": "Status siap",
+            "navType": "Navigasi",
+            "protocol": "Protokol",
+            "redirect": "Pengalihan",
+            "dns": "DNS",
+            "connect": "Koneksi",
+            "ttfb": "TTFB",
+            "download": "Unduh",
+            "domInteractive": "DOM interaktif",
+            "domContentLoaded": "DOMContentLoaded",
+            "load": "Muat",
+            "documentSize": "Ukuran dokumen",
+            "pageWeight": "Bobot halaman",
+            "requests": "Permintaan",
+            "cacheHit": "Cache hit",
+            "slowest": "Paling lambat",
+            "largest": "Terbesar"
+        },
+        "resources": {
+            "title": "Sumber Daya",
+            "scripts": "Skrip",
+            "styles": "Gaya",
+            "images": "Gambar",
+            "fetchXhr": "Fetch / XHR",
+            "iframes": "Iframe",
+            "other": "Lainnya"
+        },
+        "requests": {
+            "title": "Permintaan RoValra",
+            "inFlight": "Sedang berjalan",
+            "total": "Total",
+            "failed": "Gagal",
+            "avgLatency": "Latensi rata-rata",
+            "lastRequest": "Permintaan terakhir",
+            "lastFailure": "Kegagalan terakhir"
+        },
+        "graphics": {
+            "title": "Grafis / 3D",
+            "glContexts": "Konteks WebGL aktif / dibuat",
+            "glSizes": "Ukuran kanvas WebGL",
+            "glPixels": "Piksel WebGL",
+            "canvases": "Elemen canvas",
+            "videos": "Elemen video",
+            "imageElements": "Elemen gambar",
+            "svgs": "Elemen SVG"
+        },
+        "display": {
+            "title": "Viewport",
+            "viewport": "Viewport",
+            "pixelRatio": "Rasio piksel",
+            "scroll": "Gulir / tinggi halaman"
+        },
+        "storage": {
+            "title": "Storage",
+            "origin": "Storage situs",
+            "localStorage": "localStorage",
+            "sessionStorage": "sessionStorage",
+            "cookies": "Cookie",
+            "extStorage": "Storage RoValra"
+        },
+        "errors": {
+            "title": "Kesalahan",
+            "jsErrors": "Kesalahan skrip",
+            "rejections": "Penolakan yang tidak ditangani",
+            "consoleErrors": "console.error",
+            "consoleWarns": "console.warn",
+            "lastError": "Kesalahan terakhir"
+        },
+        "page": {
+            "title": "Halaman",
+            "pageTitle": "Judul",
+            "url": "URL",
+            "referrer": "Referrer",
+            "charset": "Charset",
+            "visibility": "Visibilitas",
+            "focus": "Terfokus",
+            "compat": "Mode kompatibilitas",
+            "lang": "Bahasa",
+            "theme": "Tema Roblox",
+            "userId": "ID Pengguna",
+            "csrf": "Token CSRF"
+        },
+        "rovalra": {
+            "title": "RoValra",
+            "version": "Versi",
+            "extensionId": "ID Ekstensi",
+            "manifest": "Manifest",
+            "path": "Path"
+        },
+        "values": {
+            "worst": "{{count}} (terburuk {{time}})",
+            "keys": "{{count}} kunci, {{size}}",
+            "seconds": "{{count}} dtk"
+        }
+    },
+    "richLinks": {
+        "by": "Oleh {{name}}",
+        "members": "{{count}} Anggota",
+        "playing": "{{count}} Sedang Bermain",
+        "visits": "{{count}} Kunjungan",
+        "loading": "Memuat...",
+        "free": "Gratis",
+        "offSale": "Tidak dijual"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "Memuat dokumentasi API...",
+        "loadFailed": "Gagal memuat dokumentasi API: {{error}}",
+        "noAccess": "Anda tidak memiliki akses ke dokumentasi ini.",
+        "serverError": "Server merespons dengan {{status}}.",
+        "invalidSpec": "Server mengembalikan dokumen OpenAPI yang tidak valid.",
+        "baseUrl": "URL Dasar: {{url}}",
+        "apiVersion": "Versi API",
+        "openApiVersion": "Versi OpenAPI",
+        "server": "Server",
+        "sendToken": "Kirim token akses RoValra saya",
+        "filterLabel": "Filter endpoint",
+        "filterPlaceholder": "Path, ringkasan, atau tag",
+        "hideDeprecated": "Sembunyikan yang usang",
+        "noEndpoints": "Tidak ada endpoint yang ditemukan.",
+        "deprecated": "Usang",
+        "deprecatedTooltip": "Endpoint ini sudah usang.",
+        "authRequired": "Autentikasi diperlukan",
+        "authOptional": "Autentikasi opsional",
+        "schemeNotSent": "Memerlukan {{name}}, yang tidak dikirim oleh halaman ini.",
+        "operationId": "ID Operasi",
+        "security": "Autentikasi: {{schemes}}",
+        "securityOptional": "Autentikasi: {{schemes}} (opsional)",
+        "securityTooltip": "Persyaratan keamanan",
+        "parameters": "Parameter",
+        "noParameters": "Tidak ada parameter",
+        "tryItOut": "Coba sekarang",
+        "name": "Nama",
+        "description": "Deskripsi",
+        "required": "wajib",
+        "availableValues": "Nilai yang tersedia: {{values}}",
+        "requestBody": "Isi permintaan",
+        "requestContentType": "Tipe konten permintaan",
+        "exampleValue": "Contoh Nilai",
+        "schema": "Skema",
+        "responses": "Respons",
+        "noResponses": "Tidak ada respons yang terdokumentasi",
+        "code": "Kode",
+        "details": "Detail",
+        "execute": "Jalankan",
+        "clear": "Bersihkan",
+        "missingParams": "Parameter wajib belum diisi: {{params}}",
+        "invalidJson": "Isi permintaan bukan JSON yang valid: {{error}}",
+        "bodyRequired": "Isi permintaan diperlukan.",
+        "confirmTitle": "Kirim permintaan?",
+        "confirmMessage": "Ini akan mengirim permintaan {{method}} ke {{path}}. Lanjutkan hanya jika Anda memahami fungsinya.",
+        "send": "Kirim",
+        "sending": "Mengirim permintaan...",
+        "requestFailed": "Permintaan gagal: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "URL permintaan",
+        "serverResponse": "Respons server",
+        "responseBody": "Isi respons",
+        "responseHeaders": "Header respons",
+        "emptyResponse": "(respons kosong)",
+        "responseImage": "Gambar respons",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Durasi permintaan",
+        "contentType": "Tipe konten",
+        "redirected": "Dialihkan",
+        "copy": "Salin"
+    },
+    "notifications": {
+        "newTrade": "Trade baru",
+        "tradeFrom": "Dari {{name}}",
+        "tradeStats": "{{value}} Nilai | {{rap}} RAP",
+        "friendPlaying": "{{name}} sedang bermain",
+        "unknownGame": "Sebuah pengalaman"
     }
 }
