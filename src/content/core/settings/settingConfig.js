@@ -2712,7 +2712,10 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                storageKey: ['lastSeenChangelogVersion'],
+                storageKey: [
+                    'lastSeenChangelogVersion',
+                    'updateChangelogHideAt',
+                ],
                 contributors: ['2239549101'],
             },
             richRobloxLinksEnabled: {

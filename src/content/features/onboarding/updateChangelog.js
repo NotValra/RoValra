@@ -16,13 +16,23 @@ function createPill(text, className) {
 
 export async function init() {
     const version = chrome.runtime.getManifest().version;
-    const { lastSeenChangelogVersion } = await chrome.storage.local.get(
-        'lastSeenChangelogVersion',
-    );
+    const { lastSeenChangelogVersion, updateChangelogHideAt } =
+        await chrome.storage.local.get([
+            'lastSeenChangelogVersion',
+            'updateChangelogHideAt',
+        ]);
     if (lastSeenChangelogVersion === version) return;
 
-    const markSeen = () =>
+    const markSeen = () => {
         chrome.storage.local.set({ lastSeenChangelogVersion: version });
+        chrome.storage.local.remove('updateChangelogHideAt');
+    };
+
+    // The countdown is shared by every page, so it keeps going across navigations
+    if (updateChangelogHideAt && updateChangelogHideAt <= Date.now()) {
+        markSeen();
+        return;
+    }
 
     // Fresh installs get the onboarding instead
     if (
@@ -84,12 +94,20 @@ export async function init() {
             markSeen();
             bar.remove();
         };
+        const scheduleHide = (hideAt) => {
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(dismiss, hideAt - Date.now());
+        };
         // Goes away for good after a minute without the user interacting with it
         const startHideTimer = () => {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(dismiss, HIDE_AFTER_MS);
+            const hideAt = Date.now() + HIDE_AFTER_MS;
+            chrome.storage.local.set({ updateChangelogHideAt: hideAt });
+            scheduleHide(hideAt);
         };
-        const stopHideTimer = () => clearTimeout(hideTimer);
+        const stopHideTimer = () => {
+            clearTimeout(hideTimer);
+            chrome.storage.local.remove('updateChangelogHideAt');
+        };
 
         const closeButton = createCloseButton({ onClick: dismiss });
 
@@ -100,7 +118,9 @@ export async function init() {
         bar.addEventListener('focusout', startHideTimer);
         main.prepend(bar);
 
-        if (document.readyState === 'complete') {
+        if (updateChangelogHideAt) {
+            scheduleHide(updateChangelogHideAt);
+        } else if (document.readyState === 'complete') {
             startHideTimer();
         } else {
             window.addEventListener('load', startHideTimer, { once: true });
