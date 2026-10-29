@@ -626,6 +626,32 @@
         "send": "Send"
     },
     "privateServer": {
+        "moreOptions": "More options",
+        "filters": {
+            "button": "Filters",
+            "title": "Private Server Filters",
+            "sortTitle": "Sort by",
+            "sort": {
+                "default": "Default",
+                "players": "Players",
+                "name": "Name",
+                "owner": "Owner"
+            },
+            "descending": "High to low",
+            "ascending": "Low to high",
+            "playersTitle": "Players",
+            "any": "Any",
+            "hasPlayers": "Has players",
+            "empty": "Empty",
+            "ownerTitle": "Owner",
+            "anyone": "Anyone",
+            "mine": "Mine",
+            "others": "Others",
+            "reset": "Reset",
+            "apply": "Apply",
+            "includedWith": "Included with",
+            "plus": "Plus"
+        },
         "processingTitle": "Processing Servers",
         "starting": "Starting...",
         "cancel": "Cancel",
