@@ -2,6 +2,26 @@ $expanded-sidebar-width: 289px;
 $collapsed-sidebar-width: 72px;
 $roblox-left-nav-breakpoint: 768px;
 
+/* janky attempt on bringing back the small hamburger icon */
+
+@media (min-width: $roblox-left-nav-breakpoint) {
+    .left-nav-new-width .rbx-header .menu-button {
+        display: block !important
+    }
+
+    .left-nav-new-width .rbx-header .rbx-navbar-header {
+        width: auto !important;
+    }
+
+    .left-nav-new-width .rbx-header .icon-logo {
+        display: none !important
+    }
+
+    .left-nav-new-width .rbx-header .icon-logo-r {
+        display: block !important
+    }
+}
+
 .left-nav[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'] {
     width: $expanded-sidebar-width;
 }
@@ -116,13 +136,6 @@ $roblox-left-nav-breakpoint: 768px;
     display: none !important;
 }
 
-.left-nav[data-rovalra-sidebar-collapse-ready='true']:not(
-        [data-rovalra-sidebar-layout-active='true']
-    )
-    .rovalra-sidebar-collapse-button {
-    display: none;
-}
-
 .left-nav[data-rovalra-sidebar-layout-active='true'] > .flex > div:first-child {
     position: relative;
     min-height: 100%;
@@ -132,59 +145,11 @@ $roblox-left-nav-breakpoint: 768px;
     padding-right: 52px;
 }
 
-.left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true']:not(
-        [data-rovalra-sidebar-hover-expanded='true']
-    ) {
-    > .flex > div:first-child {
-        padding-top: 64px;
-    }
-
-    .rovalra-sidebar-collapse-button {
-        right: auto;
-        left: 16px;
-    }
-}
 
 .left-nav[data-rovalra-sidebar-collapsed='true']
     .rovalra-sidebar-collapse-icon
     svg {
     transform: scaleX(-1);
-}
-
-.left-nav .rovalra-sidebar-collapse-button {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
-    flex: 0 0 40px !important;
-    width: 40px !important;
-    max-width: 40px !important;
-    min-width: 40px;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-
-.left-nav .rovalra-sidebar-collapse-button > span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 !important;
-}
-
-.rovalra-sidebar-collapse-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    color: var(--rovalra-main-text-color, #393b3d);
-}
-
-.rovalra-sidebar-collapse-icon svg {
-    display: block;
-    width: 24px;
-    height: 24px;
-    fill: currentColor;
 }
 
 .left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true'] {

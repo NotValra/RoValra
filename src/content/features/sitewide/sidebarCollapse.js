@@ -1,13 +1,9 @@
-import DOMPurify from 'dompurify';
+import DOMPurify from '../../core/packages/dompurify.js';
 import { observeAttributes, observeElement } from '../../core/observer.js';
-import { getAssets } from '../../core/assets.js';
-import { ts } from '../../core/locale/i18n.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
 import { settings } from '../../core/settings/getSettings.js';
 
 const COLLAPSED_KEY = 'rovalraSidebarCollapsed';
-const BUTTON_ID = 'rovalra-sidebar-collapse-button';
 const ROBLOX_LEFT_NAV_BREAKPOINT = 768;
 const ROBLOX_NAV_MENU_SELECTOR =
     'button.menu-button.btn-navigation-nav-menu-md, .icon-nav-menu';
@@ -24,11 +20,6 @@ let savedCollapsedState = false;
 let expandOnHover = false;
 let suppressHoverUntilLeave = false;
 
-function getToggleLabel(collapsed) {
-    return collapsed
-        ? ts('sidebarCollapse.expandSidebar')
-        : ts('sidebarCollapse.collapseSidebar');
-}
 
 function isCollapsed(leftNav) {
     return leftNav?.dataset.rovalraSidebarCollapsed === 'true';
@@ -115,34 +106,9 @@ function attachHoverExpansion(leftNav) {
     });
 }
 
-
-function isVisible(element) {
-    if (!element) return false;
-
-    const style = getComputedStyle(element);
-    if (style.display === 'none' || style.visibility === 'hidden') {
-        return false;
-    }
-
-    const rect = element.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-}
-
-function getRobloxNavMenuButton() {
-    const menuElement = document.querySelector(ROBLOX_NAV_MENU_SELECTOR);
-
-    return menuElement?.closest('button') || menuElement;
-}
-
-function isRobloxResponsiveNavActive() {
-    const menuButton = getRobloxNavMenuButton();
-    return isVisible(menuButton);
-}
-
 function isCustomSidebarLayoutActive() {
     return (
-        window.innerWidth >= ROBLOX_LEFT_NAV_BREAKPOINT &&
-        !isRobloxResponsiveNavActive()
+        window.innerWidth >= ROBLOX_LEFT_NAV_BREAKPOINT
     );
 }
 
@@ -221,6 +187,21 @@ function handleWindowResize() {
     if (!dispatchingLayoutResize) scheduleResponsiveSidebarStateSync();
 }
 
+function handleMenuButtonClick() {
+    scheduleResponsiveSidebarStateSync();
+
+    const leftNav = currentLeftNav;
+    if (!leftNav) return;
+
+    const nextCollapsed = !isCollapsed(leftNav);
+    if (nextCollapsed) {
+        suppressHoverUntilLeave = true;
+        clearHoverExpansion(leftNav);
+    }
+    setCollapsed(leftNav, nextCollapsed);
+    document.body.dataset.rovalraSidebarCollapsed = String(nextCollapsed);
+}
+
 function observeRobloxResponsiveNavButton(menuElement) {
     const menuButton = menuElement.closest('button') || menuElement;
     if (currentRobloxNavButton === menuButton) return;
@@ -237,7 +218,9 @@ function observeRobloxResponsiveNavButton(menuElement) {
         scheduleResponsiveSidebarStateSync,
         ['aria-expanded', 'aria-hidden', 'class', 'style'],
     );
-    menuButton.addEventListener('click', scheduleResponsiveSidebarStateSync, {
+
+    //menuButton.replaceWith(menuButton.cloneNode(true))
+    menuButton.addEventListener('click', handleMenuButtonClick, {
         passive: true,
     });
     scheduleResponsiveSidebarStateSync();
@@ -248,7 +231,7 @@ function removeRobloxResponsiveNavButton() {
     robloxNavButtonAttributeObserver = null;
     currentRobloxNavButton?.removeEventListener(
         'click',
-        scheduleResponsiveSidebarStateSync,
+        handleMenuButtonClick,
     );
     currentRobloxNavButton = null;
     scheduleResponsiveSidebarStateSync();
@@ -281,12 +264,6 @@ function applyCollapsedState(leftNav, collapsed) {
     }
 
     syncSidebarLayout(leftNav, state);
-
-    const button = leftNav.querySelector(`#${BUTTON_ID}`);
-    if (button) {
-        button.setAttribute('aria-pressed', String(collapsed));
-        button.setAttribute('aria-label', getToggleLabel(collapsed));
-    }
 }
 
 function setCollapsed(leftNav, collapsed) {
@@ -318,21 +295,6 @@ const storedCollapsedPromise = getStoredCollapsed().catch((error) => {
     return false;
 });
 
-function createCollapseIcon() {
-    const icon = document.createElement('span');
-    icon.className = 'rovalra-sidebar-collapse-icon';
-    icon.setAttribute('aria-hidden', 'true');
-
-    const svgData = getAssets().sidebarCollapseIcon;
-    if (svgData.startsWith('data:image/svg+xml,')) {
-        icon.innerHTML = DOMPurify.sanitize(
-            decodeURIComponent(svgData.split(',')[1]),
-        );
-    }
-
-    return icon;
-}
-
 function getNavItemText(control) {
     const textElement = [
         ...control.querySelectorAll(
@@ -363,7 +325,7 @@ function addCollapsedNavTooltip(control) {
     });
 }
 
-function attachCollapseButton(leftNav) {
+function initializeLeftNav(leftNav) {
     currentLeftNav = leftNav;
     attachHoverExpansion(leftNav);
     const collapsed = leftNav.dataset.rovalraSidebarCollapseReady
@@ -378,41 +340,6 @@ function attachCollapseButton(leftNav) {
 
     leftNav.dataset.rovalraSidebarCollapsed = String(collapsed);
     leftNav.dataset.rovalraSidebarCollapseReady = 'true';
-
-    const button = createSquareButton({
-        content: createCollapseIcon(),
-        id: BUTTON_ID,
-        width: '40px',
-        height: 'height-1000',
-        paddingX: 'padding-x-none',
-        radius: 'radius-medium',
-        disableTextTruncation: true,
-        onClick: () => {
-            const nextCollapsed = !isCollapsed(leftNav);
-
-            if (nextCollapsed) {
-                suppressHoverUntilLeave = true;
-                clearHoverExpansion(leftNav);
-            }
-
-            setCollapsed(leftNav, nextCollapsed);
-        },
-    });
-
-    button.classList.add('rovalra-sidebar-collapse-button');
-    button.classList.remove('bg-action-standard', 'content-action-standard');
-    button.classList.add('bg-none', 'content-emphasis');
-    button.setAttribute('aria-label', getToggleLabel(collapsed));
-    button.setAttribute('aria-pressed', String(collapsed));
-
-    addTooltip(button, () => getToggleLabel(isCollapsed(leftNav)), {
-        position: () =>
-            leftNav.dataset.rovalraSidebarCollapsed === 'true'
-                ? 'right'
-                : 'top',
-        showArrow: false,
-    });
-    (leftNav.querySelector('nav')?.parentElement ?? leftNav).prepend(button);
 
     syncSidebarLayout(leftNav, state);
 }
@@ -452,9 +379,9 @@ async function initSidebarCollapse() {
         }
     });
 
-    observeElement('.left-nav', attachCollapseButton, {
+    observeElement('.left-nav', initializeLeftNav, {
         onRemove: removeLeftNav,
-    });
+    }); 
     observeElement(ROBLOX_NAV_MENU_SELECTOR, observeRobloxResponsiveNavButton, {
         onRemove: removeRobloxResponsiveNavButton,
     });
