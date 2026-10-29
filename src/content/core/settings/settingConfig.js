@@ -2704,6 +2704,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            updateChangelogModalEnabled: {
+                label: 'Update Changelog Popup',
+                description:
+                    'Shows the changelog once after RoValra updates to a new version.',
+                type: 'checkbox',
+                default: true,
+                storageKey: ['lastSeenChangelogVersion'],
+                contributors: ['2239549101'],
+            },
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
                 description: [

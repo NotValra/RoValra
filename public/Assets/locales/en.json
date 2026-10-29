@@ -218,6 +218,11 @@
         "youGive": "You Give",
         "youGet": "You Get"
     },
+    "updateChangelog": {
+        "title": "RoValra was updated!",
+        "viewAll": "View all changelogs",
+        "gotIt": "Got It!"
+    },
     "onboarding": {
         "title": "Welcome to RoValra!",
         "thankYou": "Thank you for installing <strong>RoValra</strong>!",
