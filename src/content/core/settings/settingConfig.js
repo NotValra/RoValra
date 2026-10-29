@@ -2704,10 +2704,12 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            updateChangelogModalEnabled: {
-                label: 'Update Changelog Popup',
-                description:
-                    'Shows the changelog once after RoValra updates to a new version.',
+            updateChangelogHeaderEnabled: {
+                label: 'Update Changelog Header',
+                description: [
+                    'Shows a header at the top of every page after RoValra updates, linking to the changelog.',
+                    'It goes away for good once you close it, open the changelog, or leave it alone for a minute.',
+                ],
                 type: 'checkbox',
                 default: true,
                 storageKey: ['lastSeenChangelogVersion'],

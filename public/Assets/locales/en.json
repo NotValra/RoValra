@@ -219,9 +219,10 @@
         "youGet": "You Get"
     },
     "updateChangelog": {
-        "title": "RoValra was updated!",
-        "viewAll": "View all changelogs",
-        "gotIt": "Got It!"
+        "title": "RoValra was updated",
+        "fromVersion": "from v{{version}}",
+        "description": "Check out the changelog to see what changed in this version.",
+        "viewChangelog": "See what's new"
     },
     "onboarding": {
         "title": "Welcome to RoValra!",

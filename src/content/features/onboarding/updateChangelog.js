@@ -1,14 +1,18 @@
-import { createOverlay } from '../../core/ui/overlay.js';
-import { createButton } from '../../core/ui/buttons.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
-import {
-    getChangelogs,
-    isCurrentChangelogRelease,
-    renderChangelogRelease,
-} from '../settings/index.js';
+import { observeElement } from '../../core/observer.js';
+import { createCloseButton } from '../../core/ui/closeButton.js';
+import { createAssetIcon } from '../../core/ui/general/toast.js';
 
 const CHANGELOGS_URL = 'https://www.roblox.com/my/account?rovalra=changelogs';
+const HIDE_AFTER_MS = 60_000;
+
+function createPill(text, className) {
+    const pill = document.createElement('span');
+    pill.className = `rovalra-update-changelog-pill ${className}`;
+    pill.textContent = text;
+    return pill;
+}
 
 export async function init() {
     const version = chrome.runtime.getManifest().version;
@@ -23,40 +27,83 @@ export async function init() {
     // Fresh installs get the onboarding instead
     if (
         !(await settings.onboardingShown) ||
-        !(await settings.updateChangelogModalEnabled)
+        !(await settings.updateChangelogHeaderEnabled)
     ) {
         markSeen();
         return;
     }
 
-    let release;
-    try {
-        release = (await getChangelogs()).find(isCurrentChangelogRelease);
-    } catch (error) {
-        console.warn('RoValra: Failed to load update changelog', error);
-        return;
-    }
+    observeElement('main.container-main', (main) => {
+        if (main.querySelector('.rovalra-update-changelog-bar')) return;
 
-    markSeen();
-    if (!release) return;
+        const bar = document.createElement('div');
+        bar.className = 'rovalra-update-changelog-bar';
 
-    const bodyContent = document.createElement('div');
-    bodyContent.style.overflowY = 'auto';
-    bodyContent.appendChild(renderChangelogRelease(release));
+        const logo = createAssetIcon({
+            altText: 'RoValra Logo',
+            width: '40px',
+            height: '40px',
+        });
+        logo?.classList.add('rovalra-update-changelog-logo');
 
-    const viewAllButton = createButton(ts('updateChangelog.viewAll'));
-    const gotItButton = createButton(ts('updateChangelog.gotIt'), 'primary');
+        const info = document.createElement('div');
+        info.className = 'rovalra-update-changelog-info';
 
-    const { close } = createOverlay({
-        title: ts('updateChangelog.title'),
-        bodyContent,
-        actions: [viewAllButton, gotItButton],
-        maxWidth: 'min(650px, 90vw)',
-        showLogo: true,
+        const title = document.createElement('div');
+        title.className = 'rovalra-update-changelog-title';
+        title.append(
+            ts('updateChangelog.title'),
+            createPill(`v${version}`, 'rovalra-update-changelog-pill-new'),
+        );
+        if (lastSeenChangelogVersion) {
+            title.append(
+                createPill(
+                    ts('updateChangelog.fromVersion', {
+                        version: lastSeenChangelogVersion,
+                    }),
+                    'rovalra-update-changelog-pill-old',
+                ),
+            );
+        }
+
+        const description = document.createElement('div');
+        description.className = 'rovalra-update-changelog-description';
+        description.textContent = ts('updateChangelog.description');
+
+        info.append(title, description);
+
+        const viewButton = document.createElement('a');
+        viewButton.className = 'btn-primary-md rovalra-update-changelog-button';
+        viewButton.href = CHANGELOGS_URL;
+        viewButton.textContent = ts('updateChangelog.viewChangelog');
+        viewButton.addEventListener('click', markSeen);
+
+        let hideTimer;
+        const dismiss = () => {
+            clearTimeout(hideTimer);
+            markSeen();
+            bar.remove();
+        };
+        // Goes away for good after a minute without the user interacting with it
+        const startHideTimer = () => {
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(dismiss, HIDE_AFTER_MS);
+        };
+        const stopHideTimer = () => clearTimeout(hideTimer);
+
+        const closeButton = createCloseButton({ onClick: dismiss });
+
+        bar.append(...[logo, info, viewButton, closeButton].filter(Boolean));
+        bar.addEventListener('mouseenter', stopHideTimer);
+        bar.addEventListener('mouseleave', startHideTimer);
+        bar.addEventListener('focusin', stopHideTimer);
+        bar.addEventListener('focusout', startHideTimer);
+        main.prepend(bar);
+
+        if (document.readyState === 'complete') {
+            startHideTimer();
+        } else {
+            window.addEventListener('load', startHideTimer, { once: true });
+        }
     });
-
-    viewAllButton.addEventListener('click', () => {
-        window.location.href = CHANGELOGS_URL;
-    });
-    gotItButton.addEventListener('click', () => close());
 }

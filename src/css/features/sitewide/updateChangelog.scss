@@ -1,0 +1,77 @@
+.rovalra-update-changelog-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    // lines up with the padding of #content below it
+    margin: 24px 21px 0;
+    padding: 14px;
+    border: 1px solid var(--rovalra-border-color);
+    border-radius: 12px;
+    background: var(--rovalra-container-background-color);
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-update-changelog-logo {
+    flex-shrink: 0;
+    border-radius: 8px;
+}
+
+.rovalra-update-changelog-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.rovalra-update-changelog-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.rovalra-update-changelog-description {
+    color: var(--rovalra-secondary-text-color);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.rovalra-update-changelog-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.rovalra-update-changelog-pill-new {
+    background: var(--rovalra-playbutton-color);
+    color: #fff;
+}
+
+.rovalra-update-changelog-pill-old {
+    background: rgba(128, 128, 128, 0.2);
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-update-changelog-button {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .rovalra-update-changelog-bar {
+        flex-wrap: wrap;
+    }
+
+    .rovalra-update-changelog-info {
+        flex-basis: calc(100% - 56px);
+    }
+}

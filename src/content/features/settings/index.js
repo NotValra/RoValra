@@ -173,7 +173,7 @@ document.addEventListener('rovalra:moderationStatusUpdated', (event) => {
     }
 });
 
-export function renderChangelogRelease(release) {
+function renderChangelogRelease(release) {
     release = release && typeof release === 'object' ? release : {};
 
     const card = document.createElement('article');
@@ -229,7 +229,7 @@ export function renderChangelogRelease(release) {
     return card;
 }
 
-export function isCurrentChangelogRelease(release) {
+function isCurrentChangelogRelease(release) {
     const currentVersion = chrome.runtime.getManifest()?.version;
     if (!currentVersion) return false;
 
@@ -246,7 +246,7 @@ export function isCurrentChangelogRelease(release) {
         .some((version) => version && version === normalizedCurrentVersion);
 }
 
-export async function getChangelogs() {
+async function getChangelogs() {
     const response = await callRobloxApi({
         subdomain: 'www',
         endpoint: CHANGELOGS_ENDPOINT,
