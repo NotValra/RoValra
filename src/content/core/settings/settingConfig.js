@@ -745,6 +745,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This adds multiple features to the server list.',
                     "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                    'This will also add filters to Private servers',
                 ],
                 type: 'checkbox',
                 default: true,
