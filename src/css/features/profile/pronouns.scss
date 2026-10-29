@@ -29,6 +29,29 @@
     }
 }
 
+.rovalra-follows-you {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 22px;
+    white-space: nowrap;
+
+    &::before {
+        content: '';
+        display: block;
+        flex: 0 0 4px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: var(--rovalra-secondary-text-color);
+    }
+}
+
 .rovalra-profile-username-row:has(
     > .rovalra-profile-views-pill,
     > .rovalra-profile-customization-pill
