@@ -2103,6 +2103,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            tradeCompletedDateEnabled: {
+                label: 'Trade Completed Date',
+                description:
+                    'Shows when a completed trade was completed, next to when it was sent.',
+                type: 'checkbox',
+                default: true,
+                storageKey: ['rovalra_trade_completed_dates'],
+                contributors: ['2239549101'],
+            },
             confirmTradeEnabled: {
                 label: 'Trade Protection',
                 description:

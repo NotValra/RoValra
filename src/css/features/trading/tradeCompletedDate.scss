@@ -1,0 +1,53 @@
+.trade-row .text-date-hint[data-rovalra-trade-dated],
+.trade-row:hover .text-date-hint[data-rovalra-trade-dated] {
+    font-size: 0 !important;
+
+    > .rovalra-trade-row-completed {
+        display: flow-root;
+        font-size: 12px !important;
+
+        > div {
+            overflow: hidden;
+            padding-bottom: 2px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .rovalra-interactive-timestamp {
+            display: inline !important;
+        }
+    }
+}
+
+.trade-row[data-rovalra-trade-dated] {
+    .trade-row-details > div:first-child {
+        padding-right: 0 !important;
+    }
+
+    .rovalra-trade-summary {
+        position: static !important;
+        float: right;
+        margin-left: 8px;
+        transform: none !important;
+    }
+
+    .text-lead {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+
+        > .rovalra-trade-row-name {
+            overflow: hidden;
+            min-width: 0;
+            text-overflow: ellipsis;
+        }
+
+        > .rovalra-rolimons-user-link {
+            flex: none;
+        }
+    }
+
+    .trade-sent-date {
+        display: none;
+    }
+}

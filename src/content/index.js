@@ -134,6 +134,7 @@ import { init as initTotalEarned } from './features/transactions/totalearned.js'
 import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
 import { init as initItemValues } from './features/trading/itemValues.js';
 import { init as initTradePreview } from './features/trading/tradePreview.js';
+import { init as initTradeCompletedDate } from './features/trading/tradeCompletedDate.js';
 import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
@@ -543,6 +544,7 @@ const featureRoutes = [
             initSendTrade,
             initRecentTradeItems,
             initTradeQuickActions,
+            initTradeCompletedDate,
         ],
     },
 

@@ -184,6 +184,14 @@
         "effects": "Effects",
         "limiteds": "Limiteds"
     },
+    "tradeCompletedDate": {
+        "completedOn": "Completed",
+        "created": "Created:",
+        "sent": "Sent:",
+        "received": "Received:",
+        "completed": "Completed:",
+        "notFound": "Not found"
+    },
     "trading": {
         "searchInventory": "Search Inventory",
         "continueSearch": "Continue Search",
