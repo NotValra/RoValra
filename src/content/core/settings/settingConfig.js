@@ -1190,6 +1190,17 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['2020751790'],
             },
+            friendRequestFiltersEnabled: {
+                label: 'Friend Request Filters',
+                description: [
+                    'Adds a Filters button to your friend requests to filter them by Roblox Plus, verified and Roblox admin badges, mutual friends, friend, follower and following counts, and join date.',
+                    'Requests can also be sorted by date sent, mutual friends, friend, follower and following counts, or join date.',
+                    'Shows the real number of friend requests and when each one was sent.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
             groupRoleEnabled: {
                 label: 'Show Community Roles',
                 description:
