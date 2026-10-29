@@ -9,16 +9,11 @@ import {
 } from '../../../core/games/servers/serverids.js';
 import { loadDatacenterMap, serverIpMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
-import {
-    observeAttributes,
-    observeElement,
-    startObserving,
-} from '../../../core/observer.js';
+import { observeElement, startObserving } from '../../../core/observer.js';
 import { initRegionFilters } from '../../../core/games/servers/filters/regionfilters.js';
 import { initUptimeFilters } from '../../../core/games/servers/filters/uptimefilters.js';
 import { initVersionFilters } from '../../../core/games/servers/filters/versionfilters.js';
 import { createButton } from '../../../core/ui/buttons.js';
-import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { settings as sharedSettings } from '../../../core/settings/getSettings.js';
@@ -360,7 +355,7 @@ function createFilterUI(parentContainer) {
         container.style.marginTop = '5px';
         container.style.marginBottom = '5px';
     } else {
-        parentContainer.appendChild(createServerFiltersMenu(container));
+        parentContainer.appendChild(container);
     }
     _state.elements.container = container;
 
@@ -385,85 +380,6 @@ function createFilterUI(parentContainer) {
     }
 
     createClearButton(container);
-}
-
-function createServerFiltersMenu(container) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'rovalra-server-filters';
-
-    const toggleButton = document.createElement('button');
-    toggleButton.type = 'button';
-    toggleButton.className =
-        'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard rovalra-server-filters-toggle';
-    toggleButton.setAttribute('aria-expanded', 'false');
-    const hover = document.createElement('div');
-    hover.setAttribute('role', 'presentation');
-    hover.className =
-        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
-    const content = document.createElement('span');
-    content.className = 'flex items-center min-width-0 gap-xsmall';
-    const icon = document.createElement('icon');
-    icon.setAttribute('material', '');
-    icon.setAttribute('size', '16px');
-    icon.textContent = 'filter_list';
-    const label = document.createElement('span');
-    label.className = 'padding-y-xsmall text-truncate-end text-no-wrap';
-    label.textContent = ts('serverList.filters');
-    content.append(icon, label);
-    toggleButton.append(hover, content);
-
-    const panel = document.createElement('div');
-    panel.className =
-        'rovalra-server-filters-panel foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
-    panel.hidden = true;
-    const header = document.createElement('div');
-    header.className = 'rovalra-server-filters-header';
-    const logo = document.createElement('img');
-    logo.src = getAssets().rovalraIcon;
-    logo.dataset.rovalraAsset = 'rovalraIcon';
-    logo.alt = '';
-    logo.width = 24;
-    logo.height = 24;
-    const title = document.createElement('span');
-    title.className = 'text-heading-small content-emphasis';
-    title.textContent = ts('serverList.filtersTitle');
-    header.append(logo, title);
-    panel.append(header, container);
-
-    const setOpen = (open) => {
-        panel.hidden = !open;
-        toggleButton.setAttribute('aria-expanded', String(open));
-    };
-    toggleButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setOpen(panel.hidden);
-    });
-    const handleDocumentClick = (e) => {
-        if (!wrapper.isConnected) {
-            document.removeEventListener('click', handleDocumentClick);
-            return;
-        }
-        if (panel.hidden || wrapper.contains(e.target)) return;
-        if (
-            e.target.closest?.(
-                '.rovalra-dropdown-content, .rovalra-side-panel, [id^="rovalra-globe"]',
-            )
-        )
-            return;
-        setOpen(false);
-    };
-    document.addEventListener('click', handleDocumentClick);
-
-    const updateActive = () =>
-        toggleButton.classList.toggle(
-            'rovalra-active',
-            document.body.classList.contains('rovalra-filter-active'),
-        );
-    updateActive();
-    observeAttributes(document.body, updateActive, ['class']);
-
-    wrapper.append(toggleButton, panel);
-    return wrapper;
 }
 
 function createClearButton(container) {
