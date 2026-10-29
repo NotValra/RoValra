@@ -3586,6 +3586,14 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            gameVisibilityToggleEnabled: {
+                label: 'Make Public / Make Private shortcut',
+                description:
+                    'Adds a Make Public or Make Private option to the menu on experience pages you manage.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['2239549101'],
+            },
             viewIdEnabled: {
                 label: 'View Bundled IDs',
                 description:
