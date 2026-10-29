@@ -745,9 +745,11 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This adds multiple features to the server list.',
                     "These modifications will also apply to the 'Servers My Friends Are In' section.",
+                    'This will also add filters to Private servers',
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '2239549101'],
                 childSettings: {
                     PrivateServerGridEnabled: {
                         label: 'Private Server Grid',
@@ -867,6 +869,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '2239549101'],
                 childSettings: {
                     privateServerFriendsToggleEnabled: {
                         label: 'Friends Allowed Toggle',
@@ -1191,6 +1194,15 @@ export const SETTINGS_CONFIG = {
                 label: 'Follows You Indicator',
                 description:
                     'Shows a "Follows you" label beside the username on the profile of anyone who follows you.',
+              
+            },
+            friendRequestFiltersEnabled: {
+                label: 'Friend Request Filters',
+                description: [
+                    'Adds a Filters button to your friend requests to filter them by Roblox Plus, verified and Roblox admin badges, mutual friends, friend, follower and following counts, and join date.',
+                    'Requests can also be sorted by date sent, mutual friends, friend, follower and following counts, or join date.',
+                    'Shows the real number of friend requests and when each one was sent.',
+                ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['2239549101'],
@@ -2108,6 +2120,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            tradeCompletedDateEnabled: {
+                label: 'Trade Completed Date',
+                description:
+                    'Shows when a completed trade was completed, next to when it was sent.',
+                type: 'checkbox',
+                default: true,
+                storageKey: ['rovalra_trade_completed_dates'],
+                contributors: ['2239549101'],
+            },
             confirmTradeEnabled: {
                 label: 'Trade Protection',
                 description:
@@ -2330,6 +2351,13 @@ export const SETTINGS_CONFIG = {
                 locked: 'Replaced by Privacy Toggles in Navigation',
                 deprecated: 'Replaced by Privacy Toggles in Navigation.',
                 hidden: true,
+            },
+            rovalraStoreSidebarLinkEnabled: {
+                label: 'RoValra Store sidebar link',
+                description:
+                    'Adds a RoValra Store link below Communities in the Roblox sidebar that opens the RoValra store.',
+                type: 'checkbox',
+                default: true,
             },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
@@ -3500,6 +3528,45 @@ export const SETTINGS_CONFIG = {
                         placeholder: 'Enter Font Link here...',
                     },
                 },
+            },
+        },
+    },
+    Play: {
+        title: 'Roblox Website Client',
+        settings: {
+            webclientinfo: {
+                label: 'Web Client Info',
+                description: [
+                    'The Roblox web client is a client running inside the website.',
+                    'Currently this client is experimental and not fully rolled out.',
+                    "It is not made to be a replacement for the normal client but instead an alternative for platforms that can't use the normal client such as chromebooks",
+                ],
+            },
+            channelOverlayEnabled: {
+                label: 'Channel Overlay',
+                description: [
+                    'Shows an overlay on play.roblox.com with your channel, which you can change.',
+                    'It opens automatically whenever you are on play.roblox.com. Press F2 to show or hide it.',
+                    "**CHANNEL SWITCHER IS USE AT YOUR OWN RISK** as I wasn't able to get a clear answer if this was 100% allowed or not from Roblox.",
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            serverLocationOverlayEnabled: {
+                label: 'Server Location Overlay',
+                description: [
+                    'Shows a notification on play.roblox.com with the location, version and channel of the server you joined.',
+                    'Click the notification or press F3 to open an overlay with the same info.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            webClientSidebarLinkEnabled: {
+                label: 'Web Client sidebar link',
+                description:
+                    'Adds a Web Client link below Communities in the Roblox sidebar that opens play.roblox.com.',
+                type: 'checkbox',
+                default: false,
             },
         },
     },

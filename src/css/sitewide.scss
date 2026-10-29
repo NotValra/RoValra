@@ -100,3 +100,8 @@ body:where(.dark-theme),
 .rovalra-canvas > canvas {
     border-radius: var(--radius-medium, 8px) !important;
 }
+
+img[src*='-ProfileFrame/'],
+:has(> img[src*='-ProfileFrame/']) {
+    border-radius: 50% !important;
+}

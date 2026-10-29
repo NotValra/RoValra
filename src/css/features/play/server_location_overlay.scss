@@ -1,0 +1,179 @@
+.rovalra-overlay.rovalra-server-location-overlay {
+    left: var(--rovalra-overlay-x, calc(100vw - 288px));
+    width: 280px;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    resize: none;
+}
+
+.rovalra-server-location-overlay {
+    .rovalra-overlay-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 16px 14px;
+    }
+
+    [hidden] {
+        display: none !important;
+    }
+}
+
+.rovalra-server-location-empty {
+    color: var(--color-content-muted, #a0a4a8);
+}
+
+.rovalra-server-location-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.rovalra-server-location-label {
+    flex-shrink: 0;
+    color: var(--color-content-muted, #a0a4a8);
+}
+
+.rovalra-server-location-value {
+    overflow: hidden;
+    color: var(--color-content-emphasis, #f2f4f5);
+    font-weight: 600;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Mimics a Windows 11 toast notification
+.rovalra-win-toast {
+    --rovalra-win-toast-bg: rgba(44, 44, 44, 0.96);
+    --rovalra-win-toast-border: rgba(255, 255, 255, 0.08);
+    --rovalra-win-toast-text: #ffffff;
+    --rovalra-win-toast-muted: rgba(255, 255, 255, 0.78);
+    --rovalra-win-toast-hover: rgba(255, 255, 255, 0.08);
+
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 2147483000;
+    width: 364px;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+    padding: 12px 12px 16px 16px;
+    border: 1px solid var(--rovalra-win-toast-border);
+    border-radius: 8px;
+    background: var(--rovalra-win-toast-bg);
+    color: var(--rovalra-win-toast-text);
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.26),
+        0 0 1px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(30px) saturate(125%);
+    font-family:
+        'Segoe UI Variable Text',
+        'Segoe UI',
+        system-ui,
+        -apple-system,
+        sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    cursor: pointer;
+    animation: rovalra-win-toast-in 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+    &[data-leaving='true'] {
+        animation: rovalra-win-toast-out 0.25s ease-in forwards;
+        pointer-events: none;
+    }
+
+    @media (prefers-color-scheme: light) {
+        --rovalra-win-toast-bg: rgba(243, 243, 243, 0.96);
+        --rovalra-win-toast-border: rgba(0, 0, 0, 0.06);
+        --rovalra-win-toast-text: #1a1a1a;
+        --rovalra-win-toast-muted: rgba(0, 0, 0, 0.62);
+        --rovalra-win-toast-hover: rgba(0, 0, 0, 0.05);
+    }
+}
+
+.rovalra-win-toast-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.rovalra-win-toast-app-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.rovalra-win-toast-app-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.rovalra-win-toast-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin: -6px -4px -6px 0;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--rovalra-win-toast-text);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--rovalra-win-toast-hover);
+    }
+
+    svg {
+        width: 12px;
+        height: 12px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.2;
+    }
+}
+
+.rovalra-win-toast-title {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-win-toast-body {
+    color: var(--rovalra-win-toast-muted);
+}
+
+@keyframes rovalra-win-toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(110%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes rovalra-win-toast-out {
+    to {
+        opacity: 0;
+        transform: translateX(110%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rovalra-win-toast,
+    .rovalra-win-toast[data-leaving='true'] {
+        animation-duration: 0.01s;
+    }
+}
