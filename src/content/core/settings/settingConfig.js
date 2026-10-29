@@ -238,6 +238,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 beta: 'Currently missing gamepasses.',
+                locked: 'Roblox patched this.',
+                isPermanent: true,
             },
             EnableItemDependencies: {
                 label: 'Item Dependencies',
@@ -1194,7 +1196,6 @@ export const SETTINGS_CONFIG = {
                 label: 'Follows You Indicator',
                 description:
                     'Shows a "Follows you" label beside the username on the profile of anyone who follows you.',
-              
             },
             friendRequestFiltersEnabled: {
                 label: 'Friend Request Filters',
