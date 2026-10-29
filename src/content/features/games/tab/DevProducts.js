@@ -10,6 +10,10 @@ import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { settings as rovalraSettings } from '../../../core/settings/getSettings.js';
 import { createShopSection } from './Shop.js';
+import {
+    STORE_SALE_FILTER_EVENT,
+    matchesSaleFilter,
+} from '../storeSaleFilter.js';
 
 export async function fetchUniverseId(placeId) {
     const metaData = document.getElementById('game-detail-meta-data');
@@ -297,7 +301,9 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
     const sortProducts = () => {
         if (!isProductsLoaded) return;
-        let items = [...products];
+        let items = products.filter((product) =>
+            matchesSaleFilter(product.IsForSale !== false),
+        );
         const trimmedSearch = currentSearchTerm ? currentSearchTerm.trim() : '';
 
         if (trimmedSearch) {
@@ -336,6 +342,8 @@ async function loadAndRenderProducts(storeTab, placeId) {
         });
         renderProducts(sorted);
     };
+
+    document.addEventListener(STORE_SALE_FILTER_EVENT, () => sortProducts());
 
     const sortFieldDropdown = createDropdown({
         items: [
@@ -522,7 +530,8 @@ async function loadAndRenderProducts(storeTab, placeId) {
             value: 'devProducts',
         });
 
-    if (shopSection) toggleOptions.push({ text: ts('shop.tab'), value: 'shop' });
+    if (shopSection)
+        toggleOptions.push({ text: ts('shop.tab'), value: 'shop' });
 
     const toggle = createPillToggle({
         options: toggleOptions,

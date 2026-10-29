@@ -1,0 +1,147 @@
+.rovalra-overlay.rovalra-channel-overlay {
+    width: var(--rovalra-overlay-w, 260px);
+    min-width: 200px;
+    min-height: 0;
+}
+
+.rovalra-channel-overlay .rovalra-overlay-body {
+    padding: 12px 16px 14px;
+}
+
+.rovalra-channel-overlay-channel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--color-content-emphasis, #f2f4f5);
+
+    &[data-live='true'] {
+        color: var(--color-system-alert, #f05a5a);
+
+        .rovalra-channel-overlay-channel-name {
+            letter-spacing: 0.08em;
+        }
+    }
+
+    &[data-live='false'] .rovalra-channel-overlay-dot {
+        background: var(--color-system-warning, #f5a623);
+        animation: none;
+    }
+
+    &[data-known='false'] {
+        color: var(--color-content-muted, #a0a4a8);
+
+        .rovalra-channel-overlay-dot {
+            background: currentColor;
+        }
+
+        .rovalra-channel-overlay-channel-name {
+            font-size: 13px;
+            font-weight: 400;
+        }
+    }
+}
+
+.rovalra-channel-overlay-dot {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-system-alert, #f05a5a);
+    animation: rovalra-channel-overlay-pulse 1.6s ease-out infinite;
+}
+
+.rovalra-channel-overlay-channel-name {
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-channel-overlay-input {
+    pointer-events: auto;
+    user-select: text;
+    box-sizing: border-box;
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--rovalra-overlay-border);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: inherit;
+    font: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+
+    &::placeholder {
+        color: var(--color-content-muted, #a0a4a8);
+    }
+
+    &:focus {
+        border-color: var(--color-content-emphasis, #f2f4f5);
+    }
+}
+
+.rovalra-channel-overlay-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.rovalra-channel-overlay-button {
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--rovalra-overlay-border);
+    border-radius: 8px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        filter 0.15s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-content-emphasis, #f2f4f5);
+        outline-offset: 2px;
+    }
+}
+
+.rovalra-channel-overlay-apply {
+    border-color: transparent;
+    background: var(--color-content-emphasis, #f2f4f5);
+    color: var(--color-surface-0, #121416);
+
+    &:hover {
+        background: var(--color-content-emphasis, #f2f4f5);
+        filter: brightness(0.9);
+    }
+}
+
+@keyframes rovalra-channel-overlay-pulse {
+    0% {
+        box-shadow: 0 0 0 0
+            color-mix(
+                in srgb,
+                var(--color-system-alert, #f05a5a) 60%,
+                transparent
+            );
+    }
+
+    100% {
+        box-shadow: 0 0 0 8px transparent;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rovalra-channel-overlay-dot {
+        animation: none;
+    }
+}

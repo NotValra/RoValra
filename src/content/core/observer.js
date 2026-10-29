@@ -421,6 +421,13 @@ export function startObserving() {
         return 'failed';
     }
 
+    let headObserved = false;
+    const observeHead = () => {
+        if (headObserved || !document.head) return;
+        globalObserver.observe(document.head, { childList: true });
+        headObserved = true;
+    };
+
     const observeBody = () => {
         if (document.body) {
             globalObserver.observe(document.body, {
@@ -432,9 +439,11 @@ export function startObserving() {
         return false;
     };
 
+    observeHead();
     if (observeBody()) return 'active';
 
     const bodyWatcher = new MutationObserver((_, obs) => {
+        observeHead();
         if (observeBody()) {
             obs.disconnect();
         }

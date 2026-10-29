@@ -1,26 +1,6 @@
-const AccessoryAssetTypes = [
-    8,
-    41,
-    42,
-    43,
-    44,
-    45,
-    46,
-    47,
-];
+const AccessoryAssetTypes = [8, 41, 42, 43, 44, 45, 46, 47];
 
-const LayeredAssetTypes = [
-    64,
-    65,
-    66,
-    67,
-    68,
-    69,
-    70,
-    71,
-    72,
-    41,
-];
+const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
 
 (function () {
     'use strict';
@@ -59,6 +39,12 @@ const LayeredAssetTypes = [
     const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
     const THUMBNAIL_BACKGROUND_SETTING = 'disableThumbnailBackground';
     const THUMBNAIL_PROFILE_FRAME_SETTING = 'disableThumbnailProfileFrame';
+    const CHANNEL_HOST = 'play.roblox.com';
+    const CHANNEL_OVERRIDE_KEY = 'rovalra_channelOverride';
+    const CHANNEL_CURRENT_KEY = 'rovalra_currentChannel';
+    const LIVE_CHANNEL = 'LIVE';
+    const CLIENT_SETTINGS_URL =
+        /^https:\/\/clientsettings(?:cdn)?\.roblox\.com\/v2\/settings\/application\/WebClientApp(?:\/bucket\/([^/?#]+))?\/?([?#].*)?$/i;
     const GAME_SERVERS_REQUEST_PATH =
         /^\/v[12]\/games\/\d+\/(?:servers\/(?:Public|Friend)|private-servers)\/?$/;
 
@@ -93,8 +79,10 @@ const LayeredAssetTypes = [
 
     function isThumbnailsApiRequest(url) {
         try {
-            return new URL(url, window.location.origin).hostname ===
-                THUMBNAILS_API_HOST;
+            return (
+                new URL(url, window.location.origin).hostname ===
+                THUMBNAILS_API_HOST
+            );
         } catch (e) {
             return false;
         }
@@ -225,10 +213,7 @@ const LayeredAssetTypes = [
             robloxGroupFeaturesEnabled =
                 event.detail.robloxGroupFeaturesEnabled;
         }
-        if (
-            typeof event.detail?.[THUMBNAIL_BACKGROUND_SETTING] ===
-            'boolean'
-        ) {
+        if (typeof event.detail?.[THUMBNAIL_BACKGROUND_SETTING] === 'boolean') {
             updateThumbnailBackgroundSetting(
                 event.detail[THUMBNAIL_BACKGROUND_SETTING],
             );
@@ -353,16 +338,12 @@ const LayeredAssetTypes = [
         const dispatch = getHomeSortDispatch();
         if (!dispatch) return;
         dispatch((current) => {
-            if (
-                current?.pageType !== 'Home' ||
-                !Array.isArray(current.sorts)
-            )
+            if (current?.pageType !== 'Home' || !Array.isArray(current.sorts))
                 return current;
             const data = {
                 ...current,
                 sorts: current.sorts.filter(
-                    (sort) =>
-                        !homeExtraSortKeys.has(getHomeSortKey(sort)),
+                    (sort) => !homeExtraSortKeys.has(getHomeSortKey(sort)),
                 ),
                 games: [...(current.games || [])],
                 contentMetadata: {
@@ -451,8 +432,60 @@ const LayeredAssetTypes = [
         }
     }
 
-    async function rewriteGameServersFetchArgs(args, requestUrl) {
-        const rewrittenUrl = rewriteGameServersRequestUrl(requestUrl);
+    function getChannelOverride() {
+        try {
+            return localStorage.getItem(CHANNEL_OVERRIDE_KEY)?.trim() || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function reportChannel(channel) {
+        try {
+            sessionStorage.setItem(CHANNEL_CURRENT_KEY, channel);
+        } catch (e) {}
+        document.dispatchEvent(
+            new CustomEvent('rovalra-channel-detected', {
+                detail: { channel },
+            }),
+        );
+    }
+
+    // No bucket means LIVE, otherwise the bucket is the channel
+    function rewriteClientSettingsRequestUrl(url) {
+        if (typeof url !== 'string' || location.hostname !== CHANNEL_HOST) {
+            return url;
+        }
+
+        const match = url.match(CLIENT_SETTINGS_URL);
+        if (!match) return url;
+
+        const requested = match[1]
+            ? decodeURIComponent(match[1])
+            : LIVE_CHANNEL;
+        const override = getChannelOverride();
+        const channel = override ?? requested;
+        reportChannel(
+            channel.toUpperCase() === LIVE_CHANNEL ? LIVE_CHANNEL : channel,
+        );
+
+        if (!override || override === requested) return url;
+
+        const rest = match[2] ?? '';
+        if (override.toUpperCase() === LIVE_CHANNEL) {
+            return `https://clientsettingscdn.roblox.com/v2/settings/application/WebClientApp${rest}`;
+        }
+        return `https://clientsettings.roblox.com/v2/settings/application/WebClientApp/bucket/${encodeURIComponent(override)}${rest}`;
+    }
+
+    function rewriteRequestUrl(url) {
+        return rewriteClientSettingsRequestUrl(
+            rewriteGameServersRequestUrl(url),
+        );
+    }
+
+    async function rewriteRequestFetchArgs(args, requestUrl) {
+        const rewrittenUrl = rewriteRequestUrl(requestUrl);
         if (rewrittenUrl === requestUrl) return args;
 
         const [input, init] = args;
@@ -465,9 +498,10 @@ const LayeredAssetTypes = [
                 new Request(rewrittenUrl, {
                     method: input.method,
                     headers: input.headers,
-                    body: input.method === 'GET' || input.method === 'HEAD'
-                        ? undefined
-                        : await input.clone().arrayBuffer(),
+                    body:
+                        input.method === 'GET' || input.method === 'HEAD'
+                            ? undefined
+                            : await input.clone().arrayBuffer(),
                     credentials: input.credentials,
                     mode: input.mode,
                     cache: input.cache,
@@ -933,9 +967,9 @@ const LayeredAssetTypes = [
     window.fetch = async function (...args) {
         const [url] = args;
         const originalRequestUrl = getRequestUrl(url);
-        const requestUrl = rewriteGameServersRequestUrl(originalRequestUrl);
+        const requestUrl = rewriteRequestUrl(originalRequestUrl);
 
-        args = await rewriteGameServersFetchArgs(args, originalRequestUrl);
+        args = await rewriteRequestFetchArgs(args, originalRequestUrl);
         args = await rewriteThumbnailFetchArgs(args, requestUrl);
 
         let response = await originalFetch(...args);
@@ -1206,7 +1240,7 @@ const LayeredAssetTypes = [
 
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
         if (typeof url === 'string') {
-            url = rewriteGameServersRequestUrl(url);
+            url = rewriteRequestUrl(url);
         }
         if (
             typeof url === 'string' &&
@@ -1606,86 +1640,172 @@ const LayeredAssetTypes = [
         }
 
         const customEquipAsset = (...args) => {
-            const [assetToAdd, assetArr] = args
-            let accessoryCount = 0
-            let layeredCount = 0
+            const [assetToAdd, assetArr] = args;
+            let accessoryCount = 0;
+            let layeredCount = 0;
 
-            const assetToAddIsAccessory = AccessoryAssetTypes.includes(assetToAdd.assetType.id)
-            const assetToAddIsLayered = LayeredAssetTypes.includes(assetToAdd.assetType.id)
+            const assetToAddIsAccessory = AccessoryAssetTypes.includes(
+                assetToAdd.assetType.id,
+            );
+            const assetToAddIsLayered = LayeredAssetTypes.includes(
+                assetToAdd.assetType.id,
+            );
 
-            const newAssetArr = []
+            const newAssetArr = [];
 
             for (const asset of assetArr.toReversed()) {
-                let canAdd = true
+                let canAdd = true;
 
                 //enforce accessory limit (10)
                 if (AccessoryAssetTypes.includes(asset.assetType.id)) {
-                    accessoryCount++
-                    if (accessoryCount >= 10 && assetToAddIsAccessory) canAdd = false
+                    accessoryCount++;
+                    if (accessoryCount >= 10 && assetToAddIsAccessory)
+                        canAdd = false;
                 }
 
                 //enforce layered limit (10, also includes hair)
                 if (LayeredAssetTypes.includes(asset.assetType.id)) {
-                    layeredCount++
-                    if (layeredCount >= 10 && assetToAddIsLayered) canAdd = false
+                    layeredCount++;
+                    if (layeredCount >= 10 && assetToAddIsLayered)
+                        canAdd = false;
                 }
 
                 //enforce limit of items you can only equip one of (although this never happens because then we dont hijack)
-                if (!assetToAddIsAccessory && !assetToAddIsLayered && assetToAdd.assetType.id === asset.assetType.id) {
-                    canAdd = false
+                if (
+                    !assetToAddIsAccessory &&
+                    !assetToAddIsLayered &&
+                    assetToAdd.assetType.id === asset.assetType.id
+                ) {
+                    canAdd = false;
                 }
 
-                if (canAdd) newAssetArr.push(asset)
+                if (canAdd) newAssetArr.push(asset);
             }
 
-            newAssetArr.reverse()
-            newAssetArr.push(assetToAdd)
+            newAssetArr.reverse();
+            newAssetArr.push(assetToAdd);
 
-            return newAssetArr
-        }
+            return newAssetArr;
+        };
 
-        const originalDefineProperty = Object.defineProperty
-        Object.defineProperty = function(obj, prop, descriptor) {
+        const originalDefineProperty = Object.defineProperty;
+        Object.defineProperty = function (obj, prop, descriptor) {
             //find modules
-            if (prop === "__esModule") {
+            if (prop === '__esModule') {
                 setTimeout(() => {
                     //if module includes addAssetToAvatar
-                    if (Object.keys(obj).includes("addAssetToAvatar")) {
-                        const originalDescriptor = Object.getOwnPropertyDescriptor(obj, "addAssetToAvatar")
-                        const originalGetter = originalDescriptor.get
-                        const originalAddAssetToAvatar = originalGetter()
+                    if (Object.keys(obj).includes('addAssetToAvatar')) {
+                        const originalDescriptor =
+                            Object.getOwnPropertyDescriptor(
+                                obj,
+                                'addAssetToAvatar',
+                            );
+                        const originalGetter = originalDescriptor.get;
+                        const originalAddAssetToAvatar = originalGetter();
 
                         //hijack addAssetToAvatar when needed
-                        Object.defineProperty(obj, "addAssetToAvatar", {
+                        Object.defineProperty(obj, 'addAssetToAvatar', {
                             get() {
                                 return (...args) => {
-                                    const [asset] = args
+                                    const [asset] = args;
 
-                                    const isAccessory = AccessoryAssetTypes.includes(asset.assetType.id)
-                                    const isLayered = LayeredAssetTypes.includes(asset.assetType.id)
-                                    const needsHijack = isAccessory || isLayered
+                                    const isAccessory =
+                                        AccessoryAssetTypes.includes(
+                                            asset.assetType.id,
+                                        );
+                                    const isLayered =
+                                        LayeredAssetTypes.includes(
+                                            asset.assetType.id,
+                                        );
+                                    const needsHijack =
+                                        isAccessory || isLayered;
 
-                                    if (window.rovalraMultiEquipEnabled && needsHijack) {
-                                        return customEquipAsset(...args)
+                                    if (
+                                        window.rovalraMultiEquipEnabled &&
+                                        needsHijack
+                                    ) {
+                                        return customEquipAsset(...args);
                                     } else {
-                                        return originalAddAssetToAvatar(...args)
+                                        return originalAddAssetToAvatar(
+                                            ...args,
+                                        );
                                     }
-                                }
+                                };
                             },
                             configurable: true,
-                        })
+                        });
                     }
-                }, 1)
+                }, 1);
             }
-            if (prop === "addAssetToAvatar") {
-                descriptor.configurable = true
+            if (prop === 'addAssetToAvatar') {
+                descriptor.configurable = true;
             }
 
-            return originalDefineProperty.call(Object, obj, prop, descriptor)
-        }
+            return originalDefineProperty.call(Object, obj, prop, descriptor);
+        };
     };
 
+    function hookCanvasFullscreen() {
+        if (location.hostname !== CHANNEL_HOST) return;
+
+        const CANVAS_ATTRIBUTE = 'data-rovalra-fullscreen-canvas';
+        let redirectedCanvas = null;
+
+        const clearRedirect = () => {
+            redirectedCanvas?.removeAttribute(CANVAS_ATTRIBUTE);
+            redirectedCanvas = null;
+        };
+
+        ['requestFullscreen', 'webkitRequestFullscreen'].forEach((name) => {
+            const original = Element.prototype[name];
+            if (!original) return;
+
+            HTMLCanvasElement.prototype[name] = function (...args) {
+                if (!document.querySelector('.rovalra-overlay')) {
+                    return original.apply(this, args);
+                }
+
+                clearRedirect();
+                redirectedCanvas = this;
+                this.setAttribute(CANVAS_ATTRIBUTE, '');
+
+                const result = original.apply(document.documentElement, args);
+                result?.catch?.(() => {});
+                return result;
+            };
+        });
+
+        ['fullscreenElement', 'webkitFullscreenElement'].forEach((name) => {
+            const descriptor = Object.getOwnPropertyDescriptor(
+                Document.prototype,
+                name,
+            );
+            if (!descriptor?.get) return;
+
+            Object.defineProperty(Document.prototype, name, {
+                ...descriptor,
+                get() {
+                    const element = descriptor.get.call(this);
+                    return redirectedCanvas && element === this.documentElement
+                        ? redirectedCanvas
+                        : element;
+                },
+            });
+        });
+
+        ['fullscreenchange', 'webkitfullscreenchange'].forEach((type) =>
+            window.addEventListener(
+                type,
+                () => {
+                    if (!document.fullscreenElement) clearRedirect();
+                },
+                true,
+            ),
+        );
+    }
+
     initializeHooks();
+    hookCanvasFullscreen();
 
     console.log(
         'RoValra: Privacy Spoofing and Multi-Accessory loaded successfully.',
