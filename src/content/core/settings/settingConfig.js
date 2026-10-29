@@ -3565,16 +3565,7 @@ export const SETTINGS_CONFIG = {
                     "It is not made to be a replacement for the normal client but instead an alternative for platforms that can't use the normal client such as chromebooks",
                 ],
             },
-            channelOverlayEnabled: {
-                label: 'Channel Overlay',
-                description: [
-                    'Shows an overlay on play.roblox.com with your channel, which you can change.',
-                    'It opens automatically whenever you are on play.roblox.com. Press F2 to show or hide it.',
-                    "**CHANNEL SWITCHER IS USE AT YOUR OWN RISK** as I wasn't able to get a clear answer if this was 100% allowed or not from Roblox.",
-                ],
-                type: 'checkbox',
-                default: false,
-            },
+
             serverLocationOverlayEnabled: {
                 label: 'Server Location Overlay',
                 description: [
@@ -3702,6 +3693,16 @@ export const SETTINGS_CONFIG = {
                 label: ['Override remotely disabled settings'],
                 description: [
                     "Allows RoValra features to remain enabled even when they're disabled by the remote settings service. This is for testing and may expose unstable features.",
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            channelOverlayEnabled: {
+                label: 'Channel Overlay',
+                description: [
+                    'Shows an overlay on play.roblox.com with your channel, which you can change.',
+                    'It opens automatically whenever you are on play.roblox.com. Press F2 to show or hide it.',
+                    "**CHANNEL SWITCHER IS USE AT YOUR OWN RISK** as I wasn't able to get a clear answer if this was 100% allowed or not from Roblox.",
                 ],
                 type: 'checkbox',
                 default: false,
