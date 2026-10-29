@@ -1,0 +1,165 @@
+.rovalra-profile-playtime {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rovalra-profile-playtime-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.rovalra-profile-playtime-header-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.rovalra-profile-playtime-visibility {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--rovalra-secondary-text-color);
+    cursor: pointer;
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+
+        .btn-toggle {
+            pointer-events: none;
+        }
+    }
+}
+
+.rovalra-profile-playtime-total {
+    font-size: 14px;
+    color: var(--rovalra-secondary-text-color);
+
+    b {
+        color: var(--rovalra-main-text-color);
+    }
+}
+
+.rovalra-profile-playtime-heatmap {
+    overflow-x: auto;
+}
+
+.rovalra-profile-playtime-list-title {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-profile-playtime-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 4px 16px;
+}
+
+.rovalra-profile-playtime-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px;
+    border-radius: 8px;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+        background: var(--rovalra-button-background-color);
+        text-decoration: none;
+    }
+}
+
+.rovalra-profile-playtime-icon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.rovalra-profile-playtime-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rovalra-profile-playtime-name {
+    font-size: 14px;
+    color: var(--rovalra-main-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rovalra-profile-playtime-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--rovalra-border-color);
+    overflow: hidden;
+
+    > div {
+        height: 100%;
+        border-radius: 2px;
+        background: var(--rovalra-playbutton-color);
+    }
+}
+
+.rovalra-profile-playtime-time {
+    font-size: 13px;
+    color: var(--rovalra-secondary-text-color);
+    white-space: nowrap;
+}
+
+.rovalra-profile-playtime-preview {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.rovalra-profile-playtime-preview-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    filter: blur(3px) grayscale(0.4);
+    opacity: 0.55;
+    pointer-events: none;
+    user-select: none;
+}
+
+.rovalra-profile-playtime-preview-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px;
+    text-align: center;
+}
+
+.rovalra-profile-playtime-preview-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-profile-playtime-preview-text {
+    max-width: 420px;
+    font-size: 14px;
+    color: var(--rovalra-secondary-text-color);
+}

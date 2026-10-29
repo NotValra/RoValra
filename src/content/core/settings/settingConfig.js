@@ -1036,6 +1036,28 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            profilePlaytimeEnabled: {
+                label: 'Profile Playtime',
+                description: [
+                    'Adds a Playtime section to the bottom of profiles with a heatmap and graph of what the user played and when.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    profilePlaytimePublic: {
+                        label: 'Public Playtime',
+                        description: [
+                            'Lets anyone with RoValra see the Playtime section on your profile.',
+                            'When this is off, only you can see your playtime.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to make your playtime public.',
+                    },
+                },
+            },
 
             chatEligibilityTooltipEnabled: {
                 label: 'Chat Eligibility Tooltip',

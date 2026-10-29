@@ -474,7 +474,20 @@
         "thisYear": "This year",
         "allTime": "All time",
         "hours": "{{value}} hours",
-        "minutes": "{{value}} minutes"
+        "minutes": "{{value}} minutes",
+        "totalLabel": "Total playtime:",
+        "mostPlayed": "Most played",
+        "playedOn": "Played on {{date}}",
+        "weekOf": "Week of {{date}}",
+        "noActivity": "No playtime",
+        "moreGames": "+{{count}} more",
+        "public": "Show Playtime to everyone",
+        "publicTooltip": "Lets anyone with RoValra see your playtime.",
+        "publicLocked": "Donator Tier 3 is required to make your playtime public.",
+        "publicFailed": "Couldn't update your playtime visibility. Try again later.",
+        "sampleGame": "Experience {{number}}",
+        "previewOwnTitle": "No playtime tracked yet",
+        "previewOwnText": "Play experiences with Playtime Tracking turned on in RoValra settings and they'll show up here."
     },
     "mutualFriends": {
         "pill_one": "{{count}} Mutual Friend",
