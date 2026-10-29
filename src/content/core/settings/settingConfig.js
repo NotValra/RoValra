@@ -119,7 +119,7 @@ export const SETTINGS_CONFIG = {
                     'Replaces the price chart of limited items with one graph RAP and volume, with full history and series you can hide.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['2239549101'],
             },
             itemSalesEnabled: {
