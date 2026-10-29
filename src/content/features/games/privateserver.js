@@ -55,6 +55,8 @@ let filters = { players: 'any', owner: 'any' };
 let servers = new Map();
 let serversPlaceId = null;
 let loadToken = 0;
+let loadPromise = null;
+const pendingSections = new Set();
 
 function isDefaultView() {
     return (
@@ -70,6 +72,26 @@ function countActive() {
         (filters.players === 'any' ? 0 : 1) +
         (filters.owner === 'any' ? 0 : 1)
     );
+}
+
+function ensureServersLoaded(placeId) {
+    if (serversPlaceId === placeId && servers.size) return Promise.resolve();
+    if (!loadPromise || loadPromise.placeId !== placeId) {
+        loadPromise = loadServers(placeId).finally(() => {
+            if (loadPromise?.placeId === placeId) loadPromise = null;
+        });
+        loadPromise.placeId = placeId;
+    }
+    return loadPromise;
+}
+
+function scheduleApplyView(section) {
+    if (isDefaultView() || pendingSections.has(section)) return;
+    pendingSections.add(section);
+    queueMicrotask(() => {
+        pendingSections.delete(section);
+        applyView(section);
+    });
 }
 
 async function loadServers(placeId) {
@@ -100,10 +122,17 @@ function getSortValue(server, key) {
     return 0;
 }
 
-function matchesFilters(server, myUserId) {
-    if (filters.players === 'hasPlayers' && !(server.playing > 0)) return false;
-    if (filters.players === 'empty' && server.playing > 0) return false;
-    const isMine = String(server.owner?.id) === String(myUserId);
+function matchesFilters(server, row, myUserId) {
+    if (server) {
+        if (filters.players === 'hasPlayers' && !(server.playing > 0))
+            return false;
+        if (filters.players === 'empty' && server.playing > 0) return false;
+    }
+    const ownerAttr = row.getAttribute('data-rovalra-is-owner');
+    const isMine = server
+        ? String(server.owner?.id) === String(myUserId)
+        : ownerAttr === 'true';
+    if (!server && ownerAttr === null) return true;
     if (filters.owner === 'mine' && !isMine) return false;
     if (filters.owner === 'others' && isMine) return false;
     return true;
@@ -128,8 +157,9 @@ async function applyView(section) {
     }
 
     const placeId = getPlaceIdFromUrl();
-    if (serversPlaceId !== placeId || !servers.size) await loadServers(placeId);
+    await ensureServersLoaded(placeId);
     const myUserId = await getAuthenticatedUserId();
+    if (isDefaultView()) return;
 
     const entries = rows.map((row, index) => ({
         row,
@@ -154,7 +184,7 @@ async function applyView(section) {
 
     sorted.forEach(({ row, server }, order) => {
         row.style.setProperty('--rovalra-private-server-order', String(order));
-        if (server && !matchesFilters(server, myUserId)) {
+        if (!matchesFilters(server, row, myUserId)) {
             row.dataset.rovalraPrivateServerHidden = 'true';
         } else {
             delete row.dataset.rovalraPrivateServerHidden;
@@ -398,19 +428,12 @@ function onPrivateServerRowAdded(row) {
     if (section?.querySelector(PRIVATE_SECTION_SELECTOR)) return;
     if (!section) return;
     addPlusIcon(row);
-    if (row.hasAttribute('data-private-server-id')) {
-        if (!isDefaultView()) applyView(section);
-        return;
-    }
-    const watcher = observeAttributes(
-        row,
-        () => {
-            if (!row.hasAttribute('data-private-server-id')) return;
-            watcher.disconnect();
-            if (!isDefaultView()) applyView(section);
-        },
-        ['data-private-server-id'],
-    );
+    if (row.hasAttribute('data-private-server-id')) scheduleApplyView(section);
+}
+
+function onPrivateServerIdReady(row) {
+    const section = row.closest(PRIVATE_SECTION_SELECTOR);
+    if (section) scheduleApplyView(section);
 }
 
 export async function init() {
@@ -520,6 +543,7 @@ export async function init() {
                             'data-private-server-id',
                         );
                         if (privateServerId) {
+                            onPrivateServerIdReady(el);
                             if (isOwner && enableControls) {
                                 const btnContainer =
                                     el.querySelector(

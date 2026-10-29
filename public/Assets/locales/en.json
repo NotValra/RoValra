@@ -1583,8 +1583,6 @@
         }
     },
     "serverList": {
-        "filters": "Filters",
-        "filtersTitle": "Server Filters",
         "clear": "Clear",
         "noServersApi": "No servers found via the RoValra API.",
         "allServersInactive": "All servers in this region went inactive",
