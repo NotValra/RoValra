@@ -184,6 +184,14 @@
         "effects": "Effects",
         "limiteds": "Limiteds"
     },
+    "tradeCompletedDate": {
+        "completedOn": "Completed",
+        "created": "Created:",
+        "sent": "Sent:",
+        "received": "Received:",
+        "completed": "Completed:",
+        "notFound": "Not found"
+    },
     "trading": {
         "searchInventory": "Search Inventory",
         "continueSearch": "Continue Search",
@@ -227,6 +235,20 @@
         "assetFallback": "Asset {{id}}",
         "verifiedBadge": "Verified Badge",
         "by": "By"
+    },
+    "betterGraphs": {
+        "summary": "Average price over selected period",
+        "series": {
+            "price": "Recent Average Price",
+            "volume": "Volume"
+        },
+        "ranges": {
+            "30d": "30 Days",
+            "90d": "90 Days",
+            "180d": "180 Days",
+            "1y": "1 Year",
+            "all": "All Time"
+        }
     },
     "catalogItemSales": {
         "sales": "Sales",
@@ -452,7 +474,20 @@
         "thisYear": "This year",
         "allTime": "All time",
         "hours": "{{value}} hours",
-        "minutes": "{{value}} minutes"
+        "minutes": "{{value}} minutes",
+        "totalLabel": "Total playtime:",
+        "mostPlayed": "Most played",
+        "playedOn": "Played on {{date}}",
+        "weekOf": "Week of {{date}}",
+        "noActivity": "No playtime",
+        "moreGames": "+{{count}} more",
+        "public": "Show Playtime to everyone",
+        "publicTooltip": "Lets anyone with RoValra see your playtime.",
+        "publicLocked": "Donator Tier 3 is required to make your playtime public.",
+        "publicFailed": "Couldn't update your playtime visibility. Try again later.",
+        "sampleGame": "Experience {{number}}",
+        "previewOwnTitle": "No playtime tracked yet",
+        "previewOwnText": "Play experiences with Playtime Tracking turned on in RoValra settings and they'll show up here."
     },
     "mutualFriends": {
         "pill_one": "{{count}} Mutual Friend",
@@ -612,6 +647,32 @@
         "send": "Send"
     },
     "privateServer": {
+        "moreOptions": "More options",
+        "filters": {
+            "button": "Filters",
+            "title": "Private Server Filters",
+            "sortTitle": "Sort by",
+            "sort": {
+                "default": "Default",
+                "players": "Players",
+                "name": "Name",
+                "owner": "Owner"
+            },
+            "descending": "High to low",
+            "ascending": "Low to high",
+            "playersTitle": "Players",
+            "any": "Any",
+            "hasPlayers": "Has players",
+            "empty": "Empty",
+            "ownerTitle": "Owner",
+            "anyone": "Anyone",
+            "mine": "Mine",
+            "others": "Others",
+            "reset": "Reset",
+            "apply": "Apply",
+            "includedWith": "Included with",
+            "plus": "Plus"
+        },
         "processingTitle": "Processing Servers",
         "starting": "Starting...",
         "cancel": "Cancel",
@@ -1041,7 +1102,8 @@
                     "title": "{{user}}'s Contributions",
                     "contributor": "Contributor",
                     "featureName": "Feature",
-                    "featureKey": "(Dev) Feature Key"
+                    "featureKey": "(Dev) Feature Key",
+                    "viewInSettings": "View all in settings"
                 }
             }
         },
@@ -1095,7 +1157,18 @@
                 "suspended": "Suspended"
             },
             "search": {
-                "placeholder": "Search Settings..."
+                "placeholder": "Search Settings...",
+                "filters": "Filters",
+                "status": "Show",
+                "contributor": "Contributor",
+                "contributorPlaceholder": "Search contributors...",
+                "allSettings": "All contributors",
+                "statuses": {
+                    "deprecated": "Deprecated",
+                    "experimental": "Experimental",
+                    "beta": "Beta",
+                    "locked": "Locked"
+                }
             },
             "controls": {
                 "clearStorage": "Clear Storage",
@@ -1358,6 +1431,8 @@
     "navigation": {
         "transactions": "Transactions",
         "apiDocs": "API Docs",
+        "webClient": "Web Client",
+        "rovalraStore": "RoValra Store",
         "incidentLearnMore": "Click here to learn more.",
         "incidentHideNotice": "You can hide this notice here",
         "rovalraApi": "RoValra API"
@@ -1442,6 +1517,12 @@
     "privateServerPage": {
         "regenerateLink": "Generate Link",
         "regenerated": "Generated!"
+    },
+    "storeSaleFilter": {
+        "label": "Sale status",
+        "onSale": "On sale",
+        "offSale": "Off sale",
+        "all": "All"
     },
     "devProducts": {
         "noProducts": "No developer products found.",
@@ -1560,6 +1641,12 @@
         "title": "Quick Outfits",
         "noneFound": "No outfits found.",
         "success": "Successfully equipped outfit."
+    },
+    "roGoldWarning": {
+        "title": "RoValra is not compatible with RoGold",
+        "detected": "It looks like RoGold is enabled. Because of changes in RoGold's recent site rework, RoValra is unable to work correctly while both extensions are running.",
+        "notOurFault": "These changes come from RoGold, so this is not something RoValra is able to fix on its side.",
+        "choice": "If you'd like to use RoValra, you can turn RoGold off at any time from your browser's extensions page and reload Roblox. The choice is entirely yours, and you can switch it back on whenever you want."
     },
     "btrDonationWarning": {
         "title": "IMPORTANT: disable BTRoblox",
@@ -1759,6 +1846,66 @@
         "userAgeVerified": "User is age checked.",
         "userNotAgeVerified": "User is not age checked.",
         "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
+    },
+    "friendRequestFilters": {
+        "title": "Request Filters",
+        "filters": "Filters",
+        "badgesTitle": "Badges",
+        "countsTitle": "Counts",
+        "joinedTitle": "Joined",
+        "badges": {
+            "plus": "Roblox Plus",
+            "verified": "Verified",
+            "admin": "Roblox Admin"
+        },
+        "ranges": {
+            "mutuals": "Mutual Friends",
+            "friends": "Friends",
+            "followers": "Followers",
+            "followings": "Following"
+        },
+        "any": "Any",
+        "has": "Has",
+        "hasNot": "Doesn't have",
+        "min": "Min",
+        "max": "Max",
+        "from": "From",
+        "to": "To",
+        "reset": "Reset",
+        "apply": "Apply",
+        "accept": "Accept",
+        "ignore": "Ignore",
+        "loadMore": "Load More",
+        "loadingRequests": "Loading requests... ({{count}})",
+        "checkingRequests": "Checking requests... {{progress}}%",
+        "loadFailed": "Failed to load friend requests.",
+        "actionFailed": "Failed to respond to the friend request.",
+        "minAboveMax": "The minimum can't be higher than the maximum.",
+        "limitMax": "Based on your current friend requests, the highest you can set is {{max}}.",
+        "limitMin": "Based on your current friend requests, the lowest you can set is {{min}}.",
+        "filtersActive": "Filters ({{count}} active)",
+        "ascending": "Lowest first",
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "sortTitle": "Sort By",
+        "descending": "Highest first",
+        "sort": {
+            "sent": "Date Sent",
+            "mutuals": "Mutual Friends",
+            "friends": "Friends",
+            "followers": "Followers",
+            "followings": "Following",
+            "joined": "Join Date"
+        },
+        "footer": {
+            "sent": "Sent",
+            "joined": "Joined",
+            "mutuals": "{{count}} mutual friends",
+            "friends": "{{count}} friends",
+            "followers": "{{count}} followers",
+            "followings": "{{count}} following",
+            "unknown": "Hidden"
+        }
     },
     "friendsSince": {
         "friended": "Friended",
@@ -2212,6 +2359,11 @@
         "buyFor": "Buy for {{price}}",
         "viewItem": "View item",
         "buyTooltip": "Buy this frame",
+        "preview": "Preview",
+        "previewTooltip": "Try this frame on your profile until you refresh",
+        "previewOnProfile": "Preview on profile",
+        "previewBanner": "Previewing {{frame}}. Only you can see this, and it goes away when you refresh.",
+        "backToStore": "Back to store",
         "owned": "Owned",
         "ownedTooltip": "You own this frame!",
         "free": "Free",
@@ -2236,6 +2388,9 @@
     "profilePronouns": {
         "label": "Pronouns",
         "ariaLabel": "Pronouns: {{pronouns}}"
+    },
+    "followsYou": {
+        "label": "Follows you"
     },
     "profileEdit": {
         "featuresTitle": "RoValra Features",
@@ -2415,6 +2570,32 @@
     "pinnedFriends": {
         "pin": "Pin to top",
         "unpin": "Unpin"
+    },
+    "channelOverlay": {
+        "title": "Channel",
+        "collapse": "Collapse channel overlay",
+        "hide": "Hide overlay, press F2 to open it again",
+        "live": "LIVE",
+        "unknown": "Waiting for client settings...",
+        "change": "Change channel",
+        "placeholder": "LIVE or a channel name",
+        "apply": "Apply",
+        "reset": "Reset"
+    },
+    "serverLocationOverlay": {
+        "title": "Server Location",
+        "collapse": "Collapse server location overlay",
+        "hide": "Hide overlay, press F3 to open it again",
+        "waiting": "Join a game to see where its server is.",
+        "location": "Location",
+        "version": "Server Version",
+        "channel": "Server Channel",
+        "unknown": "Unknown",
+        "unknownLocation": "Unknown server location",
+        "production": "Production",
+        "appName": "RoValra",
+        "dismiss": "Dismiss",
+        "toastDetails": "Version {{version}} · {{channel}}"
     },
     "debugOverlay": {
         "title": "RoValra Debug",

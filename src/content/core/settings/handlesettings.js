@@ -29,7 +29,10 @@ import {
     refreshRemoteSettingLocks,
 } from './remoteSettingLocks.js';
 import { sanitizeBackgroundImage } from '../backgroundImage.js';
-import { sanitizeSavedThemes, sanitizeThemeVariables } from '../themeVariables.js';
+import {
+    sanitizeSavedThemes,
+    sanitizeThemeVariables,
+} from '../themeVariables.js';
 import './settingsCompat';
 
 let currentUserTierLoaded = false;
@@ -128,10 +131,11 @@ async function prepareProfilePronounsUpdate(value) {
             }
         } catch (error) {
             restoreProfilePronounsInput(previousValue);
-            let validationErrorMessage =
-                ts('settings.ui.pronouns.checkFailed');
+            let validationErrorMessage = ts('settings.ui.pronouns.checkFailed');
             if (error?.status === 400) {
-                validationErrorMessage = ts('settings.ui.pronouns.filterRejected');
+                validationErrorMessage = ts(
+                    'settings.ui.pronouns.filterRejected',
+                );
             } else if (error?.status === 429) {
                 validationErrorMessage = ts('settings.ui.pronouns.filterBusy');
             }
@@ -957,6 +961,20 @@ export const handleSaveSettings = async (settingName, value) => {
                             });
                         }
                     }
+                    if (
+                        settingName === 'profilePlaytimePublic' &&
+                        currentUserTier >= 3
+                    ) {
+                        updateUserSettingViaApi(
+                            'public_playtime',
+                            Boolean(sanitizedValue),
+                        ).catch((error) =>
+                            console.error(
+                                'RoValra: Playtime visibility sync failed',
+                                error,
+                            ),
+                        );
+                    }
                     if (settingName === 'profileViewsEnabled') {
                         loadSettings()
                             .then((currentSettings) => {
@@ -1238,8 +1256,12 @@ export const initSettings = async (settingsContent) => {
                                             option.value = regionCode;
                                             option.textContent =
                                                 regionCode === 'AUTO'
-                                                    ? ts('regionSelector.automatic')
-                                                    : getFullRegionName(regionCode);
+                                                    ? ts(
+                                                          'regionSelector.automatic',
+                                                      )
+                                                    : getFullRegionName(
+                                                          regionCode,
+                                                      );
                                             childElement.appendChild(option);
                                         },
                                     );
@@ -2082,9 +2104,7 @@ export function initializeSettingsEventListeners() {
                     );
                     await Promise.all(promises);
 
-                    alert(
-                        ts('settings.ui.environment.imported'),
-                    );
+                    alert(ts('settings.ui.environment.imported'));
                     location.reload();
                 } catch (error) {
                     console.error(
@@ -2110,9 +2130,11 @@ export function initializeSettingsEventListeners() {
                     totalBytes += itemSize;
                 }
             }
-            alert(ts('settings.ui.environment.storageUsed', {
-                size: formatBytes(totalBytes),
-            }));
+            alert(
+                ts('settings.ui.environment.storageUsed', {
+                    size: formatBytes(totalBytes),
+                }),
+            );
         });
     });
 
@@ -2177,7 +2199,9 @@ export function initializeSettingsEventListeners() {
                         message:
                             `<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">${statusPills}</span>` +
                             ts('settings.ui.featureStatus.message'),
-                        confirmText: ts('settings.ui.featureStatus.acknowledge'),
+                        confirmText: ts(
+                            'settings.ui.featureStatus.acknowledge',
+                        ),
                         cancelText: ts('common.cancel'),
                         confirmType: 'primary',
                         cancelType: 'secondary',

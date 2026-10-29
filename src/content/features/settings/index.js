@@ -28,6 +28,10 @@ import {
 } from '../../core/settings/ui/settingsbutton.js';
 import { checkRoValraPage } from '../../core/settings/ui/page.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
+import {
+    getSettingStatus,
+    parseSearchQuery,
+} from '../../core/settings/searchQuery.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
@@ -69,7 +73,10 @@ import {
     applyBorderToContainer,
     findInBorders,
 } from '../profile/avatarBorder.js';
-import { applyFrameToHolder } from '../profile/profileFrame.js';
+import {
+    applyFrameToHolder,
+    startFramePreview,
+} from '../profile/profileFrame.js';
 import {
     getUserDisplayName,
     getUserProfileData,
@@ -1730,11 +1737,11 @@ function getContributorStats() {
 }
 
 /**
- * @returns {Record<string, Array<{key: string, feature: string, contributionDescription?: string, prLink?: string}>>}
+ * @returns {Record<string, Array<{key: string, feature: string, isSetting?: boolean, contributionDescription?: string, prLink?: string}>>}
  */
 function getContributions() {
     /**
-     * @type {Record<string, Array<{key: string, feature: string, contributionDescription?: string, prLink?: string}>>}
+     * @type {Record<string, Array<{key: string, feature: string, isSetting?: boolean, contributionDescription?: string, prLink?: string}>>}
      */
     const contributions = {};
     for (const contributor of CONTRIBUTOR_USER_IDS) {
@@ -1751,6 +1758,7 @@ function getContributions() {
                     contributions[String(contributor)].push({
                         feature: settingData.label,
                         key: settingName,
+                        isSetting: true,
                     });
                 }
             } else {
@@ -1759,6 +1767,7 @@ function getContributions() {
                 contributions[String(CREATOR_USER_ID)].push({
                     feature: settingData.label,
                     key: settingName,
+                    isSetting: true,
                 });
             }
             if (settingData.childSettings) {
@@ -1774,6 +1783,7 @@ function getContributions() {
                             contributions[String(contributor)].push({
                                 feature: subSettingData.label,
                                 key: subSettingName,
+                                isSetting: true,
                             });
                         }
                     }
@@ -1846,6 +1856,15 @@ function createContributorProfile(user, thumbData) {
 
     avatarContainer.appendChild(thumbElement);
     profile.append(avatarContainer, name);
+
+    if (user.hasVerifiedBadge) {
+        const verified = document.createElement('img');
+        verified.className = 'rovalra-contributor-verified';
+        verified.src = assets.verifiedBadge;
+        verified.alt = ts('quickSearch.verifiedBadge');
+        verified.title = ts('quickSearch.verified');
+        profile.append(verified);
+    }
 
     return profile;
 }
@@ -1929,7 +1948,8 @@ function renderContributors(container, users, thumbMap) {
         count.addEventListener('click', async (ev) => {
             const contributions = getContributions()[String(id)];
 
-            let markdown = `
+            let markdown = `[${await t('settings.credits.ui.popup.viewInSettings')}](/my/account?rovalra=search&q=${encodeURIComponent(`contributor:#${id}`)}#!/search)
+
 | ${await t('settings.credits.ui.popup.featureName')} | ${await t('settings.credits.ui.popup.featureKey')} |
 |                   -                            |                       -                       |
 `;
@@ -1939,7 +1959,10 @@ function renderContributors(container, users, thumbMap) {
                 const featureNameText = contribution.contributionDescription
                     ? `${contribution.feature} (${await t(contribution.contributionDescription)})`
                     : contribution.feature;
-                markdown += `${contribution.prLink ? `[${featureNameText}](${contribution.prLink})` : featureNameText} | `;
+                const featureLink = contribution.isSetting
+                    ? `/my/account?rovalra=search&q=${encodeURIComponent(contribution.key)}#!/search`
+                    : contribution.prLink;
+                markdown += `${featureLink ? `[${featureNameText}](${featureLink})` : featureNameText} | `;
                 markdown += `${contribution.prLink ? `[${contribution.key}](${contribution.prLink})` : contribution.key} |\n`;
             }
 
@@ -4140,7 +4163,7 @@ function createFrameEquipButton({
 }) {
     const btnContainer = document.createElement('div');
     btnContainer.style.cssText =
-        'margin-top: 8px; width: 100%; display: flex; justify-content: center;';
+        'margin-top: 8px; width: 100%; display: flex; justify-content: center; gap: 6px;';
 
     const text = isSelected
         ? ts('profileFrame.equipped')
@@ -4157,7 +4180,7 @@ function createFrameEquipButton({
     pill.dataset.frameEquipBtn = frame.value;
     pill.dataset.frameOwned = isOwned ? 'true' : 'false';
     pill.style.cssText =
-        'width: 100%; justify-content: center; font-size: 12px; font-weight: 700;';
+        'flex: 1; justify-content: center; font-size: 12px; font-weight: 700;';
 
     pill.onclick = (event) => {
         event.stopPropagation();
@@ -4173,6 +4196,21 @@ function createFrameEquipButton({
     };
 
     btnContainer.appendChild(pill);
+
+    if (authedUserData?.userId) {
+        const previewPill = createPill(
+            ts('profileFrame.preview'),
+            ts('profileFrame.previewTooltip'),
+            { isButton: true },
+        );
+        previewPill.classList.add('rovalra-frame-store-preview-pill');
+        previewPill.onclick = (event) => {
+            event.stopPropagation();
+            startFramePreview(frame, authedUserData.userId);
+        };
+        btnContainer.appendChild(previewPill);
+    }
+
     return btnContainer;
 }
 
@@ -4280,10 +4318,21 @@ async function openFrameOverlay(
         }
     }
 
+    const actions = [actionBtn];
+    if (authedUserData?.userId) {
+        const previewBtn = document.createElement('button');
+        previewBtn.className = 'btn-control-md btn-min-width';
+        previewBtn.style.width = '100%';
+        previewBtn.textContent = ts('profileFrame.previewOnProfile');
+        previewBtn.onclick = () =>
+            startFramePreview(frame, authedUserData.userId);
+        actions.unshift(previewBtn);
+    }
+
     const { close } = createOverlay({
         title: frame.label,
         bodyContent: body,
-        actions: [actionBtn],
+        actions,
         maxWidth: '400px',
     });
 }
@@ -4955,6 +5004,30 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 }
 
+function settingHasContributor(settingDef, userId) {
+    const ids = (list) => (list || []).map(String);
+    if (ids(settingDef.contributors).includes(userId)) return true;
+    if (!settingDef.contributors && userId === String(CREATOR_USER_ID)) {
+        return true;
+    }
+    return Object.values(settingDef.childSettings || {}).some((child) =>
+        ids(child.contributors).includes(userId),
+    );
+}
+
+async function resolveContributorId(value) {
+    const name = value.trim().replace(/^@/, '');
+    if (/^#?\d+$/.test(name)) return name.replace('#', '');
+    const data = await callRobloxApiJson({
+        subdomain: 'users',
+        endpoint: '/v1/usernames/users',
+        method: 'POST',
+        body: { usernames: [name], excludeBannedUsers: false },
+    }).catch(() => null);
+    const id = data?.data?.[0]?.id;
+    return id ? String(id) : null;
+}
+
 export async function handleSearch(event) {
     const query =
         event.target && event.target.value
@@ -4986,7 +5059,10 @@ export async function handleSearch(event) {
             el.removeAttribute('aria-current');
         });
 
-    if (query.length < 2) {
+    const parsedQuery = parseSearchQuery(query);
+    const text = parsedQuery.text.toLowerCase();
+
+    if (!parsedQuery.hasFilters && text.length < 2) {
         contentContainer.innerHTML = DOMPurify.sanitize(
             `<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">${ts('settings.search.minLength')}</div>`,
         );
@@ -4995,7 +5071,10 @@ export async function handleSearch(event) {
     }
 
     const searchResults = [];
-    const queryNoSpaces = query.replace(/\s+/g, '');
+    const queryNoSpaces = text.replace(/\s+/g, '');
+    const contributorId = parsedQuery.contributor
+        ? await resolveContributorId(parsedQuery.contributor)
+        : null;
 
     for (const categoryName in SETTINGS_CONFIG) {
         if (!document.getElementById(`${categoryName.toLowerCase()}-tab`)) {
@@ -5007,6 +5086,20 @@ export async function handleSearch(event) {
             category.settings,
         )) {
             if (settingDef.hidden) continue;
+            if (
+                getSettingStatus(settingDef).some((status) =>
+                    parsedQuery.hiddenStatuses.has(status),
+                )
+            ) {
+                continue;
+            }
+            if (
+                parsedQuery.contributor &&
+                (!contributorId ||
+                    !settingHasContributor(settingDef, contributorId))
+            ) {
+                continue;
+            }
 
             const label = (
                 Array.isArray(settingDef.label)
@@ -5021,15 +5114,16 @@ export async function handleSearch(event) {
             const fullText = `${label} ${description}`;
 
             let isMatch =
-                fullText.includes(query) ||
+                !text ||
+                fullText.includes(text) ||
                 fullText.replace(/\s+/g, '').includes(queryNoSpaces) ||
-                settingName.toLowerCase() === query;
+                settingName.toLowerCase() === text;
 
-            if (!isMatch) {
+            if (!isMatch && text.length >= 2) {
                 const words = fullText.split(/\s+/);
-                const threshold = query.length > 5 ? 2 : 1;
+                const threshold = text.length > 5 ? 2 : 1;
                 isMatch = words.some(
-                    (word) => getLevenshteinDistance(query, word) <= threshold,
+                    (word) => getLevenshteinDistance(text, word) <= threshold,
                 );
             }
 
@@ -5050,8 +5144,8 @@ export async function handleSearch(event) {
                             : childDef.description || ''
                     ).toLowerCase();
                     if (
-                        `${childLabel} ${childDesc}`.includes(query) ||
-                        childName.toLowerCase() === query
+                        `${childLabel} ${childDesc}`.includes(text) ||
+                        childName.toLowerCase() === text
                     ) {
                         isMatch = true;
                         break;

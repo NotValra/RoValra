@@ -28,6 +28,7 @@ import { initAuthenticatedUserLanguageTracking } from './core/utils/trackers/lan
 import { init as initPlaytimeTracker } from './core/utils/trackers/playtime.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
+import { init as initStoreSaleFilter } from './features/games/storeSaleFilter.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initRichRobloxLinks } from './features/sitewide/richRobloxLinks.js';
 import { init as initViewIds } from './features/sitewide/viewid.js';
@@ -40,6 +41,8 @@ import { init as initCyrillicFont } from './features/sitewide/cyrillicFont.js';
 import { init as initCustomFavicon } from './features/sitewide/customFavicon.js';
 import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
+import { init as initWebClientLink } from './features/navigation/webclientlink.js';
+import { init as initRoValraStoreLink } from './features/navigation/storelink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
@@ -50,6 +53,8 @@ import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initHideFriendRequestCount } from './features/sitewide/hideFriendRequestCount.js';
 import { init as initDebugOverlay } from './features/developer/debugOverlay.js';
+import { init as initChannelOverlay } from './features/play/channelOverlay.js';
+import { init as initServerLocationOverlay } from './features/play/serverLocationOverlay.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
 import { init as initRobloxAdminBadges } from './features/sitewide/robloxAdminBadges.js';
@@ -65,6 +70,7 @@ import { initSitewide as initSitewideAppThemesOnProfiles } from './features/prof
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
 import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
+import { init as initRoGoldWarning } from './features/sitewide/roGoldWarning.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -75,6 +81,7 @@ import { init as initBodyColors } from './features/avatar/bodyColors.js';
 import { init as initGameOutfits } from './features/avatar/gameOutfits.js';
 
 // Catalog
+import { init as initBetterGraphs } from './features/catalog/betterGraphs.js';
 import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
 import { init as initDependencies } from './features/catalog/depenencies.js';
@@ -127,6 +134,7 @@ import { init as initTotalEarned } from './features/transactions/totalearned.js'
 import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
 import { init as initItemValues } from './features/trading/itemValues.js';
 import { init as initTradePreview } from './features/trading/tradePreview.js';
+import { init as initTradeCompletedDate } from './features/trading/tradeCompletedDate.js';
 import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
@@ -169,16 +177,19 @@ import { init as initTrustedFriends } from './features/profile/trustedfriends.js
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initProfileTestTab } from './features/profile/testTab.js';
 import { init as initProfileShowcase } from './features/profile/showcase.js';
+import { init as initProfilePlaytime } from './features/profile/playtime.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
 import { init as initCreatorStats } from './features/profile/header/creatorStats.js';
 import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
+import { init as initFollowsYou } from './features/profile/header/followsYou.js';
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
 import { init as initAgeVerificationBadge } from './features/profile/header/ageVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initFriendRequestFilters } from './features/profile/friends/friendRequestFilters.js';
 import { init as initMutualFriends } from './features/profile/friends/mutualFriends.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
@@ -275,6 +286,8 @@ const featureRoutes = [
             initBannedUsers,
             initGroupFunds,
             initTransactionsLink,
+            initWebClientLink,
+            initRoValraStoreLink,
             initStatus,
             initCustomFont,
             initCyrillicFont,
@@ -297,6 +310,8 @@ const featureRoutes = [
             initSidebarLayout,
             initHideFriendRequestCount,
             initDebugOverlay,
+            initChannelOverlay,
+            initServerLocationOverlay,
             initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,
@@ -313,6 +328,7 @@ const featureRoutes = [
             initQuickPrivacyTogglesNav,
             initCustomScrollbar,
             initRoValraIncidentTracker,
+            initRoGoldWarning,
         ],
     },
     // pretty much just the 40% method
@@ -333,6 +349,7 @@ const featureRoutes = [
     {
         paths: ['/catalog', '/bundles'],
         features: [
+            initBetterGraphs,
             initDependencies,
             initItemSales,
             initPriceFloor,
@@ -413,6 +430,7 @@ const featureRoutes = [
             initBadgeOwnership,
             initBadgeEarnedDate,
             initBadgeSort,
+            initStoreSaleFilter,
         ],
     },
     {
@@ -465,14 +483,17 @@ const featureRoutes = [
             initProfileRender,
             initProfileTestTab,
             initProfileShowcase,
+            initProfilePlaytime,
             initIdVerificationBadge,
             initAgeVerificationBadge,
             initFriendsSince,
+            initFriendRequestFilters,
             initMutualFriends,
             initUnfriend,
             initBulkBadgeRemover,
             initLastPlayed,
             initProfilePronouns,
+            initFollowsYou,
             initProfileNotes,
             initCreatorStats,
             initProfileViews,
@@ -529,6 +550,7 @@ const featureRoutes = [
             initSendTrade,
             initRecentTradeItems,
             initTradeQuickActions,
+            initTradeCompletedDate,
         ],
     },
 
