@@ -3505,11 +3505,20 @@ export const SETTINGS_CONFIG = {
     Play: {
         title: 'Roblox Website Client',
         settings: {
+            webclientinfo: {
+                label: 'Web Client Info',
+                description: [
+                    'The Roblox web client is a client running inside the website.',
+                    'Currently this client is experimental and not fully rolled out.',
+                    "It is not made to be a replacement for the normal client but instead an alternative for platforms that can't use the normal client such as chromebooks",
+                ],
+            },
             channelOverlayEnabled: {
                 label: 'Channel Overlay',
                 description: [
                     'Shows an overlay on play.roblox.com with your channel, which you can change.',
                     'It opens automatically whenever you are on play.roblox.com. Press F2 to show or hide it.',
+                    "**CHANNEL SWITCHER IS USE AT YOUR OWN RISK** as I wasn't able to get a clear answer if this was 100% allowed or not from Roblox.",
                 ],
                 type: 'checkbox',
                 default: false,
