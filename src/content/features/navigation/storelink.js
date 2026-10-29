@@ -18,9 +18,9 @@ function isStorePage() {
 
 function createStoreIcon() {
     return Icon({
-        material: true,
+        material: false,
         size: 'medium',
-        icon: 'storefront',
+        icon: 'shopping-basket',
         filled: false,
     });
 }
