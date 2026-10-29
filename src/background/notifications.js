@@ -250,9 +250,11 @@ async function checkLogins(previous, strings) {
     const result = await getSessions();
     if (!result) return previous;
 
-    const { streamermode } = await chrome.storage.local.get({
+    const { streamermode, hideLoginLocation } = await chrome.storage.local.get({
         streamermode: false,
+        hideLoginLocation: true,
     });
+    const hidePlace = streamermode && hideLoginLocation;
     const known = previous?.sessions;
     const current = new Map();
     for (const session of result.sessions) {
@@ -274,7 +276,7 @@ async function checkLogins(previous, strings) {
         // First check just learns which sessions already exist.
         if (!known) continue;
 
-        const details = describeSession(session, strings, streamermode);
+        const details = describeSession(session, strings, hidePlace);
         if (!(hash in known)) {
             // Opening Roblox or Studio from a session you already have spawns
             // a child session, those shouldn't count as a new login.

@@ -2647,7 +2647,7 @@ export const SETTINGS_CONFIG = {
                         label: 'New Logins',
                         description: [
                             'Notifies you when your account gets logged in on a new device, or when one of your sessions gets used from a different region.',
-                            'Click the notification to sign the device out from your security settings. Your location is hidden if Streamer Mode is on.',
+                            'Click the notification to sign the device out from your security settings.',
                             "Trusted logins from a region you already use get a quieter notification, since that's usually just you.",
                         ],
                         type: 'checkbox',
@@ -2946,6 +2946,14 @@ export const SETTINGS_CONFIG = {
                             value: true,
                             hide: false,
                         },
+                    },
+                    hideLoginLocation: {
+                        label: 'Hide location in New Login notifications',
+                        description: [
+                            'Leaves the city and region out of the New Login browser notifications.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
                     },
                 },
             },
