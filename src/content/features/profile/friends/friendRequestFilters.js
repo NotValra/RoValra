@@ -3,7 +3,7 @@ import {
     observeElement,
     observeText,
 } from '../../../core/observer.js';
-import { callRobloxApiJson } from '../../../core/api.js';
+import { callRobloxApi, callRobloxApiJson } from '../../../core/api.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { ts } from '../../../core/locale/i18n.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -15,18 +15,17 @@ import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../../core/assets.js';
 import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
-import {
-    getMultiProfileInsights,
-    INSIGHT_CASES,
-    RANKING_STRATEGIES,
-} from '../../../core/apis/users.js';
+import { INSIGHT_CASES, RANKING_STRATEGIES } from '../../../core/apis/users.js';
 
 const HEADER_SELECTOR = '.request-tab-header';
 const NATIVE_CAPTION_SELECTOR =
     '.friends-content .avatar-card:not(.rovalra-filtered-request-card) .avatar-card-caption';
 const HEADER_BATCH_SIZE = 25;
 const INSIGHTS_BATCH_SIZE = 100;
-const MAX_CONCURRENT_BATCHES = 4;
+const MAX_CONCURRENT_BATCHES = 2;
+const MAX_ATTEMPTS = 4;
+const RATE_LIMIT_BUFFER_MS = 500;
+const FALLBACK_RETRY_MS = 5000;
 const PAGE_SIZE = 36;
 const COUNT_API_CAP = 500;
 
@@ -99,12 +98,72 @@ function parseDate(value, endOfDay = false) {
     return Number.isNaN(date.getTime()) ? null : date.getTime();
 }
 
+const rateLimitResets = new Map();
+
+function getRateLimitKey(options) {
+    return `${options.subdomain}${options.endpoint.split('?')[0]}`;
+}
+
+function getResetDelay(response) {
+    const reset = Number(response.headers.get('x-ratelimit-reset'));
+    if (!Number.isFinite(reset) || reset <= 0) return 0;
+    return (
+        (reset > 1e9 ? Math.max(0, reset * 1000 - Date.now()) : reset * 1000) +
+        RATE_LIMIT_BUFFER_MS
+    );
+}
+
+async function waitForRateLimit(key) {
+    const delay = (rateLimitResets.get(key) || 0) - Date.now();
+    if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+}
+
+async function fetchRateLimited(options) {
+    const key = getRateLimitKey(options);
+
+    for (let attempt = 0; ; attempt++) {
+        await waitForRateLimit(key);
+        const response = await callRobloxApi(options);
+
+        const remaining = Number(response.headers.get('x-ratelimit-remaining'));
+        if (
+            response.status === 429 ||
+            (Number.isFinite(remaining) && remaining <= 0)
+        ) {
+            const resetDelay =
+                getResetDelay(response) ||
+                (response.status === 429 ? FALLBACK_RETRY_MS : 0);
+            rateLimitResets.set(
+                key,
+                Math.max(
+                    rateLimitResets.get(key) || 0,
+                    Date.now() + resetDelay,
+                ),
+            );
+        }
+
+        if (response.ok) return response.json();
+
+        const isTransient = response.status === 429 || response.status >= 500;
+        if (!isTransient || attempt + 1 >= MAX_ATTEMPTS) {
+            const error = new Error(
+                `API request failed with status ${response.status}`,
+            );
+            error.status = response.status;
+            throw error;
+        }
+        if (response.status !== 429) {
+            await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+        }
+    }
+}
+
 async function fetchAllRequests(onProgress) {
     const requests = [];
     let cursor = null;
 
     do {
-        const response = await callRobloxApiJson({
+        const response = await fetchRateLimited({
             subdomain: 'friends',
             endpoint: `/v1/my/friends/requests?limit=100&sortOrder=Desc${
                 cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''
@@ -181,7 +240,7 @@ function getCachedUser(userId) {
 }
 
 async function fetchHeaderBatch(userIds) {
-    const response = await callRobloxApiJson({
+    const response = await fetchRateLimited({
         subdomain: 'apis',
         endpoint: '/profile-platform-api/v1/profiles/batch/get',
         method: 'POST',
@@ -222,10 +281,16 @@ async function fetchHeaderBatch(userIds) {
 }
 
 async function fetchJoinedBatch(userIds) {
-    const response = await getMultiProfileInsights(
-        userIds,
-        RANKING_STRATEGIES.TC_INFO_BOOST,
-    );
+    const response = await fetchRateLimited({
+        subdomain: 'apis',
+        endpoint: '/profile-insights-api/v1/multiProfileInsights',
+        method: 'POST',
+        useBackground: true,
+        body: {
+            userIds: userIds.map((id) => id.toString()),
+            rankingStrategy: RANKING_STRATEGIES.TC_INFO_BOOST,
+        },
+    }).catch(() => null);
     for (const user of response?.userInsights || []) {
         const insight = (user.profileInsights || []).find(
             (item) => item.insightCase === INSIGHT_CASES.ACCOUNT_CREATION_DATE,
