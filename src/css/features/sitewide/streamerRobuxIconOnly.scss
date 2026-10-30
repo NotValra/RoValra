@@ -1,0 +1,26 @@
+// fixes the position on the robux logo when the option robux icon is selected
+#navbar-robux:has([data-rovalra-robux-icon-only]) {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    flex: 0 0 36px !important;
+
+    > a,
+    > button {
+        box-sizing: border-box !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        padding-inline: 0 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+    }
+
+    [data-rovalra-robux-icon-only] {
+        min-width: 0 !important;
+        margin-inline: 0 !important;
+        padding-inline: 0 !important;
+    }
+}
