@@ -4498,6 +4498,10 @@ async function renderStoreFrames(container) {
 
                 section.header.style.display = isVisible ? '' : 'none';
                 section.grid.style.display = isVisible ? 'grid' : 'none';
+                for (const card of section.cards) {
+                    card.element.style.display =
+                        tab === 'new' && !card.isNew ? 'none' : '';
+                }
                 if (isVisible) visibleCount += 1;
             }
             emptyTabMessage.hidden = visibleCount > 0;
@@ -4539,11 +4543,13 @@ async function renderStoreFrames(container) {
                 'display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 10px; align-items: flex-start;';
             container.appendChild(framesGrid);
 
+            const frameCards = [];
             storeSections.push({
                 categoryValue: category.value,
                 isNew: category.new,
                 header: categoryHeader,
                 grid: framesGrid,
+                cards: frameCards,
             });
 
             for (const frame of category.frames) {
@@ -4599,6 +4605,7 @@ async function renderStoreFrames(container) {
                 );
 
                 framesGrid.appendChild(frameCard);
+                frameCards.push({ element: frameCard, isNew: frame.new });
 
                 const intersection = observeIntersection(
                     frameCard,

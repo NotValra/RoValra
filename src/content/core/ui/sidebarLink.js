@@ -106,6 +106,42 @@ function setLinkLabel(link, label) {
     link.appendChild(span);
 }
 
+function createBadge(text) {
+    const host = document.createElement('span');
+    host.className =
+        'rovalra-sidebar-badge fill basis-auto padding-x-small flex justify-end items-center';
+
+    const pill = document.createElement('div');
+    pill.className =
+        'foundation-web-badge flex items-center select-none gap-[var(--size-150)] radius-circle height-600 width-[fit-content] padding-x-small bg-system-contrast content-inverse-emphasis stroke-none';
+
+    const label = document.createElement('span');
+    label.className =
+        'text-no-wrap text-truncate-split text-label-small padding-y-xsmall padding-x-xxsmall content-inverse-emphasis';
+    label.textContent = text;
+
+    pill.appendChild(label);
+    host.appendChild(pill);
+    return host;
+}
+
+function syncBadge(link, text) {
+    const existing = link.querySelector(':scope > .rovalra-sidebar-badge');
+
+    if (!text) {
+        existing?.remove();
+        return;
+    }
+
+    if (existing) {
+        const label = existing.querySelector('.text-label-small');
+        if (label && label.textContent !== text) label.textContent = text;
+        return;
+    }
+
+    link.appendChild(createBadge(text));
+}
+
 function clearInlineActiveStyles(item) {
     [item, ...item.querySelectorAll('*')].forEach((element) => {
         element.style.removeProperty('background');
@@ -146,6 +182,7 @@ export function initSidebarLink({
     legacySelectors = [],
     openInNewTab = false,
     pinBelowCommunities = false,
+    badge = null,
 }) {
     if (pinBelowCommunities) pinnedLinkIds.add(id);
 
@@ -153,6 +190,7 @@ export function initSidebarLink({
     const linkSelector = `a[data-rovalra-sidebar-link="${id}"]`;
     const settingValues = new Map();
     let enabled = false;
+    let badgeText = null;
 
     const getLabel = () => (typeof label === 'function' ? label() : label);
 
@@ -165,6 +203,7 @@ export function initSidebarLink({
         item.dataset.rovalraSidebarItem = id;
         link.dataset.rovalraSidebarLink = id;
         link.className = LINK_CLASS;
+        syncBadge(link, badgeText);
 
         if (matchesRoute(window.location.pathname, path)) {
             link.setAttribute('aria-current', 'page');
@@ -269,6 +308,21 @@ export function initSidebarLink({
         }
     };
 
+    const refreshBadge = () => {
+        if (!badge) return;
+
+        Promise.resolve(badge())
+            .then((text) => {
+                badgeText = text || null;
+                document
+                    .querySelectorAll(linkSelector)
+                    .forEach((link) => syncBadge(link, badgeText));
+            })
+            .catch(() => {});
+    };
+
+    refreshBadge();
+
     (async () => {
         startLocationWatcher();
 
@@ -297,4 +351,6 @@ export function initSidebarLink({
             error,
         );
     });
+
+    return { refreshBadge };
 }

@@ -1,3 +1,4 @@
+import { getFrames } from '../../core/configs/frames.js';
 import { ts } from '../../core/locale/i18n.js';
 import { observeElement } from '../../core/observer.js';
 import { Icon } from '../../core/ui/buildericon.js';
@@ -5,8 +6,10 @@ import { initSidebarLink } from '../../core/ui/sidebarLink.js';
 import { buttonData, updateContent } from '../settings/index.js';
 
 const PAGE_PATH = '/rovalra-store';
+const SEEN_NEW_FRAMES_KEY = 'rovalraStoreSeenNewFrames';
 
 let observerActive = false;
+let sidebarLink = null;
 
 function isStorePage() {
     return (
@@ -23,6 +26,33 @@ function createStoreIcon() {
         icon: 'shopping-basket',
         filled: false,
     });
+}
+
+async function getNewFrameValues() {
+    const frames = await getFrames();
+    return frames.filter((frame) => frame.new).map((frame) => frame.value);
+}
+
+async function getSeenNewFrames() {
+    const stored = await chrome.storage.local.get(SEEN_NEW_FRAMES_KEY);
+    const seen = stored?.[SEEN_NEW_FRAMES_KEY];
+    return new Set(Array.isArray(seen) ? seen : []);
+}
+
+async function getStoreBadgeText() {
+    const [newFrames, seen] = await Promise.all([
+        getNewFrameValues(),
+        getSeenNewFrames(),
+    ]);
+    return newFrames.some((value) => !seen.has(value))
+        ? ts('profileCustomization.new')
+        : null;
+}
+
+async function markNewFramesSeen() {
+    const newFrames = await getNewFrameValues();
+    await chrome.storage.local.set({ [SEEN_NEW_FRAMES_KEY]: newFrames });
+    sidebarLink?.refreshBadge();
 }
 
 async function renderPage(contentDiv) {
@@ -59,16 +89,33 @@ export function init() {
     if (init._run) return;
     init._run = true;
 
-    initSidebarLink({
+    sidebarLink = initSidebarLink({
         id: 'rovalra-store',
         path: PAGE_PATH,
         label: () => ts('navigation.rovalraStore'),
         createIcon: createStoreIcon,
         settingKeys: ['rovalraStoreSidebarLinkEnabled'],
         pinBelowCommunities: true,
+        badge: getStoreBadgeText,
     });
 
+    document.addEventListener(
+        'click',
+        (event) => {
+            if (
+                event.target.closest?.(
+                    'a[data-rovalra-sidebar-link="rovalra-store"]',
+                )
+            ) {
+                markNewFramesSeen().catch(() => {});
+            }
+        },
+        true,
+    );
+
     if (!isStorePage()) return;
+
+    markNewFramesSeen().catch(() => {});
 
     (async () => {
         const contentDiv = document.querySelector('.content#content');
