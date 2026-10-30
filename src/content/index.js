@@ -72,6 +72,7 @@ import { init as initQuickPrivacyTogglesNav } from './features/navigation/privac
 import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
 import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
 import { init as initRoGoldWarning } from './features/sitewide/roGoldWarning.js';
+import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -331,6 +332,7 @@ const featureRoutes = [
             initCustomScrollbar,
             initRoValraIncidentTracker,
             initRoGoldWarning,
+            initRemoveDownloadButton
         ],
     },
     // pretty much just the 40% method
