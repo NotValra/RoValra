@@ -126,6 +126,7 @@
         "searchingInRegion": "Wyszukiwanie w regionie {{region}}...",
         "fallbackInactive": "Kolejne najlepsze serwery z API są nieaktywne. Lokalne skanowanie w poszukiwaniu: {{region}}...",
         "noServersApi": "API nie znalazło serwerów w regionie {{region}}. Skanowanie lokalne...",
+        "apiTimedOut": "Wyszukiwanie regionu {{region}} przez Region Finder w RoValra trwa zbyt długo, prawdopodobnie z powodu zmian wprowadzonych przez Roblox. Przechodzenie do lokalnego wyszukiwania regionu {{region}}.",
         "loadBalancing": "{{region}} służy do równoważenia obciążenia i prawdopodobnie jest aktywny tylko przy dużym ruchu. Skanowanie...",
         "foundJoining": "Znaleziono {{region}}! Dołączanie...",
         "foundContinuing": "Znaleziono: {{region}}. Dalsze wyszukiwanie: {{targetRegion}}...",
@@ -420,7 +421,9 @@
         "friendFallback": "Znajomy",
         "join": "Dołącz",
         "chat": "Czat",
-        "viewProfile": "Zobacz profil"
+        "viewProfile": "Wyświetl profil",
+        "canJoin": "Możecie grać razem",
+        "notJoinable": "Nie można obecnie dołączyć do użytkownika."
     },
     "friendLabels": {
         "menuAction": "Ustaw etykietę znajomego",
@@ -504,6 +507,8 @@
         "overlayText": "Ukryte projekty",
         "noHiddenGames": "Ten użytkownik nie ma ukrytych projektów.",
         "buttonText": "Ukryte projekty",
+        "publicExperiences": "Publiczne gry",
+        "hiddenExperiences": "Ukryte gry",
         "labels": {
             "sort": "Sortuj",
             "order": "Kolejność",
@@ -689,6 +694,111 @@
             "errors": {
                 "invalidUrl": "Wpisz prawidłowy adres URL obrazu (https)."
             }
+        },
+        "variables": {
+            "intro": "Wybierz powyżej motyw Roblox, aby użyć go bez zmian, lub zmień dowolny kolor poniżej, aby go dostosować. Zmiany są widoczne na bieżąco.",
+            "presetNone": "Brak",
+            "opacity": "Nieprzezroczystość",
+            "reset": "Resetuj",
+            "resetAll": "Przywróć domyślne kolory",
+            "saved": {
+                "title": "Moje motywy",
+                "noTheme": "Brak motywu",
+                "unsaved": "Niezapisany motyw",
+                "editingLabel": "{{name}} (edycja)",
+                "statusNone": "Nie masz włączonego żadnego motywu. Roblox wygląda tak jak zwykle.",
+                "statusUnsaved": "Używasz kolorów, które nie zostały jeszcze zapisane jako motyw.",
+                "statusEditing": "Edytujesz motyw „{{name}}”. Zapisz go, aby zachować zmiany.",
+                "statusEquipped": "Motyw „{{name}}” jest włączony.",
+                "namePlaceholder": "Nazwa motywu",
+                "save": "Zapisz",
+                "delete": "Usuń",
+                "export": "Eksportuj",
+                "import": "Importuj",
+                "defaultName": "Mój motyw",
+                "importedName": "Zaimportowany motyw",
+                "saved": "Motyw został zapisany!",
+                "updated": "Motyw został zaktualizowany!",
+                "deleted": "Motyw został usunięty.",
+                "imported": "Motyw został zaimportowany!",
+                "nameRequired": "Najpierw wpisz nazwę motywu.",
+                "limitReached": "Możesz zapisać maksymalnie {{count}} motywów.",
+                "invalidFile": "Ten plik nie jest motywem RoValry.",
+                "fileTooLarge": "Ten plik jest zbyt duży, aby mógł być motywem.",
+                "deleteTitle": "Usuń motyw",
+                "deleteMessage": "Czy na pewno chcesz usunąć ten zapisany motyw?"
+            },
+            "modes": {
+                "editingDark": "Edycja kolorów trybu ciemnego",
+                "editingLight": "Edycja kolorów trybu jasnego"
+            },
+            "tokens": {
+                "surface-0": "Tło strony",
+                "surface-100": "Powierzchnia 100",
+                "surface-200": "Powierzchnia 200",
+                "surface-300": "Powierzchnia 300",
+                "common-navigation-bar": "Pasek nawigacji",
+                "over-media-0": "Na tle multimediów 0",
+                "over-media-100": "Na tle multimediów 100",
+                "over-media-200": "Na tle multimediów 200",
+                "over-media-300": "Na tle multimediów 300",
+                "common-backdrop": "Tło nakładki",
+                "content-emphasis": "Wyróżniony tekst",
+                "content-default": "Tekst domyślny",
+                "content-muted": "Przygaszony tekst",
+                "content-link": "Tekst odnośnika",
+                "stroke-default": "Domyślne obramowanie",
+                "stroke-emphasis": "Wyróżnione obramowanie",
+                "stroke-muted": "Przygaszone obramowanie",
+                "common-heavy-divider": "Gruby separator",
+                "shift-100": "Przesunięcie 100",
+                "shift-200": "Przesunięcie 200",
+                "shift-300": "Przesunięcie 300",
+                "shift-400": "Przesunięcie 400",
+                "system-emphasis": "Wyróżnienie",
+                "system-contrast": "Kontrast",
+                "system-alert": "Alert",
+                "system-success": "Sukces",
+                "system-warning": "Ostrzeżenie",
+                "system-neutral": "Neutralny",
+                "action-emphasis-background": "Tło głównego przycisku",
+                "action-emphasis-foreground": "Tekst głównego przycisku",
+                "action-standard-background": "Tło standardowego przycisku",
+                "action-standard-foreground": "Tekst standardowego przycisku",
+                "action-soft-emphasis-background": "Tło delikatnego przycisku",
+                "action-soft-emphasis-foreground": "Tekst delikatnego przycisku",
+                "action-subtle-border": "Delikatne obramowanie",
+                "action-alert-foreground": "Tekst alertu",
+                "action-over-media-background": "Tło przycisku na multimediach",
+                "action-over-media-foreground": "Tekst przycisku na multimediach"
+            },
+            "presets": {
+                "classic": "Klasyczny",
+                "circuit-rush": "Obwodowy pęd",
+                "cosmic-dust": "Kosmiczny pył",
+                "electric-lime": "Elektryczna limonka",
+                "hyper-plum": "Intensywna śliwka",
+                "inferno-blast": "Wybuch inferna",
+                "kinetic-energy": "Energia kinetyczna",
+                "lava-glow": "Blask lawy",
+                "nebula-drift": "Dryf mgławicy",
+                "nitro-frost": "Nitro i mróz",
+                "pixel-pop": "Pikselowy zawrót głowy",
+                "polar-freeze": "Polarny chłód",
+                "quantum-pulse": "Kwantowy puls",
+                "star-burst": "Rozbłysk gwiazdy",
+                "super-charge": "Superdoładowanie"
+            },
+            "builtIn": {
+                "veryDark": "Bardzo ciemny motyw"
+            },
+            "groups": {
+                "surfaces": "Powierzchnie",
+                "content": "Tekst",
+                "strokes": "Obramowania i przesunięcia",
+                "system": "System",
+                "actions": "Przyciski"
+            }
         }
     },
     "previousPrice": {
@@ -815,6 +925,29 @@
         "scanInProgress": "Trwa skanowanie transakcji. Może to chwilę potrwać.",
         "loadError": "Nie udało się załadować wydatków u twórców."
     },
+    "spending": {
+        "title": "Wydatki",
+        "disclaimer": "Dane mogą być niedokładne ze względu na ograniczenia Roblox",
+        "byMonth": "Według miesiąca",
+        "byYear": "Według roku",
+        "creators": "Twórcy",
+        "games": "Gry",
+        "searchPlaceholder": "Szukaj",
+        "showingPeriod": "Wyświetlanie: {{period}}",
+        "back": "Wstecz",
+        "viewPurchases": "Wyświetl zakupy",
+        "robuxAmount": "{{amount}} Robux",
+        "mostExpensive": "Najdroższe",
+        "cheapest": "Najtańsze",
+        "newest": "Najnowsze",
+        "oldest": "Najstarsze",
+        "unknownItem": "Nieznany przedmiot",
+        "unknownGame": "Nieznana gra",
+        "noPurchases": "Nie znaleziono zakupów.",
+        "noPurchasesInPeriod": "Brak zakupów w tym okresie.",
+        "scanInProgress": "Trwa skanowanie transakcji. Może to chwilę potrwać.",
+        "loadError": "Nie udało się wczytać danych o wydatkach."
+    },
     "settings": {
         "tabs": {
             "info": "Informacje",
@@ -842,10 +975,10 @@
         "credits": {
             "contributorsTitle": "Współtwórcy",
             "translatorsTitle": "Tłumacze",
-            "featureCount_one": "{{count}} funkcja",
-            "featureCount_few": "{{count}} funkcje",
-            "featureCount_many": "{{count}} funkcji",
-            "featureCount_other": "{{count}} funkcji",
+            "featureCount_one": "{{count}} wkład",
+            "featureCount_few": "{{count}} wkłady",
+            "featureCount_many": "{{count}} wkładów",
+            "featureCount_other": "{{count}} wkładów",
             "contributorTooltips": {
                 "146089324": "WoozyNate stworzył fisch, z którego pochodzi stare logo RoValra. Warto sprawdzić fisch!",
                 "1337447242": "Zaprojektował nowe logo i wszystkie grafiki na stronę w sklepie.",
@@ -856,10 +989,10 @@
             "sortLabel": "Sortuj współtwórców",
             "sortMost": "Najwięcej",
             "sortLeast": "Najmniej",
-            "contributionCount_one": "Wkład w {{count}} funkcję",
-            "contributionCount_few": "Wkład w {{count}} funkcje",
-            "contributionCount_many": "Wkład w {{count}} funkcji",
-            "contributionCount_other": "Wkład w {{count}} funkcji",
+            "contributionCount_one": "Wkład w {{count}} rzecz",
+            "contributionCount_few": "Wkład w {{count}} rzeczy",
+            "contributionCount_many": "Wkład w {{count}} rzeczy",
+            "contributionCount_other": "Wkład w {{count}} rzeczy",
             "backendContributorsNote": "Te osoby pomogły przy rzeczach niezwiązanych z konkretnymi funkcjami.",
             "loadingContributors": "Ładowanie...",
             "failedToLoadContributors": "Nie udało się załadować współtwórców.",
@@ -1282,7 +1415,9 @@
         "noSearchHistory": "Nie masz historii wyszukiwania.",
         "deleteSearchHistoryTitle": "Usuń historię wyszukiwania",
         "deleteSearchHistoryMessage": "Czy na pewno chcesz usunąć ten wpis z historii wyszukiwania?",
-        "delete": "Usuń"
+        "delete": "Usuń",
+        "itemValue": "Wartość",
+        "itemRap": "RAP"
     },
     "friendOwnership": {
         "pillLabel": "Mają to znajomi: {{count}}",
@@ -1342,6 +1477,10 @@
         "bonusItemFallback": "Zawiera przedmiot bonusowy",
         "noItems": "Nie znaleziono przedmiotów w sklepie.",
         "failedToLoad": "Nie udało się załadować przedmiotów ze sklepu.",
+        "offers": {
+            "expires": "Wygasa",
+            "inGameOnly": "Dotyczy wyłącznie zakupów dokonanych w grze."
+        },
         "sections": {
             "robux": "Robux"
         },
@@ -1487,7 +1626,12 @@
         "unableToDetectUniverse": "Nie udało się wykryć tego uniwersum.",
         "stillScanning": "Trwa skanowanie Twoich odznak. Posiadane ukryte odznaki mogą pojawić się wkrótce.",
         "noneOwnedFound": "Nie znaleziono ukrytych odznak z tej gry, które posiadasz.",
-        "failedToLoad": "Nie udało się załadować posiadanych ukrytych odznak."
+        "noneFound": "Nie znaleziono ukrytych odznak w tej grze.",
+        "noPublicBadges": "Ta gra nie ma żadnych publicznych odznak.",
+        "failedToLoad": "Nie udało się wczytać ukrytych odznak.",
+        "rolimonsSource": "Ukryte odznaki udostępnione przez Rolimon's.",
+        "viewOnRolimons": "Zobacz grę w serwisie Rolimon's",
+        "openBadgeOnRolimons": "Otwórz odznakę w serwisie Rolimon's"
     },
     "antiBots": {
         "reviewMembers": "Sprawdź wybranych członków ({{count}}):",
@@ -1589,7 +1733,13 @@
             "previewGui": "Podgląd GUI",
             "togglePreviewVisibility": "Przełącz widoczność w podglądzie",
             "noMatchingInstances": "Nie znaleziono pasujących instancji",
-            "loadError": "Nie udało się załadować."
+            "loadError": "Nie udało się wczytać.",
+            "previewMesh": "Podgląd modelu 3D",
+            "previewImage": "Podgląd obrazu",
+            "loadingImage": "Wczytywanie obrazu...",
+            "imageLoadError": "Nie udało się wczytać obrazu.",
+            "loadingMesh": "Wczytywanie modelu 3D...",
+            "meshLoadError": "Nie udało się wczytać modelu 3D."
         }
     },
     "priceFloor": {
@@ -1727,6 +1877,9 @@
         "pricier": "{{value}} Robux drożej niż podczas oglądania",
         "offSale": "Wycofany ze sprzedaży",
         "backOnSale": "Znów w sprzedaży"
+    },
+    "heroUnits": {
+        "ends": "Koniec"
     },
     "tradeRecentItems": {
         "offer": "Ostatnio oferowane",
@@ -1959,9 +2112,18 @@
         "ariaLabel": "Nazwa użytkownika: @{{username}}",
         "nameWithUsername": "{{displayName}} (@{{username}})"
     },
+    "robloxAdminBadges": {
+        "badge": "Administrator Roblox"
+    },
     "placeVisits": {
         "label": "Odwiedziny miejsc: {{count}}",
         "tooltip": "Łączne odwiedziny miejsc społeczności"
+    },
+    "groupFundsPill": {
+        "label": "{{count}} środków",
+        "tooltip": "Środki społeczności",
+        "privateTooltip": "Te środki nie są publiczne. RoValra wyświetla je tylko Tobie ze względu na Twoją rolę.",
+        "roleTooltip": "RoValra wyświetla Ci te środki ze względu na Twoją rolę."
     },
     "groups": {
         "createdLabel": "Utworzono",
@@ -1969,6 +2131,16 @@
         "unknown": "Nieznane",
         "hidden": "Ukryte",
         "hiddenTooltip": "Ta społeczność ukrywa listę członków, dlatego daty dołączenia mogą zobaczyć tylko jej członkowie."
+    },
+    "statusBubble": {
+        "imageLabel": "Obraz statusu",
+        "decalId": "ID naklejki",
+        "removeImage": "Usuń obraz",
+        "decalNotFound": "Nie znaleziono naklejki o podanym ID.",
+        "tier3Perk": "Obrazy statusu są dostępne dla wspierających na poziomie 3.",
+        "clickToReport": "Kliknij, aby zgłosić",
+        "imageThumbnail": "Miniatura: {{name}}",
+        "imageSaveFailed": "Status został zapisany, ale nie udało się zaktualizować obrazu."
     },
     "showcase": {
         "tab": "Wizytówka",
@@ -2104,6 +2276,11 @@
         "baseplate": "Podłoże",
         "rotatePreview": "Obracaj podgląd",
         "itemOnly": "Pokaż tylko przedmiot"
+    },
+    "freeBadgeQuota": {
+        "label": "Darmowe odznaki",
+        "value": "Pozostało dzisiaj: {{count}}",
+        "tooltip": "Liczba darmowych odznak, które ta gra może jeszcze utworzyć. Roblox pozwala na utworzenie 5 darmowych odznak na jedną grę w ciągu każdych 24 godzin."
     },
     "groupFilters": {
         "sort": {
@@ -2251,6 +2428,129 @@
         "pin": "Przypnij na górze",
         "unpin": "Odepnij"
     },
+    "debugOverlay": {
+        "title": "Debugowanie RoValra",
+        "popout": "Otwórz w osobnym oknie",
+        "collapse": "Zwiń panel debugowania",
+        "hide": "Ukryj panel debugowania",
+        "performance": {
+            "title": "Wydajność",
+            "fps": "FPS",
+            "frameTime": "Średni / maks. czas klatki",
+            "frameLow": "Najniższe 1% FPS",
+            "jank": "Klatki z przycięciami",
+            "loopLag": "Średnie / maks. opóźnienie pętli",
+            "longTasks": "Długotrwałe zadania",
+            "blocking": "Czas blokowania",
+            "longFrames": "Długie klatki",
+            "jsHeap": "Pamięć sterty JS: użyta / całkowita / maks.",
+            "domNodes": "Węzły DOM",
+            "uptime": "Czas działania panelu"
+        },
+        "vitals": {
+            "title": "Kluczowe wskaźniki strony",
+            "fcp": "FCP",
+            "lcp": "LCP",
+            "cls": "CLS",
+            "inp": "Najwolniejsza interakcja"
+        },
+        "loading": {
+            "title": "Ładowanie",
+            "readyState": "Stan gotowości",
+            "navType": "Typ nawigacji",
+            "protocol": "Protokół",
+            "redirect": "Przekierowanie",
+            "dns": "DNS",
+            "connect": "Łączenie",
+            "ttfb": "Czas do pierwszego bajtu (TTFB)",
+            "download": "Pobieranie",
+            "domInteractive": "DOM gotowy do interakcji",
+            "domContentLoaded": "Załadowanie DOM",
+            "load": "Pełne załadowanie",
+            "documentSize": "Rozmiar dokumentu",
+            "pageWeight": "Całkowity rozmiar strony",
+            "requests": "Żądania",
+            "cacheHit": "Trafienia w pamięci podręcznej",
+            "slowest": "Najwolniejsze",
+            "largest": "Największe"
+        },
+        "resources": {
+            "title": "Zasoby",
+            "scripts": "Skrypty",
+            "styles": "Arkusze stylów",
+            "images": "Obrazy",
+            "fetchXhr": "Fetch / XHR",
+            "iframes": "Ramki iframe",
+            "other": "Inne"
+        },
+        "requests": {
+            "title": "Żądania RoValra",
+            "inFlight": "W trakcie",
+            "total": "Łącznie",
+            "failed": "Nieudane",
+            "avgLatency": "Średnie opóźnienie",
+            "lastRequest": "Ostatnie żądanie",
+            "lastFailure": "Ostatni błąd"
+        },
+        "graphics": {
+            "title": "Grafika / 3D",
+            "glContexts": "Aktywne / utworzone konteksty WebGL",
+            "glSizes": "Rozmiary obszarów roboczych WebGL",
+            "glPixels": "Piksele WebGL",
+            "canvases": "Elementy canvas",
+            "videos": "Elementy wideo",
+            "imageElements": "Elementy obrazów",
+            "svgs": "Elementy SVG"
+        },
+        "display": {
+            "title": "Obszar widoku",
+            "viewport": "Obszar widoku",
+            "pixelRatio": "Współczynnik pikseli",
+            "scroll": "Przewinięcie / wysokość strony"
+        },
+        "storage": {
+            "title": "Pamięć",
+            "origin": "Dane witryny",
+            "localStorage": "localStorage",
+            "sessionStorage": "sessionStorage",
+            "cookies": "Pliki cookie",
+            "extStorage": "Pamięć RoValra"
+        },
+        "errors": {
+            "title": "Błędy",
+            "jsErrors": "Błędy skryptów",
+            "rejections": "Nieobsłużone odrzucenia obietnic",
+            "consoleErrors": "Błędy konsoli",
+            "consoleWarns": "Ostrzeżenia konsoli",
+            "lastError": "Ostatni błąd"
+        },
+        "page": {
+            "title": "Strona",
+            "pageTitle": "Tytuł",
+            "url": "URL",
+            "referrer": "Strona odsyłająca",
+            "charset": "Kodowanie znaków",
+            "visibility": "Widoczność",
+            "focus": "Aktywne okno",
+            "compat": "Tryb zgodności",
+            "lang": "Język",
+            "theme": "Motyw Roblox",
+            "userId": "ID użytkownika",
+            "csrf": "Token CSRF"
+        },
+        "rovalra": {
+            "title": "RoValra",
+            "version": "Wersja",
+            "extensionId": "ID rozszerzenia",
+            "manifest": "Manifest",
+            "path": "Ścieżka"
+        },
+        "values": {
+            "worst": "{{count}} (najgorszy wynik: {{time}})",
+            "keys": "{{count}} kluczy, {{size}}",
+            "seconds": "{{count}} s"
+        }
+    },
     "richLinks": {
         "by": "Autor: {{name}}",
         "members": "Członkowie: {{count}}",
@@ -2322,5 +2622,12 @@
         "contentType": "Typ zawartości",
         "redirected": "Przekierowano",
         "copy": "Kopiuj"
+    },
+    "notifications": {
+        "newTrade": "Nowa wymiana",
+        "tradeFrom": "Od {{name}}",
+        "tradeStats": "Wartość: {{value}} | RAP: {{rap}}",
+        "friendPlaying": "{{name}} gra teraz",
+        "unknownGame": "Gra"
     }
 }
