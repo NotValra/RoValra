@@ -1,7 +1,11 @@
+@use 'donatorPerks' as donator;
+
 .rovalra-store-page {
     max-width: 1200px;
     margin: 0 auto;
     padding: 24px 20px 60px;
+
+    @include donator.donator-perks;
 }
 
 .rovalra-store-page-title {

@@ -144,7 +144,10 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     .profile-platform-container
         .user-profile-header-details-avatar-container
         .thumbnail-2d-container.avatar-card-image,
-    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+    .user-profile-header-details-avatar-container:is(
+            .avatar-headshot-lg,
+            .avatar-headshot-xl
+        )
         .avatar-card-fullbody
         > .thumbnail-2d-container.avatar-card-image,
     .profile-platform-container #user-profile-header-bg .avatar-card-image,
@@ -156,7 +159,10 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     .profile-platform-container
         .user-profile-header-details-avatar-container
         .rovalra-improved-avatar-card,
-    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+    .user-profile-header-details-avatar-container:is(
+            .avatar-headshot-lg,
+            .avatar-headshot-xl
+        )
         .rovalra-improved-avatar-card,
     .base-tile-thumbnail,
     #buy-robux-popover,
@@ -173,7 +179,8 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     #settings-popover-menu,
     #avatar-shop-keyword-input,
     #robux-redesign-page .bg-surface-100.medium\:radius-circle,
-    #robux-redesign-page .radius-large.stroke-standard.stroke-default.bg-surface-100,
+    #robux-redesign-page
+        .radius-large.stroke-standard.stroke-default.bg-surface-100,
     #user-account .menu-vertical,
     #user-account .section-content.content-maturity,
     #user-account .screentime-chart-container,
@@ -186,34 +193,59 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     #transactions-web-app table.transactions td,
     #trades-web-app .message-banner.money-page-banner,
     #trades-web-app .container-empty,
-    #configure-private-server-web-app .stroke-standard.stroke-default.bg-surface-100,
+    #configure-private-server-web-app
+        .stroke-standard.stroke-default.bg-surface-100,
     #SponsoredPage,
     #SponsoredPage .header,
     #SponsoredPage #section2,
     #SponsoredPage .section,
-    #settings-container #setting-section-content .setting,
-    #settings-container #setting-section-content .rovalra-donator-card,
-    #settings-container #setting-section-content .rovalra-donator-tier-heading,
-    #settings-container #setting-section-content .rovalra-donator-perks-table-wrap,
-    #settings-container #setting-section-content .rovalra-changelog-card,
-    #settings-container #setting-section-content .rovalra-account-standing-card,
-    #settings-container #setting-section-content .rovalra-donator-perks-table,
-    #settings-container #setting-section-content .rovalra-donator-perks-table th,
-    #settings-container #setting-section-content .rovalra-donator-perks-table td,
-    #settings-container #rovalra-store-border-container .rovalra-pill-toggle,
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .setting,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-card,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-tier-heading,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table-wrap,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-changelog-card,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-account-standing-card,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table
+        th,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table
+        td,
+    :is(#settings-container, .rovalra-store-page)
+        #rovalra-store-border-container
+        .rovalra-pill-toggle,
+    :is(#settings-container, .rovalra-store-page)
         #rovalra-store-border-container
         .rovalra-pill-toggle
         div[role='presentation'],
-    #settings-container #rovalra-store-border-container [data-border-card],
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
+        #rovalra-store-border-container
+        [data-border-card],
+    :is(#settings-container, .rovalra-store-page)
         #rovalra-store-border-container
         > div[style*='background: var(--rovalra-container-background-color'],
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
         #setting-section-content
         .rovalra-donator-tier-copy
         > span[style*='background-color: var(--rovalra-container-background-color'],
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
         #setting-section-content
         div[style*='background-color: var(--rovalra-container-background-color'],
     #private-message-web-app .private-message-row,
@@ -283,13 +315,19 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     .profile-platform-container
         .user-profile-header-details-avatar-container
         .thumbnail-2d-container.avatar-card-image,
-    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+    .user-profile-header-details-avatar-container:is(
+            .avatar-headshot-lg,
+            .avatar-headshot-xl
+        )
         .avatar-card-fullbody
         > .thumbnail-2d-container.avatar-card-image,
     .profile-platform-container
         .user-profile-header-details-avatar-container
         .rovalra-improved-avatar-card,
-    .user-profile-header-details-avatar-container:is(.avatar-headshot-lg, .avatar-headshot-xl)
+    .user-profile-header-details-avatar-container:is(
+            .avatar-headshot-lg,
+            .avatar-headshot-xl
+        )
         .rovalra-improved-avatar-card,
     .base-tile-thumbnail,
     #buy-robux-popover,
@@ -306,7 +344,8 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     #settings-popover-menu,
     #avatar-shop-keyword-input,
     #robux-redesign-page .bg-surface-100.medium\:radius-circle,
-    #robux-redesign-page .radius-large.stroke-standard.stroke-default.bg-surface-100,
+    #robux-redesign-page
+        .radius-large.stroke-standard.stroke-default.bg-surface-100,
     #user-account .menu-vertical,
     #user-account .menu-option-content.active,
     #user-account .section-content.content-maturity,
@@ -321,30 +360,55 @@ body.rovalra-custom-background-image-active.rovalra-custom-background-nav-overri
     #transactions-web-app table.transactions td,
     #trades-web-app .message-banner.money-page-banner,
     #trades-web-app .container-empty,
-    #configure-private-server-web-app .stroke-standard.stroke-default.bg-surface-100,
+    #configure-private-server-web-app
+        .stroke-standard.stroke-default.bg-surface-100,
     #SponsoredPage,
     #SponsoredPage .header,
     #SponsoredPage #section2,
     #SponsoredPage .section,
-    #settings-container #setting-section-content .setting,
-    #settings-container #setting-section-content .rovalra-donator-card,
-    #settings-container #setting-section-content .rovalra-donator-tier-heading,
-    #settings-container #setting-section-content .rovalra-donator-perks-table-wrap,
-    #settings-container #setting-section-content .rovalra-changelog-card,
-    #settings-container #setting-section-content .rovalra-account-standing-card,
-    #settings-container #setting-section-content .rovalra-donator-perks-table,
-    #settings-container #setting-section-content .rovalra-donator-perks-table th,
-    #settings-container #setting-section-content .rovalra-donator-perks-table td,
-    #settings-container #rovalra-store-border-container .rovalra-pill-toggle,
-    #settings-container #rovalra-store-border-container [data-border-card],
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .setting,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-card,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-tier-heading,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table-wrap,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-changelog-card,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-account-standing-card,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table
+        th,
+    :is(#settings-container, .rovalra-store-page)
+        #setting-section-content
+        .rovalra-donator-perks-table
+        td,
+    :is(#settings-container, .rovalra-store-page)
+        #rovalra-store-border-container
+        .rovalra-pill-toggle,
+    :is(#settings-container, .rovalra-store-page)
+        #rovalra-store-border-container
+        [data-border-card],
+    :is(#settings-container, .rovalra-store-page)
         #rovalra-store-border-container
         > div[style*='background: var(--rovalra-container-background-color'],
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
         #setting-section-content
         .rovalra-donator-tier-copy
         > span[style*='background-color: var(--rovalra-container-background-color'],
-    #settings-container
+    :is(#settings-container, .rovalra-store-page)
         #setting-section-content
         div[style*='background-color: var(--rovalra-container-background-color'],
     #private-message-web-app .overflow-hidden.radius-medium.stroke-standard,
