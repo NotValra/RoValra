@@ -3895,6 +3895,26 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            importCustomFramePreview: {
+                label: 'Preview a custom frame',
+                description: [
+                    'Pick a frame image to preview on your own profile. Frames are ~3:1 images with a thin transparent margin.',
+                    "It's only kept in memory, like previewing a frame from the store, so it goes away when you reload or leave the page. Only you can see it.",
+                ],
+                type: 'button',
+                buttonText: 'Import Frame',
+                event: 'rovalra:importCustomFramePreview',
+            },
+            importCustomBorderPreview: {
+                label: 'Preview a custom border',
+                description: [
+                    'Pick a square border image to preview around your avatar on your own profile.',
+                    "It's only kept in memory, like previewing a frame from the store, so it goes away when you reload or leave the page. Only you can see it.",
+                ],
+                type: 'button',
+                buttonText: 'Import Border',
+                event: 'rovalra:importCustomBorderPreview',
+            },
             rendererDeveloperToggles: {
                 label: '3D renderer Developer toggles',
                 type: 'checkbox',

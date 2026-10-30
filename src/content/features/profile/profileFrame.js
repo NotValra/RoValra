@@ -8,6 +8,7 @@ import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { ts } from '../../core/locale/i18n.js';
+import { getCustomFrameTestLink } from '../../core/profile/customCosmeticTest.js';
 
 // Wraps both the fullbody and portrait thumbnails, so framing it frames the lot.
 const HOLDER_SELECTOR = '.thumbnail-holder.thumbnail-holder-position';
@@ -218,6 +219,9 @@ export async function getEnabledFrameLink(userId) {
         return activePreview.link;
     }
 
+    const customLink = getCustomFrameTestLink(userId);
+    if (customLink) return customLink;
+
     const settings = await loadSettings().catch(() => null);
     if (!settings?.profileFrameEnabled) return null;
 
@@ -352,6 +356,12 @@ export async function init() {
             String(activePreview.userId) === String(profileUserId)
         ) {
             watchHolders(activePreview.link);
+            return;
+        }
+
+        const customLink = getCustomFrameTestLink(profileUserId);
+        if (customLink) {
+            watchHolders(customLink);
             return;
         }
 

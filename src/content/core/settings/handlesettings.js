@@ -33,6 +33,7 @@ import {
     sanitizeSavedThemes,
     sanitizeThemeVariables,
 } from '../themeVariables.js';
+import { importCustomCosmetic } from '../profile/customCosmeticTest.js';
 import './settingsCompat';
 
 let currentUserTierLoaded = false;
@@ -2119,6 +2120,13 @@ export function initializeSettingsEventListeners() {
 
         input.click();
     });
+
+    document.addEventListener('rovalra:importCustomFramePreview', () =>
+        importCustomCosmetic('frame'),
+    );
+    document.addEventListener('rovalra:importCustomBorderPreview', () =>
+        importCustomCosmetic('border'),
+    );
 
     document.addEventListener('rovalra:showLocalStorageUsage', async () => {
         chrome.storage.local.get(null, (items) => {
