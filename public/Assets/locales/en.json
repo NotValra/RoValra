@@ -60,7 +60,9 @@
         "filterByRegion": "Filter servers by region",
         "filterByRegionItem": "Filter by {{region}} ({{count}} servers)",
         "filterByUptime": "Filter servers by uptime (newest/oldest)",
-        "filterByVersion": "Filter servers by game version"
+        "filterByVersion": "Filter servers by game version",
+        "searchingServers": "Searching for servers... ({{count}} found)",
+        "filterDisabledByRoblox": "This filter has been disabled on this experience due to Roblox."
     },
     "guidelines": {
         "title": "RoValra Guidelines",

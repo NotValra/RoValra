@@ -13,6 +13,7 @@ import { createButton } from '../../../ui/buttons.js';
 import { showRegionDonationPopup } from '../../../review/review.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../../locale/i18n.js';
+import { isServerApiDisabled, markServerApiDisabled } from './apiStatus.js';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;
 const GLOBE_DRAG_THRESHOLD = 6;
@@ -22,6 +23,7 @@ const GLOBE_CONTAINER_ID = 'rovalra-globe-container';
 const GLOBE_TOOLTIP_ID = 'rovalra-globe-tooltip';
 const EASTER_EGG_TRIGGER_ID = 'rovalra-easter-egg-trigger';
 const HEADER_TITLE_ID = 'rovalra-header-title';
+const SCAN_STATUS_ID = 'rovalra-globe-scan-status';
 
 const EVT_REGIONS_UPDATED = 'rovalraRegionsUpdated';
 const EVT_GLOBE_UPDATE_DATA = 'rovalraGlobe_UpdateData';
@@ -174,6 +176,21 @@ function getPlaceIdFromUrl() {
     return DEFAULT_PLACE_ID;
 }
 
+function updateScanStatus() {
+    const el = document.getElementById(SCAN_STATUS_ID);
+    if (!el) return;
+    if (!State.isScanning) {
+        el.style.display = 'none';
+        return;
+    }
+    let found = 0;
+    for (const servers of Object.values(State.localServersByRegion)) {
+        found += servers.length;
+    }
+    el.textContent = ts('regionSelector.searchingServers', { count: found });
+    el.style.display = 'block';
+}
+
 function closeGlobalPanels() {
     const globe = document.getElementById(GLOBE_PANEL_ID);
     if (globe) globe.classList.remove('show');
@@ -190,6 +207,7 @@ function closeGlobalPanels() {
         .forEach((b) => b.classList.remove('active'));
     State.isGlobeOpen = false;
     State.isScanning = false;
+    updateScanStatus();
 }
 
 function getInternalStateCode(stateName) {
@@ -296,6 +314,23 @@ function buildServerCountsMap(apiJson) {
     return out;
 }
 
+function buildLocalCountsMap() {
+    const out = {};
+    for (const [key, servers] of Object.entries(State.localServersByRegion)) {
+        out[key] = servers.length;
+    }
+    return out;
+}
+
+let regionsUpdateTimer = null;
+function scheduleRegionsUpdated() {
+    if (regionsUpdateTimer) return;
+    regionsUpdateTimer = setTimeout(() => {
+        regionsUpdateTimer = null;
+        document.dispatchEvent(new CustomEvent(EVT_REGIONS_UPDATED));
+    }, 500);
+}
+
 function generateRegionKey(country, city, regionName) {
     if (country === 'US' && regionName) {
         const stateCode = getInternalStateCode(regionName);
@@ -311,8 +346,14 @@ async function fetchCounts() {
             endpoint: `/v1/servers/counts?place_id=${encodeURIComponent(pid)}`,
             isRovalraApi: true,
         });
-        State.apiCounts = json;
-        State.activeServerCounts = buildServerCountsMap(json);
+        if (json?.disabled) {
+            markServerApiDisabled();
+            State.apiCounts = { counts: {} };
+            State.activeServerCounts = buildLocalCountsMap();
+        } else {
+            State.apiCounts = json;
+            State.activeServerCounts = buildServerCountsMap(json);
+        }
     } catch (e) {
         State.apiCounts = { counts: {} };
         State.activeServerCounts = {};
@@ -402,7 +443,7 @@ function createGlobePanel(container) {
     const panel = document.createElement('div');
     panel.id = GLOBE_PANEL_ID;
     panel.className = theme;
-    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="${EASTER_EGG_TRIGGER_ID}" alt="Logo"><div id="${HEADER_TITLE_ID}" style="font-weight:bold;">${ts('regionSelector.title')}</div></div><div id="${GLOBE_CONTAINER_ID}"></div>`;
+    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="${EASTER_EGG_TRIGGER_ID}" alt="Logo"><div class="rovalra-globe-header-text"><div id="${HEADER_TITLE_ID}" style="font-weight:bold;">${ts('regionSelector.title')}</div><div id="${SCAN_STATUS_ID}" class="rovalra-globe-scan-status"></div></div></div><div id="${GLOBE_CONTAINER_ID}"></div>`;
     container.appendChild(panel);
 
     const globeContainer = panel.querySelector(`#${GLOBE_CONTAINER_ID}`);
@@ -507,7 +548,9 @@ async function ensureGlobeInitialized(theme) {
     }
 
     const mapUrl = theme === 'dark' ? assets.mapDark : assets.mapLight;
-    State.activeServerCounts = buildServerCountsMap(State.apiCounts || {});
+    State.activeServerCounts = isServerApiDisabled()
+        ? buildLocalCountsMap()
+        : buildServerCountsMap(State.apiCounts || {});
     document.dispatchEvent(
         new CustomEvent(EVT_INIT_GLOBE, {
             detail: {
@@ -525,7 +568,11 @@ async function ensureGlobeInitialized(theme) {
 
 function populateRegionSidePanel(container, theme) {
     container.innerHTML = '';
-    const useApi = State.apiCounts?.counts?.detailed_regions;
+    const detailedRegions = State.apiCounts?.counts?.detailed_regions;
+    const useApi =
+        !isServerApiDisabled() &&
+        detailedRegions &&
+        Object.keys(detailedRegions).length > 0;
     const groups = {};
     if (useApi) {
         const detailed = State.apiCounts.counts.detailed_regions;
@@ -576,7 +623,9 @@ function populateRegionSidePanel(container, theme) {
                     code: key,
                     label: data.city,
                     subLabel: data.country,
-                    count: State.dataCenterCounts[key] || 0,
+                    count: isServerApiDisabled()
+                        ? State.activeServerCounts[key] || 0
+                        : State.dataCenterCounts[key] || 0,
                 });
             }
         }
@@ -690,9 +739,9 @@ async function getAndCacheServerRegion(server, placeId) {
         });
         if (!res.joinScript?.DataCenterId) return;
         const dataCenterId = res.joinScript.DataCenterId;
-        const dcInfo = State.serverIpMap[dataCenterId];
-        if (dcInfo?.location) {
-            const loc = dcInfo.location;
+        const dcInfo = serverIpMap[dataCenterId];
+        const loc = dcInfo?.location || dcInfo;
+        if (loc?.country && loc.city) {
             const regionKey = generateRegionKey(
                 loc.country,
                 loc.city,
@@ -705,6 +754,7 @@ async function getAndCacheServerRegion(server, placeId) {
             );
             if (!alreadyExists) {
                 State.localServersByRegion[regionKey].push(server);
+                updateScanStatus();
                 const currentGlobalCount =
                     State.activeServerCounts[regionKey] || 0;
                 const localCount = State.localServersByRegion[regionKey].length;
@@ -715,6 +765,7 @@ async function getAndCacheServerRegion(server, placeId) {
                             detail: { serverCounts: State.activeServerCounts },
                         }),
                     );
+                    if (isServerApiDisabled()) scheduleRegionsUpdated();
                 }
             }
         }
@@ -728,6 +779,7 @@ async function startIndependentServerScan() {
         State.localServersByRegion = {};
         State.allLocalServerIds.clear();
     }
+    updateScanStatus();
     const placeId = getPlaceIdFromUrl();
     let pageCount = 0;
 
@@ -735,7 +787,7 @@ async function startIndependentServerScan() {
         try {
             const response = await callRobloxApiJson({
                 subdomain: 'games',
-                endpoint: `/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100${State.scanCursor ? `&cursor=${encodeURIComponent(State.scanCursor)}` : ''}`,
+                endpoint: `/v2/games/${placeId}/servers/Public?cursor=${State.scanCursor ? encodeURIComponent(State.scanCursor) : ''}&sortOrder=Desc&excludeFullGames=true&orderBy=Recommended&limit=100`,
             });
             const serversOnPage = response.data || [];
             if (serversOnPage.length > 0) {
@@ -761,6 +813,7 @@ async function startIndependentServerScan() {
         }
     }
     State.isScanning = false;
+    updateScanStatus();
 }
 
 function handleGlobeHover(e) {
@@ -813,7 +866,14 @@ async function onRegionSelected(event) {
     if (item) item.classList.add('loading');
 
     try {
-        const res = await fetchServers(apiRegion);
+        let res = { servers: [], next_cursor: null };
+        if (!isServerApiDisabled()) {
+            res = await fetchServers(apiRegion);
+            if (res?.disabled) {
+                markServerApiDisabled();
+                res = { servers: [], next_cursor: null };
+            }
+        }
         const apiServers = res.servers || [];
         const locallyFoundServers = State.localServersByRegion[code] || [];
         const localServerIds = new Set(locallyFoundServers.map((s) => s.id));
@@ -897,7 +957,11 @@ async function onRequestMoreRegionServers(event) {
                 }),
             );
         } else if (cachedData && cachedData.apiNextCursor) {
-            const res = await fetchServers(apiRegion, cachedData.apiNextCursor);
+            let res = await fetchServers(apiRegion, cachedData.apiNextCursor);
+            if (res?.disabled) {
+                markServerApiDisabled();
+                res = { servers: [], next_cursor: null };
+            }
             const apiServers = res.servers || [];
             const existingServerIds = new Set(
                 cachedData.allServers.map((s) => s.server_id || s.id),

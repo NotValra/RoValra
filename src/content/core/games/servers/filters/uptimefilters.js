@@ -5,6 +5,11 @@ import { callRobloxApiJson } from '../../../api.js';
 import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js';
 import { ts } from '../../../locale/i18n.js';
+import {
+    isServerApiDisabled,
+    onServerApiDisabled,
+    applyDisabledFilterStyle,
+} from './apiStatus.js';
 
 let isInitialized = false;
 let currentDropdownInstance = null;
@@ -119,13 +124,19 @@ function createUptimeDropdown(container) {
         dropdown.trigger ||
         dropdown.element.querySelector('.rovalra-dropdown-trigger');
     if (triggerBtn) {
-        addTooltip(triggerBtn, ts('regionSelector.filterByUptime'), {
-            position: 'top',
-        });
+        addTooltip(
+            triggerBtn,
+            () =>
+                isServerApiDisabled()
+                    ? ts('regionSelector.filterDisabledByRoblox')
+                    : ts('regionSelector.filterByUptime'),
+            { position: 'top' },
+        );
     }
 
     container.prepend(dropdown.element);
     currentDropdownInstance = dropdown;
+    onServerApiDisabled(() => applyDisabledFilterStyle(dropdown.element));
 }
 
 export function initUptimeFilters() {

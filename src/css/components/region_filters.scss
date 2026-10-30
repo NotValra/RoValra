@@ -58,6 +58,8 @@
 #rovalra-globe-container:active { cursor: grabbing; }
 
 .rovalra-globe-header { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; border-bottom: 1px solid rgba(127,127,127,0.1); user-select: none; }
+.rovalra-globe-header-text { display: flex; flex-direction: column; align-items: center; }
+.rovalra-globe-scan-status { display: none; font-size: 12px; opacity: 0.7; }
 .rovalra-header-logo { width: 24px; height: 24px; cursor: default; transition: transform 0.1s; }
 .rovalra-header-logo:active { transform: scale(0.9); }
 
