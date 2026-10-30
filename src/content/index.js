@@ -5,6 +5,7 @@ import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
 import { t } from './core/locale/i18n.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
+import { init as initUpdateChangelog } from './features/onboarding/updateChangelog.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
 import { init as initEasterEggLinks } from './features/sitewide/easterEggs/links.js';
 import { init as initCssFixes } from './features/sitewide/cssfixes.js';
@@ -259,6 +260,7 @@ const featureRoutes = [
             initWhatAmIJoining,
             initServerListener,
             initOnboarding,
+            initUpdateChangelog,
             initVideoTest,
             initStreamerMode,
             initMarkDownTest,

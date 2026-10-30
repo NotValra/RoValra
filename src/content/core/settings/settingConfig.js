@@ -2704,6 +2704,20 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            updateChangelogHeaderEnabled: {
+                label: 'Update Changelog Header',
+                description: [
+                    'Shows a header at the top of every page after RoValra updates, linking to the changelog.',
+                    'It goes away for good once you close it, open the changelog, or leave it alone for a minute.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: [
+                    'lastSeenChangelogVersion',
+                    'updateChangelogHideAt',
+                ],
+                contributors: ['2239549101'],
+            },
             richRobloxLinksEnabled: {
                 label: 'Rich Roblox Links',
                 description: [
