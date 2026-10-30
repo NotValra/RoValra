@@ -2,7 +2,7 @@ import { ts } from '../../core/locale/i18n.js';
 import { Icon } from '../../core/ui/buildericon.js';
 import { initSidebarLink } from '../../core/ui/sidebarLink.js';
 
-const WEBCLIENT_URL = 'https://play.roblox.com/games/start?placeId=bleh';
+const WEBCLIENT_URL = 'https://play.roblox.com/games/start?placeId=1818';
 
 function createWebClientIcon() {
     return Icon({
