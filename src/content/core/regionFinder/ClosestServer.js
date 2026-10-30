@@ -14,6 +14,16 @@ export const FINDER_CONFIG = {
 
 export const dataPromise = Promise.resolve();
 
+const disabledRegionApiPlaces = new Set();
+
+export function isRegionApiDisabled(placeId) {
+    return disabledRegionApiPlaces.has(String(placeId));
+}
+
+export function markRegionApiDisabled(placeId) {
+    disabledRegionApiPlaces.add(String(placeId));
+}
+
 export function getRegionName(regionId) {
     if (regionId === 'AUTO') return 'Automatic';
     const region = REGIONS[regionId];
@@ -62,7 +72,7 @@ export async function findClosestServerViaApi(
     userRequestedStopCheck,
 ) {
     const origin = REGIONS[originRegionId];
-    if (!origin) return null;
+    if (!origin || isRegionApiDisabled(placeId)) return null;
 
     const regionsWithDistance = Object.entries(REGIONS)
         .filter(([id, r]) => id !== originRegionId && id !== 'AUTO')
@@ -97,6 +107,10 @@ export async function findClosestServerViaApi(
             });
             if (response.ok) {
                 const data = await response.json();
+                if (data.disabled) {
+                    markRegionApiDisabled(placeId);
+                    return null;
+                }
                 if (data.servers && data.servers.length > 0) {
                     for (const server of data.servers) {
                         if (userRequestedStopCheck?.()) return null;
@@ -249,6 +263,8 @@ export async function findServerViaRovalraApi(
             if (!isActive) return { joined: false };
         }
 
+        if (isRegionApiDisabled(placeId)) return { status: 'DISABLED' };
+
         const rankedRegions = await getRankedRegions(
             placeId,
             preferredRegionId,
@@ -262,6 +278,7 @@ export async function findServerViaRovalraApi(
                 return { status: 'STOPPED' };
 
             const servers = await fetchServersForRegion(placeId, region);
+            if (isRegionApiDisabled(placeId)) return { status: 'DISABLED' };
             if (servers && servers.length > 0) {
                 apiSucceededAtLeastOnce = true;
 
@@ -406,6 +423,10 @@ async function fetchServersForRegion(placeId, region) {
         });
         if (!response.ok) return null;
         const data = await response.json();
+        if (data.disabled) {
+            markRegionApiDisabled(placeId);
+            return [];
+        }
         return data.servers || [];
     } catch (e) {
         return null;

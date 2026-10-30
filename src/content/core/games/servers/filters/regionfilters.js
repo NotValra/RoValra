@@ -14,6 +14,7 @@ import { showRegionDonationPopup } from '../../../review/review.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../../locale/i18n.js';
 import { isServerApiDisabled, markServerApiDisabled } from './apiStatus.js';
+import { markRegionApiDisabled } from '../../../regionFinder/ClosestServer.js';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;
 const GLOBE_DRAG_THRESHOLD = 6;
@@ -348,6 +349,7 @@ async function fetchCounts() {
         });
         if (json?.disabled) {
             markServerApiDisabled();
+            markRegionApiDisabled(pid);
             State.apiCounts = { counts: {} };
             State.activeServerCounts = buildLocalCountsMap();
         } else {
@@ -871,6 +873,7 @@ async function onRegionSelected(event) {
             res = await fetchServers(apiRegion);
             if (res?.disabled) {
                 markServerApiDisabled();
+                markRegionApiDisabled(getPlaceIdFromUrl());
                 res = { servers: [], next_cursor: null };
             }
         }
@@ -960,6 +963,7 @@ async function onRequestMoreRegionServers(event) {
             let res = await fetchServers(apiRegion, cachedData.apiNextCursor);
             if (res?.disabled) {
                 markServerApiDisabled();
+                markRegionApiDisabled(getPlaceIdFromUrl());
                 res = { servers: [], next_cursor: null };
             }
             const apiServers = res.servers || [];
