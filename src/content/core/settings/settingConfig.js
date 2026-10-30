@@ -2679,6 +2679,14 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            friendRequestBellNotificationsEnabled: {
+                label: 'Friend Request Notifications',
+                description: [
+                    'Shows pending friend requests inside the Roblox notification dropdown.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4632962611'],
             browserNotificationsEnabled: {
                 label: 'Browser Notifications',
                 description:
