@@ -3642,7 +3642,7 @@ export const SETTINGS_CONFIG = {
             webClientSidebarLinkEnabled: {
                 label: 'Web Client sidebar link',
                 description:
-                    'Adds a Web Client link below Communities in the Roblox sidebar that opens play.roblox.com.',
+                    'Adds a Web Client link below Communities in the Roblox sidebar that opens crossroads in the web client.',
                 type: 'checkbox',
                 default: false,
             },
