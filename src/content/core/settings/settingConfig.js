@@ -2683,6 +2683,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['650766686'],
             },
+            removeDownloadButton: {
+                label: 'Remove Download Button',
+                description: [
+                    'Removes the out of place download button from the topbar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['3602693727'],
+            }
         },
     },
     Miscellaneous: {
