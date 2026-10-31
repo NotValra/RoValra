@@ -1,5 +1,5 @@
 import { callRobloxApiJson } from '../../core/api.js';
-import { getPlaceDetails } from '../../core/apis/games.js';
+import { getPlaceDetails, getUniversesDetails } from '../../core/apis/games.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { observeElement } from '../../core/observer.js';
@@ -29,6 +29,7 @@ let initialized = false;
 let storageRefreshTimer = null;
 let lastPlaceBadgeState = null;
 const hiddenBadgeMemoryCache = new Map();
+const rootPlaceMemoryCache = new Map();
 
 async function getLocaleText() {
     const [
@@ -245,12 +246,29 @@ async function getDisabledBadgeIds(placeId) {
     }
 }
 
-async function getOwnedHiddenBadgeIds(placeId) {
+async function getRootPlace(placeId) {
+    const cacheKey = String(placeId);
+    if (rootPlaceMemoryCache.has(cacheKey)) {
+        return rootPlaceMemoryCache.get(cacheKey);
+    }
+
     const placeDetails = await getPlaceDetails(placeId);
     const universeId = placeDetails?.universeId;
+    if (!universeId) return { rootPlaceId: cacheKey, universeId: null };
+
+    const [universe] = await getUniversesDetails([universeId]);
+    if (!universe?.rootPlaceId) return { rootPlaceId: cacheKey, universeId };
+
+    const result = { rootPlaceId: String(universe.rootPlaceId), universeId };
+    rootPlaceMemoryCache.set(cacheKey, result);
+    return result;
+}
+
+async function getOwnedHiddenBadgeIds(placeId) {
+    const { rootPlaceId, universeId } = await getRootPlace(placeId);
     if (!universeId) return { universeMissing: true };
 
-    const { badges, isScanning } = await getGameBadges(placeId);
+    const { badges, isScanning } = await getGameBadges(rootPlaceId);
     const publicBadgeIds = await getPublicUniverseBadgeIds(universeId);
     const badgeIds = badges
         .map((badge) => badge.badgeId)
@@ -396,7 +414,8 @@ function renderBadgeRows(
     });
 }
 
-async function loadHiddenBadgeData(placeId, localeText) {
+async function loadHiddenBadgeData(currentPlaceId, localeText) {
+    const { rootPlaceId: placeId } = await getRootPlace(currentPlaceId);
     const cached = hiddenBadgeMemoryCache.get(String(placeId));
     if (cached) return cached;
 
@@ -456,7 +475,7 @@ async function loadHiddenBadgeData(placeId, localeText) {
         '150x150',
     );
 
-    const result = { details, thumbMap, ownedOnly };
+    const result = { details, thumbMap, ownedOnly, placeId };
     hiddenBadgeMemoryCache.set(String(placeId), result);
     return result;
 }
@@ -474,7 +493,9 @@ async function renderHiddenBadges(container, hiddenList) {
         hiddenList.dataset.rovalraHiddenBadgesLoading = 'true';
         if (
             !hiddenList.dataset.rovalraHiddenBadgesLoaded &&
-            !hiddenBadgeMemoryCache.has(String(placeId))
+            !hiddenBadgeMemoryCache.has(
+                rootPlaceMemoryCache.get(String(placeId))?.rootPlaceId,
+            )
         ) {
             renderHiddenBadgeShimmer(hiddenList);
         }
@@ -491,7 +512,7 @@ async function renderHiddenBadges(container, hiddenList) {
                 data.thumbMap,
                 localeText,
                 data.ownedOnly,
-                placeId,
+                data.placeId,
             );
         }
     } catch (error) {
@@ -622,8 +643,9 @@ export async function init() {
     });
 
     onBadgeDataChanged(async () => {
-        const placeId = getPlaceIdFromUrl();
-        if (!placeId) return;
+        const currentPlaceId = getPlaceIdFromUrl();
+        if (!currentPlaceId) return;
+        const { rootPlaceId: placeId } = await getRootPlace(currentPlaceId);
 
         const { badges, isScanning } = await getGameBadges(placeId);
         const placeState = JSON.stringify([
