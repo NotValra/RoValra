@@ -227,6 +227,7 @@ import { init as initAccurateContinue } from './features/home/accurateContinue.j
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initFriendLabels } from './features/home/friendLabels.js';
+import { init as initFriendLabelsFriendsPage } from './features/profile/friends/friendLabelsFriendsPage.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
 import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
@@ -497,6 +498,7 @@ const featureRoutes = [
             initIdVerificationBadge,
             initAgeVerificationBadge,
             initFriendsSince,
+            initFriendLabelsFriendsPage,
             initFriendRequestFilters,
             initMutualFriends,
             initUnfriend,
