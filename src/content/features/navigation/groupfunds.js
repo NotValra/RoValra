@@ -132,8 +132,18 @@ async function fetchAndCacheGroupData(groupId) {
     return request;
 }
 
+function isCreditNavbarElement(element) {
+    return !!element.closest('#navbar-robux .nav-credit');
+}
+
+function getNavbarAmountElements() {
+    return [...document.querySelectorAll(NAVBAR_SELECTORS)].filter(
+        (element) => !isCreditNavbarElement(element),
+    );
+}
+
 function clearNavbarOverride() {
-    document.querySelectorAll(NAVBAR_SELECTORS).forEach((element) => {
+    getNavbarAmountElements().forEach((element) => {
         delete element.dataset.rovalraNavbarRobuxAmount;
         delete element.dataset.rovalraGroupFundsOverride;
     });
@@ -447,7 +457,7 @@ async function restorePersonalNavbarBalance() {
     const robux = await getPersonalRobuxBalance();
     let restoredAny = false;
 
-    document.querySelectorAll(NAVBAR_SELECTORS).forEach((element) => {
+    getNavbarAmountElements().forEach((element) => {
         delete element.dataset.rovalraNavbarRobuxAmount;
 
         if (element.dataset.rovalraGroupFundsOverride === 'true') {
@@ -505,7 +515,7 @@ async function renderNavbarTotal() {
     const mergedTotal = personalRobux + sumConfiguredGroupFunds(cache);
     const formattedTotal = mergedTotal.toLocaleString();
 
-    document.querySelectorAll(NAVBAR_SELECTORS).forEach((element) => {
+    getNavbarAmountElements().forEach((element) => {
         captureOriginalNavbarAmount(element);
         element.dataset.rovalraNavbarRobuxAmount = String(mergedTotal);
         if (element.dataset.rovalraGroupFundsOverride !== 'true') {
