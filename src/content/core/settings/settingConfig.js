@@ -1633,6 +1633,38 @@ export const SETTINGS_CONFIG = {
     Home: {
         title: 'Home',
         settings: {
+            homeGreetingEnabled: {
+                label: 'Home Greeting',
+                description: [
+                    'Replaces the Home page header with a greeting, your avatar and your username.',
+                    'The greeting changes between good morning, good afternoon, good evening and good night based on your local time.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    homeGreetingCustomEnabled: {
+                        label: 'Custom Greeting',
+                        description: [
+                            'Use your own greeting message instead of the time based one.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    homeGreetingCustomMessage: {
+                        label: 'Custom Greeting Message',
+                        description: [
+                            'The greeting shown when Custom Greeting is enabled.',
+                            'Use **{displayname}** where you want your display name to show.',
+                        ],
+                        type: 'input',
+                        placeholder: 'Hello, {displayname}',
+                        default: 'Hello, {displayname}',
+                        maxLength: 100,
+                        showCharacterCount: true,
+                        inputWidth: '320px',
+                    },
+                },
+            },
             AccurateContinueEnabled: {
                 label: 'Accurate Continue',
                 description: [

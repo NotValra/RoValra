@@ -233,6 +233,7 @@ import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js'
 import { init as initPlaytime } from './features/home/playtime.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
+import { init as initHomeGreeting } from './features/home/homeGreeting.js';
 import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
@@ -584,6 +585,7 @@ const featureRoutes = [
             initFriendLabels,
             initFriendsCarouselRedesign,
             initPinnedFriends,
+            initHomeGreeting,
         ],
     },
     {

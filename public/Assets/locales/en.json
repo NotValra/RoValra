@@ -441,6 +441,12 @@
             "settings": "Settings"
         }
     },
+    "homeGreeting": {
+        "morning": "Good morning, {{name}}",
+        "afternoon": "Good afternoon, {{name}}",
+        "evening": "Good evening, {{name}}",
+        "night": "Good night, {{name}}"
+    },
     "friendsCarouselRedesign": {
         "prevFriends": "Previous friends",
         "nextFriends": "More friends",
