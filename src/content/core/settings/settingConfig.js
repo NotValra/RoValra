@@ -1191,8 +1191,8 @@ export const SETTINGS_CONFIG = {
                     'Trusted Friends might not be available in some regions.',
                     '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
                 ],
-                type: 'true',
-                default: false,
+                type: 'checkbox',
+                default: true,
                 //isPermanent: true,
                 //locked: 'Seemingly broke after a Roblox update. And Roblox is rolling out their own version of it.',
             },
@@ -1227,6 +1227,8 @@ export const SETTINGS_CONFIG = {
                 label: 'Follows You Indicator',
                 description:
                     'Shows a "Follows you" label beside the username on the profile of anyone who follows you.',
+                type: 'checkbox',
+                default: true,
             },
             friendRequestFiltersEnabled: {
                 label: 'Friend Request Filters',
