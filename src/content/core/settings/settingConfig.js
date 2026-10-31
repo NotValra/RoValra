@@ -231,6 +231,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            marketplaceRovalraAdsEnabled: {
+                label: 'RoValra Marketplace Ads',
+                description: [
+                    'Features a few items picked by RoValra within the first items of your Recommended For You section on the Marketplace.',
+                    'These items are marked with a RoValra pill in the top right of their thumbnail.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             bonusItemEnabled: {
                 label: 'Robux Purchase Bonus Item Selector',
                 description:

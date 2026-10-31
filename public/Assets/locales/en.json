@@ -2049,6 +2049,10 @@
     "heroUnits": {
         "ends": "Ends"
     },
+    "rovalraAds": {
+        "ad": "Ad",
+        "tooltip": "This item is a RoValra ad, added to your recommendations by RoValra. You can turn it off in the RoValra settings. This is NOT personalized. Currently experimental."
+    },
     "tradeRecentItems": {
         "offer": "Recently offered",
         "request": "Recently requested",

@@ -34,6 +34,10 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
     const ROBLOX_ADMIN_GROUP_ID = 1200769;
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
+    const MARKETPLACE_WIDGETS_API_URL =
+        'https://apis.roblox.com/marketplace-widgets/v1/widgets/web';
+    const MARKETPLACE_RFY_WIDGET_TYPE = 'AvatarItemRfyWidget';
+    const MARKETPLACE_AD_SLOT_COUNT = 14;
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
     const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
     const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
@@ -68,6 +72,22 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
     let freeRobloxPlusThemesEnabled = false;
     let disableThumbnailBackground = false;
     let disableThumbnailProfileFrame = false;
+    let marketplaceAdItems = [];
+    let marketplaceAdsReady = false;
+    let marketplaceAdsReadyPromise = null;
+    let resolveMarketplaceAdsReady = null;
+
+    document.addEventListener('rovalra-marketplace-ads', (e) => {
+        marketplaceAdItems =
+            e.detail?.enabled && Array.isArray(e.detail.items)
+                ? e.detail.items.filter((item) => item?.type && item?.id)
+                : [];
+        marketplaceAdsReady = true;
+        if (resolveMarketplaceAdsReady) {
+            resolveMarketplaceAdsReady();
+            resolveMarketplaceAdsReady = null;
+        }
+    });
 
     function updateThumbnailBackgroundSetting(value) {
         disableThumbnailBackground = value === true;
@@ -928,6 +948,88 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         return data.sorts.length !== previousLength;
     }
 
+    function isMarketplaceWidgetsRequest(url) {
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            const endpointUrl = new URL(MARKETPLACE_WIDGETS_API_URL);
+            return (
+                parsedUrl.origin === endpointUrl.origin &&
+                parsedUrl.pathname === endpointUrl.pathname
+            );
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function waitForMarketplaceAdsState() {
+        if (marketplaceAdsReady) return Promise.resolve();
+
+        if (!marketplaceAdsReadyPromise) {
+            marketplaceAdsReadyPromise = new Promise((resolve) => {
+                const timeout = setTimeout(resolve, 700);
+                resolveMarketplaceAdsReady = () => {
+                    clearTimeout(timeout);
+                    resolve();
+                };
+            });
+        }
+
+        return marketplaceAdsReadyPromise;
+    }
+
+    function getMarketplaceItemKey(item) {
+        return `${item?.type}:${item?.id}`;
+    }
+
+    function applyMarketplaceAds(data) {
+        const widgets = data?.widgets;
+        if (
+            !marketplaceAdItems.length ||
+            !widgets ||
+            typeof widgets !== 'object'
+        ) {
+            return false;
+        }
+
+        let changed = false;
+        Object.values(widgets).forEach((widget) => {
+            if (
+                widget?.type !== MARKETPLACE_RFY_WIDGET_TYPE ||
+                !Array.isArray(widget.content)
+            ) {
+                return;
+            }
+
+            const adKeys = new Set(
+                marketplaceAdItems.map(getMarketplaceItemKey),
+            );
+            widget.content = widget.content.filter(
+                (item) => !adKeys.has(getMarketplaceItemKey(item)),
+            );
+
+            const slotCount = Math.min(
+                MARKETPLACE_AD_SLOT_COUNT,
+                widget.content.length + marketplaceAdItems.length,
+            );
+            const items = marketplaceAdItems.slice(0, slotCount);
+            const slots = new Set();
+            while (slots.size < items.length) {
+                slots.add(Math.floor(Math.random() * slotCount));
+            }
+            [...slots]
+                .sort((a, b) => a - b)
+                .forEach((slot, i) => {
+                    widget.content.splice(slot, 0, {
+                        type: items[i].type,
+                        id: items[i].id,
+                    });
+                });
+            changed = true;
+        });
+
+        return changed;
+    }
+
     async function applyHomeLayoutToFetchResponse(url, response) {
         if (!url.includes(OMNI_RECOMMENDATION_API_URL)) {
             return response;
@@ -1061,6 +1163,16 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         }
 
         response = await applyHomeLayoutToFetchResponse(requestUrl, response);
+
+        if (isMarketplaceWidgetsRequest(requestUrl)) {
+            try {
+                await waitForMarketplaceAdsState();
+                const data = await response.clone().json();
+                if (applyMarketplaceAds(data)) {
+                    response = responseWithJson(response, data);
+                }
+            } catch (error) {}
+        }
 
         if (requestUrl.includes(PROFILE_API_URL)) {
             try {
@@ -1282,6 +1394,9 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         if (typeof url === 'string' && isAccountSettingsUiRequest(url)) {
             this._rovalra_account_settings_ui = true;
         }
+        if (typeof url === 'string' && isMarketplaceWidgetsRequest(url)) {
+            this._rovalra_marketplace_widgets = true;
+        }
 
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
@@ -1304,7 +1419,8 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             xhr._rovalra_spoof_sessions ||
             xhr._rovalra_home_layout ||
             xhr._rovalra_profile_api ||
-            xhr._rovalra_account_settings_ui
+            xhr._rovalra_account_settings_ui ||
+            xhr._rovalra_marketplace_widgets
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
@@ -1336,6 +1452,9 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                         }
                         if (xhr._rovalra_profile_api) {
                             applyRobloxAdminProfileResponse(data);
+                        }
+                        if (xhr._rovalra_marketplace_widgets) {
+                            applyMarketplaceAds(data);
                         }
                         if (xhr._rovalra_spoof_settings) {
                             data.UserEmail = 'RoValra Streamer Mode Enabled';
@@ -1503,6 +1622,13 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
 
         if (xhr._rovalra_home_layout && !homeLayoutReady) {
             waitForHomeLayoutState().then(() => {
+                originalXhrSend.apply(xhr, args);
+            });
+            return undefined;
+        }
+
+        if (xhr._rovalra_marketplace_widgets && !marketplaceAdsReady) {
+            waitForMarketplaceAdsState().then(() => {
                 originalXhrSend.apply(xhr, args);
             });
             return undefined;
