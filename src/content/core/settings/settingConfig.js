@@ -2723,7 +2723,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['3602693727'],
-            }
+            },
         },
     },
     Miscellaneous: {
@@ -3723,6 +3723,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '126448532'],
+            },
+            offSaleCreatePageEnabled: {
+                label: 'Off-sale Creator Store pages',
+                description: [
+                    'Lets you view Creator Store pages for assets that would normally show as not found such as off sale stuff.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['447170745'],
             },
         },
     },

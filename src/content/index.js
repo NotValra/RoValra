@@ -237,6 +237,7 @@ import { init as initHomeGreeting } from './features/home/homeGreeting.js';
 import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+import { init as initOffSaleCreatePage } from './features/create.roblox.com/offSaleCreatePage.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import {
     enforceSettingOverrides,
@@ -335,7 +336,7 @@ const featureRoutes = [
             initCustomScrollbar,
             initRoValraIncidentTracker,
             initRoGoldWarning,
-            initRemoveDownloadButton
+            initRemoveDownloadButton,
         ],
     },
     // pretty much just the 40% method
@@ -571,7 +572,11 @@ const featureRoutes = [
     // create
     {
         paths: ['/store/asset'],
-        features: [initCreateDownload, initCatalogExplorer],
+        features: [
+            initOffSaleCreatePage,
+            initCreateDownload,
+            initCatalogExplorer,
+        ],
     },
     {
         paths: ['/home'],

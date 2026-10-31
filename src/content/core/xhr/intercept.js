@@ -38,6 +38,9 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         'https://apis.roblox.com/marketplace-widgets/v1/widgets/web';
     const MARKETPLACE_RFY_WIDGET_TYPE = 'AvatarItemRfyWidget';
     const MARKETPLACE_AD_SLOT_COUNT = 14;
+    const TOOLBOX_ASSET_API_HOST = 'apis.roblox.com';
+    const TOOLBOX_ASSET_API_PATH = /^\/toolbox-service\/v2\/assets\/(\d+)\/?$/;
+    const STORE_ASSET_DETAILS_TIMEOUT_MS = 3000;
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
     const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
     const THUMBNAILS_API_HOST = 'thumbnails.roblox.com';
@@ -1030,6 +1033,121 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         return changed;
     }
 
+    function getToolboxAssetRequestId(url) {
+        if (location.hostname !== 'create.roblox.com') return null;
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            if (parsedUrl.hostname !== TOOLBOX_ASSET_API_HOST) return null;
+            return (
+                parsedUrl.pathname.match(TOOLBOX_ASSET_API_PATH)?.[1] ?? null
+            );
+        } catch (e) {
+            return null;
+        }
+    }
+
+    const storeAssetDetails = new Map();
+    const storeAssetDetailsWaiters = new Map();
+
+    document.addEventListener('rovalra-store-asset-details', (e) => {
+        const assetId = String(e.detail?.assetId ?? '');
+        if (!assetId) return;
+        const entry = {
+            enabled: e.detail.enabled === true,
+            details: e.detail.details ?? null,
+        };
+        storeAssetDetails.set(assetId, entry);
+        storeAssetDetailsWaiters
+            .get(assetId)
+            ?.forEach((resolve) => resolve(entry));
+        storeAssetDetailsWaiters.delete(assetId);
+    });
+
+    function getStoreAssetDetails(assetId) {
+        if (storeAssetDetails.has(assetId)) {
+            return Promise.resolve(storeAssetDetails.get(assetId));
+        }
+
+        return new Promise((resolve) => {
+            const timeout = setTimeout(
+                () => resolve(null),
+                STORE_ASSET_DETAILS_TIMEOUT_MS,
+            );
+            const waiters = storeAssetDetailsWaiters.get(assetId) || [];
+            waiters.push((entry) => {
+                clearTimeout(timeout);
+                resolve(entry);
+            });
+            storeAssetDetailsWaiters.set(assetId, waiters);
+            document.dispatchEvent(
+                new CustomEvent('rovalra-store-asset-details-request', {
+                    detail: { assetId },
+                }),
+            );
+        });
+    }
+
+    function buildToolboxAssetFallback(assetId, details) {
+        const fallback = buildToolboxAssetTemplate(assetId);
+        if (!details) return fallback;
+
+        const creator = details.Creator;
+        if (creator) {
+            const isGroup = creator.CreatorType === 'Group';
+            const targetId = creator.CreatorTargetId;
+            fallback.creator = {
+                creator: `${isGroup ? 'group' : 'user'}/${targetId}`,
+                ...(isGroup ? { groupId: targetId } : { userId: targetId }),
+                name: creator.Name,
+                verified: creator.HasVerifiedBadge === true,
+            };
+        }
+
+        Object.assign(fallback.asset, {
+            id: details.AssetId ?? fallback.asset.id,
+            name: details.Name,
+            description: details.Description,
+            assetTypeId: details.AssetTypeId,
+            createTime: details.Created,
+            updateTime: details.Updated,
+        });
+        if (details.IconImageAssetId) {
+            fallback.asset.textureId = details.IconImageAssetId;
+        }
+
+        return fallback;
+    }
+
+    function buildToolboxAssetTemplate(assetId) {
+        // Fun fact it was taken from this asset https://create.roblox.com/store/asset/35664523/
+        return {
+            voting: {
+                showVotes: false,
+                upVotes: 30,
+                downVotes: 0,
+                canVote: true,
+                hasVoted: false,
+                voteCount: 30,
+                upVotePercent: 100,
+            },
+            creator: {},
+            creatorStoreProduct: {
+                purchasePrice: {
+                    currencyCode: 'USD',
+                    quantity: {
+                        significand: 0,
+                        exponent: 0,
+                    },
+                },
+                purchasable: false,
+            },
+            asset: {
+                textureId: 0,
+                id: Number(assetId),
+            },
+        };
+    }
+
     async function applyHomeLayoutToFetchResponse(url, response) {
         if (!url.includes(OMNI_RECOMMENDATION_API_URL)) {
             return response;
@@ -1075,6 +1193,29 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         args = await rewriteThumbnailFetchArgs(args, requestUrl);
 
         let response = await originalFetch(...args);
+
+        const toolboxAssetId = getToolboxAssetRequestId(requestUrl);
+        if (toolboxAssetId && response.status === 404) {
+            const entry = await getStoreAssetDetails(toolboxAssetId);
+            if (entry?.enabled) {
+                const newHeaders = new Headers(response.headers);
+                newHeaders.delete('content-length');
+                newHeaders.delete('content-encoding');
+                newHeaders.set(
+                    'content-type',
+                    'application/json; charset=utf-8',
+                );
+                response = new Response(
+                    JSON.stringify(
+                        buildToolboxAssetFallback(
+                            toolboxAssetId,
+                            entry.details,
+                        ),
+                    ),
+                    { status: 200, statusText: 'OK', headers: newHeaders },
+                );
+            }
+        }
 
         if (
             freeRobloxPlusThemesEnabled &&
@@ -1397,6 +1538,9 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         if (typeof url === 'string' && isMarketplaceWidgetsRequest(url)) {
             this._rovalra_marketplace_widgets = true;
         }
+        if (typeof url === 'string') {
+            this._rovalra_toolbox_asset_id = getToolboxAssetRequestId(url);
+        }
 
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
@@ -1536,6 +1680,46 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             });
         }
 
+        if (xhr._rovalra_toolbox_asset_id) {
+            const proto = XMLHttpRequest.prototype;
+            const getOriginal = (prop) =>
+                Object.getOwnPropertyDescriptor(proto, prop).get.call(xhr);
+            const isFallback = () =>
+                xhr._rovalra_toolbox_entry?.enabled === true &&
+                xhr.readyState === 4 &&
+                getOriginal('status') === 404;
+            const fallbackText = () =>
+                JSON.stringify(
+                    buildToolboxAssetFallback(
+                        xhr._rovalra_toolbox_asset_id,
+                        xhr._rovalra_toolbox_entry.details,
+                    ),
+                );
+
+            Object.defineProperty(xhr, 'status', {
+                configurable: true,
+                get: () => (isFallback() ? 200 : getOriginal('status')),
+            });
+            Object.defineProperty(xhr, 'statusText', {
+                configurable: true,
+                get: () => (isFallback() ? 'OK' : getOriginal('statusText')),
+            });
+            Object.defineProperty(xhr, 'responseText', {
+                configurable: true,
+                get: () =>
+                    isFallback() ? fallbackText() : getOriginal('responseText'),
+            });
+            Object.defineProperty(xhr, 'response', {
+                configurable: true,
+                get: () => {
+                    if (!isFallback()) return getOriginal('response');
+                    return xhr.responseType === 'json'
+                        ? JSON.parse(fallbackText())
+                        : fallbackText();
+                },
+            });
+        }
+
         xhr.addEventListener('load', function () {
             if (typeof xhr._rovalra_url === 'string') {
                 const triggerEvent = (eventName, detail) =>
@@ -1624,6 +1808,16 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             waitForHomeLayoutState().then(() => {
                 originalXhrSend.apply(xhr, args);
             });
+            return undefined;
+        }
+
+        if (xhr._rovalra_toolbox_asset_id) {
+            getStoreAssetDetails(xhr._rovalra_toolbox_asset_id).then(
+                (entry) => {
+                    xhr._rovalra_toolbox_entry = entry;
+                    originalXhrSend.apply(xhr, args);
+                },
+            );
             return undefined;
         }
 
