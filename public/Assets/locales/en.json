@@ -470,7 +470,13 @@
         "friendFallback": "Friend",
         "save": "Save",
         "remove": "Remove",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "newLabel": "New Label",
+        "color": "Color",
+        "icon": "Icon",
+        "updatePreset": "Update Label",
+        "deletePreset": "Delete Label",
+        "confirmDeletePreset": "Delete this label for every friend using it?"
     },
     "underratedGames": {
         "topic": "Underrated Games",

@@ -3,11 +3,10 @@ import { t } from '../../core/locale/i18n.js';
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { createButton } from '../../core/ui/buttons.js';
-import { createStyledInput } from '../../core/ui/catalog/input.js';
-import { createOverlay } from '../../core/ui/overlay.js';
+import { loadFriendLabelStore, getFriendLabel as getStoredFriendLabel, subscribeFriendLabels } from './friendLabelStore.js';
+import { openFriendLabelEditor, updateFriendLabelBadge, ensureFriendLabelEditButton } from './friendLabelUI.js';
 
 const SETTING_NAME = 'friendLabelsEnabled';
-const STORAGE_KEY = 'rovalra_friend_labels';
 
 const CARD_SELECTOR = '.friends-carousel-tile';
 const EXCLUDED_CONTAINER_SELECTOR = '.roseal-friends-carousel-container';
@@ -30,68 +29,17 @@ const MENU_BUTTON_CLASS = 'rovalra-friend-label-menu-button';
 const MODERN_TOOLTIP_ITEM_CLASS = 'rovalra-friend-label-modern-item';
 const MODERN_TOOLTIP_BUTTON_CLASS = 'rovalra-friend-label-modern-button';
 
-const MAX_LABEL_LENGTH = 24;
 
 let enabled = false;
 let observersRegistered = false;
 let storageListenerRegistered = false;
-let friendLabels = {};
 let lastInteractedFriendCard = null;
 
 function isExcludedCarouselPresent() {
     return Boolean(document.querySelector(EXCLUDED_CONTAINER_SELECTOR));
 }
 
-function sanitizeLabels(value) {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        return {};
-    }
 
-    const sanitized = {};
-
-    for (const [userId, label] of Object.entries(value)) {
-        if (!/^\d+$/.test(userId) || typeof label !== 'string') {
-            continue;
-        }
-
-        const cleanedLabel = label.trim().slice(0, MAX_LABEL_LENGTH);
-
-        if (cleanedLabel) {
-            sanitized[userId] = cleanedLabel;
-        }
-    }
-
-    return sanitized;
-}
-
-async function loadFriendLabels() {
-    try {
-        const result = await chrome.storage.local.get(STORAGE_KEY);
-
-        return sanitizeLabels(result[STORAGE_KEY]);
-    } catch (error) {
-        console.warn('RoValra: Failed to load friend labels', error);
-        return {};
-    }
-}
-
-async function saveFriendLabels(nextLabels) {
-    friendLabels = sanitizeLabels(nextLabels);
-
-    try {
-        await chrome.storage.local.set({
-            [STORAGE_KEY]: friendLabels,
-        });
-    } catch (error) {
-        console.warn('RoValra: Failed to save friend labels', error);
-    }
-
-    refreshExistingCards();
-}
-
-function getFriendLabel(userId) {
-    return friendLabels[String(userId)] || '';
-}
 
 function getDisplayNameText(context) {
     return context.displayName?.textContent?.trim() || '';
@@ -198,66 +146,44 @@ function removeRenderedLabel(card) {
 function renderFriendLabel(card, suppliedContext = null) {
     if (!(card instanceof HTMLElement)) return;
 
-    if (isExcludedCarouselPresent()) {
+    if (!enabled || isExcludedCarouselPresent()) {
         removeRenderedLabel(card);
+        card.querySelector(':scope > .rovalra-friend-label-edit')?.remove();
         return;
     }
 
     const context = suppliedContext || getUserCardContext(card);
-    const existingLabel = card.querySelector(`.${LABEL_CLASS}`);
-
-    if (!enabled || !context.userId) {
+    if (!context?.userId) {
         removeRenderedLabel(card);
+        card.querySelector(':scope > .rovalra-friend-label-edit')?.remove();
         return;
     }
 
-    const labelText = getFriendLabel(context.userId);
+    ensureFriendLabelEditButton(card, {
+        userId: context.userId,
+        displayName: getDisplayNameText(context),
+    }, 'home');
 
-    if (!labelText) {
+    const labelData = getStoredFriendLabel(context.userId);
+    if (!labelData) {
         removeRenderedLabel(card);
         return;
     }
 
     const host = findLabelHost(context);
-
     if (!host) {
         removeRenderedLabel(card);
         return;
     }
 
-    host.classList.add(HOST_CLASS);
-
-    if (existingLabel) {
-        existingLabel.textContent = labelText;
-        existingLabel.title = labelText;
-        existingLabel.dataset.userId = String(context.userId);
-
-        if (existingLabel.parentElement !== host) {
-            const previousHost = existingLabel.closest(`.${HOST_CLASS}`);
-
-            host.appendChild(existingLabel);
-
-            if (
-                previousHost &&
-                previousHost !== host &&
-                !previousHost.querySelector(`.${LABEL_CLASS}`)
-            ) {
-                unwrapLabelHost(previousHost);
-            }
-        }
-
-        return;
+    let badge = card.querySelector(`.${LABEL_CLASS}`);
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = LABEL_CLASS;
     }
-
-    const label = document.createElement('div');
-
-    label.className = LABEL_CLASS;
-    label.textContent = labelText;
-    label.title = labelText;
-    label.dataset.userId = String(context.userId);
-    label.setAttribute('aria-label', labelText);
-
-    host.appendChild(label);
+    if (badge.parentElement !== host) host.appendChild(badge);
+    badge.dataset.userId = String(context.userId);
+    updateFriendLabelBadge(badge, labelData);
 }
 
 function refreshExistingCards() {
@@ -272,6 +198,7 @@ function refreshExistingCards() {
 }
 
 function removeFeatureUi() {
+    document.querySelectorAll('.rovalra-friend-label-edit[data-rovalra-label-kind="home"]').forEach((button) => button.remove());
     document.querySelectorAll(`.${LABEL_CLASS}`).forEach((label) => {
         label.remove();
     });
@@ -297,156 +224,12 @@ function removeFeatureUi() {
         });
 }
 
-function getExistingLabels() {
-    return [...new Set(Object.values(friendLabels))]
-        .filter(Boolean)
-        .sort((firstLabel, secondLabel) =>
-            firstLabel.localeCompare(secondLabel),
-        );
-}
-
 async function openLabelEditor(card, context) {
-    const userId = String(context.userId);
-    const currentLabel = getFriendLabel(userId);
-
-    const displayName =
-        getDisplayNameText(context) || (await t('friendLabels.friendFallback'));
-
-    const body = document.createElement('div');
-    body.className = 'rovalra-friend-label-editor';
-
-    const { container: inputContainer, input } = createStyledInput({
-        id: `rovalra-friend-label-input-${userId}`,
-        label: await t('friendLabels.inputLabel'),
-        value: currentLabel,
-    });
-
-    input.maxLength = MAX_LABEL_LENGTH;
-
-    body.appendChild(inputContainer);
-
-    const existingLabels = getExistingLabels();
-
-    if (existingLabels.length > 0) {
-        const suggestionSection = document.createElement('div');
-        suggestionSection.className = 'rovalra-friend-label-suggestion-section';
-
-        const suggestionTitle = document.createElement('div');
-        suggestionTitle.className = 'rovalra-friend-label-suggestion-title';
-        suggestionTitle.textContent = await t('friendLabels.existingLabels');
-
-        const suggestionList = document.createElement('div');
-        suggestionList.className = 'rovalra-friend-label-suggestions';
-
-        for (const existingLabel of existingLabels) {
-            const suggestion = document.createElement('button');
-
-            suggestion.type = 'button';
-            suggestion.className = 'rovalra-friend-label-suggestion';
-            suggestion.textContent = existingLabel;
-            suggestion.title = existingLabel;
-
-            suggestion.addEventListener('click', () => {
-                input.value = existingLabel;
-
-                input.dispatchEvent(
-                    new Event('input', {
-                        bubbles: true,
-                    }),
-                );
-
-                input.focus();
-            });
-
-            suggestionList.appendChild(suggestion);
-        }
-
-        suggestionSection.append(suggestionTitle, suggestionList);
-        body.appendChild(suggestionSection);
-    }
-
-    let closeOverlay = () => {};
-
-    const saveLabel = async () => {
-        const nextLabel = input.value.trim().slice(0, MAX_LABEL_LENGTH);
-
-        const nextLabels = {
-            ...friendLabels,
-        };
-
-        if (nextLabel) {
-            nextLabels[userId] = nextLabel;
-        } else {
-            delete nextLabels[userId];
-        }
-
-        await saveFriendLabels(nextLabels);
-
-        closeOverlay();
-    };
-
-    const cancelButton = createButton(
-        await t('friendLabels.cancel'),
-        'secondary',
-        {
-            onClick: () => closeOverlay(),
-        },
-    );
-
-    const saveButton = createButton(await t('friendLabels.save'), 'primary', {
-        onClick: saveLabel,
-    });
-
-    const actions = [];
-
-    if (currentLabel) {
-        const removeButton = createButton(
-            await t('friendLabels.remove'),
-            'secondary',
-            {
-                onClick: async () => {
-                    const nextLabels = {
-                        ...friendLabels,
-                    };
-
-                    delete nextLabels[userId];
-
-                    await saveFriendLabels(nextLabels);
-
-                    closeOverlay();
-                },
-            },
-        );
-
-        removeButton.classList.add('rovalra-friend-label-remove-button');
-
-        actions.push(removeButton);
-    }
-
-    actions.push(cancelButton, saveButton);
-
-    const overlayResult = createOverlay({
-        title: await t('friendLabels.dialogTitle', {
-            displayName,
-        }),
-        bodyContent: body,
-        actions,
-        maxWidth: '430px',
-        showLogo: true,
-    });
-
-    closeOverlay = overlayResult.close;
-
-    input.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-
-        event.preventDefault();
-        saveButton.click();
-    });
-
-    requestAnimationFrame(() => {
-        input.focus();
-        input.select();
+    const resolved = context || (card ? getUserCardContext(card) : null);
+    if (!resolved?.userId) return;
+    await openFriendLabelEditor({
+        userId: resolved.userId,
+        displayName: getDisplayNameText(resolved) || await t('friendLabels.friendFallback'),
     });
 }
 
@@ -949,31 +732,20 @@ function attachActionsToExistingDropdowns() {
 
 function registerStorageListener() {
     if (storageListenerRegistered) return;
-
     storageListenerRegistered = true;
 
+    subscribeFriendLabels(() => {
+        if (enabled) refreshExistingCards();
+    });
+
     chrome.storage.onChanged.addListener(async (changes, namespace) => {
-        if (namespace !== 'local') return;
-
-        if (changes[STORAGE_KEY]) {
-            friendLabels = sanitizeLabels(changes[STORAGE_KEY].newValue);
-
-            if (enabled) {
-                refreshExistingCards();
-            }
-        }
-
-        if (!changes[SETTING_NAME]) return;
-
+        if (namespace !== 'local' || !changes[SETTING_NAME]) return;
         enabled = changes[SETTING_NAME].newValue === true;
-
         if (!enabled) {
             removeFeatureUi();
             return;
         }
-
-        friendLabels = await loadFriendLabels();
-
+        await loadFriendLabelStore();
         registerObservers();
         refreshExistingCards();
         attachActionsToExistingDropdowns();
@@ -982,16 +754,12 @@ function registerStorageListener() {
 
 export async function init() {
     registerStorageListener();
-
     enabled = (await settings.friendLabelsEnabled) === true;
-
     if (!enabled) {
         removeFeatureUi();
         return;
     }
-
-    friendLabels = await loadFriendLabels();
-
+    await loadFriendLabelStore();
     registerObservers();
     refreshExistingCards();
     attachActionsToExistingDropdowns();
