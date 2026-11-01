@@ -92,7 +92,7 @@ async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
         const thumb = createThumbnailElement(
             thumbData,
             displayName,
-            'avatar-card-image',
+            'rovalra-friend-ownership-thumbnail',
         );
         thumb.className = 'rovalra-friend-ownership-thumbnail';
 
