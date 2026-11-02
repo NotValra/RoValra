@@ -2087,6 +2087,7 @@
         "membersTooltip": "此使用者擁有的社群的成員數。"
     },
     "plus": {
+        "subscribeToPlus": "訂閱 Roblox Plus。",
         "stats": {
             "robux": "您擁有 Plus 會員資格時節省了 {{robux}}",
             "percentOffSmall": "遊戲內道具、虛擬人偶等",

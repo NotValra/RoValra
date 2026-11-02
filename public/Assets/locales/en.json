@@ -2509,6 +2509,7 @@
         "membersTooltip": "Members across communities owned by this user."
     },
     "plus": {
+        "subscribeToPlus": "Subscribe to Roblox Plus.",
         "stats": {
             "robux": "You've saved {{robux}} when you had Plus",
             "percentOffSmall": "In-game items, avatars and more",

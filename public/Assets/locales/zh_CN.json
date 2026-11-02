@@ -2087,6 +2087,7 @@
         "membersTooltip": "此用户拥有的社区的成员数。"
     },
     "plus": {
+        "subscribeToPlus": "订阅 Roblox Plus。",
         "stats": {
             "robux": "您拥有 Plus 会员资格时节省了 {{robux}}",
             "percentOffSmall": "游戏内道具、虚拟形象等",

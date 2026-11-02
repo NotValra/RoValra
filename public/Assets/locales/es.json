@@ -2045,6 +2045,7 @@
         "membersTooltip": "Miembros en las comunidades propiedad de este usuario."
     },
     "plus": {
+        "subscribeToPlus": "Suscribirse a Roblox Plus.",
         "stats": {
             "robux": "Ahorraste {{robux}} cuando tuviste Plus",
             "percentOffSmall": "Artículos dentro del juego, avatares y más",

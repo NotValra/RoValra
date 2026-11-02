@@ -1,4 +1,4 @@
-import DOMPurify from 'dompurify';
+import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings';
 import { debugVerbose } from '../../core/debug';
 import { observeElement } from '../../core/observer';
@@ -54,13 +54,14 @@ function updateRobloxPlusNote(robloxPlusNote) {
     debugVerbose(`[lessPlus] Minimizing robloxPlus note from sidebar.`, {
         element: robloxPlusNote,
     });
-    sidebarItem.innerHTML = DOMPurify.sanitize(String.raw`
-        <p class="text-body-medium padding-x-medium padding-y-small" style="white-space: nowrap;">
-            <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-roblox-plus size-[var(--icon-size-small)]" style="vertical-align: -1px;"></span>
-            More fun for less Robux.
-            <a href="/plus" class="content-default minimised-robloxplus-note [text-decoration:underline] [text-decoration-skip-ink:none] [text-underline-offset:3px]">Subscribe</a>
-        </p>
-    `);
+    robloxPlusNote.classList.add('minimised-robloxplus-note');
+
+    const textSpan = robloxPlusNote.querySelector('span:nth-child(2)');
+    if (textSpan) {
+        textSpan.textContent = ts('plus.subscribeToPlus');
+    }
+
+    robloxPlusNote.querySelector('span:nth-child(3)')?.remove();
 }
 
 function observeRobloxPlusSidebar(navbar) {

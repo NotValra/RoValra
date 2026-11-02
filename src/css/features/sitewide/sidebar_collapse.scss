@@ -82,11 +82,12 @@ $roblox-left-nav-breakpoint: 768px;
     }
 
     /* target SPECIFICALLY le roblox plus promo card widget */
-    li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a {
+    li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a,
+    li[data-rovalra-less-plus-note="true"] > a {
         width: 48px !important;
         min-width: 48px !important;
-        height: 48px !important;
-        min-height: 48px !important;
+        height: 40px !important;
+        min-height: 40px !important;
         padding: 0 !important;
         margin-left: auto !important;
         margin-right: auto !important;
@@ -95,17 +96,28 @@ $roblox-left-nav-breakpoint: 768px;
         justify-content: center !important;
         flex-direction: row !important;
         box-sizing: border-box !important;
+        border: none !important;
+        background-color: transparent !important;
+
+        &:hover {
+            background-color: var(--color-state-hover, rgba(208, 217, 251, 0.08)) !important;
+        }
     }
 
     /* hide only the promo text and subscribe link inside the roblox plus promo card */
     li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a > span:nth-child(2),
-    li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a > span:nth-child(3) {
+    li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a > span:nth-child(3),
+    li[data-rovalra-less-plus-note="true"] > a > span:not(:first-child),
+    li[data-rovalra-less-plus-note="true"] > a > div {
         display: none !important;
     }
 
-    li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a > span:first-child {
+    li[data-rovalra-sidebar-layout-key="href:/plus:occurrence-2"] > a > span:first-child,
+    li[data-rovalra-less-plus-note="true"] > a > span:first-child {
         margin: 0 !important;
         flex: 0 0 auto !important;
+        width: var(--icon-size-large, 28px) !important;
+        height: var(--icon-size-large, 28px) !important;
     }
 }
 
