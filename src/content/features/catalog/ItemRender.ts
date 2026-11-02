@@ -107,6 +107,8 @@ const itemOnlyCameras = new Map<
     string,
     { position: THREE.Vector3; target: THREE.Vector3 }
 >();
+const thumbnailCameraHandleOffsets = new Map<string, CFrame | null>();
+const pendingThumbnailCameraHandleOffsets = new Set<string>();
 let savedMainCamera:
     { position: THREE.Vector3; target: THREE.Vector3 } | undefined = undefined;
 let selectedRenderEnvironmentMode = 'default';
@@ -933,12 +935,53 @@ function getAssetIdFromLink(itemLink: string | undefined) {
     return itemId || undefined;
 }
 
+function getThumbnailCameraHandleOffset(
+    itemId: number,
+    isR15: boolean,
+): CFrame | 'pending' | undefined {
+    const cacheKey = `${itemId}_${isR15}`;
+    if (thumbnailCameraHandleOffsets.has(cacheKey))
+        return thumbnailCameraHandleOffsets.get(cacheKey) ?? undefined;
+
+    if (!pendingThumbnailCameraHandleOffsets.has(cacheKey)) {
+        pendingThumbnailCameraHandleOffsets.add(cacheKey);
+        API.Asset.GetRBX(
+            `rbxassetid://${itemId}`,
+            isR15
+                ? { 'Roblox-AssetFormat': 'avatar_meshpart_accessory' }
+                : undefined,
+        )
+            .then((rbx) => {
+                let offset: CFrame | null = null;
+                if (!(rbx instanceof Response)) {
+                    const root = rbx.generateTree();
+                    const accessory = root.FindFirstChildOfClass('Accessory');
+                    const camera = accessory?.FindFirstChild('ThumbnailCamera');
+                    const handle = accessory?.FindFirstChild('Handle');
+                    if (camera?.IsA('Camera') && handle?.IsA('BasePart')) {
+                        offset = (handle.Prop('CFrame') as CFrame)
+                            .inverse()
+                            .multiply(camera.Prop('CFrame') as CFrame);
+                    }
+                    root.Destroy();
+                }
+                thumbnailCameraHandleOffsets.set(cacheKey, offset);
+            })
+            .catch(() => thumbnailCameraHandleOffsets.set(cacheKey, null))
+            .finally(() =>
+                pendingThumbnailCameraHandleOffsets.delete(cacheKey),
+            );
+    }
+
+    return 'pending';
+}
+
 function getItemThumbnailCamera(
     renderScene: RBXRendererScene,
     sceneContainer: HTMLElement | undefined,
     outfitRenderer: OutfitRenderer,
     itemId: number | undefined,
-): { cframe: CFrame; target: Vec3 } | undefined {
+): { cframe: CFrame; target: Vec3 } | 'pending' | undefined {
     const rig = outfitRenderer.currentRig;
     if (!rig || !itemId) return;
 
@@ -956,25 +999,50 @@ function getItemThumbnailCamera(
     }
     if (!accessory || accessory.destroyed || accessory.parent !== rig) return;
 
-    const thumbnailConfiguration = accessory.FindFirstChild(
-        'ThumbnailConfiguration',
-    );
-    if (!thumbnailConfiguration) return;
+    let targetPart: Instance | undefined = undefined;
+    let cameraCF: CFrame | undefined = undefined;
 
-    const cameraTarget = thumbnailConfiguration.FindFirstChild(
-        'ThumbnailCameraTarget',
-    );
-    const cameraValue = thumbnailConfiguration.FindFirstChild(
-        'ThumbnailCameraValue',
-    );
-    if (!cameraTarget?.IsA('ObjectValue') || !cameraValue?.IsA('CFrameValue'))
-        return;
+    const thumbnailCamera = accessory.FindFirstChild('ThumbnailCamera');
+    const handle = accessory.FindFirstChild('Handle');
+    if (thumbnailCamera?.IsA('Camera') && handle?.IsA('BasePart')) {
+        const handleOffset = getThumbnailCameraHandleOffset(
+            itemId,
+            !!rig.FindFirstChild('UpperTorso'),
+        );
+        if (handleOffset === 'pending') return 'pending';
+        if (handleOffset) {
+            targetPart = handle;
+            cameraCF = (handle.Prop('CFrame') as CFrame).multiply(handleOffset);
+        }
+    }
 
-    const targetPart = cameraTarget.Prop('Value') as Instance | undefined;
-    if (!targetPart || !targetPart.IsA('BasePart')) return;
+    if (!targetPart || !cameraCF) {
+        const thumbnailConfiguration = accessory.FindFirstChild(
+            'ThumbnailConfiguration',
+        );
+        if (!thumbnailConfiguration) return;
+
+        const cameraTarget = thumbnailConfiguration.FindFirstChild(
+            'ThumbnailCameraTarget',
+        );
+        const cameraValue = thumbnailConfiguration.FindFirstChild(
+            'ThumbnailCameraValue',
+        );
+        if (
+            !cameraTarget?.IsA('ObjectValue') ||
+            !cameraValue?.IsA('CFrameValue')
+        )
+            return;
+
+        targetPart = cameraTarget.Prop('Value') as Instance | undefined;
+        if (!targetPart || !targetPart.IsA('BasePart')) return;
+
+        cameraCF = (targetPart.Prop('CFrame') as CFrame).multiply(
+            cameraValue.Prop('Value') as CFrame,
+        );
+    }
 
     const targetCF = targetPart.Prop('CFrame') as CFrame;
-    const cameraCF = targetCF.multiply(cameraValue.Prop('Value') as CFrame);
     const lookVector = cameraCF.lookVector();
     const upVector = cameraCF.upVector();
     const rightVector = cameraCF.rightVector();
@@ -1449,6 +1517,8 @@ function focusItemOnlyCamera() {
             mainOutfitRenderer,
             mainItemId,
         );
+
+    if (thumbnailCamera === 'pending') return false;
 
     if (thumbnailCamera && controls) {
         RBXRenderer.setCameraCFrame(thumbnailCamera.cframe, mainScene);
