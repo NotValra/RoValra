@@ -2093,6 +2093,7 @@
     "membersTooltip": "Mitglieder in den Communities dieses Nutzers."
   },
   "plus": {
+      "subscribeToPlus": "Roblox Plus abonnieren.",
     "stats": {
       "robux": "Du hast {{robux}} gespart, als du Plus hattest",
       "percentOffSmall": "Items im Spiel, Avatare und mehr",

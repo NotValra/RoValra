@@ -2043,6 +2043,7 @@
         "membersTooltip": "Anggota di seluruh komunitas yang dimiliki oleh pengguna ini."
     },
     "plus": {
+        "subscribeToPlus": "Berlangganan Roblox Plus.",
         "stats": {
             "robux": "Anda telah menghemat {{robux}} saat memiliki Plus",
             "percentOffSmall": "Item dalam game, avatar, dan lainnya",

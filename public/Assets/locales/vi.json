@@ -2079,6 +2079,7 @@
         "membersTooltip": "Số thành viên khắp các cộng đồng được tạo ra bởi người dùng này."
     },
     "plus": {
+        "subscribeToPlus": "Đăng ký Roblox Plus.",
         "stats": {
             "robux": "Bạn đã tiết kiệm {{robux}} khi bạn có Plus",
             "percentOffSmall": "Vật phẩm trong game, ảnh đại diện và hơn thế",

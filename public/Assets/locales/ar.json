@@ -2043,6 +2043,7 @@
         "membersTooltip": "الأعضاء عبر المجتمعات المملوكة لهذا المستخدم."
     },
     "plus": {
+        "subscribeToPlus": "الاشتراك في Roblox Plus.",
         "stats": {
             "robux": "لقد وفّرت {{robux}} عندما كان لديك Plus",
             "percentOffSmall": "عناصر داخل اللعبة، أفاتارات والمزيد",
