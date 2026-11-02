@@ -3354,7 +3354,6 @@ export const SETTINGS_CONFIG = {
                 label: '2016 Roblox Theme',
                 description: [
                     'Recreates the look of the 2016 Roblox website, based on the archived 2016 Roblox stylesheets.',
-                    'Brings back the blue top bar, gray page background, green and blue buttons and the Source Sans Pro font.',
                     '2016 had no dark mode, so this always uses the light look.',
                     'This is made to be very similar to the 2016 UI but not 100% 1 to 1 in all places.',
                     '**YOU MAY ENCOUNTER BUGS**',

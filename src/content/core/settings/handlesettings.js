@@ -1529,24 +1529,27 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     return true;
                 }
 
-                if (
-                    conf.lockedBy &&
-                    currentSettings[conf.lockedBy.setting] === true
-                ) {
-                    if (currentSettings[name] === true) {
-                        await handleSaveSettings(name, false);
-                    }
+                if (conf.lockedBy) {
                     const input = settingsContent.querySelector(
                         `[data-setting-name="${name}"]`,
                     );
-                    if (input?.type === 'checkbox') input.checked = false;
-                    applyLockedState(
-                        name,
-                        settingsContent,
-                        true,
-                        conf.lockedBy.reason,
-                    );
-                    return true;
+                    if (currentSettings[conf.lockedBy.setting] === true) {
+                        if (input?.type === 'checkbox') {
+                            input.checked = false;
+                            input.dataset.rovalraLockedBy = 'true';
+                        }
+                        applyLockedState(
+                            name,
+                            settingsContent,
+                            true,
+                            conf.lockedBy.reason,
+                        );
+                        return true;
+                    }
+                    if (input?.dataset.rovalraLockedBy) {
+                        input.checked = currentSettings[name] === true;
+                        delete input.dataset.rovalraLockedBy;
+                    }
                 }
                 if (!handledLockState) {
                     applyLockedState(name, settingsContent, false);
