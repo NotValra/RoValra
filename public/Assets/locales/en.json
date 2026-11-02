@@ -886,6 +886,24 @@
     "lastEquipped": {
         "label": "Last Equipped"
     },
+    "improvedAttributes": {
+        "label": "Attributes",
+        "attributes": {
+            "CantBeSoldInGames": "Can't Be Sold In Experiences",
+            "Includes_PBR": "PBR",
+            "Includes_Emissive": "Emissive",
+            "Includes_Transparency": "Transparency",
+            "Includes_Particles": "Particles",
+            "Includes_Script": "Scripts",
+            "Includes_Fire": "Fire",
+            "Includes_Sparkles": "Sparkles",
+            "Includes_Smoke": "Smoke",
+            "Includes_Sound": "Sound",
+            "Includes_LightSource": "Light Source",
+            "Includes_Beam": "Beam",
+            "Includes_Trail": "Trail"
+        }
+    },
     "ownedItemPrice": {
         "label": "Price",
         "free": "Free",

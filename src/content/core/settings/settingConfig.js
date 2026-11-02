@@ -296,6 +296,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['4866259395', '447170745'],
             },
+            improvedAttributesEnabled: {
+                label: 'Improved Attributes',
+                description: [
+                    'Adds more attributes to item pages, like if an item has particles, scripts, sounds, lights, fire and more, or if it cannot be sold in experiences.',
+                    'This feature was made possible because of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             ownedItemPriceEnabled: {
                 label: 'Price on Owned Item Pages',
                 description:
