@@ -29,7 +29,11 @@ import {
     refreshRemoteSettingLocks,
 } from './remoteSettingLocks.js';
 import { sanitizeBackgroundImage } from '../backgroundImage.js';
-import { sanitizeSavedThemes, sanitizeThemeVariables } from '../themeVariables.js';
+import {
+    sanitizeSavedThemes,
+    sanitizeThemeVariables,
+} from '../themeVariables.js';
+import { importCustomCosmetic } from '../profile/customCosmeticTest.js';
 import './settingsCompat';
 
 let currentUserTierLoaded = false;
@@ -128,10 +132,11 @@ async function prepareProfilePronounsUpdate(value) {
             }
         } catch (error) {
             restoreProfilePronounsInput(previousValue);
-            let validationErrorMessage =
-                ts('settings.ui.pronouns.checkFailed');
+            let validationErrorMessage = ts('settings.ui.pronouns.checkFailed');
             if (error?.status === 400) {
-                validationErrorMessage = ts('settings.ui.pronouns.filterRejected');
+                validationErrorMessage = ts(
+                    'settings.ui.pronouns.filterRejected',
+                );
             } else if (error?.status === 429) {
                 validationErrorMessage = ts('settings.ui.pronouns.filterBusy');
             }
@@ -957,6 +962,20 @@ export const handleSaveSettings = async (settingName, value) => {
                             });
                         }
                     }
+                    if (
+                        settingName === 'profilePlaytimePublic' &&
+                        currentUserTier >= 3
+                    ) {
+                        updateUserSettingViaApi(
+                            'public_playtime',
+                            Boolean(sanitizedValue),
+                        ).catch((error) =>
+                            console.error(
+                                'RoValra: Playtime visibility sync failed',
+                                error,
+                            ),
+                        );
+                    }
                     if (settingName === 'profileViewsEnabled') {
                         loadSettings()
                             .then((currentSettings) => {
@@ -1238,8 +1257,12 @@ export const initSettings = async (settingsContent) => {
                                             option.value = regionCode;
                                             option.textContent =
                                                 regionCode === 'AUTO'
-                                                    ? ts('regionSelector.automatic')
-                                                    : getFullRegionName(regionCode);
+                                                    ? ts(
+                                                          'regionSelector.automatic',
+                                                      )
+                                                    : getFullRegionName(
+                                                          regionCode,
+                                                      );
                                             childElement.appendChild(option);
                                         },
                                     );
@@ -1505,6 +1528,29 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     applyLockedState(name, settingsContent, true, conf.locked);
                     return true;
                 }
+
+                if (conf.lockedBy) {
+                    const input = settingsContent.querySelector(
+                        `[data-setting-name="${name}"]`,
+                    );
+                    if (currentSettings[conf.lockedBy.setting] === true) {
+                        if (input?.type === 'checkbox') {
+                            input.checked = false;
+                            input.dataset.rovalraLockedBy = 'true';
+                        }
+                        applyLockedState(
+                            name,
+                            settingsContent,
+                            true,
+                            conf.lockedBy.reason,
+                        );
+                        return true;
+                    }
+                    if (input?.dataset.rovalraLockedBy) {
+                        input.checked = currentSettings[name] === true;
+                        delete input.dataset.rovalraLockedBy;
+                    }
+                }
                 if (!handledLockState) {
                     applyLockedState(name, settingsContent, false);
                 }
@@ -1524,9 +1570,30 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     }
 };
 
+function getLockingSettingNames() {
+    const names = new Set();
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const config of Object.values(category.settings)) {
+            for (const conf of [
+                config,
+                ...Object.values(config.childSettings || {}),
+            ]) {
+                if (conf.lockedBy) names.add(conf.lockedBy.setting);
+            }
+        }
+    }
+    return names;
+}
+
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    const lockingSettingNames = getLockingSettingNames();
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
-        if (areaName !== 'local' || !changes[REMOTE_SETTING_LOCKS_KEY]) return;
+        if (areaName !== 'local') return;
+        if (
+            !changes[REMOTE_SETTING_LOCKS_KEY] &&
+            !Object.keys(changes).some((key) => lockingSettingNames.has(key))
+        )
+            return;
 
         const settingsContent = document.querySelector(
             '#setting-section-content',
@@ -2082,9 +2149,7 @@ export function initializeSettingsEventListeners() {
                     );
                     await Promise.all(promises);
 
-                    alert(
-                        ts('settings.ui.environment.imported'),
-                    );
+                    alert(ts('settings.ui.environment.imported'));
                     location.reload();
                 } catch (error) {
                     console.error(
@@ -2100,6 +2165,13 @@ export function initializeSettingsEventListeners() {
         input.click();
     });
 
+    document.addEventListener('rovalra:importCustomFramePreview', () =>
+        importCustomCosmetic('frame'),
+    );
+    document.addEventListener('rovalra:importCustomBorderPreview', () =>
+        importCustomCosmetic('border'),
+    );
+
     document.addEventListener('rovalra:showLocalStorageUsage', async () => {
         chrome.storage.local.get(null, (items) => {
             let totalBytes = 0;
@@ -2110,9 +2182,11 @@ export function initializeSettingsEventListeners() {
                     totalBytes += itemSize;
                 }
             }
-            alert(ts('settings.ui.environment.storageUsed', {
-                size: formatBytes(totalBytes),
-            }));
+            alert(
+                ts('settings.ui.environment.storageUsed', {
+                    size: formatBytes(totalBytes),
+                }),
+            );
         });
     });
 
@@ -2177,7 +2251,9 @@ export function initializeSettingsEventListeners() {
                         message:
                             `<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">${statusPills}</span>` +
                             ts('settings.ui.featureStatus.message'),
-                        confirmText: ts('settings.ui.featureStatus.acknowledge'),
+                        confirmText: ts(
+                            'settings.ui.featureStatus.acknowledge',
+                        ),
                         cancelText: ts('common.cancel'),
                         confirmType: 'primary',
                         cancelType: 'secondary',

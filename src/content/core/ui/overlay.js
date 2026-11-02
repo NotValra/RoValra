@@ -13,6 +13,7 @@ export function createOverlay({
     preventBackdropClose = false,
     onClose,
     overflowVisible = false,
+    showCloseButton = true,
 }) {
     const overlay = document.createElement('div');
     overlay.className = 'rovalra-global-overlay';
@@ -106,9 +107,11 @@ export function createOverlay({
         }
     };
 
-    const closeButton = createCloseButton({ onClick: close });
-    closeButtonContainer.appendChild(closeButton);
-    content.appendChild(closeButtonContainer);
+    if (showCloseButton) {
+        const closeButton = createCloseButton({ onClick: close });
+        closeButtonContainer.appendChild(closeButton);
+        content.appendChild(closeButtonContainer);
+    }
 
     if (!preventBackdropClose) {
         overlay.addEventListener('click', (e) => {

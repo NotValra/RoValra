@@ -1,0 +1,1490 @@
+@use 'sass:math';
+
+$r2016-page: #e3e3e3;
+$r2016-card: #ffffff;
+$r2016-hover: #f2f2f2;
+$r2016-header: #0074bd;
+$r2016-text: #191919;
+$r2016-muted: #757575;
+$r2016-border: #b8b8b8;
+$r2016-green: #02b757;
+$r2016-green-hover: #3fc679;
+$r2016-blue: #00a2ff;
+$r2016-blue-hover: #32b5ff;
+$r2016-red: #d86868;
+$r2016-orange: #f68802;
+$r2016-shadow: 0 1px 4px 0 rgba(25, 25, 25, 0.3);
+$r2016-radius: 3px;
+$r2016-font: 'Source Sans Pro', 'Source Sans 3', Arial, Helvetica, sans-serif;
+
+$r2016-tokens: (
+    surface-0: $r2016-page,
+    surface-100: $r2016-card,
+    surface-200: $r2016-card,
+    surface-300: $r2016-hover,
+    common-navigation-bar: $r2016-header,
+    navigation-background: $r2016-header,
+    navigation-image: none,
+    common-heavy-divider: $r2016-border,
+    content-emphasis: $r2016-text,
+    content-default: $r2016-text,
+    content-muted: $r2016-muted,
+    content-link: $r2016-blue,
+    stroke-default: $r2016-border,
+    stroke-emphasis: $r2016-border,
+    stroke-muted: $r2016-page,
+    shift-100: rgba(25, 25, 25, 0.04),
+    shift-200: rgba(25, 25, 25, 0.08),
+    shift-300: rgba(25, 25, 25, 0.12),
+    shift-400: rgba(25, 25, 25, 0.16),
+    state-hover: rgba(25, 25, 25, 0.05),
+    state-press: rgba(25, 25, 25, 0.1),
+    system-emphasis: $r2016-blue,
+    system-contrast: $r2016-text,
+    system-alert: $r2016-red,
+    system-success: $r2016-green,
+    system-warning: $r2016-orange,
+    system-neutral: $r2016-muted,
+    selection-start: $r2016-blue,
+    selection-end: $r2016-blue,
+    action-emphasis-background: $r2016-green,
+    action-emphasis-border: $r2016-green,
+    action-emphasis-foreground: #ffffff,
+    action-sub-emphasis-background: $r2016-blue,
+    action-sub-emphasis-border: $r2016-blue,
+    action-sub-emphasis-foreground: #ffffff,
+    action-standard-background: $r2016-card,
+    action-standard-border: $r2016-border,
+    action-standard-foreground: $r2016-text,
+    action-soft-emphasis-background: rgba(0, 162, 255, 0.15),
+    action-soft-emphasis-foreground: $r2016-header,
+    action-subtle-border: $r2016-border,
+    action-subtle-foreground: $r2016-text,
+    action-utility-foreground: $r2016-text,
+    action-link-foreground: $r2016-blue,
+    action-alert-background: $r2016-red,
+    action-alert-border: $r2016-red,
+    action-alert-foreground: #ffffff,
+);
+
+$r2016-root: ':root.rovalra-theme-2016';
+
+#{$r2016-root},
+#{$r2016-root} [class*='theme-'],
+#{$r2016-root} [class*='-theme'] {
+    @each $mode in dark, light {
+        @each $key, $value in $r2016-tokens {
+            --#{$mode}-mode-#{$key}: #{$value} !important;
+        }
+    }
+
+    --radius-xsmall: 2px !important;
+    --radius-small: #{$r2016-radius} !important;
+    --radius-medium: #{$r2016-radius} !important;
+    --radius-large: #{$r2016-radius} !important;
+    color-scheme: light;
+
+    --rovalra-main-text-color: #{$r2016-text} !important;
+    --rovalra-secondary-text-color: #{$r2016-muted} !important;
+    --rovalra-tertiary-text-color: #{$r2016-muted} !important;
+    --rovalra-gray-text-color: #{$r2016-muted} !important;
+    --rovalra-container-background-color: #{$r2016-hover} !important;
+    --rovalra-main-background-color: #{$r2016-page} !important;
+    --rovalra-playbutton-color: #{$r2016-green} !important;
+    --rovalra-button-background-color: #{$r2016-card} !important;
+    --rovalra-border-color: #{$r2016-border} !important;
+    --rovalra-icon-blocked-color: #ffffff !important;
+    --rovalra-profile-header-bg: #{$r2016-card} !important;
+    --rovalra-profile-main-gradient: #{$r2016-card} !important;
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.85) 70%,
+        #fff 90%
+    ) !important;
+    --rovalra-theme-content: #{$r2016-card} !important;
+    --rovalra-theme-text: #{$r2016-text} !important;
+    --rovalra-theme-header: #{$r2016-text} !important;
+    --rovalra-theme-sliderOn: #{$r2016-green} !important;
+    --rovalra-theme-sliderOff: #{$r2016-border} !important;
+    --rovalra-theme-sliderButton: #ffffff !important;
+    --rovalra-theme-buttonText: #{$r2016-text} !important;
+    --rovalra-theme-buttonBg: #{$r2016-card} !important;
+    --rovalra-theme-buttonHover: #{$r2016-hover} !important;
+    --rovalra-theme-buttonActive: #{$r2016-page} !important;
+    --rovalra-theme-buttonBorder: 1px solid #{$r2016-border} !important;
+    --rovalra-theme-discordLink: #{$r2016-blue} !important;
+    --rovalra-theme-githubLink: #{$r2016-green} !important;
+    --rovalra-theme-robloxLink: #{$r2016-header} !important;
+}
+
+#{$r2016-root} body {
+    background-color: $r2016-page !important;
+    color: $r2016-text;
+    font-family: $r2016-font !important;
+}
+
+#{$r2016-root}
+    body
+    :is(
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        a,
+        button,
+        input,
+        textarea,
+        select,
+        label,
+        li,
+        div
+    ):not([class*='icon']) {
+    font-family: $r2016-font !important;
+}
+
+#{$r2016-root} #header.rbx-header,
+#{$r2016-root} .rbx-header {
+    background-color: $r2016-header !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+
+    .nav-menu-title,
+    .rbx-menu-item,
+    .navbar-header a,
+    .age-bracket-label,
+    .text-robux,
+    [class*='icon-'] {
+        color: #ffffff !important;
+    }
+
+    .rbx-navbar-search .input-field,
+    .navbar-search input {
+        background-color: #ffffff !important;
+        color: $r2016-text !important;
+        border-color: $r2016-border !important;
+        border-radius: $r2016-radius !important;
+    }
+}
+
+$r2016-nav-width: 200px;
+$r2016-nav: '.left-nav:not([data-rovalra-sidebar-collapsed="true"]:not([data-rovalra-sidebar-hover-expanded="true"]))';
+
+#{$r2016-root} :is(.rbx-left-col, .left-nav) {
+    background-color: $r2016-card !important;
+    box-shadow: 0 0 3px 0 rgba(25, 25, 25, 0.3) !important;
+    border: 0 !important;
+
+    a,
+    .font-header-2 {
+        color: $r2016-text !important;
+    }
+}
+
+#{$r2016-root} #{$r2016-nav} {
+    &,
+    > .flex,
+    > .flex > div:first-child {
+        width: $r2016-nav-width !important;
+        min-width: 0 !important;
+    }
+
+    nav ul {
+        gap: 5px !important;
+        padding: 5px 10px 0 !important;
+    }
+
+    nav li {
+        margin: 0 !important;
+    }
+
+    :is(nav li > :is(a, button), .roseal-left-nav-item .nav-item-link) {
+        display: flex !important;
+        align-items: center !important;
+        min-height: 28px;
+        padding: 0 !important;
+        gap: 6px !important;
+        border-radius: 0 !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.42857 !important;
+        color: $r2016-text !important;
+
+        > div[role='presentation'] {
+            display: none !important;
+        }
+
+        > :is(span:first-of-type, .nav-item-icon) {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 28px !important;
+            height: 28px !important;
+            flex: 0 0 28px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+
+            :is(.icon, img, .radius-circle, [class*='icon-']) {
+                width: 28px !important;
+                height: 28px !important;
+                margin: 0 !important;
+                vertical-align: middle !important;
+            }
+        }
+
+        > :is(span:not(:first-of-type), .nav-item-text) {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        :is(span, p) {
+            font-size: 16px !important;
+            font-weight: 400 !important;
+        }
+    }
+
+    .foundation-web-badge {
+        display: none !important;
+    }
+}
+
+#{$r2016-root} .no-gutter-ads main.container-main {
+    margin-left: min(
+        var(--left-nav-reserved-width, 0px),
+        #{$r2016-nav-width}
+    ) !important;
+}
+
+@media (min-width: 768px) {
+    #{$r2016-root}
+        main.container-main[data-rovalra-sidebar-layout-active='true']:is(
+            :not([data-rovalra-sidebar-collapsed='true']),
+            [data-rovalra-sidebar-hover-expanded='true']
+        ) {
+        margin-left: $r2016-nav-width !important;
+        width: calc(100% - #{$r2016-nav-width}) !important;
+    }
+}
+
+#{$r2016-root} .content,
+#{$r2016-root} #container-main {
+    background-color: transparent !important;
+}
+
+#{$r2016-root} .section-content,
+#{$r2016-root} .rbx-tab-heading,
+#{$r2016-root} .dropdown-menu,
+#{$r2016-root} .popover,
+#{$r2016-root} .modal-content {
+    background-color: $r2016-card !important;
+    color: $r2016-text !important;
+}
+
+#{$r2016-root} .section-content {
+    box-shadow: $r2016-shadow !important;
+    border-radius: 0 !important;
+}
+
+#{$r2016-root} .react-friends-carousel-container {
+    height: auto !important;
+
+    .friends-carousel-container {
+        background-color: $r2016-card !important;
+        box-shadow: $r2016-shadow !important;
+        border-radius: 0 !important;
+        padding: 12px 15px 0 !important;
+        box-sizing: border-box;
+    }
+
+    .friends-carousel-tile {
+        margin-bottom: 12px !important;
+    }
+}
+
+$r2016-profile-game-sections: '.profile-experiences, .profile-favorite-experiences';
+
+#{$r2016-root}
+    :is(.profile-content, .profile-tab-content)
+    [class*='collectionCarouselContainer']:not(
+        :is(#{$r2016-profile-game-sections}) *
+    )
+    > :not(:first-child),
+#{$r2016-root} #rovalra-main-categorized-wrapper > .rovalra-scroll-wrapper {
+    background-color: $r2016-card !important;
+    box-shadow: $r2016-shadow !important;
+    border-radius: 0 !important;
+    padding: 12px 15px !important;
+    box-sizing: border-box;
+}
+
+#{$r2016-root} #rovalra-main-categorized-wrapper > .rovalra-scroll-wrapper {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+
+#{$r2016-root} .rbx-tab:hover .rbx-tab-heading {
+    background-color: $r2016-hover !important;
+}
+
+#{$r2016-root} .rbx-tabs-horizontal .rbx-tab.active .rbx-tab-heading {
+    box-shadow: 0 -4px 0 0 $r2016-blue inset !important;
+}
+
+#{$r2016-root} .rbx-divider {
+    background-color: $r2016-border !important;
+}
+
+#{$r2016-root} body {
+    :is(h1, h2, h3, h4, h5, h6),
+    .text-header,
+    .text-name,
+    .text-emphasis,
+    .text-overflow,
+    .font-header-1,
+    .font-header-2,
+    .font-title,
+    .font-subheader-1,
+    .font-bold {
+        color: $r2016-text;
+    }
+
+    .text-secondary,
+    .text-label,
+    .text-date-hint,
+    .text-footer,
+    .text-footer-nav,
+    .text-robux-tile,
+    .text-muted,
+    .font-caption-header,
+    .font-caption-body,
+    .xsmall,
+    .small {
+        color: $r2016-muted !important;
+    }
+}
+
+#{$r2016-root} body :is(h1, h2, h3) {
+    font-weight: 400;
+}
+
+#{$r2016-root} .text-link,
+#{$r2016-root} .text-link:link,
+#{$r2016-root} .text-link:visited {
+    color: $r2016-blue !important;
+}
+
+#{$r2016-root} .text-robux,
+#{$r2016-root} .text-robux-lg {
+    color: $r2016-green !important;
+}
+
+#{$r2016-root} .input-field,
+#{$r2016-root} .form-control {
+    background-color: #ffffff !important;
+    color: $r2016-text !important;
+    border: 1px solid $r2016-border !important;
+    border-radius: $r2016-radius !important;
+
+    &:focus {
+        border-color: $r2016-blue !important;
+    }
+}
+
+@mixin r2016-button($bg, $border, $fg, $hover-bg, $hover-border) {
+    background-color: $bg !important;
+    border-color: $border !important;
+    color: $fg !important;
+    border-radius: $r2016-radius !important;
+
+    &:hover,
+    &:focus {
+        background-color: $hover-bg !important;
+        border-color: $hover-border !important;
+        box-shadow: 0 1px 3px rgba(150, 150, 150, 0.74) !important;
+    }
+}
+
+#{$r2016-root} {
+    [class*='btn-primary-'] {
+        @include r2016-button(
+            $r2016-green,
+            $r2016-green,
+            #ffffff,
+            $r2016-green-hover,
+            $r2016-green-hover
+        );
+    }
+
+    [class*='btn-secondary-'],
+    [class*='btn-growth-'] {
+        @include r2016-button(
+            $r2016-blue,
+            $r2016-blue,
+            #ffffff,
+            $r2016-blue-hover,
+            $r2016-blue-hover
+        );
+    }
+
+    [class*='btn-control-'] {
+        @include r2016-button(
+            #ffffff,
+            $r2016-border,
+            $r2016-text,
+            #ffffff,
+            $r2016-border
+        );
+    }
+
+    [class*='btn-control-'] svg[fill='white'] {
+        fill: $r2016-text !important;
+    }
+
+    [class*='btn-buy-'] {
+        @include r2016-button(
+            #ffffff,
+            $r2016-border,
+            $r2016-muted,
+            #ffffff,
+            $r2016-border
+        );
+    }
+
+    [class*='btn-alert-'] {
+        @include r2016-button(
+            $r2016-red,
+            $r2016-red,
+            #ffffff,
+            #e27676,
+            #e27676
+        );
+    }
+}
+
+$r2016-nav-rows: 17;
+$r2016-branded-rows: 8;
+$r2016-generic-rows: 51;
+$r2016-games-rows: 22;
+
+@function r2016-row($row, $rows) {
+    @return math.percentage(math.div($row, $rows - 1));
+}
+
+@mixin r2016-sprite($sprite, $row, $rows) {
+    background-image: var($sprite) !important;
+    background-color: transparent !important;
+    background-repeat: no-repeat !important;
+    background-size: 200% auto !important;
+    background-position: 0 r2016-row($row, $rows) !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+@mixin r2016-sprite-mask($sprite, $row, $rows) {
+    -webkit-mask-image: var($sprite) !important;
+    mask-image: var($sprite) !important;
+    -webkit-mask-size: 200% auto !important;
+    mask-size: 200% auto !important;
+    -webkit-mask-position: 0 r2016-row($row, $rows) !important;
+    mask-position: 0 r2016-row($row, $rows) !important;
+    -webkit-mask-repeat: no-repeat !important;
+    mask-repeat: no-repeat !important;
+}
+
+$r2016-icon: ':is(.icon, [class*="icon-regular-"], [class*="icon-filled-"], [class*="icon-nav-"])';
+
+$r2016-logo: ':is(.icon-logo, .icon-default-logo)';
+$r2016-logo-r: ':is(.icon-logo-r, .icon-default-logo-r, .nav-logo-glyph)';
+
+#{$r2016-root} {
+    #{$r2016-logo},
+    #{$r2016-logo-r} {
+        background-color: transparent !important;
+        background-repeat: no-repeat !important;
+        background-size: contain !important;
+        background-position: left center !important;
+        -webkit-mask-image: none !important;
+        mask-image: none !important;
+    }
+
+    #{$r2016-logo} {
+        background-image: var(--rovalra-2016-logo) !important;
+    }
+
+    #{$r2016-logo-r} {
+        background-image: var(--rovalra-2016-logo-r) !important;
+        background-position: center !important;
+    }
+
+    #header #{$r2016-logo} {
+        width: 118px !important;
+        height: 30px !important;
+    }
+
+    #header #{$r2016-logo-r} {
+        width: 30px !important;
+        height: 30px !important;
+    }
+}
+
+#{$r2016-root} #header {
+    ul.nav.rbx-navbar a #{$r2016-icon}:not([class*='roblox-plus']) {
+        display: none !important;
+    }
+
+    .icon-nav-menu,
+    .menu-button #{$r2016-icon} {
+        @include r2016-sprite(--rovalra-2016-nav-sprite, 0, $r2016-nav-rows);
+    }
+
+    $robux-icon: ':is(.icon-nav-robux, .icon-regular-robux, .icon-filled-robux)';
+    $settings-icon: ':is(.icon-nav-settings, .icon-regular-gear, .icon-filled-gear)';
+
+    #navbar-robux #{$robux-icon} {
+        @include r2016-sprite(--rovalra-2016-nav-sprite, 1, $r2016-nav-rows);
+    }
+
+    #navbar-settings #{$settings-icon} {
+        @include r2016-sprite(--rovalra-2016-nav-sprite, 3, $r2016-nav-rows);
+    }
+
+    .navbar-search #{$r2016-icon}[class*='magnifying-glass'],
+    .icon-nav-search {
+        @include r2016-sprite(--rovalra-2016-nav-sprite, 4, $r2016-nav-rows);
+        opacity: 1 !important;
+    }
+
+    #navbar-robux:hover #{$robux-icon},
+    #navbar-settings:hover #{$settings-icon},
+    .menu-button:hover #{$r2016-icon},
+    .icon-nav-menu:hover,
+    .navbar-search:focus-within #{$r2016-icon}[class*='magnifying-glass'] {
+        background-position-x: 100% !important;
+    }
+}
+
+$r2016-nav-icon: '#{$r2016-icon}:not(.icon-regular-roblox-plus, [class*="verified"])';
+
+$r2016-left-nav: (
+    5: "a[href$='/home']",
+    6: "a[href*='/profile']",
+    7: "a[href*='/messages']",
+    8: "a[href*='/friends']",
+    9: "a[href*='/my/avatar']",
+    10: "a[href*='/inventory']",
+    11: "a[href*='/trades']",
+    12: "a[href*='/communities'], a[href*='/groups']",
+    14: "a[href*='blog.roblox.com']",
+    16: "a[href*='/giftcards'], a[href*='store']",
+);
+
+#{$r2016-root} :is(.left-nav, .rbx-left-col) {
+    @each $row, $links in $r2016-left-nav {
+        :is(#{$links}) #{$r2016-nav-icon} {
+            @include r2016-sprite(
+                --rovalra-2016-nav-sprite,
+                $row,
+                $r2016-nav-rows
+            );
+        }
+    }
+
+    a:hover #{$r2016-nav-icon} {
+        background-position-x: 100% !important;
+    }
+}
+
+#{$r2016-root} {
+    .icon-robux-16x16,
+    .icon-robux-28x28 {
+        @include r2016-sprite(
+            --rovalra-2016-branded-sprite,
+            4,
+            $r2016-branded-rows
+        );
+    }
+
+    .icon-robux-gray-16x16 {
+        @include r2016-sprite(
+            --rovalra-2016-branded-sprite,
+            6,
+            $r2016-branded-rows
+        );
+    }
+
+    .icon-regular-robux,
+    .icon-filled-robux,
+    .rovalra-robux-icon,
+    [style*='M15.0762'] {
+        @include r2016-sprite-mask(
+            --rovalra-2016-branded-sprite,
+            4,
+            $r2016-branded-rows
+        );
+    }
+}
+
+$r2016-card-name: '.game-card-name, .sdui-game-tile-primary [data-sdui-text]';
+
+$r2016-card-thumb: '.game-card-thumb-container, .game-card-thumb-container *, .game-card-thumb, .sdui-tile-image-container, .sdui-tile-image-container *';
+$r2016-cards: '.game-card-container, .rovalra-game-card, .sdui-game-tile';
+
+#{$r2016-root} {
+    .game-card:has(.rovalra-2016-card-stats),
+    :is(#{$r2016-cards}):has(.rovalra-2016-card-stats),
+    :is(
+        .horizontal-scroller,
+        .horizontal-scroll-window,
+        .horizontally-scrollable
+    ):has(.rovalra-2016-card-stats) {
+        height: auto !important;
+    }
+
+    .game-card-link > *,
+    .sdui-game-tile > * {
+        flex-shrink: 0;
+    }
+
+    :is(#{$r2016-cards}) {
+        background-color: $r2016-card !important;
+        border-radius: $r2016-radius !important;
+        box-shadow: 0 1px 4px 0 rgba(25, 25, 25, 0.3) !important;
+        padding: 0 0 6px !important;
+        transition: box-shadow 200ms ease;
+
+        &:hover {
+            box-shadow: 0 1px 6px 0 rgba(25, 25, 25, 0.75) !important;
+        }
+    }
+
+    .sdui-game-tile,
+    .sdui-game-tile-primary {
+        gap: 0 !important;
+        justify-content: flex-start !important;
+    }
+
+    #{$r2016-card-thumb} {
+        border-radius: 0 !important;
+    }
+
+    #{$r2016-card-name} {
+        display: block !important;
+        color: $r2016-text !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.3 !important;
+        max-height: none !important;
+        margin: 6px 0 3px !important;
+        padding: 0 6px !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+        -webkit-line-clamp: unset !important;
+        min-height: 0 !important;
+        flex-grow: 0 !important;
+    }
+
+    :is(.game-card-info, [data-testid='sdui-tile-footer-content']):has(
+        + .rovalra-2016-card-stats
+    ),
+    :is(#{$r2016-cards}):has(.rovalra-2016-card-stats) .game-card-friend-info {
+        display: none !important;
+    }
+
+    .rovalra-2016-card-stats {
+        display: block;
+        order: 1;
+        padding: 0 6px;
+    }
+
+    .rovalra-2016-card-playing {
+        color: $r2016-muted;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 16px;
+        margin: 3px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .rovalra-2016-vote-bar {
+        display: flex;
+        align-items: center;
+        height: 20px;
+    }
+
+    .rovalra-2016-icon-thumbs-up,
+    .rovalra-2016-icon-thumbs-down {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+        background-image: var(--rovalra-2016-thumbs-sprite);
+        background-repeat: no-repeat;
+        background-size: 32px auto;
+    }
+
+    .rovalra-2016-icon-thumbs-up {
+        background-position: 0 0;
+    }
+
+    .rovalra-2016-icon-thumbs-down {
+        background-position: 0 -16px;
+    }
+
+    .rovalra-2016-vote-thumbs-down {
+        visibility: hidden;
+        opacity: 0.6;
+    }
+
+    .rovalra-2016-vote-container {
+        position: relative;
+        flex: 1;
+        height: 6px;
+        margin: 0 1%;
+    }
+
+    .rovalra-2016-vote-background,
+    .rovalra-2016-vote-percentage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+    }
+
+    .rovalra-2016-vote-background {
+        width: 100%;
+        background-color: $r2016-border;
+    }
+
+    .rovalra-2016-vote-percentage {
+        background-color: $r2016-muted;
+    }
+
+    .rovalra-2016-vote-segment {
+        position: absolute;
+        top: 0;
+        width: 2px;
+        height: 6px;
+        background-color: $r2016-card;
+
+        @for $i from 1 through 4 {
+            &.seg-#{$i} {
+                left: (20 * $i - 2) * 1%;
+            }
+        }
+    }
+
+    :is(#{$r2016-cards}):hover {
+        .rovalra-2016-icon-thumbs-up {
+            background-position: -16px 0;
+        }
+
+        .rovalra-2016-icon-thumbs-down {
+            background-position: -16px -16px;
+        }
+
+        .rovalra-2016-vote-thumbs-down {
+            visibility: visible;
+        }
+
+        .rovalra-2016-vote-background {
+            background-color: #e27676;
+            opacity: 0.6;
+
+            &.no-votes {
+                background-color: $r2016-muted;
+            }
+        }
+
+        .rovalra-2016-vote-percentage {
+            background-color: $r2016-green;
+        }
+    }
+}
+
+.rovalra-2016-card-stats {
+    display: none;
+}
+
+$r2016-wide-tile: ':is(.hover-game-tile, .featured-game-container, .featured-grid-item-container, [data-testid="wide-game-tile"])';
+
+#{$r2016-root} {
+    #{$r2016-wide-tile}:has(.rovalra-2016-card-stats),
+    #{$r2016-wide-tile}:has(.rovalra-2016-card-stats)
+        :is(
+            .info-container,
+            .info-metadata-container,
+            .wide-game-tile-metadata,
+            .base-metadata
+        ) {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .base-metadata:has(> .rovalra-2016-card-stats) {
+        display: block !important;
+    }
+
+    #{$r2016-wide-tile} .hover-metadata {
+        display: none !important;
+    }
+
+    :is(
+        .game-carousel.wide-game-tile-carousel,
+        .game-grid.wide-game-tile-game-grid
+    ):has(.rovalra-2016-card-stats) {
+        grid-auto-rows: auto !important;
+    }
+
+    .hover-game-tile.focused.old-hover {
+        &,
+        &.first-tile,
+        &.last-tile {
+            width: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            background-color: transparent !important;
+            z-index: auto !important;
+            transition: none !important;
+        }
+
+        .game-card-contents,
+        .game-card-image-pill.hover-only {
+            display: none !important;
+        }
+
+        .wide-game-tile-metadata {
+            margin-bottom: 0 !important;
+        }
+
+        .info-container {
+            transition: none !important;
+        }
+    }
+
+    #{$r2016-wide-tile},
+    #{$r2016-wide-tile} .game-card-container,
+    .featured-game-icon-container,
+    .featured-game-icon-container
+        :is(.thumbnail-2d-container, .brief-game-icon, img),
+    .featured-grid-item-container .game-card-thumb-container,
+    .featured-grid-item-container .game-card-thumb-container * {
+        border-radius: 0 !important;
+    }
+}
+
+$r2016-quick-play-card: ':is(a.game-card-link, .sdui-game-tile-wrapper).game-tile-styles:has(.rovalra-2016-card-stats)';
+
+#{$r2016-root} #{$r2016-quick-play-card} {
+    &::before,
+    .hover-background {
+        display: none !important;
+    }
+
+    .game-card-friend-info,
+    .quick-play-original-stats {
+        transform: none !important;
+    }
+
+    .play-button-overlay {
+        left: 6px;
+        right: 6px;
+        bottom: 7px;
+    }
+
+    &.sdui-game-tile-wrapper .play-button-overlay {
+        bottom: 13px;
+    }
+
+    .play-game-button,
+    .server-browser-button,
+    .private-servers-button {
+        border-radius: $r2016-radius;
+    }
+
+    .play-game-button,
+    .server-browser-button,
+    .private-servers-button {
+        background-color: $r2016-green;
+
+        &:hover {
+            background-color: $r2016-green-hover;
+        }
+    }
+
+    &:hover,
+    &.quick-play-hover-active {
+        .rovalra-2016-card-stats {
+            visibility: hidden;
+        }
+    }
+
+    &.quick-play-hover-superseded .rovalra-2016-card-stats {
+        visibility: visible;
+    }
+}
+
+$r2016-game-scroller: ':is(.scroller, .scroller-new)[data-testid="game-carousel-scroll-bar"]:not(#rovalra-2016-scroller)';
+$r2016-sdui-scroller: '[data-testid="carousel-scroll-arrow"]:not(.scroll-arrow, #rovalra-2016-scroller)';
+$r2016-rovalra-scroller: '.rovalra-scroll-btn:not(#rovalra-2016-scroller)';
+$r2016-any-scroller: '#{$r2016-game-scroller}, [data-testid="carousel-scroll-arrow"]:not(#rovalra-2016-scroller)';
+$r2016-scroller-icon: ':is([class*="icon-games-carousel-"], [class*="icon-chevron-"], [class*="chevron-large-"])';
+$r2016-scroller-width: 30px;
+$r2016-scroller-offset: -36px;
+
+#{$r2016-root} :is(#{$r2016-any-scroller}) {
+    background: $r2016-card !important;
+    border: 1px solid $r2016-border !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    cursor: pointer;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: $r2016-text !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    border-radius: $r2016-radius !important;
+
+    &:hover {
+        box-shadow: 0 1px 4px 0 rgba(25, 25, 25, 0.3) !important;
+    }
+
+    &:focus {
+        background-color: $r2016-hover !important;
+    }
+
+    &:is(.disabled, .rovalra-btn-disabled, [aria-disabled='true'], [disabled]) {
+        opacity: 0.3 !important;
+        border-color: $r2016-page !important;
+        box-shadow: none !important;
+        cursor: default;
+    }
+
+    .arrow {
+        position: absolute !important;
+        inset: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .spacer {
+        display: none !important;
+    }
+
+    #{$r2016-scroller-icon} {
+        position: static !important;
+        display: inline-block !important;
+        flex-shrink: 0;
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0 !important;
+        color: transparent !important;
+        opacity: 1 !important;
+        transform: none !important;
+        @include r2016-sprite(
+            --rovalra-2016-generic-sprite,
+            34,
+            $r2016-generic-rows
+        );
+
+        &::before,
+        &::after {
+            display: none !important;
+        }
+    }
+
+    &:is(.prev, .left) #{$r2016-scroller-icon},
+    #{$r2016-scroller-icon}:is([class*='-left'], [class*='carousel-left']) {
+        background-position-y: r2016-row(35, $r2016-generic-rows) !important;
+    }
+
+    &:not(
+            .disabled,
+            .rovalra-btn-disabled,
+            [aria-disabled='true'],
+            [disabled]
+        ):hover
+        #{$r2016-scroller-icon} {
+        background-position-x: 100% !important;
+    }
+}
+
+#{$r2016-root} #{$r2016-game-scroller} {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: auto !important;
+    width: $r2016-scroller-width !important;
+    z-index: 5 !important;
+
+    &.prev {
+        left: $r2016-scroller-offset !important;
+        right: auto !important;
+        border-radius: $r2016-radius 0 0 $r2016-radius !important;
+    }
+
+    &.next {
+        right: $r2016-scroller-offset !important;
+        left: auto !important;
+        border-radius: 0 $r2016-radius $r2016-radius 0 !important;
+    }
+}
+
+#{$r2016-root} #HomeContainer #{$r2016-game-scroller} {
+    &.prev {
+        left: 0 !important;
+    }
+
+    &.next {
+        right: 0 !important;
+    }
+}
+
+#{$r2016-root} .horizontal-scroller .scroller-new {
+    display: flex !important;
+}
+
+#{$r2016-root} :has(> #{$r2016-rovalra-scroller}) {
+    position: relative !important;
+    padding-left: $r2016-scroller-width + 6px !important;
+    padding-right: $r2016-scroller-width + 6px !important;
+    box-sizing: border-box;
+}
+
+#{$r2016-root} #{$r2016-rovalra-scroller} {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: auto !important;
+    width: $r2016-scroller-width !important;
+    margin: 0 !important;
+    z-index: 5 !important;
+
+    &.left {
+        left: 0 !important;
+        right: auto !important;
+        border-radius: $r2016-radius 0 0 $r2016-radius !important;
+    }
+
+    &.right {
+        right: 0 !important;
+        left: auto !important;
+        border-radius: 0 $r2016-radius $r2016-radius 0 !important;
+    }
+}
+
+#{$r2016-root} #{$r2016-sdui-scroller} {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: auto !important;
+    width: $r2016-scroller-width !important;
+    z-index: 5 !important;
+    right: 0 !important;
+    left: auto !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+    border-radius: 0 $r2016-radius $r2016-radius 0 !important;
+
+    &:has([class*='left']) {
+        left: 0 !important;
+        right: auto !important;
+        inset-inline-start: 0 !important;
+        inset-inline-end: auto !important;
+        border-radius: $r2016-radius 0 0 $r2016-radius !important;
+    }
+}
+
+#{$r2016-root}
+    .foundation-web-collection-carousel:has(#{$r2016-sdui-scroller})
+    .foundation-web-collection-carousel-scroll {
+    padding-left: $r2016-scroller-width + 6px !important;
+    padding-right: $r2016-scroller-width + 6px !important;
+    scroll-padding-left: $r2016-scroller-width + 6px !important;
+    scroll-padding-right: $r2016-scroller-width + 6px !important;
+}
+
+@mixin r2016-game-page-icon($icon, $sprite, $row, $rows, $active) {
+    #{$r2016-root} #{$icon} {
+        @include r2016-sprite($sprite, $row, $rows);
+    }
+
+    #{$r2016-root}
+        :is(
+            #{$icon}:hover,
+            #{$icon}#{$active},
+            :is(button, a):hover > #{$icon}
+        ) {
+        background-position-x: 100% !important;
+    }
+}
+
+@include r2016-game-page-icon(
+    '.icon-favorite',
+    --rovalra-2016-branded-sprite,
+    3,
+    $r2016-branded-rows,
+    '.favorited'
+);
+@include r2016-game-page-icon(
+    '.icon-like',
+    --rovalra-2016-games-sprite,
+    3,
+    $r2016-games-rows,
+    '.selected'
+);
+@include r2016-game-page-icon(
+    '.icon-dislike',
+    --rovalra-2016-games-sprite,
+    4,
+    $r2016-games-rows,
+    '.selected'
+);
+
+#{$r2016-root} {
+    :has(> #item-info-container-frontend) {
+        background-color: $r2016-card !important;
+        box-shadow: $r2016-shadow !important;
+        padding: 15px !important;
+        margin-bottom: 18px;
+    }
+
+    .item-details-thumbnail-container,
+    .item-details-thumbnail-container .thumbnail-holder {
+        border-radius: 0 !important;
+        background-color: $r2016-card !important;
+    }
+
+    .item-details-thumbnail-container {
+        border: 1px solid #ddd !important;
+        box-sizing: border-box;
+    }
+
+    .item-details-thumbnail-container :is(.thumbnail-2d-container, img) {
+        border-radius: 0 !important;
+    }
+
+    .item-details-info-header.item-name-container {
+        border-bottom: 1px solid $r2016-page !important;
+        padding-bottom: 12px !important;
+        margin-bottom: 12px !important;
+
+        h1 {
+            font-size: 30px !important;
+            font-weight: 400 !important;
+            color: $r2016-text !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .text-label {
+            color: $r2016-border !important;
+        }
+
+        .text-name {
+            color: $r2016-blue !important;
+            font-weight: 400 !important;
+        }
+    }
+
+    #item-details .item-info-row-container {
+        display: flex !important;
+        align-items: baseline;
+        margin-top: 12px !important;
+
+        > .row-label {
+            flex: 0 0 90px;
+            width: 90px !important;
+            min-width: 0 !important;
+            padding-right: 9px;
+            color: $r2016-border !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+
+            * {
+                color: inherit !important;
+            }
+        }
+
+        > :not(.row-label) {
+            flex: 1;
+            min-width: 0;
+            color: $r2016-text !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+        }
+    }
+
+    #item-details .description-content {
+        white-space: pre-line;
+    }
+
+    .icon-robux-price-container {
+        display: flex !important;
+        align-items: center;
+        gap: 4px;
+
+        .icon-robux-16x16 {
+            width: 28px !important;
+            height: 28px !important;
+        }
+
+        .text-robux-lg {
+            color: $r2016-green !important;
+            font-size: 24px !important;
+            font-weight: 400 !important;
+        }
+    }
+
+    .item-purchase-btns-container {
+        .btn-growth-lg {
+            background-color: $r2016-green !important;
+            border-color: $r2016-green !important;
+            color: #fff !important;
+            border-radius: $r2016-radius !important;
+            font-size: 21px !important;
+            font-weight: 400 !important;
+
+            &:hover {
+                background-color: $r2016-green-hover !important;
+                border-color: $r2016-green-hover !important;
+            }
+        }
+
+        .btn-primary-lg {
+            background-color: $r2016-card !important;
+            border-color: $r2016-border !important;
+            color: $r2016-text !important;
+        }
+    }
+
+    .favorite-button-container .text-favorite {
+        color: #f6b702 !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+    }
+}
+
+$r2016-item-list: '[id^="item-list-container-"]';
+
+#{$r2016-root} #{$r2016-item-list} {
+    .item-list-container {
+        background-color: transparent !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .item-list-carousel-title :is(h1, h2, h3) {
+        font-size: 24px !important;
+        font-weight: 300 !important;
+        color: $r2016-text !important;
+    }
+
+    .item-card-container {
+        background-color: $r2016-card !important;
+        box-shadow: 0 1px 4px 0 rgba(25, 25, 25, 0.3) !important;
+        border-radius: $r2016-radius !important;
+        padding: 0 0 5px !important;
+        transition: box-shadow 200ms ease;
+
+        &:hover {
+            box-shadow: 0 1px 6px 0 rgba(25, 25, 25, 0.75) !important;
+        }
+    }
+
+    .item-card-thumb-container {
+        background-color: $r2016-card !important;
+        border-bottom: 1px solid $r2016-hover !important;
+
+        &,
+        * {
+            border-radius: 0 !important;
+        }
+
+        :is(.item-card-thumb-container-inner, .thumbnail-2d-container) {
+            background-color: $r2016-card !important;
+        }
+    }
+
+    .item-list-carousel {
+        padding: 4px 4px 6px !important;
+    }
+
+    .item-card-caption {
+        padding: 0 5px !important;
+    }
+
+    .item-card-name {
+        color: $r2016-text !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        margin-top: 4px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: unset !important;
+        display: block !important;
+    }
+
+    .item-card-creator {
+        font-size: 12px !important;
+
+        .text-label {
+            color: $r2016-border !important;
+        }
+
+        .text-link {
+            color: $r2016-blue !important;
+        }
+    }
+
+    .item-card-price {
+        display: flex !important;
+        align-items: center;
+        gap: 3px;
+        height: 20px;
+        margin-top: 2px !important;
+
+        :is(.text-robux-tile, .text-robux) {
+            color: $r2016-green !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+        }
+    }
+}
+
+$r2016-catalog-text: #343434;
+$r2016-catalog-link: #0055b3;
+$r2016-catalog-price: #008000;
+
+#{$r2016-root} {
+    body:has(#catalog-react-page),
+    body:has(#catalog-react-page) :is(#content, .content) {
+        background-color: $r2016-card !important;
+    }
+
+    #catalog-react-page {
+        color: $r2016-catalog-text;
+
+        .catalog-header h1.heading {
+            font-size: 32px !important;
+            font-weight: 700 !important;
+
+            a {
+                color: $r2016-catalog-text !important;
+            }
+        }
+
+        .buy-robux {
+            background-color: $r2016-green !important;
+            border-color: $r2016-green !important;
+            color: #fff !important;
+            border-radius: $r2016-radius !important;
+
+            &:hover {
+                background-color: $r2016-green-hover !important;
+                border-color: $r2016-green-hover !important;
+            }
+        }
+
+        .search-container :is(input, .input-field, .form-control),
+        .search-bar :is(input, .input-field, .form-control) {
+            background-color: $r2016-card !important;
+            border: 1px solid #a7a7a7 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            color: #000 !important;
+        }
+
+        .search-container :is(.input-group, .input-group-btn) {
+            border-radius: 0 !important;
+        }
+
+        .topic-container {
+            display: none !important;
+        }
+
+        .filter-select {
+            background-color: #efefef !important;
+            border: 1px solid #777 !important;
+            border-radius: 0 !important;
+            color: #000 !important;
+            font-size: 14px !important;
+            font-weight: 400 !important;
+            box-shadow: none !important;
+
+            &:hover {
+                background-color: $r2016-card !important;
+            }
+        }
+
+        .catalog-item-container {
+            .item-card-container {
+                background: transparent !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .item-card-thumb-container {
+                background-color: $r2016-card !important;
+                border: 1px solid #eee !important;
+                box-sizing: border-box;
+
+                &,
+                * {
+                    border-radius: 0 !important;
+                }
+
+                :is(
+                    .item-card-thumb-container-inner,
+                    .thumbnail-2d-container,
+                    .catalog-item-card-thumbnail-2d
+                ) {
+                    background-color: $r2016-card !important;
+                }
+            }
+
+            .item-card-caption {
+                padding: 0 0 0 3px !important;
+            }
+
+            .item-card-name {
+                color: $r2016-catalog-link !important;
+                font-size: 14px !important;
+                font-weight: 400 !important;
+            }
+
+            .item-card-link:hover .item-card-name {
+                text-decoration: underline;
+            }
+
+            :is(.item-card-creator, .item-card-secondary-info) {
+                display: none !important;
+            }
+
+            .item-card-price {
+                display: flex !important;
+                align-items: center;
+                gap: 2px;
+
+                :is(.text-robux-tile, .text-robux) {
+                    color: $r2016-catalog-price !important;
+                    font-size: 12px !important;
+                    font-weight: 700 !important;
+                }
+            }
+        }
+    }
+}

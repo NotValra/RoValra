@@ -201,7 +201,8 @@ export async function performJoinAction(
 
         let runManualScan = true;
         let rovalraDeadline = 0;
-        let manualScanReason = forceLocalSearch
+        let manualScanReason =
+            forceLocalSearch || ClosestServer.isRegionApiDisabled(placeId)
             ? ts('preferredRegion.scanningLocally', { region: shortTargetName })
             : ts('preferredRegion.regionApiUnavailable', {
                   region: shortTargetName,
@@ -230,7 +231,8 @@ export async function performJoinAction(
             if (
                 runManualScan &&
                 !useRobloxLatencyForAutomatic &&
-                !forceLocalSearch
+                !forceLocalSearch &&
+                !ClosestServer.isRegionApiDisabled(placeId)
             ) {
                 updateLoadingOverlayText(
                     ts('preferredRegion.searchingInRegion', {
@@ -290,6 +292,11 @@ export async function performJoinAction(
             } else if (rovalraResult?.status === 'TIMED_OUT') {
                 runManualScan = true;
                 manualScanReason = ts('preferredRegion.apiTimedOut', {
+                    region: shortTargetName,
+                });
+            } else if (rovalraResult?.status === 'DISABLED') {
+                runManualScan = true;
+                manualScanReason = ts('preferredRegion.scanningLocally', {
                     region: shortTargetName,
                 });
             } else if (rovalraResult?.status === 'NO_SERVERS') {
@@ -488,6 +495,7 @@ export async function performJoinAction(
             if (
                 preferredRegionCode &&
                 !forceLocalSearch &&
+                !ClosestServer.isRegionApiDisabled(placeId) &&
                 !userRequestedStop &&
                 Date.now() < rovalraDeadline
             ) {

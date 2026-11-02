@@ -1,6 +1,6 @@
 {
   "name": "rovalra",
-  "version": "2.6.20",
+  "version": "2.7",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "private": true,
   "scripts": {
@@ -34,7 +34,7 @@
     "fzstd": "^0.1.1",
     "i18next": "26.5.5",
     "marked": "^18.1.1",
-    "roavatar-renderer": "^1.9.12",
+    "roavatar-renderer": "^1.10.0",
     "roblox-bat": "0.6.5"
   },
   "overrides": {

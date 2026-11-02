@@ -5,6 +5,7 @@ import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
 import { t } from './core/locale/i18n.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
+import { init as initUpdateChangelog } from './features/onboarding/updateChangelog.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
 import { init as initEasterEggLinks } from './features/sitewide/easterEggs/links.js';
 import { init as initCssFixes } from './features/sitewide/cssfixes.js';
@@ -42,11 +43,13 @@ import { init as initCustomFavicon } from './features/sitewide/customFavicon.js'
 import { init as initCursorBuddy } from './features/sitewide/cursorBuddy.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { init as initWebClientLink } from './features/navigation/webclientlink.js';
+import { init as initRoValraStoreLink } from './features/navigation/storelink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js';
+import { init as initRoblox2016Theme } from './features/sitewide/roblox2016Theme.js';
 import { init as initCustomRobloxBanner } from './features/sitewide/customRobloxBanner.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
@@ -69,6 +72,8 @@ import { initSitewide as initSitewideAppThemesOnProfiles } from './features/prof
 import { init as initQuickPrivacyTogglesNav } from './features/navigation/privacyToggles.js';
 import { init as initCustomScrollbar } from './features/sitewide/customScrollbar.js';
 import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
+import { init as initRoGoldWarning } from './features/sitewide/roGoldWarning.js';
+import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -89,8 +94,11 @@ import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
 import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js';
 import { init as initHeroUnits } from './features/catalog/heroUnits.js';
+import { init as initRoValraAds } from './features/catalog/rovalraAds.js';
+import { init as initRoValraAdBadge } from './features/catalog/rovalraAdBadge.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
+import { init as initImprovedAttributes } from './features/catalog/improvedAttributes.js';
 import { init as initOwnedItemPrice } from './features/catalog/ownedItemPrice.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
 import { init as initFriendOwnership } from './features/catalog/friendOwnership.js';
@@ -132,6 +140,7 @@ import { init as initTotalEarned } from './features/transactions/totalearned.js'
 import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
 import { init as initItemValues } from './features/trading/itemValues.js';
 import { init as initTradePreview } from './features/trading/tradePreview.js';
+import { init as initTradeCompletedDate } from './features/trading/tradeCompletedDate.js';
 import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 import { init as initTradeProof } from './features/trading/tradeProof.js';
@@ -174,16 +183,19 @@ import { init as initTrustedFriends } from './features/profile/trustedfriends.js
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initProfileTestTab } from './features/profile/testTab.js';
 import { init as initProfileShowcase } from './features/profile/showcase.js';
+import { init as initProfilePlaytime } from './features/profile/playtime.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initProfileViews } from './features/profile/header/profileViews.js';
 import { init as initCreatorStats } from './features/profile/header/creatorStats.js';
 import { init as initProfilePronouns } from './features/profile/header/pronouns.js';
+import { init as initFollowsYou } from './features/profile/header/followsYou.js';
 import { init as initProfileNotes } from './features/profile/header/profileNotes.js';
 import { init as initCurrentlyPlayingSubplace } from './features/profile/header/currentlyPlayingSubplace.js';
 import { init as initIdVerificationBadge } from './features/profile/header/idVerificationBadge.js';
 import { init as initAgeVerificationBadge } from './features/profile/header/ageVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initFriendRequestFilters } from './features/profile/friends/friendRequestFilters.js';
 import { init as initMutualFriends } from './features/profile/friends/mutualFriends.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
@@ -223,9 +235,11 @@ import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js'
 import { init as initPlaytime } from './features/home/playtime.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
+import { init as initHomeGreeting } from './features/home/homeGreeting.js';
 import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+import { init as initOffSaleCreatePage } from './features/create.roblox.com/offSaleCreatePage.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import {
     enforceSettingOverrides,
@@ -253,6 +267,7 @@ const featureRoutes = [
             initWhatAmIJoining,
             initServerListener,
             initOnboarding,
+            initUpdateChangelog,
             initVideoTest,
             initStreamerMode,
             initMarkDownTest,
@@ -281,6 +296,7 @@ const featureRoutes = [
             initGroupFunds,
             initTransactionsLink,
             initWebClientLink,
+            initRoValraStoreLink,
             initStatus,
             initCustomFont,
             initCyrillicFont,
@@ -298,6 +314,7 @@ const featureRoutes = [
             initLessPlus,
             initKidsTheme,
             initKidsThemeText,
+            initRoblox2016Theme,
             initCustomRobloxBanner,
             initSidebarCollapse,
             initSidebarLayout,
@@ -321,6 +338,8 @@ const featureRoutes = [
             initQuickPrivacyTogglesNav,
             initCustomScrollbar,
             initRoValraIncidentTracker,
+            initRoGoldWarning,
+            initRemoveDownloadButton,
         ],
     },
     // pretty much just the 40% method
@@ -349,12 +368,15 @@ const featureRoutes = [
             initParentItem,
             initItemTrading,
             initLastEquipped,
+            initImprovedAttributes,
             initOwnedItemPrice,
             initItemRender,
             initFriendOwnership,
             initCatalogExplorer,
             initRecentlyViewed,
             initHeroUnits,
+            initRoValraAds,
+            initRoValraAdBadge,
         ],
     },
     // Avatar pages
@@ -475,14 +497,17 @@ const featureRoutes = [
             initProfileRender,
             initProfileTestTab,
             initProfileShowcase,
+            initProfilePlaytime,
             initIdVerificationBadge,
             initAgeVerificationBadge,
             initFriendsSince,
+            initFriendRequestFilters,
             initMutualFriends,
             initUnfriend,
             initBulkBadgeRemover,
             initLastPlayed,
             initProfilePronouns,
+            initFollowsYou,
             initProfileNotes,
             initCreatorStats,
             initProfileViews,
@@ -539,6 +564,7 @@ const featureRoutes = [
             initSendTrade,
             initRecentTradeItems,
             initTradeQuickActions,
+            initTradeCompletedDate,
         ],
     },
 
@@ -550,7 +576,11 @@ const featureRoutes = [
     // create
     {
         paths: ['/store/asset'],
-        features: [initCreateDownload, initCatalogExplorer],
+        features: [
+            initOffSaleCreatePage,
+            initCreateDownload,
+            initCatalogExplorer,
+        ],
     },
     {
         paths: ['/home'],
@@ -564,6 +594,7 @@ const featureRoutes = [
             initFriendLabels,
             initFriendsCarouselRedesign,
             initPinnedFriends,
+            initHomeGreeting,
         ],
     },
     {

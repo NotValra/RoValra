@@ -410,7 +410,17 @@ function buildEstimateStyle(fiatSettings) {
 
 const devexUsdCache = new Map();
 
-function getDevexUsdAmount(robuxAmount) {
+function isNavbarRobuxBalance(element) {
+    return (
+        element instanceof HTMLElement &&
+        element.closest('#nav-robux-icon, #navbar-robux .nav-robux-icon') !==
+            null
+    );
+}
+
+function getDevexUsdAmount(robuxAmount, useEstimateApi) {
+    if (!useEstimateApi) return robuxAmount * DEVEX_USD_RATE;
+
     if (!devexUsdCache.has(robuxAmount)) {
         devexUsdCache.set(
             robuxAmount,
@@ -437,7 +447,11 @@ function getDevexUsdAmount(robuxAmount) {
     return devexUsdCache.get(robuxAmount);
 }
 
-async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
+async function getFormattedRobuxEstimate(
+    robuxAmount,
+    pricingData,
+    element = null,
+) {
     const fiatSettings = await getRobuxFiatSettings();
     if (!fiatSettings.robuxFiatEstimatesEnabled) return null;
 
@@ -445,7 +459,10 @@ async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
     const style = buildEstimateStyle(fiatSettings);
 
     if (fiatSettings.robuxFiatRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
-        const usdAmount = await getDevexUsdAmount(robuxAmount);
+        const usdAmount = await getDevexUsdAmount(
+            robuxAmount,
+            isNavbarRobuxBalance(element),
+        );
         const convertedAmount = await convertCurrencyAmount(
             usdAmount,
             'USD',
@@ -658,6 +675,7 @@ async function attachTransactionsCellEstimate(labelCell) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            targetCell,
         );
         if (!formattedEstimate) return;
 
@@ -736,6 +754,7 @@ async function attachGroupRevenueEstimate(amountCell) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            amountCell,
         );
         if (!formattedEstimate) return;
 
@@ -832,6 +851,7 @@ async function attachUsdEstimate(icon) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            element,
         );
         if (!formattedEstimate) return;
 
@@ -866,6 +886,7 @@ async function attachUsdEstimateToValueElement(element) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            amountElement,
         );
         if (!formattedEstimate) return;
 

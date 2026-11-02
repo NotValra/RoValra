@@ -7,6 +7,7 @@ import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { getBorders } from '../../core/configs/borders.js';
+import { getCustomBorderTestLink } from '../../core/profile/customCosmeticTest.js';
 import {
     getUserCardContext,
     onUserCardElement,
@@ -20,6 +21,8 @@ const BORDER_Z_INDEX = '2';
 const OVERLAY_Z_INDEX = '4';
 const MAX_ALPHA_CENTER_CORRECTION = 0.04;
 const borderContentBoundsCache = new Map();
+
+let showEquippedBorders = true;
 
 function setPixelStyle(element, name, value) {
     element.style[name] = `${value}px`;
@@ -376,6 +379,10 @@ export function findInBorders(borders, key, type = 'value') {
 }
 
 async function resolveBorderUrl(userId) {
+    const customLink = getCustomBorderTestLink(userId);
+    if (customLink) return customLink;
+    if (!showEquippedBorders) return null;
+
     const userSettings = await getUserSettings(userId).catch(() => null);
 
     if (userSettings?.border && userSettings.border !== 'none')
@@ -412,7 +419,11 @@ function handleTile(tile, card) {
 export async function init() {
     try {
         const settings = await loadSettings();
-        if (!settings.avatarBorderEnabled) return;
+        const hasCustomBorder = Boolean(
+            getCustomBorderTestLink(getUserIdFromUrl()),
+        );
+        if (!settings.avatarBorderEnabled && !hasCustomBorder) return;
+        showEquippedBorders = Boolean(settings.avatarBorderEnabled);
 
         startObserving();
         observeUserCardElements();

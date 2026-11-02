@@ -60,7 +60,9 @@
         "filterByRegion": "Filter servers by region",
         "filterByRegionItem": "Filter by {{region}} ({{count}} servers)",
         "filterByUptime": "Filter servers by uptime (newest/oldest)",
-        "filterByVersion": "Filter servers by game version"
+        "filterByVersion": "Filter servers by game version",
+        "searchingServers": "Searching for servers... ({{count}} found)",
+        "filterDisabledByRoblox": "This filter has been disabled on this experience due to Roblox."
     },
     "guidelines": {
         "title": "RoValra Guidelines",
@@ -184,6 +186,14 @@
         "effects": "Effects",
         "limiteds": "Limiteds"
     },
+    "tradeCompletedDate": {
+        "completedOn": "Completed",
+        "created": "Created:",
+        "sent": "Sent:",
+        "received": "Received:",
+        "completed": "Completed:",
+        "notFound": "Not found"
+    },
     "trading": {
         "searchInventory": "Search Inventory",
         "continueSearch": "Continue Search",
@@ -209,6 +219,12 @@
         "beforeTax": "Before Tax",
         "youGive": "You Give",
         "youGet": "You Get"
+    },
+    "updateChangelog": {
+        "title": "RoValra was updated",
+        "fromVersion": "from v{{version}}",
+        "description": "Check out the changelog to see what changed in this version.",
+        "viewChangelog": "See what's new"
     },
     "onboarding": {
         "title": "Welcome to RoValra!",
@@ -425,6 +441,12 @@
             "settings": "Settings"
         }
     },
+    "homeGreeting": {
+        "morning": "Good morning, {{name}}",
+        "afternoon": "Good afternoon, {{name}}",
+        "evening": "Good evening, {{name}}",
+        "night": "Good night, {{name}}"
+    },
     "friendsCarouselRedesign": {
         "prevFriends": "Previous friends",
         "nextFriends": "More friends",
@@ -466,7 +488,20 @@
         "thisYear": "This year",
         "allTime": "All time",
         "hours": "{{value}} hours",
-        "minutes": "{{value}} minutes"
+        "minutes": "{{value}} minutes",
+        "totalLabel": "Total playtime:",
+        "mostPlayed": "Most played",
+        "playedOn": "Played on {{date}}",
+        "weekOf": "Week of {{date}}",
+        "noActivity": "No playtime",
+        "moreGames": "+{{count}} more",
+        "public": "Show Playtime to everyone",
+        "publicTooltip": "Lets anyone with RoValra see your playtime.",
+        "publicLocked": "Donator Tier 3 is required to make your playtime public.",
+        "publicFailed": "Couldn't update your playtime visibility. Try again later.",
+        "sampleGame": "Experience {{number}}",
+        "previewOwnTitle": "No playtime tracked yet",
+        "previewOwnText": "Play experiences with Playtime Tracking turned on in RoValra settings and they'll show up here."
     },
     "mutualFriends": {
         "pill_one": "{{count}} Mutual Friend",
@@ -626,6 +661,32 @@
         "send": "Send"
     },
     "privateServer": {
+        "moreOptions": "More options",
+        "filters": {
+            "button": "Filters",
+            "title": "Private Server Filters",
+            "sortTitle": "Sort by",
+            "sort": {
+                "default": "Default",
+                "players": "Players",
+                "name": "Name",
+                "owner": "Owner"
+            },
+            "descending": "High to low",
+            "ascending": "Low to high",
+            "playersTitle": "Players",
+            "any": "Any",
+            "hasPlayers": "Has players",
+            "empty": "Empty",
+            "ownerTitle": "Owner",
+            "anyone": "Anyone",
+            "mine": "Mine",
+            "others": "Others",
+            "reset": "Reset",
+            "apply": "Apply",
+            "includedWith": "Included with",
+            "plus": "Plus"
+        },
         "processingTitle": "Processing Servers",
         "starting": "Starting...",
         "cancel": "Cancel",
@@ -824,6 +885,24 @@
     },
     "lastEquipped": {
         "label": "Last Equipped"
+    },
+    "improvedAttributes": {
+        "label": "Attributes",
+        "attributes": {
+            "CantBeSoldInGames": "Can't Be Sold In Experiences",
+            "Includes_PBR": "PBR",
+            "Includes_Emissive": "Emissive",
+            "Includes_Transparency": "Transparency",
+            "Includes_Particles": "Particles",
+            "Includes_Script": "Scripts",
+            "Includes_Fire": "Fire",
+            "Includes_Sparkles": "Sparkles",
+            "Includes_Smoke": "Smoke",
+            "Includes_Sound": "Sound",
+            "Includes_LightSource": "Light Source",
+            "Includes_Beam": "Beam",
+            "Includes_Trail": "Trail"
+        }
     },
     "ownedItemPrice": {
         "label": "Price",
@@ -1385,6 +1464,7 @@
         "transactions": "Transactions",
         "apiDocs": "API Docs",
         "webClient": "Web Client",
+        "rovalraStore": "RoValra Store",
         "incidentLearnMore": "Click here to learn more.",
         "incidentHideNotice": "You can hide this notice here",
         "rovalraApi": "RoValra API"
@@ -1594,6 +1674,35 @@
         "noneFound": "No outfits found.",
         "success": "Successfully equipped outfit."
     },
+    "roGoldWarning": {
+        "title": "RoValra is not compatible with RoGold",
+        "detected": "It looks like RoGold is enabled. Because of changes in RoGold's recent site rework, RoValra is unable to work correctly while both extensions are running.",
+        "notOurFault": "These changes come from RoGold, so this is not something RoValra is able to fix on its side.",
+        "choice": "If you'd like to use RoValra, you can turn RoGold off at any time from your browser's extensions page and reload Roblox. The choice is entirely yours, and you can switch it back on whenever you want.",
+        "openSource": "RoValra is also fully open source, which makes it more secure. Anyone can read the code and see exactly what it does, and anyone can contribute to it.",
+        "viewSource": "View the source code on GitHub",
+        "extensionSupportTitle": "Works with your other extensions",
+        "extensionSupport": "RoValra supports many other extensions, including but not limited to RoSeal, RoPro, RoQoL and many more.",
+        "extensionSupportRoGold": "RoGold, on the other hand, supports zero other extensions.",
+        "featureCountTitle": "{{count}} features",
+        "featureCount": "In total, you're missing out on {{count}} RoValra features while RoGold is enabled.",
+        "noPaywallTitle": "No paywalled features",
+        "noPaywall": "RoValra believes quality of life features should never be locked behind a paywall.",
+        "noPaywallRoGold": "Unlike RoGold, the only things in RoValra that cost money are cosmetic or cosmetic based features. They're purely for looks and won't change how RoValra improves your experience.",
+        "openSourceTitle": "Open source",
+        "missingOut": "Here's what you're missing out on while RoGold is enabled:",
+        "next": "Next",
+        "back": "Back",
+        "stepCounter": "Step {{current}} of {{total}}",
+        "regionSelectorTitle": "Region Selector",
+        "regionSelectorDescription": "RoValra offers the best free region selector out there, even better than paid options. Join servers in the region you choose, or let RoValra automatically find the closest one to you for the lowest ping.",
+        "saveRobuxTitle": "Save Robux",
+        "saveRobuxDescription": "Save 40% Robux on Marketplace purchases with a single button.",
+        "quickPlayTitle": "Quick Play",
+        "quickPlayDescription": "Join experiences straight from the home page without opening the experience page, including your preferred region and private servers.",
+        "hiddenGamesTitle": "Hidden Games",
+        "hiddenGamesDescription": "See the experiences people have hidden from their profiles or groups"
+    },
     "btrDonationWarning": {
         "title": "IMPORTANT: disable BTRoblox",
         "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox was detected. It may interfere with Roblox’s purchase flow. If you have trouble purchasing, try disabling BTRoblox temporarily and reload the page.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Please disable BTRoblox, reload this page, and then try your purchase again.</p>",
@@ -1793,6 +1902,66 @@
         "userNotAgeVerified": "User is not age checked.",
         "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
     },
+    "friendRequestFilters": {
+        "title": "Request Filters",
+        "filters": "Filters",
+        "badgesTitle": "Badges",
+        "countsTitle": "Counts",
+        "joinedTitle": "Joined",
+        "badges": {
+            "plus": "Roblox Plus",
+            "verified": "Verified",
+            "admin": "Roblox Admin"
+        },
+        "ranges": {
+            "mutuals": "Mutual Friends",
+            "friends": "Friends",
+            "followers": "Followers",
+            "followings": "Following"
+        },
+        "any": "Any",
+        "has": "Has",
+        "hasNot": "Doesn't have",
+        "min": "Min",
+        "max": "Max",
+        "from": "From",
+        "to": "To",
+        "reset": "Reset",
+        "apply": "Apply",
+        "accept": "Accept",
+        "ignore": "Ignore",
+        "loadMore": "Load More",
+        "loadingRequests": "Loading requests... ({{count}})",
+        "checkingRequests": "Checking requests... {{progress}}%",
+        "loadFailed": "Failed to load friend requests.",
+        "actionFailed": "Failed to respond to the friend request.",
+        "minAboveMax": "The minimum can't be higher than the maximum.",
+        "limitMax": "Based on your current friend requests, the highest you can set is {{max}}.",
+        "limitMin": "Based on your current friend requests, the lowest you can set is {{min}}.",
+        "filtersActive": "Filters ({{count}} active)",
+        "ascending": "Lowest first",
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "sortTitle": "Sort By",
+        "descending": "Highest first",
+        "sort": {
+            "sent": "Date Sent",
+            "mutuals": "Mutual Friends",
+            "friends": "Friends",
+            "followers": "Followers",
+            "followings": "Following",
+            "joined": "Join Date"
+        },
+        "footer": {
+            "sent": "Sent",
+            "joined": "Joined",
+            "mutuals": "{{count}} mutual friends",
+            "friends": "{{count}} friends",
+            "followers": "{{count}} followers",
+            "followings": "{{count}} following",
+            "unknown": "Hidden"
+        }
+    },
     "friendsSince": {
         "friended": "Friended",
         "lastSeen": "Seen",
@@ -1903,6 +2072,10 @@
     },
     "heroUnits": {
         "ends": "Ends"
+    },
+    "rovalraAds": {
+        "ad": "Ad",
+        "tooltip": "This item is a RoValra ad, added to your recommendations by RoValra. You can turn it off in the RoValra settings. This is NOT personalized. Currently experimental."
     },
     "tradeRecentItems": {
         "offer": "Recently offered",
@@ -2245,6 +2418,11 @@
         "buyFor": "Buy for {{price}}",
         "viewItem": "View item",
         "buyTooltip": "Buy this frame",
+        "preview": "Preview",
+        "previewTooltip": "Try this frame on your profile until you refresh",
+        "previewOnProfile": "Preview on profile",
+        "previewBanner": "Previewing {{frame}}. Only you can see this, and it goes away when you refresh.",
+        "backToStore": "Back to store",
         "owned": "Owned",
         "ownedTooltip": "You own this frame!",
         "free": "Free",
@@ -2269,6 +2447,9 @@
     "profilePronouns": {
         "label": "Pronouns",
         "ariaLabel": "Pronouns: {{pronouns}}"
+    },
+    "followsYou": {
+        "label": "Follows you"
     },
     "profileEdit": {
         "featuresTitle": "RoValra Features",
@@ -2685,5 +2866,11 @@
         "unknownDevice": "Unknown device",
         "robloxApp": "Roblox App",
         "robloxStudio": "Roblox Studio"
+    },
+    "roblox2016Theme": {
+        "games": "Games",
+        "catalog": "Catalog",
+        "playing": "{{count}} Playing",
+        "attending": "{{count}} Attending"
     }
 }

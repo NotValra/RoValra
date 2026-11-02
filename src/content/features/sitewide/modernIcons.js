@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
 import { Icon } from '../../core/ui/buildericon.js';
+import { isRoblox2016ThemeHost } from './roblox2016Theme.js';
 
 const assets = getAssets();
 const ICON_TEMPLATES = new Map();
@@ -65,15 +66,21 @@ export function initializeModernIcons() {
     if (modernIconsInitialized) return;
     modernIconsInitialized = true;
 
-    chrome.storage.local.get('modernIconsEnabled', (result) => {
-        const isEnabled = result.modernIconsEnabled !== false;
+    chrome.storage.local.get(
+        ['modernIconsEnabled', 'roblox2016ThemeEnabled'],
+        (result) => {
+            const isEnabled =
+                result.modernIconsEnabled !== false &&
+                (result.roblox2016ThemeEnabled !== true ||
+                    !isRoblox2016ThemeHost());
 
-        if (!isEnabled) return;
+            if (!isEnabled) return;
 
-        prepareTemplates();
+            prepareTemplates();
 
-        observeElement(ICON_SELECTOR, replaceIcon, {
-            multiple: true,
-        });
-    });
+            observeElement(ICON_SELECTOR, replaceIcon, {
+                multiple: true,
+            });
+        },
+    );
 }

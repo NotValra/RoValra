@@ -62,6 +62,12 @@ function formatRelativeTime(date, options = {}) {
 function formatTime(date, format, options = {}) {
     switch (format) {
         case '24h':
+            if (options.compact) {
+                return date.toLocaleString('en-GB', {
+                    ...getCompactDateParts(date, options),
+                    hour12: false,
+                });
+            }
             return date.toLocaleString('en-GB', { hour12: false });
         case 'relative':
             if (options.pastRelativeText && date <= new Date()) {
@@ -70,6 +76,12 @@ function formatTime(date, format, options = {}) {
             return formatRelativeTime(date, options);
         case 'local':
         default:
+            if (options.compact) {
+                return date.toLocaleString(undefined, {
+                    ...getCompactDateParts(date, options),
+                    hour12: true,
+                });
+            }
             return date.toLocaleString(undefined, {
                 month: 'short',
                 day: 'numeric',
@@ -80,6 +92,19 @@ function formatTime(date, format, options = {}) {
                 hour12: true,
             });
     }
+}
+
+function getCompactDateParts(date, options = {}) {
+    if (options.timeOnly) return { hour: 'numeric', minute: '2-digit' };
+    return {
+        month: 'short',
+        day: 'numeric',
+        ...(date.getFullYear() === new Date().getFullYear()
+            ? {}
+            : { year: 'numeric' }),
+        hour: 'numeric',
+        minute: '2-digit',
+    };
 }
 
 function getTooltipText(date) {

@@ -81,7 +81,7 @@ body.rovalra-overlay-popout {
     background: var(--color-surface-0, #121416);
 }
 
-.rovalra-overlay-header {
+.rovalra-overlay .rovalra-overlay-header {
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -93,7 +93,7 @@ body.rovalra-overlay-popout {
     user-select: none;
 }
 
-.rovalra-overlay-logo {
+.rovalra-overlay .rovalra-overlay-logo {
     flex-shrink: 0;
     width: 20px;
     height: 20px;
@@ -102,7 +102,7 @@ body.rovalra-overlay-popout {
     pointer-events: none;
 }
 
-.rovalra-overlay-title {
+.rovalra-overlay .rovalra-overlay-title {
     flex: 1;
     overflow: hidden;
     font-size: 15px;
@@ -111,7 +111,7 @@ body.rovalra-overlay-popout {
     white-space: nowrap;
 }
 
-.rovalra-overlay-body {
+.rovalra-overlay .rovalra-overlay-body {
     flex: 1;
     min-height: 0;
     padding: 4px 16px 12px;
@@ -119,7 +119,7 @@ body.rovalra-overlay-popout {
     scrollbar-width: thin;
 }
 
-.rovalra-overlay-button {
+.rovalra-overlay .rovalra-overlay-button {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
