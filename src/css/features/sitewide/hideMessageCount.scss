@@ -1,0 +1,27 @@
+html[data-rovalra-hide-message-count='true'] {
+    .left-nav nav a[href*='/my/messages'],
+    .left-nav nav a[href*='/messages'] {
+        .foundation-web-badge,
+        .notification,
+        .nav-item-badge {
+            display: none !important;
+        }
+    }
+
+    .left-nav nav
+        :is(li, .roseal-left-nav-item):has(a[href*='/my/messages'], a[href*='/messages']) {
+        .foundation-web-badge,
+        .notification,
+        .nav-item-badge {
+            display: none !important;
+        }
+    }
+    // this is the legacy one sidebar
+    #nav-message {
+        .foundation-web-badge,
+        .notification,
+        .nav-item-badge {
+            display: none !important;
+        }
+    }
+}
