@@ -2857,5 +2857,11 @@
         "tradeStats": "{{value}} Value | {{rap}} RAP",
         "friendPlaying": "{{name}} is playing",
         "unknownGame": "An experience"
+    },
+    "roblox2016Theme": {
+        "games": "Games",
+        "catalog": "Catalog",
+        "playing": "{{count}} Playing",
+        "attending": "{{count}} Attending"
     }
 }

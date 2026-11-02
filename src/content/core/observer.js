@@ -138,24 +138,26 @@ export function initializeObserver() {
     globalObserver = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'attributes') {
-                let listener = attributeListeners.get(mutation.target);
+                let listeners = attributeListeners.get(mutation.target);
 
-                if (!listener) {
+                if (!listeners) {
                     for (const [
                         observedElement,
-                        callback,
+                        callbacks,
                     ] of attributeListeners) {
                         if (
                             observedElement !== mutation.target &&
                             observedElement.contains(mutation.target)
                         ) {
-                            listener = callback;
+                            listeners = callbacks;
                             break;
                         }
                     }
                 }
 
-                if (listener) listener(mutation);
+                if (listeners) {
+                    for (const listener of [...listeners]) listener(mutation);
+                }
                 continue;
             }
 
@@ -248,7 +250,9 @@ export const observeAttributes = (
 ) => {
     if (!observerInitialized) initializeObserver();
 
-    attributeListeners.set(element, callback);
+    if (!attributeListeners.has(element))
+        attributeListeners.set(element, new Set());
+    attributeListeners.get(element).add(callback);
     globalObserver.observe(element, {
         attributes: true,
         attributeFilter,
@@ -257,7 +261,10 @@ export const observeAttributes = (
 
     return {
         disconnect: () => {
-            attributeListeners.delete(element);
+            const callbacks = attributeListeners.get(element);
+            if (!callbacks) return;
+            callbacks.delete(callback);
+            if (!callbacks.size) attributeListeners.delete(element);
         },
     };
 };

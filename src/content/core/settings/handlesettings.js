@@ -1528,6 +1528,26 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     applyLockedState(name, settingsContent, true, conf.locked);
                     return true;
                 }
+
+                if (
+                    conf.lockedBy &&
+                    currentSettings[conf.lockedBy.setting] === true
+                ) {
+                    if (currentSettings[name] === true) {
+                        await handleSaveSettings(name, false);
+                    }
+                    const input = settingsContent.querySelector(
+                        `[data-setting-name="${name}"]`,
+                    );
+                    if (input?.type === 'checkbox') input.checked = false;
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        true,
+                        conf.lockedBy.reason,
+                    );
+                    return true;
+                }
                 if (!handledLockState) {
                     applyLockedState(name, settingsContent, false);
                 }
@@ -1547,9 +1567,30 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     }
 };
 
+function getLockingSettingNames() {
+    const names = new Set();
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const config of Object.values(category.settings)) {
+            for (const conf of [
+                config,
+                ...Object.values(config.childSettings || {}),
+            ]) {
+                if (conf.lockedBy) names.add(conf.lockedBy.setting);
+            }
+        }
+    }
+    return names;
+}
+
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    const lockingSettingNames = getLockingSettingNames();
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
-        if (areaName !== 'local' || !changes[REMOTE_SETTING_LOCKS_KEY]) return;
+        if (areaName !== 'local') return;
+        if (
+            !changes[REMOTE_SETTING_LOCKS_KEY] &&
+            !Object.keys(changes).some((key) => lockingSettingNames.has(key))
+        )
+            return;
 
         const settingsContent = document.querySelector(
             '#setting-section-content',
