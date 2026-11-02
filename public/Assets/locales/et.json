@@ -1,0 +1,2867 @@
+{
+    "localizationFallbacks": {
+        "serverShare": "Jaga",
+        "serverCopied": "Kopeeritud!",
+        "recentServerTitle": "Server",
+        "decalOptions": "Pildi valikud"
+    },
+    "common": {
+        "select": "Vali...",
+        "search": "Otsi",
+        "rovalraSettings": "RoValra seaded",
+        "filterItems": "Filtreeri esemeid",
+        "applyFilter": "Rakenda filter",
+        "uploadFile": "Laadi fail üles",
+        "change": "Muuda",
+        "invalidFileFormat": "Kehtetu failivorming.",
+        "invalidImageFile": "Sobimatu failivorming. Palun laadi üles sobiv pildifail.",
+        "fileProcessingFailed": "Faili töötlemine ebaõnnestus. Palun proovi teist faili.",
+        "errorProcessingFile": "Viga faili töötlemisel. Palun proovi teist faili.",
+        "less": "Vähem",
+        "more": "Rohkem",
+        "pastYear": "Möödunud aasta",
+        "past6Months": "Viimased 6 kuud",
+        "past3Months": "Viimased 3 kuud",
+        "pastMonth": "Möödunud kuu",
+        "pastWeek": "Möödunud nädal",
+        "unnamedProduct": "Nimetu toode",
+        "offSale": "Müügist väljas",
+        "robloxExperience": "Robloxi mäng",
+        "subplace": "Alamkoht",
+        "subplaceUpper": "ALAMKOHT",
+        "offline": "Pole võrgus",
+        "website": "Veebisait",
+        "playing": "Mängib",
+        "playingGame": "Mängib mängu {{gameName}}",
+        "studio": "Studio",
+        "share": "Jaga",
+        "copied": "Kopeeritud!",
+        "free": "Tasuta",
+        "unknown": "Tundmatu",
+        "somethingWentWrong": "Midagi läks valesti",
+        "robloxPlusSubscriber": "Roblox Plusi tellija",
+        "joinServerFull": "Liitu (server täis)",
+        "id": "ID: ",
+        "profile": "Profiil",
+        "error": "Viga",
+        "rovalraDeveloper": "RoValra arendaja",
+        "close": "Sule",
+        "confirmAction": "Kinnita toiming",
+        "areYouSure": "Kas oled kindel, et soovid jätkata?",
+        "confirm": "Kinnita",
+        "cancel": "Tühista"
+    },
+    "regionSelector": {
+        "gilbertsInYourArea": "Gilbertid sinu piirkonnas",
+        "title": "RoValra piirkonna valija",
+        "automatic": "Automaatne",
+        "servers": "Serverid: ",
+        "datacenters": "Andmekeskused: ",
+        "filterByRegion": "Filtreeri servereid piirkonna järgi",
+        "filterByRegionItem": "Filtreeri piirkonna {{region}} järgi ({{count}} serverit)",
+        "filterByUptime": "Filtreeri servereid tööaja järgi (uusim/vanim)",
+        "filterByVersion": "Filtreeri servereid mänguversiooni järgi",
+        "searchingServers": "Serverite otsimine... ({{count}} leitud)",
+        "filterDisabledByRoblox": "Robloxi tõttu on see filter selles mängus keelatud."
+    },
+    "guidelines": {
+        "title": "RoValra juhised",
+        "message": "RoValrat kasutades nõustud järgima meie kasutustingimusi. Nende reeglite rikkumine võib kaasa tuua teatud funktsioonidele, sealhulgas olekumullidele ja asesõnadele, juurdepääsu peatamise.<br><br><b>Peamised reeglid:</b><br>• Kasutajaid ei tohi platvormilt mujale suunata.<br>• Sobimatu käitumine on keelatud.<br>• Robloxi kasutustingimusi ei tohi rikkuda.<br><br>Loe lähemalt aadressilt <a href=\"https://www.rovalra.com/tou/\" target=\"_blank\" style=\"color: #007bff; text-decoration: underline;\">rovalra.com/tou</a>.",
+        "confirm": "Saan aru"
+    },
+    "review": {
+        "requestMessage": "Tundub, et RoValrast on sulle kasu olnud!\n Kas jätaksid arvustuse?\n See aitab hoida RoValra kõigile tasuta ja ilma maksumüürideta.",
+        "leaveReview": "Jäta arvustus",
+        "notNow": "Mitte praegu",
+        "doNotShowAgain": "Ära näita uuesti",
+        "rateTitle": "Hinda RoValrat",
+        "donationMessage": "Selliste funktsioonide nagu piirkonnavalija käitamine maksab raha ning RoValra toetub nende kulude katmiseks täielikult annetustele.\n\nAnnetused aitavad meil servereid töös hoida, et sellised funktsioonid jääksid kõigile tasuta.",
+        "donate": "Anneta",
+        "donationTitle": "Soovid RoValrat toetada?"
+    },
+    "heatmap": {
+        "updatesBetween": "Uuendused {{date}} ajavahemikus {{start}}–{{end}}",
+        "updatesOn": "Uuendused {{date}}",
+        "trackingSince": "Uuenduste ajalugu salvestatakse alates 15. veebruarist 2026"
+    },
+    "profileFeatures": {
+        "title": "RoValra funktsioonid"
+    },
+    "serverFilters": {
+        "newest": "Uusimad serverid",
+        "oldest": "Vanimad serverid",
+        "uptime": "Serveri tööaeg",
+        "version": "Versioon",
+        "enterVersion": "Sisesta versioon",
+        "region": "Piirkond",
+        "versionPlaceholder": "Versioon"
+    },
+    "serverInfo": {
+        "loading": "Laadimine...",
+        "versionUnknown": "Versioon teadmata",
+        "version": "Versioon {{version}}",
+        "versionLabel": "Versioon",
+        "regionTooltip": "Serveri piirkond: {{region}}",
+        "performanceTooltip": "Serveri jõudlus",
+        "latest": " (uusim)",
+        "oldest": " (vanim)",
+        "serverFull": "Server on täis",
+        "privateServer": "Mängib privaatses serveris",
+        "purchaseGame": "Piirkondade nägemiseks osta mäng.",
+        "currentVersionTooltip": "Praegu avaldatud versioon."
+    },
+    "serverStats": {
+        "totalServers": "Serverid kokku",
+        "totalServersTooltip": "Selle mängu serverite koguarv, mida RoValra jälgib",
+        "oldest": "Vanim",
+        "oldestTooltip": "Vanim versioon, mida mõni server praegu kasutab."
+    },
+    "preferredRegion": {
+        "criticalError": "Robloxi liitumise API ei vasta. Võimalik, et pead veidi ootama.\nTavaliselt põhjustab seda võrguprobleem või tõrge Robloxi serverites. Kui probleem püsib, proovi keelata [eelistatud piirkond](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) või tühjendada brauseri vahemälu.\nKui probleem jätkub, anna sellest teada RoValra Discordi serveris.\n\n---\n**Vea üksikasjad:**\n{{detailMsg}}",
+        "criticalErrorApiMoved": "Roblox võib gamejoin API kasutamisest loobuda. RoValra ei saa seda mõjutada ning see häirib mõnda aega piirkonnavalijate tööd. Töötame lahenduse kallal nii kiiresti kui võimalik.\n\n---\n**Vea üksikasjad:**\n{{detailMsg}}",
+        "detectingLocation": "Sinu asukoha tuvastamine...",
+        "closestRegion": "lähim piirkond",
+        "inactiveRegion": "Roblox ei kasuta piirkonda {{region}} enam serverite asukohana.",
+        "scanningLocally": "Piirkonna {{region}} serverite kohalik otsimine...",
+        "regionApiUnavailable": "Piirkonna API pole saadaval. Piirkonna {{region}} serverite otsimine...",
+        "findingLowestLatency": "Väikseima latentsusega serveri otsimine...",
+        "searchingInRegion": "Otsimine piirkonnas {{region}}...",
+        "fallbackInactive": "API pakutud järgmised parimad serverid on passiivsed. Piirkonna {{region}} serverite kohalik otsimine...",
+        "noServersApi": "API kaudu ei leitud piirkonnast {{region}} ühtegi serverit. Kohalik otsimine...",
+        "apiTimedOut": "RoValra piirkonnaotsijal kulub piirkonna {{region}} leidmiseks liiga kaua aega, tõenäoliselt Robloxi muudatuste tõttu. Jätkatakse piirkonna {{region}} serverite kohaliku otsimisega.",
+        "loadBalancing": "Piirkonda {{region}} kasutatakse koormuse tasakaalustamiseks ning see on tõenäoliselt aktiivne ainult suure koormuse ajal. Otsimine...",
+        "foundJoining": "Piirkond {{region}} leitud! Liitumine...",
+        "foundContinuing": "Leitud: {{region}}. Jätkatakse piirkonna {{targetRegion}} otsimist...",
+        "foundVerifying": "Piirkond {{region}} leitud! Kontrollimine...",
+        "verifyingStatus": "Serveri oleku kontrollimine...",
+        "searchingClosest": "Piirkonnale {{region}} lähima piirkonna otsimine...",
+        "noServersRunning": "Piirkonnas {{region}} ei tööta ühtegi serverit.",
+        "joinRegion": "Liitu piirkonna {{region}} serveriga",
+        "couldNotFindServers": "Servereid ei leitud."
+    },
+    "purchaseModal": {
+        "title": "Osta ese",
+        "buy": "Osta",
+        "savingWithPlus": "Säästad Plusiga <span class=\"icon-robux-16x16\"></span><span class=\"text-robux\">{{savings}}</span>",
+        "subtotal": "Vahesumma",
+        "plusBenefit": "Plusi soodustus ({{percent}}% soodsam)",
+        "total": "Kokku",
+        "insufficientRobux": "Pole piisavalt Robuxeid",
+        "purchasing": "Ostmine...",
+        "purchaseComplete": "Ost sooritatud",
+        "successMessage": "Ostsid edukalt eseme <b>{{itemName}}</b>",
+        "ok": "OK",
+        "purchaseError": "Ostuviga",
+        "purchaseFailed": "Ost ebaõnnestus",
+        "unknownError": "Tundmatu viga",
+        "errorLoadingTitle": "Viga eseme laadimisel",
+        "errorLoadingMessage": "Selle eseme andmeid ei õnnestunud hankida. Üksikasjad: {{errorMessage}}. Palun proovi hiljem uuesti."
+    },
+    "avatarRotator": {
+        "stop": "Peata vahetamine",
+        "button": "Avatari automaatvahetaja",
+        "selectMinimum": "Vali vähemalt 2 avatari",
+        "setRotators": "Määra vahetatavateks avatarideks ({{count}})",
+        "selectedStatus": "Vali avatarid, mille vahel vahetada. (Valitud: {{count}})",
+        "loading": "Laadimine...",
+        "loadMore": "Laadi rohkem",
+        "interval": "Intervall (sekundites)",
+        "loadingDetails": "Riietuse üksikasjade laadimine...",
+        "active": "Avatari automaatvahetaja on aktiivne!",
+        "disable": "Keela",
+        "clearSelection": "Tühjenda valik",
+        "title": "Avatari automaatvahetaja"
+    },
+    "avatarFilters": {
+        "filterItems": "Filtreeri esemeid",
+        "filtering": "Filtreerimine...",
+        "loading": "Laadimine...",
+        "creatorName": "Looja nimi",
+        "minPrice": "Miinimumhind",
+        "maxPrice": "Maksimumhind",
+        "availability": "Saadavus",
+        "showAll": "Kuva kõik",
+        "onsaleOnly": "Ainult müügil",
+        "offsaleOnly": "Ainult müügist väljas",
+        "effects": "Efektid",
+        "limiteds": "Piiratud kogusega esemed"
+    },
+    "tradeCompletedDate": {
+        "completedOn": "Lõpetatud",
+        "created": "Loodud:",
+        "sent": "Saadetud:",
+        "received": "Saadud:",
+        "completed": "Lõpetatud:",
+        "notFound": "Ei leitud"
+    },
+    "trading": {
+        "searchInventory": "Otsi inventarist",
+        "continueSearch": "Jätka otsingut",
+        "filterTrades": "Filtreeri vahetuspakkumisi",
+        "noResults": "Tulemusi ei leitud",
+        "copyProof": "Kopeeri tõend",
+        "copied": "Kopeeritud!",
+        "value": "Väärtus:",
+        "demand": "Nõudlus:",
+        "includeRobux": "Kaasa Robuxid",
+        "openUserOnRolimons": "Ava kasutaja Rolimon’sis",
+        "openOnRolimons": "Ava {{type}} Rolimon’sis",
+        "projectedItem": "Kunstlikult tõstetud hinnaga ese",
+        "projected": "Kunstlikult tõstetud hind",
+        "rareItem": "Haruldane ese",
+        "rap": "RAP",
+        "valueLabel": "Väärtus",
+        "demandLabel": "Nõudlus",
+        "bundle": "komplekt",
+        "item": "ese",
+        "serial": "Seerianumber",
+        "afterTax": "Pärast maksu",
+        "beforeTax": "Enne maksu",
+        "youGive": "Sa annad",
+        "youGet": "Sa saad"
+    },
+    "updateChangelog": {
+        "title": "RoValrat värskendati",
+        "fromVersion": "versioonilt v{{version}}",
+        "description": "Vaata muudatuste logist, mis selles versioonis muutus.",
+        "viewChangelog": "Vaata, mis on uut"
+    },
+    "onboarding": {
+        "title": "Tere tulemast RoValrasse!",
+        "thankYou": "Täname, et paigaldasid <strong>RoValra</strong>!",
+        "exploreFeatures": "Seadete muutmiseks ja kõigi funktsioonidega tutvumiseks saad teha järgmist:",
+        "settingsInstruction": "Klõpsa Robloxi päises <strong>hammasratta ikoonil</strong> ja seejärel vali „RoValra seaded”.",
+        "imageAlt": "Juhend, mis näitab, kust leida Robloxi veebisaidilt RoValra seadete nupp.",
+        "description": "RoValra on alati tasuta Robloxi laiendus, mis püüab kõigi kasutuskogemust paremaks muuta!",
+        "gotIt": "Selge!"
+    },
+    "catalogDependencies": {
+        "scan": "Otsi sõltuvusi",
+        "loading": "Teabe laadimine ({{count}})...",
+        "title": "Sõltuvused",
+        "unknown": "Tundmatu",
+        "assetFallback": "Vara {{id}}",
+        "verifiedBadge": "Kinnitatud konto märk",
+        "by": "poolt"
+    },
+    "betterGraphs": {
+        "summary": "Keskmine hind valitud perioodi jooksul",
+        "series": {
+            "price": "Hiljutine keskmine hind",
+            "volume": "Müügimaht"
+        },
+        "ranges": {
+            "30d": "30 päeva",
+            "90d": "90 päeva",
+            "180d": "180 päeva",
+            "1y": "1 aasta",
+            "all": "Kogu periood"
+        }
+    },
+    "catalogItemSales": {
+        "sales": "Müük",
+        "revenue": "Tulu",
+        "statsTooltip": "Müügi- ja tulustatistika pärineb lekkest ja on tõenäoliselt ebatäpne."
+    },
+    "fortyMethod": {
+        "loginRequired": "Sinu kasutaja ID-d ei õnnestunud tuvastada. Palun veendu, et oled sisse logitud.",
+        "setupExperience": "Seadista mäng",
+        "specificTemplate": "Töötab ainult kindel mall",
+        "selectGroup": "Vali grupp, mille mänge saad hallata. <br>Laiendus loob mängu sinu eest.",
+        "or": "VÕI",
+        "manualPlaceId": "Sisesta koha ID käsitsi <br> (Tee seda ainult siis, kui tead, mida teed.)",
+        "donateSavedRobux": "Anneta säästetud Robuxid RoValrale",
+        "estimatedSavings": "Hiljem näidatud hinnangulised säästud on ligikaudsed ja võivad olla ebatäpsed.",
+        "importantInformation": "Oluline teave",
+        "acknowledge": "Saan aru",
+        "groupRequired": "Grupp on nõutav",
+        "goBack": "Mine tagasi",
+        "ownershipDetected": "Omandiõigus tuvastatud",
+        "understandContinue": "Saan aru ja jätkan",
+        "createExperience": "Loo mäng",
+        "createNewExperience": "Loo uus mäng",
+        "findingExperience": "Sinu mängu otsimine",
+        "findingExperienceWait": "Palun oota, kuni otsime sinu äsja avaldatud mängu...",
+        "donateToRoValra": "Anneta RoValrale",
+        "back": "Tagasi",
+        "validationWarning": "Kontrollihoiatus",
+        "updateExperience": "Uuenda mängu",
+        "useAnyway": "Kasuta igal juhul",
+        "permissionRequired": "Nõutav luba",
+        "backToGroupSelection": "Tagasi grupi valimise juurde",
+        "experience": "Mäng",
+        "loading": "Laadimine...",
+        "setupGame": "Seadista oma mäng",
+        "saveContinue": "Salvesta ja jätka",
+        "creating": "Loomine...",
+        "uploadingTemplate": "Malli üleslaadimine...",
+        "configuring": "Seadistamine...",
+        "done": "Valmis!",
+        "updating": "Värskendamine...",
+        "purchaseFailed": "Ost ebaõnnestus",
+        "gotIt": "Sain aru",
+        "confirmMethodPurchase": "Kinnita ost 40% meetodiga",
+        "confirmCartPurchase": "Kinnita ostukorvi ost",
+        "cancel": "Tühista",
+        "alreadyOwned": "Juba olemas",
+        "joinToPurchase": "Ostmiseks liitu mänguga",
+        "confirmPurchase": "Kinnita ost",
+        "purchaseError": "Ostu viga",
+        "ownerAccount": "<strong>Omaniku konto:</strong> Grupi omanik EI TOHI olla sama konto, millega esemeid ostad. Omanik peaks olema turvatud lisakonto, millel on lubatud kaheastmeline autentimine (2FA) ning tugev ja kordumatu parool.",
+        "payouts": "<strong>Väljamaksed:</strong> Grupi rahast saab säästetud Robuxeid välja maksta ainult grupi omaniku konto.",
+        "pendingRobux": "<strong>Ootel Robuxid:</strong> Pärast selle funktsiooni kasutamist on Robuxid umbes kuu aega ootel, enne kui neid saab välja maksta.",
+        "groupRequiredBody": "40% meetodi kasutamiseks oma grupiga vajad gruppi, mille mänge saad hallata.",
+        "groupRequiredImportant": "<strong>Tähtis:</strong> Õigeks toimimiseks peab grupp kuuluma turvatud lisakontole. Sinu põhikontol (millega esemeid ostad) peaks olema roll, mis lubab grupi mänge luua ja hallata.",
+        "groupRequiredDonate": "Kui sul pole sobivat gruppi, saad RoValrat toetada, kasutades ostu sooritamiseks meie mängu. Sel juhul saab säästetud Robuxid RoValra ❤️",
+        "ownershipBody": "40% meetod ei tööta, kui oled selle grupi omanik. Palun vali teine grupp või anna omandiõigus üle turvatud lisakontole.",
+        "experienceAccepted": "Mäng sobib",
+        "experienceAcceptedSpecific": "<strong>Töötavad ainult kindlad mängud.</strong> Veendu, et mängus oleksid mängusiseste ostude töötlemiseks vajalikud skriptid.",
+        "experienceAcceptedGroup": "Veendu, et mäng kuuluks grupile, <strong>mida sa haldad, kuid mis ei kuulu sellele kontole</strong>. Eelistatult peaks grupp kuuluma lisakontole. Kui oled grupi omanik, siis 40% meetod ei tööta.",
+        "experienceAcceptedPending": "Säästetud Robuxid on enne väljamaksmist umbes kuu aega ootel. Kasuta väljamaksete tegemiseks grupi omanikuna turvatud lisakontot.",
+        "createExperienceBody": "Loo sellele grupile uus mäng, et kasutada 40% meetodit.",
+        "createNewExperienceBody": "Selle meetodi jaoks uue mängu loomiseks:",
+        "createStepOne": "Ava Studios mäng, mille kopeerimine on lubatud:",
+        "openStudio": "Ava Studio",
+        "createStepTwo": "Vali Studios <strong>File > Game Settings > Security > lülita sisse „Allow Third Party Sales” > File > Publish to Roblox As...</strong>",
+        "createStepThree": "Vali loojate loendist see grupp.",
+        "createStepFour": "Klõpsa <strong>Create</strong> ja mäng avaldatakse",
+        "createPublishedBody": "Pärast avaldamist klõpsa alloleval nupul ning leiame ja valime mängu automaatselt.",
+        "publishedGame": "Olen mängu avaldanud",
+        "saveSettingsUnavailable": "Seadete salvestamine ebaõnnestus. Storage API pole saadaval.",
+        "groupsLoadFailed": "Gruppide laadimine ebaõnnestus. Palun värskenda lehte ja proovi uuesti.",
+        "noGroupSelected": "Ühtegi gruppi pole valitud. Palun proovi uuesti."
+    },
+    "risk": {
+        "projected": "Ese on märgitud kunstlikult tõstetud hinnaga esemeks.",
+        "rapMuchHigher": "RAP on palju suurem kui väärtus, väärtus võib tõusta.",
+        "rapHigher": "RAP on väärtusest kõrgem, väärtus võib tõusta.",
+        "rapMuchLower": "RAP on väärtusest palju madalam, väärtus võib langeda.",
+        "rapHigherSales": "RAP on müügihinnast kõrgem, kuid madalaim müügihind toetab seda.",
+        "rapUnusuallyHigh": "RAP on hiljutise stabiilse müügihinnaga võrreldes ebatavaliselt kõrge.",
+        "rapHigherStable": "RAP on stabiilsest hinnast kõrgem (kasvab järk-järgult).",
+        "bestPriceMuchLower": "Parim hind on oluliselt madalam kui RAP.",
+        "bestPriceLower": "Parim hind on madalam kui RAP.",
+        "bestPriceHigher": "Parim hind on kõrgem kui RAP.",
+        "bestPriceSlightlyHigher": "Parim hind on veidi kõrgem kui RAP.",
+        "sufferingProjection": "Eseme hinda on kunstlikult tõstetud.",
+        "stableTrend": "Stabiilne hinnatrend."
+    },
+    "freeRobloxPlusThemes": {
+        "notice": "Vali ja kasuta mis tahes teemat ilma Roblox Plusita."
+    },
+    "items": {
+        "hiddenFromMarketplace": "See ese on turuplatsil peidetud",
+        "notFound": "Ei leitud",
+        "failedToLoad": "Laadimine ebaõnnestus",
+        "onHold": "Ootel",
+        "faeItem": "FAE-ese"
+    },
+    "inventory": {
+        "openRolimons": "Ava Rolimon’sis",
+        "searchPlaceholder": "Otsi eseme nime järgi..."
+    },
+    "games": {
+        "failedToLoad": "Mängu laadimine ebaõnnestus"
+    },
+    "gameBookmarks": {
+        "bookmark": "Lisa järjehoidjatesse",
+        "saved": "Järjehoidjasse lisatud",
+        "title": "Järjehoidjad",
+        "uncategorized": "Kategooriata",
+        "create": "+ Loo uus kategooria",
+        "categoryName": "Kategooria nimi",
+        "createSave": "Loo ja salvesta",
+        "save": "Salvesta muudatused",
+        "deleteCategory": "Kustuta kategooria",
+        "deleteCategoryConfirm": "Kas oled kindel? Kategooria kustutatakse ja eemaldatakse kõigilt järjehoidjatesse lisatud mängudelt.",
+        "confirm": "Kustuta",
+        "cancel": "Tühista",
+        "remove": "Eemalda järjehoidja",
+        "error": "Järjehoidjat ei saanud salvestada. Palun proovi uuesti.",
+        "loading": "Mängu laadimine…",
+        "all": "Kõik",
+        "topic": "Järjehoidjatesse lisatud mängud",
+        "empty": "Selles kategoorias pole järjehoidjatesse lisatud mänge."
+    },
+    "homeLayout": {
+        "untitled": "Pealkirjata",
+        "empty": "RoValra ei leidnud paigutust. Värskenda lehte ja proovi uuesti.",
+        "reset": "Lähtesta",
+        "save": "Salvesta",
+        "overlayTitle": "Avalehe paigutus",
+        "button": "Kohanda paigutust",
+        "edit": "Muuda",
+        "settingsTitle": "Kategooria seaded",
+        "visibility": "Nähtavus",
+        "visibilityDescription": "Vali, kas seda kategooriat kuvatakse avalehel.",
+        "accurateContinue": "Täpne jätkamise järjekord",
+        "accurateContinueDescription": "Järjesta jätkamise jaotise mängud viimase mängimise aja järgi.",
+        "enable": "Luba",
+        "disable": "Keela",
+        "show": "Näita",
+        "hide": "Peida"
+    },
+    "sidebarLayout": {
+        "untitled": "Pealkirjata",
+        "empty": "RoValra ei leidnud ühtegi külgriba nuppu.",
+        "reset": "Lähtesta",
+        "save": "Salvesta",
+        "overlayTitle": "Külgriba paigutus",
+        "button": "Kohanda paigutust",
+        "myProfile": "Minu profiil",
+        "disabled": "Keelatud",
+        "show": "Näita",
+        "hide": "Peida",
+        "add": "Lisa",
+        "addButton": "Lisa nupp",
+        "buttonPlaceholder1": "Nimi",
+        "buttonPlaceholder2": "URL"
+    },
+    "topbarLayout": {
+        "empty": "RoValra ei leidnud ühtegi toetatud ülemise riba eset.",
+        "reset": "Lähtesta",
+        "save": "Salvesta",
+        "overlayTitle": "Ülemise riba paigutus",
+        "button": "Ülemise riba paigutus",
+        "disabled": "Nõutav",
+        "show": "Näita",
+        "hide": "Peida",
+        "labels": {
+            "logo": "Robloxi logo",
+            "charts": "Edetabelid",
+            "marketplace": "Turuplats",
+            "create": "Loo",
+            "robux": "Robux",
+            "search": "Otsi",
+            "profile": "Profiil",
+            "qol": "Olek",
+            "topbarLayout": "Ülemise riba paigutus",
+            "notifications": "Märguanded",
+            "robuxBalance": "Robuxide saldo",
+            "settings": "Seaded"
+        }
+    },
+    "homeGreeting": {
+        "morning": "Tere hommikust, {{name}}",
+        "afternoon": "Tere päevast, {{name}}",
+        "evening": "Tere õhtust, {{name}}",
+        "night": "Head ööd, {{name}}"
+    },
+    "friendsCarouselRedesign": {
+        "prevFriends": "Eelmised sõbrad",
+        "nextFriends": "Rohkem sõpru",
+        "isPlaying": "{{name}} mängib",
+        "online": "Võrgus",
+        "inStudio": "Studios",
+        "offline": "Pole võrgus",
+        "friendFallback": "Sõber",
+        "join": "Liitu",
+        "chat": "Vestlus",
+        "viewProfile": "Vaata profiili",
+        "canJoin": "Saate koos mängida",
+        "notJoinable": "Selle kasutajaga ei saa praegu liituda."
+    },
+    "friendLabels": {
+        "menuAction": "Määra sõbra silt",
+        "dialogTitle": "Määra kasutajale {{displayName}} silt",
+        "inputLabel": "Sõbra silt",
+        "inputPlaceholder": "Lähedased sõbrad, kool,",
+        "existingLabels": "Olemasolevad sildid",
+        "friendFallback": "Sõber",
+        "save": "Salvesta",
+        "remove": "Eemalda",
+        "cancel": "Tühista"
+    },
+    "underratedGames": {
+        "topic": "Alahinnatud mängud",
+        "subtitle": "RoValra kogukonna poolt valitud alahinnatud mängud.",
+        "rotates": "Vahetub",
+        "suggestOnDiscord": "Soovita alahinnatud mänge: {{discord}}",
+        "ageRestrictionWarning": "Mõned neist mängudest võivad Robloxi 250 HEP nõude tõttu olla mõeldud ainult vähemalt 16-aastastele."
+    },
+    "playtime": {
+        "topic": "Mänguaeg",
+        "period": "Mänguaja periood",
+        "today": "Täna",
+        "thisWeek": "Sel nädalal",
+        "thisMonth": "Sel kuul",
+        "thisYear": "Sel aastal",
+        "allTime": "Kogu aeg",
+        "hours": "{{value}} tundi",
+        "minutes": "{{value}} minutit",
+        "totalLabel": "Mänguaeg kokku:",
+        "mostPlayed": "Enim mängitud",
+        "playedOn": "Mängitud {{date}}",
+        "weekOf": "Nädal {{date}}",
+        "noActivity": "Mänguaega pole",
+        "moreGames": "+{{count}} rohkem",
+        "public": "Näita mänguaega kõigile",
+        "publicTooltip": "Kõik RoValra kasutajad saavad sinu mänguaega näha.",
+        "publicLocked": "Mänguaja avalikustamiseks on nõutav annetaja 3. tase.",
+        "publicFailed": "Sinu mänguaja nähtavust ei õnnestunud muuta. Proovi hiljem uuesti.",
+        "sampleGame": "Mäng {{number}}",
+        "previewOwnTitle": "Mänguaega pole veel salvestatud",
+        "previewOwnText": "Lülita RoValra seadetes mänguaja jälgimine sisse ja mängi. Mängud ilmuvad siia."
+    },
+    "mutualFriends": {
+        "pill_one": "{{count}} ühine sõber",
+        "pill_other": "{{count}} ühist sõpra",
+        "tooltip": "Selle kasutajaga ühised sõbrad",
+        "tab": "Ühised sõbrad",
+        "title": "Ühised sõbrad ({{count}})",
+        "empty": "Sul pole selle kasutajaga ühiseid sõpru."
+    },
+    "trustedFriends": {
+        "pendingConnection": "Usaldatud sõpruse kinnitamine on ootel",
+        "pendingRequest": "Usaldatud sõbra kutse on ootel",
+        "addConnection": "Lisa usaldatud sõber",
+        "addConfirmation": "Kas oled kindel, et soovid saata usaldatud sõbra kutse?",
+        "sendRequest": "Saada kutse",
+        "sending": "Saatmine...",
+        "requestSent": "Usaldatud sõbra kutse saadetud!",
+        "requestFailed": "Usaldatud sõbra kutse saatmine ebaõnnestus.",
+        "errorSending": "Viga saatmisel",
+        "acceptConnection": "Võta usaldatud sõbra kutse vastu",
+        "acceptConfirmation": "Kas oled kindel, et soovid selle usaldatud sõbra kutse vastu võtta?",
+        "accept": "Võta vastu",
+        "accepting": "Vastuvõtmine...",
+        "requestAccepted": "Usaldatud sõbra kutse vastu võetud!",
+        "acceptFailed": "Usaldatud sõbra kutse vastuvõtmine ebaõnnestus.",
+        "errorAccepting": "Viga vastuvõtmisel",
+        "removeConnection": "Eemalda usaldatud sõber",
+        "removeConfirmation": "Kas oled kindel, et soovid selle usaldatud sõbra eemaldada?",
+        "remove": "Eemalda",
+        "removing": "Eemaldamine...",
+        "connectionRemoved": "Usaldatud sõber eemaldatud!",
+        "removeFailed": "Usaldatud sõbra eemaldamine ebaõnnestus.",
+        "errorRemoving": "Viga eemaldamisel"
+    },
+    "chatEligibility": {
+        "canChat": "Saate selle kasutajaga vestelda.",
+        "cannotChat": "See kasutaja on väljaspool teie vestluse vanusevahemikku.",
+        "ageCheckRequired": "See kasutaja pole vanusekontrolli läbinud."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Praegu seljas",
+        "items": "Esemed",
+        "cosmetics": "Välimus",
+        "bodyParts": "Kehaosad",
+        "animations": "Animatsioonid",
+        "emotes": "Žestid"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Kasutajal pole avalikke mänge",
+        "overlayText": "Peidetud mängud",
+        "noHiddenGames": "Sellel kasutajal pole peidetud mänge.",
+        "buttonText": "Peidetud mängud",
+        "publicExperiences": "Avalikud mängud",
+        "hiddenExperiences": "Peidetud mängud",
+        "labels": {
+            "sort": "Sorteeri",
+            "order": "Järjestus",
+            "showAll": "Näita kõiki mänge"
+        },
+        "sort": {
+            "default": "Vaikimisi",
+            "likeRatio": "Meeldimiste osakaal",
+            "likes": "Meeldimised",
+            "dislikes": "Ei meeldi",
+            "players": "Mängijad",
+            "name": "Nimi (Z-A)"
+        },
+        "order": {
+            "descending": "Kahanev",
+            "ascending": "Kasvav"
+        },
+        "noMatches": "Ükski mäng ei vasta filtritele.",
+        "loading": "Laadimine..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Grupi peidetud mängud (kokku {{count}})",
+        "noHiddenGames": "Sellel grupil pole peidetud mänge.",
+        "buttonText": "Peidetud mängud",
+        "labels": {
+            "sort": "Sorteeri",
+            "order": "Järjestus",
+            "showAll": "Näita kõiki mänge"
+        },
+        "sort": {
+            "recentlyUpdated": "Hiljuti värskendatud",
+            "likeRatio": "Meeldimiste osakaal",
+            "likes": "Meeldimised",
+            "dislikes": "Ei meeldi",
+            "players": "Mängijad",
+            "name": "Nimi (Z-A)"
+        },
+        "order": {
+            "descending": "Kahanev",
+            "ascending": "Kasvav"
+        },
+        "noMatches": "Ükski peidetud mäng ei vasta praegustele filtritele.",
+        "loadingMore": "Rohkemate mängude laadimine..."
+    },
+    "userOutfits": {
+        "loading": "Riietuste laadimine...",
+        "back": "Tagasi",
+        "totalPrice": "Hind kokku:",
+        "loadingItems": "Esemete laadimine...",
+        "noItems": "Selles riietuses pole esemeid.",
+        "errorLoadingItems": "Esemeid ei õnnestunud laadida.",
+        "buttonText": "Näita riietusi",
+        "overlayTitle": "Kasutaja riietused",
+        "overlayTitleUser": "Kasutaja {{displayName}} riietused",
+        "noOutfits": "Sellel kasutajal pole riietusi.",
+        "inventoryPrivate": "Kasutaja inventar on privaatne.",
+        "errorNoUserId": "Lehelt ei õnnestunud kasutaja ID-d tuvastada.",
+        "errorFetch": "Riietusi ei õnnestunud hankida."
+    },
+    "donationLink": {
+        "donate": "Anneta",
+        "overlayTitle": "PLS DONATE",
+        "description": "Avatakse mäng „PLS DONATE”, kus saad annetada ka siis, kui kasutaja pole võrgus.\n\nRobloxi (30%) ja mängu (10%) teenustasude tõttu saab kasutaja annetatud summast 60%.\n\nMänguga liitudes avaneb „Offline Donations” aken, kus kasutajanimi on juba sisestatud. Klõpsa kinginupul, et avada kasutaja lett, ning osta annetamiseks mängupääse.",
+        "joinButton": "Liitu mänguga PLS DONATE",
+        "goBackButton": "Mine tagasi",
+        "loadingGamePasses": "Mängupääsmete laadimine...",
+        "priceLowToHigh": "Hind (madalast kõrgeni)",
+        "priceHighToLow": "Hind (kõrgest madalani)",
+        "userGamePasses": "Kasutaja {{username}} mängupääsmed",
+        "copyDonationLink": "Kopeeri annetuslink",
+        "copyLinkDescription": "Kopeerib selle profiili erilingi. Kui RoValra kasutaja selle avab, kuvatakse annetusmenüü automaatselt.<br><br><strong>Märkus:</strong> Annetusakent näevad ainult RoValra kasutajad. Teised näevad tavalist profiili.",
+        "copyLinkButton": "Kopeeri link",
+        "copySuccess": "Annetuslingi kopeerimine õnnestus!",
+        "noGamePassesFound": "Kasutaja {{username}} mängudest ei leitud mängupääsmeid.",
+        "errorLoading": "Viga mängupääsmete laadimisel: {{message}}"
+    },
+    "instantJoiner": {
+        "instantJoin": "Kohene liitumine",
+        "stopJoining": "Lõpeta liitumine",
+        "description": "Proovib kasutajaga automaatselt liituda kohe, kui ta mängu siseneb.<br><br>Selleks peab kasutaja lubama kõigil endaga liituda või olema sinu sõber.",
+        "searchPlaceholder": "Otsi mängu või sisesta koha ID (valikuline)",
+        "continue": "Jätka",
+        "cancel": "Tühista",
+        "confirmTitle": "Kinnita toiming"
+    },
+    "rap": {
+        "error": "Viga",
+        "private": "Privaatne",
+        "openInRolimons": "Ava Rolimon’sis",
+        "thisUser": "see kasutaja",
+        "rolimonsRedirect": "Sind suunatakse kasutaja {{username}} profiilile Rolimon’si välisel veebisaidil, kus kuvatakse vahetamise ja esemete väärtuste teavet.<br><br>Kas soovid jätkata?",
+        "continueToRolimons": "Jätka Rolimon’si lehele",
+        "user": "Kasutaja",
+        "loadingItems": "Rohkemate esemete laadimine...",
+        "noItemsMatch": "Ükski ese ei vasta sinu otsingule.",
+        "collectiblesTitle": "Kasutaja {{displayName}} kogutavad esemed ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "Kasutaja {{displayName}} kogutavad esemed (väärtus {{totalRapString}})",
+        "inventoryPrivateOrNoLimiteds": "Selle kasutaja inventar on privaatne või selles pole piiratud kogusega esemeid.",
+        "searchByName": "Otsi eseme nime järgi",
+        "itemAmount": "Seda eset on kasutajal: {{quantity}}"
+    },
+    "sendTrade": {
+        "send": "Saada"
+    },
+    "privateServer": {
+        "moreOptions": "Rohkem valikuid",
+        "filters": {
+            "button": "Filtrid",
+            "title": "Privaatserveri filtrid",
+            "sortTitle": "Sorteeri",
+            "sort": {
+                "default": "Vaikimisi",
+                "players": "Mängijad",
+                "name": "Nimi",
+                "owner": "Omanik"
+            },
+            "descending": "Kõrgelt madalale",
+            "ascending": "Madalalt kõrgele",
+            "playersTitle": "Mängijad",
+            "any": "Ükskõik milline",
+            "hasPlayers": "Mängijaid on",
+            "empty": "Tühi",
+            "ownerTitle": "Omanik",
+            "anyone": "Igaüks",
+            "mine": "Minu oma",
+            "others": "Teised",
+            "reset": "Lähtesta",
+            "apply": "Rakenda",
+            "includedWith": "Kaasas",
+            "plus": "Plus"
+        },
+        "processingTitle": "Serverite töötlemine",
+        "starting": "Alustatakse...",
+        "cancel": "Tühista",
+        "cancelling": "Tühistamine...",
+        "activating": "Aktiveerimine",
+        "inactivating": "Inaktiveerimine",
+        "progressText": "{{actionText}}: server {{current}}/{{total}}...",
+        "unknownApiError": "Ilmnes tundmatu API viga.",
+        "processCancelled": "Toiming tühistatud. <span class=\"success-text\">Töödeldud servereid: {{count}}.</span>",
+        "completed": "Valmis: <span class=\"success-text\">õnnestus {{successCount}}</span>, <span class=\"error-text\">ebaõnnestus {{errorCount}}</span>.",
+        "processingComplete": "Töötlemine lõpetatud",
+        "confirmationTitle": "Kinnita toiming",
+        "confirmationMessage": "Oled muutmas {{count}} privaatserveri olekut: {{action}}.",
+        "confirmationJoinable": "See lubab privaatserveriga liituda.",
+        "confirmationUnjoinable": "See keelab privaatserveriga liitumise.",
+        "confirmationReversible": "Saad seda hiljem alati tagasi muuta.",
+        "confirm": "Kinnita",
+        "deselectAll": "Tühista kõik valikud",
+        "selectAll": "Vali kõik",
+        "bulkInactivate": "Muuda mitu serverit passiivseks",
+        "bulkActivate": "Aktiveeri mitu serverit",
+        "setInactive": "Määra mitteaktiivseks",
+        "setActive": "Määra aktiivseks",
+        "noServersFound": "Ei leitud ühtegi privaatserverit olekuga {{status}}.",
+        "byCreator": "Looja: ",
+        "allowJoining": "Luba liitumine",
+        "friendsAllowed": "Sõbrad lubatud"
+    },
+    "firstAccount": {
+        "label": "Esimene konto",
+        "yes": "Jah",
+        "no": "Ei",
+        "tooltip": "Näitab, kas Roblox peab seda sinu esimeseks kontoks. <br>Andmed pärinevad otse Robloxilt, kuid ei pruugi olla täpsed.",
+        "createdDate": "Esimene konto loodud: {{date}}"
+    },
+    "trustedCreator": {
+        "label": "Osaleb usaldatud loojate programmis",
+        "yes": "Jah",
+        "no": "Ei",
+        "tooltip": "Leidsin võimaluse seda kontrollida ja arvasin, et see on lahe :)"
+    },
+    "legacyThemeSwitcher": {
+        "label": "Teema",
+        "light": "Hele",
+        "dark": "Tume"
+    },
+    "customThemeEditor": {
+        "background": {
+            "title": "Kohanda pildi seadeid",
+            "source": "Pildi allikas",
+            "opacity": "Pildi läbipaistmatus",
+            "customSize": "Kohandatud mõõtkava",
+            "blur": "Hägusus",
+            "overrideTopbarSidebar": "Läbipaistev režiim",
+            "size": {
+                "label": "Tausta suurus",
+                "cover": "Täida taust",
+                "contain": "Mahuta taustale",
+                "auto": "Automaatne",
+                "custom": "Kohandatud"
+            },
+            "position": {
+                "label": "Tausta asend",
+                "center": "Keskel",
+                "top": "Üleval",
+                "bottom": "All",
+                "left": "Vasakul",
+                "right": "Paremal",
+                "topleft": "Üleval vasakul",
+                "topright": "Üleval paremal",
+                "bottomleft": "All vasakul",
+                "bottomright": "All paremal"
+            },
+            "overlay": {
+                "color": "Ülekatte värv",
+                "opacity": "Katte läbipaistmatus"
+            },
+            "errors": {
+                "invalidUrl": "Sisestage kehtiv https-pildi URL."
+            }
+        },
+        "variables": {
+            "intro": "Vali ülal Robloxi teema, et seda muutmata kasutada, või kohanda seda allpool värve muutes. Muudatused rakenduvad kohe.",
+            "presetNone": "Puudub",
+            "opacity": "Läbipaistmatus",
+            "reset": "Lähtesta",
+            "resetAll": "Lähtesta värvid",
+            "saved": {
+                "title": "Minu teemad",
+                "noTheme": "Teemat pole",
+                "unsaved": "Salvestamata teema",
+                "editingLabel": "{{name}} (muutmisel)",
+                "statusNone": "Ükski teema pole kasutusel. Roblox näeb välja tavapärane.",
+                "statusUnsaved": "Kasutad värve, mida pole veel teemana salvestatud.",
+                "statusEditing": "Muudad teemat {{name}}. Muudatuste säilitamiseks salvesta.",
+                "statusEquipped": "Teema {{name}} on kasutusel.",
+                "namePlaceholder": "Teema nimi",
+                "save": "Salvesta",
+                "delete": "Kustuta",
+                "export": "Ekspordi",
+                "import": "Impordi",
+                "defaultName": "Minu teema",
+                "importedName": "Imporditud teema",
+                "saved": "Teema salvestatud!",
+                "updated": "Teema uuendatud!",
+                "deleted": "Teema kustutatud.",
+                "imported": "Teema imporditud!",
+                "nameRequired": "Sisesta kõigepealt oma teema nimi.",
+                "limitReached": "Saad salvestada kuni {{count}} teemat.",
+                "invalidFile": "See fail ei ole RoValra teema.",
+                "fileTooLarge": "See fail on teemaks liiga suur.",
+                "deleteTitle": "Kustuta teema",
+                "deleteMessage": "Kas oled kindel, et soovid selle salvestatud teema kustutada?"
+            },
+            "modes": {
+                "editingDark": "Tumeda režiimi värvide redigeerimine",
+                "editingLight": "Heleda režiimi värvide muutmine"
+            },
+            "tokens": {
+                "surface-0": "Lehekülje taust",
+                "surface-100": "Pind 100",
+                "surface-200": "Pind 200",
+                "surface-300": "Pind 300",
+                "common-navigation-bar": "Navigeerimisriba",
+                "over-media-0": "Meediapealne kiht 0",
+                "over-media-100": "Meediapealne kiht 100",
+                "over-media-200": "Meediapealne kiht 200",
+                "over-media-300": "Meediapealne kiht 300",
+                "common-backdrop": "Taustakiht",
+                "content-emphasis": "Rõhutatud tekst",
+                "content-default": "Vaiketekst",
+                "content-muted": "Tagasihoidlik tekst",
+                "content-link": "Lingi tekst",
+                "stroke-default": "Tavaline piirjoon",
+                "stroke-emphasis": "Rõhutatud piirjoon",
+                "stroke-muted": "Tagasihoidlik piirjoon",
+                "common-heavy-divider": "Tugev eraldusjoon",
+                "shift-100": "Nihe 100",
+                "shift-200": "Nihe 200",
+                "shift-300": "Nihe 300",
+                "shift-400": "Nihe 400",
+                "system-emphasis": "Rõhuasetus",
+                "system-contrast": "Kontrast",
+                "system-alert": "Hoiatus",
+                "system-success": "Õnnestumine",
+                "system-warning": "Hoiatus",
+                "system-neutral": "Neutraalne",
+                "action-emphasis-background": "Esmane taust",
+                "action-emphasis-foreground": "Esmane tekst",
+                "action-standard-background": "Standardne taust",
+                "action-standard-foreground": "Standardtekst",
+                "action-soft-emphasis-background": "Pehme taust",
+                "action-soft-emphasis-foreground": "Pehme tekst",
+                "action-subtle-border": "Õrn piirjoon",
+                "action-alert-foreground": "Hoiatustekst",
+                "action-over-media-background": "Meediapealne taust",
+                "action-over-media-foreground": "Meediapealne tekst"
+            },
+            "presets": {
+                "classic": "Klassikaline",
+                "circuit-rush": "Circuit Rush",
+                "cosmic-dust": "Kosmiline tolm",
+                "electric-lime": "Elektriline laim",
+                "hyper-plum": "Hüperploom",
+                "inferno-blast": "Inferno plahvatus",
+                "kinetic-energy": "Kineetiline energia",
+                "lava-glow": "Laava sära",
+                "nebula-drift": "Udukogu triiv",
+                "nitro-frost": "Nitro Frost",
+                "pixel-pop": "Pixel Pop",
+                "polar-freeze": "Polaarne külmutamine",
+                "quantum-pulse": "Kvantimpulss",
+                "star-burst": "Tähepuhang",
+                "super-charge": "Super Charge"
+            },
+            "builtIn": {
+                "veryDark": "Väga tume teema"
+            },
+            "groups": {
+                "surfaces": "Pinnad",
+                "content": "Tekst",
+                "strokes": "Piirjooned ja nihked",
+                "system": "Süsteem",
+                "actions": "Nupud"
+            }
+        }
+    },
+    "previousPrice": {
+        "offSale": "Müügist väljas",
+        "text": "Eelmine hind:",
+        "lastOnSale": "Viimati müügil",
+        "for": "hinnaga"
+    },
+    "badgeEarnedDate": {
+        "unlocked": "Saadud"
+    },
+    "lastEquipped": {
+        "label": "Viimati kasutatud"
+    },
+    "improvedAttributes": {
+        "label": "Atribuudid",
+        "attributes": {
+            "CantBeSoldInGames": "Ei saa mängudes müüa",
+            "Includes_PBR": "PBR",
+            "Includes_Emissive": "Isehelenduv",
+            "Includes_Transparency": "Läbipaistvus",
+            "Includes_Particles": "Osakesed",
+            "Includes_Script": "Skriptid",
+            "Includes_Fire": "Tuli",
+            "Includes_Sparkles": "Sädemed",
+            "Includes_Smoke": "Suits",
+            "Includes_Sound": "Heli",
+            "Includes_LightSource": "Valgusallikas",
+            "Includes_Beam": "Valguskiir",
+            "Includes_Trail": "Jälg"
+        }
+    },
+    "ownedItemPrice": {
+        "label": "Hind",
+        "free": "Tasuta",
+        "offSale": "Müügist väljas"
+    },
+    "pendingRobux": {
+        "tooltip": "Tehinguandmete põhjal arvutatud hinnang, kui palju ootel Robuxeid homme kasutatavaks muutub. Tegelik summa võib erineda ja hinnang võib olla ebatäpne.",
+        "loading": "Laadimine...",
+        "error": "Viga: {{message}}",
+        "insufficientData": "Ebapiisavad andmed",
+        "insufficientDataTooltip": "Täpse hinnangu andmiseks pole piisavalt tehinguajalugu. Palun oota, kuni rohkem tehinguid on lõpetatud.",
+        "label": "Homme vabanevad Robuxid"
+    },
+    "totalEarned": {
+        "calculateEarnings": "Arvuta tulu",
+        "calculateEarned": "Arvuta teenitud summa",
+        "pausedMessage": "Arvutamine on peatatud. Loendamise jätkamiseks jätka arvutamist.",
+        "resumeCalculation": "Jätka arvutamist",
+        "startNewCalculation": "Alusta uut arvutust",
+        "description": "Arvuta müügist ja grupi väljamaksetest teenitud Robuxide kogusumma.",
+        "startCalculation": "Alusta arvutamist",
+        "transactionsScanned": "Läbi vaadatud tehinguid",
+        "totalRobuxEarned": "Teenitud Robuxeid kokku",
+        "breakdownLabel": "Tulude allikate jaotus",
+        "calculatingTitle": "Teenitud Robuxide kogusumma arvutamine",
+        "scanningHistory": "Teenitud Robuxide kogusumma arvutamine...",
+        "rateLimited": "API päringupiirang. Loendamine jätkub...",
+        "calculationComplete": "Arvutamine lõpetatud",
+        "allScanned": "Teenitud Robuxide kogusumma arvutamine on lõpetatud.",
+        "newCalculation": "Uus arvutus",
+        "errorTitle": "Ilmnes viga",
+        "retry": "Proovi uuesti",
+        "robloxLimitError": "Roblox tagastas sisemise serveri vea. Robloxi piirangute tõttu ei saa see tõenäoliselt rohkem tehinguid skannida.",
+        "noEarnings": "Tulu pole veel leitud.",
+        "other": "Muu",
+        "groupPayout": "Grupi väljamakse"
+    },
+    "totalSpent": {
+        "other": "Muu",
+        "na": "Ei kehti",
+        "calculatingTitle": "Arvutamine",
+        "calculatingRobuxTitle": "Kulutatud Robuxide kogusumma arvutamine",
+        "calculatingMoneyTitle": "Kulutatud raha kogusumma arvutamine",
+        "calculatingText": "Arvutamine...",
+        "calculatingRobuxText": "Kulutatud Robuxide kogusumma arvutamine...",
+        "calculatingMoneyText": "Kogu kulutatud raha arvutamine...",
+        "rateLimited": "API päringupiirang. Loendamine jätkub...",
+        "calculationComplete": "Arvutamine lõpetatud",
+        "allScanned": "Kõik asjakohased tehingud on skannitud.",
+        "robuxAllScanned": "Kulutatud Robuxide kogusumma arvutamine on lõpetatud.",
+        "moneyAllScanned": "Kulutatud raha kogusumma arvutamine on lõpetatud.",
+        "newCalculation": "Uus arvutus",
+        "errorTitle": "Ilmnes viga",
+        "retry": "Proovi uuesti",
+        "calculateSpend": "Arvuta kulutused",
+        "pausedMessage": "Arvutamine on peatatud. Loendamise jätkamiseks jätka arvutamist.",
+        "resumeCalculation": "Jätka arvutamist",
+        "startNewCalculation": "Alusta uut arvutust",
+        "description": "Vali tehinguajaloo põhjal arvutamiseks režiim.",
+        "calculateRobux": "Arvuta kulutatud Robuxid",
+        "calculateMoney": "Arvuta kulutatud raha",
+        "transactionsScanned": "Läbi vaadatud tehinguid",
+        "totalRobuxSpent": "Kulutatud Robuxeid kokku",
+        "totalMoneySpent": "Kulutused kokku (ligikaudu)",
+        "itemTypeBreakdown": "Jaotus eseme tüübi järgi",
+        "premiumBreakdown": "Premium-tellimuse jaotus",
+        "purchaseBreakdown": "Robuxi ostude jaotus",
+        "noItems": "Esemeid pole veel leitud.",
+        "pack": "Pakett",
+        "stipend": "Igakuine Robuxide toetus",
+        "errorUserId": "Kasutaja ID-d ei õnnestunud hankida.",
+        "robloxLimitError": "Roblox tagastas sisemise serveri vea. Robloxi piirangute tõttu ei saa see tõenäoliselt rohkem tehinguid skannida.",
+        "errorRetries": "Mitme korduskatse järel ebaõnnestus. Viimane viga: {{error}}"
+    },
+    "totalSpentGames": {
+        "label": "Kokku kulutatud",
+        "loading": "Laadimine...",
+        "failedToLoad": "Laadimine ebaõnnestus",
+        "singlePurchase": "1 ost",
+        "multiplePurchases": "{{count}} ostu",
+        "stillCalculating": "Kogukulu on alles arvutamisel."
+    },
+    "spentPerGame": {
+        "title": "Kokku kulutatud mängu kohta",
+        "disclaimer": "See võib Robloxi piirangute tõttu olla ebatäpne",
+        "mostSpent": "Enim kulutatud",
+        "mostPurchases": "Enim oste",
+        "noPurchases": "Mänguoste ei leitud.",
+        "singlePurchase": "1 ost",
+        "multiplePurchases": "{{count}} ostu",
+        "loadMore": "Laadi rohkem (jäänud {{remaining}})",
+        "searchPlaceholder": "Otsi mänge",
+        "loading": "Mängukulude laadimine…",
+        "scanInProgress": "Tehingute läbivaatamine on pooleli. See võib veidi aega võtta.",
+        "loadError": "Mängukulusid ei saa laadida."
+    },
+    "spentPerCreator": {
+        "title": "Kokku kulutatud looja kohta",
+        "disclaimer": "See võib Robloxi piirangute tõttu olla ebatäpne",
+        "mostSpent": "Enim kulutatud",
+        "mostPurchases": "Enim oste",
+        "noPurchases": "Loojatelt tehtud oste ei leitud.",
+        "unknownCreator": "Tundmatu looja",
+        "includeGameCreators": "Kaasa mängude loojad",
+        "singlePurchase": "1 ost",
+        "multiplePurchases": "{{count}} ostu",
+        "loadMore": "Laadi rohkem (jäänud {{remaining}})",
+        "searchPlaceholder": "Otsi loojaid",
+        "loading": "Loojatele tehtud kulutuste laadimine…",
+        "scanInProgress": "Tehingute läbivaatamine on pooleli. See võib veidi aega võtta.",
+        "loadError": "Loojatele tehtud kulutusi ei õnnestunud laadida."
+    },
+    "spending": {
+        "title": "Kulutused",
+        "disclaimer": "See võib Robloxi piirangute tõttu olla ebatäpne",
+        "byMonth": "Kuu kaupa",
+        "byYear": "Aasta järgi",
+        "creators": "Loojad",
+        "games": "Mängud",
+        "searchPlaceholder": "Otsi",
+        "showingPeriod": "Kuvatud periood: {{period}}",
+        "back": "Tagasi",
+        "viewPurchases": "Vaata oste",
+        "robuxAmount": "{{amount}} Robuxi",
+        "mostExpensive": "Kõige kallim",
+        "cheapest": "Odavaim",
+        "newest": "Uusim",
+        "oldest": "Vanim",
+        "unknownItem": "Tundmatu ese",
+        "unknownGame": "Tundmatu mäng",
+        "noPurchases": "Ühtegi ostu ei leitud.",
+        "noPurchasesInPeriod": "Sel perioodil oste pole.",
+        "scanInProgress": "Tehingute läbivaatamine on pooleli. See võib veidi aega võtta.",
+        "loadError": "Kulutusi ei saa laadida."
+    },
+    "settings": {
+        "tabs": {
+            "info": "Info",
+            "credits": "Kaastöölised",
+            "donatorPerks": "Annetaja hüved",
+            "settings": "Seaded",
+            "accountStanding": "Konto olek",
+            "store": "Kauplus"
+        },
+        "info": {
+            "title": "RoValra teave!",
+            "desc1": "RoValra on laiendus, mille eesmärk on teha igapäevast kasutamist hõlbustavad põhifunktsioonid kõigile tasuta kättesaadavaks, hoides kogu lähtekoodi avatuna.",
+            "desc2": "Mõned tasuta funktsioonid sõltuvad endiselt RoValra serveritest ja nende käitamine maksab raha.",
+            "desc3": "Toetajate annetused aitavad neid kulusid katta. Nii saab RoValra hoida rohkem funktsioone kõigile tasuta ja end pidevalt täiustada. <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "desc4": "RoValra on alati olnud projekt, mida tehakse kirega.",
+            "suggestions": "Kui sul on funktsioonide kohta ettepanekuid, anna neist teada minu Discordi serveris või GitHubis",
+            "bugs": "Kui leiad vigu, anna neist teada minu Discordi serveris või GitHubis",
+            "review": "Kui see laiendus sulle meeldib, kaalu <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">arvustuse jätmist</a>. Sellest on palju abi <icon style=\"color:#c13ad9\" filled>heart</icon>",
+            "discord": "Discordi server",
+            "github": "GitHubi hoidla",
+            "support": "Toeta RoValrat",
+            "tiktok": "ValraWantBanana",
+            "x": "ValraSwag"
+        },
+        "credits": {
+            "contributorsTitle": "Kaastöölised",
+            "translatorsTitle": "Tõlkijad",
+            "featureCount_one": "{{count}} panus",
+            "featureCount_other": "{{count}} panust",
+            "contributorTooltips": {
+                "146089324": "WoozyNate lõi mängu fisch, kust pärineb RoValra vana logo. Vaata kindlasti mängu fisch!",
+                "170038374": "Tegi kontseptsioone, millel põhinevad mõned RoValra funktsioonid.",
+                "795922138": "Pakkus naljaga välja nime „RoValra”, mis oli liiga naljakas, et seda kasutamata jätta.",
+                "1337447242": "Tegi uue logo ja kõik poelehe pildid.",
+                "2974594300": "Kasutajaliidese täiustused, veaparandused ja muud panused."
+            },
+            "sortLabel": "Järjesta panustajad",
+            "sortMost": "Kõige rohkem",
+            "sortLeast": "Kõige vähem",
+            "contributionCount_one": "Andnud {{count}} panuse",
+            "contributionCount_other": "Andnud {{count}} panust",
+            "backendContributorsNote": "Need inimesed aitasid funktsioonidega mitteseotud asjadega.",
+            "loadingContributors": "Laadimine...",
+            "failedToLoadContributors": "Kaasautorite laadimine ebaõnnestus.",
+            "otherContributions": {
+                "badges": {
+                    "translatorAndNate": "Lisatud tõlkija märk ja WoozyNate märk",
+                    "nateGilbertFix": "Parandas Nate’i märgi, et sellel oleks jälle Gilbert"
+                },
+                "caching": {
+                    "hashmap": "Lisas vahemälu haldurisse räsitabeli"
+                },
+                "sidebar": {
+                    "rblxUpdateFix": "Parandatud Robloxi värskenduse külgriba"
+                },
+                "rbxm": {
+                    "fixDesyncCframe": "Parandatud RBXM-i parseri desync ja CFRAME-vorming"
+                },
+                "markdown": {
+                    "untrustedMd": "Lisas ebausaldusväärsete kasutajate jaoks piiratud Markdowni parseri"
+                },
+                "settingsHandler": {
+                    "unifiedApi": "Lisatud ühtsete seadete API"
+                },
+                "contributorList": {
+                    "creditsImprovement": "Täiustas panustajate loendis autorite märkimist",
+                    "nonSettingCredits": "Lisas autorid funktsioonidele ja täiustustele, millel pole oma seadeid"
+                },
+                "donatorTierPage": {
+                    "newIndicators": "Lisatud uued näitajad annetajate tasemete jaoks"
+                },
+                "iconElement": {
+                    "addIcons": "Lisas elemendi `<icon>`, mis võimaldab kasutada Builder Iconsi, Material Iconsi ja RoValra ikoone.",
+                    "addElement": "Lisas baaselemendi `<icon>`, mis võimaldab kasutada Builder Iconsi ikoone. Varem oli plaanis kasutada sisseehitatud elementi `<i>` koos klassidega.",
+                    "makeRoValraIcons": "Lisatud on RoValra Iconsi font + uus veebisaidi loomise meetod.",
+                    "addBuilderIconsWOFF": "Lisatud RoValra veebisaidil Builder Iconsi hostimine, samuti erinevad väiksema suurusega fondifailid."
+                },
+                "displayAppThemeUserProfile": {
+                    "addedToWebsite": "Lisas veebisaidile Plusi teemade loendi, et kasutajad saaksid kasutada ainult õigeid ja lubatud teemasid."
+                },
+                "locales": {
+                    "madeDe": "Aitas luua saksakeelse tõlke",
+                    "madeRo": "Aitas luua rumeeniakeelse tõlke",
+                    "madeEs": "Aitas luua hispaaniakeelse tõlke",
+                    "madeRu": "Aitas luua venekeelse tõlke",
+                    "madeFr": "Aitas luua prantsuskeelse tõlke",
+                    "madeZh": "Aitas luua hiinakeelse tõlke",
+                    "madeVi": "Aitas luua vietnamikeelse tõlke"
+                }
+            },
+            "ui": {
+                "popup": {
+                    "title": "Kasutaja {{user}} panused",
+                    "contributor": "Kaastööline",
+                    "featureName": "Funktsioon",
+                    "featureKey": "(Arendaja) funktsioonivõti",
+                    "viewInSettings": "Vaata kõiki seadetes"
+                }
+            }
+        },
+        "donatorPerks": {
+            "title": "Annetaja hüved!",
+            "subtitle": "Toeta RoValra arendust ja saa erilisi hüvesid!",
+            "howToGet": "Kuidas saada hüvesid",
+            "howToGetDesc": "Saad annetada, ostes toetusmängus mängupääsmeid.",
+            "goToGame": "Ava annetusmäng",
+            "perkTiers": "Hüvede tasemed",
+            "perk": "Hüve",
+            "currentTier": "Praegune tase",
+            "tier1": "1. tase: toetaja",
+            "tier1Desc": "Anneta <strong>mis tahes summa</strong>",
+            "tier1Reward": "Annetaja 1 märk",
+            "tier1DiscordRole": "Annetaja 1 Discordi roll + Discordi lisahüved.",
+            "tier1Feature": "Määra olek ja keskkonnad ilma profiili tutvustusse teksti lisamata.",
+            "tier2": "2. tase: toetaja",
+            "tier2Desc": "Anneta <strong>200+ Robux</strong>",
+            "tier2Reward": "2. annetaja märk",
+            "tier2DiscordRole": "Donator 2 Discordi roll + täiendatud Discordi hüved.",
+            "tier3": "3. tase: toetaja",
+            "tier3Desc": "Anneta <strong>500+ Robux</strong>",
+            "tier3Reward": "3. annetaja märk",
+            "tier3DiscordRole": "Donator 3 Discordi roll + parimad Discordi hüved.",
+            "previousRewards": "+ Kõik eelmise taseme preemiad",
+            "moreComingSoon": "Varsti tuleb rohkem.",
+            "note": "Märkus.\n- Pärast annetamist võib märkide ilmumiseks kuluda mõni minut.\n- Märgi nähtavuse haldamiseks minge seadete vahekaardile „Profiil”. \n- Komisjonitasude kaudu annetamine ei anna kahjuks annetajale hüvesid, see on Robloxi piirang.\n- Annetades nõustute [RoValra kasutustingimustega](https://www.rovalra.com/tou/)"
+        },
+        "search": {
+            "minLength": "Otsimiseks sisesta vähemalt 2 tähemärki.",
+            "noResults": "Otsingule „{{query}}” vastavaid seadeid ei leitud."
+        },
+        "ui": {
+            "common": {
+                "cancel": "Tühista",
+                "okay": "Olgu",
+                "ok": "OK",
+                "pleaseWait": "Palun oota...",
+                "loading": "Laadimine...",
+                "unknown": "Tundmatu",
+                "user": "Kasutaja",
+                "unavailable": "Pole saadaval",
+                "notAvailable": "Ei kehti"
+            },
+            "levels": {
+                "allGood": "Kõik korras",
+                "limited": "Piiratud",
+                "veryLimited": "Väga piiratud",
+                "atRisk": "Ohus",
+                "suspended": "Peatatud"
+            },
+            "search": {
+                "placeholder": "Otsi seadeid...",
+                "filters": "Filtrid",
+                "status": "Näita",
+                "contributor": "Kaastööline",
+                "contributorPlaceholder": "Otsi panustajaid...",
+                "allSettings": "Kõik panustajad",
+                "statuses": {
+                    "deprecated": "Aegunud",
+                    "experimental": "Eksperimentaalne",
+                    "beta": "Beeta",
+                    "locked": "Lukustatud"
+                }
+            },
+            "controls": {
+                "clearStorage": "Tühjenda salvestusruum",
+                "preview": "Eelvaade",
+                "fadeStrength": "Hajumise tugevus",
+                "clickMe": "Klõpsa mind",
+                "enterValue": "Sisesta väärtus",
+                "remove": "Eemalda",
+                "add": "Lisa",
+                "experimental": "Eksperimentaalne",
+                "beta": "Beeta",
+                "deprecated": "Aegunud",
+                "invalidImageUrl": "Sisestage kehtiv http:// või https:// pildi URL.",
+                "enablePermission": "Luba õigus {{permission}}"
+            },
+            "badges": {
+                "visibility": "Muuda oma annetusmärkide nähtavust."
+            },
+            "locks": {
+                "donatorTierRequired": "Nõutav on RoValra annetaja {{tier}}. tase",
+                "donatorPerk": "RoValra annetaja hüve ({{tier}}. tase)",
+                "featureDisabled": "See funktsioon on keelatud {{lockType}}"
+            },
+            "featureStatus": {
+                "title": "Enne selle funktsiooni lubamist",
+                "message": "Nende siltidega funktsioonid võivad olla ebastabiilsed või aja jooksul muutuda. Need võivad põhjustada pikemaid laadimisaegu, ebaühtlast kasutajaliidest, saidiga seotud probleeme või muud ootamatut käitumist.<br><br>Lubage see ainult siis, kui mõistate, et see ei pruugi ideaalselt töötada.",
+                "acknowledge": "Saan aru"
+            },
+            "environment": {
+                "exported": "Keskkonna JSON on prinditud konsooli (F12).",
+                "imported": "Keskkonna konfiguratsiooni importimine õnnestus. Muudatuste rakendamiseks laaditakse leht uuesti.",
+                "parseFailed": "JSON-faili sõelumine ebaõnnestus.",
+                "storageUsed": "Kasutatud kohalikku salvestusruumi kokku: {{size}}"
+            },
+            "pronouns": {
+                "tooLong": "Asesõnad peavad olema kuni 15 tähemärgi pikkused.",
+                "filterRejected": "Robloxi filter lükkas need asesõnad tagasi. Proovige teist väärtust.",
+                "checkFailed": "Roblox ei saanud asesõnu kontrollida. Palun proovi uuesti.",
+                "filterBusy": "Robloxi asesõnafilter on hõivatud. Proovige varsti uuesti."
+            },
+            "port": {
+                "enableProfileNotes": "Enne profiilimärkmete importimist või eksportimist luba profiilimärkmed.",
+                "exportedOne": "Eksporditud {{count}} profiilimärkus.",
+                "exportedMany": "Eksporditud {{count}} profiilimärkust.",
+                "exportFailed": "Profiilimärkmeid ei saanud eksportida.",
+                "notesTooLarge": "Profiilimärkmete varukoopia on liiga suur.",
+                "invalidNotesBackup": "See ei ole kehtiv RoValra profiilimärkmete varukoopia.",
+                "importedOne": "Imporditud {{count}} profiilimärkus.",
+                "importedMany": "Imporditud {{count}} profiilimärkust.",
+                "notesReadFailed": "Profiilimärkmete varukoopiat ei saanud lugeda.",
+                "importFailed": "Profiilimärkmeid ei saanud importida.",
+                "exportUnexpectedError": "Ekspordi ajal ilmnes ootamatu viga.",
+                "exportError": "Viga seadete eksportimisel. Üksikasju vaata konsoolist.",
+                "sanitizeError": "Viga seadete puhastamisel eksportimiseks. Üksikasju vaata konsoolist.",
+                "invalidSettingsFile": "See ei tundu olevat kehtiv RoValra seadete fail.",
+                "invalidSettingsData": "Viga: imporditud seadete fail sisaldab kehtetuid või potentsiaalselt ohtlikke andmeid.",
+                "settingsTooLarge": "Viga: seadete fail on liiga suur. Maksimaalne suurus on 1 MB.",
+                "importError": "Viga seadete importimisel. Üksikasju vaata konsoolist.",
+                "malformedSettings": "Seadete fail on valesti vormindatud.",
+                "readFailed": "Seadete faili ei õnnestunud lugeda. See võib olla rikutud või vales vormingus.",
+                "importUnexpectedError": "Importimisel ilmnes ootamatu viga.",
+                "exportSettings": "Ekspordi seaded",
+                "importSettings": "Impordi seaded"
+            },
+            "changelogs": {
+                "title": "Muudatuste logid",
+                "github": "GitHub",
+                "chrome": "Chrome",
+                "untitledRelease": "Pealkirjata väljalase",
+                "current": "Teie versioon",
+                "noNotes": "Selle versiooni kohta muudatuste logi märkmeid ei esitatud.",
+                "loading": "Muudatuste logide laadimine...",
+                "empty": "Ühtegi muudatuste logi pole praegu saadaval.",
+                "loadFailed": "Muudatuste logide laadimine ebaõnnestus. Proovige hiljem uuesti."
+            },
+            "parentRequest": {
+                "sendingTitle": "Taotluse saatmine",
+                "sentTitle": "Taotlus saadetud!",
+                "sentBody": "Teie taotlus saadeti teie vanematele ja eestkostjatele meili teel.",
+                "experienceName": "Mängu nimi on",
+                "sendFailedTitle": "Taotluse saatmine ebaõnnestus",
+                "sendFailedBody": "Sinu taotluse saatmine ebaõnnestus teadmata põhjusel. Võimalik, et oled jõudnud päringupiiranguni. Üksikasju vaata konsoolist.",
+                "cancelingTitle": "Taotluse tühistamine",
+                "canceledTitle": "Tühistatud taotlus",
+                "canceledBody": "Teie vanematele ja hooldajatele esitatud taotlus tühistati.",
+                "cancelFailedTitle": "Taotluse tühistamine ebaõnnestus",
+                "cancelFailedBody": "Blokeeringu eemaldamise taotluse tühistamine ebaõnnestus. Võimalik, et oled jõudnud päringupiiranguni. Üksikasju vaata konsoolist.",
+                "sendUnblock": "Saada blokeeringu eemaldamise taotlus",
+                "alreadyRequestedTitle": "Juba taotletud",
+                "alreadyRequestedBody": "Sa ju juba küsisid sellele mängule ligipääsu!"
+            },
+            "donation": {
+                "donateUsd": "Anneta (vähemalt 1 USD)",
+                "donateRobux": "Anneta (vähemalt 5 Robuxi)",
+                "parentApprovalTitle": "Aita RoValrat rohkem toetada!",
+                "parentApprovalMessage": "Mängupääsmete kasutamisel saab RoValra annetusest suurema osa. Sinu kontoga on seotud vähemalt üks lapsevanema konto. Saad taotleda mängu blokeeringu eemaldamist, et RoValra saaks annetusest suurema osa kui 2D- või 3D-riietuste puhul.",
+                "useMarketplace": "Kasuta turuplatsi",
+                "currencyLabel": "Annetusvaluuta",
+                "donateWith": "Annetusviis",
+                "supportTitle": "Aita RoValrat toetada",
+                "supportDescription": "Annetades saad erilisi välimusega seotud hüvesid",
+                "githubSponsors": "GitHubi sponsorid",
+                "included": "Kaasas",
+                "notIncluded": "Ei sisalda",
+                "totalDonated": "Sinu annetused RoValrale kokku: {{amount}}",
+                "tierTooltip": "Sinu annetaja tase",
+                "topDonators": "Peamised annetajad (Robux)"
+            },
+            "profileBadge": {
+                "title": "Kohandatud RoValra profiilimärk",
+                "description": "Hankige oma profiilile kohandatud märk",
+                "iconLabel": "Kohandatud profiili märgi ikoon",
+                "getUsd": "Hankige (5 USD)",
+                "getRobux": "Hankige (4000 robuxit)",
+                "purchaseIntro": "See ost on mõeldud inimestele, kes tõesti tahavad RoValrat toetada.",
+                "createTicket": "Pärast selle eseme ostmist ava RoValra Discordis tugipilet. MÄRGI SAAMISEKS PEAB SINU DISCORDI KONTO OLEMA VÄHEMALT 30 PÄEVA VANA",
+                "provideDetails": "Andke töötajatele pilt ja nimi, mida soovite oma kohandatud profiilimärgile lisada.",
+                "countsTowardTier": "Selle eseme ost läheb arvesse RoValra annetaja taseme määramisel.",
+                "visibility": "Need kohandatud märgid on nähtavad ainult RoValra kasutajatele.",
+                "imageRequirements": "Pildinõuded",
+                "webpRequirement": "Pilt peab olema <strong>WEBP</strong>-vormingus ja väiksem kui <strong>1 MB</strong>.",
+                "noRobloxBadges": "Ametlikke Robloxi SVG-sid ega märke ei saa kasutada.",
+                "noOfficialRoValraBadges": "Ametlikud RoValra märgid, nagu kaastöölise ja artisti märgid, ei ole lubatud.",
+                "followTerms": "Pildid peavad järgima Robloxi tingimusi",
+                "joinDiscord": "Liituge RoValra Discordiga",
+                "agree": "Nõus",
+                "agreeCountdown": "Nõustun ({{count}})",
+                "preview": "Eelvaade",
+                "previewTitle": "Kohandatud märgi eelvaade",
+                "previewDescription": "Laadi üles WEBP-pilt, et näha, milline see sinu profiilimärgina välja näeks. Pilti hoitakse ainult mälus ning seda ei saadeta kuhugi ega salvestata. See kaob lehelt lahkudes või lehte värskendades.",
+                "previewTooltip": "Märgi eelvaade",
+                "previewDone": "Valmis"
+            },
+            "githubSponsorBadge": {
+                "title": "GitHubi sponsorite profiilimärk",
+                "description": "Vikerkaare südame profiilimärk. Ainult GitHubi sponsoritele",
+                "get": "Hankige (vähemalt 1 USD)"
+            },
+            "store": {
+                "artist": "Kunstnik",
+                "artistTooltip": "Selle avatari raami lõi {{name}}.",
+                "free": "Tasuta",
+                "owned": "Olemas",
+                "equipped": "Kasutusel",
+                "equip": "Võta kasutusele",
+                "buy": "Osta",
+                "buyFor": "Osta hinnaga {{price}}",
+                "viewGamepass": "Vaata mängupääset",
+                "all": "Kõik",
+                "new": "Uus",
+                "static": "STAATILINE",
+                "animated": "ANIMEERITUD",
+                "borderTitle": "Avatari raamide pood",
+                "borderDescription": "Osta avatari raame, et toetada otse RoValrat ja kunstnikke. <strong>3. taseme annetajad saavad kõik avatari raamid tasuta.</strong> Avatari raamide ostud lähevad arvesse sinu annetaja taseme määramisel!",
+                "loadingBorders": "Raamide laadimine..."
+            },
+            "border": {
+                "bundleNotice": "(Hõlmab nii staatilisi kui ka animeeritud variante)",
+                "freeTier3Tooltip": "Tasuta, kuna teil on 3. annetaja tase!",
+                "ownedTooltip": "See raam kuulub sulle!",
+                "freeTooltip": "Selle raami saab tasuta kasutusele võtta.",
+                "supportNotice": "Välimusega seotud esemete otse ostmine toetab kunstnikku ja RoValrat",
+                "purchaseDelay": "Pärast ostmist võib avatari raami ilmumiseks kuluda kuni minut",
+                "parentApprovalTitle": "Vaja on lapsevanema tegutsemist",
+                "parentApprovalMessage": "Avatari raamide ostmiseks vajad lapsevanema luba.",
+                "noParentTitle": "Sa ei saa avatari raame kasutada",
+                "noParentBody": "Roblox nõuab lapsevanema luba, kuid sinu kontoga pole seotud ühtegi lapsevanema kontot. Avatari raamide kasutamiseks pead siduma lapsevanema konto ja taotlema mängu blokeeringu eemaldamist.",
+                "noBorders": "Ühtegi raami pole saadaval.",
+                "currentPreview": "Praeguse valiku eelvaade",
+                "signInPreview": "Logi sisse, et näha raamide eelvaadet oma avataril.",
+                "noBordersInTab": "Sellelt vahekaardilt ei leitud raame.",
+                "loadFailed": "Raamide laadimine ebaõnnestus. Palun proovi hiljem uuesti.",
+                "unequipTooltip": "Klõpsa selle raami eemaldamiseks",
+                "equipTooltip": "Võta see raam kasutusele",
+                "buyTooltip": "Osta see raam"
+            },
+            "appeal": {
+                "messageLabel": "Sisestage oma apellatsioonisõnum (20-3000 tähemärki)",
+                "title": "Esitage apellatsioon",
+                "submit": "Esitage apellatsioon",
+                "invalidLength": "Apellatsioonisõnum peab olema 20–3000 tähemärki pikk.",
+                "submitFailed": "Apellatsiooni esitamine ebaõnnestus. Palun proovi uuesti."
+            },
+            "standing": {
+                "levels": {
+                    "allGood": "Kõik korras",
+                    "none": "Puuduvad / piirangud puuduvad",
+                    "limited": "Piiratud",
+                    "veryLimited": "Väga piiratud",
+                    "atRisk": "Ohus",
+                    "suspended": "Peatatud"
+                },
+                "appealStatuses": {
+                    "notAppealed": "Edasi kaebamata",
+                    "pending": "Edasikaebus on ootel",
+                    "denied": "Edasikaebus tagasi lükatud",
+                    "accepted": "Edasikaebus rahuldatud"
+                },
+                "goodTitle": "Sinu kontol on kõik korras.",
+                "goodDescription": "Sinu kontol pole RoValra turvameeskonna määratud aktiivseid rikkumisi ega piiranguid.",
+                "temporaryTitle": "Teie konto on ajutiselt piiratud.",
+                "violationTitle": "Leidsime teie kontol rikkumise.",
+                "statusDescription": "Sinu konto olekuks on määratud: {{status}}",
+                "policyTitle": "RoValra turvapoliitika",
+                "policyDescription": "Kontodel, mis rikuvad tingimusi {{- termsLink}} või mida kolmandate osapoolte tuvastussüsteemid peavad riskantseks, keelatakse teatud funktsioonid. Kuigi mõningaid võrgufunktsioone võidakse piirata, ei keela RoValra turvameeskond <strong>kunagi</strong> kogu laiendust ega täielikult kohalikke funktsioone.",
+                "automatedAction": "Automatiseeritud tegevus",
+                "manualReview": "Käsitsi ülevaatus",
+                "disabledFeatures": "Keelatud funktsioonid",
+                "moderatedContent": "Modereeritud sisu",
+                "violationDetails": "Rikkumise üksikasjad",
+                "unknownReason": "Teadmata põhjus",
+                "moderated": "Modereeritud",
+                "temporaryExpires": "Ajutine piirang aegub",
+                "appealCase": "Apellatsioonijuhtum",
+                "status": "Olek",
+                "yourMessage": "Teie sõnum",
+                "response": "Vastus",
+                "reviewingAppeal": "Meie meeskond vaatab praegu teie apellatsiooni läbi.",
+                "appealDecision": "Kaeba see otsus edasi"
+            }
+        },
+        "compatibilityWarning": {
+            "title": "RoValra ei pruugi korralikult töötada, kui {{extensions}} on lubatud.",
+            "description": "Me ei taga tuge järgmistele laiendustele: {{extensions}}."
+        }
+    },
+    "privacyToggles": {
+        "nav": {
+            "tooltip": "Privaatsusseaded"
+        },
+        "noTogglesEnabled": "Ükski lüliti pole lubatud! Avage RoValra seaded, et lubada privaatsusseadete lülitid.",
+        "dropdowns": {
+            "shared": {
+                "allUsers": "Kõik",
+                "friendsFollowingFollowers": "Sõbrad, jälgitavad ja jälgijad",
+                "friendsFollowing": "Sõbrad ja jälgitavad",
+                "friends": "Sõbrad",
+                "trustedFriends": "Usaldatud sõbrad",
+                "noOne": "Mitte keegi"
+            },
+            "onlineStatus": {
+                "name": "Võrguolek"
+            },
+            "joinStatus": {
+                "name": "Mänguolek"
+            },
+            "privateServerPrivacy": {
+                "name": "Privaatserveri privaatsus"
+            },
+            "inventoryPrivacy": {
+                "name": "Inventari privaatsus"
+            }
+        }
+    },
+    "groupFunds": {
+        "loading": "Laadimine...",
+        "pending": "Ootel:",
+        "noPermissions": "Luba pole"
+    },
+    "navigation": {
+        "transactions": "Tehingud",
+        "apiDocs": "API dokumendid",
+        "webClient": "Veebiklient",
+        "rovalraStore": "RoValra pood",
+        "incidentLearnMore": "Lisateabe saamiseks klõpsake siin.",
+        "incidentHideNotice": "Saate selle teate siin peita",
+        "rovalraApi": "RoValra API"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Ahenda külgriba",
+        "expandSidebar": "Laienda külgriba"
+    },
+    "voiceBanIndicator": {
+        "title": "Häälvestluse keeld",
+        "liftsIn": "Keeld lõpeb",
+        "noExpiry": "Lõppaega pole määratud"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Vanuse teema",
+        "options": {
+            "normal": "Tavaline Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select",
+            "startmode": "Roblox Selecti lekkinud versioon (käivitusrežiim)"
+        },
+        "badge": {
+            "kids": "LAPSED",
+            "select": "VALI"
+        }
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Lülita beetaprogramme sisse või välja",
+        "noPrograms": "Te ei ole registreerunud üheski beetaprogrammis.",
+        "allowlist": "Lubamisloendis",
+        "previousProgramsTitle": "Varem registreeritud beetaprogrammid",
+        "previousProgramTooltip": "See beetaprogramm pole enam saadaval."
+    },
+    "quickSearch": {
+        "aborted": "Katkestatud",
+        "apiRequestFailed": "API päring ebaõnnestus olekukoodiga {{status}}",
+        "friendSearchError": "RoValra: Sõbraotsingu viga",
+        "userSearchError": "RoValra: kasutajaotsingu viga",
+        "gameSearchError": "RoValra: mänguotsingu viga",
+        "trustedConnection": "Olete usaldatud sõbrad",
+        "connection": "Te olete sõbrad",
+        "playing": "Mängib mängu {{gameName}}",
+        "verifiedBadge": "Kinnitatud märk",
+        "verified": "Kinnitatud",
+        "permanentlyBanned": "Selle kasutaja konto on kustutatud või kasutaja on selle inaktiveerinud.",
+        "joinPreferredRegion": "Liitu eelistatud piirkonna serveriga",
+        "bestRegionAuto": "Parim piirkond (automaatne)",
+        "searchHistory": "Otsinguajalugu",
+        "noSearchHistory": "Teil pole otsinguajalugu.",
+        "deleteSearchHistoryTitle": "Kustuta otsinguajalugu",
+        "deleteSearchHistoryMessage": "Kas soovite kindlasti selle otsinguajaloo kirje kustutada?",
+        "delete": "Kustuta",
+        "itemValue": "Väärtus",
+        "itemRap": "RAP"
+    },
+    "friendOwnership": {
+        "pillLabel": "Seda omab {{count}} sõpra",
+        "pillTooltip": "Vaata, millistel sõpradel see ese on",
+        "overlayTitle": "Seda eset omab {{count}} sõpra",
+        "unknownUser": "Kasutaja {{id}}"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Vali eelistatud serveripiirkond või liitu selle serveriga",
+        "tooltip": "Liitu eelistatud piirkonna serveriga",
+        "tooltipWithRegion": "Liitu eelistatud piirkonna serveriga<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Liitu eelistatud piirkonna serveriga<br><b>Parim piirkond (automaatne)</b>"
+    },
+    "quickPlay": {
+        "loading": "Laadimine...",
+        "rateLimited": "Päringupiirang. Uus katse...",
+        "loadError": "Servereid ei saanud laadida.",
+        "noPrivateServers": "Aktiivseid privaatservereid ei leitud.",
+        "configure": "Seadista",
+        "copyLink": "Kopeeri link",
+        "copied": "Kopeeritud!",
+        "error": "Viga!",
+        "generateLink": "Loo uus link",
+        "joinClosestServer": "Liitu lähima serveriga",
+        "selectPreferredRegion": "Vali eelistatud piirkond",
+        "privateServers": "Privaatserverid"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Loo link",
+        "regenerated": "Loodud!"
+    },
+    "storeSaleFilter": {
+        "label": "Müügi staatus",
+        "onSale": "Müügil",
+        "offSale": "Müügist väljas",
+        "all": "Kõik"
+    },
+    "devProducts": {
+        "noProducts": "Arendajatooteid ei leitud.",
+        "loadError": "Selle mängu jaoks ei saa arendajatooteid laadida.",
+        "passes": "Pääsmed",
+        "developerProducts": "Arendaja tooted",
+        "search": "Otsi",
+        "sort": {
+            "created": "Järjesta loomise aja järgi",
+            "price": "Sorteeri hinna järgi",
+            "updated": "Järjesta uuendamise aja järgi",
+            "name": "Sorteeri nime järgi"
+        },
+        "order": {
+            "ascending": "Järjesta kasvavalt",
+            "descending": "Sorteeri kahanevalt"
+        }
+    },
+    "shop": {
+        "tab": "Pood",
+        "all": "Kõik",
+        "category": "Kategooria",
+        "product": "Toode",
+        "gamePass": "Mängupääse",
+        "robuxAmount": "{{amount}} Robuxi",
+        "bonusItem": "Boonus: {{item}}",
+        "bonusItemFallback": "Sisaldab boonuseset",
+        "noItems": "Poekaupu ei leitud.",
+        "failedToLoad": "Poe kaupade laadimine ebaõnnestus.",
+        "offers": {
+            "expires": "Aegub",
+            "inGameOnly": "Kehtib ainult mängus tehtud ostudele."
+        },
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Toode",
+            "GamePass": "Mängupääse",
+            "Robux": "Robuxide pakett"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Alamkohad",
+        "searchPlaceholder": "Otsige alamkohti",
+        "loadMore": "Laadi rohkem",
+        "rootPlace": "Põhikoht",
+        "noSubplaces": "Alamkohti ei leitud.",
+        "failedToLoad": "Alamkohtade laadimine ebaõnnestus.",
+        "labels": {
+            "sort": "Sorteeri",
+            "order": "Järjestus"
+        },
+        "sort": {
+            "default": "Vaikimisi",
+            "updated": "Hiljuti värskendatud",
+            "created": "Hiljuti loodud",
+            "name": "Nimi (Z-A)"
+        },
+        "order": {
+            "descending": "Kahanev",
+            "ascending": "Kasvav"
+        },
+        "banner": {
+            "title": "Vaatad praegu mängu [{{rootPlaceName}}]({{rootPlaceUrl}}) alamkohta.",
+            "descriptionDefault": "Mõned mängud võivad alamkohtadega liitumise keelata.",
+            "descriptionRestricted": "Selle alamkohaga ei saa liitumispiirangute tõttu liituda.",
+            "descriptionJoinable": "Selle alamkohaga saab liituda.",
+            "mainExperience": "põhimäng"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Värskendused",
+        "title": "Uuenduste ajalugu",
+        "blocked": {
+            "eighteenPlus": "Uuenduste ajalugu ei tööta ainult täiskasvanutele mõeldud (18+) mängudes",
+            "paidAccess": "Uuenduste ajalugu ei tööta tasulise ligipääsuga mängudes",
+            "subplace": "Värskenduste ajalugu ei tööta liitumispiirangutega alamkohtades",
+            "noDesktopSupport": "Uuenduste ajalugu pole toetatud mängudes, millel puudub arvutitugi"
+        }
+    },
+    "serverList": {
+        "clear": "Tühjenda",
+        "noServersApi": "RoValra API kaudu servereid ei leitud.",
+        "allServersInactive": "Kõik selle piirkonna serverid muutusid passiivseks",
+        "loadErrorApi": "Serverite laadimine RoValra API-st ebaõnnestus.",
+        "hide": "Peida",
+        "join": "Liitu",
+        "peopleMax": "{{playing}} mängijat, kuni {{maxPlayers}}",
+        "pinPrivateServer": "Kinnita privaatserver",
+        "unpinPrivateServer": "Vabasta privaatserver kinnitusest",
+        "playerCountUnknownTooltip": "Mängijate arv pole teada, see on Robloxi piirang. Pisipildid ei esinda mängus osalevaid inimesi.",
+        "playerCountUnknownLabel": "Mängijate arv teadmata"
+    },
+    "recentServers": {
+        "title": "Viimased serverid",
+        "refresh": "Värskenda",
+        "noneFound": "Hiljutisi servereid ei leitud.",
+        "noActiveFound": "Aktiivseid hiljutisi servereid ei leitud.",
+        "lastJoined": "Viimati liitutud: {{time}}",
+        "meAlt": "Mina",
+        "secondsAgo": "{{count}} s tagasi",
+        "minutesAgo": "{{count}} min tagasi",
+        "hoursAgo": "{{count}} t tagasi",
+        "daysAgo": "{{count}} p tagasi",
+        "description": "Viimased serverid, kus te just viibisite."
+    },
+    "quickOutfits": {
+        "errorFetching": "Viga riietuste hankimisel",
+        "equipping": "Riietuse rakendamine...",
+        "equipped": "Riietus rakendatud!",
+        "failed": "Ebaõnnestunud",
+        "error": "Viga:",
+        "noUserId": "Kiirrõivaste jaoks ei leitud autentitud kasutaja ID-d.",
+        "loading": "Riietuste laadimine...",
+        "title": "Kiirriietused",
+        "noneFound": "Ühtegi riietust ei leitud.",
+        "success": "Riietus on edukalt rakendatud."
+    },
+    "roGoldWarning": {
+        "title": "RoValra ei ühildu RoGoldiga",
+        "detected": "Näib, et RoGold on lubatud. RoGoldi hiljutise saidi ümbertöötamise muudatuste tõttu ei saa RoValra mõlema laienduse töötamise ajal korralikult töötada.",
+        "notOurFault": "Need muudatused pärinevad RoGoldilt, nii et RoValra ei suuda seda oma küljel parandada.",
+        "choice": "Kui soovite RoValrat kasutada, saate RoGoldi igal ajal oma brauseri laienduste lehel välja lülitada ja Robloxi uuesti laadida. Valik on täielikult teie enda teha ja saate selle igal ajal uuesti sisse lülitada.",
+        "openSource": "RoValra on ka täielikult avatud lähtekoodiga, mis muudab selle turvalisemaks. Igaüks saab koodi lugeda ja täpselt näha, mida see teeb, ning igaüks saab sellesse kaasa aidata.",
+        "viewSource": "Vaadake GitHubis lähtekoodi",
+        "extensionSupportTitle": "Töötab koos teie teiste laiendustega",
+        "extensionSupport": "RoValra toetab paljusid teisi laiendusi, sealhulgas, kuid mitte ainult, RoSeal, RoPro, RoQoL ja palju muud.",
+        "extensionSupportRoGold": "RoGold seevastu ei toeta muid laiendusi.",
+        "featureCountTitle": "{{count}} funktsiooni",
+        "featureCount": "Kui RoGold on lubatud, jääd ilma kokku {{count}} RoValra funktsioonist.",
+        "noPaywallTitle": "Tasuliste funktsioonideta",
+        "noPaywall": "RoValra usub, et kasutamist hõlbustavad funktsioonid ei tohiks kunagi olla maksumüüri taga.",
+        "noPaywallRoGold": "Erinevalt RoGoldist on RoValras ainsad raha maksvad asjad kosmeetilised või kosmeetikapõhised funktsioonid. Need on mõeldud ainult välimuse jaoks ega muuda seda, kuidas RoValra teie kasutuskogemust parandab.",
+        "openSourceTitle": "Avatud lähtekoodiga",
+        "missingOut": "Kui RoGold on lubatud, jääte ilma järgmistest asjadest:",
+        "next": "Edasi",
+        "back": "Tagasi",
+        "stepCounter": "Samm {{current}}/{{total}}",
+        "regionSelectorTitle": "Piirkonna valija",
+        "regionSelectorDescription": "RoValra pakub parimat tasuta piirkonnavalijat, isegi paremat kui tasulised valikud. Liituge valitud piirkonna serveritega või laske RoValral automaatselt leida teile lähim serveri madalaima pingi saamiseks.",
+        "saveRobuxTitle": "Säästa Robuxeid",
+        "saveRobuxDescription": "Säästa turuplatsi ostudelt ühe nupuvajutusega 40% Robuxeid.",
+        "quickPlayTitle": "Kiirmäng",
+        "quickPlayDescription": "Liituge mängudega otse avalehelt ilma mängude lehte avamata, sealhulgas eelistatud piirkonna ja privaatserverite kaudu.",
+        "hiddenGamesTitle": "Varjatud mängud",
+        "hiddenGamesDescription": "Vaadake mänge, mida inimesed on oma profiilides või gruppides peitnud"
+    },
+    "btrDonationWarning": {
+        "title": "TÄHTIS: keelake BTRoblox",
+        "message": "<p style=\"margin: 0 0 10px; line-height: 1.5;\">BTRoblox tuvastati. See võib häirida Robloxi ostuvoogu. Kui teil on probleeme ostmisega, proovige BTRoblox ajutiselt keelata ja leht uuesti laadida.</p><p style=\"margin: 0; line-height: 1.5; font-weight: 700;\">Palun keelake BTRoblox, laadige see leht uuesti ja proovige seejärel uuesti osta.</p>",
+        "continue": "Jätka ikkagi"
+    },
+    "botDetector": {
+        "tooltip": "Robotid on kontod, mis koguvad automatiseeritud skriptide abil esemeid. Üks kasutaja võib korraga käitada üle 50 roboti. See ei ole mänguarendajate süü. Teave võib olla ebatäpne, kui mängu mängivad peamiselt uued Robloxi kontod.",
+        "lotsOfBots": "Mängus <span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> on palju roboteid",
+        "someBots": "Mängus <span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> on mõned robotid, kuid enamik mängijaid on päris inimesed",
+        "thisGame": "See mäng"
+    },
+    "events": {
+        "title": "Sündmused",
+        "tabs": {
+            "upcoming": "Tulemas",
+            "past": "Möödunud"
+        },
+        "buttons": {
+            "viewEvent": "Vaata sündmust",
+            "joinEvent": "Liitu üritusega",
+            "unfollowEvent": "Lõpeta sündmuse jälgimine",
+            "notifyMe": "Teavita mind"
+        },
+        "loadMore": "Laadi rohkem",
+        "releaseDate": "Ürituse avaldamise kuupäev",
+        "empty": {
+            "active": "Käimasolevaid ega tulevasi sündmusi pole.",
+            "past": "Minevikusündmusi pole.",
+            "all": "Sündmust ei leitud."
+        }
+    },
+    "badgeSort": {
+        "label": "Sorteeri märgid",
+        "seeMore": "Vaata rohkem",
+        "updated": "Uuendatud",
+        "created": "Loodud",
+        "options": {
+            "default": "Vaikimisi",
+            "updated": "Hiljuti värskendatud",
+            "newest": "Uusim",
+            "oldest": "Vanim",
+            "mostWon": "Enim saadud",
+            "leastWon": "Vähim saadud",
+            "wonYesterday": "Eile enim saadud",
+            "rarest": "Kõige haruldasem",
+            "easiest": "Lihtsaim",
+            "name": "Nimi (A-Z)"
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Märgid",
+            "hiddenBadges": "Varjatud märgid"
+        },
+        "hiddenOwnedNotice": "Siin kuvatakse ainult teie saadud peidetud märgid.",
+        "unableToDetectPlace": "Seda kohta ei õnnestu tuvastada.",
+        "unableToDetectUniverse": "Seda universumit ei õnnestu tuvastada.",
+        "stillScanning": "Teie märke skannitakse endiselt. Varsti võivad ilmuda teie peidetud märgid.",
+        "noneOwnedFound": "Selle mängu jaoks ei leitud ühtegi teile kuuluvat peidetud märki.",
+        "noneFound": "Selle mängu jaoks ei leitud peidetud märke.",
+        "noPublicBadges": "Sellel mängul pole avalikke märke.",
+        "failedToLoad": "Peidetud märkide laadimine ebaõnnestus.",
+        "rolimonsSource": "Varjatud märgid, mille pakub Rolimon's.",
+        "viewOnRolimons": "Vaata mängu Rolimon'sis",
+        "openBadgeOnRolimons": "Ava märk Rolimon’sis"
+    },
+    "antiBots": {
+        "reviewMembers": "Vaata üle {{count}} valitud liiget:",
+        "botWarning": "<strong>Hoiatus:</strong> Enne tegutsemist veenduge, et need on robotid.",
+        "banMembers": "Blokeeri liikmed",
+        "kickMembers": "Eemalda liikmed",
+        "cancel": "Tühista",
+        "actionRequired": "Toiming vajalik ({{count}})",
+        "noPermission": "Sul pole õigust liikmetele keeldu anda ega neid eemaldada.",
+        "confirmBan": "Oled andmas <strong>{{count}} liikmele püsivat keeldu</strong>. Nad blokeeritakse jäädavalt.",
+        "confirmKick": "Oled <strong>{{count}} liiget eemaldamas</strong>. Nad saavad igal ajal uuesti liituda.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Meeldetuletus:</strong> Enne blokeerimist kontrollige robotite tulemusi.</div>",
+        "yesAction": "Jah, {{action}}",
+        "confirmAction": "Kinnita toiming",
+        "processing": "Töötlemine {{current}}/{{total}}: {{displayName}}... Hinnanguliselt jäänud: {{time}} s",
+        "rateLimited": "Päringupiirang. Uus katse {{delay}} s pärast...",
+        "apiError": "API viga {{status}}",
+        "unknownError": "Tundmatu viga",
+        "processComplete": "Toiming „{{actionType}}” õnnestus {{successCount}} liikmel {{totalMembers}} liikmest.",
+        "processFailed": "Ebaõnnestus: {{failedCount}}.",
+        "close": "Sule",
+        "score": "Skoor: {{score}}/100",
+        "actionCount": "Toiming ({{count}})",
+        "unselectAll": "Tühista kõik valikud",
+        "selectAll": "Vali kõik",
+        "antiBots": "Anti-Bots",
+        "banByScore": "Blokeerimine skoori järgi",
+        "quickAction": "Kiire tegevus",
+        "members": "Liikmed",
+        "loadingMembers": "Liikmete laadimine...",
+        "selectMembersForAction": "Vali liikmed toimingu jaoks (laaditud {{count}})",
+        "noMembersFound": "Ühtegi liiget ei leitud.",
+        "initializingScan": "Skannimise käivitamine...",
+        "scanStatus": "Läbi vaadatud: {{loaded}} ({{percent}}%) | Analüüsitud: {{processed}}",
+        "finalizingAnalysis": "Analüüsi lõpetamine...",
+        "botsFound": "Leitud {{count}} tõenäolist robotit",
+        "noBotsFound": "Tõenäolisi roboteid ei leitud",
+        "noBotsDetected": "Ühtegi robotit ei tuvastatud.",
+        "errorRetry": "Viga – proovi uuesti",
+        "errorDuringScan": "Viga skannimise ajal.",
+        "minBotScore": "Boti miinimumskoor: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "See valib ligikaudu <span id=\"rovalra-score-ban-count\">0</span> liiget.",
+        "confirm": "Kinnita",
+        "banKickByScore": "Keela/eemalda skoori järgi",
+        "confirmCount": "Kinnita ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Lõbutsege!",
+        "close": "Sule",
+        "robloxExperience": "Robloxi mäng",
+        "unknownExperience": "Tundmatu mäng",
+        "serverId": "Serveri ID:",
+        "privateServer": "Privaatserver",
+        "owner": "Omanik:",
+        "version": "Versioon:",
+        "uptime": "Tööaeg:",
+        "rcc": "RCC:",
+        "serverChannel": "Serveri kanal:",
+        "production": "Põhiversioon",
+        "launchingRoblox": "Robloxi käivitamine",
+        "downloadRoblox": "Laadige alla Roblox",
+        "thanksDownloading": "Täname Robloxi allalaadimise eest",
+        "downloadInstructions": "Robloxi installimiseks järgige allolevaid samme. Allalaadimine peaks algama mõne sekundi pärast. Kui seda ei juhtu, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">taaskäivitage allalaadimine</a>.",
+        "installInstructions": "Installijuhised",
+        "step1": "Pärast allalaadimist topeltklõpsake <b>RobloxPlayerInstaller.exe</b> faili kaustas Allalaadimised.",
+        "step2": "Rakenduse paigaldamiseks topeltklõpsa failil <b>RobloxPlayerInstaller</b>.",
+        "step3": "Robloxi arvutisse installimiseks järgige juhiseid.",
+        "step4": "Nüüd, kui see on installitud, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">liituge kogemusega</a>.",
+        "mobileApp": "Ärge unustage mobiilirakendust",
+        "scanCode": "Robloxi hankimiseks skannige see kood oma telefoni kaameraga.",
+        "joiningServer": "Serveriga liitumine...",
+        "errorParsingUrl": "Viga URL-i sõelumisel",
+        "findingUser": "Kasutaja otsimine...",
+        "fetchingServerInfo": "Serveriteabe toomine...",
+        "nonRootPlaceRestrictions": "Ei saa liituda: alamkoha liitumispiirangud.",
+        "waitingForRoblox": "Ootan Robloxi...",
+        "launching": "Käivitamine..."
+    },
+    "createRoblox": {
+        "download": "Laadi alla",
+        "downloadMesh": "Laadi alla .mesh",
+        "downloadObj": "Laadi alla .obj",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Laadimine...",
+            "selectInstance": "Vali eksemplar, et vaadata selle omadusi",
+            "noProperties": "Omadused puuduvad",
+            "viewSource": "Vaata lähtekoodi",
+            "closePreview": "Sule eelvaade",
+            "defaultDevice": "Vaikimisi (1280 x 720)",
+            "fitToWindow": "Mahuta aknale",
+            "actualResolution": "Tegelik eraldusvõime",
+            "physicalSize": "Füüsiline suurus",
+            "rotate": "Pööra",
+            "loadingPreview": "GUI eelvaate laadimine...",
+            "searchInstances": "Otsi eksemplare... (2+ tähemärki)",
+            "searchProperties": "Otsi atribuute...",
+            "previewGui": "GUI eelvaade",
+            "togglePreviewVisibility": "Lülitage eelvaates nähtavus sisse/välja",
+            "noMatchingInstances": "Sobivaid eksemplare ei leitud",
+            "loadError": "Laadimine ebaõnnestus.",
+            "previewMesh": "3D-võrgu eelvaade",
+            "previewImage": "Pildi eelvaade",
+            "loadingImage": "Pildi laadimine...",
+            "imageLoadError": "Pildi laadimine ebaõnnestus.",
+            "loadingMesh": "3D-võrgu laadimine...",
+            "meshLoadError": "3D-võrgu laadimine ebaõnnestus."
+        }
+    },
+    "priceFloor": {
+        "label": "Hinna alammäär:",
+        "status": "Selle eseme hind on hinnapiiriga võrreldes {{status}}{{difference}}.",
+        "statusTypes": {
+            "above": "kõrgem",
+            "below": "madalam",
+            "at": "võrdne"
+        },
+        "difference": " (vahe: {{diff}})",
+        "description": "Hinna alammäär on dünaamiliselt muutuv madalaim hind, millega eset müüa saab."
+    },
+    "parentItem": {
+        "multipleBundles": "See ese on osa mitmest komplektist",
+        "multipleBundlesDescription": "Seda eset kasutatakse tõenäoliselt mallina ja see sisaldub mitmes komplektis.",
+        "partOfBundle": "See ese kuulub komplekti [{{bundleName}}]({{bundleUrl}})",
+        "viewingFromBundle": "Vaatate praegu komplekti kuuluvat eset."
+    },
+    "rovalraBadges": {
+        "userVerified": "Kasutaja on ID-ga kinnitatud.",
+        "userNotVerified": "Kasutaja ei ole ID-ga kinnitatud.",
+        "userAgeVerified": "Kasutaja vanus on kontrollitud.",
+        "userNotAgeVerified": "Kasutaja vanust pole kontrollitud.",
+        "userAgeVerificationMayBeInaccurate": "See võib olla ebatäpne"
+    },
+    "friendRequestFilters": {
+        "title": "Sõbrakutsete filtrid",
+        "filters": "Filtrid",
+        "badgesTitle": "Märgid",
+        "countsTitle": "Arvulised näitajad",
+        "joinedTitle": "Liitunud",
+        "badges": {
+            "plus": "Roblox Plus",
+            "verified": "Kinnitatud",
+            "admin": "Robloxi administraator"
+        },
+        "ranges": {
+            "mutuals": "Ühised sõbrad",
+            "friends": "Sõbrad",
+            "followers": "Jälgijad",
+            "followings": "Jälgitavad"
+        },
+        "any": "Ükskõik milline",
+        "has": "On",
+        "hasNot": "Ei oma",
+        "min": "Min",
+        "max": "Max",
+        "from": "Alates",
+        "to": "Kuni",
+        "reset": "Lähtesta",
+        "apply": "Rakenda",
+        "accept": "Võta vastu",
+        "ignore": "Ignoreeri",
+        "loadMore": "Laadi rohkem",
+        "loadingRequests": "Kutsete laadimine... ({{count}})",
+        "checkingRequests": "Kutsete kontrollimine... {{progress}}%",
+        "loadFailed": "Sõbrakutsete laadimine ebaõnnestus.",
+        "actionFailed": "Sõbrakutsele ei saanud vastata.",
+        "minAboveMax": "Miinimum ei tohi olla suurem kui maksimum.",
+        "limitMax": "Praeguste sõbrakutsete põhjal on suurim lubatud väärtus {{max}}.",
+        "limitMin": "Praeguste sõbrakutsete põhjal on väikseim lubatud väärtus {{min}}.",
+        "filtersActive": "Filtrid (aktiivseid: {{count}})",
+        "ascending": "Madalaim kõigepealt",
+        "newestFirst": "Kõige uuemad enne",
+        "oldestFirst": "Vanim enne",
+        "sortTitle": "Sorteeri",
+        "descending": "Kõrgeim kõigepealt",
+        "sort": {
+            "sent": "Saatmise kuupäev",
+            "mutuals": "Ühised sõbrad",
+            "friends": "Sõbrad",
+            "followers": "Jälgijad",
+            "followings": "Jälgitavad",
+            "joined": "Liitumise kuupäev"
+        },
+        "footer": {
+            "sent": "Saadetud",
+            "joined": "Liitunud",
+            "mutuals": "{{count}} ühist sõpra",
+            "friends": "{{count}} sõpra",
+            "followers": "{{count}} jälgijat",
+            "followings": "Jälgib {{count}} kasutajat",
+            "unknown": "Peidetud"
+        }
+    },
+    "friendsSince": {
+        "friended": "Sõbraks lisatud",
+        "lastSeen": "Nähtud",
+        "age": "Vanus",
+        "friendedVia": "Sõbraks lisamise viis",
+        "originFrom": "Päritolu",
+        "originSearch": "Otsi",
+        "originInGame": "Mängus",
+        "originProfile": "Profiil",
+        "originQQContacts": "QQ kontaktid",
+        "originWeChatContacts": "WeChati kontaktid",
+        "originQrCode": "QR-kood",
+        "originProfileShare": "Profiili jagamine",
+        "originPhoneContacts": "Telefoni kontaktid",
+        "originPeopleYouMayKnow": "Inimesed, keda võite tunda",
+        "originschoolmemberlist": "Kooliliikmete nimekiri",
+        "originFriendLink": "Sõbrakutse link",
+        "originSocialTabsPage": "Sotsiaalsete vahekaartide leht",
+        "originUnknown": "Tundmatu"
+    },
+    "lastPlayed": {
+        "together": "Kõige sagedamini koos mängitud"
+    },
+    "avatarDownload": {
+        "button": "Laadi avatar alla",
+        "title": "Laadi avatar alla",
+        "size": "Eraldusvõime:",
+        "downloadPortrait": "Portree PNG",
+        "downloadBust": "Büst PNG-vormingus",
+        "downloadAvatar": "Avatari PNG",
+        "downloading": "Allalaadimine...",
+        "failed": "Avatari allalaadimine ebaõnnestus. Proovige hiljem uuesti."
+    },
+    "unfriend": {
+        "confirmUnfriend": "Kinnita sõbra eemaldamine",
+        "confirmUnfriends": "Kinnita sõprade eemaldamine",
+        "descriptionSingle": "Oled eemaldamas 1 sõpra. Seda toimingut ei saa tagasi võtta.",
+        "descriptionPlural": "Oled eemaldamas {{count}} sõpra. Seda toimingut ei saa tagasi võtta.",
+        "cancel": "Tühista",
+        "unfriend": "Eemalda sõber",
+        "unfriendCount": "Eemalda sõbrad ({{count}})",
+        "unfriendCountAction": "Eemalda {{count}} sõber",
+        "unfriendCountActionPlural": "Eemalda {{count}} sõpra",
+        "unfriending": "Sõprade eemaldamine...",
+        "bulkUnfriend": "Eemalda mitu sõpra",
+        "exitBulkMode": "Välju hulgirežiimist",
+        "successMessage": "Eemaldatud {{successCount}}/{{totalCount}} sõpra!"
+    },
+    "bulkBadgeRemover": {
+        "bulk": "Eemalda mitu märki",
+        "exit": "Välju hulgirežiimist",
+        "delete": "Kustuta märgid",
+        "deleteCount": "Kustuta märgid ({{count}})",
+        "confirmTitle": "Kinnita märkide kustutamine",
+        "finalTitle": "Kas oled täiesti kindel?",
+        "finalDescription": "See kustutab sinu inventarist jäädavalt {{count}} märki.",
+        "descriptionSingle": "Oled oma inventarist kustutamas 1 märki. Seda toimingut ei saa tagasi võtta.",
+        "descriptionPlural": "Oled oma inventarist kustutamas {{count}} märki. Seda toimingut ei saa tagasi võtta.",
+        "deletingProgress": "Märkide kustutamine... {{current}}/{{total}}",
+        "cancel": "Tühista",
+        "success": "Kustutatud {{successCount}}/{{totalCount}} märki."
+    },
+    "blockUser": {
+        "block": "Blokeeri",
+        "unblock": "Tühista blokeering",
+        "blockTitle": "Blokeeri {{username}}",
+        "unblockTitle": "Tühista kasutaja {{username}} blokeering",
+        "blockTitleGeneric": "Blokeeri kasutaja",
+        "unblockTitleGeneric": "Tühista kasutaja blokeering",
+        "blockMessage": "See kasutaja ei saa sulle enam vahetuspakkumisi saata. Saad olemasolevaid pakkumisi endiselt tagasi lükata, kuid ei saa neid vastu võtta ega vastupakkumist teha.",
+        "unblockMessage": "See kasutaja saab sulle jälle vahetuspakkumisi saata. Saad olemasolevaid pakkumisi vastu võtta või vastupakkumise teha.",
+        "cancel": "Tühista"
+    },
+    "unfriendDetector": {
+        "title_one": "Sõbralistist eemaldamine tuvastatud",
+        "title_other": "Sõbralistist eemaldamised tuvastatud",
+        "description_one": "See sõber eemaldas sind pärast sinu viimast mängimist sõbralistist:",
+        "description_other": "Pärast sinu viimast mängimist eemaldasid sind sõbralistist need {{count}} sõpra:",
+        "viewProfile": "Vaata kasutaja {{name}} profiili",
+        "dismiss": "Loobu"
+    },
+    "leaveGroups": {
+        "confirmLeave": "Kinnita lahkumine",
+        "confirmLeaves": "Kinnita lahkumised",
+        "descriptionSingle": "Olete lahkumas 1 kogukonnast. Seda toimingut ei saa tagasi võtta.",
+        "descriptionPlural": "Oled lahkumas {{count}} kogukonnast. Seda toimingut ei saa tagasi võtta.",
+        "cancel": "Tühista",
+        "leave": "Lahku",
+        "leaveCount": "Lahku ({{count}})",
+        "leaveCountAction": "Lahku {{count}} kogukonnast",
+        "leaveCountActionPlural": "Lahku {{count}} kogukonnast",
+        "leaving": "Lahkumine...",
+        "bulkLeave": "Lahku mitmest kogukonnast",
+        "exitBulkMode": "Välju hulgirežiimist",
+        "successMessage": "Lahkutud {{successCount}}/{{totalCount}} kogukonnast!"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Teie saldo pärast seda tehingut on"
+    },
+    "recentlyViewed": {
+        "title": "Hiljuti vaadatud",
+        "clear": "Tühjenda",
+        "remove": "Eemalda",
+        "cheaper": "{{value}} Robuxi odavam kui viimati vaadates",
+        "pricier": "{{value}} Robuxi kallim kui viimati vaadates",
+        "offSale": "Läks müügist maha",
+        "backOnSale": "Tagasi müügile"
+    },
+    "heroUnits": {
+        "ends": "Lõpeb"
+    },
+    "rovalraAds": {
+        "ad": "Reklaam",
+        "tooltip": "See ese on RoValra reklaam, mille RoValra lisas teie soovitustele. Saate selle RoValra seadetes välja lülitada. See EI ole isikupärastatud. Hetkel eksperimentaalne."
+    },
+    "tradeRecentItems": {
+        "offer": "Hiljuti pakutud",
+        "request": "Hiljuti taotletud",
+        "clear": "Tühjenda"
+    },
+    "tradeQuickActions": {
+        "minValue": "Nende antava väärtuse alampiir",
+        "hideLosses": "Peida kahjumlikud pakkumised",
+        "bulkTitle": "Hulgitoiming",
+        "bulkHint": "Lükkab tagasi kõik saadud vahetuspakkumised, millega kaotad väärtust. Enne küsitakse kinnitust.",
+        "declineLosses": "Lükka kahjumlikud pakkumised tagasi",
+        "loadingTrades": "Saadud vahetuspakkumiste laadimine...",
+        "checking": "Vahetuspakkumiste kontrollimine {{done}}/{{total}}...",
+        "noLosses": "Kahjumlikke saadud vahetuspakkumisi ei leitud",
+        "confirmTitle": "Lükka kahjumlikud pakkumised tagasi",
+        "confirmMessage": "Sinu {{total}} saadud vahetuspakkumisest {{count}} on väärtuse järgi kahjumlikud (kokku {{value}}). Kas lükata need kõik tagasi? Seda ei saa tagasi võtta.",
+        "declineConfirm": "Lükka tagasi",
+        "declining": "Tagasilükkamine {{done}}/{{total}}...",
+        "declined": "Tagasi lükatud {{count}} vahetuspakkumist",
+        "declinedWithFailures": "Tagasi lükatud {{count}} vahetuspakkumist, ebaõnnestus {{failed}}"
+    },
+    "time": {
+        "justNow": "äsja",
+        "secondsAgo": "{{count}} s tagasi",
+        "minutesAgo": "{{count}} min tagasi",
+        "hoursAgo": "{{count}} t tagasi",
+        "daysAgo": "{{count}} p tagasi",
+        "weeksAgo": "{{count}} näd tagasi",
+        "monthsAgo": "{{count}} k tagasi",
+        "yearsAgo": "{{count}} a tagasi",
+        "secondsFromNow": "{{count}} s pärast",
+        "minutesFromNow": "{{count}} min pärast",
+        "hoursFromNow": "{{count}} t pärast",
+        "daysFromNow": "{{count}} p pärast",
+        "weeksFromNow": "{{count}} näd pärast",
+        "monthsFromNow": "{{count}} k pärast",
+        "yearsFromNow": "{{count}} a pärast",
+        "months": {
+            "jan": "jaan",
+            "feb": "veebr",
+            "mar": "märts",
+            "apr": "apr",
+            "may": "mai",
+            "jun": "juuni",
+            "jul": "juuli",
+            "aug": "aug",
+            "sep": "sept",
+            "oct": "okt",
+            "nov": "nov",
+            "dec": "dets"
+        }
+    },
+    "privateGames": {
+        "tabs": {
+            "about": "Teave",
+            "store": "Kauplus",
+            "servers": "Serverid"
+        },
+        "servers": {
+            "title": "Teie privaatserverid",
+            "description": "Mängige oma ruumis, üksi või koos kutsutud inimestega",
+            "friendsTitle": "Serverid, kus on minu sõbrad",
+            "publicTitle": "Muud serverid",
+            "privateServer": "Privaatserver",
+            "players": "{{playing}} mängijat, kuni {{maxPlayers}}",
+            "join": "Liitu",
+            "loadMore": "Laadi rohkem",
+            "loading": "Serverite laadimine...",
+            "noServers": "Servereid ei leitud.",
+            "loadError": "Servereid ei saa laadida.",
+            "ownerAvatar": "Serveri omanik",
+            "playerAvatar": "Mängija",
+            "morePlayers": "+{{count}}"
+        },
+        "privateExperience": "Privaatne mäng",
+        "experienceIsPrivate": "See mäng on privaatne.",
+        "unknown": "Tundmatu",
+        "rovalraNotice": "Seda lehte saavad vaadata ainult RoValra kasutajad.",
+        "unavailable": "Pole saadaval",
+        "favorite": {
+            "add": "Lisa lemmikute hulka",
+            "remove": "Eemalda lemmikutest",
+            "favorited": "Lemmikutes",
+            "favorite": "Lemmik"
+        },
+        "notify": {
+            "tooltip": "Lülitage märguanded sisse",
+            "label": "Teavita"
+        },
+        "description": {
+            "title": "Kirjeldus",
+            "noDescription": "Kirjeldus puudub."
+        },
+        "stats": {
+            "active": "Aktiivne",
+            "favorites": "Lemmikud",
+            "visits": "Külastused",
+            "maxPlayers": "Mängijate ülempiir",
+            "genre": "Žanr",
+            "subgenre": "Alamžanr",
+            "created": "Loodud",
+            "updated": "Uuendatud",
+            "voiceChat": "Häälvestlus",
+            "supported": "Toetatud",
+            "unsupported": "Toetamata"
+        },
+        "reportAbuse": "Teata väärkasutusest",
+        "badges": {
+            "title": "Märgid",
+            "noBadges": "Märke veel pole",
+            "rarity": "Haruldus",
+            "wonYesterday": "Eile saadud",
+            "wonEver": "Kokku saadud"
+        },
+        "subscriptions": {
+            "title": "Tellimused",
+            "subscribe": "Telli"
+        },
+        "passes": {
+            "title": "Pääsmed",
+            "showOffSale": "Näita müügist väljas pääsmeid",
+            "noPasses": "Pääsmeid pole saadaval",
+            "offSale": "Müügist väljas",
+            "owned": "Olemas",
+            "buy": "Osta"
+        },
+        "disabled": "Privaatsete / modereeritud mängude vaatamine on keelatud",
+        "disabledDescription": "Privaatsete ja modereeritud mängude vaatamiseks peate lubama sätte siin:",
+        "disabledLinkText": "Vaadake privaatseid / modereeritud mänge",
+        "products": {
+            "title": "Tooted",
+            "buy": "Osta"
+        },
+        "moderated": "Modereeritud"
+    },
+    "gamePassViewer": {
+        "type": "Tüüp",
+        "typeValue": "Pääse",
+        "productId": "Toote ID",
+        "price": "Hind",
+        "owned": "Olemas",
+        "ownedItem": "Omanduses olev ese",
+        "free": "Tasuta",
+        "ownedNotice": "See ese on sinu inventaris.",
+        "inventory": "Inventar",
+        "by": "poolt",
+        "usePassIn": "Kasuta seda pääset mängus:",
+        "rovalraNoticeDescription": "See mängupääs on passiivne ja seda ei saa osta Robloxi piirangute tõttu, mis võivad olla seotud konto vanuse või mängu nähtavusega."
+    },
+    "playabilityStatus": {
+        "0": "See mäng pole saadaval",
+        "1": "See mäng on mängitav",
+        "2": "Külalised ei saa selle mänguga liituda",
+        "3": "Seda mängu on modereeritud, kuna see rikkus Robloxi kogukonna standardeid",
+        "4": "See mäng on valesti konfigureeritud",
+        "5": "See mäng on privaatne",
+        "6": "Selle mänguga saavad liituda ainult sõbrad",
+        "7": "Selle mänguga saavad liituda ainult kogukonna liikmed",
+        "8": "See mäng on sinu seadmes piiratud",
+        "9": "See mäng on ülevaatamisel, kuna see võis rikkuda Robloxi kogukonna standardeid",
+        "10": "Mängimiseks on vajalik ost",
+        "11": "Teie konto on piiratud",
+        "12": "See mäng pole ajutiselt saadaval",
+        "13": "Sellel mängul pole avaldatud versiooni",
+        "14": "See mäng on nõuete täitmise tõttu blokeeritud",
+        "15": "See mäng pole teie piirkonnas saadaval",
+        "16": "See mäng on piirkondlike nõuete tõttu blokeeritud",
+        "17": "Seda mängu piirab vanemlik järelevalve",
+        "18": "Selle mängu blokeerib vanemlik järelevalve",
+        "19": "See mäng on vanusepiiranguga",
+        "20": "Ainult täiskasvanutele mõeldud (18+) mängud nõuavad kinnitamist",
+        "21": "Mängimiseks on vajalik ost",
+        "22": "Sellel seadmel on ostmine piiratud",
+        "23": "See mäng on hindamata",
+        "24": "See mäng on sisu kirjelduse alusel vanusepiiranguga",
+        "25": "See mäng on ebatäpse vanusepiirangu tõttu modereeritud.",
+        "unknown": "See mäng pole saadaval"
+    },
+    "bannedUsers": {
+        "connections": "Sõbrad",
+        "followers": "Jälgijad",
+        "following": "Jälgitavad",
+        "about": "Teave",
+        "creations": "Loomingud",
+        "experiences": "Mängud",
+        "bannedStatus": "Keelatud",
+        "seeAll": "Vaata kõiki",
+        "hiddenUser": "Varjatud kasutaja",
+        "communities": "Kogukonnad",
+        "badges": "Märgid",
+        "noExperiences": "Sellel kasutajal pole avalikke mänge.",
+        "favorites": "Lemmikud",
+        "joinedDate": "Liitunud",
+        "store": "Kauplus",
+        "members": "Liikmed",
+        "accountForgotten": "Konto unustatud"
+    },
+    "copyId": {
+        "copyId": "Kopeeri ID ({{type}})",
+        "copyUniverseId": "Kopeeri universumi ID",
+        "types": {
+            "bundle": "Komplekt",
+            "asset": "Vara",
+            "gamePass": "Mängupääse",
+            "badge": "Märk",
+            "community": "Kogukond",
+            "event": "Sündmus",
+            "developerProduct": "Arendaja toode",
+            "place": "Koht",
+            "universe": "Universum",
+            "user": "Kasutaja"
+        }
+    },
+    "viewid": {
+        "viewId": "Vaata ID-sid",
+        "popup": {
+            "title": "Eseme ID-d",
+            "button": {
+                "copy": "Kopeeri andmed",
+                "copyMd": "Kopeeri Markdowni andmed"
+            }
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Sõbrad, kes mängivad mängu {{gameName}}",
+        "join": "Liitu"
+    },
+    "friendUsernames": {
+        "ariaLabel": "Kasutajanimi: @{{username}}",
+        "nameWithUsername": "{{displayName}} (@{{username}})"
+    },
+    "robloxAdminBadges": {
+        "badge": "Robloxi administraator"
+    },
+    "placeVisits": {
+        "label": "{{count}} koha külastust",
+        "tooltip": "Kogukonna kohakülastusi kokku"
+    },
+    "groupFundsPill": {
+        "label": "Raha: {{count}}",
+        "tooltip": "Kogukonna raha",
+        "privateTooltip": "See raha pole avalikult nähtav. RoValra näitab seda sulle sinu rolli tõttu.",
+        "roleTooltip": "RoValra näitab seda raha sulle sinu rolli tõttu."
+    },
+    "groups": {
+        "createdLabel": "Loodud",
+        "joinedLabel": "Liitunud",
+        "unknown": "Tundmatu",
+        "hidden": "Peidetud",
+        "hiddenTooltip": "See kogukond peidab oma liikmete loendi, seega näevad liitumiskuupäevi ainult selle liikmed."
+    },
+    "statusBubble": {
+        "imageLabel": "Olekupilt",
+        "decalId": "Kleebise ID",
+        "removeImage": "Eemalda pilt",
+        "decalNotFound": "Selle ID-ga kleebist ei leitud.",
+        "tier3Perk": "Olekupildid on annetaja 3. taseme hüve",
+        "clickToReport": "Klõpsake teatamiseks",
+        "imageThumbnail": "{{name}} pisipilt",
+        "imageSaveFailed": "Teie olek salvestati, kuid olekupilti ei saanud värskendada."
+    },
+    "showcase": {
+        "tab": "Vitriin",
+        "favoriteGame": "Lemmikmäng",
+        "favoriteGroup": "Lemmikkogukond",
+        "favoriteDecal": "Kunstinäitus",
+        "chooseGame": "Valige mäng, mida oma profiilil esile tõsta.",
+        "noFeaturedGame": "Esiletõstetud mäng veel puudub. :C",
+        "chooseGroup": "Valige kogukond, mida oma profiilil esile tõsta.",
+        "noFeaturedGroup": "Esiletõstetud kogukonda pole veel. :,(",
+        "chooseDecal": "Sisestage kleebise ID, et kuvada oma profiilil pilt.",
+        "noFeaturedDecal": "Esiletõstetud pilti veel pole. :C",
+        "searchGame": "Otsige esiletõstmiseks mängu",
+        "searchGroup": "Otsige esiletõstmiseks kogukonda",
+        "clearGame": "Eemalda lemmikmäng",
+        "clearGroup": "Eemalda lemmikkogukond",
+        "gameOptions": "Lemmikmängu valikud",
+        "groupOptions": "Lemmikkogukonna valikud",
+        "decalId": "Kleebise ID",
+        "decalImageOptions": "Pildi valikud",
+        "openImagePage": "Ava pildi leht",
+        "report": "Teata",
+        "clearDecal": "Eemalda pilt",
+        "by": "poolt",
+        "maturity": "Vanusepiirang",
+        "maturityUnavailable": "Vanusepiirang pole saadaval",
+        "members": "{{count}} liiget",
+        "noResultsGame": "Mänge ei leitud.",
+        "noResultsGroup": "Kogukonda ei leitud.",
+        "unknownExperience": "Tundmatu mäng",
+        "unknownCommunity": "Tundmatu kogukond",
+        "verifiedBadge": "Kinnitatud märgi ikoon"
+    },
+    "profileCustomization": {
+        "pill": "Kohandamine",
+        "pillTooltip": "Vaheta oma avatari ääriseid ja profiiliraame.",
+        "title": "Profiili kohandamine",
+        "tabBorders": "Avatari äärised",
+        "tabFrames": "Raamid",
+        "currentPreview": "Praeguse valiku eelvaade",
+        "unequip": "Eemalda",
+        "unequipTooltip": "Klõpsa selle äärise eemaldamiseks",
+        "equip": "Võta kasutusele",
+        "equipTooltip": "Võta see ääris kasutusele",
+        "equipped": "Kasutusel",
+        "getMore": "Hangi rohkem",
+        "owned": "Olemas",
+        "unowned": "Pole omandatud",
+        "unownedTooltip": "See ääris ei kuulu sulle veel.",
+        "all": "Kõik",
+        "new": "Uus",
+        "static": "STAATILINE",
+        "animated": "ANIMEERITUD",
+        "free": "Tasuta",
+        "noBorders": "Ääriseid ei leitud.",
+        "noBordersInTab": "Sellel vahekaardil ääriseid ei leitud.",
+        "noFrames": "Raame ei leitud.",
+        "noFramesInTab": "Sellelt vahekaardilt raame ei leitud.",
+        "none": "Puudub",
+        "failedToLoad": "Ääriste laadimine ebaõnnestus. Palun proovi hiljem uuesti."
+    },
+    "profileFrame": {
+        "storeTitle": "Profiiliraamide pood",
+        "storeDesc": "Profiiliraamid ümbritsevad sinu profiili kogu avatarivaadet. Nende ostmine toetab otse RoValrat ja kunstnikke ning läheb arvesse sinu annetaja taseme määramisel. Profiiliraamid ei kuulu annetaja 3. taseme hüvede hulka – see tase annab ainult avatari äärised.",
+        "tabBorders": "Avatari äärised",
+        "tabFrames": "Raamid",
+        "loading": "Raamide laadimine...",
+        "currentPreview": "Praeguse raami eelvaade",
+        "all": "Kõik",
+        "new": "Uus",
+        "static": "STAATILINE",
+        "animated": "ANIMEERITUD",
+        "equip": "Võta kasutusele",
+        "equipTooltip": "Võta see raam kasutusele",
+        "equipped": "Kasutusel",
+        "unequipTooltip": "Klõpsake selle raami eemaldamiseks",
+        "unequip": "Eemalda",
+        "buy": "Osta",
+        "buyFor": "Osta hinnaga {{price}}",
+        "viewItem": "Kuva ese",
+        "buyTooltip": "Osta see raam",
+        "preview": "Eelvaade",
+        "previewTooltip": "Proovi seda raami oma profiilil kuni lehe värskendamiseni",
+        "previewOnProfile": "Eelvaade profiilis",
+        "previewBanner": "Raami {{frame}} eelvaade. Seda näed ainult sina ja see kaob lehe värskendamisel.",
+        "backToStore": "Tagasi poodi",
+        "owned": "Olemas",
+        "ownedTooltip": "See raam kuulub teile!",
+        "free": "Tasuta",
+        "freeTooltip": "Selle raami saab tasuta kasutusele võtta.",
+        "localOnly": "Salvestatud kohalikult",
+        "localOnlyTooltip": "RoValra ei saanud seda raami veel teie kontole salvestada, nii et see on nähtav ainult teile selles brauseris.",
+        "noFrames": "Raame pole saadaval.",
+        "noFramesInTab": "Sellelt vahekaardilt raame ei leitud.",
+        "failedToLoad": "Raamide laadimine ebaõnnestus. Proovige hiljem uuesti."
+    },
+    "profileNotes": {
+        "ariaLabel": "Privaatne profiilimärkus",
+        "heading": "Märkus (nähtav ainult sulle)",
+        "headingTooltip": "Seda märkust salvestatakse ainult selles brauseris ja seda ei saadeta kunagi Robloxile ega RoValrale.",
+        "addNote": "Klõpsa märkuse lisamiseks",
+        "editAriaLabel": "Muuda privaatset profiilimärkust",
+        "addAriaLabel": "Lisa privaatne profiilimärkus",
+        "displayTooltip": "Klõpsake muutmiseks. Märkmed salvestatakse ainult selles brauseris.",
+        "inputPlaceholder": "Lisa privaatne märkus",
+        "inputTooltip": "Salvestatakse, kui klõpsad väljaspool välja. Tühistamiseks vajuta Escape, salvestamiseks Ctrl+Enter."
+    },
+    "profilePronouns": {
+        "label": "Asesõnad",
+        "ariaLabel": "Asesõnad: {{pronouns}}"
+    },
+    "followsYou": {
+        "label": "Jälgib sind"
+    },
+    "profileEdit": {
+        "featuresTitle": "RoValra funktsioonid",
+        "profilePronouns": "Profiili asesõnad",
+        "profileBadges": "Profiili märgid",
+        "pronounsPlaceholder": "Sisesta oma asesõnad",
+        "donatorPerks": "Annetaja hüved",
+        "usernameCustomizations": "Kasutajanime kohandused"
+    },
+    "profile": {
+        "socialLinks": "Sotsiaalmeedia lingid",
+        "currencyTransfer": "Saada Robuxeid",
+        "currencyTransferConfirmation": "Avab Robloxi kliendi, et saaksid Robuxeid saata.",
+        "openClient": "Ava klient"
+    },
+    "animations": {
+        "idle": "Jõudeolek",
+        "walk": "Kõndimine",
+        "fall": "Kukkumine",
+        "climb": "Ronimine",
+        "run": "Jooksmine",
+        "jump": "Hüppamine",
+        "swim": "Ujumine"
+    },
+    "itemRender": {
+        "renderOptions": "Renderdusvalikud",
+        "darkLighting": "Tume valgustus",
+        "baseplate": "Alusplaat",
+        "rotatePreview": "Pööra eelvaadet",
+        "itemOnly": "Kuva ainult ese"
+    },
+    "freeBadgeQuota": {
+        "label": "Tasuta märgid",
+        "value": "Täna jäänud: {{count}}",
+        "tooltip": "Märgid, mida see mäng saab täna veel tasuta luua. Roblox lubab igas mängus iga 24 tunni järel tasuta luua 5 märki."
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Vaikimisi",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Uusim",
+            "oldest": "Vanim"
+        },
+        "tooltip": "Sordi selle järgi, millal kasutaja kogukonnaga liitus",
+        "view": {
+            "row": "Rida",
+            "grid": "Ruudustik"
+        }
+    },
+    "creatorStats": {
+        "ccu": "CCU",
+        "visits": "Külastused",
+        "members": "Liikmed",
+        "ccuTooltip": "Selle kasutaja loodud avalike mängude praegune mängijate arv kokku.",
+        "visitsTooltip": "Selle kasutaja loodud avalike mängude külastuste arv kokku läbi aegade.",
+        "membersTooltip": "Sellele kasutajale kuuluvate kogukondade liikmed."
+    },
+    "plus": {
+        "stats": {
+            "robux": "Säästsid Plusi kasutades {{robux}}",
+            "percentOffSmall": "Mängusisesed esemed, avatarid ja palju muud",
+            "percentOff": "{{percent}} soodsam",
+            "itemsBoughtSmall": "Plusi soodustusega ostetud esemed",
+            "privateServersCreatedSmall": "Tasuta loodud privaatserverid",
+            "robuxSentSmall": "Sõpradele saadetud Robuxid",
+            "delayNotice": "Kõik siin kuvatavad andmed hilinevad 1 päeva võrra"
+        },
+        "transferLimits": {
+            "dailyLimitLeft": "Päevasest limiidist alles",
+            "monthlyLimitLeft": "Kuulimiidist alles",
+            "sentToday": "Täna saadetud",
+            "sentThisMonth": "Saadetud sel kuul",
+            "nextRefill": "Järgmine limiidi taastumine",
+            "leftAfter": "Jäänud {{amount}}",
+            "refillNote": "Iga ülekanne läheb kuulimiidi arvestusse 30 päevaks. Seejärel vabaneb vastav Robuxide kogus limiidis uuesti.",
+            "caption": "Päevane limiit on {{dailyLimit}}. Kuulimiit on {{monthlyLimit}}. Uuendatakse iga 5 minuti järel. Allesjäänud summad on hinnangulised ja võivad olla ebatäpsed."
+        },
+        "referral": {
+            "reward": "Saa 100 Robuxi tasuta ja aita RoValrat toetada!",
+            "details": "Pakkumine kehtib ainult uutele Roblox Plusi kasutajatele. Kui tellid Plusi RoValra soovituskoodiga, saab ka RoValra 100 Robuxi.",
+            "button": "Telli RoValra soovituskoodiga"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Algne hind: <b>{{originalPrice}} Robuxi</b><br>Roblox Plusi tõttu kuvatakse praegu hinnaks <b>Tasuta</b>."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Saada Robuxeid",
+                "openInApp": "Ava rakenduses"
+            },
+            "buyRobux": {
+                "deletedAccountTitle": "Robuxeid ei saa saata",
+                "deletedAccountBody": "Selle kasutaja konto on kustutatud ja talle ei saa Robuxeid saata"
+            },
+            "popup": {
+                "shared": {
+                    "title": "Saada Robuxeid",
+                    "titleSilly": "saada bobux :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "Saadetavate Robuxide kogus",
+                    "mutedNotice": "Robuxid saadetakse kohe ja teenustasuta",
+                    "minRobux": "Pead saatma vähemalt {{robuxAmount}} Robuxi",
+                    "maxRobux": "Saad saata kuni {{robuxAmount}} Robuxi",
+                    "notEnoughRobux": "Sul pole piisavalt Robuxeid",
+                    "nextBtn": "Edasi"
+                },
+                "step2": {
+                    "sendBtn": "Saada",
+                    "editBtn": "Muuda",
+                    "mutedNotice": "Ülekannet ei saa tühistada. Vajalik võib olla vanusekontroll või lapsevanema nõusolek.",
+                    "transferErrorGeneric": "Ilmnes tundmatu viga.",
+                    "transferErrorNoMessage": "Ilmnes tundmatu viga ja teadet ei esitatud",
+                    "transferSuccessBody": "Ülekanne õnnestus!",
+                    "transferSuccessBodySilly": "ülekanne oli ok! väga lahe",
+                    "transferSuccessOkBtnSilly": "elektriline boogaloo",
+                    "userInfoFriendTime": "Sõbraks lisatud {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} ühine sõber",
+                    "userInfoMutualFriends_other": "{{count}} ühist sõpra",
+                    "userInfoJoin": "Liitus aastal {{year}}",
+                    "paramPassedError": "Ilmnes tundmatu viga! Vaata konsooli ja teata probleemist RoValrale."
+                },
+                "parentPerms": {
+                    "askBtn": "Küsi",
+                    "sendRobuxBody": "Robuxide saatmiseks vajad lapsevanema luba",
+                    "receiveRobuxBody": "Robuxide vastuvõtmiseks vajad lapsevanema luba",
+                    "askTitle": "Küsi luba",
+                    "askTitleSilly": "küsi vanematelt luba",
+                    "errorSending": "Ilmnes tundmatu viga. Vaata konsooli ja teata probleemist RoValrale",
+                    "errorReceivingTitle": "Robuxi vastuvõtmisel ilmnes viga",
+                    "errorReceivingBody": "Ilmnes tundmatu viga. Võimalik, et oled selle Robuxide ülekande juba vastu võtnud. Üksikasju vaata konsoolist.",
+                    "errorReceivingOkBtnSilly": "ah",
+                    "successfulAskTitle": "Taotlus saadetud",
+                    "successfulAskTitleSilly": "teavitasime su vanemaid, ole valmis...",
+                    "successfulAskBody": "Saatsime taotluse sinu vanematele ja eestkostjatele e-posti teel!",
+                    "successfulAskOkBtnSilly": "hästi lahe, aitäh"
+                },
+                "plusNeeded": {
+                    "body": "Robuxide saatmiseks vajad kahjuks Roblox Plusi tellimust. See võimalus kuulub Roblox Plusi tellimuse juurde.",
+                    "bodySilly": "sul pole bobloc plusi :c nii et sa ei saa teistele bobuxeid saata, sest selleks on plusi vaja 3:",
+                    "buyPlusBtn": "Osta Roblox Plus",
+                    "buyPlusBtnSilly": "hangi bobloc plus c:",
+                    "okBtnSilly": "awww, okei :c"
+                }
+            }
+        }
+    },
+    "settingsCompat-settingChangeNote": {
+        "ui": {
+            "popup": {
+                "title": "Mõned seaded eemaldati/asendati"
+            },
+            "deleted": "Järgmised seaded on hiljuti kustutatud, lukustatud või aegunud:",
+            "replaced": "Järgmised seaded on hiljuti asendatud või muudetud:"
+        }
+    },
+    "avatar": {
+        "gameOutfits": {
+            "button": "Mänguriietused",
+            "title": "Riietused mängude jaoks",
+            "hint": "Vali riietus, mis pannakse selga R6- või R15-mänguga liitudes.",
+            "r6": "R6 mängud",
+            "r15": "R15 mängud",
+            "none": "Ära muuda",
+            "gameTitle": "Riietus selle mängu jaoks",
+            "gameHint": "See asendab R6- ja R15-mängude jaoks määratud riietuse.",
+            "useGlobal": "Kasuta minu vaikeseadet"
+        },
+        "bodyColors": {
+            "addCustom": "Vali kohandatud värv",
+            "savedColor": "{{hex}}, eemaldamiseks paremklõpsa",
+            "applyFailed": "Teie kehavärve ei saanud värskendada. Proovige hetke pärast uuesti."
+        }
+    },
+    "pinnedFriends": {
+        "pin": "Kinnita etteotsa",
+        "unpin": "Eemalda kinnitus"
+    },
+    "channelOverlay": {
+        "title": "Kanal",
+        "collapse": "Ahenda kanali paneel",
+        "hide": "Peida paneel. Uuesti avamiseks vajuta F2",
+        "live": "LIVE",
+        "unknown": "Kliendi seadete ootamine...",
+        "change": "Vaheta kanalit",
+        "placeholder": "LIVE või kanali nimi",
+        "apply": "Rakenda",
+        "reset": "Lähtesta"
+    },
+    "serverLocationOverlay": {
+        "title": "Serveri asukoht",
+        "collapse": "Ahenda serveri asukoha paneel",
+        "hide": "Peida paneel. Uuesti avamiseks vajuta F3",
+        "waiting": "Liitu mänguga, et näha selle serveri asukohta.",
+        "location": "Asukoht",
+        "version": "Serveri versioon",
+        "channel": "Serveri kanal",
+        "unknown": "Tundmatu",
+        "unknownLocation": "Tundmatu serveri asukoht",
+        "production": "Põhiversioon",
+        "appName": "RoValra",
+        "dismiss": "Loobu",
+        "toastDetails": "Versioon {{version}} · {{channel}}"
+    },
+    "debugOverlay": {
+        "title": "RoValra silumine",
+        "popout": "Ava eraldi aknas",
+        "collapse": "Ahenda silumispaneel",
+        "hide": "Peida silumispaneel",
+        "performance": {
+            "title": "Jõudlus",
+            "fps": "FPS",
+            "frameTime": "Kaadri keskmine / max",
+            "frameLow": "1% madal",
+            "jank": "Häiritud kaadrid",
+            "loopLag": "Silmuse viivitus keskmine / max",
+            "longTasks": "Pikad ülesanded",
+            "blocking": "Blokeerimisaeg",
+            "longFrames": "Pikad kaadrid",
+            "jsHeap": "JS-i kuhjamälu: kasutatud / kokku / max",
+            "domNodes": "DOM-i sõlmed",
+            "uptime": "Ülekatte tööaeg"
+        },
+        "vitals": {
+            "title": "Web Vitals",
+            "fcp": "FCP",
+            "lcp": "LCP",
+            "cls": "CLS",
+            "inp": "Aeglaseim interaktsioon"
+        },
+        "loading": {
+            "title": "Laadimine",
+            "readyState": "Valmidusolek",
+            "navType": "Navigeerimine",
+            "protocol": "Protokoll",
+            "redirect": "Ümbersuunamine",
+            "dns": "DNS",
+            "connect": "Ühenduse loomine",
+            "ttfb": "TTFB",
+            "download": "Allalaadimine",
+            "domInteractive": "DOM interaktiivne",
+            "domContentLoaded": "DOMContentLoaded",
+            "load": "Laadimine",
+            "documentSize": "Dokumendi suurus",
+            "pageWeight": "Lehe andmemaht",
+            "requests": "Päringud",
+            "cacheHit": "Vahemälu tabamused",
+            "slowest": "Aeglaseim",
+            "largest": "Suurim"
+        },
+        "resources": {
+            "title": "Ressursid",
+            "scripts": "Skriptid",
+            "styles": "Stiilid",
+            "images": "Pildid",
+            "fetchXhr": "Fetch / XHR",
+            "iframes": "Iframe’id",
+            "other": "Muu"
+        },
+        "requests": {
+            "title": "RoValra päringud",
+            "inFlight": "Pooleli",
+            "total": "Kokku",
+            "failed": "Ebaõnnestunud",
+            "avgLatency": "Keskmine latentsusaeg",
+            "lastRequest": "Viimane päring",
+            "lastFailure": "Viimane ebaõnnestumine"
+        },
+        "graphics": {
+            "title": "Graafika / 3D",
+            "glContexts": "WebGL-i kontekstid: aktiivsed / loodud",
+            "glSizes": "WebGL-i lõuendi suurused",
+            "glPixels": "WebGL-i pikslid",
+            "canvases": "Lõuendi elemendid",
+            "videos": "Video elemendid",
+            "imageElements": "Pildi elemendid",
+            "svgs": "SVG elemendid"
+        },
+        "display": {
+            "title": "Vaateala",
+            "viewport": "Vaateala",
+            "pixelRatio": "Pikslite suhe",
+            "scroll": "Kerimise / lehe kõrgus"
+        },
+        "storage": {
+            "title": "Salvestusruum",
+            "origin": "Saidi salvestusruum",
+            "localStorage": "localStorage",
+            "sessionStorage": "sessionStorage",
+            "cookies": "Küpsised",
+            "extStorage": "RoValra salvestusruum"
+        },
+        "errors": {
+            "title": "Vead",
+            "jsErrors": "Skripti vead",
+            "rejections": "Käsitlemata tagasilükkamised",
+            "consoleErrors": "console.error",
+            "consoleWarns": "console.warn",
+            "lastError": "Viimane viga"
+        },
+        "page": {
+            "title": "Lehekülg",
+            "pageTitle": "Pealkiri",
+            "url": "URL",
+            "referrer": "Viitaja",
+            "charset": "Märgistik",
+            "visibility": "Nähtavus",
+            "focus": "Fookuses",
+            "compat": "Ühilduvusrežiim",
+            "lang": "Keel",
+            "theme": "Robloxi teema",
+            "userId": "Kasutaja ID",
+            "csrf": "CSRF-i tunnus"
+        },
+        "rovalra": {
+            "title": "RoValra",
+            "version": "Versioon",
+            "extensionId": "Laienduse ID",
+            "manifest": "Manifest",
+            "path": "Tee"
+        },
+        "values": {
+            "worst": "{{count}} (halvim {{time}})",
+            "keys": "{{count}} võtit, {{size}}",
+            "seconds": "{{count}} s"
+        }
+    },
+    "richLinks": {
+        "by": "Looja: {{name}}",
+        "members": "{{count}} liiget",
+        "playing": "{{count}} mängib",
+        "visits": "{{count}} külastust",
+        "loading": "Laadimine...",
+        "free": "Tasuta",
+        "offSale": "Müügist väljas"
+    },
+    "privateApiDocs": {
+        "title": "RoValra API",
+        "loading": "API dokumentatsiooni laadimine...",
+        "loadFailed": "API dokumentatsiooni laadimine ebaõnnestus: {{error}}",
+        "noAccess": "Teil pole nendele dokumentidele juurdepääsu.",
+        "serverError": "Server vastas olekukoodiga {{status}}.",
+        "invalidSpec": "Server tagastas kehtetu OpenAPI dokumendi.",
+        "baseUrl": "Baas-URL: {{url}}",
+        "apiVersion": "API versioon",
+        "openApiVersion": "OpenAPI versioon",
+        "server": "Server",
+        "sendToken": "Saada minu RoValra juurdepääsutõend",
+        "filterLabel": "Filtreeri lõpp-punkte",
+        "filterPlaceholder": "Tee, kokkuvõte või silt",
+        "hideDeprecated": "Peida aegunud",
+        "noEndpoints": "Lõpp-punkte ei leitud.",
+        "deprecated": "Aegunud",
+        "deprecatedTooltip": "See lõpp-punkt on aegunud.",
+        "authRequired": "Vajalik autentimine",
+        "authOptional": "Autentimine on valikuline",
+        "schemeNotSent": "Nõuab autentimisskeemi {{name}}, mida see leht ei saada.",
+        "operationId": "Toimingu ID",
+        "security": "Autentimine: {{schemes}}",
+        "securityOptional": "Autentimine: {{schemes}} (valikuline)",
+        "securityTooltip": "Turvanõuded",
+        "parameters": "Parameetrid",
+        "noParameters": "Parameetrid puuduvad",
+        "tryItOut": "Proovi järele",
+        "name": "Nimi",
+        "description": "Kirjeldus",
+        "required": "nõutud",
+        "availableValues": "Saadaolevad väärtused: {{values}}",
+        "requestBody": "Päringu sisu",
+        "requestContentType": "Päringu sisutüüp",
+        "exampleValue": "Näidisväärtus",
+        "schema": "Skeem",
+        "responses": "Vastused",
+        "noResponses": "Dokumenteeritud vastuseid pole",
+        "code": "Kood",
+        "details": "Üksikasjad",
+        "execute": "Käivita",
+        "clear": "Tühjenda",
+        "missingParams": "Puuduvad nõutavad parameetrid: {{params}}",
+        "invalidJson": "Päringu sisu pole kehtiv JSON: {{error}}",
+        "bodyRequired": "Päringu sisu on nõutav.",
+        "confirmTitle": "Kas saata päring?",
+        "confirmMessage": "Saadetakse {{method}} päring aadressile {{path}}. Jätka ainult siis, kui mõistad, mida see teeb.",
+        "send": "Saada",
+        "sending": "Päringu saatmine...",
+        "requestFailed": "Päring ebaõnnestus: {{error}}",
+        "curl": "Curl",
+        "requestUrl": "Päringu URL",
+        "serverResponse": "Serveri vastus",
+        "responseBody": "Vastuse sisu",
+        "responseHeaders": "Vastuse päised",
+        "emptyResponse": "(tühi vastus)",
+        "responseImage": "Vastuse pilt",
+        "duration": "{{ms}} ms",
+        "durationTooltip": "Päringu kestus",
+        "contentType": "Sisu tüüp",
+        "redirected": "Ümbersuunatud",
+        "copy": "Kopeeri"
+    },
+    "notifications": {
+        "newTrade": "Uus vahetuspakkumine",
+        "tradeFrom": "Kasutajalt {{name}}",
+        "tradeStats": "Väärtus {{value}} | RAP {{rap}}",
+        "friendPlaying": "{{name}} mängib",
+        "unknownGame": "Mäng"
+    },
+    "roblox2016Theme": {
+        "games": "Mängud",
+        "catalog": "Kataloog",
+        "playing": "{{count}} mängib",
+        "attending": "{{count}} osaleb"
+    }
+}
