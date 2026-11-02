@@ -182,9 +182,24 @@ function getAttributeText(attributes) {
         .join(', ');
 }
 
-function findRobloxAttributesContent(itemDetails) {
-    return itemDetails.querySelector(
-        `.item-info-row-container:not(.${ATTRIBUTES_ROW_CLASS}) > span.item-hold-tooltip > span.font-body`,
+function findTypeRow(itemDetails) {
+    const typeRows = itemDetails.querySelectorAll('#type-content');
+    return (
+        typeRows[typeRows.length - 1]?.closest('.item-info-row-container') ||
+        null
+    );
+}
+
+function findRobloxAttributesContent(typeRow) {
+    const nextRow = typeRow.nextElementSibling;
+    if (
+        !nextRow?.classList.contains('item-info-row-container') ||
+        nextRow.classList.contains(ATTRIBUTES_ROW_CLASS)
+    )
+        return null;
+
+    return nextRow.querySelector(
+        ':scope > span.item-hold-tooltip > span.font-body',
     );
 }
 
@@ -238,8 +253,15 @@ async function updateAttributes() {
         return;
     }
 
+    const typeRow = findTypeRow(itemDetails);
+    if (!typeRow) return;
+
     const text = getAttributeText(attributes);
-    const robloxContent = findRobloxAttributesContent(itemDetails);
+    const robloxContent = findRobloxAttributesContent(typeRow);
+
+    itemDetails.querySelectorAll(`.${ATTRIBUTES_EXTRA_CLASS}`).forEach((el) => {
+        if (el.parentElement !== robloxContent) el.remove();
+    });
 
     if (robloxContent) {
         itemDetails
@@ -264,13 +286,7 @@ async function updateAttributes() {
         return;
     }
 
-    const typeRows = itemDetails.querySelectorAll('#type-content');
-    const anchorRow = typeRows[typeRows.length - 1]?.closest(
-        '.item-info-row-container',
-    );
-    if (!anchorRow) return;
-
-    anchorRow.parentNode.insertBefore(createRow(text), anchorRow.nextSibling);
+    typeRow.parentNode.insertBefore(createRow(text), typeRow.nextSibling);
 }
 
 export async function init() {
