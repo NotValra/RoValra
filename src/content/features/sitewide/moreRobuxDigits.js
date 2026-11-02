@@ -4,6 +4,10 @@ import {
     observeElement,
 } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
+import {
+    getCachedUserCurrency,
+    USER_CURRENCY_CHANGED_EVENT,
+} from '../../core/utils/trackers/currency.js';
 
 const NAVBAR_AMOUNT_SELECTOR = '#nav-robux-amount, #nav-robux-balance';
 const NAVBAR_AMOUNT_DATA_KEYS = [
@@ -26,11 +30,15 @@ function getCompactParts(text) {
     return match ? { suffix: match[2], number: match[1] } : null;
 }
 
-function getRobuxAmount(element) {
+async function getRobuxAmount(element) {
     for (const key of NAVBAR_AMOUNT_DATA_KEYS) {
         const amount = Number(element.dataset[key]);
         if (Number.isFinite(amount) && amount > 0) return amount;
     }
+
+    const currencyData = await getCachedUserCurrency();
+    const amount = Number(currencyData?.robux);
+    if (Number.isFinite(amount) && amount > 0) return amount;
 
     return null;
 }
@@ -63,8 +71,12 @@ function formatCompactNumber(
     };
 }
 
-async function renderMoreDigits(element, amount = getRobuxAmount(element)) {
+async function renderMoreDigits(element, amount) {
     if (!(element instanceof HTMLElement)) return;
+
+    if (amount === undefined) {
+        amount = await getRobuxAmount(element);
+    }
 
     if (!(await settings.moreRobuxDigitsEnabled)) {
         const originalText = element.dataset.rovalraMoreRobuxDigitsOriginal;
@@ -159,7 +171,7 @@ async function renderMoreDigits(element, amount = getRobuxAmount(element)) {
 }
 
 function refreshNavbarAmount(element) {
-    renderMoreDigits(element, getRobuxAmount(element));
+    void renderMoreDigits(element);
 }
 
 function watchNavbarAmount(element) {
@@ -177,6 +189,11 @@ export function init() {
         multiple: true,
     });
     document.addEventListener('rovalra:settingSaved', () => {
+        document
+            .querySelectorAll(NAVBAR_AMOUNT_SELECTOR)
+            .forEach(refreshNavbarAmount);
+    });
+    document.addEventListener(USER_CURRENCY_CHANGED_EVENT, () => {
         document
             .querySelectorAll(NAVBAR_AMOUNT_SELECTOR)
             .forEach(refreshNavbarAmount);
