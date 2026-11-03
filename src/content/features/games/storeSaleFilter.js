@@ -34,7 +34,7 @@ function getUniverseId() {
 
 function loadOffSalePasses(universeId) {
     offSalePasses ??= fetchAllGamePasses(universeId).then((passes) =>
-        passes.filter((pass) => !pass.isForSale && !pass.isOwned),
+        passes.filter((pass) => !pass.isForSale),
     );
     return offSalePasses;
 }
