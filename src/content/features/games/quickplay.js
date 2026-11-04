@@ -28,7 +28,7 @@ import { safeHtml } from '../../core/packages/dompurify.js';
 
 const GLOBAL_CONTAINER_ID = 'rovalra-private-servers-global-container';
 const GAME_CARD_LINK_SELECTOR =
-    'a.game-card-link[href*="/games/"], a.sdui-game-tile-wrapper[href*="/games/"]';
+    'a.game-card-link[href*="/games/"], a.sdui-game-tile-wrapper[href*="/games/"], div.sdui-game-tile-wrapper:has(a.sdui-game-tile-primary[href*="/games/"])';
 const THUMB_CONTAINER_SELECTOR =
     '.game-card-thumb-container, .featured-game-icon-container, .sdui-tile-image-container';
 const HOVER_CARD_EXIT_DELAY = 100;
@@ -113,6 +113,14 @@ function getCurrentUserId() {
     return userDataTag?.dataset?.userid
         ? parseInt(userDataTag.dataset.userid, 10)
         : null;
+}
+
+function getCardHref(gameLink) {
+    return (
+        gameLink.href ||
+        gameLink.querySelector('a[href*="/games/"]')?.href ||
+        ''
+    );
 }
 
 function getGameIdsFromLink(href) {
@@ -518,7 +526,7 @@ function setupPaidPriceBadge(gameLink) {
         return;
     }
 
-    const { placeId } = getGameIdsFromLink(gameLink.href);
+    const { placeId } = getGameIdsFromLink(getCardHref(gameLink));
     if (!placeId) return;
 
     gameLink.classList.add(PAID_PRICE_PROCESSED_CLASS);
@@ -1187,9 +1195,13 @@ function scheduleCardCleanup(gameLink, delay) {
 
 function hideOtherHoverCards(gameLink) {
     document
-        .querySelectorAll('a.quick-play-hover-active[href*="/games/"]')
+        .querySelectorAll('.quick-play-hover-active')
         .forEach((otherGameLink) => {
-            if (otherGameLink === gameLink) return;
+            if (
+                otherGameLink === gameLink ||
+                !otherGameLink.matches(GAME_CARD_LINK_SELECTOR)
+            )
+                return;
 
             otherGameLink.classList.remove('quick-play-hover-active');
             otherGameLink.classList.add('quick-play-hover-superseded');
@@ -1265,7 +1277,7 @@ function setupHoverCard(gameLink, settings) {
     const wrapper = document.createElement('div');
     wrapper.className = 'play-buttons-wrapper';
 
-    const { placeId, universeId } = getGameIdsFromLink(gameLink.href);
+    const { placeId, universeId } = getGameIdsFromLink(getCardHref(gameLink));
 
     const handlePreferredJoin = async (e) => {
         e.preventDefault();

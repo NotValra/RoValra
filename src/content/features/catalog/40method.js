@@ -2394,6 +2394,26 @@ const addSaveButton = (modal) => {
             }
         }
 
+        if (!robuxPriceElement) {
+            for (const icon of modalWindow.querySelectorAll(
+                '.icon-regular-robux',
+            )) {
+                if (icon.closest('#rbx-unified-purchase-heading')) continue;
+                const priceSpan = icon.nextElementSibling;
+                if (priceSpan && /\d/.test(priceSpan.textContent)) {
+                    robuxPriceElement = priceSpan;
+                    break;
+                }
+            }
+        }
+
+        if (
+            !robuxPriceElement &&
+            modal.getAttribute('data-rovalra-expected-price')
+        ) {
+            robuxPriceElement = modal;
+        }
+
         const buttonContainer =
             (buyNowButton ? buyNowButton.parentElement : null) ||
             modalWindow.querySelector(

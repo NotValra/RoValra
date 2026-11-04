@@ -40,7 +40,8 @@ const STREAMER_ROBUX_BALANCE_SELECTOR =
     '#navbar-robux, #nav-robux-amount, #nav-robux-balance';
 const STREAMER_ROBUX_VISIBILITY_EVENT = 'rovalra-streamer-robux-visibility';
 
-const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
+const INLINE_FIAT_LOCATIONS =
+    '#navbar-robux, #buy-robux-popover, .rovalra-group-funds-section';
 const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
 const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 
@@ -407,7 +408,50 @@ function buildEstimateStyle(fiatSettings) {
     };
 }
 
-async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
+const devexUsdCache = new Map();
+
+function isNavbarRobuxBalance(element) {
+    return (
+        element instanceof HTMLElement &&
+        element.closest('#nav-robux-icon, #navbar-robux .nav-robux-icon') !==
+            null
+    );
+}
+
+function getDevexUsdAmount(robuxAmount, useEstimateApi) {
+    if (!useEstimateApi) return robuxAmount * DEVEX_USD_RATE;
+
+    if (!devexUsdCache.has(robuxAmount)) {
+        devexUsdCache.set(
+            robuxAmount,
+            callRobloxApiJson({
+                subdomain: 'billing',
+                endpoint: `/v1/estimated-fiat?robuxAmount=${robuxAmount}`,
+            })
+                .then((data) => {
+                    const standardUsd = data.usdAmountMicro / 1e6;
+                    if (!data.shouldDisplayEffectiveO18Robux || !robuxAmount)
+                        return standardUsd;
+                    const o18Robux = Math.min(
+                        data.effectiveO18Robux,
+                        robuxAmount,
+                    );
+                    return (
+                        o18Robux * data.effectiveO18ToUsdRate +
+                        (robuxAmount - o18Robux) * (standardUsd / robuxAmount)
+                    );
+                })
+                .catch(() => robuxAmount * DEVEX_USD_RATE),
+        );
+    }
+    return devexUsdCache.get(robuxAmount);
+}
+
+async function getFormattedRobuxEstimate(
+    robuxAmount,
+    pricingData,
+    element = null,
+) {
     const fiatSettings = await getRobuxFiatSettings();
     if (!fiatSettings.robuxFiatEstimatesEnabled) return null;
 
@@ -415,7 +459,10 @@ async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
     const style = buildEstimateStyle(fiatSettings);
 
     if (fiatSettings.robuxFiatRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
-        const usdAmount = robuxAmount * DEVEX_USD_RATE;
+        const usdAmount = await getDevexUsdAmount(
+            robuxAmount,
+            isNavbarRobuxBalance(element),
+        );
         const convertedAmount = await convertCurrencyAmount(
             usdAmount,
             'USD',
@@ -628,6 +675,7 @@ async function attachTransactionsCellEstimate(labelCell) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            targetCell,
         );
         if (!formattedEstimate) return;
 
@@ -706,6 +754,7 @@ async function attachGroupRevenueEstimate(amountCell) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            amountCell,
         );
         if (!formattedEstimate) return;
 
@@ -802,6 +851,7 @@ async function attachUsdEstimate(icon) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            element,
         );
         if (!formattedEstimate) return;
 
@@ -836,6 +886,7 @@ async function attachUsdEstimateToValueElement(element) {
         const formattedEstimate = await getFormattedRobuxEstimate(
             resolvedAmount,
             pricingData,
+            amountElement,
         );
         if (!formattedEstimate) return;
 

@@ -1,0 +1,206 @@
+.request-tab-header {
+    .rovalra-request-filters {
+        position: relative;
+        margin: 4px 8px 0 auto;
+        line-height: normal;
+    }
+
+    // Same block layout as the native "Ignore all" button so the text lines up
+    .rovalra-request-filters-toggle {
+        display: block;
+        white-space: nowrap;
+
+        > icon {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        > icon + span {
+            margin-left: 4px;
+        }
+
+        &.rovalra-active {
+            color: var(--color-content-emphasis, #fff);
+            font-weight: 600;
+        }
+    }
+
+    .rovalra-request-filters-count {
+        display: inline-block;
+        min-width: 16px;
+        height: 16px;
+        margin-left: 6px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background-color: var(--color-system-emphasis, #335fff);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        vertical-align: top;
+
+        &[hidden] {
+            display: none;
+        }
+    }
+}
+
+.rovalra-request-filters-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1010;
+    width: 760px;
+    max-width: calc(100vw - 32px);
+    text-align: left;
+    font-weight: 400;
+}
+
+.rovalra-request-filters-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 16px 0;
+
+    img {
+        flex-shrink: 0;
+        object-fit: contain;
+    }
+}
+
+.rovalra-request-filters-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    padding: 16px 16px 4px;
+}
+
+.rovalra-request-filters-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+// Two columns only fit on wide screens, narrow ones fall back to a scrolling list
+@media (max-width: 820px) {
+    .rovalra-request-filters-body {
+        grid-template-columns: minmax(0, 1fr);
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+}
+
+.rovalra-request-filters-sort {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rovalra-request-filters-badges {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 12px;
+}
+
+.rovalra-request-filters-badge-row {
+    display: contents;
+
+    > .rovalra-pill-toggle {
+        align-self: center !important;
+        justify-self: end;
+    }
+}
+
+.rovalra-request-filters-badge-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    white-space: nowrap;
+}
+
+.rovalra-request-filters-badge-icon {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.rovalra-request-filters-verified-check {
+    position: absolute;
+    color: #fff;
+}
+
+.rovalra-request-filters-range {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-request-filters-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.rovalra-input-error {
+    .rovalra-catalog-input-fieldset,
+    .rovalra-catalog-input-base.Mui-focused .rovalra-catalog-input-fieldset {
+        border-color: var(--color-system-alert, #f45b52) !important;
+    }
+
+    .rovalra-catalog-input-label {
+        color: var(--color-system-alert, #f45b52) !important;
+    }
+}
+
+.rovalra-request-filters-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px 16px;
+
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+}
+
+.rovalra-request-filter-status {
+    margin: -4px 0 12px;
+}
+
+.rovalra-requests-filtered > .avatar-cards:not(.rovalra-filtered-requests),
+.rovalra-requests-filtered-parent > .pager-holder {
+    display: none !important;
+}
+
+.rovalra-filtered-requests-more {
+    display: block;
+    margin: 12px auto 0;
+}
+
+.rovalra-request-filters-range input[type='number'] {
+    appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        margin: 0;
+        appearance: none;
+    }
+}
+
+.rovalra-has-sent-date > .avatar-card-footer:not(.rovalra-request-sent) {
+    display: none !important;
+}
+
+.rovalra-request-date {
+    display: flex;
+    gap: 3px;
+}

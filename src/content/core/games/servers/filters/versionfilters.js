@@ -7,6 +7,12 @@ import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js'; 
 import DOMPurify from 'dompurify';
 import { ts } from '../../../locale/i18n.js';
+import {
+    isServerApiDisabled,
+    markServerApiDisabled,
+    onServerApiDisabled,
+    applyDisabledFilterStyle,
+} from './apiStatus.js';
 
 let isInitialized = false;
 let currentCursor = null;
@@ -74,6 +80,10 @@ async function fetchVersionCounts() {
             endpoint: `/v1/servers/counts?place_id=${placeId}`,
             isRovalraApi: true
         });
+        if (response?.disabled) {
+            markServerApiDisabled();
+            return [];
+        }
         return response?.counts?.place_versions || [];
     } catch (e) {
         console.warn('RoValra: Failed to fetch version counts', e);
@@ -174,7 +184,9 @@ async function createVersionWidget(container) {
     });
 
     if (dropdown.trigger) {
-        addTooltip(dropdown.trigger, ts('regionSelector.filterByVersion'), { position: 'top' });
+        addTooltip(dropdown.trigger, () => isServerApiDisabled()
+            ? ts('regionSelector.filterDisabledByRoblox')
+            : ts('regionSelector.filterByVersion'), { position: 'top' });
     }
 
     dropdown.element.classList.add('rovalra-version-filter-widget', 'rovalra-filter-widget');
@@ -233,6 +245,10 @@ async function createVersionWidget(container) {
 
     container.prepend(dropdown.element);
     currentDropdownInstance = dropdown;
+    onServerApiDisabled(() => {
+        closeDropdown();
+        applyDisabledFilterStyle(dropdown.element);
+    });
 }
 
 

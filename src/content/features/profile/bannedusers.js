@@ -350,26 +350,15 @@ async function renderBannedUserProfile(user, settings) {
             </div>
 
             <div style="max-width: 1140px; margin: 0 auto; padding: 0 15px;">
-                <ul class="profile-tabs flex">
-                    <li class="justify-center flex fill"><a id="rovalra-banned-tab-about-link" href="#rovalra-banned-about-content" class="profile-tab active justify-center text-label-medium flex fill">${ts('bannedUsers.about')}</a></li>
-                    <li class="justify-center flex fill"><a id="rovalra-banned-tab-creations-link" href="#rovalra-banned-creations-content" class="profile-tab justify-center text-label-medium flex fill">${ts('bannedUsers.creations')}</a></li>
-                </ul>
-                <div class="profile-tab-content-wrapper padding-top-xxlarge">
-                    <div id="rovalra-banned-about-content" class="tab-pane active">
-                        <div id="rovalra-banned-sections-container">
-                            <div id="rovalra-banned-wearing-container"></div>
-                            <div id="rovalra-banned-store-container"></div>
-                            <div id="rovalra-banned-favorites-container"></div>
-                            <div id="rovalra-banned-friends-container"></div>
-                            <div id="rovalra-banned-groups-container"></div>
-                            <div id="rovalra-banned-badges-container"></div>
-                        </div>
-                    </div>
-                    <div id="rovalra-banned-creations-content" class="tab-pane">
-                        <div class="profile-game section container-list">
-                            <div class="container-header"><h3>${ts('bannedUsers.experiences')}</h3></div>
-                            <div class="game-grid"><div id="rovalra-banned-creations-list" class="css-1i465w8-carousel" style="display: flex; flex-wrap: wrap; gap: 12px; padding: 0;"></div></div>
-                        </div>
+                <div class="padding-top-xxlarge">
+                    <div id="rovalra-banned-sections-container">
+                        <div id="rovalra-banned-wearing-container"></div>
+                        <div id="rovalra-banned-creations-container"></div>
+                        <div id="rovalra-banned-store-container"></div>
+                        <div id="rovalra-banned-favorites-container"></div>
+                        <div id="rovalra-banned-friends-container"></div>
+                        <div id="rovalra-banned-groups-container"></div>
+                        <div id="rovalra-banned-badges-container"></div>
                     </div>
                 </div>
             </div>
@@ -455,26 +444,6 @@ async function renderBannedUserProfile(user, settings) {
         const bannedUrl = `${lPrefix}/banned-users/${currentUser}/profile`;
         window.history.pushState({}, '', bannedUrl);
     };
-
-    const tabLinks = content.querySelectorAll('.profile-tab');
-    const tabPanes = content.querySelectorAll('.tab-pane');
-    tabLinks.forEach((link) => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault();
-            const targetTabId = link.getAttribute('href').substring(1);
-            tabLinks.forEach((tab) => tab.classList.remove('active'));
-            tabPanes.forEach((pane) => {
-                pane.classList.remove('active');
-                pane.style.display = 'none';
-            });
-            link.classList.add('active');
-            const activePane = document.getElementById(targetTabId);
-            if (activePane) {
-                activePane.classList.add('active');
-                activePane.style.display = 'block';
-            }
-        });
-    });
 
     content
         .querySelectorAll('#rovalra-banned-groups-list a')
@@ -1078,30 +1047,34 @@ async function loadExperiences(userId) {
         )
             return;
 
-        const creationsList = document.getElementById(
-            'rovalra-banned-creations-list',
+        const container = document.getElementById(
+            'rovalra-banned-creations-container',
         );
-        if (!creationsList) return;
+        if (!container) return;
 
-        creationsList.innerHTML = '';
-        if (userGames.length > 0) {
-            userGames.forEach((game) => {
-                const itemWrapper = document.createElement('div');
-                itemWrapper.id = 'collection-carousel-item';
-                itemWrapper.className = 'css-1anzfxy-carouselItem';
-                itemWrapper.style.flexShrink = '0';
-                itemWrapper.style.width = '150px';
-                itemWrapper.appendChild(
-                    createGameCard({
-                        gameId: game.id,
-                        placeId: game.rootPlace?.id,
-                        game: game,
-                    }),
-                );
-                creationsList.appendChild(itemWrapper);
-            });
-        } else {
-            creationsList.innerHTML = `<p class="no-results-message">${ts('bannedUsers.noExperiences')}</p>`; //Verified
+        if (userGames.length === 0) {
+            container.remove();
+            return;
         }
+
+        const { section, list: creationsList } = createProfileCarouselSection({
+            title: ts('bannedUsers.experiences'),
+            className: 'profile-favorite-experiences',
+            listId: 'rovalra-banned-creations-list',
+            includeScrollButtons: false,
+        });
+        container.replaceWith(section);
+
+        userGames.slice(0, 6).forEach((game) => {
+            const itemWrapper = createProfileCarouselItem();
+            itemWrapper.appendChild(
+                createGameCard({
+                    gameId: game.id,
+                    placeId: game.rootPlace?.id,
+                    game: game,
+                }),
+            );
+            creationsList.appendChild(itemWrapper);
+        });
     } catch (e) {}
 }

@@ -285,6 +285,71 @@ export async function getPlaceDetails(placeId) {
     }
 }
 
+export async function getUniverseIdFromPlaceId(placeId) {
+    const cacheKey = String(placeId);
+
+    const cached = await CacheHandler.get(
+        'place_universe_id',
+        cacheKey,
+        'session',
+    );
+    if (cached) {
+        return cached;
+    }
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: `/universes/v1/places/${placeId}/universe`,
+            method: 'GET',
+        });
+
+        const universeId = Number(data?.universeId);
+        if (!universeId) return null;
+
+        await CacheHandler.set(
+            'place_universe_id',
+            cacheKey,
+            universeId,
+            'session',
+        );
+        return universeId;
+    } catch (error) {
+        console.error(
+            `RoValra: Failed to fetch universe id for placeId ${placeId}`,
+            error,
+        );
+        return null;
+    }
+}
+
+export async function getUniverseIdsFromPlaceIds(placeIds) {
+    const universeIds = new Map();
+    for (let i = 0; i < placeIds.length; i += 50) {
+        const details = await getPlacesDetails(placeIds.slice(i, i + 50));
+        for (const place of details) {
+            if (place?.universeId) {
+                universeIds.set(
+                    Number(place.placeId),
+                    Number(place.universeId),
+                );
+            }
+        }
+    }
+
+    const missing = placeIds
+        .map(Number)
+        .filter((placeId) => !universeIds.has(placeId));
+    await Promise.all(
+        missing.map(async (placeId) => {
+            const universeId = await getUniverseIdFromPlaceId(placeId);
+            if (universeId) universeIds.set(placeId, universeId);
+        }),
+    );
+
+    return universeIds;
+}
+
 export async function getUniversesDetails(universeIds) {
     if (!Array.isArray(universeIds) || universeIds.length === 0) return [];
 
@@ -398,6 +463,8 @@ export default {
     getCloudRootPlaceId,
     getPlaceDetails,
     getPlacesDetails,
+    getUniverseIdFromPlaceId,
+    getUniverseIdsFromPlaceIds,
     getUniversesDetails,
     getUniversesVotes,
     getUniverseEligibilities,

@@ -1,0 +1,58 @@
+.rovalra-debug-overlay-summary {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0 4px;
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+}
+
+.rovalra-debug-overlay-chevron {
+    flex-shrink: 0;
+    color: var(--color-content-muted, #a0a4a8);
+    transition: transform 0.15s ease;
+}
+
+.rovalra-debug-overlay-section:not([open]) .rovalra-debug-overlay-chevron {
+    transform: rotate(-90deg);
+}
+
+.rovalra-debug-overlay-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 12px;
+    padding: 2px 0;
+}
+
+.rovalra-debug-overlay-label {
+    overflow: hidden;
+    color: var(--color-content-muted, #a0a4a8);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-debug-overlay-value {
+    overflow: hidden;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &[data-level='good'] {
+        color: var(--color-system-success, #3cc86b);
+    }
+
+    &[data-level='warn'] {
+        color: var(--color-system-warning, #f5a623);
+    }
+
+    &[data-level='bad'] {
+        color: var(--color-system-alert, #f05a5a);
+    }
+}

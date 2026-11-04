@@ -6,7 +6,7 @@ import {
 
 const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
-const AUTH_GAME_UNIVERSE_IDS = [9765626115, 9797153324, 9858244250];
+const FAVORITED_AUTH_GAMES_KEY = 'rovalra_oauth_favorited_games';
 const AUTH_FAVORITES_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 const ACTIVE_FALLBACK_PROGRESS_MS = 2 * 60 * 1000;
 
@@ -14,6 +14,7 @@ let fallbackTokenCache = new Map();
 let isFlowProcessing = false;
 let cleanupIntervalId = null;
 let isCleanupRunning = false;
+let favoritedGamesWriteQueue = Promise.resolve();
 
 function setCachedFallbackToken(userId, token) {
     if (!userId) return;
@@ -133,7 +134,45 @@ export async function getValidFallbackToken(forceRefresh = false) {
     return null;
 }
 
+async function getFavoritedAuthGames(userId) {
+    if (!userId) return [];
+    const storage = await chrome.storage.local.get(FAVORITED_AUTH_GAMES_KEY);
+    const allGames = storage[FAVORITED_AUTH_GAMES_KEY] || {};
+    return allGames[userId] || [];
+}
+
+function updateFavoritedAuthGames(userId, updater) {
+    if (!userId) return Promise.resolve();
+    favoritedGamesWriteQueue = favoritedGamesWriteQueue
+        .catch(() => {})
+        .then(async () => {
+            const storage = await chrome.storage.local.get(
+                FAVORITED_AUTH_GAMES_KEY,
+            );
+            const allGames = storage[FAVORITED_AUTH_GAMES_KEY] || {};
+            const updated = updater(allGames[userId] || []);
+            if (updated.length) {
+                allGames[userId] = updated;
+            } else {
+                delete allGames[userId];
+            }
+            await chrome.storage.local.set({
+                [FAVORITED_AUTH_GAMES_KEY]: allGames,
+            });
+        });
+    return favoritedGamesWriteQueue;
+}
+
 async function favoriteGame(universeId, isFavorited = true) {
+    const userId = await getAuthenticatedUserId();
+    const id = String(universeId);
+
+    if (isFavorited) {
+        await updateFavoritedAuthGames(userId, (games) =>
+            games.includes(id) ? games : [...games, id],
+        );
+    }
+
     try {
         const response = await callRobloxApi({
             subdomain: 'games',
@@ -141,6 +180,11 @@ async function favoriteGame(universeId, isFavorited = true) {
             method: 'POST',
             body: { isFavorited: isFavorited },
         });
+        if (!isFavorited && response.ok) {
+            await updateFavoritedAuthGames(userId, (games) =>
+                games.filter((gameId) => gameId !== id),
+            );
+        }
         return response.ok;
     } catch {
         return false;
@@ -148,9 +192,9 @@ async function favoriteGame(universeId, isFavorited = true) {
 }
 
 async function unfavoriteAllAuthGames() {
-    const promises = AUTH_GAME_UNIVERSE_IDS.map((universeId) =>
-        favoriteGame(universeId, false),
-    );
+    const userId = await getAuthenticatedUserId();
+    const games = await getFavoritedAuthGames(userId);
+    const promises = games.map((universeId) => favoriteGame(universeId, false));
     await Promise.allSettled(promises);
 }
 
@@ -186,13 +230,20 @@ async function cleanupAuthGameFavorites() {
     const userId = await getAuthenticatedUserId();
     if (!userId || (await shouldSkipAuthFavoriteCleanup(userId))) return;
 
+    const games = await getFavoritedAuthGames(userId);
+    if (!games.length) return;
+
     isCleanupRunning = true;
     try {
         const results = await Promise.allSettled(
-            AUTH_GAME_UNIVERSE_IDS.map(async (universeId) => {
+            games.map(async (universeId) => {
                 const isFavorited = await isAuthGameFavorited(universeId);
                 if (isFavorited) {
                     await favoriteGame(universeId, false);
+                } else {
+                    await updateFavoritedAuthGames(userId, (stored) =>
+                        stored.filter((gameId) => gameId !== universeId),
+                    );
                 }
             }),
         );

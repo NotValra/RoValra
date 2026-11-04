@@ -14,6 +14,16 @@ export const FINDER_CONFIG = {
 
 export const dataPromise = Promise.resolve();
 
+const disabledRegionApiPlaces = new Set();
+
+export function isRegionApiDisabled(placeId) {
+    return disabledRegionApiPlaces.has(String(placeId));
+}
+
+export function markRegionApiDisabled(placeId) {
+    disabledRegionApiPlaces.add(String(placeId));
+}
+
 export function getRegionName(regionId) {
     if (regionId === 'AUTO') return 'Automatic';
     const region = REGIONS[regionId];
@@ -59,10 +69,10 @@ export function getRegionDistance(code1, code2) {
 export async function findClosestServerViaApi(
     placeId,
     originRegionId,
-    userRequestedStop,
+    userRequestedStopCheck,
 ) {
     const origin = REGIONS[originRegionId];
-    if (!origin) return null;
+    if (!origin || isRegionApiDisabled(placeId)) return null;
 
     const regionsWithDistance = Object.entries(REGIONS)
         .filter(([id, r]) => id !== originRegionId && id !== 'AUTO')
@@ -82,7 +92,7 @@ export async function findClosestServerViaApi(
     const regionsToCheck = regionsWithDistance.slice(0, 10);
 
     for (const { id, region } of regionsToCheck) {
-        if (userRequestedStop) return null;
+        if (userRequestedStopCheck?.()) return null;
 
         let url = `/v1/servers/region?place_id=${placeId}`;
         if (region.country)
@@ -97,9 +107,13 @@ export async function findClosestServerViaApi(
             });
             if (response.ok) {
                 const data = await response.json();
+                if (data.disabled) {
+                    markRegionApiDisabled(placeId);
+                    return null;
+                }
                 if (data.servers && data.servers.length > 0) {
                     for (const server of data.servers) {
-                        if (userRequestedStop) return null;
+                        if (userRequestedStopCheck?.()) return null;
 
                         try {
                             const joinRes = await callRobloxApi({
@@ -249,6 +263,8 @@ export async function findServerViaRovalraApi(
             if (!isActive) return { joined: false };
         }
 
+        if (isRegionApiDisabled(placeId)) return { status: 'DISABLED' };
+
         const rankedRegions = await getRankedRegions(
             placeId,
             preferredRegionId,
@@ -262,6 +278,7 @@ export async function findServerViaRovalraApi(
                 return { status: 'STOPPED' };
 
             const servers = await fetchServersForRegion(placeId, region);
+            if (isRegionApiDisabled(placeId)) return { status: 'DISABLED' };
             if (servers && servers.length > 0) {
                 apiSucceededAtLeastOnce = true;
 
@@ -406,6 +423,10 @@ async function fetchServersForRegion(placeId, region) {
         });
         if (!response.ok) return null;
         const data = await response.json();
+        if (data.disabled) {
+            markRegionApiDisabled(placeId);
+            return [];
+        }
         return data.servers || [];
     } catch (e) {
         return null;
@@ -514,6 +535,7 @@ async function attemptJoinServers(
             if (res.ok) {
                 const info = await res.json();
                 if (info.joinScript) {
+                    if (stopCheck && stopCheck()) return false;
                     joinedServerIds.add(serverId);
                     hideLoadingOverlay(true);
                     launchGame(placeId, serverId);

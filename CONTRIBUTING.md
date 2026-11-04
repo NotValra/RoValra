@@ -127,6 +127,7 @@ YourFeatureName: {
     type: "checkbox", // Common types: "checkbox", "input", "select"
     default: true,    // Set the default state, only features that are likely to be useful to everyone should be on by default.
     storageKey: ["What Ever Storage Key Your Feature Uses", "In case of multiple keys"] // Add this if your feature stores stuff for its functionality. So a user is able to clear the storage
+    indexedDbStore: "yourStoreName", // Add this if your feature stores data in IndexedDB (see "Storing Large Data with IndexedDB" below). So a user is able to clear the storage
     contributors: ["YOUR USER ID HERE"] // This adds your user as a contributor under a setting, which should be added if you contributed to an existing setting or created an entirely new one.
     // Optional properties that adds a pill beside the title with a tooltip explaining why its there
     // experimental: "reason why its experimental",
@@ -145,6 +146,56 @@ YourFeatureName: {
 ### Using your setting
 
 To retrieve the value of a setting, import the `settings` API from `./src/content/core/settings/getSettings.js`, and use it as: `await settings.YourFeatureName`, which returns the value.
+
+## Storing Large Data with IndexedDB
+
+`chrome.storage.local` is fine for small things like flags or a few cached values. If your feature stores a lot of data (e.g. a cache per user, scanned inventories, badge lists), use IndexedDB instead.
+
+**Files:**
+
+- `src/content/core/storage/indexedDb.js` - The API you use from content scripts.
+- `src/background/indexedDb.js` - The actual database (using [Dexie](https://dexie.org/)), runs in the background script. You should not need to touch this.
+
+Content scripts don't open the database themselves. Every call is sent as a message to the background script, so all tabs share the same data. Everything lives in one database (`rovalra`) and is split into **stores**. A store is just a name you pick for your feature, there is no need to register it or change the database schema.
+
+### Usage
+
+```javascript
+import * as indexedDb from '../../core/storage/indexedDb.js';
+
+const STORE = 'yourFeatureName';
+
+// Returns the value, or null if nothing is stored
+const data = await indexedDb.get(STORE, userId);
+
+// Values can be any object, keys are always converted to strings
+await indexedDb.set(STORE, userId, { items: [], lastUpdated: Date.now() });
+
+await indexedDb.remove(STORE, userId);
+
+// Deletes everything in the store
+await indexedDb.clearStore(STORE);
+
+// Called in every tab whenever a key in the store is set or removed.
+// key is null when the whole store was cleared. Returns a function to stop listening.
+const unsubscribe = indexedDb.onChanged(STORE, (key) => {
+    // re-read and update your UI
+});
+```
+
+### Migrating from chrome.storage
+
+If your feature used to keep its data in `chrome.storage.local`, use `migrateFromChromeStorage` to move it over. It copies every entry of the old object into the store (without overwriting existing entries) and then removes the old key.
+
+```javascript
+await indexedDb.migrateFromChromeStorage('old_storage_key', STORE);
+```
+
+See `src/content/core/utils/trackers/badges.js` for an example.
+
+### Letting users clear the data
+
+Add `indexedDbStore: 'yourStoreName'` to your setting in `settingConfig.js`. This shows the clear storage button for the setting and clears that store when it's used, the same way `storageKey` does for `chrome.storage`.
 
 ## Donator perks
 

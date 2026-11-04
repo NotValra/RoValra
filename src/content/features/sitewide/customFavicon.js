@@ -1,4 +1,6 @@
 import { settings } from '../../core/settings/getSettings.js';
+import { getAssets } from '../../core/assets.js';
+import { isRoblox2016ThemeHost } from './roblox2016Theme.js';
 
 const FAVICON_LINK_ID = 'rovalra-custom-favicon';
 const ICON_LINK_SELECTOR =
@@ -147,15 +149,28 @@ function restoreOriginalFavicon() {
     }
 }
 
-async function refresh() {
-    const isEnabled = (await settings.customFaviconEnabled) === true;
-    const rawUrl = await settings.customFaviconUrl;
-    const url =
-        typeof rawUrl === 'string' && rawUrl.trim() !== ''
-            ? rawUrl.trim()
-            : null;
+async function getWantedUrl() {
+    if ((await settings.customFaviconEnabled) === true) {
+        const rawUrl = await settings.customFaviconUrl;
+        if (typeof rawUrl === 'string' && rawUrl.trim() !== '') {
+            return rawUrl.trim();
+        }
+    }
 
-    if (!isEnabled || !url) {
+    if (
+        isRoblox2016ThemeHost() &&
+        (await settings.roblox2016ThemeEnabled) === true
+    ) {
+        return getAssets().roblox2016Favicon;
+    }
+
+    return null;
+}
+
+async function refresh() {
+    const url = await getWantedUrl();
+
+    if (!url) {
         if (enabled) {
             enabled = false;
             requestedUrl = null;
@@ -180,7 +195,11 @@ async function refresh() {
 
 function handleStorageChange(changes, areaName) {
     if (areaName !== 'local') return;
-    if (changes.customFaviconEnabled || changes.customFaviconUrl) {
+    if (
+        changes.customFaviconEnabled ||
+        changes.customFaviconUrl ||
+        changes.roblox2016ThemeEnabled
+    ) {
         refresh();
     }
 }

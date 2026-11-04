@@ -11,7 +11,6 @@ import { launchGame } from '../../../core/utils/launcher.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { t, ts } from '../../../core/locale/i18n.js';
-import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 
 let isRenderingRecentServers = false;
 
@@ -251,15 +250,14 @@ export function initRecentServers() {
                         'text-heading-small content-emphasis padding-none';
                     h3.textContent = ts('recentServers.title');
 
-                    const refreshBtn = createSquareButton({
-                        content: ts('recentServers.refresh'),
-                        width: 'auto',
-                        height: 'height-800',
-                        paddingX: 'padding-x-small',
-                        paddingY: 'padding-y-none',
-                        fontSize: 'text-label-small',
-                        onClick: () => renderRecentServers(section),
-                    });
+                    const refreshBtn = document.createElement('button');
+                    refreshBtn.type = 'button';
+                    refreshBtn.className =
+                        'btn-more rbx-refresh refresh-link-icon btn-control-xs btn-min-width';
+                    refreshBtn.textContent = ts('recentServers.refresh');
+                    refreshBtn.addEventListener('click', () =>
+                        renderRecentServers(section),
+                    );
 
                     titleRow.append(h3, refreshBtn);
                     headerWrapper.append(titleRow, descriptionSpan);

@@ -33,10 +33,14 @@ async function processDialog(dialog) {
         }
     }
 
-    const allRobuxTexts = Array.from(dialog.querySelectorAll('.text-robux'));
-    const priceEl = allRobuxTexts.find((el) => !heading.contains(el));
+    const infoContainer =
+        dialog.querySelector('.unified-modal-thumbnail-container')
+            ?.nextElementSibling ||
+        Array.from(dialog.querySelectorAll('.text-robux'))
+            .find((el) => !heading.contains(el))
+            ?.closest('.min-w-0.flex.flex-col.gap-small');
 
-    if (!priceEl) return;
+    if (!infoContainer) return;
 
     if (balance === null || isNaN(balance)) return;
 
@@ -47,13 +51,7 @@ async function processDialog(dialog) {
         container = document.createElement('div');
         container.className = 'rovalra-robux-after';
         container.style.width = '100%';
-
-        const infoContainer = priceEl.closest(
-            '.min-w-0.flex.flex-col.gap-small',
-        );
-        if (infoContainer) {
-            infoContainer.appendChild(container);
-        }
+        infoContainer.appendChild(container);
     }
 
     container.innerHTML = safeHtml`

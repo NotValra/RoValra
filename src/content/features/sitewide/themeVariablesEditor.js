@@ -702,6 +702,7 @@ export function createThemeVariablesEditor() {
     }
 
     const control = presetDropdown.element;
+    control.dataset.settingName = THEME_VARIABLES_SETTING;
     control.rovalraVisualizer = panel;
 
     loadSettings()

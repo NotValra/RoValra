@@ -1,0 +1,28 @@
+.item-card-thumb-container-inner:has(> .rovalra-ad-pill) {
+    position: relative;
+}
+
+.item-card-thumb-container-inner > .rovalra-ad-pill {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background-color: #fff;
+    color: #000;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: auto;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
+    .rovalra-ad-pill-logo {
+        flex: 0 0 auto;
+        width: 16px;
+        height: 16px;
+        background-color: currentColor;
+    }
+}

@@ -2138,105 +2138,121 @@ function renderPasses(list, noPassesMsg, passes, showNotForSale) {
             : Promise.resolve(new Map());
 
     for (const pass of filteredPasses) {
-        const id = pass.id || pass.gamePassId;
-        const productId = pass.productId || pass.ProductId;
-        const name =
-            pass.displayName || pass.name || ts('privateGames.passes.title');
-        const price = pass.price ?? pass.PriceInRobux ?? 0;
-        const isOwned = pass.isOwned ?? false;
-        const isForSale = pass.isForSale ?? false;
-        const iconId = pass.displayIconImageAssetId || pass.IconImageAssetId;
-
-        const li = document.createElement('li');
-        li.className = 'list-item';
-
-        const storeCard = document.createElement('div');
-        storeCard.className = 'store-card';
-
-        const thumbLink = document.createElement('a');
-        thumbLink.href = `https://www.roblox.com/game-pass/${id}/-`;
-        thumbLink.className = 'gear-passes-asset store-card-link';
-
-        if (iconId) {
-            const thumbContainer = document.createElement('span');
-            thumbContainer.className =
-                'thumbnail-2d-container store-card-image';
-            thumbContainer.style.borderRadius = '8px';
-            thumbContainer.style.overflow = 'hidden';
-            thumbLink.appendChild(thumbContainer);
-
-            thumbnailMapPromise.then((thumbnailMap) => {
-                const thumbData = thumbnailMap.get(iconId);
-                if (thumbData) {
-                    const thumbEl = createThumbnailElement(
-                        thumbData,
-                        name,
-                        '',
-                        { width: '100%', height: '100%', borderRadius: '0px' },
-                    );
-                    thumbContainer.innerHTML = '';
-                    thumbContainer.appendChild(thumbEl);
-                }
-            });
-        }
-
-        const captionSection = document.createElement('div');
-        captionSection.className = 'store-card-caption';
-
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'text-overflow store-card-name';
-        nameDiv.title = name;
-        nameDiv.textContent = name;
-
-        const priceDiv = document.createElement('div');
-        priceDiv.className = 'store-card-price';
-
-        if (!isOwned && !isForSale) {
-            priceDiv.classList.add('offsale');
-            const offSaleSpan = document.createElement('span');
-            offSaleSpan.className = 'text-label';
-            offSaleSpan.style.color = 'var(--rovalra-secondary-text-color)';
-            const offSaleText = document.createElement('span');
-            offSaleText.className = 'text-overflow font-caption-body';
-            offSaleText.textContent = ts('privateGames.passes.offSale');
-            offSaleSpan.appendChild(offSaleText);
-            priceDiv.appendChild(offSaleSpan);
-        } else {
-            const robuxIcon = document.createElement('span');
-            robuxIcon.className = 'icon-robux-16x16';
-            const robuxText = document.createElement('span');
-            robuxText.className = 'text-robux';
-            robuxText.textContent = price.toString();
-            priceDiv.appendChild(robuxIcon);
-            priceDiv.appendChild(robuxText);
-        }
-
-        const footerDiv = document.createElement('div');
-        footerDiv.className = 'store-card-footer';
-
-        if (isOwned) {
-            const ownedText = document.createElement('h5');
-            ownedText.textContent = ts('privateGames.passes.owned');
-            footerDiv.appendChild(ownedText);
-        } else {
-            const buyBtn = document.createElement('button');
-            buyBtn.type = 'button';
-            buyBtn.className =
-                'rbx-gear-passes-purchase btn-buy-md btn-full-width disabled';
-            buyBtn.disabled = true;
-            buyBtn.textContent = ts('privateGames.passes.buy');
-            footerDiv.appendChild(buyBtn);
-        }
-
-        captionSection.appendChild(nameDiv);
-        captionSection.appendChild(priceDiv);
-        captionSection.appendChild(footerDiv);
-
-        storeCard.appendChild(thumbLink);
-        storeCard.appendChild(captionSection);
-        li.appendChild(storeCard);
-        list.appendChild(li);
+        list.appendChild(createPassCard(pass, thumbnailMapPromise));
     }
+}
+
+export function createPassCard(pass, thumbnailMapPromise) {
+    const id = pass.id || pass.gamePassId;
+    const productId = pass.productId || pass.ProductId;
+    const name =
+        pass.displayName || pass.name || ts('privateGames.passes.title');
+    const price = pass.price ?? pass.PriceInRobux ?? 0;
+    const isOwned = pass.isOwned ?? false;
+    const isForSale = pass.isForSale ?? false;
+    const iconId = pass.displayIconImageAssetId || pass.IconImageAssetId;
+
+    const li = document.createElement('li');
+    li.className = 'list-item';
+
+    const storeCard = document.createElement('div');
+    storeCard.className = 'store-card';
+
+    const thumbLink = document.createElement('a');
+    thumbLink.href = `https://www.roblox.com/game-pass/${id}/-`;
+    thumbLink.className = 'gear-passes-asset store-card-link';
+
+    if (iconId) {
+        const thumbContainer = document.createElement('span');
+        thumbContainer.className = 'thumbnail-2d-container store-card-image';
+        thumbContainer.style.borderRadius = '8px';
+        thumbContainer.style.overflow = 'hidden';
+        thumbLink.appendChild(thumbContainer);
+
+        thumbnailMapPromise.then((thumbnailMap) => {
+            const thumbData = thumbnailMap.get(iconId);
+            if (thumbData) {
+                const thumbEl = createThumbnailElement(thumbData, name, '', {
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '0px',
+                });
+                thumbContainer.innerHTML = '';
+                thumbContainer.appendChild(thumbEl);
+            }
+        });
+    }
+
+    const captionSection = document.createElement('div');
+    captionSection.className = 'store-card-caption';
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'text-overflow store-card-name';
+    nameDiv.title = name;
+    nameDiv.textContent = name;
+
+    const priceDiv = document.createElement('div');
+    priceDiv.className = 'store-card-price';
+
+    if (!isOwned && !isForSale) {
+        priceDiv.classList.add('offsale');
+        const offSaleSpan = document.createElement('span');
+        offSaleSpan.className = 'text-label';
+        offSaleSpan.style.color = 'var(--rovalra-secondary-text-color)';
+        const offSaleText = document.createElement('span');
+        offSaleText.className = 'text-overflow font-caption-body';
+        offSaleText.textContent = ts('privateGames.passes.offSale');
+        offSaleSpan.appendChild(offSaleText);
+        priceDiv.appendChild(offSaleSpan);
+    } else {
+        const robuxIcon = document.createElement('span');
+        robuxIcon.className = 'icon-robux-16x16';
+        const robuxText = document.createElement('span');
+        robuxText.className = 'text-robux';
+        robuxText.textContent = price.toString();
+        priceDiv.appendChild(robuxIcon);
+        priceDiv.appendChild(robuxText);
+    }
+
+    const footerDiv = document.createElement('div');
+    footerDiv.className = 'store-card-footer';
+
+    if (isOwned) {
+        const ownedText = document.createElement('h5');
+        ownedText.textContent = ts('privateGames.passes.owned');
+        footerDiv.appendChild(ownedText);
+    } else {
+        const buyBtn = document.createElement('button');
+        buyBtn.type = 'button';
+        buyBtn.className =
+            'rbx-gear-passes-purchase btn-buy-md btn-full-width disabled';
+        buyBtn.disabled = true;
+        buyBtn.textContent = ts('privateGames.passes.buy');
+        footerDiv.appendChild(buyBtn);
+    }
+
+    captionSection.appendChild(nameDiv);
+    captionSection.appendChild(priceDiv);
+    captionSection.appendChild(footerDiv);
+
+    storeCard.appendChild(thumbLink);
+    storeCard.appendChild(captionSection);
+    li.appendChild(storeCard);
+    return li;
+}
+
+export async function fetchAllGamePasses(universeId) {
+    const passes = [];
+    let pageToken = '';
+    do {
+        const res = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=50&passView=Full${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`,
+        });
+        passes.push(...(res?.data || res?.gamePasses || []));
+        pageToken = res?.nextPageToken;
+    } while (pageToken);
+    return passes;
 }
 
 async function loadSubscriptions(subscriptionProviderId, retryCount = 0) {
@@ -2447,11 +2463,7 @@ async function loadPasses(universeId, retryCount = 0) {
     list.appendChild(createShimmerGrid(6, { width: '150px', height: '220px' }));
 
     try {
-        const res = await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=50&passView=Full`,
-        });
-        const passes = res?.data || res?.gamePasses || [];
+        const passes = await fetchAllGamePasses(universeId);
 
         list.querySelectorAll('.shimmer, .rovalra-item-card-shimmer').forEach(
             (el) => el.parentElement?.remove(),

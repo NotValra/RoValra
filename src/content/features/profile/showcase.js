@@ -13,6 +13,7 @@ import {
     getExperienceGuidelinesAgeRecommendation,
 } from '../../core/apis/games.js';
 import { callRobloxApiJson } from '../../core/api.js';
+import { getDecal, openDecalReport } from '../../core/apis/decals.js';
 import {
     getUserSettings,
     updateUserSettingViaApi,
@@ -149,38 +150,6 @@ async function getGame(universeId, fallback = {}) {
     };
 }
 
-async function getDecal(decalId) {
-    const id = Number(decalId);
-    if (!id) return null;
-
-    try {
-        const asset = await callRobloxApiJson({
-            fullUrl: `https://apis.roblox.com/toolbox-service/v2/assets/${id}`,
-            method: 'GET',
-        });
-        const textureId = Number(asset?.asset?.textureId);
-        if (!textureId) return null;
-
-        const thumbnails = await fetchThumbnails(
-            [{ id: textureId }],
-            'Asset',
-            '768x432',
-        );
-        const thumbnail = thumbnails.get(textureId);
-        if (!thumbnail || thumbnail.state === 'Error') return null;
-
-        return {
-            decalId: id,
-            textureId,
-            name: asset.asset.name || `Decal ${id}`,
-            thumbnail,
-        };
-    } catch (error) {
-        console.warn('RoValra: Failed to fetch showcase decal.', error);
-        return null;
-    }
-}
-
 function renderDecalCard(container, decal, canEdit) {
     container.replaceChildren();
     const card = document.createElement('article');
@@ -260,16 +229,7 @@ function createDecalActionMenu(decal) {
             }
 
             if (value === 'report') {
-                const submitterId = await getAuthenticatedUserId();
-                if (!submitterId) return;
-                const custom = encodeURIComponent(
-                    JSON.stringify({ assetTypeId: '1' }),
-                );
-                window.open(
-                    `https://www.roblox.com/report-abuse/?abuseVector=asset&custom=${custom}&submitterId=${submitterId}&targetId=${decal.textureId}`,
-                    '_blank',
-                    'noopener,noreferrer',
-                );
+                await openDecalReport(decal);
             }
         },
         () => {},

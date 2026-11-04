@@ -1,0 +1,228 @@
+.rovalra-better-graph-active {
+    > .price-chart-range-dropdown,
+    > .price-chart-legend,
+    > [id^='line_chart_'],
+    > [id^='vertical_bar_chart_'] {
+        display: none !important;
+    }
+}
+
+.rovalra-better-graph {
+    --rovalra-graph-price: #00b06f;
+    --rovalra-graph-volume: color-mix(in srgb, currentColor 45%, transparent);
+    --rovalra-graph-muted: color-mix(in srgb, currentColor 60%, transparent);
+    --rovalra-graph-grid: color-mix(in srgb, currentColor 14%, transparent);
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.rovalra-better-graph-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.rovalra-better-graph-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rovalra-better-graph-summary-label {
+    font-size: 13px;
+    color: var(--rovalra-graph-muted);
+}
+
+.rovalra-better-graph-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rovalra-better-graph-summary-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.rovalra-better-graph-change {
+    margin-left: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: color-mix(in srgb, currentColor 10%, transparent);
+    color: var(--rovalra-graph-price);
+    font-size: 12px;
+    font-weight: 600;
+
+    &.is-down {
+        color: #e2231a;
+    }
+}
+
+.rovalra-dropdown-container.rovalra-better-graph-range {
+    width: 160px;
+}
+
+.rovalra-better-graph-plot {
+    position: relative;
+}
+
+.rovalra-better-graph-svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+    touch-action: none;
+    user-select: none;
+}
+
+.rovalra-better-graph-grid {
+    stroke: var(--rovalra-graph-grid);
+    stroke-dasharray: 3 3;
+}
+
+.rovalra-better-graph-axis {
+    fill: var(--rovalra-graph-muted);
+    font-size: 12px;
+}
+
+.rovalra-better-graph-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    &.rovalra-series-price {
+        stroke: var(--rovalra-graph-price);
+    }
+}
+
+.rovalra-better-graph-bar {
+    fill: var(--rovalra-graph-volume);
+
+    &.is-active {
+        fill: currentColor;
+    }
+}
+
+.rovalra-better-graph-cursor {
+    stroke: var(--rovalra-graph-muted);
+    stroke-dasharray: 3 3;
+}
+
+.rovalra-better-graph-point {
+    stroke: #fff;
+    stroke-width: 2;
+
+    &.rovalra-series-price {
+        fill: var(--rovalra-graph-price);
+    }
+}
+
+.rovalra-better-graph-tooltip {
+    position: absolute;
+    top: 8px;
+    z-index: 2;
+    min-width: 180px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--rovalra-container-background-color, #fff);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    font-size: 12px;
+    pointer-events: none;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+.rovalra-better-graph-tooltip-title {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.rovalra-better-graph-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    strong {
+        margin-left: auto;
+    }
+}
+
+.rovalra-better-graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+}
+
+.rovalra-better-graph-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--rovalra-graph-muted);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+        color: inherit;
+    }
+
+    &.is-hidden {
+        opacity: 0.4;
+        text-decoration: line-through;
+    }
+}
+
+.rovalra-better-graph-marker {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 8px;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 0;
+        width: 16px;
+        height: 2px;
+        background: currentColor;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+}
+
+.rovalra-series-price .rovalra-better-graph-marker {
+    color: var(--rovalra-graph-price);
+}
+
+.rovalra-series-volume .rovalra-better-graph-marker {
+    color: var(--rovalra-graph-volume);
+
+    &::before {
+        display: none;
+    }
+
+    &::after {
+        border-radius: 1px;
+    }
+}

@@ -38,7 +38,7 @@ export function init() {
 }
 
 
-function subscribeToPresenceUpdates(callback) {
+export function subscribeToPresenceUpdates(callback) {
     subscribers.add(callback);
 
     if (latestPresence) {

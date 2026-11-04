@@ -154,6 +154,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !Number(apiSettings.fav_game) &&
                 !Number(apiSettings.fav_group) &&
                 !Number(apiSettings.fav_decal) &&
+                !Number(apiSettings.status_image) &&
                 !Object.keys(extractBadgeLinks(apiSettings)).length &&
                 Object.keys(apiSettings).length <= 4 &&
                 !apiSettings.theme
@@ -233,6 +234,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
+        status_image: Number(apiSettings.status_image) || 0,
         badges: extractBadgeLinks(apiSettings),
         theme: apiSettings.theme || '',
     };
@@ -370,6 +372,7 @@ async function processApiSettings(userId, apiSettings, options) {
             !Number(apiSettings.fav_game) &&
             !Number(apiSettings.fav_group) &&
             !Number(apiSettings.fav_decal) &&
+            !Number(apiSettings.status_image) &&
             !Object.keys(extractBadgeLinks(apiSettings)).length &&
             Object.keys(apiSettings).length <= 4 &&
             !apiSettings.theme
@@ -446,6 +449,7 @@ async function processApiSettings(userId, apiSettings, options) {
         fav_game: Number(apiSettings.fav_game) || 0,
         fav_group: Number(apiSettings.fav_group) || 0,
         fav_decal: Number(apiSettings.fav_decal) || 0,
+        status_image: Number(apiSettings.status_image) || 0,
         badges: extractBadgeLinks(apiSettings),
         theme: apiSettings.theme || '',
     };

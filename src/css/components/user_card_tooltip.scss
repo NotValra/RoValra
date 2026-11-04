@@ -42,6 +42,13 @@
         }
     }
 
+    .rovalra-uct-join-status {
+        display: flex;
+        align-items: center;
+        min-height: 16px;
+        text-align: left;
+    }
+
     a {
         text-decoration: none;
         color: inherit;

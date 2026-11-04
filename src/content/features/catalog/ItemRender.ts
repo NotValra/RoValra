@@ -17,6 +17,9 @@ import {
     AccessoryAssetTypes,
     LayeredAssetTypes,
     CACHE as RENDERER_CACHE,
+    Property,
+    DataType,
+    Instance,
 } from 'roavatar-renderer';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
@@ -49,6 +52,7 @@ const HOVER_FRAME_TIME = 5;
 const HOVER_AUTO_SWITCH_ANIM_TIME = 3;
 const HOVER_CAMERA_ROTATION_SPEED = 120;
 const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
+const THUMBNAIL_CAMERA_PADDING = 1.1;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
 const renderEnvironmentModeValues = new Set([
     'default',
@@ -97,6 +101,14 @@ let itemOnlyEnabled = false;
 let hideMainRigBody = false;
 let mainRigAnimationsStopped = false;
 let needsItemCameraFocus = false;
+let mainItemId: number | undefined = undefined;
+let mainCameraKey: string | undefined = undefined;
+const itemOnlyCameras = new Map<
+    string,
+    { position: THREE.Vector3; target: THREE.Vector3 }
+>();
+const thumbnailCameraHandleOffsets = new Map<string, CFrame | null>();
+const pendingThumbnailCameraHandleOffsets = new Set<string>();
 let savedMainCamera:
     { position: THREE.Vector3; target: THREE.Vector3 } | undefined = undefined;
 let selectedRenderEnvironmentMode = 'default';
@@ -148,6 +160,7 @@ type AtmosphereConfig = {
     }[];
 };
 
+let mainSceneShadowsDisabled = false;
 let defaultMainSceneLightState: SceneLightState[] | undefined = undefined;
 let defaultMainScenePlaneState: ScenePlaneState | undefined = undefined;
 
@@ -310,6 +323,34 @@ function setMainSceneDefaultLightsEnabled(enabled: boolean) {
 function addItemRenderEnvironmentLight(light: THREE.Light) {
     light.userData.rovalraItemRenderEnvironmentLight = true;
     mainScene.scene.add(light);
+    updateMainSceneShadows(true);
+}
+
+function updateMainSceneShadows(force = false) {
+    if (!force && mainSceneShadowsDisabled === itemOnlyEnabled) return;
+    mainSceneShadowsDisabled = itemOnlyEnabled;
+
+    if (mainScene.shadowPlane)
+        mainScene.shadowPlane.visible =
+            !mainSceneShadowsDisabled &&
+            (defaultMainScenePlaneState?.shadowPlane ?? true) &&
+            !getRenderEnvironmentTogglesFromMode(selectedRenderEnvironmentMode)
+                .baseplate;
+
+    const lights = [
+        ...getMainSceneDefaultLights(),
+        ...mainScene.scene.children.filter(
+            (object) => object.userData?.rovalraItemRenderEnvironmentLight,
+        ),
+    ];
+    for (const light of lights) {
+        if (!(light instanceof THREE.DirectionalLight)) continue;
+        if (light.userData.rovalraCastShadow === undefined)
+            light.userData.rovalraCastShadow = light.castShadow;
+        light.castShadow = mainSceneShadowsDisabled
+            ? false
+            : light.userData.rovalraCastShadow;
+    }
 }
 
 function applyDarkItemRenderLighting() {
@@ -657,6 +698,8 @@ async function applyItemRenderEnvironmentMode() {
     } else {
         resetItemRenderEnvironmentLighting();
     }
+
+    updateMainSceneShadows(true);
 }
 
 function closeRenderEnvironmentMenu() {
@@ -879,6 +922,175 @@ function updateItemOnlyIcon(iconElement: HTMLElement) {
 function getApparelIcon() {
     let icon = accessoriesEnabled ? assets.apparelFillIcon : assets.apparelIcon;
     return applyIconTheme(icon);
+}
+
+function getAssetIdFromLink(itemLink: string | undefined) {
+    if (
+        !itemLink ||
+        itemLink.includes('bundles/') ||
+        itemLink.includes('looks/')
+    )
+        return undefined;
+    const itemId = Number(getPlaceIdFromUrl(itemLink));
+    return itemId || undefined;
+}
+
+function getThumbnailCameraHandleOffset(
+    itemId: number,
+    isR15: boolean,
+): CFrame | 'pending' | undefined {
+    const cacheKey = `${itemId}_${isR15}`;
+    if (thumbnailCameraHandleOffsets.has(cacheKey))
+        return thumbnailCameraHandleOffsets.get(cacheKey) ?? undefined;
+
+    if (!pendingThumbnailCameraHandleOffsets.has(cacheKey)) {
+        pendingThumbnailCameraHandleOffsets.add(cacheKey);
+        API.Asset.GetRBX(
+            `rbxassetid://${itemId}`,
+            isR15
+                ? { 'Roblox-AssetFormat': 'avatar_meshpart_accessory' }
+                : undefined,
+        )
+            .then((rbx) => {
+                let offset: CFrame | null = null;
+                if (!(rbx instanceof Response)) {
+                    const root = rbx.generateTree();
+                    const accessory = root.FindFirstChildOfClass('Accessory');
+                    const camera = accessory?.FindFirstChild('ThumbnailCamera');
+                    const handle = accessory?.FindFirstChild('Handle');
+                    if (camera?.IsA('Camera') && handle?.IsA('BasePart')) {
+                        offset = (handle.Prop('CFrame') as CFrame)
+                            .inverse()
+                            .multiply(camera.Prop('CFrame') as CFrame);
+                    }
+                    root.Destroy();
+                }
+                thumbnailCameraHandleOffsets.set(cacheKey, offset);
+            })
+            .catch(() => thumbnailCameraHandleOffsets.set(cacheKey, null))
+            .finally(() =>
+                pendingThumbnailCameraHandleOffsets.delete(cacheKey),
+            );
+    }
+
+    return 'pending';
+}
+
+function getItemThumbnailCamera(
+    renderScene: RBXRendererScene,
+    sceneContainer: HTMLElement | undefined,
+    outfitRenderer: OutfitRenderer,
+    itemId: number | undefined,
+): { cframe: CFrame; target: Vec3 } | 'pending' | undefined {
+    const rig = outfitRenderer.currentRig;
+    if (!rig || !itemId) return;
+
+    const humanoidDescription = rig
+        .FindFirstChildOfClass('Humanoid')
+        ?.FindFirstChildOfClass('HumanoidDescription');
+    if (!humanoidDescription) return;
+
+    let accessory: Instance | undefined = undefined;
+    for (const desc of humanoidDescription.GetChildren()) {
+        if (desc.className !== 'AccessoryDescription') continue;
+        if (Number(desc.Prop('AssetId')) !== itemId) continue;
+        accessory = desc.Prop('Instance') as Instance | undefined;
+        break;
+    }
+    if (!accessory || accessory.destroyed || accessory.parent !== rig) return;
+
+    let targetPart: Instance | undefined = undefined;
+    let cameraCF: CFrame | undefined = undefined;
+
+    const thumbnailCamera = accessory.FindFirstChild('ThumbnailCamera');
+    const handle = accessory.FindFirstChild('Handle');
+    if (thumbnailCamera?.IsA('Camera') && handle?.IsA('BasePart')) {
+        const handleOffset = getThumbnailCameraHandleOffset(
+            itemId,
+            !!rig.FindFirstChild('UpperTorso'),
+        );
+        if (handleOffset === 'pending') return 'pending';
+        if (handleOffset) {
+            targetPart = handle;
+            cameraCF = (handle.Prop('CFrame') as CFrame).multiply(handleOffset);
+        }
+    }
+
+    if (!targetPart || !cameraCF) {
+        const thumbnailConfiguration = accessory.FindFirstChild(
+            'ThumbnailConfiguration',
+        );
+        if (!thumbnailConfiguration) return;
+
+        const cameraTarget = thumbnailConfiguration.FindFirstChild(
+            'ThumbnailCameraTarget',
+        );
+        const cameraValue = thumbnailConfiguration.FindFirstChild(
+            'ThumbnailCameraValue',
+        );
+        if (
+            !cameraTarget?.IsA('ObjectValue') ||
+            !cameraValue?.IsA('CFrameValue')
+        )
+            return;
+
+        targetPart = cameraTarget.Prop('Value') as Instance | undefined;
+        if (!targetPart || !targetPart.IsA('BasePart')) return;
+
+        cameraCF = (targetPart.Prop('CFrame') as CFrame).multiply(
+            cameraValue.Prop('Value') as CFrame,
+        );
+    }
+
+    const targetCF = targetPart.Prop('CFrame') as CFrame;
+    const lookVector = cameraCF.lookVector();
+    const upVector = cameraCF.upVector();
+    const rightVector = cameraCF.rightVector();
+
+    const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const target = targetCF.Position;
+    const size = targetPart.Prop('Size') as Vector3;
+    const camera = renderScene.camera;
+    const tanY = Math.tan(((camera.fov / 2) * Math.PI) / 180);
+    const bounds = sceneContainer?.getBoundingClientRect();
+    const aspect =
+        bounds && bounds.width > 0 && bounds.height > 0
+            ? bounds.width / bounds.height
+            : 1;
+    const tanX = tanY * aspect;
+
+    let distance = 0.1;
+    for (const x of [-0.5, 0.5]) {
+        for (const y of [-0.5, 0.5]) {
+            for (const z of [-0.5, 0.5]) {
+                const corner = targetCF.multiply(
+                    new CFrame(size.X * x, size.Y * y, size.Z * z),
+                ).Position;
+                const offset: Vec3 = [
+                    corner[0] - target[0],
+                    corner[1] - target[1],
+                    corner[2] - target[2],
+                ];
+                const depth = dot(offset, lookVector);
+                distance = Math.max(
+                    distance,
+                    Math.abs(dot(offset, rightVector)) / tanX - depth,
+                    Math.abs(dot(offset, upVector)) / tanY - depth,
+                    camera.near * 2 - depth,
+                );
+            }
+        }
+    }
+    distance *= THUMBNAIL_CAMERA_PADDING;
+    if (!Number.isFinite(distance)) return;
+
+    cameraCF.Position = [
+        target[0] - lookVector[0] * distance,
+        target[1] - lookVector[1] * distance,
+        target[2] - lookVector[2] * distance,
+    ];
+
+    return { cframe: cameraCF, target };
 }
 
 //Updates camera for outfitRenderer based on added assetType
@@ -1185,7 +1397,20 @@ function updateMainRigBodyVisibility() {
         if (!child.IsA('BasePart') || child.Prop('Name') === 'HumanoidRootPart')
             continue;
 
-        const transparency = hideMainRigBody ? 1 : 0;
+        //add _OriginalTransparency to parts, in case they should be transparent when "visible"
+        if (
+            !child.HasProperty('_OriginalTransparency') &&
+            child.HasProperty('Transparency')
+        ) {
+            child.addProperty(
+                new Property('_OriginalTransparency', DataType.NonSerializable),
+                child.Prop('Transparency'),
+            );
+        }
+
+        const transparency = hideMainRigBody
+            ? 1
+            : child.PropOrDefault('_OriginalTransparency', 0);
         if (child.Prop('Transparency') !== transparency) {
             child.setProperty('Transparency', transparency);
         }
@@ -1273,6 +1498,38 @@ function focusCameraOnWornItem() {
     return true;
 }
 
+function focusItemOnlyCamera() {
+    const controls = mainScene.controls;
+
+    const savedCamera = mainCameraKey && itemOnlyCameras.get(mainCameraKey);
+    if (savedCamera && controls) {
+        mainScene.camera.position.copy(savedCamera.position);
+        controls.target.copy(savedCamera.target);
+        controls.update();
+        return true;
+    }
+
+    const thumbnailCamera =
+        mainOutfitRenderer &&
+        getItemThumbnailCamera(
+            mainScene,
+            mainSceneContainer,
+            mainOutfitRenderer,
+            mainItemId,
+        );
+
+    if (thumbnailCamera === 'pending') return false;
+
+    if (thumbnailCamera && controls) {
+        RBXRenderer.setCameraCFrame(thumbnailCamera.cframe, mainScene);
+        controls.target.set(...thumbnailCamera.target);
+        controls.update();
+        return true;
+    }
+
+    return focusCameraOnWornItem();
+}
+
 function playAppropriateAnim(
     outfitModel: OutfitModel,
     outfitRenderer: OutfitRenderer,
@@ -1321,6 +1578,13 @@ async function startRenderer() {
 
     //main
     RBXRenderer.setupControls(mainScene);
+    mainScene.controls?.addEventListener('end', () => {
+        if (!hideMainRigBody || needsItemCameraFocus || !mainCameraKey) return;
+        itemOnlyCameras.set(mainCameraKey, {
+            position: mainScene.camera.position.clone(),
+            target: mainScene.controls!.target.clone(),
+        });
+    });
     RBXRenderer.setupScene(undefined, undefined, mainScene);
     mainOutfitRenderer = new OutfitRenderer(
         new Authentication(),
@@ -1357,7 +1621,6 @@ async function startRenderer() {
         DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER;
     itemHoverScene.wellLitDirectionalLightIntensity *=
         DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER;
-
     //update theme
     if (!isDarkMode()) {
         RBXRenderer.setBackgroundColor(0xdbdbdc);
@@ -1419,6 +1682,8 @@ async function updateMainRenderer() {
 
         //only hide the body for items that dont need one (clothing, body parts etc still show the body)
         hideMainRigBody = itemOnlyEnabled && canHideBodyForOutfit(mainOutfit);
+        mainItemId = getAssetIdFromLink(targetUrl);
+        mainCameraKey = new URL(targetUrl).pathname;
         needsItemCameraFocus = hideMainRigBody;
 
         if (mainOutfitRenderer) {
@@ -1603,6 +1868,7 @@ function customAnimate() {
     //rig body parts get replaced when the outfit changes, so keep their visibility up to date
     updateMainRigBodyVisibility();
     updateMainRigAnimationState();
+    updateMainSceneShadows();
 
     //focus camera on the item once it has loaded
     if (
@@ -1612,7 +1878,7 @@ function customAnimate() {
         !mainOutfitRenderer.currentlyChangingRig &&
         !currentlyLoadingAssets
     ) {
-        if (focusCameraOnWornItem()) needsItemCameraFocus = false;
+        if (focusItemOnlyCamera()) needsItemCameraFocus = false;
     }
 
     //render
@@ -2062,9 +2328,9 @@ async function asyncInit() {
         { multiple: true },
     );
 
-    //recently viewed item cards
+    //recently viewed and hero unit item cards
     observeElement(
-        '.rovalra-recently-viewed-item .rovalra-item-card',
+        '.rovalra-recently-viewed-item .rovalra-item-card, .rovalra-hero-unit-item .rovalra-item-card',
         (element: HTMLElement) => {
             const itemLinkElement = element.querySelector(
                 'a.rovalra-item-card-link',

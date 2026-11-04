@@ -10,6 +10,7 @@ import { getAssets } from '../../core/assets.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { RISK_COLORS } from '../../core/trade/riskCalculator.js';
 import { ts } from '../../core/locale/i18n.js';
+import { safeHtml, sanitizeStrict } from '../../core/packages/dompurify.js';
 
 let featureSettings = { itemTradingEnabled: true, tradeRiskEnabled: true };
 let isInitialized = false;
@@ -50,12 +51,12 @@ function updateInfo(parent, referenceElement, assetId) {
     const assets = getAssets();
     const rows = [];
 
-    const value = data.default_price || data.rap || 0;
+    const value = Number(data.default_price || data.rap) || 0;
     const valueHtml = `
         <span style="display: flex; align-items: center;">
             <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 6px;">
-            ${value.toLocaleString()}
-            <a href="${getRolimonsUrl(assetId)}" target="_blank" style="display: flex; align-items: center; margin-left: 8px;" class="rovalra-rolimons-link">
+            ${safeHtml`${value.toLocaleString()}`}
+            <a href="${safeHtml`${getRolimonsUrl(assetId)}`}" target="_blank" style="display: flex; align-items: center; margin-left: 8px;" class="rovalra-rolimons-link">
                 <div style="width: 16px; height: 16px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${
                     assets.launchIcon
                 }') center/contain no-repeat; mask: url('${
@@ -72,15 +73,17 @@ function updateInfo(parent, referenceElement, assetId) {
     rows.push(valueRow);
 
     if (data.demand) {
-        rows.push(createRow(ts('trading.demandLabel'), data.demand));
+        rows.push(
+            createRow(ts('trading.demandLabel'), sanitizeStrict(data.demand)),
+        );
     }
 
     if (data.trend) {
-        rows.push(createRow('Trend', data.trend));
+        rows.push(createRow('Trend', sanitizeStrict(data.trend)));
     }
 
     if (data.acronym) {
-        rows.push(createRow('Acronym', data.acronym));
+        rows.push(createRow('Acronym', sanitizeStrict(data.acronym)));
     }
 
     if (featureSettings.tradeRiskEnabled) {
@@ -178,7 +181,9 @@ function updateItemName(header, assetId) {
             const projIcon = document.createElement('img');
             projIcon.src = assets.projectedWarning;
             Object.assign(projIcon.style, { width: '24px', height: '24px' });
-            addTooltip(projIcon, ts('trading.projectedItem'), { position: 'top' });
+            addTooltip(projIcon, ts('trading.projectedItem'), {
+                position: 'top',
+            });
             container.appendChild(projIcon);
         }
         if (data.is_rare) {

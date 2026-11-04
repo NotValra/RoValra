@@ -1,6 +1,19 @@
 const assetPaths = {
     rovalraIcon: 'public/Assets/RoValraLogo.png',
     oldRovalraIcon: 'public/Assets/OldLogo/OldLogo.png',
+    roblox2016Logo: 'public/Assets/Roblox2016/roblox_logo.svg',
+    roblox2016LogoR: 'public/Assets/Roblox2016/logo_R.svg',
+    roblox2016NavSprite: 'public/Assets/Roblox2016/navigation_02012016.svg',
+    roblox2016BrandedSprite: 'public/Assets/Roblox2016/branded_05092016.svg',
+    roblox2016Favicon: 'public/Assets/Roblox2016/favicon.ico',
+    roblox2016ThumbsSprite: 'public/Assets/Roblox2016/thumbs.svg',
+    roblox2016GenericSprite: 'public/Assets/Roblox2016/generic_06102016.svg',
+    roblox2016GamesSprite: 'public/Assets/Roblox2016/games.svg',
+    roblox2016FontLatin: 'public/Assets/fonts/SourceSans3-Latin.woff2',
+    roblox2016FontLatinExt: 'public/Assets/fonts/SourceSans3-LatinExt.woff2',
+    roblox2016FontCyrillic: 'public/Assets/fonts/SourceSans3-Cyrillic.woff2',
+    roblox2016FontVietnamese:
+        'public/Assets/fonts/SourceSans3-Vietnamese.woff2',
     contributorIcon: 'public/Assets/Contributor.png',
     communityFeedbackProgramIcon: 'public/Assets/two-people-speech-bubble.svg',
     creatorEventsIcon: 'public/Assets/person-rectangle-horizontal-line.svg',
@@ -18,6 +31,7 @@ const assetPaths = {
     globeInitializer: 'public/Assets/data/globe_initializer.js',
     mapDark: 'public/Assets/data/map_dark.png',
     mapLight: 'public/Assets/data/map_light.png',
+    robloxAdminBadge: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M7.91703 2L2 24.083L24.083 30L30 7.91703L7.91703 2ZM18.2592 19.9135L12.0885 18.2592L13.7427 12.0885L19.916 13.7427L18.2592 19.9135Z"/></svg>')}`,
     // countriesJson: 'public/Assets/data/countries.json',
     verifiedBadge:
         "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 28 28' fill='none'%3E%3Cg clip-path='url(%23clip0_8_46)'%3E%3Crect x='5.88818' width='22.89' height='22.89' transform='rotate(15 5.88818 0)' fill='%230066FF'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M20.543 8.7508L20.549 8.7568C21.15 9.3578 21.15 10.3318 20.549 10.9328L11.817 19.6648L7.45 15.2968C6.85 14.6958 6.85 13.7218 7.45 13.1218L7.457 13.1148C8.058 12.5138 9.031 12.5138 9.633 13.1148L11.817 15.2998L18.367 8.7508C18.968 8.1498 19.942 8.1498 20.543 8.7508Z' fill='white'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_8_46'%3E%3Crect width='28' height='28' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E",
@@ -26,7 +40,7 @@ const assetPaths = {
     TerminalIcon: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M20 4H4c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2m0 14H4V8h16zm-2-1h-6v-2h6zM7.5 17l-1.41-1.41L8.67 13l-2.59-2.59L7.5 9l4 4z"></path></svg>')}`,
     qolIcon: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M3 13h2v-2H3zm0 4h2v-2H3zm0-8h2V7H3zm4 4h14v-2H7zm0 4h14v-2H7zM7 7v2h14V7z"></path></svg>')}`,
     outfitIcon: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M21.6 18.2 13 11.75v-.91c1.65-.49 2.8-2.17 2.35-4.01-.31-1.32-1.4-2.37-2.72-2.66C10.15 3.68 8 5.59 8 8h2c0-1.1.9-2 2-2s2 .9 2 2c0 1.11-.91 2.01-2.02 2H11v2.75L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8zM6 18l6-4.5 6 4.5H6z"></path></svg>')}`,
-    sidebarCollapseIcon: `data:image/svg+xml,${encodeURIComponent('<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z"></path></svg>')}`,
+    sidebarCollapseIcon: `data:image/svg+xml,${encodeURIComponent('<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></svg>')}`,
     ageThemeIcon: `data:image/svg+xml,${encodeURIComponent('<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path fill="white" d="M21 3H3C2 3 1 4 1 5v14c0 1.1.9 2 2 2h18c1 0 2-1 2-2V5c0-1-1-2-2-2M5 17l3.5-4.5 2.5 3.01L14.5 11l4.5 6z"></path></svg>')}`,
     BlockIcon: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2M4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12m8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8"></path></svg>')}`,
     blahaj: 'https://www.rovalra.com/static/img/blahaj.png',
@@ -69,6 +83,11 @@ const assetPaths = {
     robux: 'https://www.rovalra.com/static/img/robux.png',
     modernRobuxIcon: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16'%3E%3Cpath d='M15.0762 7.29574C15.6479 6.96571 16.3521 6.96571 16.9238 7.29574L23.0762 10.8479C23.6479 11.1779 24 11.7878 24 12.4479V19.5521C24 20.2122 23.6479 20.8221 23.0762 21.1521L16.9238 24.7043C16.3521 25.0343 15.6479 25.0343 15.0762 24.7043L8.92376 21.1521C8.35214 20.8221 8 20.2122 8 19.5521V12.4479C8 11.7878 8.35214 11.1779 8.92376 10.8479L15.0762 7.29574ZM11.9998 13V19C11.9998 19.5523 12.4475 20 12.9998 20H18.9998C19.5521 20 19.9998 19.5523 19.9998 19V13C19.9998 12.4477 19.5521 12 18.9998 12H12.9998C12.4475 12 11.9998 12.4477 11.9998 13Z' fill='%2393979a'/%3E %3Cpath d='M13.8556 2.56068C15.1825 1.81311 16.8175 1.81311 18.1444 2.56068L26.8556 7.46819C28.1825 8.21577 29 9.59734 29 11.0925V20.9075C29 22.4027 28.1825 23.7842 26.8556 24.5318L18.1444 29.4393C16.8175 30.1869 15.1825 30.1869 13.8556 29.4393L5.14444 24.5318C3.81746 23.7842 3 22.4027 3 20.9075V11.0925C3 9.59734 3.81746 8.21577 5.14444 7.46819L13.8556 2.56068ZM17.1628 4.30319C16.4452 3.89894 15.5548 3.89894 14.8372 4.30319L6.12611 9.2107C5.41362 9.61209 5 10.336 5 11.0925V20.9075C5 21.664 5.41362 22.3879 6.12611 22.7893L14.8372 27.6968C15.5548 28.1011 16.4452 28.1011 17.1628 27.6968L25.8739 22.7893C26.5864 22.3879 27 21.664 27 20.9075V11.0925C27 10.336 26.5864 9.61209 25.8739 9.2107L17.1628 4.30319Z' fill='%2393979a'/%3E%3C/svg%3E`,
     brokenAvatar: 'https://www.rovalra.com/static/img/broken-avatar-200px.png',
+    roGoldWarningRegionSelector:
+        'https://www.rovalra.com/images/regionSelector.png',
+    roGoldWarningSaveRobux: 'https://www.rovalra.com/images/saveRobux.png',
+    roGoldWarningQuickPlay: 'https://www.rovalra.com/images/QuickPlay.png',
+    roGoldWarningHiddenGames: 'https://www.rovalra.com/images/hiddenGames.png',
     verifiedBadgeMono:
         'data:image/svg+xml,' +
         encodeURIComponent(
