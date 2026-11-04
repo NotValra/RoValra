@@ -162,6 +162,15 @@ export const SETTINGS_CONFIG = {
                         buttonText: 'Open Setup',
                         event: 'rovalra:open40methodSetup',
                     },
+                    fortyMethodIndicatorEnabled: {
+                        label: '40% Method Indicator',
+                        description: [
+                            'Shows if an item supports the 40% method on its thumbnail.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['2239549101'],
+                    },
                     useSoberSupportDeeplinks: {
                         label: 'Use Roblox deeplinks for Sober support',
                         description:

@@ -329,7 +329,15 @@
         "publishedGame": "I've Published the Game",
         "saveSettingsUnavailable": "Failed to save settings. Storage API unavailable.",
         "groupsLoadFailed": "Failed to load groups. Please refresh and try again.",
-        "noGroupSelected": "No group selected. Please try again."
+        "noGroupSelected": "No group selected. Please try again.",
+        "indicatorSupported": "40%",
+        "indicatorUnsupported": "40% unavailable",
+        "indicatorSupportedTooltip": "This item can be bought with the 40% method.",
+        "indicatorUnsupportedTooltip": "This item can not be bought with the 40% method, because it is limited or the creator only sells it on the marketplace.",
+        "filterTitle": "40% Method",
+        "filterAll": "All",
+        "filterAvailable": "40% available",
+        "filterApply": "Apply"
     },
     "risk": {
         "projected": "Item is flagged as projected.",
