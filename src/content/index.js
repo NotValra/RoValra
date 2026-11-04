@@ -96,6 +96,7 @@ import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js
 import { init as initHeroUnits } from './features/catalog/heroUnits.js';
 import { init as initRoValraAds } from './features/catalog/rovalraAds.js';
 import { init as initRoValraAdBadge } from './features/catalog/rovalraAdBadge.js';
+import { init as initFortyMethodIndicator } from './features/catalog/fortyMethodIndicator.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
 import { init as initImprovedAttributes } from './features/catalog/improvedAttributes.js';
@@ -378,6 +379,7 @@ const featureRoutes = [
             initHeroUnits,
             initRoValraAds,
             initRoValraAdBadge,
+            initFortyMethodIndicator,
         ],
     },
     // Avatar pages

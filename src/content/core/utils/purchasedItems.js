@@ -25,7 +25,7 @@ export function normalizeItemType(type) {
     );
 }
 
-async function loadCatalogItems(items) {
+export async function loadCatalogItems(items) {
     const missing = items.filter(
         ({ type, id }) => !catalogCache.has(`${type}:${id}`),
     );
