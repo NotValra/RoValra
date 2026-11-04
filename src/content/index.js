@@ -134,6 +134,7 @@ import { init as initUnderReviewPill } from './features/games/underReviewPill.js
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initSpending } from './features/transactions/spending.js';
+import { init as initRevenue } from './features/transactions/revenue.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
@@ -397,6 +398,7 @@ const featureRoutes = [
             initGroupPendingFunds,
             initGroupFundsPill,
             initItemRender,
+            initRevenue,
         ],
     },
     // Communities list page (My Communities) — matches /communities and /communities/...
@@ -542,6 +544,7 @@ const featureRoutes = [
         features: [
             initTotalSpent,
             initSpending,
+            initRevenue,
             initPendingRobuxTrans,
             initTotalEarned,
         ],

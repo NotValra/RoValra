@@ -159,7 +159,10 @@ export function getGroupIdFromUrl(url = window.location.href) {
     try {
         const urlObj = new URL(url, window.location.origin);
         const queryGroupId = urlObj.searchParams.get('id');
-        if (queryGroupId && /\/groups\/configure/.test(urlObj.pathname)) {
+        if (
+            queryGroupId &&
+            /\/(?:groups|communities)\/configure/.test(urlObj.pathname)
+        ) {
             return queryGroupId;
         }
         const match = urlObj.pathname.match(

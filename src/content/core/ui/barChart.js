@@ -53,8 +53,9 @@ export function createBarChart({
     plot.style.height = `${height}px`;
     plot.style.borderBottom =
         '1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.12))';
-    plot.style.backgroundImage =
+    const gridLines =
         'linear-gradient(to bottom, var(--rovalra-border-color, rgba(255, 255, 255, 0.12)) 1px, transparent 1px)';
+    plot.style.backgroundImage = gridLines;
     plot.style.backgroundSize = `100% ${height / 2}px`;
 
     const labels = document.createElement('div');
@@ -93,6 +94,7 @@ export function createBarChart({
         plot.replaceChildren();
         labels.replaceChildren();
         axis.replaceChildren();
+        plot.style.backgroundImage = nextData.length ? gridLines : 'none';
 
         if (!nextData.length) {
             const empty = document.createElement('div');

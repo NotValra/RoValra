@@ -2089,6 +2089,18 @@ export const SETTINGS_CONFIG = {
                 indexedDbStore: 'transactions',
                 dependsOn: ['TotalSpentGamesEnabled'],
             },
+            revenueEnabled: {
+                label: 'Revenue Breakdown',
+                description: [
+                    'Shows a timeline of how much Robux you have earned from sales, along with who bought from you and which experiences sold the most on the transactions page.',
+                    'Also shows the same breakdown on the revenue page of communities you manage.',
+                    'Sales are scanned in the background while the page is open, so the first scan may take a while.',
+                ],
+                type: 'checkbox',
+                default: true,
+                indexedDbStore: 'transactions',
+                contributors: ['2239549101'],
+            },
             totalearnedEnabled: {
                 label: 'Total Earned',
                 description: [

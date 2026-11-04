@@ -21,8 +21,8 @@ import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { getAssets } from '../../core/assets.js';
 
-const ROW_SELECTOR = '#transactions-web-app .summary table.summary tr';
-const ROW_MARKER = 'data-rovalra-spending';
+export const ROW_SELECTOR = '#transactions-web-app .summary table.summary tr';
+export const ROW_MARKER = 'data-rovalra-spending';
 const PAGE_SIZE = 5;
 const RELOAD_DEBOUNCE = 2000;
 const GROUPINGS = [
@@ -63,12 +63,12 @@ function formatBucket(start, grouping, long = false) {
           });
 }
 
-const formatPurchases = (count) =>
+const formatPurchases = (count, t = ts) =>
     count === 1
-        ? ts('spentPerCreator.singlePurchase')
-        : ts('spentPerCreator.multiplePurchases', { count });
+        ? t('spentPerCreator.singlePurchase')
+        : t('spentPerCreator.multiplePurchases', { count });
 
-function buildTimeline(transactions, allTransactions, grouping) {
+function buildTimeline(transactions, allTransactions, grouping, t) {
     const first = allTransactions.reduce(
         (min, tx) =>
             Number.isFinite(tx.created) ? Math.min(min, tx.created) : min,
@@ -99,7 +99,7 @@ function buildTimeline(transactions, allTransactions, grouping) {
             start,
             label: formatBucket(start, grouping),
             value: bucket.spent,
-            tooltip: `${formatBucket(start, grouping, true)}<br>${ts('spending.robuxAmount', { amount: bucket.spent.toLocaleString() })} · ${formatPurchases(bucket.count)}`,
+            tooltip: `${formatBucket(start, grouping, true)}<br>${ts('spending.robuxAmount', { amount: bucket.spent.toLocaleString() })} · ${formatPurchases(bucket.count, t)}`,
         });
     }
     return timeline;
@@ -290,9 +290,9 @@ const getCreatorUrl = (creator) =>
         ? `https://www.roblox.com/groups/${encodeURIComponent(creator.id)}/-`
         : `https://www.roblox.com/users/${encodeURIComponent(creator.id)}/profile`;
 
-const createViewPurchasesButton = (onClick) =>
+const createViewPurchasesButton = (onClick, t) =>
     createProfileHeaderButton({
-        content: ts('spending.viewPurchases'),
+        content: t('spending.viewPurchases'),
         onClick,
     });
 
@@ -320,7 +320,7 @@ const getCachedThumbnail = (type, id) =>
 const getCreatorThumbnailType = (creator) =>
     creator.type === 'Group' ? 'GroupIcon' : 'AvatarHeadshot';
 
-function createCreatorRow(creator, thumbnail, onSelect) {
+function createCreatorRow(creator, thumbnail, onSelect, t = ts) {
     return {
         thumbnail: createThumbnailElement(
             thumbnail,
@@ -328,17 +328,17 @@ function createCreatorRow(creator, thumbnail, onSelect) {
             'rovalra-spent-creator-thumbnail',
             thumbnailStyle,
         ),
-        title: creator.name || ts('spentPerCreator.unknownCreator'),
-        subtitle: formatPurchases(creator.totalTransactions),
+        title: creator.name || t('spentPerCreator.unknownCreator'),
+        subtitle: formatPurchases(creator.totalTransactions, t),
         amount: creator.totalSpent,
         href: getCreatorUrl(creator),
         action: onSelect
-            ? createViewPurchasesButton(() => onSelect(creator))
+            ? createViewPurchasesButton(() => onSelect(creator), t)
             : undefined,
     };
 }
 
-function createGameRow(game, thumbnail, onSelect) {
+function createGameRow(game, thumbnail, onSelect, t = ts) {
     const details = universeDetails.get(String(game.universeId));
     const name = details?.name || game.name || ts('spending.unknownGame');
     return {
@@ -349,18 +349,18 @@ function createGameRow(game, thumbnail, onSelect) {
             thumbnailStyle,
         ),
         title: name,
-        subtitle: formatPurchases(game.totalTransactions),
+        subtitle: formatPurchases(game.totalTransactions, t),
         amount: game.totalSpent,
         href: details?.rootPlaceId
             ? `https://www.roblox.com/games/${encodeURIComponent(details.rootPlaceId)}`
             : undefined,
         action: onSelect
-            ? createViewPurchasesButton(() => onSelect(game))
+            ? createViewPurchasesButton(() => onSelect(game), t)
             : undefined,
     };
 }
 
-async function buildCreatorRows(creators, onSelect) {
+async function buildCreatorRows(creators, onSelect, t) {
     const [userThumbs, groupThumbs] = await Promise.all([
         getThumbnails(
             creators.filter((c) => c.type === 'User').map((c) => c.id),
@@ -378,11 +378,12 @@ async function buildCreatorRows(creators, onSelect) {
                 Number(creator.id),
             ),
             onSelect,
+            t,
         ),
     );
 }
 
-async function buildGameRows(games, onSelect) {
+async function buildGameRows(games, onSelect, t) {
     const [, thumbnails] = await Promise.all([
         loadUniverseDetails(games.map((game) => game.universeId)),
         getThumbnails(
@@ -391,7 +392,12 @@ async function buildGameRows(games, onSelect) {
         ),
     ]);
     return games.map((game) =>
-        createGameRow(game, thumbnails.get(Number(game.universeId)), onSelect),
+        createGameRow(
+            game,
+            thumbnails.get(Number(game.universeId)),
+            onSelect,
+            t,
+        ),
     );
 }
 
@@ -428,10 +434,18 @@ function createRow() {
     return row;
 }
 
-function addSection(table) {
-    if (table.parentElement?.querySelector(`section[${ROW_MARKER}]`)) return;
+export function addBreakdownSection(table, config = {}) {
+    const {
+        marker = ROW_MARKER,
+        t = ts,
+        loadData = getTransactionData,
+        dataKey = null,
+        isRevenue = false,
+        anchor = table,
+    } = config;
+    if (table.parentElement?.querySelector(`section[${marker}]`)) return;
     const section = document.createElement('section');
-    section.setAttribute(ROW_MARKER, 'true');
+    section.setAttribute(marker, 'true');
     section.className = 'rovalra-spending-summary';
     section.style.marginTop = '16px';
     section.style.padding = '16px 0';
@@ -449,9 +463,9 @@ function addSection(table) {
     logo.style.height = '20px';
     logo.style.verticalAlign = 'middle';
     logo.style.marginRight = '3px';
-    title.append(logo, document.createTextNode(ts('spending.title')));
+    title.append(logo, document.createTextNode(t('spending.title')));
     const disclaimer = document.createElement('small');
-    disclaimer.textContent = ts('spending.disclaimer');
+    disclaimer.textContent = t('spending.disclaimer');
     disclaimer.style.color = 'var(--rovalra-secondary-text-color)';
     const titleGroup = document.createElement('div');
     titleGroup.style.display = 'grid';
@@ -503,7 +517,7 @@ function addSection(table) {
         purchaseControls,
         listContainer,
     );
-    table.insertAdjacentElement('afterend', section);
+    anchor.insertAdjacentElement('afterend', section);
 
     let transactions = [];
     let isScanning = false;
@@ -520,7 +534,7 @@ function addSection(table) {
     let renderToken = 0;
 
     const chart = createBarChart({
-        emptyText: ts('spending.noPurchases'),
+        emptyText: t('spending.noPurchases'),
         onSelect: (index, item) => {
             period = item ? item.start : null;
             visibleCount = PAGE_SIZE;
@@ -531,15 +545,15 @@ function addSection(table) {
 
     const viewToggle = createPillToggle({
         options: [
-            { text: ts('spending.creators'), value: 'creators' },
-            { text: ts('spending.games'), value: 'games' },
+            { text: t('spending.creators'), value: 'creators' },
+            { text: t('spending.games'), value: 'games' },
         ],
         initialValue: view,
         onChange: (value) => {
             view = value;
             visibleCount = PAGE_SIZE;
             includeGameCreatorsLabel.style.display =
-                view === 'creators' ? 'inline-flex' : 'none';
+                view === 'creators' && !isRevenue ? 'inline-flex' : 'none';
             renderList();
         },
     });
@@ -547,7 +561,7 @@ function addSection(table) {
     viewToggle.style.marginRight = 'auto';
 
     const includeGameCreatorsLabel = document.createElement('label');
-    includeGameCreatorsLabel.style.display = 'inline-flex';
+    includeGameCreatorsLabel.style.display = isRevenue ? 'none' : 'inline-flex';
     includeGameCreatorsLabel.style.alignItems = 'center';
     includeGameCreatorsLabel.style.gap = '6px';
     includeGameCreatorsLabel.style.fontSize = '12px';
@@ -557,7 +571,7 @@ function addSection(table) {
         checked: includeGameCreators,
     });
     const includeGameCreatorsText = document.createElement('span');
-    includeGameCreatorsText.textContent = ts(
+    includeGameCreatorsText.textContent = t(
         'spentPerCreator.includeGameCreators',
     );
     includeGameCreatorsLabel.append(
@@ -572,7 +586,7 @@ function addSection(table) {
 
     const search = createStyledInput({
         id: `rovalra-spending-search-${Date.now()}`,
-        label: ts('spending.searchPlaceholder'),
+        label: t('spending.searchPlaceholder'),
     });
     search.container.style.width = '220px';
     search.input.addEventListener('input', () => {
@@ -582,7 +596,7 @@ function addSection(table) {
     });
 
     const sortDropdown = createDropdown({
-        items: SORTS.map((item) => ({ ...item, label: ts(item.label) })),
+        items: SORTS.map((item) => ({ ...item, label: t(item.label) })),
         initialValue: sort,
         onValueChange: (value) => {
             sort = value;
@@ -593,7 +607,7 @@ function addSection(table) {
     const purchaseSortDropdown = createDropdown({
         items: PURCHASE_SORTS.map((item) => ({
             ...item,
-            label: ts(item.label),
+            label: t(item.label),
         })),
         initialValue: purchaseSort,
         onValueChange: (value) => {
@@ -613,7 +627,7 @@ function addSection(table) {
         createDropdown({
             items: GROUPINGS.map((item) => ({
                 ...item,
-                label: ts(item.label),
+                label: t(item.label),
             })),
             initialValue: grouping,
             onValueChange: (value) => {
@@ -650,7 +664,7 @@ function addSection(table) {
     };
 
     const renderChart = () => {
-        timeline = buildTimeline(getScoped(), transactions, grouping);
+        timeline = buildTimeline(getScoped(), transactions, grouping, t);
         chart.update(timeline);
         const index = timeline.findIndex((item) => item.start === period);
         if (index === -1) period = null;
@@ -665,7 +679,7 @@ function addSection(table) {
             return;
         }
         const label = document.createElement('span');
-        label.textContent = ts('spending.showingPeriod', {
+        label.textContent = t('spending.showingPeriod', {
             period: formatBucket(period, grouping, true),
         });
         periodRow.replaceChildren(label);
@@ -709,13 +723,17 @@ function addSection(table) {
                           getCreatorThumbnailType(entry),
                           entry.id,
                       ),
+                      undefined,
+                      t,
                   )
                 : createGameRow(
                       entry,
                       getCachedThumbnail('GameIcon', entry.universeId),
+                      undefined,
+                      t,
                   );
         row.action = createProfileHeaderButton({
-            content: ts('spending.back'),
+            content: t('spending.back'),
             onClick: () => select(null),
         });
         return createRowList([row]);
@@ -761,10 +779,10 @@ function addSection(table) {
         if (!entries.length) {
             listContainer.textContent =
                 !transactions.length && isScanning
-                    ? ts('spending.scanInProgress')
+                    ? t('spending.scanInProgress')
                     : period !== null
-                      ? ts('spending.noPurchasesInPeriod')
-                      : ts('spending.noPurchases');
+                      ? t('spending.noPurchasesInPeriod')
+                      : t('spending.noPurchases');
             return;
         }
 
@@ -773,7 +791,7 @@ function addSection(table) {
             listContainer.replaceChildren(createRowList(rows));
             if (visibleCount >= entries.length) return;
             const loadMore = createProfileHeaderButton({
-                content: ts('spentPerCreator.loadMore', {
+                content: t('spentPerCreator.loadMore', {
                     remaining: entries.length - visibleCount,
                 }),
                 onClick: () => {
@@ -815,6 +833,7 @@ function addSection(table) {
                           entry,
                           getCachedThumbnail('GameIcon', entry.universeId),
                           selectGame,
+                          t,
                       )
                     : createCreatorRow(
                           entry,
@@ -823,20 +842,21 @@ function addSection(table) {
                               entry.id,
                           ),
                           selectCreator,
+                          t,
                       ),
             ),
         );
         const rows =
             view === 'games'
-                ? await buildGameRows(visible, selectGame)
-                : await buildCreatorRows(visible, selectCreator);
+                ? await buildGameRows(visible, selectGame, t)
+                : await buildCreatorRows(visible, selectCreator, t);
         if (token !== renderToken) return;
         showRows(rows);
     };
 
     const load = async () => {
         try {
-            const data = await getTransactionData();
+            const data = await loadData();
             transactions = Object.values(data?.transactions || {}).map(
                 (tx) => ({
                     ...tx,
@@ -845,20 +865,25 @@ function addSection(table) {
             );
             isScanning = !!data?.isScanning;
             if (!transactions.length && isScanning) {
-                chartContainer.textContent = ts('spending.scanInProgress');
+                chartContainer.textContent = t('spending.scanInProgress');
             } else if (chartContainer.firstElementChild !== chart.element) {
                 chartContainer.replaceChildren(chart.element);
             }
             renderChart();
             await renderList();
         } catch (error) {
-            listContainer.textContent = ts('spending.loadError');
+            listContainer.textContent = t('spending.loadError');
             console.error('RoValra: Failed to load spending', error);
         }
     };
 
     let reloadTimeout = null;
-    onTransactionDataChanged(() => {
+    onTransactionDataChanged((key) => {
+        if (
+            key &&
+            (dataKey ? key !== dataKey : String(key).startsWith('sales:'))
+        )
+            return;
         clearTimeout(reloadTimeout);
         reloadTimeout = setTimeout(load, RELOAD_DEBOUNCE);
     });
@@ -869,7 +894,7 @@ function addSection(table) {
 function processSummary(row) {
     if (!window.location.pathname.startsWith('/transactions')) return;
     const table = row.closest('#transactions-web-app .summary table.summary');
-    if (table) addSection(table);
+    if (table) addBreakdownSection(table);
 }
 
 export async function init() {
