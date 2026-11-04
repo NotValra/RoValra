@@ -7,6 +7,7 @@ import {
     getSalesData,
     getSalesKey,
     scanSales,
+    trackGroupSales,
 } from '../../core/utils/trackers/transactions.js';
 import { addBreakdownSection, ROW_MARKER, ROW_SELECTOR } from './spending.js';
 
@@ -53,7 +54,10 @@ async function processUserRevenue(row) {
 
 function processGroupRevenue(span) {
     const table = span.closest('table');
-    if (table) addRevenueSection(table, 'groups', getGroupIdFromUrl());
+    if (!table) return;
+    const groupId = getGroupIdFromUrl();
+    addRevenueSection(table, 'groups', groupId);
+    trackGroupSales(groupId);
 }
 
 export async function init() {

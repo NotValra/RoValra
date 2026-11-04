@@ -20,6 +20,7 @@ const activeScans = new Set();
 let legacyCleanup = null;
 let transactionRefreshInterval = null;
 let transactionScanUserId = null;
+let groupSalesScan = null;
 
 const createEmptyAggregate = () => ({
     totals: { totalSpent: 0, totalTransactions: 0 },
@@ -237,11 +238,57 @@ export async function getSalesData(ownerType, ownerId) {
 export const getSalesKey = (ownerType, ownerId) =>
     salesSource(ownerType, ownerId).key;
 
-export function scanSales(ownerType, ownerId) {
+export function scanSales(ownerType, ownerId, background = false) {
     const source = salesSource(ownerType, ownerId);
+    if (ownerType === 'groups') {
+        source.onForbidden = () => untrackGroupSales(ownerId);
+        if (background) {
+            source.isStale = async () =>
+                (await getTrackedGroup()).groupId !== String(ownerId);
+        }
+    }
     return runExclusiveScan(`rovalra-transaction-scan-${source.key}`, () =>
         runTransactionScan(source),
     ).catch(() => {});
+}
+
+const getTrackedGroupKey = (userId) => `sales:trackedGroup:${userId}`;
+
+async function getTrackedGroup() {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return { key: null, groupId: null };
+
+    const key = getTrackedGroupKey(userId);
+    return { key, groupId: await indexedDb.get(TRANSACTIONS_STORE, key) };
+}
+
+export async function trackGroupSales(groupId) {
+    if (!groupId) return;
+    groupId = String(groupId);
+
+    const { key, groupId: trackedId } = await getTrackedGroup();
+    if (!key || trackedId === groupId) return;
+
+    await indexedDb.set(TRANSACTIONS_STORE, key, groupId);
+}
+
+async function untrackGroupSales(groupId) {
+    const { key, groupId: trackedId } = await getTrackedGroup();
+    if (!key || trackedId !== String(groupId)) return;
+
+    await indexedDb.remove(TRANSACTIONS_STORE, key);
+}
+
+function scanTrackedGroupSales() {
+    groupSalesScan ??= getTrackedGroup()
+        .then(({ groupId }) => groupId && scanSales('groups', groupId, true))
+        .catch((error) =>
+            console.warn('RoValra: Group sales scan failed', error),
+        )
+        .finally(() => {
+            groupSalesScan = null;
+        });
+    return groupSalesScan;
 }
 
 async function fetchTransactionsPage(source, cursor = null) {
@@ -270,6 +317,7 @@ async function fetchTransactionsPage(source, cursor = null) {
                 };
             }
 
+            if (response.status === 403) return { forbidden: true };
             if (!response.ok) return null;
             return {
                 body: await response.json(),
@@ -423,8 +471,13 @@ async function runTransactionLoop(source, existingData, isIncremental) {
     };
 
     while (true) {
+        if (await source.isStale?.()) break;
         const page = await fetchTransactionsPage(source, cursor);
         if (!page) break;
+        if (page.forbidden) {
+            await source.onForbidden?.();
+            break;
+        }
 
         if (page.internalError) {
             internalErrorCount++;
@@ -558,14 +611,15 @@ export function initTransactionsTracking() {
         userId = String(userId);
 
         scanTransactions(userId);
+        scanTrackedGroupSales();
 
         if (transactionScanUserId === userId) return;
         clearInterval(transactionRefreshInterval);
 
         transactionScanUserId = userId;
-        transactionRefreshInterval = setInterval(
-            () => scanTransactions(userId),
-            TRANSACTION_REFRESH_DURATION,
-        );
+        transactionRefreshInterval = setInterval(() => {
+            scanTransactions(userId);
+            scanTrackedGroupSales();
+        }, TRANSACTION_REFRESH_DURATION);
     });
 }
