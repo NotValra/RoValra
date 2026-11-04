@@ -249,6 +249,8 @@ import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js
 // buy page
 import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRobux.js';
 
+import * as api from "./core/api.js";
+
 let pageLoaded = false;
 let lastPath = window.location.pathname.toLowerCase();
 const initializedPersistentFeatures = new Set();
@@ -675,6 +677,7 @@ function normalizeGamePageHash() {
 }
 
 function runFeaturesForPage() {
+    api.set_i18n_t(t);
     const path = window.location.pathname.toLowerCase();
     const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
     const featuresRunThisPass = new Set();

@@ -96,5 +96,17 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(587930109, "locales.madeVi","https://github.com/NotValra/RoValra/pull/303"), // @hnguyen1910
             new Contribution(11785214974, "locales.madeDe","https://github.com/NotValra/RoValra/pull/326") // @DevinHmmmm
         ]
+    },
+    UI: {
+        label: "User Interfaces",
+        contributors: [
+            new Contribution(1564574922, "ui.sidePopups", "https://github.com/NotValra/RoValra/pull/413"),  // @BossBoss2021
+        ]
+    },
+    ErrorHandling: {
+        label: "Error Handling",
+        contributors: [
+            new Contribution(1564574922, "error.popupForApiErrors", "https://github.com/NotValra/RoValra/pull/413"),  // @BossBoss2021
+        ]
     }
 };
