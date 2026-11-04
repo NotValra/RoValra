@@ -43,6 +43,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2239549101', // TimorousShadow
     '519742979', // BBasilio2001
     '74884', // awkward222
+    '3365639978', // PowFPS1
 ];
 
 export const TESTER_USER_IDS = [
