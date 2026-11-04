@@ -168,7 +168,7 @@ export const SETTINGS_CONFIG = {
                             'Shows if an item supports the 40% method on its thumbnail.',
                         ],
                         type: 'checkbox',
-                        default: true,
+                        default: false,
                         contributors: ['2239549101'],
                     },
                     useSoberSupportDeeplinks: {
