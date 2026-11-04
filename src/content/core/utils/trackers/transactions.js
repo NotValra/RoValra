@@ -210,8 +210,42 @@ function getRateLimitDelay(response) {
     return 0;
 }
 
-async function fetchTransactionsPage(userId, cursor = null) {
-    let endpoint = `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`;
+const purchaseSource = (userId) => ({
+    key: String(userId),
+    endpoint: `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`,
+    setting: 'TotalSpentGamesEnabled',
+});
+
+const salesSource = (ownerType, ownerId) => ({
+    key: `sales:${ownerType}:${ownerId}`,
+    endpoint: `/transaction-records/v1/${ownerType}/${ownerId}/transactions?limit=100&transactionType=Sale`,
+    setting: 'revenueEnabled',
+});
+
+export async function getSalesData(ownerType, ownerId) {
+    const data = await indexedDb.get(
+        TRANSACTIONS_STORE,
+        salesSource(ownerType, ownerId).key,
+    );
+    return {
+        transactions: {},
+        ...(data || {}),
+        isScanning: !data?.isFullyScanned,
+    };
+}
+
+export const getSalesKey = (ownerType, ownerId) =>
+    salesSource(ownerType, ownerId).key;
+
+export function scanSales(ownerType, ownerId) {
+    const source = salesSource(ownerType, ownerId);
+    return runExclusiveScan(`rovalra-transaction-scan-${source.key}`, () =>
+        runTransactionScan(source),
+    ).catch(() => {});
+}
+
+async function fetchTransactionsPage(source, cursor = null) {
+    let endpoint = source.endpoint;
     if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
 
     while (true) {
@@ -311,10 +345,10 @@ function aggregateTransactions(transactions) {
     return aggregated;
 }
 
-async function runTransactionScan(userId) {
-    userId = String(userId);
+async function runTransactionScan(source) {
+    const userId = source.key;
 
-    if (!(await settings.TotalSpentGamesEnabled)) return;
+    if (!(await settings[source.setting])) return;
     if (activeScans.has(userId)) return;
     activeScans.add(userId);
 
@@ -324,7 +358,7 @@ async function runTransactionScan(userId) {
 
         if (userData.storageVersion !== TRANSACTIONS_STORAGE_VERSION) {
             await runTransactionLoop(
-                userId,
+                source,
                 {
                     ...createEmptyAggregate(),
                     transactions: {},
@@ -337,7 +371,7 @@ async function runTransactionScan(userId) {
         }
 
         if (!userData.isFullyScanned) {
-            await runTransactionLoop(userId, userData, false);
+            await runTransactionLoop(source, userData, false);
             return;
         }
 
@@ -345,13 +379,14 @@ async function runTransactionScan(userId) {
             userData.lastIncrementalCheck || userData.lastFullScan || 0;
         if (Date.now() - lastCheck < TRANSACTION_REFRESH_DURATION) return;
 
-        await runTransactionLoop(userId, userData, true);
+        await runTransactionLoop(source, userData, true);
     } finally {
         activeScans.delete(userId);
     }
 }
 
-async function runTransactionLoop(userId, existingData, isIncremental) {
+async function runTransactionLoop(source, existingData, isIncremental) {
+    const userId = source.key;
     let cursor = isIncremental ? null : existingData.scanCursor || null;
     let pagesChecked = 0;
     let foundMatch = false;
@@ -388,7 +423,7 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
     };
 
     while (true) {
-        const page = await fetchTransactionsPage(userId, cursor);
+        const page = await fetchTransactionsPage(source, cursor);
         if (!page) break;
 
         if (page.internalError) {
@@ -491,7 +526,7 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
         pagesChecked >= TRANSACTION_MAX_INCREMENTAL_PAGES
     ) {
         await runTransactionLoop(
-            userId,
+            source,
             { ...existingData, transactions, latestTransactionHashes },
             false,
         );
@@ -509,7 +544,7 @@ function scanTransactions(userId) {
     return legacyCleanup
         .then(() =>
             runExclusiveScan(`rovalra-transaction-scan-${userId}`, () =>
-                runTransactionScan(userId),
+                runTransactionScan(purchaseSource(userId)),
             ),
         )
         .catch((error) =>

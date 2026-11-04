@@ -1039,6 +1039,19 @@
         "scanInProgress": "Transaction scan in progress. This may take a while.",
         "loadError": "Unable to load spending."
     },
+    "revenue": {
+        "title": "Revenue",
+        "buyers": "Buyers",
+        "viewSales": "View sales",
+        "noSales": "No sales found.",
+        "noSalesInPeriod": "No sales in this period.",
+        "loadError": "Unable to load revenue.",
+        "mostRevenue": "Most revenue",
+        "mostSales": "Most sales",
+        "singleSale": "1 sale",
+        "multipleSales": "{{count}} sales",
+        "unknownBuyer": "Unknown buyer"
+    },
     "settings": {
         "tabs": {
             "info": "Info",
