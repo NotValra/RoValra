@@ -54,6 +54,7 @@ import { init as initCustomRobloxBanner } from './features/sitewide/customRoblox
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initHideFriendRequestCount } from './features/sitewide/hideFriendRequestCount.js';
+import { init as initHideMessageCount } from './features/sitewide/hideMessageCount.js';
 import { init as initDebugOverlay } from './features/developer/debugOverlay.js';
 import { init as initChannelOverlay } from './features/play/channelOverlay.js';
 import { init as initServerLocationOverlay } from './features/play/serverLocationOverlay.js';
@@ -321,6 +322,7 @@ const featureRoutes = [
             initSidebarCollapse,
             initSidebarLayout,
             initHideFriendRequestCount,
+            initHideMessageCount,
             initDebugOverlay,
             initChannelOverlay,
             initServerLocationOverlay,

@@ -2483,6 +2483,15 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['4632962611'],
             },
+            hideMessageCountEnabled: {
+                label: 'Hide Message Count',
+                description: [
+                    'Hides the message count beside Messages in the sidebar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4502342102'],
+            },
             sidebarLayoutEnabled: {
                 label: 'Sidebar Layout',
                 description: [
