@@ -318,6 +318,13 @@ async function fetchTransactionsPage(source, cursor = null) {
             }
 
             if (response.status === 403) return { forbidden: true };
+            if (response.status === 400) {
+                const body = await response.json().catch(() => null);
+                // Roblox refuses to page past a certain point (code 29)
+                if (body?.errors?.some((error) => error.code === 29))
+                    return { outOfBounds: true };
+                return null;
+            }
             if (!response.ok) return null;
             return {
                 body: await response.json(),
@@ -476,6 +483,13 @@ async function runTransactionLoop(source, existingData, isIncremental) {
         if (!page) break;
         if (page.forbidden) {
             await source.onForbidden?.();
+            break;
+        }
+
+        if (page.outOfBounds) {
+            cursor = null;
+            existingData = { ...existingData, reachedRobloxLimit: true };
+            await persistTransactionData(true);
             break;
         }
 

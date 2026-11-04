@@ -471,7 +471,11 @@ export function addBreakdownSection(table, config = {}) {
     titleGroup.style.display = 'grid';
     titleGroup.style.gap = '2px';
     titleGroup.style.marginRight = 'auto';
-    titleGroup.append(title, disclaimer);
+    const limitNote = document.createElement('small');
+    limitNote.textContent = t('spending.robloxLimit');
+    limitNote.style.color = 'var(--rovalra-secondary-text-color)';
+    limitNote.style.display = 'none';
+    titleGroup.append(title, disclaimer, limitNote);
     const totalAmount = document.createElement('div');
     totalAmount.style.display = 'inline-flex';
     totalAmount.style.alignItems = 'center';
@@ -864,6 +868,9 @@ export function addBreakdownSection(table, config = {}) {
                 }),
             );
             isScanning = !!data?.isScanning;
+            limitNote.style.display = data?.reachedRobloxLimit
+                ? 'block'
+                : 'none';
             if (!transactions.length && isScanning) {
                 chartContainer.textContent = t('spending.scanInProgress');
             } else if (chartContainer.firstElementChild !== chart.element) {

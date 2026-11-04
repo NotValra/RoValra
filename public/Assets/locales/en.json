@@ -1045,6 +1045,7 @@
         "noPurchases": "No purchases found.",
         "noPurchasesInPeriod": "No purchases in this period.",
         "scanInProgress": "Transaction scan in progress. This may take a while.",
+        "robloxLimit": "Unable to load older transactions due to Roblox limitations.",
         "loadError": "Unable to load spending."
     },
     "revenue": {
