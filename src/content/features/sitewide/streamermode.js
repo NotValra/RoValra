@@ -6,6 +6,8 @@ import {
 
 const ROBUX_SELECTORS =
     '#nav-robux-amount, #nav-robux-balance, #rovalra-robux-after, .price-tag, .text-robux.ml-1.text-body-medium, .text-robux.ng-binding, .rovalra-streamer-robux-value';
+const ITEM_PRICE_CONTEXT_SELECTORS =
+    '.item-card-price, .store-card-price, .subscription-card-price, .item-card, .store-card, group-store-item';
 const ROBUX_HIDDEN_ATTRIBUTE = 'data-rovalra-robux-hidden';
 const ROBUX_REAL_VALUE_CLASS = 'rovalra-robux-real-value';
 const ROBUX_HIDDEN_LABEL_CLASS = 'rovalra-robux-hidden-label';
@@ -175,6 +177,15 @@ export function init() {
     function processRobuxElement(element) {
         if (!(element instanceof HTMLElement)) return;
         if (!element.isConnected) return;
+
+        if (element.closest(ITEM_PRICE_CONTEXT_SELECTORS)) {
+            if (managedRobuxElements.has(element)) {
+                releaseRobuxElement(element);
+                managedRobuxElements.delete(element);
+            }
+            return;
+        }
+
         if (isNestedRobuxElement(element)) return;
 
         if (isRobuxCurrentlyHidden()) {
