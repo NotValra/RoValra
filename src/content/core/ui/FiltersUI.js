@@ -5,7 +5,6 @@ import { createRadioButton } from './general/radio.js';
 import { createStyledInput } from './catalog/input.js';
 import { ts } from '../locale/i18n.js';
 
-
 function injectStyles() {
     if (document.getElementById('rovalra-filters-ui-styles')) return;
     const style = document.createElement('style');
@@ -25,7 +24,13 @@ function injectStyles() {
     document.head.appendChild(style);
 }
 
-export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, onApply, onSearch, filterConfig = [] }) {
+export function createAvatarFilterUI({
+    avatarFiltersEnabled,
+    searchbarEnabled,
+    onApply,
+    onSearch,
+    filterConfig = [],
+}) {
     injectStyles();
     const container = document.createElement('div');
     container.id = 'rovalra-fx-container';
@@ -34,7 +39,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         alignItems: 'center',
         gap: '12px',
         marginBottom: '12px',
-        flexWrap: 'nowrap'
+        flexWrap: 'nowrap',
     });
 
     if (avatarFiltersEnabled) {
@@ -44,61 +49,69 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         const toggleButton = document.createElement('button');
         toggleButton.id = 'rovalra-fx-toggle-btn';
         toggleButton.type = 'button';
-        toggleButton.className = 'rovalra-dropdown-trigger relative clip group/interactable focus-visible:outline-focus disabled:outline-none flex items-center justify-between width-full bg-none stroke-standard radius-medium height-1000 padding-x-medium text-body-medium stroke-default content-default';
+        toggleButton.className =
+            'rovalra-dropdown-trigger relative clip group/interactable focus-visible:outline-focus disabled:outline-none flex items-center justify-between width-full bg-none stroke-standard radius-medium height-1000 padding-x-medium text-body-medium stroke-default content-default';
 
         const triggerPresentationDiv = document.createElement('div');
         triggerPresentationDiv.setAttribute('role', 'presentation');
-        triggerPresentationDiv.className = 'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
+        triggerPresentationDiv.className =
+            'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
 
         const triggerValue = document.createElement('span');
-        triggerValue.className = 'text-no-wrap text-truncate-split content-default';
+        triggerValue.className =
+            'text-no-wrap text-truncate-split content-default';
         triggerValue.textContent = ts('common.filterItems');
 
         const chevron = document.createElement('span');
-        chevron.className = 'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
+        chevron.className =
+            'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
 
         const dropdown = document.createElement('div');
         dropdown.id = 'rovalra-fx-dropdown';
-        dropdown.className = 'rovalra-dropdown-content foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
+        dropdown.className =
+            'rovalra-dropdown-content foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
         dropdown.style.minWidth = '340px';
-        dropdown.style.maxHeight = 'none'; 
+        dropdown.style.maxHeight = 'none';
         dropdown.style.zIndex = '10010';
         dropdown.setAttribute('data-state', 'closed');
-
 
         dropdown.addEventListener('click', (e) => {
             e.stopPropagation();
         });
 
         const headerContainer = document.createElement('div');
-        headerContainer.className = 'padding-x-large padding-bottom-medium flex items-center justify-between';
+        headerContainer.className =
+            'padding-x-large padding-bottom-medium flex items-center justify-between';
 
         const headerTitle = document.createElement('h3');
         headerTitle.className = 'text-heading-medium';
         headerTitle.textContent = ts('common.filterItems');
 
-        const closeButton = createCloseButton({ onClick: () => {
-            dropdown.setAttribute('data-state', 'closed');
-            toggleButton.setAttribute('data-state', 'closed');
-            toggleButton.classList.remove('filter-button-active');
-        }});
-
+        const closeButton = createCloseButton({
+            onClick: () => {
+                dropdown.setAttribute('data-state', 'closed');
+                toggleButton.setAttribute('data-state', 'closed');
+                toggleButton.classList.remove('filter-button-active');
+            },
+        });
 
         headerContainer.appendChild(headerTitle);
         headerContainer.appendChild(closeButton);
 
         const filterOptionsContainer = document.createElement('div');
-        filterOptionsContainer.className = 'padding-x-large padding-bottom-large flex flex-col gap-medium';
-        filterOptionsContainer.style.maxHeight = '60vh'; 
-        filterOptionsContainer.style.overflowY = 'visible'; 
+        filterOptionsContainer.className =
+            'padding-x-large padding-bottom-large flex flex-col gap-medium';
+        filterOptionsContainer.style.maxHeight = '60vh';
+        filterOptionsContainer.style.overflowY = 'visible';
 
-        filterConfig.forEach(config => {
+        filterConfig.forEach((config) => {
             if (config.type === 'wrapper') {
                 const wrapper = document.createElement('div');
                 wrapper.id = config.id;
-                wrapper.style.display = 'none'; 
-                wrapper.className = 'flex flex-col gap-medium pl-large mt-medium border-l-2 border-l-neutral-200';
-                config.children.forEach(childConfig => {
+                wrapper.style.display = 'none';
+                wrapper.className =
+                    'flex flex-col gap-medium pl-large mt-medium border-l-2 border-l-neutral-200';
+                config.children.forEach((childConfig) => {
                     const childRow = createFilterRow(childConfig);
                     if (childRow) wrapper.appendChild(childRow);
                 });
@@ -123,10 +136,13 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
             switch (config.type) {
                 case 'text':
                 case 'number': {
-                    const { container: styledInputContainer, input: styledInput } = createStyledInput({
+                    const {
+                        container: styledInputContainer,
+                        input: styledInput,
+                    } = createStyledInput({
                         id: config.id,
                         label: config.label,
-                        placeholder: config.placeholder || ' '
+                        placeholder: config.placeholder || ' ',
                     });
                     styledInput.type = config.type;
                     if (config.type === 'number') {
@@ -137,49 +153,56 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
                     if (config.min !== undefined) styledInput.min = config.min;
 
                     label.remove();
-                    styledInputContainer.style.width = '100%'; 
+                    styledInputContainer.style.width = '100%';
                     inputControl = styledInputContainer;
                     break;
                 }
                 case 'toggle':
-                    inputControl = createRadioButton({ 
+                    inputControl = createRadioButton({
                         id: config.id,
                         onChange: (isChecked) => {
                             if (config.onChange) config.onChange(isChecked);
                             if (config.isMaster) {
-                                config.controls?.forEach(controlledId => {
-                                    const controlledElement = document.getElementById(controlledId);
+                                config.controls?.forEach((controlledId) => {
+                                    const controlledElement =
+                                        document.getElementById(controlledId);
                                     if (controlledElement) {
-                                        controlledElement.style.display = isChecked ? 'flex' : 'none';
+                                        controlledElement.style.display =
+                                            isChecked ? 'flex' : 'none';
                                     }
                                 });
                             }
-                        }
+                        },
                     });
                     break;
                 case 'dropdown':
-                    const { element: dropdownElement, setValue } = createDropdown({
-                        items: config.options,
-                        initialValue: config.initialValue,
-                        onValueChange: (value) => {
-                            const hiddenSelect = document.getElementById(config.id);
-                            if (hiddenSelect) {
-                                hiddenSelect.value = value;
-                                hiddenSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
-                        }
-                    });
+                    const { element: dropdownElement, setValue } =
+                        createDropdown({
+                            items: config.options,
+                            initialValue: config.initialValue,
+                            onValueChange: (value) => {
+                                const hiddenSelect = document.getElementById(
+                                    config.id,
+                                );
+                                if (hiddenSelect) {
+                                    hiddenSelect.value = value;
+                                    hiddenSelect.dispatchEvent(
+                                        new Event('change', { bubbles: true }),
+                                    );
+                                }
+                            },
+                        });
                     const hiddenSelect = document.createElement('select');
                     hiddenSelect.id = config.id;
                     hiddenSelect.style.display = 'none';
-                    config.options.forEach(opt => {
+                    config.options.forEach((opt) => {
                         const option = document.createElement('option');
                         option.value = opt.value;
                         hiddenSelect.appendChild(option);
                     });
                     dropdownElement.appendChild(hiddenSelect);
                     inputControl = dropdownElement;
-                    inputControl.style.flexShrink = '0'; 
+                    inputControl.style.flexShrink = '0';
                     break;
                 case 'color':
                     const controlsContainer = document.createElement('div');
@@ -189,13 +212,22 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
                     colorPicker.type = 'color';
                     colorPicker.id = config.colorPickerId;
                     colorPicker.value = config.defaultValue || '#000000';
-                    colorPicker.className = 'input-field'; 
-                    Object.assign(colorPicker.style, { width: '40px', height: '30px', padding: '2px', minWidth: '40px', border: 'none', background: 'none' });
+                    colorPicker.className = 'input-field';
+                    Object.assign(colorPicker.style, {
+                        width: '40px',
+                        height: '30px',
+                        padding: '2px',
+                        minWidth: '40px',
+                        border: 'none',
+                        background: 'none',
+                    });
 
                     const colorToggle = createRadioButton({ id: config.id });
 
                     colorPicker.addEventListener('input', () => {
-                        if (colorToggle.getAttribute('aria-checked') !== 'true') {
+                        if (
+                            colorToggle.getAttribute('aria-checked') !== 'true'
+                        ) {
                             colorToggle.setChecked(true);
                         }
                     });
@@ -214,10 +246,10 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         applyBtn.textContent = ts('common.applyFilter');
         applyBtn.className = 'apply-button btn-primary-md btn-full-width';
         applyBtn.style.marginTop = '20px';
-        applyBtn.style.backgroundColor = 'rgb(51, 95, 255)';
+        applyBtn.style.backgroundColor = 'var(--rovalra-playbutton-color)';
         applyBtn.style.borderWidth = '0px';
         applyBtn.style.color = 'white';
-        
+
         applyBtn.onclick = async () => {
             if (onApply) {
                 const result = await onApply();
@@ -243,12 +275,15 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
             if (isScanning) return;
             const isOpen = dropdown.getAttribute('data-state') === 'open';
             dropdown.setAttribute('data-state', isOpen ? 'closed' : 'open');
-            toggleButton.setAttribute('data-state', isOpen ? 'closed' : 'open'); 
+            toggleButton.setAttribute('data-state', isOpen ? 'closed' : 'open');
             toggleButton.classList.toggle('filter-button-active', !isOpen);
         });
-        
+
         document.addEventListener('click', (e) => {
-            if (!container.contains(e.target) && dropdown.getAttribute('data-state') === 'open') {
+            if (
+                !container.contains(e.target) &&
+                dropdown.getAttribute('data-state') === 'open'
+            ) {
                 dropdown.setAttribute('data-state', 'closed');
                 toggleButton.setAttribute('data-state', 'closed');
                 toggleButton.classList.remove('filter-button-active');
@@ -264,7 +299,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         searchInput.placeholder = ts('common.search');
         Object.assign(searchInput.style, {
             flexGrow: '1',
-            width: 'auto'
+            width: 'auto',
         });
         searchInput.addEventListener('input', onSearch);
         container.appendChild(searchInput);

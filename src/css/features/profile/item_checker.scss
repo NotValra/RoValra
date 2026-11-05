@@ -29,9 +29,9 @@
         transition: all 0.2s ease;
 
         &.active {
-            background-color: rgb(51, 95, 255);
+            background-color: var(--rovalra-playbutton-color);
             color: white;
-            border-color: rgb(51, 95, 255);
+            border-color: var(--rovalra-playbutton-color);
         }
     }
 
