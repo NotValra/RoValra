@@ -1757,11 +1757,14 @@ export const SETTINGS_CONFIG = {
             friendLabelsEnabled: {
                 label: 'Friend Labels',
                 description: [
-                    'Lets you assign a label to your friends on the Home page.',
+                    'Create colored labels with icons for friends on Home and the Friends page.',
                 ],
                 type: 'checkbox',
                 default: false,
-                storageKey: 'rovalra_friend_labels',
+                storageKey: [
+                    'rovalra_friend_labels',
+                    'rovalra_friend_labels_v2',
+                ],
                 contributors: ['4632962611'],
             },
 
