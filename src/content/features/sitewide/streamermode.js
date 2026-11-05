@@ -6,6 +6,8 @@ import {
 
 const ROBUX_SELECTORS =
     '#nav-robux-amount, #nav-robux-balance, #rovalra-robux-after, .price-tag, .text-robux.ml-1.text-body-medium, .text-robux.ng-binding, .rovalra-streamer-robux-value';
+const NAVBAR_ROBUX_SELECTOR =
+    '#nav-robux-amount, #nav-robux-balance';
 const ROBUX_HIDDEN_ATTRIBUTE = 'data-rovalra-robux-hidden';
 const ROBUX_REAL_VALUE_CLASS = 'rovalra-robux-real-value';
 const ROBUX_HIDDEN_LABEL_CLASS = 'rovalra-robux-hidden-label';
@@ -50,6 +52,7 @@ try {
 
 export function init() {
     let isHideRobuxEnabled = false;
+    let isRobuxIconOnlyEnabled = false;
     let isRevealOnClickEnabled = false;
     let isRobuxRevealed = false;
     let isSettingsPageInfoEnabled = false;
@@ -77,6 +80,14 @@ export function init() {
                     hidden: isRobuxCurrentlyHidden(),
                 },
             }),
+        );
+    }
+
+    function shouldHideRobuxLabel(element) {
+        return (
+            isRobuxIconOnlyEnabled &&
+            (element.matches(NAVBAR_ROBUX_SELECTOR) ||
+                element.closest('#navbar-robux') !== null)
         );
     }
 
@@ -133,8 +144,16 @@ export function init() {
                 .querySelectorAll('.rovalra-usd-estimate')
                 .forEach((estimate) => estimate.remove());
 
+            const iconOnly = shouldHideRobuxLabel(element);
+
             realValue.style.display = 'none';
-            label.style.display = '';
+            label.style.display = iconOnly ? 'none' : '';
+
+            element.toggleAttribute(
+                'data-rovalra-robux-icon-only',
+                iconOnly,
+            );
+
             element.setAttribute(ROBUX_HIDDEN_ATTRIBUTE, 'true');
             applyRevealAffordance(element, label);
         } catch (error) {
@@ -146,6 +165,7 @@ export function init() {
     }
 
     function unwrapRobuxElement(element) {
+        element.removeAttribute('data-rovalra-robux-icon-only');
         const realValue = getRobuxChild(element, ROBUX_REAL_VALUE_CLASS);
         const label = getRobuxChild(element, ROBUX_HIDDEN_LABEL_CLASS);
 
@@ -222,14 +242,29 @@ export function init() {
     }
 
     function getToggleTarget(eventTarget) {
-        const element =
-            eventTarget instanceof HTMLElement
-                ? eventTarget
-                : eventTarget?.parentElement;
+        if (!(eventTarget instanceof Element)) {
+            return null;
+        }
 
-        return element instanceof HTMLElement
-            ? element.closest(`[${ROBUX_HIDDEN_ATTRIBUTE}]`)
-            : null;
+        const directTarget = eventTarget.closest(
+            `[${ROBUX_HIDDEN_ATTRIBUTE}]`,
+        );
+
+        if (directTarget) {
+            return directTarget;
+        }
+
+        if (!isRobuxIconOnlyEnabled) {
+            return null;
+        }
+
+        const navbar = eventTarget.closest('#navbar-robux');
+
+        return (
+            navbar?.querySelector(
+                `[${ROBUX_HIDDEN_ATTRIBUTE}]`,
+            ) || null
+        );
     }
 
     function handleRobuxToggleEvent(event) {
@@ -301,6 +336,7 @@ export function init() {
                 'settingsPageInfo',
                 'hideRobux',
                 'hideRobuxRevealOnClick',
+                'hideRobuxIconOnly',
             ],
             (data) => {
                 try {
@@ -320,9 +356,13 @@ export function init() {
                 } catch (e) {}
 
                 isHideRobuxEnabled =
-                    Boolean(data.streamermode) && data.hideRobux === true;
-                isRevealOnClickEnabled =
-                    isHideRobuxEnabled && data.hideRobuxRevealOnClick === true;
+                Boolean(data.streamermode) && data.hideRobux === true;
+
+            isRobuxIconOnlyEnabled =
+                isHideRobuxEnabled && data.hideRobuxIconOnly === true;
+
+            isRevealOnClickEnabled =
+                isHideRobuxEnabled && data.hideRobuxRevealOnClick === true;
                 isSettingsPageInfoEnabled =
                     Boolean(data.streamermode) &&
                     data.settingsPageInfo !== false;
@@ -362,6 +402,7 @@ export function init() {
             (changes.streamermode ||
                 changes.settingsPageInfo ||
                 changes.hideRobux ||
+                changes.hideRobuxIconOnly ||
                 changes.hideRobuxRevealOnClick)
         ) {
             updateStreamerMode();
