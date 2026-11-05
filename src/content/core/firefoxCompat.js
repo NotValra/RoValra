@@ -523,11 +523,12 @@ function loadRemoteFonts() {
         );
 
     const cssFiles = [
-        ...new Set(
-            chrome.runtime
+        ...new Set([
+            ...chrome.runtime
                 .getManifest()
                 .content_scripts.flatMap((script) => script.css || []),
-        ),
+            ...(globalThis.ROVALRA_FIREFOX_CONTENT_CSS || []),
+        ]),
     ];
     cssFiles.forEach((file) => {
         const url = chrome.runtime.getURL(file);
