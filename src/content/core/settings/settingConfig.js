@@ -99,6 +99,10 @@ export const SETTINGS_CONFIG = {
                         label: languageLabel('Vietnamese (Tiếng Việt)', 'vi'),
                         value: 'vi',
                     },
+                    {
+                        label: languageLabel('Turkish (Türkçe)', 'tr'),
+                        value: 'tr',
+                    },
                     { label: 'Automatic', value: 'auto' },
                 ],
                 default: 'en',
