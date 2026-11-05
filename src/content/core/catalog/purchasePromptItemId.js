@@ -81,6 +81,22 @@ export const getPurchasePromptItemInfo = async (modal) => {
 
     if (!modalWindow) return null;
 
+    const isCartPurchase =
+        modalWindow.classList.contains('foundation-web-dialog-content') &&
+        modalWindow.querySelector('.thumbnail-2d-container img') &&
+        modalWindow.querySelector(
+            'button.foundation-web-button.bg-action-emphasis',
+        );
+
+    if (
+        !isCartPurchase &&
+        !modalWindow.querySelector(
+            '[data-testid="purchase-confirm-button"], #confirm-btn, .modal-multi-item-image-container img',
+        )
+    ) {
+        return null;
+    }
+
     let cartItems = getCartItems();
     const isOnGamePage = /^\/([a-z]{2}(-[a-z]{2})?\/)?games\//i.test(
         window.location.pathname,
