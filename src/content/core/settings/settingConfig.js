@@ -595,7 +595,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['447170745', '3050364170'],
+                contributors: ['447170745', '3050364170', '1564574922'],
                 childSettings: {
                     subplacesSortEnabled: {
                         label: 'Sorting',

@@ -658,6 +658,11 @@ export async function init() {
         try {
             const universeId = await fetchUniverseId(placeId);
             if (universeId) {
+                const rawSubplaces = await fetchAllSubplaces(universeId);
+                if (rawSubplaces.length <= 1) {
+                    return;
+                }
+
                 checkAndDisplaySubplaceBanner(universeId, placeId);
                 createSubplacesTab(universeId, tabContainer, contentSection);
             }
