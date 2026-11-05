@@ -157,7 +157,10 @@ $r2016-root: ':root.rovalra-theme-2016';
     .navbar-header a,
     .age-bracket-label,
     .text-robux,
-    [class*='icon-'] {
+    [class*='icon-'],
+    #nav-robux-amount,
+    #nav-robux-amount .rovalra-usd-estimate,
+    .nav-credit-text {
         color: #ffffff !important;
     }
 
@@ -632,14 +635,16 @@ $r2016-card-name: '.game-card-name, .sdui-game-tile-primary [data-sdui-text]';
 $r2016-card-thumb: '.game-card-thumb-container, .game-card-thumb-container *, .game-card-thumb, .sdui-tile-image-container, .sdui-tile-image-container *';
 $r2016-cards: '.game-card-container, .rovalra-game-card, .sdui-game-tile';
 
+$r2016-has-stats: '[data-rovalra-2016-has-stats]';
+
 #{$r2016-root} {
-    .game-card:has(.rovalra-2016-card-stats),
-    :is(#{$r2016-cards}):has(.rovalra-2016-card-stats),
+    .game-card#{$r2016-has-stats},
+    :is(#{$r2016-cards})#{$r2016-has-stats},
     :is(
         .horizontal-scroller,
         .horizontal-scroll-window,
         .horizontally-scrollable
-    ):has(.rovalra-2016-card-stats) {
+    )#{$r2016-has-stats} {
         height: auto !important;
     }
 
@@ -653,7 +658,6 @@ $r2016-cards: '.game-card-container, .rovalra-game-card, .sdui-game-tile';
         border-radius: $r2016-radius !important;
         box-shadow: 0 1px 4px 0 rgba(25, 25, 25, 0.3) !important;
         padding: 0 0 6px !important;
-        transition: box-shadow 200ms ease;
 
         &:hover {
             box-shadow: 0 1px 6px 0 rgba(25, 25, 25, 0.75) !important;
@@ -687,10 +691,11 @@ $r2016-cards: '.game-card-container, .rovalra-game-card, .sdui-game-tile';
         flex-grow: 0 !important;
     }
 
-    :is(.game-card-info, [data-testid='sdui-tile-footer-content']):has(
-        + .rovalra-2016-card-stats
-    ),
-    :is(#{$r2016-cards}):has(.rovalra-2016-card-stats) .game-card-friend-info {
+    :is(
+        .game-card-info,
+        [data-testid='sdui-tile-footer-content']
+    )[data-rovalra-2016-replaced],
+    :is(#{$r2016-cards})#{$r2016-has-stats} .game-card-friend-info {
         display: none !important;
     }
 
@@ -793,11 +798,10 @@ $r2016-cards: '.game-card-container, .rovalra-game-card, .sdui-game-tile';
         }
 
         .rovalra-2016-vote-background {
-            background-color: #e27676;
-            opacity: 0.6;
+            background-color: #eeadad;
 
             &.no-votes {
-                background-color: $r2016-muted;
+                background-color: #acacac;
             }
         }
 
@@ -814,8 +818,8 @@ $r2016-cards: '.game-card-container, .rovalra-game-card, .sdui-game-tile';
 $r2016-wide-tile: ':is(.hover-game-tile, .featured-game-container, .featured-grid-item-container, [data-testid="wide-game-tile"])';
 
 #{$r2016-root} {
-    #{$r2016-wide-tile}:has(.rovalra-2016-card-stats),
-    #{$r2016-wide-tile}:has(.rovalra-2016-card-stats)
+    #{$r2016-wide-tile}#{$r2016-has-stats},
+    #{$r2016-wide-tile}#{$r2016-has-stats}
         :is(
             .info-container,
             .info-metadata-container,
@@ -827,7 +831,7 @@ $r2016-wide-tile: ':is(.hover-game-tile, .featured-game-container, .featured-gri
         overflow: visible !important;
     }
 
-    .base-metadata:has(> .rovalra-2016-card-stats) {
+    .base-metadata[data-rovalra-2016-stats-parent] {
         display: block !important;
     }
 
@@ -838,7 +842,7 @@ $r2016-wide-tile: ':is(.hover-game-tile, .featured-game-container, .featured-gri
     :is(
         .game-carousel.wide-game-tile-carousel,
         .game-grid.wide-game-tile-game-grid
-    ):has(.rovalra-2016-card-stats) {
+    )#{$r2016-has-stats} {
         grid-auto-rows: auto !important;
     }
 
@@ -880,7 +884,7 @@ $r2016-wide-tile: ':is(.hover-game-tile, .featured-game-container, .featured-gri
     }
 }
 
-$r2016-quick-play-card: ':is(a.game-card-link, .sdui-game-tile-wrapper).game-tile-styles:has(.rovalra-2016-card-stats)';
+$r2016-quick-play-card: ':is(a.game-card-link, .sdui-game-tile-wrapper).game-tile-styles[data-rovalra-2016-has-stats]';
 
 #{$r2016-root} #{$r2016-quick-play-card} {
     &::before,
@@ -1056,7 +1060,7 @@ $r2016-scroller-offset: -36px;
     display: flex !important;
 }
 
-#{$r2016-root} :has(> #{$r2016-rovalra-scroller}) {
+#{$r2016-root} [data-rovalra-2016-scroll-host]:not(#rovalra-2016-scroller) {
     position: relative !important;
     padding-left: $r2016-scroller-width + 6px !important;
     padding-right: $r2016-scroller-width + 6px !important;
@@ -1098,7 +1102,7 @@ $r2016-scroller-offset: -36px;
     inset-inline-end: 0 !important;
     border-radius: 0 $r2016-radius $r2016-radius 0 !important;
 
-    &:has([class*='left']) {
+    &[data-rovalra-2016-arrow-left] {
         left: 0 !important;
         right: auto !important;
         inset-inline-start: 0 !important;
@@ -1108,7 +1112,9 @@ $r2016-scroller-offset: -36px;
 }
 
 #{$r2016-root}
-    .foundation-web-collection-carousel:has(#{$r2016-sdui-scroller})
+    .foundation-web-collection-carousel[data-rovalra-2016-has-arrows]:not(
+        #rovalra-2016-scroller
+    )
     .foundation-web-collection-carousel-scroll {
     padding-left: $r2016-scroller-width + 6px !important;
     padding-right: $r2016-scroller-width + 6px !important;
@@ -1154,7 +1160,7 @@ $r2016-scroller-offset: -36px;
 );
 
 #{$r2016-root} {
-    :has(> #item-info-container-frontend) {
+    [data-rovalra-2016-item-info-host]:not(#rovalra-2016-scroller) {
         background-color: $r2016-card !important;
         box-shadow: $r2016-shadow !important;
         padding: 15px !important;
@@ -1297,7 +1303,6 @@ $r2016-item-list: '[id^="item-list-container-"]';
         box-shadow: 0 1px 4px 0 rgba(25, 25, 25, 0.3) !important;
         border-radius: $r2016-radius !important;
         padding: 0 0 5px !important;
-        transition: box-shadow 200ms ease;
 
         &:hover {
             box-shadow: 0 1px 6px 0 rgba(25, 25, 25, 0.75) !important;
@@ -1370,8 +1375,8 @@ $r2016-catalog-link: #0055b3;
 $r2016-catalog-price: #008000;
 
 #{$r2016-root} {
-    body:has(#catalog-react-page),
-    body:has(#catalog-react-page) :is(#content, .content) {
+    body[data-rovalra-2016-catalog],
+    body[data-rovalra-2016-catalog] :is(#content, .content) {
         background-color: $r2016-card !important;
     }
 

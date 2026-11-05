@@ -50,8 +50,35 @@ const NAV_RENAMES = [
 ];
 const ORIGINAL_TEXT_ATTRIBUTE = 'rovalra2016OriginalText';
 
+const SDUI_ARROW = '[data-testid="carousel-scroll-arrow"]:not(.scroll-arrow)';
+
+const LAYOUT_MARKERS = [
+    [
+        '.rovalra-scroll-btn',
+        (button) => button.parentElement,
+        'data-rovalra-2016-scroll-host',
+    ],
+    [
+        `${SDUI_ARROW} [class*="left"]`,
+        (icon) => icon.closest(SDUI_ARROW),
+        'data-rovalra-2016-arrow-left',
+    ],
+    [
+        SDUI_ARROW,
+        (arrow) => arrow.closest('.foundation-web-collection-carousel'),
+        'data-rovalra-2016-has-arrows',
+    ],
+    [
+        '#item-info-container-frontend',
+        (info) => info.parentElement,
+        'data-rovalra-2016-item-info-host',
+    ],
+    ['#catalog-react-page', () => document.body, 'data-rovalra-2016-catalog'],
+];
+
 let initialized = false;
 let navRenameObservers = [];
+let layoutMarkerObservers = [];
 let fontFaces = [];
 let bodyClassObserver = null;
 let displacedClasses = [];
@@ -158,6 +185,34 @@ function restoreNavLinks() {
     }
 }
 
+function addLayoutMarkers() {
+    if (layoutMarkerObservers.length) return;
+    layoutMarkerObservers = LAYOUT_MARKERS.map(
+        ([selector, getTarget, attribute]) =>
+            observeElement(
+                selector,
+                (element) => getTarget(element)?.setAttribute(attribute, ''),
+                {
+                    multiple: true,
+                    onRemove: () => {
+                        if (selector === '#catalog-react-page')
+                            document.body?.removeAttribute(attribute);
+                    },
+                },
+            ),
+    );
+}
+
+function removeLayoutMarkers() {
+    layoutMarkerObservers.forEach((observer) => observer.disconnect());
+    layoutMarkerObservers = [];
+    for (const [, , attribute] of LAYOUT_MARKERS) {
+        document
+            .querySelectorAll(`[${attribute}]`)
+            .forEach((element) => element.removeAttribute(attribute));
+    }
+}
+
 function applyTheme(enabled) {
     document.documentElement.classList.toggle(ROOT_CLASS, enabled);
     setImageVariables(enabled);
@@ -167,10 +222,12 @@ function applyTheme(enabled) {
         restoreColorMode();
         disableGameCards();
         restoreNavLinks();
+        removeLayoutMarkers();
         return;
     }
 
     addFont();
+    addLayoutMarkers();
     enableGameCards().catch((error) =>
         console.error('RoValra: Failed to restyle game cards.', error),
     );
