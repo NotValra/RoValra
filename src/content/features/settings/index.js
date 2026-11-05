@@ -5112,8 +5112,9 @@ export async function handleSearch(event) {
         )) {
             if (settingDef.hidden) continue;
             if (
-                getSettingStatus(settingDef).some((status) =>
-                    parsedQuery.hiddenStatuses.has(status),
+                parsedQuery.statuses.size > 0 &&
+                !getSettingStatus(settingDef).some((status) =>
+                    parsedQuery.statuses.has(status),
                 )
             ) {
                 continue;
