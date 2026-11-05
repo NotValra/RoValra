@@ -1741,7 +1741,10 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                storageKey: 'rovalra_friend_labels',
+                storageKey: [
+                    'rovalra_friend_labels',
+                    'rovalra_friend_labels_v2',
+                ],
                 contributors: ['4632962611'],
             },
 
