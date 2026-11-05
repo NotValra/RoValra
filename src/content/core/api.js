@@ -9,6 +9,7 @@ import { showSystemAlert } from './ui/roblox/alert.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 import { showSidePopup_BottomRight } from './ui/showPopup.js';
+import { settings } from './settings/getSettings.js';
 
 let t = async (...args) => {};
 export function set_i18n_t(fn) {
@@ -364,6 +365,23 @@ export function resetGameJoinErrorCount() {
  * @returns 
  */
 export async function callRobloxApi(options) {
+    const show_errors = await settings.apiErrorPopups;
+
+    async function _show_error(title, message) {
+        if (show_errors) {
+            showSidePopup_BottomRight(
+                title, message
+            );
+        }
+        if (await settings.apiErrorNotificationsEnabled) {
+            await chrome.runtime.sendMessage({
+                action: "rovalra:notif:send",
+                title: title,
+                message: message
+            });
+        };
+    }
+
     if (options.subdomain === 'gamejoin') {
         options = {
             ...options,
@@ -517,9 +535,9 @@ export async function callRobloxApi(options) {
             const isDowntimeSimulated = await checkSimulatedDowntime();
             if (isDowntimeSimulated) {
                 if (noFail) {
-                    showSidePopup_BottomRight(
-                        await t("sidePopups.bottomRight.api.simulation500title"),
-                        await t("sidePopups.bottomRight.api.simulation500", {endpoint: endpoint}),
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.simulation500title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.simulation500", {endpoint: endpoint, interpolation: {escapeValue: false}}),
                     );
                 }
                 console.warn(
@@ -556,9 +574,9 @@ export async function callRobloxApi(options) {
                 await checkSimulatedJoinHttpError();
             if (isJoinHttpErrorSimulated) {
                 if (noFail) {
-                    showSidePopup_BottomRight(
-                        await t("sidePopups.bottomRight.api.gamejoin-simulation-title"),
-                        await t("sidePopups.bottomRight.api.gamejoin-simulation", {endpoint: endpoint}),
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.gamejoin-simulation-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.gamejoin-simulation", {endpoint: endpoint, interpolation: {escapeValue: false}}),
                     );
                 }
                 console.warn(
@@ -584,9 +602,9 @@ export async function callRobloxApi(options) {
             const isJoinErrorSimulated = await checkSimulatedJoinError();
             if (isJoinErrorSimulated) {
                 if (noFail) {
-                    showSidePopup_BottomRight(
-                        await t("sidePopups.bottomRight.api.gamejoin-simulate-ne-title"),
-                        await t("sidePopups.bottomRight.api.gamejoin-simulate-ne", {endpoint: endpoint}),
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.gamejoin-simulate-ne-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.gamejoin-simulate-ne", {endpoint: endpoint, interpolation: {escapeValue: false}}),
                     );
                 }
                 console.warn(
@@ -766,9 +784,9 @@ export async function callRobloxApi(options) {
                 }
             } catch (error) {
                 if (noFail) {
-                    showSidePopup_BottomRight(
-                        await t("sidePopups.bottomRight.api.rovalra-fail-title"),
-                        await t("sidePopups.bottomRight.api.fail-no-retry", {url: fullUrl}),
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.rovalra-fail-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.fail-no-retry", {url: fullUrl, interpolation: {escapeValue: false}}),
                     );
                 }
                 console.error(
@@ -779,9 +797,9 @@ export async function callRobloxApi(options) {
             }
             if (!lastResponse.ok) {
                 if (noFail) {
-                    showSidePopup_BottomRight(
-                        await t("sidePopups.bottomRight.api.rovalra-fail-title"),
-                        await t("sidePopups.bottomRight.api.fail-status-code", {url: fullUrl, code: lastResponse.status}),
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.rovalra-fail-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.fail-status-code", {url: fullUrl, code: lastResponse.status, interpolation: {escapeValue: false}}),
                     );
                 }
                 console.error(
@@ -900,9 +918,9 @@ export async function callRobloxApi(options) {
                 recordRateLimitCooldown(rateLimitKey, response);
             } else {
                 if (noFail) {
-                    showSidePopup_BottomRight(
-                        await t("sidePopups.bottomRight.api.rovalra-fail-title"),
-                        await t("sidePopups.bottomRight.api.fail-status-code", {url: fullUrl, code: response.status}),
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.rovalra-fail-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.fail-status-code", {url: fullUrl, code: response.status, interpolation: {escapeValue: false}}),
                     );
                 }
             }
