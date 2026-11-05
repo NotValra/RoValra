@@ -54,6 +54,7 @@ import { init as initCustomRobloxBanner } from './features/sitewide/customRoblox
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initSidebarLayout } from './features/sitewide/sidebarLayout.js';
 import { init as initHideFriendRequestCount } from './features/sitewide/hideFriendRequestCount.js';
+import { init as initHideMessageCount } from './features/sitewide/hideMessageCount.js';
 import { init as initDebugOverlay } from './features/developer/debugOverlay.js';
 import { init as initChannelOverlay } from './features/play/channelOverlay.js';
 import { init as initServerLocationOverlay } from './features/play/serverLocationOverlay.js';
@@ -96,6 +97,7 @@ import { init as initRecentlyViewed } from './features/catalog/recentlyViewed.js
 import { init as initHeroUnits } from './features/catalog/heroUnits.js';
 import { init as initRoValraAds } from './features/catalog/rovalraAds.js';
 import { init as initRoValraAdBadge } from './features/catalog/rovalraAdBadge.js';
+import { init as initFortyMethodIndicator } from './features/catalog/fortyMethodIndicator.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
 import { init as initImprovedAttributes } from './features/catalog/improvedAttributes.js';
@@ -134,6 +136,7 @@ import { init as initUnderReviewPill } from './features/games/underReviewPill.js
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initSpending } from './features/transactions/spending.js';
+import { init as initRevenue } from './features/transactions/revenue.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
@@ -229,6 +232,7 @@ import { init as initAccurateContinue } from './features/home/accurateContinue.j
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initFriendLabels } from './features/home/friendLabels.js';
+import { init as initFriendLabelsFriendsPage } from './features/profile/friends/friendLabelsFriendsPage.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
 import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
@@ -321,6 +325,7 @@ const featureRoutes = [
             initSidebarCollapse,
             initSidebarLayout,
             initHideFriendRequestCount,
+            initHideMessageCount,
             initDebugOverlay,
             initChannelOverlay,
             initServerLocationOverlay,
@@ -379,6 +384,7 @@ const featureRoutes = [
             initHeroUnits,
             initRoValraAds,
             initRoValraAdBadge,
+            initFortyMethodIndicator,
         ],
     },
     // Avatar pages
@@ -399,6 +405,7 @@ const featureRoutes = [
             initGroupPendingFunds,
             initGroupFundsPill,
             initItemRender,
+            initRevenue,
         ],
     },
     // Communities list page (My Communities) — matches /communities and /communities/...
@@ -503,6 +510,7 @@ const featureRoutes = [
             initIdVerificationBadge,
             initAgeVerificationBadge,
             initFriendsSince,
+            initFriendLabelsFriendsPage,
             initFriendRequestFilters,
             initMutualFriends,
             initUnfriend,
@@ -544,6 +552,7 @@ const featureRoutes = [
         features: [
             initTotalSpent,
             initSpending,
+            initRevenue,
             initPendingRobuxTrans,
             initTotalEarned,
         ],

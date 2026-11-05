@@ -222,3 +222,154 @@
     width: 100%;
     box-sizing: border-box;
 }
+
+.rovalra-friend-label {
+    gap: 4px;
+    min-height: 20px;
+    max-width: 100%;
+    padding: 2px 7px;
+    border: 1px solid color-mix(in srgb, var(--rovalra-label-color, #64748b) 55%, transparent);
+    background: color-mix(in srgb, var(--rovalra-label-color, #64748b) 20%, var(--rovalra-container-background-color, #272930));
+    color: var(--rovalra-main-text-color, #f7f7f8);
+    font-size: 11px;
+    line-height: 15px;
+    font-weight: 600;
+}
+
+.rovalra-friend-label-text {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-friend-label-icon {
+    flex: 0 0 auto;
+    color: var(--rovalra-label-color, #64748b);
+}
+
+.friends-carousel-tile,
+#friends-web-app .avatar-card {
+    position: relative;
+}
+
+.rovalra-friend-label-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    border: 1px solid var(--rovalra-button-background-color, #404348);
+    border-radius: 7px;
+    background: var(--rovalra-container-background-color, #272930);
+    color: var(--rovalra-main-text-color, #f7f7f8);
+    cursor: pointer;
+    z-index: 6;
+}
+
+.rovalra-friend-label-edit:hover,
+.rovalra-friend-label-edit:focus-visible {
+    filter: brightness(1.15);
+}
+
+.friends-carousel-tile > .rovalra-friend-label-edit {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.friends-carousel-tile:hover > .rovalra-friend-label-edit,
+.friends-carousel-tile:focus-within > .rovalra-friend-label-edit {
+    opacity: 1;
+}
+
+#friends-web-app .avatar-card > .rovalra-friend-label-edit {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+#friends-web-app .rovalra-friend-label-friends-badge {
+    display: inline-flex;
+    vertical-align: middle;
+    margin: 3px 0 0;
+    max-width: 100%;
+}
+
+.rovalra-friend-label-editor-heading {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-friend-label-editor .rovalra-friend-label-suggestions,
+.rovalra-friend-label-colors,
+.rovalra-friend-label-icons,
+.rovalra-friend-label-manage {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.rovalra-friend-label-editor .rovalra-friend-label-suggestion {
+    gap: 4px;
+    border: 1px solid color-mix(in srgb, var(--rovalra-label-color, #64748b) 60%, transparent);
+    background: color-mix(in srgb, var(--rovalra-label-color, #64748b) 15%, var(--rovalra-container-background-color, #272930));
+    color: var(--rovalra-main-text-color, #f7f7f8);
+    min-height: 27px;
+}
+
+.rovalra-friend-label-editor .rovalra-friend-label-suggestion.is-selected,
+.rovalra-friend-label-color.is-selected,
+.rovalra-friend-label-icon-option.is-selected {
+    outline: 2px solid var(--rovalra-main-text-color, #f7f7f8);
+    outline-offset: 2px;
+}
+
+.rovalra-friend-label-color {
+    width: 27px;
+    height: 27px;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.rovalra-friend-label-custom-color {
+    width: 36px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.rovalra-friend-label-icon-option {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    border: 1px solid var(--rovalra-button-background-color, #404348);
+    background: var(--rovalra-container-background-color, #272930);
+    color: var(--rovalra-main-text-color, #f7f7f8);
+    cursor: pointer;
+}
+
+.rovalra-friend-label-preview {
+    align-self: flex-start;
+}
+
+.rovalra-friend-label-manage {
+    gap: 6px;
+}
+
+@media (hover: none) {
+    .friends-carousel-tile > .rovalra-friend-label-edit {
+        opacity: 1;
+    }
+}

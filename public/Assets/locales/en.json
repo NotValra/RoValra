@@ -329,7 +329,15 @@
         "publishedGame": "I've Published the Game",
         "saveSettingsUnavailable": "Failed to save settings. Storage API unavailable.",
         "groupsLoadFailed": "Failed to load groups. Please refresh and try again.",
-        "noGroupSelected": "No group selected. Please try again."
+        "noGroupSelected": "No group selected. Please try again.",
+        "indicatorSupported": "40%",
+        "indicatorUnsupported": "40% unavailable",
+        "indicatorSupportedTooltip": "This item can be bought with the 40% method.",
+        "indicatorUnsupportedTooltip": "This item can not be bought with the 40% method, because it is limited or the creator only sells it on the marketplace.",
+        "filterTitle": "40% Method",
+        "filterAll": "All",
+        "filterAvailable": "40% available",
+        "filterApply": "Apply"
     },
     "risk": {
         "projected": "Item is flagged as projected.",
@@ -470,7 +478,13 @@
         "friendFallback": "Friend",
         "save": "Save",
         "remove": "Remove",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "newLabel": "New Label",
+        "color": "Color",
+        "icon": "Icon",
+        "updatePreset": "Update Label",
+        "deletePreset": "Delete Label",
+        "confirmDeletePreset": "Delete this label for every friend using it?"
     },
     "underratedGames": {
         "topic": "Underrated Games",
@@ -1037,7 +1051,21 @@
         "noPurchases": "No purchases found.",
         "noPurchasesInPeriod": "No purchases in this period.",
         "scanInProgress": "Transaction scan in progress. This may take a while.",
+        "robloxLimit": "Unable to load older transactions due to Roblox limitations.",
         "loadError": "Unable to load spending."
+    },
+    "revenue": {
+        "title": "Revenue",
+        "buyers": "Buyers",
+        "viewSales": "View sales",
+        "noSales": "No sales found.",
+        "noSalesInPeriod": "No sales in this period.",
+        "loadError": "Unable to load revenue.",
+        "mostRevenue": "Most revenue",
+        "mostSales": "Most sales",
+        "singleSale": "1 sale",
+        "multipleSales": "{{count}} sales",
+        "unknownBuyer": "Unknown buyer"
     },
     "settings": {
         "tabs": {

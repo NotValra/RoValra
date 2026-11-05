@@ -102,11 +102,14 @@ function getSidebarItemKey(control, item) {
 }
 
 function getSidebarItemLabel(control) {
-    const textElement = [
-        ...control.querySelectorAll(
-            '.nav-item-text, .foundation-web-menu-item-title, span.text-truncate-end, span:not([role="presentation"])',
-        ),
-    ].find((element) => element.textContent.trim());
+    const textElement =
+        control.querySelector('.nav-item-text, span.text-truncate-end') ||
+        [
+            ...control.querySelectorAll(
+                'span:not([role="presentation"])',
+            ),
+        ].find((element) => element.textContent.trim());
+    const text = textElement?.textContent?.trim() || control.textContent.trim();
 
     return (
         textElement?.textContent?.trim() ||

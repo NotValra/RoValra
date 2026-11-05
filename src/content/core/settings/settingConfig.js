@@ -162,6 +162,15 @@ export const SETTINGS_CONFIG = {
                         buttonText: 'Open Setup',
                         event: 'rovalra:open40methodSetup',
                     },
+                    fortyMethodIndicatorEnabled: {
+                        label: '40% Method Indicator',
+                        description: [
+                            'Shows if an item supports the 40% method on its thumbnail.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['2239549101'],
+                    },
                     useSoberSupportDeeplinks: {
                         label: 'Use Roblox deeplinks for Sober support',
                         description:
@@ -1748,11 +1757,14 @@ export const SETTINGS_CONFIG = {
             friendLabelsEnabled: {
                 label: 'Friend Labels',
                 description: [
-                    'Lets you assign a label to your friends on the Home page.',
+                    'Create colored labels with icons for friends on Home and the Friends page.',
                 ],
                 type: 'checkbox',
                 default: false,
-                storageKey: 'rovalra_friend_labels',
+                storageKey: [
+                    'rovalra_friend_labels',
+                    'rovalra_friend_labels_v2',
+                ],
                 contributors: ['4632962611'],
             },
 
@@ -2088,6 +2100,18 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 indexedDbStore: 'transactions',
                 dependsOn: ['TotalSpentGamesEnabled'],
+            },
+            revenueEnabled: {
+                label: 'Revenue Breakdown',
+                description: [
+                    'Shows a timeline of how much Robux you have earned from sales, along with who bought from you and which experiences sold the most on the transactions page.',
+                    'Also shows the same breakdown on the revenue page of communities you manage.',
+                    'Sales are scanned in the background while the page is open, so the first scan may take a while.',
+                ],
+                type: 'checkbox',
+                default: true,
+                indexedDbStore: 'transactions',
+                contributors: ['2239549101'],
             },
             totalearnedEnabled: {
                 label: 'Total Earned',
@@ -2461,6 +2485,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['4632962611'],
+            },
+            hideMessageCountEnabled: {
+                label: 'Hide Message Count',
+                description: [
+                    'Hides the message count beside Messages in the sidebar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['4502342102'],
             },
             sidebarLayoutEnabled: {
                 label: 'Sidebar Layout',
@@ -3360,6 +3393,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                experimental: 'May have bugs',
             },
             CustomThemeVariablesEnabled: {
                 label: 'Custom Theme Colors',

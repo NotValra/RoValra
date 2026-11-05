@@ -615,14 +615,14 @@ function createSearchFilters(searchInput, runSearch) {
         const row = document.createElement('label');
         row.className = 'rovalra-settings-search-panel-row';
         const toggle = createRadioButton({
-            checked: true,
+            checked: false,
             onChange: (checked) => {
-                const hiddenStatuses = new Set(
-                    parseSearchQuery(searchInput.value).hiddenStatuses,
+                const statuses = new Set(
+                    parseSearchQuery(searchInput.value).statuses,
                 );
-                if (checked) hiddenStatuses.delete(status);
-                else hiddenStatuses.add(status);
-                apply({ hiddenStatuses });
+                if (checked) statuses.add(status);
+                else statuses.delete(status);
+                apply({ statuses });
             },
         });
         statusToggles.set(status, toggle);
@@ -697,7 +697,7 @@ function createSearchFilters(searchInput, runSearch) {
         const parsed = parseSearchQuery(searchInput.value);
         button.classList.toggle('is-active', parsed.hasFilters);
         for (const [status, toggle] of statusToggles) {
-            toggle.setChecked(!parsed.hiddenStatuses.has(status));
+            toggle.setChecked(parsed.statuses.has(status));
         }
         const contributorId = parsed.contributor?.match(/^#?(\d+)$/)?.[1];
         contributorList

@@ -84,6 +84,31 @@ manifest.content_scripts.unshift({
     all_frames: false,
 });
 
+const CONTENT_CSS_FILE = 'firefox-content-css.js';
+function linkContentScriptCss() {
+    const cssFiles = [];
+    for (const script of manifest.content_scripts) {
+        if (!script.css?.length) continue;
+        cssFiles.push(...script.css.filter((file) => !cssFiles.includes(file)));
+        delete script.css;
+    }
+    if (!cssFiles.length) return;
+
+    const loader = fs.readFileSync(
+        path.join(root, 'src', 'firefox', 'contentCss.js'),
+        'utf8',
+    );
+    fs.writeFileSync(
+        path.join(outDir, CONTENT_CSS_FILE),
+        `globalThis.ROVALRA_FIREFOX_CONTENT_CSS = ${JSON.stringify(cssFiles)};\n${loader}`,
+    );
+    const contentScript = manifest.content_scripts.find((script) =>
+        script.js?.includes('content.js'),
+    );
+    contentScript.js.unshift(CONTENT_CSS_FILE);
+}
+linkContentScriptCss();
+
 async function addFirefoxScrollbarCss() {
     const { convertWebkitScrollbarCss } = await import(
         pathToFileURL(path.join(root, 'src', 'firefox', 'scrollbarCss.mjs'))

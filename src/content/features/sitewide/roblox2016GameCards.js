@@ -11,6 +11,32 @@ const SDUI_STATS_ROW = '[data-testid="sdui-tile-footer-content"]';
 const SDUI_LABEL_SELECTOR = `.sdui-game-tile ${SDUI_STATS_ROW} :is(.icon-rating-16x16, .icon-current-players-16x16)`;
 const EVENT_LINK_SELECTOR = 'a[href*="/events/"]';
 
+const HAS_STATS_ATTRIBUTE = 'data-rovalra-2016-has-stats';
+const STATS_PARENT_ATTRIBUTE = 'data-rovalra-2016-stats-parent';
+const REPLACED_ROW_ATTRIBUTE = 'data-rovalra-2016-replaced';
+const STATS_CONTAINERS = [
+    '.game-card',
+    '.game-card-container',
+    '.rovalra-game-card',
+    '.sdui-game-tile',
+    '.horizontal-scroller',
+    '.horizontal-scroll-window',
+    '.horizontally-scrollable',
+    '.hover-game-tile',
+    '.featured-game-container',
+    '.featured-grid-item-container',
+    '[data-testid="wide-game-tile"]',
+    '.game-carousel.wide-game-tile-carousel',
+    '.game-grid.wide-game-tile-game-grid',
+    'a.game-card-link',
+    '.sdui-game-tile-wrapper',
+].join(', ');
+const MARKER_ATTRIBUTES = [
+    HAS_STATS_ATTRIBUTE,
+    STATS_PARENT_ATTRIBUTE,
+    REPLACED_ROW_ATTRIBUTE,
+];
+
 let observers = [];
 let enabled = false;
 
@@ -102,7 +128,26 @@ function addStats(label, rowSelector, readStats, cardSelector) {
     const card = row?.closest(cardSelector);
     if (!card || card.querySelector(`.${STATS_CLASS}`)) return;
     const isEvent = Boolean(card.querySelector(EVENT_LINK_SELECTOR));
-    row.after(buildStats(readStats(row), isEvent));
+    const stats = buildStats(readStats(row), isEvent);
+    row.after(stats);
+    markStatsContainers(row, stats);
+}
+
+function markStatsContainers(row, stats) {
+    row.setAttribute(REPLACED_ROW_ATTRIBUTE, '');
+    stats.parentElement?.setAttribute(STATS_PARENT_ATTRIBUTE, '');
+    for (
+        let node = stats.parentElement;
+        node && node !== document.body;
+        node = node.parentElement
+    ) {
+        if (
+            !node.hasAttribute(HAS_STATS_ATTRIBUTE) &&
+            node.matches(STATS_CONTAINERS)
+        ) {
+            node.setAttribute(HAS_STATS_ATTRIBUTE, '');
+        }
+    }
 }
 
 export async function enableGameCards() {
@@ -143,4 +188,9 @@ export function disableGameCards() {
     document
         .querySelectorAll(`.${STATS_CLASS}`)
         .forEach((stats) => stats.remove());
+    for (const attribute of MARKER_ATTRIBUTES) {
+        document
+            .querySelectorAll(`[${attribute}]`)
+            .forEach((node) => node.removeAttribute(attribute));
+    }
 }

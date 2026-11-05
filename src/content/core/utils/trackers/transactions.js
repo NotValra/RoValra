@@ -20,6 +20,7 @@ const activeScans = new Set();
 let legacyCleanup = null;
 let transactionRefreshInterval = null;
 let transactionScanUserId = null;
+let groupSalesScan = null;
 
 const createEmptyAggregate = () => ({
     totals: { totalSpent: 0, totalTransactions: 0 },
@@ -210,8 +211,88 @@ function getRateLimitDelay(response) {
     return 0;
 }
 
-async function fetchTransactionsPage(userId, cursor = null) {
-    let endpoint = `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`;
+const purchaseSource = (userId) => ({
+    key: String(userId),
+    endpoint: `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`,
+    setting: 'TotalSpentGamesEnabled',
+});
+
+const salesSource = (ownerType, ownerId) => ({
+    key: `sales:${ownerType}:${ownerId}`,
+    endpoint: `/transaction-records/v1/${ownerType}/${ownerId}/transactions?limit=100&transactionType=Sale`,
+    setting: 'revenueEnabled',
+});
+
+export async function getSalesData(ownerType, ownerId) {
+    const data = await indexedDb.get(
+        TRANSACTIONS_STORE,
+        salesSource(ownerType, ownerId).key,
+    );
+    return {
+        transactions: {},
+        ...(data || {}),
+        isScanning: !data?.isFullyScanned,
+    };
+}
+
+export const getSalesKey = (ownerType, ownerId) =>
+    salesSource(ownerType, ownerId).key;
+
+export function scanSales(ownerType, ownerId, background = false) {
+    const source = salesSource(ownerType, ownerId);
+    if (ownerType === 'groups') {
+        source.onForbidden = () => untrackGroupSales(ownerId);
+        if (background) {
+            source.isStale = async () =>
+                (await getTrackedGroup()).groupId !== String(ownerId);
+        }
+    }
+    return runExclusiveScan(`rovalra-transaction-scan-${source.key}`, () =>
+        runTransactionScan(source),
+    ).catch(() => {});
+}
+
+const getTrackedGroupKey = (userId) => `sales:trackedGroup:${userId}`;
+
+async function getTrackedGroup() {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return { key: null, groupId: null };
+
+    const key = getTrackedGroupKey(userId);
+    return { key, groupId: await indexedDb.get(TRANSACTIONS_STORE, key) };
+}
+
+export async function trackGroupSales(groupId) {
+    if (!groupId) return;
+    groupId = String(groupId);
+
+    const { key, groupId: trackedId } = await getTrackedGroup();
+    if (!key || trackedId === groupId) return;
+
+    await indexedDb.set(TRANSACTIONS_STORE, key, groupId);
+}
+
+async function untrackGroupSales(groupId) {
+    const { key, groupId: trackedId } = await getTrackedGroup();
+    if (!key || trackedId !== String(groupId)) return;
+
+    await indexedDb.remove(TRANSACTIONS_STORE, key);
+}
+
+function scanTrackedGroupSales() {
+    groupSalesScan ??= getTrackedGroup()
+        .then(({ groupId }) => groupId && scanSales('groups', groupId, true))
+        .catch((error) =>
+            console.warn('RoValra: Group sales scan failed', error),
+        )
+        .finally(() => {
+            groupSalesScan = null;
+        });
+    return groupSalesScan;
+}
+
+async function fetchTransactionsPage(source, cursor = null) {
+    let endpoint = source.endpoint;
     if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
 
     while (true) {
@@ -236,6 +317,14 @@ async function fetchTransactionsPage(userId, cursor = null) {
                 };
             }
 
+            if (response.status === 403) return { forbidden: true };
+            if (response.status === 400) {
+                const body = await response.json().catch(() => null);
+                // Roblox refuses to page past a certain point (code 29)
+                if (body?.errors?.some((error) => error.code === 29))
+                    return { outOfBounds: true };
+                return null;
+            }
             if (!response.ok) return null;
             return {
                 body: await response.json(),
@@ -311,10 +400,10 @@ function aggregateTransactions(transactions) {
     return aggregated;
 }
 
-async function runTransactionScan(userId) {
-    userId = String(userId);
+async function runTransactionScan(source) {
+    const userId = source.key;
 
-    if (!(await settings.TotalSpentGamesEnabled)) return;
+    if (!(await settings[source.setting])) return;
     if (activeScans.has(userId)) return;
     activeScans.add(userId);
 
@@ -324,7 +413,7 @@ async function runTransactionScan(userId) {
 
         if (userData.storageVersion !== TRANSACTIONS_STORAGE_VERSION) {
             await runTransactionLoop(
-                userId,
+                source,
                 {
                     ...createEmptyAggregate(),
                     transactions: {},
@@ -337,7 +426,7 @@ async function runTransactionScan(userId) {
         }
 
         if (!userData.isFullyScanned) {
-            await runTransactionLoop(userId, userData, false);
+            await runTransactionLoop(source, userData, false);
             return;
         }
 
@@ -345,13 +434,14 @@ async function runTransactionScan(userId) {
             userData.lastIncrementalCheck || userData.lastFullScan || 0;
         if (Date.now() - lastCheck < TRANSACTION_REFRESH_DURATION) return;
 
-        await runTransactionLoop(userId, userData, true);
+        await runTransactionLoop(source, userData, true);
     } finally {
         activeScans.delete(userId);
     }
 }
 
-async function runTransactionLoop(userId, existingData, isIncremental) {
+async function runTransactionLoop(source, existingData, isIncremental) {
+    const userId = source.key;
     let cursor = isIncremental ? null : existingData.scanCursor || null;
     let pagesChecked = 0;
     let foundMatch = false;
@@ -388,8 +478,20 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
     };
 
     while (true) {
-        const page = await fetchTransactionsPage(userId, cursor);
+        if (await source.isStale?.()) break;
+        const page = await fetchTransactionsPage(source, cursor);
         if (!page) break;
+        if (page.forbidden) {
+            await source.onForbidden?.();
+            break;
+        }
+
+        if (page.outOfBounds) {
+            cursor = null;
+            existingData = { ...existingData, reachedRobloxLimit: true };
+            await persistTransactionData(true);
+            break;
+        }
 
         if (page.internalError) {
             internalErrorCount++;
@@ -491,7 +593,7 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
         pagesChecked >= TRANSACTION_MAX_INCREMENTAL_PAGES
     ) {
         await runTransactionLoop(
-            userId,
+            source,
             { ...existingData, transactions, latestTransactionHashes },
             false,
         );
@@ -509,7 +611,7 @@ function scanTransactions(userId) {
     return legacyCleanup
         .then(() =>
             runExclusiveScan(`rovalra-transaction-scan-${userId}`, () =>
-                runTransactionScan(userId),
+                runTransactionScan(purchaseSource(userId)),
             ),
         )
         .catch((error) =>
@@ -523,14 +625,15 @@ export function initTransactionsTracking() {
         userId = String(userId);
 
         scanTransactions(userId);
+        scanTrackedGroupSales();
 
         if (transactionScanUserId === userId) return;
         clearInterval(transactionRefreshInterval);
 
         transactionScanUserId = userId;
-        transactionRefreshInterval = setInterval(
-            () => scanTransactions(userId),
-            TRANSACTION_REFRESH_DURATION,
-        );
+        transactionRefreshInterval = setInterval(() => {
+            scanTransactions(userId);
+            scanTrackedGroupSales();
+        }, TRANSACTION_REFRESH_DURATION);
     });
 }

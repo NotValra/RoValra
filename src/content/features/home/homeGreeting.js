@@ -14,6 +14,8 @@ import { Icon } from '../../core/ui/buildericon.js';
 import { t } from '../../core/locale/i18n.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { applyDisplayNameGradientToElement } from '../profile/header/displayNameGradient.js';
+import { applyBorderToContainer } from '../profile/avatarBorder.js';
+import { applyGradientForUserId } from '../profile/header/profileBackground.js';
 
 const SETTING_NAME = 'homeGreetingEnabled';
 const STYLE_ID = 'rovalra-home-greeting-style';
@@ -42,18 +44,19 @@ function injectStyles() {
         .${GREETING_CLASS} {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 24px;
             margin-bottom: 12px;
+            padding: 20px;
+            overflow: visible;
         }
         .${GREETING_CLASS}-avatar {
             width: 150px;
             height: 150px;
             flex-shrink: 0;
             border-radius: 50%;
-            overflow: hidden;
             background-color: var(--rovalra-container-background-color);
         }
-        .${GREETING_CLASS}-avatar img {
+        .${GREETING_CLASS}-avatar img:not(.rovalra-avatar-border) {
             width: 100%;
             height: 100%;
             border-radius: 50%;
@@ -196,19 +199,45 @@ async function getGreetingText() {
     });
 }
 
-async function applyNameGradient(nameEl, userId, hoverHost) {
+function getGreetingUserSettings(userId) {
+    return getUserSettings(userId, { useDescription: false }).catch((error) => {
+        console.warn('RoValra: Failed to load home greeting cosmetics', error);
+        return null;
+    });
+}
+
+async function applyNameGradient(nameEl, userSettingsPromise, hoverHost) {
     if (!(await settings.displayNameGradientEnabled)) return;
 
+    const userSettings = await userSettingsPromise;
+    if (!userSettings) return;
+
     try {
-        const userSettings = await getUserSettings(userId, {
-            useDescription: false,
-        });
         applyDisplayNameGradientToElement(nameEl, userSettings, {
             animate: false,
             hoverHost,
         });
     } catch (error) {
         console.warn('RoValra: Failed to apply home greeting gradient', error);
+    }
+}
+
+async function applyAvatarCosmetics(avatar, userId, userSettingsPromise) {
+    const [borderEnabled, gradientEnabled] = await Promise.all([
+        settings.avatarBorderEnabled,
+        settings.profileBackgroundGradientEnabled,
+    ]);
+    if (!borderEnabled && !gradientEnabled) return;
+
+    if (gradientEnabled) {
+        applyGradientForUserId(userId, avatar, false);
+    }
+
+    if (borderEnabled) {
+        const userSettings = await userSettingsPromise;
+        if (userSettings?.border && userSettings.border !== 'none') {
+            applyBorderToContainer(avatar, userSettings.border, true);
+        }
     }
 }
 
@@ -225,6 +254,7 @@ async function addGreeting(header) {
     if (!userId || !username) return;
 
     const displayName = getAuthenticatedDisplayName() || username;
+    const userSettingsPromise = getGreetingUserSettings(userId);
 
     const avatar = document.createElement('a');
     avatar.className = `${GREETING_CLASS}-avatar`;
@@ -241,7 +271,7 @@ async function addGreeting(header) {
         const nameText = document.createElement('span');
         nameText.textContent = displayName;
         text.append(nameText, part);
-        applyNameGradient(nameText, userId, text);
+        applyNameGradient(nameText, userSettingsPromise, text);
     });
 
     const usernameText = document.createElement('span');
@@ -270,6 +300,7 @@ async function addGreeting(header) {
             `${GREETING_CLASS}-avatar-image`,
         ),
     );
+    applyAvatarCosmetics(avatar, userId, userSettingsPromise);
 }
 
 export async function init() {

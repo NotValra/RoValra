@@ -41,6 +41,7 @@ function onElementFound(container) {
         purchaseCounts: {},
         stipendCounts: {},
         itemTypeBreakdown: {},
+        completedTypes: new Set(),
         lastPurchaseCursor: '',
         lastStipendCursor: '',
         lastTradeCursor: '',
@@ -640,6 +641,7 @@ function onElementFound(container) {
                       ];
 
             for (const task of transactionTasks) {
+                if (state.completedTypes.has(task.type)) continue;
                 let hasNextPage = true;
                 while (
                     hasNextPage &&
@@ -676,6 +678,7 @@ function onElementFound(container) {
                         if (data.nextPageCursor) {
                             state[task.cursorKey] = data.nextPageCursor;
                         } else {
+                            state.completedTypes.add(task.type);
                             hasNextPage = false;
                         }
                     } catch (error) {
@@ -770,6 +773,7 @@ function onElementFound(container) {
             purchaseCounts: {},
             stipendCounts: {},
             itemTypeBreakdown: {},
+            completedTypes: new Set(),
             lastPurchaseCursor: '',
             lastStipendCursor: '',
             lastTradeCursor: '',

@@ -1,0 +1,46 @@
+.item-card-thumb-container-inner:has(> .rovalra-forty-method-pill),
+.item-details-thumbnail-container:has(> .rovalra-forty-method-pill) {
+    position: relative;
+}
+
+.rovalra-forty-method-pill {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background-color: rgb(2, 170, 81);
+    color: #ffffff;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: auto;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
+    &.unsupported {
+        background-color: rgb(220, 53, 69);
+    }
+}
+
+.item-card-thumb-container-inner:has(> .rovalra-ad-pill)
+    > .rovalra-forty-method-pill {
+    top: 32px;
+}
+
+.item-details-thumbnail-container > .rovalra-forty-method-pill {
+    top: 12px;
+    right: 12px;
+}
+
+body[data-rovalra-forty-method-filter='available']
+    .catalog-item-container:has(
+        > .item-card-container:not([data-rovalra-forty-method='supported'])
+    ) {
+    display: none !important;
+}
+
+.rovalra-forty-method-filter .filters-modal-container {
+    left: auto !important;
+    right: 0;
+}
