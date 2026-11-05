@@ -3393,6 +3393,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                experimental: 'May have bugs',
             },
             CustomThemeVariablesEnabled: {
                 label: 'Custom Theme Colors',
