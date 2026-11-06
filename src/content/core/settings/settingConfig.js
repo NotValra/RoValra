@@ -702,6 +702,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 indexedDbStore: 'whatsNew',
+                contributors: ['3445277840'],
             },
             recentServersEnabled: {
                 label: 'Recent Servers',

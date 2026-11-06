@@ -44,6 +44,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '519742979', // BBasilio2001
     '74884', // awkward222
     '3774777796', // hhhhhhhf334
+    '3445277840', // ItsSinzo
 ];
 
 export const TESTER_USER_IDS = [
