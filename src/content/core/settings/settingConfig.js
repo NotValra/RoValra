@@ -691,6 +691,18 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 beta: 'This feature is lacking update history data. It will slowly get it over time.',
             },
+            whatsNewEnabled: {
+                label: "What's New",
+                description: [
+                    "Adds a What's New section to experience pages that shows what changed since your last visit.",
+                    'Shows new badges, new Game Passes and how many updates were published, and lets you look back 7, 30 or 90 days.',
+                    'From your second visit it also shows renames, description edits (with the added and removed text highlighted) and Game Pass price changes.',
+                    'To do this RoValra saves a small copy of the experience details locally when you visit it. Nothing is sent anywhere.',
+                ],
+                type: 'checkbox',
+                default: true,
+                indexedDbStore: 'whatsNew',
+            },
             recentServersEnabled: {
                 label: 'Recent Servers',
                 description: [

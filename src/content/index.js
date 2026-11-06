@@ -132,6 +132,7 @@ import { init as initBtrDonationWarning } from './features/games/btrDonationWarn
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
+import { init as initWhatsNew } from './features/games/about/whatsNew.js';
 import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
@@ -434,6 +435,7 @@ const featureRoutes = [
             initCatalogExplorer,
             initUnderReviewPill,
             initGameStatTimestamps,
+            initWhatsNew,
         ],
     },
     // private games and game pages
