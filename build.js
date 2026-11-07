@@ -51,6 +51,7 @@ try {
     );
     process.exit(1);
 }
+
 //E why the hell did i make this comment?
 const bannerText = `/*!
  * ${pkg.name} v${pkg.version}
@@ -76,6 +77,13 @@ const commonConfig = {
         js: bannerText,
         css: bannerText,
     },
+
+    loader: {
+        '.js': 'jsx'
+    },
+
+    jsx: 'automatic',
+    jsxImportSource: 'preact',
 };
 
 function compileScssFile(inputFile, outputFile) {
@@ -99,6 +107,7 @@ esbuild
         entryPoints: [backgroundEntryPath],
         outfile: 'dist/background.js',
         bundle: true,
+        inject: ['./src/shared/preact-inject.js'],
     })
     .catch(() => process.exit(1));
 
@@ -189,6 +198,7 @@ esbuild
         banner: {
             js: bannerText + '\n' + dracoSource,
         },
+        inject: ['./src/shared/preact-inject.js'],
     })
     .catch(() => process.exit(1));
 if (fs.existsSync(cssDir)) {
