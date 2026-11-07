@@ -29,7 +29,6 @@ const FALLBACK_RETRY_MS = 5000;
 const PAGE_SIZE = 36;
 const COUNT_API_CAP = 500;
 
-// Premium is left out, Roblox hides it for other users in every batched API
 const BADGE_FILTERS = ['plus', 'verified', 'admin'];
 const RANGE_FILTERS = ['mutuals', 'friends', 'followers', 'followings'];
 const SORT_KEYS = [
@@ -43,7 +42,7 @@ const SORT_KEYS = [
 
 const userDataCache = new Map();
 let filters = createEmptyFilters();
-let sort = { key: 'sent', descending: true };
+let sort = { key: 'sent', descending: true, native: true };
 let renderedMatches = [];
 let renderedCount = 0;
 let applyToken = 0;
@@ -81,9 +80,8 @@ function hasActiveFilters(current) {
     return countActiveFilters(current) > 0;
 }
 
-// The API already returns requests newest first
 function isDefaultSort(current) {
-    return current.key === 'sent' && current.descending;
+    return Boolean(current.native);
 }
 
 function parseNumber(value) {
@@ -208,7 +206,6 @@ function updateRequestCount() {
     const title = document.querySelector(`${HEADER_SELECTOR} h2`);
     if (!title || !cachedRequests) return;
 
-    // The count API caps at 500, so only the capped "(500+)" label is replaced
     for (const node of title.childNodes) {
         if (node.nodeType !== Node.TEXT_NODE) continue;
         const next = node.data.replace(
@@ -263,7 +260,6 @@ async function fetchHeaderBatch(userIds) {
             plus: header.isRobloxPlus === true,
             verified: header.isVerified === true,
             admin: header.isRobloxAdmin === true,
-            // Hidden counts come back as 0, so they are treated as unknown
             friends:
                 header.counts?.isFriendsCountEnabled === false
                     ? null
@@ -326,13 +322,29 @@ async function runBatches(batches, onBatchDone) {
     );
 }
 
+const HEADER_KEYS = ['friends', 'followers', 'followings'];
+
+function needsHeaderData(current, sortKey) {
+    return (
+        BADGE_FILTERS.some((key) => current.badges[key] !== 'any') ||
+        HEADER_KEYS.some(
+            (key) =>
+                current.ranges[key].min !== null ||
+                current.ranges[key].max !== null,
+        ) ||
+        HEADER_KEYS.includes(sortKey)
+    );
+}
+
 async function enrichUsers(userIds, current, onProgress, sortKey) {
     const needsJoined =
         current.joined.from !== null ||
         current.joined.to !== null ||
         sortKey === 'joined';
 
-    const missingHeader = userIds.filter((id) => !getCachedUser(id).hasHeader);
+    const missingHeader = needsHeaderData(current, sortKey)
+        ? userIds.filter((id) => !getCachedUser(id).hasHeader)
+        : [];
     const missingJoined = needsJoined
         ? userIds.filter((id) => getCachedUser(id).joined === undefined)
         : [];
@@ -385,7 +397,6 @@ function getSortValue(request, key) {
 }
 
 function sortRequests(requests, current) {
-    if (isDefaultSort(current)) return requests;
     const direction = current.descending ? -1 : 1;
 
     return requests
@@ -397,7 +408,6 @@ function sortRequests(requests, current) {
         .sort((a, b) => {
             const aKnown = Number.isFinite(a.value);
             const bKnown = Number.isFinite(b.value);
-            // Unknown values always go last, whatever the direction
             if (aKnown !== bKnown) return aKnown ? -1 : 1;
             if (!aKnown || a.value === b.value) return a.index - b.index;
             return (a.value - b.value) * direction;
@@ -405,7 +415,6 @@ function sortRequests(requests, current) {
         .map(({ request }) => request);
 }
 
-// Shows the value the list is sorted by, the sent date is always in the footer
 function createSortValueLabel(request) {
     const key = sort.key;
     if (key === 'sent') return null;
@@ -575,25 +584,36 @@ async function renderNextPage() {
     const list = section?.querySelector('.rovalra-filtered-requests');
     if (!list) return;
 
+    const moreButton = section.querySelector('.rovalra-filtered-requests-more');
+    if (moreButton?.disabled) return;
+    if (moreButton) moreButton.disabled = true;
+
     const page = renderedMatches.slice(
         renderedCount,
         renderedCount + PAGE_SIZE,
     );
     renderedCount += page.length;
 
-    const thumbnails = await getBatchThumbnails(
-        page.map((request) => request.id),
-        'AvatarHeadshot',
-    ).catch(() => []);
+    const ids = page.map((request) => String(request.id));
+    const missingHeader = ids.filter((id) => !getCachedUser(id).hasHeader);
+    const [thumbnails] = await Promise.all([
+        getBatchThumbnails(ids, 'AvatarHeadshot').catch(() => []),
+        Promise.all(
+            chunk(missingHeader, HEADER_BATCH_SIZE).map(fetchHeaderBatch),
+        ),
+    ]);
+    if (!list.isConnected) return;
 
+    const fragment = document.createDocumentFragment();
     page.forEach((request, index) => {
-        list.appendChild(
+        fragment.appendChild(
             createRequestCard(request, thumbnails[index]?.imageUrl || ''),
         );
     });
+    list.appendChild(fragment);
 
-    const moreButton = section.querySelector('.rovalra-filtered-requests-more');
     if (moreButton) {
+        moreButton.disabled = false;
         moreButton.style.display =
             renderedCount < renderedMatches.length ? '' : 'none';
     }
@@ -758,7 +778,6 @@ function createBadgeSelector(draft) {
 
 function getAvailableRange(key) {
     if (!cachedRequests?.length) return null;
-    // Counts other than mutuals are only known once every request is checked
     if (key !== 'mutuals' && !limitsReady) return null;
 
     let min = Infinity;
@@ -889,8 +908,6 @@ function createDateInput(id, labelText, value, onInput) {
     input.type = 'date';
     if (value !== null) input.value = toDateInputValue(value);
 
-    // Date inputs always show their own placeholder, so the label has to stay raised.
-    // The styled input lowers it on blur when empty, these listeners run right after.
     const keepLabelRaised = () => label.classList.add('MuiInputLabel-shrink');
     keepLabelRaised();
     for (const event of ['focus', 'blur', 'input']) {
@@ -950,6 +967,7 @@ function createSortSection(draftSort) {
                 ],
                 initialValue: draftSort.descending ? 'desc' : 'asc',
                 onChange: (value) => {
+                    draftSort.native = false;
                     draftSort.descending = value === 'desc';
                 },
             }),
@@ -963,6 +981,7 @@ function createSortSection(draftSort) {
         })),
         initialValue: draftSort.key,
         onValueChange: (value) => {
+            draftSort.native = false;
             draftSort.key = value;
             renderDirection();
         },
@@ -976,7 +995,7 @@ function createSortSection(draftSort) {
 
 function createFiltersPanel(onApply) {
     let draft = structuredClone(filters);
-    let draftSort = { ...sort };
+    let draftSort = { ...sort, native: false };
     let destroySort = null;
     let validators = [];
 
@@ -1071,7 +1090,7 @@ function createFiltersPanel(onApply) {
 
     resetButton.addEventListener('click', () => {
         draft = createEmptyFilters();
-        draftSort = { key: 'sent', descending: true };
+        draftSort = { key: 'sent', descending: true, native: true };
         renderBody();
     });
     applyButton.addEventListener('click', () => {
@@ -1185,7 +1204,6 @@ function createSentLabel(sentAt) {
     return label;
 }
 
-// Roblox reuses its request cards between pages, so the label follows the card's profile link
 function renderNativeSentDate(caption) {
     if (!caption.closest('.friends-content')?.querySelector(HEADER_SELECTOR)) {
         return;
