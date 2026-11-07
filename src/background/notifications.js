@@ -246,3 +246,9 @@ export function setupNotifications(callApi) {
     chrome.permissions.onRemoved.addListener(syncNotifications);
     syncNotifications();
 }
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "rovalra:notif:send") {
+        notify(`rovalra-apierror-${crypto.randomUUID()}`, decodeURI(message.title), decodeURI(message.message));
+    }
+})

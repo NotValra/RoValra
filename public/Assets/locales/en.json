@@ -1155,6 +1155,12 @@
                     "madeFr": "Helped make the French locale",
                     "madeZh": "Helped make the Chinese locale",
                     "madeVi": "Helped make the Vietnamese locale"
+                },
+                "error": {
+                    "popupForApiErrors": "Made API errors display a non-blocking popup"
+                },
+                "ui": {
+                    "sidePopups": "Created a non-blocking popup shown on the side of the screen, rather than in the center."
                 }
             },
             "ui": {
@@ -2900,5 +2906,20 @@
         "catalog": "Catalog",
         "playing": "{{count}} Playing",
         "attending": "{{count}} Attending"
+    },
+    "sidePopups": {
+        "bottomRight": {
+            "api": {
+                "simulation500title": "(RoValra) RoValra API Error",
+                "simulation500": "[SIMULATION] 500 Error for {{endpoint}}",
+                "gamejoin-simulation-title": "(RoValra) Roblox API Error",
+                "gamejoin-simulation": "[SIMULATION] Returning 500 error for {{endpoint}}",
+                "gamejoin-simulate-ne-title": "(RoValra) Network Error",
+                "gamejoin-simulate-ne": "[SIMULATION] Throwing network error for {{endpoint}}",
+                "rovalra-fail-title": "(RoValra) RoValra API Error",
+                "fail-no-retry": "Request to {{url}} failed without retrying.",
+                "fail-status-code": "Request to {{url}} failed with status code {{code}}"
+            }
+        }
     }
 }
