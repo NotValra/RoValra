@@ -27,6 +27,30 @@ import { addTooltip } from '../../core/ui/tooltip.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { launchGame, launchPrivateGame } from '../../core/utils/launcher.js';
 import { createProfileHeaderButton } from '../../core/ui/profile/header/button.js';
+import { observeElement } from '../../core/observer.js';
+import { settings as settingsApi } from '../../core/settings/getSettings.js';
+
+function getInlineSvgAsset(name, size = null) {
+    const svg = decodeURIComponent(
+        getAssets()[name].replace('data:image/svg+xml,', ''),
+    );
+    return size
+        ? svg.replace('<svg ', `<svg width="${size}" height="${size}" `)
+        : svg;
+}
+
+function buildCreatorHtml(creator) {
+    const assets = getAssets();
+    const typePath = creator.type === 'Group' ? 'communities' : 'users';
+    const verifiedLabel = ts('privateGames.verifiedBadge');
+    const verifiedBadge = creator.hasVerifiedBadge
+        ? `<span style="display:inline-flex;vertical-align:middle;"><span role="button" tabindex="0" data-rblx-verified-badge-icon="" data-rblx-badge-icon="true" class="css-1myerb2-imgWrapper"><img class="verified-badge-icon-experience-creator" src="${assets.verifiedBadgeMono}" title="${verifiedLabel}" alt="${verifiedLabel}"></span></span>`
+        : '';
+    return `
+        <span class="text-label">${ts('privateGames.by')}</span>
+        <a class="text-name text-overflow" href="https://www.roblox.com/${typePath}/${creator.id}">${creator.name}</a>${verifiedBadge}
+    `;
+}
 
 const SERVER_LIST_ENDPOINTS = {
     friends: 'servers/Friend',
@@ -70,8 +94,8 @@ function createServerCard(server, type, placeId) {
         type === 'private'
             ? server.name || ts('privateGames.servers.privateServer')
             : type === 'friends'
-              ? 'Friends server'
-              : 'Public server';
+              ? ts('privateGames.servers.friendsServer')
+              : ts('privateGames.servers.publicServer');
     header.appendChild(createServerText(title, 'rovalra-server-card-title'));
 
     const details = document.createElement('div');
@@ -99,7 +123,11 @@ function createServerCard(server, type, placeId) {
                 .slice(0, 3);
             if (friendNames.length) {
                 details.appendChild(
-                    createServerText(`Friends: ${friendNames.join(', ')}`),
+                    createServerText(
+                        ts('privateGames.servers.friendsInServer', {
+                            names: friendNames.join(', '),
+                        }),
+                    ),
                 );
             }
         }
@@ -124,7 +152,10 @@ function createServerCard(server, type, placeId) {
     const serverId = server.id || server.vipServerId;
     if (serverId)
         footer.appendChild(
-            createServerText(`ID: ${serverId}`, 'rovalra-server-card-id'),
+            createServerText(
+                ts('privateGames.servers.serverId', { id: serverId }),
+                'rovalra-server-card-id',
+            ),
         );
 
     if (type === 'private') {
@@ -235,7 +266,7 @@ async function loadServerSection(section, type, placeId) {
     const loadedCursors = section._rovalraLoadedCursors || new Set();
     section._rovalraLoadedCursors = loadedCursors;
     if (loadedCursors.has(cursor)) {
-        loadMore.hidden = true;
+        section.querySelector('.rovalra-server-load-more')?.remove();
         section.dataset.loading = 'false';
         return;
     }
@@ -306,55 +337,6 @@ async function loadServerSection(section, type, placeId) {
 }
 
 function setupServersTab(serversTab, placeId) {
-    if (!document.getElementById('rovalra-private-game-servers-styles')) {
-        const style = document.createElement('style');
-        style.id = 'rovalra-private-game-servers-styles';
-        style.textContent = `
-            .rovalra-servers-tab { padding: 16px 0; color: var(--rovalra-main-text-color); }
-            .rovalra-server-section { margin-bottom: 38px; }
-            .rovalra-server-section .container-header { margin-bottom: 12px; }
-            .rovalra-server-section-description { display: block; margin-top: 2px; color: var(--rovalra-secondary-text-color); font-size: 14px; font-weight: 400; }
-            .rovalra-server-status { min-height: 18px; margin: 0 0 12px; color: var(--rovalra-secondary-text-color); text-align: center; }
-            .rovalra-server-grid { display: grid; grid-template-columns: repeat(auto-fill, 268px); gap: 18px; margin: 0; padding: 0; list-style: none; }
-            .rovalra-server-card { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 174px; padding: 12px; background: var(--rovalra-container-background-color, #272930); box-sizing: border-box; }
-            .rovalra-server-card-header, .rovalra-server-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-            .rovalra-server-card-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-            .rovalra-server-card-details { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--rovalra-secondary-text-color); font-size: 12px; }
-            .rovalra-server-card-owner { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-            .rovalra-server-card-id { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--rovalra-secondary-text-color); font-size: 10px; }
-            .rovalra-server-card-players { font-size: 16px; }
-            .rovalra-server-card-footer { margin-top: auto; }
-            .rovalra-server-player-gauge { order: 2; height: 6px; overflow: hidden; border-radius: 3px; background: #c4c7d0; }
-            .rovalra-server-player-gauge span { display: block; height: 100%; border-radius: inherit; background: #69738b; }
-            .rovalra-server-action { min-width: 72px; height: 24px; padding: 0 12px; border-radius: 6px !important; justify-content: center; font-size: 12px; }
-            .rovalra-server-card-public, .rovalra-server-card-friends { width: 268px; min-width: 268px; height: 250px; padding-top: 12px; }
-            .rovalra-server-card-public .rovalra-server-card-details, .rovalra-server-card-friends .rovalra-server-card-details { order: 1; }
-            .rovalra-server-card-public .rovalra-server-card-header, .rovalra-server-card-friends .rovalra-server-card-header { display: none; }
-            .rovalra-server-card-public .rovalra-server-player-gauge, .rovalra-server-card-friends .rovalra-server-player-gauge { order: 2; }
-            .rovalra-server-card-public .rovalra-server-card-footer, .rovalra-server-card-friends .rovalra-server-card-footer { order: 3; }
-            .rovalra-server-card-public .rovalra-server-card-id, .rovalra-server-card-friends .rovalra-server-card-id { order: 0; }
-            .rovalra-server-card-public .rovalra-server-card-footer, .rovalra-server-card-friends .rovalra-server-card-footer { flex-direction: column; align-items: stretch; gap: 8px; }
-            .rovalra-server-card-public .rovalra-server-action, .rovalra-server-card-friends .rovalra-server-action { order: 0; width: 100%; height: 22px; }
-            .rovalra-server-card-public .rovalra-server-card-id, .rovalra-server-card-friends .rovalra-server-card-id { order: 1; }
-            .rovalra-server-section[data-server-type="private"] .rovalra-server-grid { display: flex; flex-direction: column; gap: 2px; }
-            .rovalra-server-avatar { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); justify-content: center; justify-items: center; align-content: flex-start; gap: 5px; min-height: 125px; padding: 0 8px; }
-            .rovalra-server-avatar.single { grid-template-columns: 60px; }
-            .rovalra-server-avatar img, .rovalra-server-avatar span { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #e2e3e3; }
-            .rovalra-server-avatar span { display: flex; align-items: center; justify-content: center; background: #69738b; color: white; font-size: 14px; }
-            .rovalra-server-card-private { display: grid; grid-template-columns: 42px 1fr auto; grid-template-rows: auto; align-items: center; min-height: 64px; padding: 8px 0; background: transparent; }
-            .rovalra-server-card-private .rovalra-server-avatar { display: flex; grid-template-columns: none; grid-row: auto; min-height: 42px; padding: 0; }
-            .rovalra-server-card-private .rovalra-server-avatar img { width: 40px; height: 40px; }
-            .rovalra-server-card-private .rovalra-server-card-header { min-width: 0; justify-content: flex-start; gap: 6px; }
-            .rovalra-server-card-private .rovalra-server-card-private-players { font-size: 16px; font-weight: 400; color: var(--rovalra-secondary-text-color); white-space: nowrap; }
-            .rovalra-server-card-private .rovalra-server-card-details { grid-column: 2; }
-            .rovalra-server-card-private .rovalra-server-card-footer { grid-column: 3; grid-row: auto; margin: 0; }
-            .rovalra-server-card-private .rovalra-server-card-id { display: none; }
-            .rovalra-server-card-private .rovalra-server-action { min-width: 200px; height: 32px; }
-            .rovalra-server-load-more { display: block; margin: 14px auto 0; }
-            @media (max-width: 600px) { .rovalra-server-card-private { grid-template-columns: 42px 1fr; } .rovalra-server-card-private .rovalra-server-card-footer { grid-column: 2; grid-row: 3; } .rovalra-server-card-private .rovalra-server-action { min-width: 100%; } }
-        `;
-        document.head.appendChild(style);
-    }
     serversTab.contentPane.className += ' rovalra-servers-tab';
     serversTab.contentPane.append(
         createServerSection(
@@ -413,7 +395,7 @@ function renderDisabledNotice() {
     if (!content) return;
     content.innerHTML = DOMPurify.sanitize(`
         <div class="section-content default-error-page" style="max-width: 600px; margin: 60px auto; text-align: center; padding: 40px;">
-            <svg viewBox="0 0 24 24" style="width: 64px; height: 64px; margin-bottom: 24px; fill: var(--rovalra-secondary-text-color);"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>
+            <div class="rovalra-disabled-notice-icon" style="width: 64px; height: 64px; margin: 0 auto 24px; fill: var(--rovalra-secondary-text-color);">${getInlineSvgAsset('banHammer', 64)}</div>
              <h3 style="margin-bottom: 20px;">${ts('privateGames.disabled')}</h3>
             ${parseMarkdown(`${ts('privateGames.disabledDescription')}\n\n${ts('privateGames.disabledLinkText')}`)}
         </div>
@@ -424,6 +406,7 @@ let currentActivePlaceId = null;
 let unavailableGameObserver = null;
 let unavailableGameObserverPlaceId = null;
 const redirectedUnavailablePlaceIds = new Set();
+const UNAVAILABLE_GAME_SELECTOR = '#game-details-unavailable-container';
 
 function isGamesPage(pathname = window.location.pathname) {
     return /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\/\d+/i.test(pathname);
@@ -436,28 +419,8 @@ function getPrivateGamesRedirectUrl(placeId) {
     return url.toString();
 }
 
-function hasUnavailableGameDetails() {
-    if (document.getElementById('game-details-unavailable-container')) {
-        return true;
-    }
-
-    const playErrorText = document
-        .querySelector('[data-testid="play-error"]')
-        ?.textContent?.trim()
-        .toLowerCase();
-
-    return (
-        playErrorText?.includes('experience') &&
-        playErrorText.includes('not available')
-    );
-}
-
 function redirectIfUnavailableGame(placeId) {
-    if (
-        !placeId ||
-        redirectedUnavailablePlaceIds.has(placeId) ||
-        !hasUnavailableGameDetails()
-    ) {
+    if (!placeId || redirectedUnavailablePlaceIds.has(placeId)) {
         return false;
     }
 
@@ -469,32 +432,28 @@ function redirectIfUnavailableGame(placeId) {
 function watchForUnavailableGame(placeId) {
     if (!placeId) return;
 
-    if (redirectIfUnavailableGame(placeId)) return;
-
     if (unavailableGameObserver && unavailableGameObserverPlaceId === placeId) {
         return;
     }
 
     unavailableGameObserver?.disconnect();
     unavailableGameObserverPlaceId = placeId;
-    unavailableGameObserver = new MutationObserver(() => {
+    unavailableGameObserver = observeElement(UNAVAILABLE_GAME_SELECTOR, () => {
         if (redirectIfUnavailableGame(placeId)) {
             unavailableGameObserver?.disconnect();
             unavailableGameObserver = null;
             unavailableGameObserverPlaceId = null;
         }
     });
-
-    unavailableGameObserver.observe(document.documentElement, {
-        childList: true,
-        subtree: true,
-    });
 }
 
-export function init() {
-    const privateUrlMatch = window.location.pathname.match(
-        /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/private-games\/(\d+)/,
-    );
+function isPrivateGamesPage(pathname = window.location.pathname) {
+    return /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/private-games\/\d+/i.test(pathname);
+}
+
+export async function init() {
+    const privatePlaceId = isPrivateGamesPage() ? getPlaceIdFromUrl() : null;
+    const privateUrlMatch = privatePlaceId ? [null, privatePlaceId] : null;
     const checkUrlMatch = window.location.pathname.match(
         /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\/check\/(\d+)/,
     );
@@ -522,114 +481,74 @@ export function init() {
         loadAndRenderPrivateGame(placeId, null, true);
     }
 
-    if (!document.getElementById('rovalra-private-games-carousel-styles')) {
-        const scrollBtnStyle = document.createElement('style');
-        scrollBtnStyle.id = 'rovalra-private-games-carousel-styles';
-        scrollBtnStyle.innerHTML = `
-        .rovalra-scroll-btn {
-            position: absolute; z-index: 10; top: 50%; transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.6) !important; border-radius: 50%;
-            width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
-            border: none; cursor: pointer; color: white; opacity: 1; 
-            transition: opacity 0.25s ease; pointer-events: auto;
-        }
-        .rovalra-scroll-btn.left { left: 5px; }
-        .rovalra-scroll-btn.right { right: 5px; }
-        .rovalra-scroll-btn.rovalra-btn-disabled { opacity: 0.25 !important; cursor: default; pointer-events: auto; }
+    chrome.storage.local.remove('privateGameDetectionEnabled');
 
-        .game-details-carousel-container .carousel-item {
-            opacity: 0;
-            transition: opacity 0.6s ease;
-            pointer-events: none;
+    const data = {
+        privateGameViewerEnabled: await settingsApi.privateGameViewerEnabled,
+        privateGameDetectionFallbackEnabled:
+            await settingsApi.privateGameDetectionFallbackEnabled,
+        disablePrivateGameRedirection:
+            await settingsApi.disablePrivateGameRedirection,
+    };
+
+    if (!data.privateGameViewerEnabled) {
+        if (privateUrlMatch) {
+            renderDisabledNotice();
         }
-        .game-details-carousel-container .carousel-item-active {
-            opacity: 1 !important;
-            pointer-events: auto !important;
-        }
-    `;
-        document.head.appendChild(scrollBtnStyle);
+        return;
     }
 
-    chrome.storage.local.get(
-        {
-            privateGameViewerEnabled: true,
-            privateGameDetectionFallbackEnabled: false,
-            privateGameDetectionEnabled: 'CHECK_FOR_CLEANUP',
-            disablePrivateGameRedirection: false,
-        },
-        (data) => {
-            if (data.privateGameDetectionEnabled !== 'CHECK_FOR_CLEANUP') {
-                chrome.storage.local.remove('privateGameDetectionEnabled');
-            }
+    if (privateUrlMatch) {
+        loadAndRenderPrivateGame(privateUrlMatch[1], data, false);
+        return;
+    }
 
-            if (!data.privateGameViewerEnabled) {
-                if (privateUrlMatch) {
-                    renderDisabledNotice();
+    if (gamesUrlPlaceId) {
+        watchForUnavailableGame(gamesUrlPlaceId);
+    }
+
+    const isErrorPage =
+        window.location.pathname.includes('/request-error') ||
+        !!document.querySelector('.error-page-container');
+
+    if (!isErrorPage) return;
+
+    const handlePrivateRedirect = (placeId) => {
+        const newUrl = `https://www.roblox.com/private-games/${placeId}`;
+        window.history.replaceState({}, '', newUrl);
+    };
+
+    const lastUrl = await getLastClickedUrl();
+    if (lastUrl) {
+        const lastPath = new URL(lastUrl, window.location.origin).pathname;
+        const lastPlaceId = isGamesPage(lastPath)
+            ? getPlaceIdFromUrl(lastUrl)
+            : null;
+
+        if (lastPlaceId) {
+            handlePrivateRedirect(lastPlaceId);
+            return;
+        }
+    }
+
+    if (data.privateGameDetectionFallbackEnabled) {
+        chrome.runtime.sendMessage(
+            { action: 'getPrivateGameRedirect' },
+            (response) => {
+                if (response && response.placeId) {
+                    handlePrivateRedirect(response.placeId);
+                } else {
+                    chrome.runtime.sendMessage(
+                        { action: 'getPrivateGameRedirect' },
+                        (r2) => {
+                            if (r2 && r2.placeId)
+                                handlePrivateRedirect(r2.placeId);
+                        },
+                    );
                 }
-                return;
-            }
-
-            if (privateUrlMatch) {
-                loadAndRenderPrivateGame(privateUrlMatch[1], data, false);
-                return;
-            }
-
-            if (gamesUrlPlaceId) {
-                watchForUnavailableGame(gamesUrlPlaceId);
-            }
-
-            const isErrorPage =
-                window.location.pathname.includes('/request-error') ||
-                document.title.includes('Page not found') ||
-                !!document.querySelector('.error-page-container');
-
-            function handlePrivateRedirect(placeId) {
-                if (!isErrorPage) return;
-                const newUrl = `https://www.roblox.com/private-games/${placeId}`;
-                window.history.replaceState({}, '', newUrl);
-            }
-
-            (async () => {
-                if (isErrorPage) {
-                    const lastUrl = await getLastClickedUrl();
-                    if (lastUrl) {
-                        const path = lastUrl.includes('://')
-                            ? new URL(lastUrl).pathname
-                            : lastUrl;
-                        const gameUrlMatch = path.match(
-                            /^(?:\/[a-z]{2})?\/games\/(\d+)/,
-                        );
-
-                        if (gameUrlMatch) {
-                            handlePrivateRedirect(gameUrlMatch[1]);
-                            return;
-                        }
-                    }
-
-                    if (data.privateGameDetectionFallbackEnabled) {
-                        chrome.runtime.sendMessage(
-                            { action: 'getPrivateGameRedirect' },
-                            (response) => {
-                                if (response && response.placeId) {
-                                    handlePrivateRedirect(response.placeId);
-                                } else {
-                                    chrome.runtime.sendMessage(
-                                        { action: 'getPrivateGameRedirect' },
-                                        (r2) => {
-                                            if (r2 && r2.placeId)
-                                                handlePrivateRedirect(
-                                                    r2.placeId,
-                                                );
-                                        },
-                                    );
-                                }
-                            },
-                        );
-                    }
-                }
-            })();
-        },
-    );
+            },
+        );
+    }
 }
 
 async function checkRedirectToStandardPage(gameData, placeId, settings) {
@@ -885,9 +804,17 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                         const maturityText =
                             summary.contentMaturity.charAt(0).toUpperCase() +
                             summary.contentMaturity.slice(1);
-                        updateMaturityUI(`Maturity: ${maturityText}`);
+                        updateMaturityUI(
+                            ts('privateGames.maturity', {
+                                rating: maturityText,
+                            }),
+                        );
                     } else if (summary?.displayName) {
-                        updateMaturityUI(`Maturity: ${summary.displayName}`);
+                        updateMaturityUI(
+                            ts('privateGames.maturity', {
+                                rating: summary.displayName,
+                            }),
+                        );
                     }
                 })
                 .catch((e) =>
@@ -1110,14 +1037,9 @@ function updateGameDataUpdated(gameData, retryCount = 0) {
         'rovalra-creator-container',
     );
     if (creatorContainer && isComplete && gameData.creator.id > 0) {
-        const assets = getAssets();
-        const typePath =
-            gameData.creator.type === 'Group' ? 'communities' : 'users';
-
-        creatorContainer.innerHTML = DOMPurify.sanitize(`
-            <span class="text-label">By</span>
-            <a class="text-name text-overflow" href="https://www.roblox.com/${typePath}/${gameData.creator.id}">${gameData.creator.name}</a>${gameData.creator.hasVerifiedBadge ? `<span style="display:inline-flex;vertical-align:middle;"><span role="button" tabindex="0" data-rblx-verified-badge-icon="" data-rblx-badge-icon="true" class="css-1myerb2-imgWrapper"><img class="verified-badge-icon-experience-creator" src="${assets.verifiedBadgeMono}" title="Verified Badge Icon" alt="Verified Badge Icon"></span></span>` : ''}
-        `);
+        creatorContainer.innerHTML = DOMPurify.sanitize(
+            buildCreatorHtml(gameData.creator),
+        );
     }
 }
 
@@ -1235,9 +1157,7 @@ function showStatusBannerForPlayabilityStatus(status, placeId) {
     const statusCode = toStatusCode(status.raw);
 
     const isModerated = statusCode === 3 || statusCode === 9;
-    const icon = isModerated
-        ? '<svg viewBox="0 0 24 24"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>'
-        : '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z"></path></svg>';
+    const icon = getInlineSvgAsset(isModerated ? 'banHammer' : 'lock');
 
     const showBanner = async (retries = 0) => {
         const banner = document.getElementById('rovalra-game-notice-banner');
@@ -1297,7 +1217,6 @@ function renderPrivateGamePage(game, placeId, settings) {
 
     const isFavoritedByUser = game.isFavoritedByUser || false;
     const voiceChatEnabled = game.voiceChatEnabled;
-    const assets = getAssets();
 
     content.innerHTML = DOMPurify.sanitize(`
         <div id="game-detail-page" class="row page-content inline-social" data-place-id="${placeId}" style="max-width: 970px; margin: 0 auto;">
@@ -1313,10 +1232,7 @@ function renderPrivateGamePage(game, placeId, settings) {
                                 ${
                                     isSkeleton
                                         ? `<div class="shimmer" style="width: 120px; height: 18px; border-radius: 4px; margin-top: 4px; display: inline-block;"></div>`
-                                        : `
-                                    <span class="text-label">By</span>
-                                    <a class="text-name text-overflow" href="https://www.roblox.com/${game.creator.type === 'Group' ? 'communities' : 'users'}/${game.creator.id}">${game.creator.name}</a>${game.creator.hasVerifiedBadge ? `<span style="display:inline-flex;vertical-align:middle;"><span role="button" tabindex="0" data-rblx-verified-badge-icon="" data-rblx-badge-icon="true" class="css-1myerb2-imgWrapper"><img class="verified-badge-icon-experience-creator" src="${assets.verifiedBadgeMono}" title="Verified Badge Icon" alt="Verified Badge Icon"></span></span>` : ''}
-                                `
+                                        : buildCreatorHtml(game.creator)
                                 }
                             </div>
                         </div>
@@ -1435,8 +1351,7 @@ function renderPrivateGamePage(game, placeId, settings) {
 
                     const carousel = document.createElement('div');
                     carousel.dataset.testid = 'carousel';
-                    carousel.style.cssText =
-                        'height: 100%; width: 100%; position: relative; overflow: hidden;';
+                    carousel.className = 'rovalra-private-carousel';
 
                     const items = thumbnails.map((thumb, idx) => {
                         const span = document.createElement('span');
@@ -1449,9 +1364,13 @@ function renderPrivateGamePage(game, placeId, settings) {
                             height: '100%',
                         });
 
+                        const promoLabel = ts('privateGames.promotionalImage', {
+                            index: idx + 1,
+                            name: game.name,
+                        });
                         const thumbEl = createThumbnailElement(
                             thumb,
-                            `Promotional image #${idx + 1} for ${game.name}`,
+                            promoLabel,
                             '',
                             {
                                 width: '100%',
@@ -1460,7 +1379,7 @@ function renderPrivateGamePage(game, placeId, settings) {
                                 objectFit: 'cover',
                             },
                         );
-                        thumbEl.title = `Promotional image #${idx + 1} for ${game.name}`;
+                        thumbEl.title = promoLabel;
 
                         span.appendChild(thumbEl);
                         carousel.appendChild(span);
@@ -1541,14 +1460,14 @@ function renderPrivateGamePage(game, placeId, settings) {
 
         const aboutTab = createTab({
             id: 'about',
-            label: ts('privateGames.tabs.about') || 'About',
+            label: ts('privateGames.tabs.about'),
             container: tabsContainer,
             contentContainer: tabContentContainer,
         });
 
         const storeTab = createTab({
             id: 'store',
-            label: ts('privateGames.tabs.store') || 'Store',
+            label: ts('privateGames.tabs.store'),
             container: tabsContainer,
             contentContainer: tabContentContainer,
             classes: ['store'],
@@ -1556,7 +1475,7 @@ function renderPrivateGamePage(game, placeId, settings) {
 
         const serversTab = createTab({
             id: 'servers',
-            label: ts('privateGames.tabs.servers') || 'Servers',
+            label: ts('privateGames.tabs.servers'),
             container: tabsContainer,
             contentContainer: tabContentContainer,
             classes: ['servers'],
@@ -1602,7 +1521,7 @@ function renderPrivateGamePage(game, placeId, settings) {
                             <p class="text-lead font-caption-body ${game.isSkeleton ? 'shimmer' : ''}" id="rovalra-genre-text" style="${game.isSkeleton ? 'min-width: 40px; height: 14px; border-radius: 4px;' : ''}">${game.genre !== null ? game.genre : game.isSkeleton ? '' : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
-                            <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.subgenre') || 'Subgenre'}</p>
+                            <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.subgenre')}</p>
                             <p class="text-lead font-caption-body ${game.isSkeleton ? 'shimmer' : ''}" id="rovalra-subgenre-text" style="${game.isSkeleton ? 'min-width: 40px; height: 14px; border-radius: 4px;' : ''}">${game.subgenre !== null ? game.subgenre : game.isSkeleton ? '' : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
@@ -1623,7 +1542,7 @@ function renderPrivateGamePage(game, placeId, settings) {
                 </div>
             </div>
             <div class="section" id="rovalra-social-links-section" hidden>
-                <div class="container-header"><h3>Social Links</h3></div>
+                <div class="container-header"><h3>${ts('privateGames.socialLinks')}</h3></div>
                 <ul class="game-social-links" id="rovalra-social-links-list"></ul>
             </div>
             <div class="stack badge-container game-badges-list" id="rovalra-badges-section">
@@ -1883,7 +1802,7 @@ function setupFavoriteButton(universeId, initialFavorited) {
 
             if (response.status === 200) {
                 isFavorited = !isFavorited;
-                updateFavoriteUI(isFavorited);
+                window.updateFavoriteUI(isFavorited);
             }
         } catch (err) {
             console.error(`RoValra: Failed to ${action} game`, err);
@@ -1974,12 +1893,9 @@ async function updateSocialLinksUI(cloudData, retryCount = 0) {
 
     if (section) section.hidden = false;
 
-    container.style.cssText =
-        'display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0;';
     container.innerHTML = '';
     socialLinks.forEach((link) => {
         const li = document.createElement('li');
-        li.style.cssText = 'display: flex;';
         const a = document.createElement('a');
         a.className = 'btn-secondary-lg border';
         a.href = link.uri;
@@ -2272,8 +2188,6 @@ async function loadSubscriptions(subscriptionProviderId, retryCount = 0) {
     const sectionContainer = document.getElementById(
         'rbx-subscriptions-container',
     );
-
-    const assets = getAssets();
 
     try {
         const res = await callRobloxApiJson({
