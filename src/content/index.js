@@ -75,6 +75,7 @@ import { init as initCustomScrollbar } from './features/sitewide/customScrollbar
 import { init as initRoValraIncidentTracker } from './features/navigation/serviceincidentnotice.js';
 import { init as initRoGoldWarning } from './features/sitewide/roGoldWarning.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
+import { init as initAprilFools } from './features/sitewide/aprilFools.ts';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -345,6 +346,7 @@ const featureRoutes = [
             initRoValraIncidentTracker,
             initRoGoldWarning,
             initRemoveDownloadButton,
+            initAprilFools,
         ],
     },
     // pretty much just the 40% method
