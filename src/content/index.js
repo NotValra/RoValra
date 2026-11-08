@@ -88,7 +88,7 @@ import { init as initGameOutfits } from './features/avatar/gameOutfits.js';
 import { init as initBetterGraphs } from './features/catalog/betterGraphs.js';
 import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
-import { init as initDependencies } from './features/catalog/depenencies.js';
+import { init as initDependencies } from './features/catalog/dependencies.js';
 import { init as initPriceFloor } from './features/catalog/pricefloor.js';
 import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js';
 import { init as initParentItem } from './features/catalog/ParentItem.js';
