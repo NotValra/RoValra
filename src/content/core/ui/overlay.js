@@ -5,6 +5,24 @@ import { createAssetIcon } from './general/toast.js';
 import DOMPurify from 'dompurify';
 import { renderElement } from './react.js';
 
+/**
+ * @typedef {object} overlayOpt
+ * @property {string} title
+ * @property {HTMLElement} bodyContent
+ * @property {HTMLButtonElement[]} [actions=[]]
+ * @property {string} [maxWidth='550px']
+ * @property {string} [maxHeight='calc(100vh - 60px)']
+ * @property {boolean} [showLogo=false]
+ * @property {boolean} [preventBackdropClose=false]
+ * @property {() => void} [onClose]
+ * @property {boolean} [overflowVisible=false]
+ * @property {boolean} [showCloseButton=true]
+ */
+
+/**
+ * @param {overlayOpt} options
+ * @returns {void}
+ */
 export function createOverlay({
     title,
     bodyContent,
