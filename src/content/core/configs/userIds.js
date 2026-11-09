@@ -44,6 +44,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '519742979', // BBasilio2001
     '74884', // awkward222
     '3774777796', // hhhhhhhf334
+    '3420105861', // GitHub: zomop
 ];
 
 export const TESTER_USER_IDS = [
