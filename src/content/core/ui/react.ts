@@ -15,3 +15,12 @@ export function renderElement(element: ComponentChild, parent?: ContainerNode): 
 
     return ref.current;
 }
+
+declare module "preact" {
+    namespace JSX {
+        interface IntrinsicElements {
+            "secondary": JSX.IntrinsicElements["div"];
+        }
+    }
+}
+

@@ -33,7 +33,7 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
 // Loads settings once per content-script runtime and reuses the same object for
 // every `await settings.someSetting` call. This avoids asking chrome.storage for
 // the full settings object every time a feature needs one value.
-async function getCachedSettings() {
+export async function getCachedSettings() {
     if (settingsCache === undefined) settingsCache = await loadSettings();
     return settingsCache;
 }
