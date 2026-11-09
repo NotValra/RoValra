@@ -207,7 +207,7 @@
     max-width: 302px;
     height: 40px;
     min-height: 40px;
-    background-color: #335fff;
+    background-color: var(--rovalra-playbutton-color, #335fff);
     border-radius: 8px;
     border: none;
     display: flex;

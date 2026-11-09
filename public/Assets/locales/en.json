@@ -2180,8 +2180,17 @@
             "loadError": "Unable to load servers.",
             "ownerAvatar": "Server owner",
             "playerAvatar": "Player",
-            "morePlayers": "+{{count}}"
+            "morePlayers": "+{{count}}",
+            "friendsServer": "Friends server",
+            "publicServer": "Public server",
+            "friendsInServer": "Friends: {{names}}",
+            "serverId": "ID: {{id}}"
         },
+        "by": "By",
+        "verifiedBadge": "Verified Badge Icon",
+        "maturity": "Maturity: {{rating}}",
+        "promotionalImage": "Promotional image #{{index}} for {{name}}",
+        "socialLinks": "Social Links",
         "privateExperience": "Private Experience",
         "experienceIsPrivate": "This experience is private.",
         "unknown": "Unknown",

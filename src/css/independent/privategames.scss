@@ -855,3 +855,304 @@ body.light-theme,
         }
     }
 }
+
+.rovalra-scroll-btn {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+    pointer-events: auto;
+}
+.rovalra-scroll-btn.left {
+    left: 5px;
+}
+.rovalra-scroll-btn.right {
+    right: 5px;
+}
+.rovalra-scroll-btn.rovalra-btn-disabled {
+    opacity: 0.25 !important;
+    cursor: default;
+    pointer-events: auto;
+}
+
+.game-details-carousel-container .carousel-item {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+.game-details-carousel-container .carousel-item-active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.rovalra-servers-tab {
+    padding: 16px 0;
+    color: var(--rovalra-main-text-color);
+}
+.rovalra-server-section {
+    margin-bottom: 38px;
+}
+.rovalra-server-section .container-header {
+    margin-bottom: 12px;
+}
+.rovalra-server-section-description {
+    display: block;
+    margin-top: 2px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 14px;
+    font-weight: 400;
+}
+.rovalra-server-status {
+    min-height: 18px;
+    margin: 0 0 12px;
+    color: var(--rovalra-secondary-text-color);
+    text-align: center;
+}
+.rovalra-server-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 268px);
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.rovalra-server-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 174px;
+    padding: 12px;
+    background: var(--rovalra-container-background-color, #272930);
+    box-sizing: border-box;
+}
+.rovalra-server-card-header,
+.rovalra-server-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.rovalra-server-card-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+.rovalra-server-card-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+}
+.rovalra-server-card-owner {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.rovalra-server-card-id {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 10px;
+}
+.rovalra-server-card-players {
+    font-size: 16px;
+}
+.rovalra-server-card-footer {
+    margin-top: auto;
+}
+.rovalra-server-player-gauge {
+    order: 2;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: #c4c7d0;
+}
+.rovalra-server-player-gauge span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #69738b;
+}
+.rovalra-server-action {
+    min-width: 72px;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: 6px !important;
+    justify-content: center;
+    font-size: 12px;
+}
+.rovalra-server-card-public,
+.rovalra-server-card-friends {
+    width: 268px;
+    min-width: 268px;
+    height: 250px;
+    padding-top: 12px;
+}
+.rovalra-server-card-public .rovalra-server-card-details,
+.rovalra-server-card-friends .rovalra-server-card-details {
+    order: 1;
+}
+.rovalra-server-card-public .rovalra-server-card-header,
+.rovalra-server-card-friends .rovalra-server-card-header {
+    display: none;
+}
+.rovalra-server-card-public .rovalra-server-player-gauge,
+.rovalra-server-card-friends .rovalra-server-player-gauge {
+    order: 2;
+}
+.rovalra-server-card-public .rovalra-server-card-footer,
+.rovalra-server-card-friends .rovalra-server-card-footer {
+    order: 3;
+}
+.rovalra-server-card-public .rovalra-server-card-id,
+.rovalra-server-card-friends .rovalra-server-card-id {
+    order: 0;
+}
+.rovalra-server-card-public .rovalra-server-card-footer,
+.rovalra-server-card-friends .rovalra-server-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+.rovalra-server-card-public .rovalra-server-action,
+.rovalra-server-card-friends .rovalra-server-action {
+    order: 0;
+    width: 100%;
+    height: 22px;
+}
+.rovalra-server-card-public .rovalra-server-card-id,
+.rovalra-server-card-friends .rovalra-server-card-id {
+    order: 1;
+}
+.rovalra-server-section[data-server-type='private'] .rovalra-server-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.rovalra-server-avatar {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(2, 60px);
+    justify-content: center;
+    justify-items: center;
+    align-content: flex-start;
+    gap: 5px;
+    min-height: 125px;
+    padding: 0 8px;
+}
+.rovalra-server-avatar.single {
+    grid-template-columns: 60px;
+}
+.rovalra-server-avatar img,
+.rovalra-server-avatar span {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e2e3e3;
+}
+.rovalra-server-avatar span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #69738b;
+    color: white;
+    font-size: 14px;
+}
+.rovalra-server-card-private {
+    display: grid;
+    grid-template-columns: 42px 1fr auto;
+    grid-template-rows: auto;
+    align-items: center;
+    min-height: 64px;
+    padding: 8px 0;
+    background: transparent;
+}
+.rovalra-server-card-private .rovalra-server-avatar {
+    display: flex;
+    grid-template-columns: none;
+    grid-row: auto;
+    min-height: 42px;
+    padding: 0;
+}
+.rovalra-server-card-private .rovalra-server-avatar img {
+    width: 40px;
+    height: 40px;
+}
+.rovalra-server-card-private .rovalra-server-card-header {
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 6px;
+}
+.rovalra-server-card-private .rovalra-server-card-private-players {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--rovalra-secondary-text-color);
+    white-space: nowrap;
+}
+.rovalra-server-card-private .rovalra-server-card-details {
+    grid-column: 2;
+}
+.rovalra-server-card-private .rovalra-server-card-footer {
+    grid-column: 3;
+    grid-row: auto;
+    margin: 0;
+}
+.rovalra-server-card-private .rovalra-server-card-id {
+    display: none;
+}
+.rovalra-server-card-private .rovalra-server-action {
+    min-width: 200px;
+    height: 32px;
+}
+.rovalra-server-load-more {
+    display: block;
+    margin: 14px auto 0;
+}
+@media (max-width: 600px) {
+    .rovalra-server-card-private {
+        grid-template-columns: 42px 1fr;
+    }
+    .rovalra-server-card-private .rovalra-server-card-footer {
+        grid-column: 2;
+        grid-row: 3;
+    }
+    .rovalra-server-card-private .rovalra-server-action {
+        min-width: 100%;
+    }
+}
+
+.rovalra-private-carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#rovalra-social-links-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    list-style: none;
+
+    > li {
+        display: flex;
+    }
+}
