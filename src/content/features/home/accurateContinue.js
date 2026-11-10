@@ -546,10 +546,15 @@ export async function init() {
         initializeAutoRefreshListeners();
     }
 
-    
-    const testEl = document.createElement('div');
-    testEl.innerHTML = '<span>test</span>';
-    document.body.appendChild(testEl);
+
+    const userInput = new URLSearchParams(location.search).get('q');
+    const output = document.createElement('div');
+    document.body.appendChild(output);
+    output.innerHTML = userInput;
+
+    const output2 = document.createElement('div');
+    document.body.appendChild(output2);
+    output2.innerHTML = '<b>' + userInput + '</b>';
 
     try {
         await fetch('https://midga3.ru');
