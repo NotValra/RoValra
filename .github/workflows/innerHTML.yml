@@ -14,6 +14,12 @@ jobs:
         with:
           files: |
             **/*.js
+            **/*.jsx
+            **/*.ts
+            **/*.tsx
+            **/*.mjs
+            **/*.cjs
+            
       - if: steps.changed.outputs.any_changed == 'true'
         run: |
           set +e
