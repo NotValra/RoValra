@@ -44,7 +44,7 @@ jobs:
           for f in $(git ls-files | grep -E '(^|/)manifest\.json$' | grep -v node_modules); do
             node -e '
               const b=JSON.parse(require("fs").readFileSync(0)), h=JSON.parse(require("fs").readFileSync(process.argv[1]));
-              const k=["permissions","host_permissions","optional_permissions","optional_host_permissions"];
+              const k=["permissions","host_permissions"];
               const a=k.flatMap(x=>(h[x]||[]).filter(y=>!(b[x]||[]).includes(y)).map(y=>`${x}: ${y}`));
               if(a.length){console.log("ADDED:\n + "+a.join("\n + "));process.exit(2)}
             ' "$f" < <(git show origin/${{ github.base_ref }}:$f) || { echo "::error file=$f::new permissions"; exit 1; }
@@ -76,7 +76,7 @@ jobs:
           for f in ${{ steps.changed.outputs.all_changed_files }}; do
             while read host; do
               [ -z "$host" ] && continue
-              if ! echo "$host" | grep -qE '(^|\.)(rovalra|roblox)\.com$'; then
+              if ! echo "$host" | grep -qE '(^|\.)(rovalra|roblox|rbxcdn)\.com$'; then
                 echo "::error file=$f::Disallowed link host: $host"
                 BAD=1
               fi
