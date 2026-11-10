@@ -1,0 +1,12 @@
+{
+    "minimal": {
+        "name": "Minimal",
+        "path": "public/Assets/data/RuntimeData/settingProfiles/Minimal.json",
+        "default": "default"
+    },
+    "standard": {
+        "name": "Standard",
+        "path": "public/Assets/data/RuntimeData/settingProfiles/Standard.json",
+        "default": "default"
+    }
+}
