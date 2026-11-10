@@ -6,12 +6,15 @@ export function renderElement(element: ComponentChild, parent?: ContainerNode): 
     }
 
     const ref = createRef<HTMLElement>();
-    const container = parent ?? document.createElement('div');
+    const container = document.createElement('div');
 
     render(cloneElement(element, { ref: ref }), container);
     
     if (!ref.current)
         throw new Error("Failed to create PReact element.");
+
+    if (parent)
+        parent.appendChild(ref.current!);
 
     return ref.current;
 }
