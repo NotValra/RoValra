@@ -115,8 +115,9 @@ export async function fetchFriendsCustom(
 ) {
     try {
         let endpoint = `/v1/users/${userId}/friends/find`;
-        if (cursor) params.append('cursor', value);
-        if (params.size > 0) endpoint += `?${params.toString()}`;
+        const queryParams = new URLSearchParams(params);
+        if (cursor) queryParams.set('cursor', cursor);
+        if (queryParams.size > 0) endpoint += `?${queryParams.toString()}`;
         return await callRobloxApiJson({
             subdomain: 'friends',
             endpoint: endpoint,
