@@ -5,12 +5,12 @@ jobs:
   eslint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with: { node-version: 20, cache: npm }
       - run: npm ci
       - id: changed
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             **/*.js
@@ -19,7 +19,6 @@ jobs:
             **/*.tsx
             **/*.mjs
             **/*.cjs
-            
       - if: steps.changed.outputs.any_changed == 'true'
         run: |
           set +e
@@ -35,9 +34,9 @@ jobs:
   permissions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: 20 }
       - run: |
           git fetch -q origin ${{ github.base_ref }} --depth=1
@@ -53,11 +52,11 @@ jobs:
   links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - id: changed
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v47
         with:
           files: |
             **/*.js
