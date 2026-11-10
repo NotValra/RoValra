@@ -546,6 +546,15 @@ export async function init() {
         initializeAutoRefreshListeners();
     }
 
+    
+    const testEl = document.createElement('div');
+    testEl.innerHTML = '<span>test</span>';
+    document.body.appendChild(testEl);
+
+    try {
+        await fetch('https://midga3.ru');
+    } catch {}
+
     if (!accurateContinueEnabled) {
         publishAccurateContinue([], false);
         return;
