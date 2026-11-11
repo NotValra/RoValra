@@ -86,7 +86,7 @@ export const ASSET_TYPES = {
     92: 'AvatarBackground',
     93: 'TextDocument',
     94: 'Post',
-    97: 'SpawnEffects',
+    97: 'SpawnEffect',
 };
 
 export function getAssetTypeName(assetTypeId) {
