@@ -1,0 +1,95 @@
+name: PR Guidlines check
+on: [pull_request]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - id: changed
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            **/*.js
+            **/*.jsx
+            **/*.ts
+            **/*.tsx
+            **/*.mjs
+            **/*.cjs
+      - if: steps.changed.outputs.any_changed == 'true'
+        run: |
+          set +e
+          OUTPUT=$(npx eslint ${{ steps.changed.outputs.all_changed_files }} 2>&1)
+          set -e
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -q "Unsafe innerHTML"; then
+            echo "::error::Unsafe innerHTML found in this pr"
+            exit 1
+          fi
+          if echo "$OUTPUT" | grep -q "fetch()"; then
+            echo "::error::Fetch found in this pr"
+            exit 1
+          fi
+          echo "No issues"
+
+  permissions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20 }
+      - run: |
+          git fetch -q origin ${{ github.base_ref }} --depth=1
+          for f in $(git ls-files | grep -E '(^|/)manifest\.json$' | grep -v node_modules); do
+            node -e '
+              const b=JSON.parse(require("fs").readFileSync(0)), h=JSON.parse(require("fs").readFileSync(process.argv[1]));
+              const k=["permissions","host_permissions"];
+              const a=k.flatMap(x=>(h[x]||[]).filter(y=>!(b[x]||[]).includes(y)).map(y=>`${x}: ${y}`));
+              if(a.length){console.log("ADDED:\n + "+a.join("\n + "));process.exit(2)}
+            ' "$f" < <(git show origin/${{ github.base_ref }}:$f) || { echo "::error file=$f::new permissions"; exit 1; }
+          done
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: changed
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            **/*.js
+            **/*.jsx
+            **/*.ts
+            **/*.tsx
+            **/*.mjs
+            **/*.cjs
+            **/*.json
+            **/*.html
+            **/*.md
+      - if: steps.changed.outputs.any_changed == 'true'
+        run: |
+          git fetch -q origin ${{ github.base_ref }} --depth=1
+          BAD=0
+          for f in ${{ steps.changed.outputs.all_changed_files }}; do
+            while read host; do
+              [ -z "$host" ] && continue
+              if ! echo "$host" | grep -qE '(^|\.)(rovalra|roblox|rbxcdn)\.com$'; then
+                echo "::error file=$f::Disallowed link host: $host"
+                BAD=1
+              fi
+            done < <(
+              git diff -U0 origin/${{ github.base_ref }} -- "$f" \
+                | grep -E '^\+' \
+                | grep -oE 'https?://[^ "'"'"')<>]+' \
+                | sed -E 's#https?://##; s#[/?#].*##' \
+                | sort -u
+            )
+          done
+          [ "$BAD" = "1" ] && exit 1
+          echo "All links OK"
