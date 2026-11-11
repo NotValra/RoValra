@@ -63,7 +63,7 @@ async function fetchChatConversationsPage(cursor = null) {
             endpoint: endpoint,
             useBackground: true,
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -71,11 +71,38 @@ async function fetchChatConversationsPage(cursor = null) {
 async function fetchAllConversations() {
     let allConversations = [];
     let cursor = null;
+    const seenCursors = new Set();
     do {
         const data = await fetchChatConversationsPage(cursor);
-        if (!data || !data.conversations) break;
+        if (!data || !Array.isArray(data.conversations)) {
+            console.error(
+                'RoValra: Conversation pagination failed; discarding partial data',
+            );
+            return null;
+        }
         allConversations = allConversations.concat(data.conversations);
-        cursor = data.next_cursor;
+        const nextCursor = data.next_cursor;
+        if (
+            nextCursor !== undefined &&
+            nextCursor !== null &&
+            typeof nextCursor !== 'string'
+        ) {
+            console.error(
+                'RoValra: Conversation pagination returned an invalid cursor',
+            );
+            return null;
+        }
+        if (
+            nextCursor &&
+            (nextCursor === cursor || seenCursors.has(nextCursor))
+        ) {
+            console.error(
+                'RoValra: Conversation pagination returned a repeated cursor',
+            );
+            return null;
+        }
+        if (nextCursor) seenCursors.add(nextCursor);
+        cursor = nextCursor;
     } while (cursor);
     return allConversations;
 }
@@ -89,7 +116,7 @@ export async function fetchFriendsPage(userId, cursor = null) {
             endpoint: endpoint,
             useBackground: true,
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -123,7 +150,64 @@ export async function fetchFriendsCustom(
             endpoint: endpoint,
             useBackground: true,
         });
+    } catch {
+        return null;
+    }
+}
+
+export async function fetchAllFriendsCustom(
+    userId,
+    params = new URLSearchParams(),
+) {
+    const allFriends = [];
+    const seenCursors = new Set();
+    const customParams = new URLSearchParams(params);
+    let cursor = null;
+    customParams.delete('cursor');
+
+    try {
+        do {
+            const response = await fetchFriendsCustom(
+                userId,
+                customParams,
+                cursor,
+            );
+            if (
+                !response ||
+                !Array.isArray(response.PageItems) ||
+                response.PageItems.some(
+                    (friend) =>
+                        !friend ||
+                        (typeof friend.id !== 'number' &&
+                            typeof friend.id !== 'string'),
+                )
+            ) {
+                return null;
+            }
+
+            const nextCursor = response.NextCursor;
+            if (
+                nextCursor !== undefined &&
+                nextCursor !== null &&
+                typeof nextCursor !== 'string'
+            ) {
+                return null;
+            }
+            if (
+                nextCursor &&
+                (nextCursor === cursor || seenCursors.has(nextCursor))
+            ) {
+                return null;
+            }
+
+            allFriends.push(...response.PageItems);
+            if (nextCursor) seenCursors.add(nextCursor);
+            cursor = nextCursor;
+        } while (cursor);
+
+        return allFriends;
     } catch (error) {
+        console.error('RoValra: Failed to fetch custom friends pages', error);
         return null;
     }
 }
@@ -141,9 +225,27 @@ export async function fetchAllTrustedFriends(userId) {
                 endpoint,
                 useBackground: true,
             });
-            if (!response || !Array.isArray(response.PageItems)) return null;
+            if (
+                !response ||
+                !Array.isArray(response.PageItems) ||
+                response.PageItems.some(
+                    (friend) =>
+                        !friend ||
+                        (typeof friend.id !== 'number' &&
+                            typeof friend.id !== 'string'),
+                )
+            ) {
+                return null;
+            }
             response.PageItems.forEach((item) => trustedIds.add(item.id));
             const nextCursor = response.NextCursor;
+            if (
+                nextCursor !== undefined &&
+                nextCursor !== null &&
+                typeof nextCursor !== 'string'
+            ) {
+                return null;
+            }
             if (
                 nextCursor &&
                 (nextCursor === cursor || seenCursors.has(nextCursor))
@@ -167,7 +269,7 @@ export async function fetchFriendsOnlineStatus(userId) {
             endpoint: `/v1/users/${userId}/friends/online`,
             useBackground: true,
         });
-        return response?.data || [];
+        return Array.isArray(response?.data) ? response.data : [];
     } catch (error) {
         console.error('RoValra: Failed to fetch online status', error);
         return [];
@@ -279,16 +381,33 @@ export async function updateFriendsList(userId) {
         do {
             const page = await fetchFriendsPage(userId, friendsCursor);
 
-            if (!page || !Array.isArray(page.PageItems)) {
+            if (
+                !page ||
+                !Array.isArray(page.PageItems) ||
+                page.PageItems.some(
+                    (friend) =>
+                        !friend ||
+                        (typeof friend.id !== 'number' &&
+                            typeof friend.id !== 'string'),
+                )
+            ) {
                 console.error(
                     'RoValra: Friends pagination failed; keeping existing cache',
                 );
                 return existingFriendsList;
             }
 
-            allFriends = allFriends.concat(page.PageItems);
-
             const nextCursor = page.NextCursor;
+            if (
+                nextCursor !== undefined &&
+                nextCursor !== null &&
+                typeof nextCursor !== 'string'
+            ) {
+                console.error(
+                    'RoValra: Friends pagination returned an invalid cursor; keeping existing cache',
+                );
+                return existingFriendsList;
+            }
             if (
                 nextCursor &&
                 (nextCursor === friendsCursor || seenCursors.has(nextCursor))
@@ -299,6 +418,7 @@ export async function updateFriendsList(userId) {
                 return existingFriendsList;
             }
 
+            allFriends = allFriends.concat(page.PageItems);
             if (nextCursor) seenCursors.add(nextCursor);
             friendsCursor = nextCursor;
         } while (friendsCursor);
@@ -319,6 +439,17 @@ export async function updateFriendsList(userId) {
         if (friendsCount !== null && uniqueFriends.length < friendsCount) {
             console.error(
                 'RoValra: Friends pagination returned fewer unique friends than expected; keeping existing cache',
+            );
+            return existingFriendsList;
+        }
+
+        if (
+            friendsCount === null &&
+            uniqueFriends.length === 0 &&
+            existingFriendsList.length > 0
+        ) {
+            console.error(
+                'RoValra: Empty friends response without a verified count; keeping existing cache',
             );
             return existingFriendsList;
         }
@@ -497,8 +628,18 @@ export async function updateFriendsList(userId) {
                                 profile.hasRobloxSubscription,
                             isDeleted: profile.isDeleted,
                             isTrusted: isTrusted,
-                            canChat: chatStatus?.canChat ?? null,
-                            hasAgeChecked: chatStatus?.hasAgeChecked ?? null,
+                            canChat:
+                                chatStatus?.canChat ??
+                                (conversations === null
+                                    ? existingFriend?.canChat
+                                    : null) ??
+                                null,
+                            hasAgeChecked:
+                                chatStatus?.hasAgeChecked ??
+                                (conversations === null
+                                    ? existingFriend?.hasAgeChecked
+                                    : null) ??
+                                null,
                             mutualFriends: mutualFriends,
                             accountCreated: accountCreated,
                             friendsSince: friendsSince,
@@ -590,7 +731,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
         );
 
         return updatedList;
-    } catch (error) {
+    } catch {
         return currentFriendsList;
     }
 }
