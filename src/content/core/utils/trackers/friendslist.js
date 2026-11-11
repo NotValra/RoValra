@@ -185,9 +185,8 @@ export async function updateFriendsList(userId) {
         chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
     );
     const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
-    const existingMap = new Map(
-        (allUsersFriendsData[userId]?.friendsList || []).map((f) => [f.id, f]),
-    );
+    const existingFriendsList = allUsersFriendsData[userId]?.friendsList || [];
+    const existingMap = new Map(existingFriendsList.map((f) => [f.id, f]));
 
     try {
         const [friendsCount, conversations, onlineData, allTrustedFriendsSet] =
@@ -258,11 +257,33 @@ export async function updateFriendsList(userId) {
             });
         }
 
+        const seenCursors = new Set();
+
         do {
             const page = await fetchFriendsPage(userId, friendsCursor);
-            if (!page || !page.PageItems) break;
+
+            if (!page || !Array.isArray(page.PageItems)) {
+                console.error(
+                    'RoValra: Friends pagination failed; keeping existing cache',
+                );
+                return existingFriendsList;
+            }
+
             allFriends = allFriends.concat(page.PageItems);
-            friendsCursor = page.NextCursor;
+
+            const nextCursor = page.NextCursor;
+            if (
+                nextCursor &&
+                (nextCursor === friendsCursor || seenCursors.has(nextCursor))
+            ) {
+                console.error(
+                    'RoValra: Friends pagination returned a repeated cursor; keeping existing cache',
+                );
+                return existingFriendsList;
+            }
+
+            if (nextCursor) seenCursors.add(nextCursor);
+            friendsCursor = nextCursor;
         } while (friendsCursor);
 
         const batchSize = 50;
@@ -300,6 +321,13 @@ export async function updateFriendsList(userId) {
                         insight.profileInsights,
                     );
                 });
+            }
+
+            if (!Array.isArray(profileData?.profileDetails)) {
+                console.error(
+                    'RoValra: Failed to fetch friend profiles; keeping existing cache',
+                );
+                return existingFriendsList;
             }
 
             if (profileData?.profileDetails) {
