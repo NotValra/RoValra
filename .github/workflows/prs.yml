@@ -29,7 +29,11 @@ jobs:
             echo "::error::Unsafe innerHTML found in this pr"
             exit 1
           fi
-          echo "No innerHTML issues"
+          if echo "$OUTPUT" | grep -q "fetch()"; then
+            echo "::error::Fetch found in this pr"
+            exit 1
+          fi
+          echo "No issues"
 
   permissions:
     runs-on: ubuntu-latest
