@@ -2394,7 +2394,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['650766686', '48255812'],
+                contributors: ['650766686', '48255812', '3598865306'],
                 childSettings: {
                     // Toggles to be in the menu
                     privacyTogglesDropdownOnlineStatusEnabled: {
@@ -2431,7 +2431,7 @@ export const SETTINGS_CONFIG = {
                     privacyTogglesOldIconEnabled: {
                         label: 'Old QOL Toggles Icon',
                         description: [
-                            'Enable the old QOL Toggles icon (<icon>three-bars-horizontal</icon>). <b>Needs a refresh</b>',
+                            'Enable the old QOL Toggles icon (<icon>three-bars-horizontal</icon>).',
                         ],
                         type: 'checkbox',
                         default: false,

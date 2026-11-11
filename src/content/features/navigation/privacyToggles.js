@@ -231,6 +231,13 @@ export async function init() {
 
     document.addEventListener('rovalra:settingSaved', async ({ detail }) => {
         if (!detail.name || detail.name !== SETTING_NAME) return;
+        if (detail.name === OLD_ICON_SETTING_NAME) {
+            cleanup();
+
+            addNavBtn();
+            
+            return;
+        }
 
         if (detail.value) {
             addNavBtn();
