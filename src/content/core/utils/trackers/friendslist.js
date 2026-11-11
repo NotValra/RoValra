@@ -131,6 +131,7 @@ export async function fetchFriendsCustom(
 export async function fetchAllTrustedFriends(userId) {
     const trustedIds = new Set();
     let cursor = null;
+    const seenCursors = new Set();
     try {
         do {
             let endpoint = `/v1/users/${userId}/friends/find?findFriendsType=FindTrustedFriends`;
@@ -140,12 +141,21 @@ export async function fetchAllTrustedFriends(userId) {
                 endpoint,
                 useBackground: true,
             });
-            if (!response || !response.PageItems) break;
+            if (!response || !Array.isArray(response.PageItems)) return null;
             response.PageItems.forEach((item) => trustedIds.add(item.id));
-            cursor = response.NextCursor;
+            const nextCursor = response.NextCursor;
+            if (
+                nextCursor &&
+                (nextCursor === cursor || seenCursors.has(nextCursor))
+            ) {
+                return null;
+            }
+            if (nextCursor) seenCursors.add(nextCursor);
+            cursor = nextCursor;
         } while (cursor);
     } catch (error) {
         console.error('RoValra: Failed to fetch all trusted friends', error);
+        return null;
     }
     return trustedIds;
 }
@@ -196,6 +206,13 @@ export async function updateFriendsList(userId) {
                 fetchFriendsOnlineStatus(userId),
                 fetchAllTrustedFriends(userId),
             ]);
+
+        if (!(allTrustedFriendsSet instanceof Set)) {
+            console.error(
+                'RoValra: Trusted friends refresh failed; keeping existing cache',
+            );
+            return existingFriendsList;
+        }
 
         const onlineMap = new Map();
         onlineData.forEach((item) => {
@@ -286,11 +303,31 @@ export async function updateFriendsList(userId) {
             friendsCursor = nextCursor;
         } while (friendsCursor);
 
+        const uniqueFriendsById = new Map();
+        allFriends.forEach((friend) => {
+            if (
+                friend &&
+                (typeof friend.id === 'number' ||
+                    typeof friend.id === 'string') &&
+                !uniqueFriendsById.has(String(friend.id))
+            ) {
+                uniqueFriendsById.set(String(friend.id), friend);
+            }
+        });
+        const uniqueFriends = [...uniqueFriendsById.values()];
+
+        if (friendsCount !== null && uniqueFriends.length < friendsCount) {
+            console.error(
+                'RoValra: Friends pagination returned fewer unique friends than expected; keeping existing cache',
+            );
+            return existingFriendsList;
+        }
+
         const batchSize = 50;
         let fullFriendsList = [];
 
-        for (let i = 0; i < allFriends.length; i += batchSize) {
-            const batchIds = allFriends
+        for (let i = 0; i < uniqueFriends.length; i += batchSize) {
+            const batchIds = uniqueFriends
                 .slice(i, i + batchSize)
                 .map((f) => f.id);
             const [profileData, insightsData, playedTogetherData] =
@@ -323,9 +360,16 @@ export async function updateFriendsList(userId) {
                 });
             }
 
-            if (!Array.isArray(profileData?.profileDetails)) {
+            if (
+                !Array.isArray(profileData?.profileDetails) ||
+                !batchIds.every((id) =>
+                    profileData.profileDetails.some(
+                        (profile) => String(profile.userId) === String(id),
+                    ),
+                )
+            ) {
                 console.error(
-                    'RoValra: Failed to fetch friend profiles; keeping existing cache',
+                    'RoValra: Failed to fetch complete friend profiles; keeping existing cache',
                 );
                 return existingFriendsList;
             }
@@ -498,7 +542,7 @@ export async function updateFriendsList(userId) {
         return fullFriendsList;
     } catch (error) {
         console.error('RoValra: Failed to update friends list', error);
-        return [];
+        return existingFriendsList;
     }
 }
 
@@ -554,6 +598,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
 async function updateTrustedFriendsOnly(userId, currentFriendsList) {
     try {
         const trustedIds = await fetchAllTrustedFriends(userId);
+        if (!(trustedIds instanceof Set)) return currentFriendsList;
         const updatedList = currentFriendsList.map((friend) => ({
             ...friend,
             isTrusted: trustedIds.has(friend.id),
