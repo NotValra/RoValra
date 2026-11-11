@@ -17,7 +17,7 @@ import { getUserFullData, getUserProfileData } from '../../core/apis/users.js';
 import { fetchUserThumbnailWithApiKey, getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
 import { observeElement, observeChildren, startObserving } from '../../core/observer.js';
-import { fetchAllFriendsCustom, fetchFriendsOnlineStatus } from '../../core/utils/trackers/friendslist.js';
+import { fetchFriendsCustom, fetchFriendsOnlineStatus } from '../../core/utils/trackers/friendslist.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { applyDisplayNameGradientToElement } from '../profile/header/displayNameGradient.js';
 import { applyBorderToContainer } from '../profile/avatarBorder.js';
@@ -686,77 +686,33 @@ export function initBuyRobuxPage() {
         // friendsRobuxCache
         async function friendsRobuxInit() {
             const userId = await getAuthenticatedUserId();
-
-            if (!userId) {
-                throw new Error('Authenticated user ID is unavailable.');
-            }
-
+            const friendsOnline = await fetchFriendsOnlineStatus(userId);
             const usersInUserSort1Params = new URLSearchParams({
-                userSort: '1',
+                userSort: 1
             });
+            const usersInUserSort1 = await fetchFriendsCustom(userId, usersInUserSort1Params);
 
-            const [friendsOnline, usersInUserSort1] = await Promise.all([
-                fetchFriendsOnlineStatus(userId),
-                fetchAllFriendsCustom(userId, usersInUserSort1Params),
-            ]);
+            const userSortIds = new Set(usersInUserSort1.PageItems.map(user => user.id));
 
-            if (!Array.isArray(usersInUserSort1)) {
-                throw new Error('Failed to fetch the complete friends list.');
-            }
+            const addFriendsOnlineIds = friendsOnline
+                .filter(e => !userSortIds.has(e.id))
+                .map(e => e.id)
 
-            const userSortIds = new Set();
-
-            for (const user of usersInUserSort1) {
-                if (user?.id !== undefined && user?.id !== null) {
-                    userSortIds.add(String(user.id));
-                }
-            }
-
-            if (Array.isArray(friendsOnline)) {
-                for (const friend of friendsOnline) {
-                    if (friend?.id !== undefined && friend?.id !== null) {
-                        userSortIds.add(String(friend.id));
-                    }
-                }
-            }
+            if (addFriendsOnlineIds.length > 0) userSortIds.add(...addFriendsOnlineIds);
 
             const userSortIdsArray = [...userSortIds];
-            const allUserProfiles =
-                await getUserProfileData(userSortIdsArray);
 
-            if (!Array.isArray(allUserProfiles?.profileDetails)) {
-                throw new Error('Invalid friends profile response.');
+
+            var allUserProfiles = await getUserProfileData(userSortIdsArray);
+            var thumbnails = await getBatchThumbnails(userSortIdsArray, 'AvatarHeadshot');
+
+            for (const idIndexString in userSortIdsArray) {
+                const idIndex = Number(idIndexString);
+                console.log(allUserProfiles.profileDetails[idIndex]);
+                allUserProfiles.profileDetails[idIndex].imageUrl = thumbnails[idIndex].imageUrl;
             }
 
-            const profileMap = new Map(
-                allUserProfiles.profileDetails
-                    .filter(
-                        (profile) =>
-                            profile?.userId !== undefined &&
-                            profile?.userId !== null,
-                    )
-                    .map((profile) => [String(profile.userId), profile]),
-            );
-
-            if (!userSortIdsArray.every((id) => profileMap.has(id))) {
-                throw new Error('Incomplete friends profile response.');
-            }
-
-            const thumbnails = await getBatchThumbnails(
-                userSortIdsArray,
-                'AvatarHeadshot',
-            );
-
-            const orderedProfiles = userSortIdsArray.map((id, index) => ({
-                ...profileMap.get(id),
-                imageUrl: thumbnails[index]?.imageUrl || '',
-            }));
-
-            friendsToSendRobux = {
-                ...allUserProfiles,
-                profileDetails: orderedProfiles,
-            };
-
+            friendsToSendRobux = allUserProfiles;
             thumbnailData = thumbnails;
         }
 
@@ -796,25 +752,9 @@ export function initBuyRobuxPage() {
         });
 
         observeElement('.fui-base-sheet-overlay.foundation-web-portal-zindex.fixed div.friends-listbox-cap', async (element) => {
-            if (element.dataset.rovalraSendrobuxFriendlistselect) return;
-            element.dataset.rovalraSendrobuxFriendlistselect = 'loading';
-
-            try {
-                if (friendsToSendRobux == null) await friendsRobuxInit();
-
-                if (!friendsToSendRobux || !Array.isArray(friendsToSendRobux.profileDetails)) {
-                    delete element.dataset.rovalraSendrobuxFriendlistselect;
-                    console.error('RoValra: Could not initialize the Send Robux friends list.');
-                    return;
-                }
-
-                element.dataset.rovalraSendrobuxFriendlistselect = 'true';
-            } catch (error) {
-                delete element.dataset.rovalraSendrobuxFriendlistselect;
-                console.error('RoValra: Failed to initialize the Send Robux friends list.', error);
-                return;
-            }
-
+            if (element.dataset.rovalraSendrobuxFriendlistselect == true) return;
+            element.dataset.rovalraSendrobuxFriendlistselect = true
+            if (friendsToSendRobux == null) await friendsRobuxInit();
             const profiles = friendsToSendRobux.profileDetails;
 
             for (const profile of profiles) {

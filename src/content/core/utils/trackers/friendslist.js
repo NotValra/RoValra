@@ -155,63 +155,6 @@ export async function fetchFriendsCustom(
     }
 }
 
-export async function fetchAllFriendsCustom(
-    userId,
-    params = new URLSearchParams(),
-) {
-    const allFriends = [];
-    const seenCursors = new Set();
-    const customParams = new URLSearchParams(params);
-    let cursor = null;
-    customParams.delete('cursor');
-
-    try {
-        do {
-            const response = await fetchFriendsCustom(
-                userId,
-                customParams,
-                cursor,
-            );
-            if (
-                !response ||
-                !Array.isArray(response.PageItems) ||
-                response.PageItems.some(
-                    (friend) =>
-                        !friend ||
-                        (typeof friend.id !== 'number' &&
-                            typeof friend.id !== 'string'),
-                )
-            ) {
-                return null;
-            }
-
-            const nextCursor = response.NextCursor;
-            if (
-                nextCursor !== undefined &&
-                nextCursor !== null &&
-                typeof nextCursor !== 'string'
-            ) {
-                return null;
-            }
-            if (
-                nextCursor &&
-                (nextCursor === cursor || seenCursors.has(nextCursor))
-            ) {
-                return null;
-            }
-
-            allFriends.push(...response.PageItems);
-            if (nextCursor) seenCursors.add(nextCursor);
-            cursor = nextCursor;
-        } while (cursor);
-
-        return allFriends;
-    } catch (error) {
-        console.error('RoValra: Failed to fetch custom friends pages', error);
-        return null;
-    }
-}
-
 export async function fetchAllTrustedFriends(userId) {
     const trustedIds = new Set();
     let cursor = null;

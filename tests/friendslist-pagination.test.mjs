@@ -60,7 +60,6 @@ await build({
 });
 
 const {
-    fetchAllFriendsCustom,
     fetchAllTrustedFriends,
     fetchFriendsCustom,
     getFriendsList,
@@ -424,78 +423,6 @@ test('fetchFriendsCustom overrides a stale cursor without duplicating the parame
     );
     const query = new URLSearchParams(customRequest.endpoint.split('?')[1]);
     assert.deepEqual(query.getAll('cursor'), ['cursor:/two']);
-});
-
-test('fetchAllFriendsCustom follows every page and retains custom query parameters', async () => {
-    const harness = setup({
-        count: 0,
-        pages: {
-            first: { PageItems: [makeFriend(5)], NextCursor: 'custom:next' },
-            'custom:next': { PageItems: [makeFriend(6)], NextCursor: null },
-        },
-        existingFriends: [],
-    });
-
-    const result = await fetchAllFriendsCustom(
-        7,
-        new URLSearchParams({ userSort: '1', cursor: 'stale' }),
-    );
-
-    assert.deepEqual(
-        result.map((friend) => friend.id),
-        [5, 6],
-    );
-    const customRequests = harness.requests.filter(
-        (request) =>
-            request.subdomain === 'friends' &&
-            request.endpoint.includes('userSort=1'),
-    );
-    const firstPageParams = new URLSearchParams(
-        customRequests[0].endpoint.split('?')[1],
-    );
-    const secondPageParams = new URLSearchParams(
-        customRequests[1].endpoint.split('?')[1],
-    );
-    assert.deepEqual(firstPageParams.getAll('cursor'), []);
-    assert.deepEqual(secondPageParams.getAll('cursor'), ['custom:next']);
-});
-
-test('fetchAllFriendsCustom rejects partial data after a later page failure', async () => {
-    setup({
-        count: 0,
-        pages: {
-            first: { PageItems: [makeFriend(5)], NextCursor: 'fail' },
-            fail: new Error('custom page failed'),
-        },
-        existingFriends: [],
-    });
-
-    assert.equal(
-        await fetchAllFriendsCustom(7, new URLSearchParams({ userSort: '1' })),
-        null,
-    );
-});
-
-test('fetchAllFriendsCustom terminates on repeated cursors', async () => {
-    const harness = setup({
-        count: 0,
-        pages: {
-            first: { PageItems: [makeFriend(5)], NextCursor: 'repeat' },
-            repeat: { PageItems: [makeFriend(6)], NextCursor: 'repeat' },
-        },
-        existingFriends: [],
-    });
-
-    assert.equal(
-        await fetchAllFriendsCustom(7, new URLSearchParams({ userSort: '1' })),
-        null,
-    );
-    const customRequests = harness.requests.filter(
-        (request) =>
-            request.subdomain === 'friends' &&
-            request.endpoint.includes('userSort=1'),
-    );
-    assert.equal(customRequests.length, 2);
 });
 
 test('trusted friends pagination follows cursors through completion', async () => {
