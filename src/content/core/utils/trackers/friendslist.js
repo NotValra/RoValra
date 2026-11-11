@@ -237,7 +237,7 @@ export async function fetchAllTrustedFriends(userId) {
             ) {
                 return null;
             }
-            response.PageItems.forEach((item) => trustedIds.add(item.id));
+            response.PageItems.forEach((item) => trustedIds.add(String(item.id)));
             const nextCursor = response.NextCursor;
             if (
                 nextCursor !== undefined &&
@@ -521,7 +521,7 @@ export async function updateFriendsList(userId) {
                 const enrichedFriends = profileData.profileDetails.map(
                     (profile) => {
                         const friendId = profile.userId;
-                        const isTrusted = allTrustedFriendsSet.has(friendId);
+                        const isTrusted = allTrustedFriendsSet.has(String(friendId));
                         const chatStatus = chatAnalysisMap.get(friendId);
                         const userInsights = insightMap.get(friendId) || [];
                         const playedTogetherInsights =
@@ -742,7 +742,7 @@ async function updateTrustedFriendsOnly(userId, currentFriendsList) {
         if (!(trustedIds instanceof Set)) return currentFriendsList;
         const updatedList = currentFriendsList.map((friend) => ({
             ...friend,
-            isTrusted: trustedIds.has(friend.id),
+            isTrusted: trustedIds.has(String(friend.id)),
         }));
 
         const storageResult = await new Promise((resolve) =>

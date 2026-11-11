@@ -510,7 +510,7 @@ test('trusted friends pagination follows cursors through completion', async () =
 
     const result = await fetchAllTrustedFriends(7);
 
-    assert.deepEqual([...result], [2, 3]);
+    assert.deepEqual([...result], ['2', '3']);
     const trustedRequests = harness.requests.filter((request) =>
         request.endpoint.includes('findFriendsType=FindTrustedFriends'),
     );
@@ -518,6 +518,30 @@ test('trusted friends pagination follows cursors through completion', async () =
         trustedRequests[1].endpoint.split('?')[1],
     );
     assert.deepEqual(secondPageParams.getAll('cursor'), ['trusted:next']);
+});
+
+test('matches trusted friends when numeric and string IDs represent the same user', async () => {
+    setup({
+        count: 1,
+        pages: {
+            first: {
+                PageItems: [makeFriend(123)],
+                NextCursor: null,
+            },
+        },
+        trustedPages: {
+            first: {
+                PageItems: [makeFriend('123')],
+                NextCursor: null,
+            },
+        },
+        existingFriends: [],
+    });
+
+    const result = await updateFriendsList(7);
+
+    assert.equal(result.length, 1);
+    assert.equal(result[0].isTrusted, true);
 });
 
 test('an empty first page with count zero replaces the old cache', async () => {
