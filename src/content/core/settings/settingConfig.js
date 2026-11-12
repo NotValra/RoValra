@@ -73,11 +73,6 @@ export const SETTINGS_CONFIG = {
                         value: 'es',
                     },
                     {
-                        label: languageLabel('French (Français)', 'fr'),
-                        value: 'fr',
-                    },
-
-                    {
                         label: languageLabel(
                             'Traditional Chinese (繁體中文)',
                             'zh_TW',
