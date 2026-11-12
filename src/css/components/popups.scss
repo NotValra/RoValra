@@ -1,0 +1,19 @@
+.popup-bottomright {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+
+    width: 15%;
+    height: auto;
+    opacity: 0.9;
+
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 4px;
+
+    background: #222;
+    color: white;
+
+    transition: opacity 4s ease;
+    z-index: 9999;
+}

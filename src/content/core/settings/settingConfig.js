@@ -2773,6 +2773,13 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            apiErrorPopups: {
+                label: 'Display API errors',
+                description: 'Show a small popup in a corner of the screen when an API request made by RoValra fails.',
+                type: 'checkbox',
+                default: false,
+                contributors: ['1564574922']
+            },
             browserNotificationsEnabled: {
                 label: 'Browser Notifications',
                 description:
@@ -2796,6 +2803,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    apiErrorNotificationsEnabled: {
+                        label: 'API Errors',
+                        description: 'Sends a notification when an API error occurs.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['1564574922']
+                    }
                 },
             },
             updateChangelogHeaderEnabled: {

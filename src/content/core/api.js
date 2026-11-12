@@ -8,6 +8,14 @@ import { getValidApiKey, invalidateApiKey } from './utils/trackers/apiKey.js';
 import { showSystemAlert } from './ui/roblox/alert.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
+import { showSidePopup_BottomRight } from './ui/showPopup.js';
+import { settings } from './settings/getSettings.js';
+
+let t = async (...args) => {};
+export function set_i18n_t(fn) {
+    t = fn;
+}
+
 const activeRequests = new Map();
 const responseCache = new Map();
 const USER_BADGES_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -334,7 +342,46 @@ export function resetGameJoinErrorCount() {
     gameJoinErrorCount = 0;
 }
 
+/**
+ * @typedef {Object} CallRobloxAPIOptions
+ * @property {string} endpoint
+ * @property {string} [subdomain='apis']
+ * @property {string} [method='GET']
+ * @property {boolean} [isRovalraApi=false]
+ * @property {Record<string, any>} [headers]
+ * @property {unknown} [body=null]
+ * @property {string} [fullUrl]
+ * @property {boolean} [skipAutoAuth=false]
+ * @property {AbortSignal} [signal]
+ * @property {boolean} [useBackground=false]
+ * @property {boolean} [useApiKey=false]
+ * @property {boolean} [noCache=false]
+ * @property {'text' | 'json' | 'blob' | 'arrayBuffer'} [responseType='text']
+ * @property {boolean} [noFail=true]
+ */
+
+/**
+ * @param {CallRobloxAPIOptions} options 
+ * @returns 
+ */
 export async function callRobloxApi(options) {
+    const show_errors = await settings.apiErrorPopups;
+
+    async function _show_error(title, message) {
+        if (show_errors) {
+            showSidePopup_BottomRight(
+                title, message
+            );
+        }
+        if (await settings.apiErrorNotificationsEnabled) {
+            await chrome.runtime.sendMessage({
+                action: "rovalra:notif:send",
+                title: title,
+                message: message
+            });
+        };
+    }
+
     if (options.subdomain === 'gamejoin') {
         options = {
             ...options,
@@ -418,6 +465,7 @@ export async function callRobloxApi(options) {
             useApiKey = false,
             noCache = false,
             responseType = 'text',
+            noFail = true
         } = options;
 
         const normalizedHeaders = new Headers(headers);
@@ -486,6 +534,12 @@ export async function callRobloxApi(options) {
             }
             const isDowntimeSimulated = await checkSimulatedDowntime();
             if (isDowntimeSimulated) {
+                if (noFail) {
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.simulation500title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.simulation500", {endpoint: endpoint, interpolation: {escapeValue: false}}),
+                    );
+                }
                 console.warn(
                     `RoValra API: [SIMULATION] 500 Error for ${endpoint}`,
                 );
@@ -519,6 +573,12 @@ export async function callRobloxApi(options) {
             const isJoinHttpErrorSimulated =
                 await checkSimulatedJoinHttpError();
             if (isJoinHttpErrorSimulated) {
+                if (noFail) {
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.gamejoin-simulation-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.gamejoin-simulation", {endpoint: endpoint, interpolation: {escapeValue: false}}),
+                    );
+                }
                 console.warn(
                     `RoValra API: [SIMULATION] Returning 500 error for ${endpoint}`,
                 );
@@ -541,6 +601,12 @@ export async function callRobloxApi(options) {
 
             const isJoinErrorSimulated = await checkSimulatedJoinError();
             if (isJoinErrorSimulated) {
+                if (noFail) {
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.gamejoin-simulate-ne-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.gamejoin-simulate-ne", {endpoint: endpoint, interpolation: {escapeValue: false}}),
+                    );
+                }
                 console.warn(
                     `RoValra API: [SIMULATION] Throwing network error for ${endpoint}`,
                 );
@@ -717,6 +783,12 @@ export async function callRobloxApi(options) {
                     return lastResponse;
                 }
             } catch (error) {
+                if (noFail) {
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.rovalra-fail-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.fail-no-retry", {url: fullUrl, interpolation: {escapeValue: false}}),
+                    );
+                }
                 console.error(
                     `RoValra API: Request to ${fullUrl} failed without retrying.`,
                     error,
@@ -724,6 +796,12 @@ export async function callRobloxApi(options) {
                 throw error;
             }
             if (!lastResponse.ok) {
+                if (noFail) {
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.rovalra-fail-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.fail-status-code", {url: fullUrl, code: lastResponse.status, interpolation: {escapeValue: false}}),
+                    );
+                }
                 console.error(
                     `RoValra API: Request to ${fullUrl} failed with status ${lastResponse.status}.`,
                 );
@@ -838,6 +916,13 @@ export async function callRobloxApi(options) {
         if (!response.ok) {
             if (response.status === 429) {
                 recordRateLimitCooldown(rateLimitKey, response);
+            } else {
+                if (noFail) {
+                    await _show_error(
+                        await t("sidePopups.bottomRight.api.rovalra-fail-title", {interpolation: {escapeValue: false}}),
+                        await t("sidePopups.bottomRight.api.fail-status-code", {url: fullUrl, code: response.status, interpolation: {escapeValue: false}}),
+                    );
+                }
             }
             console.error(
                 `RoValra API: Request to ${fullUrl} failed with status ${response.status}.`,
