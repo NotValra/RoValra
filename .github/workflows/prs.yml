@@ -79,7 +79,7 @@ jobs:
           for f in ${{ steps.changed.outputs.all_changed_files }}; do
             while read host; do
               [ -z "$host" ] && continue
-              if ! echo "$host" | grep -qE '(^|\.)(rovalra|roblox|rbxcdn)\.com$'; then
+              if ! echo "$host" | grep -qE '(^|\.)(rovalra|roblox|rbxcdn|eslint|feross|github|opencollective|paulmillr|polar|registry\.npmjs|tidelift|i18next|locize|patreon)\.(com|org|sh)$'; then
                 echo "::error file=$f::Disallowed link host: $host"
                 BAD=1
               fi
