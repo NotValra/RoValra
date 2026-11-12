@@ -1155,6 +1155,9 @@
                     "madeFr": "Helped make the French locale",
                     "madeZh": "Helped make the Chinese locale",
                     "madeVi": "Helped make the Vietnamese locale"
+                },
+                "ui": {
+                    "addedPreact": "Added Preact support for easier UI creation"
                 }
             },
             "ui": {

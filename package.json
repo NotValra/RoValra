@@ -10,7 +10,8 @@
     "lint:firefox": "web-ext lint --source-dir dist-firefox",
     "package:firefox": "web-ext build --source-dir dist-firefox --artifacts-dir build --overwrite-dest",
     "start:firefox": "web-ext run --source-dir dist-firefox --start-url https://www.roblox.com",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "types": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/chrome": "^0.3.6",
@@ -34,6 +35,7 @@
     "fzstd": "^0.1.1",
     "i18next": "26.5.5",
     "marked": "^18.1.1",
+    "preact": "^11.2.0",
     "roavatar-renderer": "^1.10.0",
     "roblox-bat": "0.6.5"
   },

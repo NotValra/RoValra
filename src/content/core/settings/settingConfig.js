@@ -103,6 +103,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 default: 'en',
             },
+            settingProfiles: {
+                label: 'Setting Profiles',
+                contributors: [1564574922],
+                type: 'button',
+                buttonText: 'Open Profiles',
+                event: 'rovalra:openSettingProfiles',
+                storageKey: 'rovalra-settingProfile-meta',
+                indexedDbStore: 'rovalra-settingProfiles'
+            },
             rovalraVersion: {
                 label: `RoValra Version: v${chrome.runtime.getManifest().version}`,
                 type: 'yay',
@@ -4086,3 +4095,14 @@ export const SETTINGS_CONFIG = {
         },
     },
 };
+/** @type {Record<string, Record<string, unknown>>} */
+export const FLAT_SETTINGS_CONFIG = {};
+
+for (const category of Object.values(SETTINGS_CONFIG)) {
+    for (const [key, value] of Object.entries(category.settings)) {
+        FLAT_SETTINGS_CONFIG[key] = value;
+        for (const [key2, value2] of Object.entries(value.childSettings ?? {})) {
+            FLAT_SETTINGS_CONFIG[key2] = value2;
+        }
+    }
+}

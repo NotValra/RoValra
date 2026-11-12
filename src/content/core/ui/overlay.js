@@ -1,8 +1,28 @@
 // Creates roblox overlay
+import { render } from 'preact';
 import { createCloseButton } from './closeButton.js';
 import { createAssetIcon } from './general/toast.js';
 import DOMPurify from 'dompurify';
+import { renderElement } from './react.js';
 
+/**
+ * @typedef {object} overlayOpt
+ * @property {string} title
+ * @property {HTMLElement} bodyContent
+ * @property {HTMLButtonElement[]} [actions=[]]
+ * @property {string} [maxWidth='550px']
+ * @property {string} [maxHeight='calc(100vh - 60px)']
+ * @property {boolean} [showLogo=false]
+ * @property {boolean} [preventBackdropClose=false]
+ * @property {() => void} [onClose]
+ * @property {boolean} [overflowVisible=false]
+ * @property {boolean} [showCloseButton=true]
+ */
+
+/**
+ * @param {overlayOpt} options
+ * @returns {void}
+ */
 export function createOverlay({
     title,
     bodyContent,
@@ -18,13 +38,16 @@ export function createOverlay({
     const overlay = document.createElement('div');
     overlay.className = 'rovalra-global-overlay';
 
-    const content = document.createElement('div');
-    content.className = 'rovalra-overlay-content';
-    content.setAttribute('role', 'dialog');
+    const content = renderElement(<div
+        className="rovalra-overlay-content"
+        role="dialog"
+    />);
+
     content.style.maxWidth = maxWidth;
     content.style.maxHeight = maxHeight;
     content.style.display = 'flex';
     content.style.flexDirection = 'column';
+
     if (overflowVisible) {
         content.style.overflow = 'visible';
     } else {
