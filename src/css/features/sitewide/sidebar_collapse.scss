@@ -38,6 +38,28 @@ $roblox-left-nav-breakpoint: 768px;
         margin-left: $expanded-sidebar-width !important;
         width: calc(100% - $expanded-sidebar-width) !important;
     }
+
+    @each $property in margin-left, padding-left, left {
+        [data-rovalra-sidebar-offset='#{$property}'][data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'] {
+            #{$property}: $expanded-sidebar-width !important;
+
+            &[data-rovalra-sidebar-collapsed='true']:not(
+                    [data-rovalra-sidebar-hover-expanded='true']
+                ) {
+                #{$property}: $collapsed-sidebar-width !important;
+            }
+        }
+    }
+
+    [data-rovalra-sidebar-offset-fill='true'][data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'] {
+        width: calc(100% - $expanded-sidebar-width) !important;
+
+        &[data-rovalra-sidebar-collapsed='true']:not(
+                [data-rovalra-sidebar-hover-expanded='true']
+            ) {
+            width: calc(100% - $collapsed-sidebar-width) !important;
+        }
+    }
 }
 
 .left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true']:not(

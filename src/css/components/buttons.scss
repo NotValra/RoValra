@@ -1,0 +1,60 @@
+.rovalra-ui-btn {
+    display: inline-block;
+    box-sizing: border-box;
+    height: auto;
+    margin: 0;
+    padding: 7px;
+    font-family:
+        'Builder Sans', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande',
+        sans-serif;
+    font-size: 16px;
+    font-weight: var(--font-weight-500);
+    line-height: 100%;
+    letter-spacing: normal;
+    text-align: center;
+    text-transform: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid var(--color-action-standard-border);
+    border-radius: 8px;
+    background-color: var(--color-action-standard-background);
+    color: var(--color-action-standard-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    &:focus,
+    &:active {
+        outline: 0;
+    }
+
+    &:disabled,
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+.rovalra-btn-primary {
+    border-color: light-dark(
+        var(--color-extended-gray-900),
+        var(--color-extended-white-100)
+    );
+    background-color: light-dark(
+        var(--color-extended-gray-900),
+        var(--color-extended-white-100)
+    );
+    color: light-dark(
+        var(--color-extended-white-100),
+        var(--color-extended-gray-900)
+    );
+}
+
+.rovalra-btn-alert,
+.rovalra-btn-primary-destructive {
+    border-color: var(--color-extended-red-700);
+    background-color: transparent;
+    color: var(--color-extended-red-700);
+}

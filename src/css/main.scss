@@ -1,3 +1,4 @@
+@use 'components/buttons.scss';
 @use 'features/profile/avatar_border.scss';
 @use 'features/profile/profile_frame.scss';
 @use 'features/profile/improved_avatar_card.scss';
@@ -18,6 +19,8 @@
 @use 'components/game_input.scss';
 @use 'components/pill.scss';
 @use 'components/input.scss';
+@use 'components/controls.scss';
+@use 'components/tooltip.scss';
 @use 'components/item_card.scss';
 @use 'components/serials.scss';
 @use 'components/gamelaunchmodal.scss';

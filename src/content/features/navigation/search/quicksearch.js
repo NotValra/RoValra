@@ -36,6 +36,7 @@ import {
 } from '../../../core/trade/itemHandler.js';
 import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { createRobuxIcon } from '../../../core/ui/robuxIcon.js';
+import { Icon } from '../../../core/ui/buildericon.js';
 
 let lastSearchedQuery = '';
 let userSearchAbortController = null;
@@ -785,6 +786,13 @@ async function performGameSearch(query, request) {
     }
 }
 
+function createPlayIcon() {
+    const icon = Icon({ icon: 'play-large', filled: true, size: 'large' });
+    icon.setAttribute('aria-hidden', 'true');
+    icon.style.color = 'white';
+    return icon;
+}
+
 function createUserResultHtml(
     user,
     thumbData,
@@ -1016,7 +1024,7 @@ function createUserResultHtml(
         });
 
         const playBtn = document.createElement('button');
-        playBtn.innerHTML = safeHtml`<span class="icon-common-play" style="width: 30px; height: 30px; display: inline-block;"></span>`;
+        playBtn.appendChild(createPlayIcon());
         Object.assign(playBtn.style, {
             backgroundColor: 'var(--rovalra-playbutton-color)',
             border: 'none',
@@ -1208,7 +1216,7 @@ function createResultHtml(
     }
 
     const playBtn = document.createElement('button');
-    playBtn.innerHTML = safeHtml`<span class="icon-common-play" style="width: 30px; height: 30px; display: inline-block;"></span>`;
+    playBtn.appendChild(createPlayIcon());
     Object.assign(playBtn.style, {
         backgroundColor: 'var(--rovalra-playbutton-color)',
         border: 'none',
@@ -1830,6 +1838,7 @@ async function renderSearchHistory(container) {
 
     listContainer.appendChild(list);
     const { leftButton, rightButton } = createScrollButtons({
+        builderIcons: true,
         onLeftClick: (e) => {
             if (!e.currentTarget.classList.contains('rovalra-btn-disabled')) {
                 listContainer.scrollLeft -= 300;

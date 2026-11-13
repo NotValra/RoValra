@@ -1,0 +1,64 @@
+.rovalra-tooltip {
+    display: block;
+    box-sizing: border-box;
+    visibility: visible;
+    opacity: 0;
+
+    &.rovalra-tooltip-top {
+        margin-top: -3px;
+        padding: 5px 0;
+    }
+
+    &.rovalra-tooltip-right {
+        margin-left: 3px;
+        padding: 0 5px;
+    }
+
+    &.rovalra-tooltip-bottom {
+        margin-top: 3px;
+        padding: 5px 0;
+    }
+
+    &.rovalra-tooltip-left {
+        margin-left: -3px;
+        padding: 0 5px;
+    }
+
+    &.rovalra-tooltip-bottom .rovalra-tooltip-arrow {
+        top: 0;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 0 5px 5px;
+        border-bottom-color: var(--color-surface-200);
+    }
+}
+
+.rovalra-tooltip-inner {
+    box-sizing: border-box;
+    min-width: 150px;
+    max-width: 220px;
+    padding: 6px;
+    font-family:
+        'Builder Sans', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande',
+        sans-serif;
+    font-size: 12px;
+    font-weight: var(--font-weight-400);
+    line-height: 1.3em;
+    letter-spacing: normal;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    color: var(--color-content-default);
+    background-color: var(--color-surface-200);
+    border-radius: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.rovalra-tooltip-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-color: transparent;
+}

@@ -1,642 +1,1010 @@
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
-import { observeElement, observeAttributes } from '../../core/observer.js';
+import {
+    observeElement,
+    observeAttributes,
+    observeChildren,
+    observeText,
+} from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
 import { ts } from '../../core/locale/i18n.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
 
-    chrome.storage.local.get({
-        avatarFiltersEnabled: false,
-        searchbarEnabled: false
-    }, (settings) => {
-        if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
-            return;
-        } else {
-            (function() {
-                'use strict';
+    chrome.storage.local.get(
+        {
+            avatarFiltersEnabled: false,
+            searchbarEnabled: false,
+        },
+        (settings) => {
+            if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
+                return;
+            } else {
+                (function () {
+                    'use strict';
 
-            const CATALOG_BATCH_SIZE = 100;
-            const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            
-            let itemDataCache = new Map(); 
-            let domMetadata = new WeakMap(); 
+                    const CATALOG_BATCH_SIZE = 100;
+                    const TRANSPARENT_PIXEL =
+                        'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-            const selectedFilters = new Set();
-            let priceFilter = { min: { active: false, value: null }, max: { active: false, value: null } };
-            let availabilityFilter = 'all';
-            let creatorFilter = { active: false, name: '' };
-            
-            let activeCategoryHash = window.location.hash; 
-            let scanSessionId = 0; 
-            let domUpdateAnimationFrame = null; 
+                    let itemDataCache = new Map();
+                    let domMetadata = new WeakMap();
 
-            let scanQueue = new Set();
-            let scanQueueTimer = null;
-            let activeObservers = [];
-            let observerBootstrapped = false;
-            let ensureUITimer = null;
-            let observedLists = new WeakSet();
+                    const selectedFilters = new Set();
+                    let priceFilter = {
+                        min: { active: false, value: null },
+                        max: { active: false, value: null },
+                    };
+                    let availabilityFilter = 'all';
+                    let creatorFilter = { active: false, name: '' };
 
-       
-            function isElementVisible(element) {
-                if (!element) return false;
-                const style = window.getComputedStyle(element);
-                if (style.display === 'none' || style.visibility === 'hidden') return false;
+                    let activeCategoryHash = window.location.hash;
+                    let scanSessionId = 0;
+                    let domUpdateAnimationFrame = null;
 
-                const rect = element.getBoundingClientRect();
-                return rect.width > 0 && rect.height > 0;
-            }
+                    let scanQueue = new Set();
+                    let scanQueueTimer = null;
+                    let activeObservers = [];
 
-            function getAvatarRoot() {
-                return document.getElementById('avatar-react-container') || document.body;
-            }
+                    const globalObservers = [];
+                    let observerBootstrapped = false;
+                    let ensureUITimer = null;
+                    let observedLists = new WeakSet();
 
-            function getActiveAvatarPane() {
-                const activePane = document.querySelector('.tab-pane.active');
-                if (activePane && activePane.querySelector('ul.item-cards-stackable, li.list-item')) {
-                    return activePane;
-                }
+                    function isElementVisible(element) {
+                        if (!element) return false;
+                        const style = window.getComputedStyle(element);
+                        if (
+                            style.display === 'none' ||
+                            style.visibility === 'hidden'
+                        )
+                            return false;
 
-                const avatarRoot = getAvatarRoot();
-                const visibleList = Array.from(avatarRoot.querySelectorAll('ul.item-cards-stackable'))
-                    .find((list) => isElementVisible(list) && !list.closest('#rovalra-fx-container'));
-
-                if (!visibleList) return activePane || null;
-
-                return visibleList.closest('.tab-pane, [role="tabpanel"], [data-testid*="tab"]') || visibleList.parentElement;
-            }
-
-            function getActiveAvatarList(pane = getActiveAvatarPane()) {
-                if (!pane) return null;
-
-                const visibleList = Array.from(pane.querySelectorAll('ul.item-cards-stackable'))
-                    .find((list) => isElementVisible(list) && !list.closest('#rovalra-fx-container'));
-
-                return visibleList || pane.querySelector('ul.item-cards-stackable');
-            }
-
-            function getActiveCategoryKey(pane = getActiveAvatarPane()) {
-                return window.location.hash || pane?.id || pane?.getAttribute('aria-labelledby') || pane?.dataset?.category || '';
-            }
-
-            function scheduleEnsureUI(delay = 100) {
-                if (ensureUITimer) clearTimeout(ensureUITimer);
-                ensureUITimer = setTimeout(() => {
-                    ensureUITimer = null;
-                    ensureUIInActiveTab();
-                    triggerDomUpdate();
-                }, delay);
-            }
-
-            function getAssetIdFromCard(card) {
-                const thumb = card.querySelector('[data-thumbnail-target-id]');
-                const directId = thumb?.getAttribute('data-thumbnail-target-id') ||
-                    card.getAttribute('data-item-id') ||
-                    card.dataset?.itemId ||
-                    card.dataset?.assetId;
-
-                const parsedDirectId = parseInt(directId, 10);
-                if (parsedDirectId) return parsedDirectId;
-
-                const itemLink = card.querySelector('a[href*="/catalog/"], a[href*="/library/"]');
-                const linkMatch = itemLink?.href?.match(/\/(?:catalog|library)\/(\d+)/);
-                return linkMatch ? parseInt(linkMatch[1], 10) : null;
-            }
-
-            function getCardName(card) {
-                const nameContainer = card.querySelector('[data-item-name], .item-card-name, .item-card-thumb-container, a[href*="/catalog/"]');
-                return nameContainer ? (nameContainer.dataset.itemName || nameContainer.getAttribute('data-item-name') || nameContainer.textContent || '') : '';
-            }
-
-            function analyzeAssetTree(roots) {
-                const detectedEffects = new Set();
-                if (!roots || !Array.isArray(roots)) return detectedEffects;
-
-                function traverse(instance) {
-                    if (!instance) return;
-
-                    const className = instance.ClassName;
-
-                    if (className === 'ParticleEmitter' || className === 'Fire' || className === 'Sparkles') {
-                        detectedEffects.add('itemsWithEffects');
+                        const rect = element.getBoundingClientRect();
+                        return rect.width > 0 && rect.height > 0;
                     }
 
-                    if (className === 'SurfaceAppearance' || className === 'MaterialVariant' || 
-                        className === 'MetalnessMap' || className === 'RoughnessMap' || className === 'NormalMap') {
-                        detectedEffects.add('surfaceAppearance');
+                    function getAvatarRoot() {
+                        return (
+                            document.getElementById('avatar-react-container') ||
+                            document.body
+                        );
                     }
 
-                    if (instance.Children && instance.Children.length > 0) {
-                        for (const child of instance.Children) {
-                            traverse(child);
+                    function getActiveAvatarPane() {
+                        const activePane =
+                            document.querySelector('.tab-pane.active');
+                        if (
+                            activePane &&
+                            activePane.querySelector(
+                                'ul.item-cards-stackable, li.list-item',
+                            )
+                        ) {
+                            return activePane;
                         }
+
+                        const avatarRoot = getAvatarRoot();
+                        const visibleList = Array.from(
+                            avatarRoot.querySelectorAll(
+                                'ul.item-cards-stackable',
+                            ),
+                        ).find(
+                            (list) =>
+                                isElementVisible(list) &&
+                                !list.closest('#rovalra-fx-container'),
+                        );
+
+                        if (!visibleList) return activePane || null;
+
+                        return (
+                            visibleList.closest(
+                                '.tab-pane, [role="tabpanel"], [data-testid*="tab"]',
+                            ) || visibleList.parentElement
+                        );
                     }
-                }
 
-                roots.forEach(root => traverse(root));
-                return detectedEffects;
-            }
+                    function getActiveAvatarList(pane = getActiveAvatarPane()) {
+                        if (!pane) return null;
 
-            function isFilteringActive() {
-                if (selectedFilters.size > 0) return true;
-                if (priceFilter.min.active || priceFilter.max.active) return true;
-                if (availabilityFilter !== 'all') return true;
-                if (creatorFilter.active) return true;
-                
-                const searchInput = document.getElementById('rovalra-fx-search-bar');
-                return searchInput && searchInput.value.length > 0;
-            }
+                        const visibleList = Array.from(
+                            pane.querySelectorAll('ul.item-cards-stackable'),
+                        ).find(
+                            (list) =>
+                                isElementVisible(list) &&
+                                !list.closest('#rovalra-fx-container'),
+                        );
 
-            function fullStateReset() {
-                scanSessionId++; 
-                
-                activeObservers.forEach(obs => {
-                    if (!obs) return;
-            
-                    if (typeof obs.disconnect === 'function') {
-                        obs.disconnect();
-                    } else if (obs.selector) {
-                        obs.active = false;
+                        return (
+                            visibleList ||
+                            pane.querySelector('ul.item-cards-stackable')
+                        );
                     }
-                });
-                activeObservers = []; 
 
-                if (scanQueueTimer) {
-                    clearTimeout(scanQueueTimer);
-                    scanQueueTimer = null;
-                }
-                scanQueue.clear();
-
-                if (domUpdateAnimationFrame) {
-                    cancelAnimationFrame(domUpdateAnimationFrame);
-                    domUpdateAnimationFrame = null;
-                }
-
-                if (ensureUITimer) {
-                    clearTimeout(ensureUITimer);
-                    ensureUITimer = null;
-                }
-
-                itemDataCache = new Map();
-                domMetadata = new WeakMap(); 
-                observedLists = new WeakSet();
-                
-                selectedFilters.clear();
-                priceFilter = { min: { active: false, value: null }, max: { active: false, value: null } };
-                availabilityFilter = 'all';
-                creatorFilter = { active: false, name: '' };
-                
-                activeCategoryHash = getActiveCategoryKey();
-
-                document.querySelectorAll('.rovalra-filtering-enabled').forEach(el => {
-                    el.classList.remove('rovalra-filtering-enabled');
-                });
-
-                const existingUI = document.getElementById('rovalra-fx-container');
-                if (existingUI) existingUI.remove();
-            }
-
-            document.addEventListener('rovalra-catalog-details-response', (event) => {
-                const data = event.detail;
-                if (!data || !data.data) return;
-                
-                if (itemDataCache.size === 0) return;
-
-                data.data.forEach(item => {
-                    const cacheEntry = itemDataCache.get(item.id);
-                    if (cacheEntry) {
-                        cacheEntry.isLimited = item.itemRestrictions?.includes('Limited') || item.itemRestrictions?.includes('LimitedUnique') || item.itemRestrictions?.includes('Collectible');
-                        cacheEntry.name = item.name;
-                        cacheEntry.searchName = (item.name || '').toLowerCase(); 
-                        cacheEntry.price = item.price;
-                        cacheEntry.creatorName = item.creatorName;
-                        cacheEntry.creatorSearchName = (item.creatorName || '').toLowerCase(); 
-                        cacheEntry.isOffsale = (item.priceStatus === 'Off Sale' || item.isOffSale === true) && !cacheEntry.isLimited;
-                        cacheEntry.isValid = true; 
+                    function isRoValraNode(node) {
+                        const el =
+                            node?.nodeType === 1 ? node : node?.parentElement;
+                        return !!el?.closest?.(
+                            '[class*="rovalra"], [id^="rovalra"]',
+                        );
                     }
-                });
-            });
 
-            async function processItemIds(assetIds, currentSession) {
-                if (assetIds.length === 0) return;
+                    function getBreadcrumbKey() {
+                        const breadcrumb = document.querySelector(
+                            '.breadcrumb-container',
+                        );
+                        if (!breadcrumb) return '';
+                        return Array.from(breadcrumb.children)
+                            .filter(
+                                (li) =>
+                                    !isRoValraNode(li) &&
+                                    !li.querySelector('button'),
+                            )
+                            .map((li) => li.textContent.trim())
+                            .filter(Boolean)
+                            .join('>');
+                    }
 
-                for (let i = 0; i < assetIds.length; i += CATALOG_BATCH_SIZE) {
-                    if (currentSession !== scanSessionId) return;
+                    function getActiveCategoryKey(
+                        pane = getActiveAvatarPane(),
+                    ) {
+                        if (window.location.hash) return window.location.hash;
 
-                    const chunk = assetIds.slice(i, i + CATALOG_BATCH_SIZE);
-                    const chunkIdsNeedingEffects = [];
+                        const paneKey =
+                            pane?.id ||
+                            pane?.getAttribute('aria-labelledby') ||
+                            pane?.dataset?.category ||
+                            '';
+                        return [paneKey, getBreadcrumbKey()]
+                            .filter(Boolean)
+                            .join('|');
+                    }
 
-                    chunk.forEach(id => {
-                        if (!itemDataCache) return; 
-                        let entry = itemDataCache.get(id);
-                        if (!entry) {
-                            entry = {
-                                assetId: id, 
-                                effects: new Set(), 
-                                isValid: false, 
-                                isLimited: false, 
-                                isOffsale: false,
-                                name: ts('avatarFilters.loading'),
-                                searchName: '',
-                                price: null, 
-                                creatorName: ts('avatarFilters.loading'),
-                                creatorSearchName: ''
-                            };
-                            itemDataCache.set(id, entry);
-                            chunkIdsNeedingEffects.push(id);
-                        } else if (!entry.isValid) {
-                            chunkIdsNeedingEffects.push(id);
+                    function scheduleEnsureUI(delay = 100) {
+                        if (ensureUITimer) clearTimeout(ensureUITimer);
+                        ensureUITimer = setTimeout(() => {
+                            ensureUITimer = null;
+                            ensureUIInActiveTab();
+                            triggerDomUpdate();
+                        }, delay);
+                    }
+
+                    function getAssetIdFromCard(card) {
+                        const thumb = card.querySelector(
+                            '[data-thumbnail-target-id]',
+                        );
+                        const directId =
+                            thumb?.getAttribute('data-thumbnail-target-id') ||
+                            card.getAttribute('data-item-id') ||
+                            card.dataset?.itemId ||
+                            card.dataset?.assetId;
+
+                        const parsedDirectId = parseInt(directId, 10);
+                        if (parsedDirectId) return parsedDirectId;
+
+                        const itemLink = card.querySelector(
+                            'a[href*="/catalog/"], a[href*="/library/"]',
+                        );
+                        const linkMatch = itemLink?.href?.match(
+                            /\/(?:catalog|library)\/(\d+)/,
+                        );
+                        return linkMatch ? parseInt(linkMatch[1], 10) : null;
+                    }
+
+                    function getCardName(card) {
+                        const nameContainer = card.querySelector(
+                            '[data-item-name], .item-card-name, .item-card-thumb-container, a[href*="/catalog/"]',
+                        );
+                        return nameContainer
+                            ? nameContainer.dataset.itemName ||
+                                  nameContainer.getAttribute(
+                                      'data-item-name',
+                                  ) ||
+                                  nameContainer.textContent ||
+                                  ''
+                            : '';
+                    }
+
+                    function analyzeAssetTree(roots) {
+                        const detectedEffects = new Set();
+                        if (!roots || !Array.isArray(roots))
+                            return detectedEffects;
+
+                        function traverse(instance) {
+                            if (!instance) return;
+
+                            const className = instance.ClassName;
+
+                            if (
+                                className === 'ParticleEmitter' ||
+                                className === 'Fire' ||
+                                className === 'Sparkles'
+                            ) {
+                                detectedEffects.add('itemsWithEffects');
+                            }
+
+                            if (
+                                className === 'SurfaceAppearance' ||
+                                className === 'MaterialVariant' ||
+                                className === 'MetalnessMap' ||
+                                className === 'RoughnessMap' ||
+                                className === 'NormalMap'
+                            ) {
+                                detectedEffects.add('surfaceAppearance');
+                            }
+
+                            if (
+                                instance.Children &&
+                                instance.Children.length > 0
+                            ) {
+                                for (const child of instance.Children) {
+                                    traverse(child);
+                                }
+                            }
                         }
-                    });
 
-                    if (chunkIdsNeedingEffects.length > 0) {
-                        try {
-                            const parsedResults = await checkAssetsInBatch(chunkIdsNeedingEffects);
-                            if (currentSession !== scanSessionId) return;
-                            
-                            parsedResults.forEach(result => {
-                                const cacheEntry = itemDataCache.get(result.assetId);
+                        roots.forEach((root) => traverse(root));
+                        return detectedEffects;
+                    }
+
+                    function isFilteringActive() {
+                        if (selectedFilters.size > 0) return true;
+                        if (priceFilter.min.active || priceFilter.max.active)
+                            return true;
+                        if (availabilityFilter !== 'all') return true;
+                        if (creatorFilter.active) return true;
+
+                        const searchInput = document.getElementById(
+                            'rovalra-fx-search-bar',
+                        );
+                        return searchInput && searchInput.value.length > 0;
+                    }
+
+                    function fullStateReset() {
+                        scanSessionId++;
+
+                        activeObservers.forEach((obs) => {
+                            if (!obs) return;
+
+                            if (typeof obs.disconnect === 'function') {
+                                obs.disconnect();
+                            } else if (obs.selector) {
+                                obs.active = false;
+                            }
+                        });
+                        activeObservers = [];
+
+                        if (scanQueueTimer) {
+                            clearTimeout(scanQueueTimer);
+                            scanQueueTimer = null;
+                        }
+                        scanQueue.clear();
+
+                        if (domUpdateAnimationFrame) {
+                            cancelAnimationFrame(domUpdateAnimationFrame);
+                            domUpdateAnimationFrame = null;
+                        }
+
+                        if (ensureUITimer) {
+                            clearTimeout(ensureUITimer);
+                            ensureUITimer = null;
+                        }
+
+                        itemDataCache = new Map();
+                        domMetadata = new WeakMap();
+                        observedLists = new WeakSet();
+
+                        selectedFilters.clear();
+                        priceFilter = {
+                            min: { active: false, value: null },
+                            max: { active: false, value: null },
+                        };
+                        availabilityFilter = 'all';
+                        creatorFilter = { active: false, name: '' };
+
+                        activeCategoryHash = getActiveCategoryKey();
+
+                        document
+                            .querySelectorAll('.rovalra-filtering-enabled')
+                            .forEach((el) => {
+                                el.classList.remove(
+                                    'rovalra-filtering-enabled',
+                                );
+                            });
+
+                        const existingUI = document.getElementById(
+                            'rovalra-fx-container',
+                        );
+                        if (existingUI) existingUI.remove();
+                    }
+
+                    document.addEventListener(
+                        'rovalra-catalog-details-response',
+                        (event) => {
+                            const data = event.detail;
+                            if (!data || !data.data) return;
+
+                            if (itemDataCache.size === 0) return;
+
+                            data.data.forEach((item) => {
+                                const cacheEntry = itemDataCache.get(item.id);
                                 if (cacheEntry) {
-                                    if (result.root) {
-                                        cacheEntry.effects = analyzeAssetTree(result.root);
-                                    } else {
-                                        cacheEntry.effects = new Set();
+                                    cacheEntry.isLimited =
+                                        item.itemRestrictions?.includes(
+                                            'Limited',
+                                        ) ||
+                                        item.itemRestrictions?.includes(
+                                            'LimitedUnique',
+                                        ) ||
+                                        item.itemRestrictions?.includes(
+                                            'Collectible',
+                                        );
+                                    cacheEntry.name = item.name;
+                                    cacheEntry.searchName = (
+                                        item.name || ''
+                                    ).toLowerCase();
+                                    cacheEntry.price = item.price;
+                                    cacheEntry.creatorName = item.creatorName;
+                                    cacheEntry.creatorSearchName = (
+                                        item.creatorName || ''
+                                    ).toLowerCase();
+                                    cacheEntry.isOffsale =
+                                        (item.priceStatus === 'Off Sale' ||
+                                            item.isOffSale === true) &&
+                                        !cacheEntry.isLimited;
+                                    cacheEntry.isValid = true;
+                                }
+                            });
+                        },
+                    );
+
+                    async function processItemIds(assetIds, currentSession) {
+                        if (assetIds.length === 0) return;
+
+                        for (
+                            let i = 0;
+                            i < assetIds.length;
+                            i += CATALOG_BATCH_SIZE
+                        ) {
+                            if (currentSession !== scanSessionId) return;
+
+                            const chunk = assetIds.slice(
+                                i,
+                                i + CATALOG_BATCH_SIZE,
+                            );
+                            const chunkIdsNeedingEffects = [];
+
+                            chunk.forEach((id) => {
+                                if (!itemDataCache) return;
+                                let entry = itemDataCache.get(id);
+                                if (!entry) {
+                                    entry = {
+                                        assetId: id,
+                                        effects: new Set(),
+                                        isValid: false,
+                                        isLimited: false,
+                                        isOffsale: false,
+                                        name: ts('avatarFilters.loading'),
+                                        searchName: '',
+                                        price: null,
+                                        creatorName: ts(
+                                            'avatarFilters.loading',
+                                        ),
+                                        creatorSearchName: '',
+                                    };
+                                    itemDataCache.set(id, entry);
+                                    chunkIdsNeedingEffects.push(id);
+                                } else if (!entry.isValid) {
+                                    chunkIdsNeedingEffects.push(id);
+                                }
+                            });
+
+                            if (chunkIdsNeedingEffects.length > 0) {
+                                try {
+                                    const parsedResults =
+                                        await checkAssetsInBatch(
+                                            chunkIdsNeedingEffects,
+                                        );
+                                    if (currentSession !== scanSessionId)
+                                        return;
+
+                                    parsedResults.forEach((result) => {
+                                        const cacheEntry = itemDataCache.get(
+                                            result.assetId,
+                                        );
+                                        if (cacheEntry) {
+                                            if (result.root) {
+                                                cacheEntry.effects =
+                                                    analyzeAssetTree(
+                                                        result.root,
+                                                    );
+                                            } else {
+                                                cacheEntry.effects = new Set();
+                                            }
+                                        }
+                                    });
+                                } catch (err) {
+                                    console.warn(
+                                        'Asset batch check failed',
+                                        err,
+                                    );
+                                }
+                            }
+
+                            if (currentSession === scanSessionId) {
+                                triggerDomUpdate();
+                            }
+                        }
+                    }
+
+                    function determineVisibility(meta, entry, searchTerm) {
+                        if (searchTerm) {
+                            const nameToCheck =
+                                entry && entry.searchName
+                                    ? entry.searchName
+                                    : meta.searchName;
+                            if (!nameToCheck.includes(searchTerm)) return false;
+                        }
+
+                        const hasStrictFilters =
+                            selectedFilters.size > 0 ||
+                            priceFilter.min.active ||
+                            priceFilter.max.active ||
+                            creatorFilter.active ||
+                            availabilityFilter !== 'all';
+
+                        if (!hasStrictFilters) return true;
+
+                        if (!entry || !entry.isValid) return false;
+
+                        if (selectedFilters.size > 0) {
+                            for (const filterId of selectedFilters) {
+                                const match =
+                                    filterId === 'limited'
+                                        ? entry.isLimited
+                                        : entry.effects.has(filterId);
+                                if (!match) return false;
+                            }
+                        }
+
+                        if (priceFilter.min.active || priceFilter.max.active) {
+                            const val = entry.price;
+                            if (typeof val !== 'number') return false;
+                            if (
+                                priceFilter.min.active &&
+                                val < priceFilter.min.value
+                            )
+                                return false;
+                            if (
+                                priceFilter.max.active &&
+                                val > priceFilter.max.value
+                            )
+                                return false;
+                        }
+
+                        if (availabilityFilter !== 'all') {
+                            if (
+                                availabilityFilter === 'onsale' &&
+                                entry.isOffsale
+                            )
+                                return false;
+                            else if (
+                                availabilityFilter === 'offsale' &&
+                                !entry.isOffsale
+                            )
+                                return false;
+                        }
+
+                        if (creatorFilter.active) {
+                            if (
+                                !entry.creatorSearchName ||
+                                !entry.creatorSearchName.includes(
+                                    creatorFilter.name.toLowerCase(),
+                                )
+                            )
+                                return false;
+                        }
+
+                        return true;
+                    }
+
+                    let filterUpdatePending = false;
+
+                    function triggerDomUpdate() {
+                        if (!filterUpdatePending) {
+                            filterUpdatePending = true;
+                            if (domUpdateAnimationFrame)
+                                cancelAnimationFrame(domUpdateAnimationFrame);
+                            domUpdateAnimationFrame =
+                                requestAnimationFrame(applyFilterToDOM);
+                        }
+                    }
+
+                    function applyFilterToDOM() {
+                        filterUpdatePending = false;
+                        domUpdateAnimationFrame = null;
+
+                        const spinner = document.getElementById(
+                            'rovalra-filter-loading',
+                        );
+                        if (spinner) spinner.style.display = 'none';
+
+                        const activeTabPane = getActiveAvatarPane();
+                        if (!activeTabPane) return;
+
+                        const searchInput = document.getElementById(
+                            'rovalra-fx-search-bar',
+                        );
+                        const searchTerm = searchInput
+                            ? searchInput.value.trim().toLowerCase()
+                            : '';
+                        const active = isFilteringActive();
+
+                        const listContainer =
+                            getActiveAvatarList(activeTabPane);
+                        if (listContainer) {
+                            if (active)
+                                listContainer.classList.add(
+                                    'rovalra-filtering-enabled',
+                                );
+                            else
+                                listContainer.classList.remove(
+                                    'rovalra-filtering-enabled',
+                                );
+                        }
+
+                        const itemCards =
+                            activeTabPane.getElementsByClassName('list-item');
+
+                        for (let i = 0, len = itemCards.length; i < len; i++) {
+                            const card = itemCards[i];
+
+                            const meta = domMetadata.get(card);
+                            if (!meta) continue;
+
+                            if (!active) {
+                                if (
+                                    card.classList.contains('rovalra-fx-hidden')
+                                )
+                                    card.classList.remove('rovalra-fx-hidden');
+                                card.classList.add('rovalra-show');
+
+                                const img = meta.img;
+                                if (img && img.dataset.rovalraSrc) {
+                                    img.src = img.dataset.rovalraSrc;
+                                    delete img.dataset.rovalraSrc;
+                                }
+                                continue;
+                            }
+
+                            const itemData = itemDataCache.get(meta.id);
+                            const shouldShow = determineVisibility(
+                                meta,
+                                itemData,
+                                searchTerm,
+                            );
+                            const img = meta.img;
+
+                            if (shouldShow) {
+                                card.classList.add('rovalra-show');
+                                card.classList.remove('rovalra-fx-hidden');
+
+                                if (img && img.dataset.rovalraSrc) {
+                                    img.src = img.dataset.rovalraSrc;
+                                    delete img.dataset.rovalraSrc;
+                                }
+                            } else {
+                                card.classList.remove('rovalra-show');
+
+                                if (img) {
+                                    const currentSrc = img.src;
+                                    if (
+                                        currentSrc &&
+                                        !currentSrc.startsWith('data:')
+                                    ) {
+                                        img.dataset.rovalraSrc = currentSrc;
+                                        img.src = TRANSPARENT_PIXEL;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    async function applyAllFilters() {
+                        const currentSession = scanSessionId;
+                        addLoadingSpinner();
+                        updateToggleButtonText();
+
+                        selectedFilters.clear();
+                        document
+                            .querySelectorAll(
+                                '#rovalra-fx-dropdown button[role="checkbox"]',
+                            )
+                            .forEach((btn) => {
+                                const filterId = btn.id.replace(
+                                    'rovalra-filter-',
+                                    '',
+                                );
+                                if (
+                                    btn.getAttribute('aria-checked') === 'true'
+                                ) {
+                                    selectedFilters.add(filterId);
+                                }
+                            });
+
+                        const creatorVal = document
+                            .getElementById('rovalra-creator-name')
+                            ?.value.trim();
+                        creatorFilter = creatorVal
+                            ? { active: true, name: creatorVal }
+                            : { active: false, name: '' };
+
+                        const minPrice = parseInt(
+                            document.getElementById('rovalra-min-price-value')
+                                ?.value,
+                            10,
+                        );
+                        const maxPrice = parseInt(
+                            document.getElementById('rovalra-max-price-value')
+                                ?.value,
+                            10,
+                        );
+                        priceFilter.min =
+                            !isNaN(minPrice) && minPrice >= 0
+                                ? { active: true, value: minPrice }
+                                : { active: false, value: null };
+                        priceFilter.max =
+                            !isNaN(maxPrice) && maxPrice >= 0
+                                ? { active: true, value: maxPrice }
+                                : { active: false, value: null };
+
+                        availabilityFilter =
+                            document.getElementById(
+                                'rovalra-availability-filter',
+                            )?.value || 'all';
+
+                        triggerDomUpdate();
+
+                        const activeTabPane = getActiveAvatarPane();
+                        const itemIdsToRecheck = new Set();
+
+                        if (activeTabPane) {
+                            const cards =
+                                activeTabPane.querySelectorAll('.list-item');
+                            cards.forEach((card) => {
+                                const meta = domMetadata.get(card);
+                                if (meta && meta.id) {
+                                    const cacheEntry = itemDataCache.get(
+                                        meta.id,
+                                    );
+                                    if (!cacheEntry || !cacheEntry.isValid) {
+                                        itemIdsToRecheck.add(meta.id);
                                     }
                                 }
                             });
-                        } catch (err) {
-                            console.warn("Asset batch check failed", err);
-                        }
-                    }
-
-                    if (currentSession === scanSessionId) {
-                        triggerDomUpdate();
-                    }
-                }
-            }
-
-            function determineVisibility(meta, entry, searchTerm) {
-                if (searchTerm) {
-                    const nameToCheck = (entry && entry.searchName) ? entry.searchName : meta.searchName;
-                    if (!nameToCheck.includes(searchTerm)) return false; 
-                }
-
-                const hasStrictFilters = selectedFilters.size > 0 || 
-                                       priceFilter.min.active || 
-                                       priceFilter.max.active || 
-                                       creatorFilter.active || 
-                                       availabilityFilter !== 'all';
-
-                if (!hasStrictFilters) return true;
-
-                if (!entry || !entry.isValid) return false; 
-
-                if (selectedFilters.size > 0) {
-                    for (const filterId of selectedFilters) {
-                        const match = (filterId === 'limited') ? entry.isLimited : entry.effects.has(filterId);
-                        if (!match) return false;
-                    }
-                }
-
-                if (priceFilter.min.active || priceFilter.max.active) {
-                    const val = entry.price;
-                    if (typeof val !== 'number') return false; 
-                    if (priceFilter.min.active && val < priceFilter.min.value) return false;
-                    if (priceFilter.max.active && val > priceFilter.max.value) return false;
-                }
-
-                if (availabilityFilter !== 'all') {
-                    if (availabilityFilter === 'onsale' && entry.isOffsale) return false;
-                    else if (availabilityFilter === 'offsale' && !entry.isOffsale) return false;
-                }
-
-                if (creatorFilter.active) {
-                    if (!entry.creatorSearchName || !entry.creatorSearchName.includes(creatorFilter.name.toLowerCase())) return false;
-                }
-
-                return true;
-            }
-
-            let filterUpdatePending = false;
-            
-            function triggerDomUpdate() {
-                if (!filterUpdatePending) {
-                    filterUpdatePending = true;
-                    if (domUpdateAnimationFrame) cancelAnimationFrame(domUpdateAnimationFrame);
-                    domUpdateAnimationFrame = requestAnimationFrame(applyFilterToDOM);
-                }
-            }
-
-            function applyFilterToDOM() {
-                filterUpdatePending = false;
-                domUpdateAnimationFrame = null;
-
-                const spinner = document.getElementById('rovalra-filter-loading');
-                if (spinner) spinner.style.display = 'none';
-
-                const activeTabPane = getActiveAvatarPane();
-                if (!activeTabPane) return;
-
-                const searchInput = document.getElementById('rovalra-fx-search-bar');
-                const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
-                const active = isFilteringActive();
-
-                const listContainer = getActiveAvatarList(activeTabPane);
-                if (listContainer) {
-                    if (active) listContainer.classList.add('rovalra-filtering-enabled');
-                    else listContainer.classList.remove('rovalra-filtering-enabled');
-                }
-
-                const itemCards = activeTabPane.getElementsByClassName('list-item');
-                
-                for (let i = 0, len = itemCards.length; i < len; i++) {
-                    const card = itemCards[i];
-                    
-                    const meta = domMetadata.get(card);
-                    if (!meta) continue; 
-
-                    if (!active) {
-                        if (card.classList.contains('rovalra-fx-hidden')) card.classList.remove('rovalra-fx-hidden');
-                        card.classList.add('rovalra-show'); 
-                        
-                        const img = meta.img;
-                        if (img && img.dataset.rovalraSrc) {
-                            img.src = img.dataset.rovalraSrc;
-                            delete img.dataset.rovalraSrc;
-                        }
-                        continue;
-                    }
-
-                    const itemData = itemDataCache.get(meta.id);
-                    const shouldShow = determineVisibility(meta, itemData, searchTerm);
-                    const img = meta.img;
-
-                    if (shouldShow) {
-                        card.classList.add('rovalra-show');
-                        card.classList.remove('rovalra-fx-hidden');
-
-                        if (img && img.dataset.rovalraSrc) {
-                            img.src = img.dataset.rovalraSrc;
-                            delete img.dataset.rovalraSrc;
                         }
 
-                    } else {
-                        card.classList.remove('rovalra-show');
-                        
-
-                        if (img) {
-                            const currentSrc = img.src;
-                            if (currentSrc && !currentSrc.startsWith('data:')) {
-                                img.dataset.rovalraSrc = currentSrc;
-                                img.src = TRANSPARENT_PIXEL;
+                        try {
+                            if (itemIdsToRecheck.size > 0) {
+                                await processItemIds(
+                                    Array.from(itemIdsToRecheck),
+                                    currentSession,
+                                );
+                            }
+                        } catch (e) {
+                            console.error('Filter process error', e);
+                        } finally {
+                            if (currentSession === scanSessionId) {
+                                triggerDomUpdate();
                             }
                         }
                     }
-                }
-            }
 
-            async function applyAllFilters() {
-                const currentSession = scanSessionId;
-                addLoadingSpinner();
-                updateToggleButtonText();
-
-                selectedFilters.clear();
-                document.querySelectorAll('#rovalra-fx-dropdown button[role="checkbox"]').forEach(btn => {
-                    const filterId = btn.id.replace('rovalra-filter-', '');
-                    if (btn.getAttribute('aria-checked') === 'true') {
-                        selectedFilters.add(filterId);
+                    function updateToggleButtonText() {
+                        const btn = document.getElementById(
+                            'rovalra-fx-toggle-btn',
+                        );
+                        if (!btn) return;
+                        const count =
+                            selectedFilters.size +
+                            (priceFilter.min.active ? 1 : 0) +
+                            (priceFilter.max.active ? 1 : 0) +
+                            (availabilityFilter !== 'all' ? 1 : 0) +
+                            (creatorFilter.active ? 1 : 0);
+                        btn.querySelector('span').textContent = ts(
+                            'avatarFilters.filterItems',
+                        );
+                        btn.classList.toggle('filter-applied', count > 0);
                     }
-                });
 
-                const creatorVal = document.getElementById('rovalra-creator-name')?.value.trim();
-                creatorFilter = creatorVal ? { active: true, name: creatorVal } : { active: false, name: '' };
+                    function isNonItemTabActive() {
+                        const activePane =
+                            document.querySelector('.tab-pane.active');
+                        return (
+                            !!activePane &&
+                            (activePane.id === 'scale' ||
+                                activePane.id === 'bodyColors')
+                        );
+                    }
 
-                const minPrice = parseInt(document.getElementById('rovalra-min-price-value')?.value, 10);
-                const maxPrice = parseInt(document.getElementById('rovalra-max-price-value')?.value, 10);
-                priceFilter.min = (!isNaN(minPrice) && minPrice >= 0) ? { active: true, value: minPrice } : { active: false, value: null };
-                priceFilter.max = (!isNaN(maxPrice) && maxPrice >= 0) ? { active: true, value: maxPrice } : { active: false, value: null };
-
-                availabilityFilter = document.getElementById('rovalra-availability-filter')?.value || 'all';
-
-                triggerDomUpdate();
-
-                const activeTabPane = getActiveAvatarPane();
-                const itemIdsToRecheck = new Set();
-                
-                if (activeTabPane) {
-                    const cards = activeTabPane.querySelectorAll('.list-item');
-                    cards.forEach(card => {
-                        const meta = domMetadata.get(card);
-                        if (meta && meta.id) {
-                            const cacheEntry = itemDataCache.get(meta.id);
-                            if (!cacheEntry || !cacheEntry.isValid) {
-                                itemIdsToRecheck.add(meta.id);
-                            }
+                    function ensureUIInActiveTab() {
+                        if (isNonItemTabActive()) {
+                            document
+                                .getElementById('rovalra-fx-container')
+                                ?.remove();
+                            return;
                         }
-                    });
-                }
 
-                try {
-                    if (itemIdsToRecheck.size > 0) {
-                        await processItemIds(Array.from(itemIdsToRecheck), currentSession);
-                    }
-                } catch(e) {
-                    console.error("Filter process error", e);
-                } finally {
-                    if (currentSession === scanSessionId) {
-                        triggerDomUpdate();
-                    }
-                }
-            }
+                        const activeTab = getActiveAvatarPane();
+                        if (!activeTab) return;
 
-            function updateToggleButtonText() {
-                const btn = document.getElementById('rovalra-fx-toggle-btn');
-                if (!btn) return;
-                const count = selectedFilters.size + (priceFilter.min.active ? 1 : 0) + (priceFilter.max.active ? 1 : 0) + (availabilityFilter !== 'all' ? 1 : 0) + (creatorFilter.active ? 1 : 0);
-                btn.querySelector('span').textContent = ts('avatarFilters.filterItems');
-                btn.classList.toggle('filter-applied', count > 0);
-            }
+                        const currentCategoryKey =
+                            getActiveCategoryKey(activeTab);
+                        if (currentCategoryKey !== activeCategoryHash) {
+                            fullStateReset();
+                        }
 
-            function isNonItemTabActive() {
-                const activePane = document.querySelector('.tab-pane.active');
-                return !!activePane && (activePane.id === 'scale' || activePane.id === 'bodyColors');
-            }
+                        let container = document.getElementById(
+                            'rovalra-fx-container',
+                        );
+                        if (
+                            container &&
+                            (container.dataset.category !==
+                                currentCategoryKey ||
+                                container.parentElement !== activeTab)
+                        ) {
+                            container.remove();
+                            container = null;
+                        }
 
-            function ensureUIInActiveTab() {
-                if (isNonItemTabActive()) {
-                    document.getElementById('rovalra-fx-container')?.remove();
-                    return;
-                }
+                        if (
+                            activeTab.id === 'scale' ||
+                            activeTab.id === 'bodyColors'
+                        ) {
+                            if (container) container.remove();
+                            return;
+                        }
 
-                const activeTab = getActiveAvatarPane();
-                if (!activeTab) return;
+                        const isCostumesTab = activeTab.id === 'costumes';
+                        const showFilters =
+                            settings.avatarFiltersEnabled && !isCostumesTab;
+                        const showSearch = settings.searchbarEnabled;
 
-                const currentCategoryKey = getActiveCategoryKey(activeTab);
-                if (currentCategoryKey !== activeCategoryHash) {
-                    fullStateReset();
-                }
+                        if (!showFilters && !showSearch) {
+                            if (container) container.remove();
+                            return;
+                        }
 
-                let container = document.getElementById('rovalra-fx-container');
-                if (container && (container.dataset.category !== currentCategoryKey || container.parentElement !== activeTab)) {
-                    container.remove();
-                    container = null;
-                }
+                        if (!container) {
+                            container = document.createElement('div');
+                            container.id = 'rovalra-fx-container';
+                            container.dataset.category = currentCategoryKey;
 
-                if (activeTab.id === 'scale' || activeTab.id === 'bodyColors') {
-                    if (container) container.remove();
-                    return;
-                }
+                            const filterConfig = [
+                                {
+                                    id: 'rovalra-creator-name',
+                                    type: 'text',
+                                    label: ts('avatarFilters.creatorName'),
+                                },
+                                {
+                                    id: 'rovalra-min-price-value',
+                                    type: 'number',
+                                    label: ts('avatarFilters.minPrice'),
+                                    min: 0,
+                                },
+                                {
+                                    id: 'rovalra-max-price-value',
+                                    type: 'number',
+                                    label: ts('avatarFilters.maxPrice'),
+                                    min: 0,
+                                },
+                                {
+                                    id: 'rovalra-availability-filter',
+                                    type: 'dropdown',
+                                    label: ts('avatarFilters.availability'),
+                                    initialValue: 'all',
+                                    options: [
+                                        {
+                                            value: 'all',
+                                            label: ts('avatarFilters.showAll'),
+                                        },
+                                        {
+                                            value: 'onsale',
+                                            label: ts(
+                                                'avatarFilters.onsaleOnly',
+                                            ),
+                                        },
+                                        {
+                                            value: 'offsale',
+                                            label: ts(
+                                                'avatarFilters.offsaleOnly',
+                                            ),
+                                        },
+                                    ],
+                                },
+                                {
+                                    id: 'rovalra-filter-itemsWithEffects',
+                                    type: 'toggle',
+                                    label: ts('avatarFilters.effects'),
+                                },
+                                {
+                                    id: 'rovalra-filter-limited',
+                                    type: 'toggle',
+                                    label: ts('avatarFilters.limiteds'),
+                                },
+                            ];
 
-                const isCostumesTab = activeTab.id === 'costumes';
-                const showFilters = settings.avatarFiltersEnabled && !isCostumesTab;
-                const showSearch = settings.searchbarEnabled;
-
-                if (!showFilters && !showSearch) {
-                    if (container) container.remove();
-                    return;
-                }
-
-                if (!container) {
-                    container = document.createElement('div');
-                    container.id = 'rovalra-fx-container';
-                    container.dataset.category = currentCategoryKey;
-
-                    const filterConfig = [
-                        { id: 'rovalra-creator-name', type: 'text', label: ts('avatarFilters.creatorName') },
-                        { id: 'rovalra-min-price-value', type: 'number', label: ts('avatarFilters.minPrice'), min: 0 },
-                        { id: 'rovalra-max-price-value', type: 'number', label: ts('avatarFilters.maxPrice'), min: 0 },
-                        { id: 'rovalra-availability-filter', type: 'dropdown', label: ts('avatarFilters.availability'), initialValue: 'all', options: [{value:'all',label:ts('avatarFilters.showAll')},{value:'onsale',label:ts('avatarFilters.onsaleOnly')},{value:'offsale',label:ts('avatarFilters.offsaleOnly')}] },
-                        { id: 'rovalra-filter-itemsWithEffects', type: 'toggle', label: ts('avatarFilters.effects') },
-                        { id: 'rovalra-filter-limited', type: 'toggle', label: ts('avatarFilters.limiteds') }
-                    ];
-
-                    const filterUI = createAvatarFilterUI({
-                        avatarFiltersEnabled: showFilters, 
-                        searchbarEnabled: showSearch,
-                        onApply: applyAllFilters,
-                        onSearch: () => triggerDomUpdate(),
-                        filterConfig: showFilters ? filterConfig : []
-                    });
-
-                    const creatorInput = filterUI.querySelector('#rovalra-creator-name');
-                    if (creatorInput) {
-                        ['keydown', 'keypress', 'keyup', 'input', 'change', 'focus', 'focusin', 'click', 'mousedown'].forEach(evt => {
-                            creatorInput.addEventListener(evt, (e) => {
-                                e.stopPropagation();
+                            const filterUI = createAvatarFilterUI({
+                                avatarFiltersEnabled: showFilters,
+                                searchbarEnabled: showSearch,
+                                onApply: applyAllFilters,
+                                onSearch: () => triggerDomUpdate(),
+                                filterConfig: showFilters ? filterConfig : [],
                             });
-                        });
-                    }
 
-                    container.appendChild(filterUI);
-                    
-                    activeTab.prepend(container);
-                }
+                            const creatorInput = filterUI.querySelector(
+                                '#rovalra-creator-name',
+                            );
+                            if (creatorInput) {
+                                [
+                                    'keydown',
+                                    'keypress',
+                                    'keyup',
+                                    'input',
+                                    'change',
+                                    'focus',
+                                    'focusin',
+                                    'click',
+                                    'mousedown',
+                                ].forEach((evt) => {
+                                    creatorInput.addEventListener(evt, (e) => {
+                                        e.stopPropagation();
+                                    });
+                                });
+                            }
 
-                if (showFilters || showSearch) {
-                    updateToggleButtonText();
-                    const existingList = getActiveAvatarList(activeTab);
-                    if (existingList) {
-                        attachObserverToList(existingList);
-                    } else {
-                        let listObs = null;
-                        listObs = observeElement('ul.item-cards-stackable', (list) => {
-                            if (!activeTab.contains(list)) return;
+                            container.appendChild(filterUI);
 
-                            attachObserverToList(list);
-                            if (listObs) listObs.disconnect();
-                        }, { multiple: true });
+                            activeTab.prepend(container);
+                        }
 
-                        if (listObs) activeObservers.push(listObs);
-                    }
-                }
-            }
+                        if (showFilters || showSearch) {
+                            updateToggleButtonText();
+                            const existingList = getActiveAvatarList(activeTab);
+                            if (existingList) {
+                                attachObserverToList(existingList);
+                            } else {
+                                let listObs = null;
+                                listObs = observeElement(
+                                    'ul.item-cards-stackable',
+                                    (list) => {
+                                        if (!activeTab.contains(list)) return;
 
-            function attachObserverToList(listElement) {
-                if (observedLists.has(listElement)) return;
-                observedLists.add(listElement);
+                                        attachObserverToList(list);
+                                        if (listObs) listObs.disconnect();
+                                    },
+                                    { multiple: true },
+                                );
 
-                const active = isFilteringActive();
-                if (active) listElement.classList.add('rovalra-filtering-enabled');
-
-                const itemObs = observeElement('li.list-item', (card) => {
-                    if (!listElement.contains(card)) return;
-
-                    const img = card.querySelector('.item-card-thumb img, [data-thumbnail-target-id] img, img'); 
-                    const id = getAssetIdFromCard(card);
-                    
-                    if (!id) return;
-
-                    const nameText = getCardName(card);
-                    
-                    domMetadata.set(card, {
-                        id: id,
-                        searchName: nameText.toLowerCase(),
-                        img: img 
-                    });
-
-                    const entry = itemDataCache.get(id);
-                    
-                    if (!entry) {
-                        if (!scanQueue.has(id)) {
-                            scanQueue.add(id);
-                            if (!scanQueueTimer) {
-                                scanQueueTimer = setTimeout(() => {
-                                    const idsToProcess = Array.from(scanQueue);
-                                    scanQueue.clear();
-                                    scanQueueTimer = null;
-                                    processItemIds(idsToProcess, scanSessionId);
-                                }, 100);
+                                if (listObs) activeObservers.push(listObs);
                             }
                         }
                     }
 
-                    if (isFilteringActive()) {
-                        const searchInput = document.getElementById('rovalra-fx-search-bar');
-                        const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
-                        const meta = domMetadata.get(card);
-                        const shouldShow = determineVisibility(meta, entry, searchTerm);
-                        
-                        if (shouldShow) {
-                            card.classList.add('rovalra-show');
-                            card.classList.remove('rovalra-fx-hidden');
-                        } else {
-                            card.classList.remove('rovalra-show');
-                            if (img) {
-                                const currentSrc = img.src;
-                                if (currentSrc && !currentSrc.startsWith('data:')) {
-                                    img.dataset.rovalraSrc = currentSrc;
-                                    img.src = TRANSPARENT_PIXEL;
+                    function attachObserverToList(listElement) {
+                        if (observedLists.has(listElement)) return;
+                        observedLists.add(listElement);
+
+                        const active = isFilteringActive();
+                        if (active)
+                            listElement.classList.add(
+                                'rovalra-filtering-enabled',
+                            );
+
+                        const itemObs = observeElement(
+                            'li.list-item',
+                            (card) => {
+                                if (!listElement.contains(card)) return;
+
+                                const img = card.querySelector(
+                                    '.item-card-thumb img, [data-thumbnail-target-id] img, img',
+                                );
+                                const id = getAssetIdFromCard(card);
+
+                                if (!id) return;
+
+                                const nameText = getCardName(card);
+
+                                domMetadata.set(card, {
+                                    id: id,
+                                    searchName: nameText.toLowerCase(),
+                                    img: img,
+                                });
+
+                                const entry = itemDataCache.get(id);
+
+                                if (!entry) {
+                                    if (!scanQueue.has(id)) {
+                                        scanQueue.add(id);
+                                        if (!scanQueueTimer) {
+                                            scanQueueTimer = setTimeout(() => {
+                                                const idsToProcess =
+                                                    Array.from(scanQueue);
+                                                scanQueue.clear();
+                                                scanQueueTimer = null;
+                                                processItemIds(
+                                                    idsToProcess,
+                                                    scanSessionId,
+                                                );
+                                            }, 100);
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                    } else {
-                        card.classList.add('rovalra-show');
+
+                                if (isFilteringActive()) {
+                                    const searchInput = document.getElementById(
+                                        'rovalra-fx-search-bar',
+                                    );
+                                    const searchTerm = searchInput
+                                        ? searchInput.value.trim().toLowerCase()
+                                        : '';
+                                    const meta = domMetadata.get(card);
+                                    const shouldShow = determineVisibility(
+                                        meta,
+                                        entry,
+                                        searchTerm,
+                                    );
+
+                                    if (shouldShow) {
+                                        card.classList.add('rovalra-show');
+                                        card.classList.remove(
+                                            'rovalra-fx-hidden',
+                                        );
+                                    } else {
+                                        card.classList.remove('rovalra-show');
+                                        if (img) {
+                                            const currentSrc = img.src;
+                                            if (
+                                                currentSrc &&
+                                                !currentSrc.startsWith('data:')
+                                            ) {
+                                                img.dataset.rovalraSrc =
+                                                    currentSrc;
+                                                img.src = TRANSPARENT_PIXEL;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    card.classList.add('rovalra-show');
+                                }
+                            },
+                            { multiple: true, scope: listElement },
+                        );
+
+                        if (itemObs) activeObservers.push(itemObs);
                     }
 
-                }, { multiple: true, scope: listElement });
+                    function addLoadingSpinner() {
+                        let spinner = document.getElementById(
+                            'rovalra-filter-loading',
+                        );
+                        if (!spinner) {
+                            spinner = document.createElement('div');
+                            spinner.id = 'rovalra-filter-loading';
+                            spinner.textContent = ts('avatarFilters.filtering');
+                            spinner.style.cssText =
+                                'position:absolute; top: 60px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 4px; z-index: 2000; font-size: 12px; pointer-events: none;';
+                            getActiveAvatarPane()?.prepend(spinner);
+                        } else {
+                            spinner.style.display = 'block';
+                        }
+                    }
 
-                if (itemObs) activeObservers.push(itemObs);
-            }
-
-            function addLoadingSpinner() {
-                let spinner = document.getElementById('rovalra-filter-loading');
-                if (!spinner) {
-                    spinner = document.createElement('div');
-                    spinner.id = 'rovalra-filter-loading';
-                    spinner.textContent = ts('avatarFilters.filtering');
-                    spinner.style.cssText = 'position:absolute; top: 60px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 4px; z-index: 2000; font-size: 12px; pointer-events: none;';
-                    getActiveAvatarPane()?.prepend(spinner);
-                } else {
-                    spinner.style.display = 'block';
-                }
-            }
-
-            function injectStyles() {
-                if (document.getElementById('rovalra-fx-styles')) return;
-                const style = document.createElement('style');
-                style.id = 'rovalra-fx-styles';
-                style.textContent = `
+                    function injectStyles() {
+                        if (document.getElementById('rovalra-fx-styles'))
+                            return;
+                        const style = document.createElement('style');
+                        style.id = 'rovalra-fx-styles';
+                        style.textContent = `
                     .rovalra-fx-hidden { display: none !important; }
                     .rovalra-filtering-enabled .list-item { display: none; }
                     .rovalra-filtering-enabled .list-item.rovalra-show { display: inline-block !important; vertical-align: top; }
@@ -648,75 +1016,150 @@ export function init() {
                     .rovalra-fx-filter-row label { color: ${document.documentElement.style.getPropertyValue('--rovalra-main-text-color')}; margin-right: auto; font-size: 1rem; white-space: nowrap; }
                     .tab-horizontal-submenu { z-index: 2;}
                     `;
-                document.head.appendChild(style);
-            }
-
-            function cleanupFeature() {
-                document.getElementById('rovalra-fx-container')?.remove();
-            }
-
-            function initBreadcrumbMonitor() {
-                let hasObservedBreadcrumb = false;
-                const bcObs = observeElement('.breadcrumb-container', () => {
-                    if (hasObservedBreadcrumb) {
-                        fullStateReset();
-                        scheduleEnsureUI();
+                        document.head.appendChild(style);
                     }
-                    hasObservedBreadcrumb = true;
-                });
-                if (bcObs) activeObservers.push(bcObs);
-            }
 
-            function initObserver() {
-                if (observerBootstrapped) {
-                    ensureUIInActiveTab();
-                    return;
-                }
-                observerBootstrapped = true;
+                    function cleanupFeature() {
+                        document
+                            .getElementById('rovalra-fx-container')
+                            ?.remove();
+                    }
 
-                injectStyles();
-                window.addEventListener('hashchange', () => {
-                    fullStateReset(); 
-                    scheduleEnsureUI();
-                });
+                    function initBreadcrumbMonitor() {
+                        const onBreadcrumbMutation = (m) => {
+                            if (isRoValraNode(m.target)) return;
+                            if (
+                                m.type === 'childList' &&
+                                ![...m.addedNodes, ...m.removedNodes].some(
+                                    (n) => !isRoValraNode(n),
+                                )
+                            )
+                                return;
+                            scheduleEnsureUI(50);
+                        };
 
-                initBreadcrumbMonitor();
+                        const bcObs = observeElement(
+                            '.breadcrumb-container',
+                            (breadcrumb) => {
+                                globalObservers.push(
+                                    observeChildren(
+                                        breadcrumb,
+                                        onBreadcrumbMutation,
+                                    ),
+                                    observeText(
+                                        breadcrumb,
+                                        onBreadcrumbMutation,
+                                    ),
+                                );
+                                scheduleEnsureUI(50);
+                            },
+                            { multiple: true },
+                        );
+                        if (bcObs) globalObservers.push(bcObs);
 
-                const tabContent = document.querySelector('.tab-content.rbx-tab-content');
-                if (tabContent) {
-                    const tabObs = observeElement('.tab-pane', (pane) => {
-                        const attrObserver = observeAttributes(pane, (mutation) => {
-                            if (mutation.attributeName === 'class' && pane.classList.contains('active')) {
-                                ensureUIInActiveTab();
+                        const crumbObs = observeElement(
+                            '.breadcrumb-container > li',
+                            (crumb) => {
+                                if (isRoValraNode(crumb)) return;
+                                globalObservers.push(
+                                    observeChildren(
+                                        crumb,
+                                        onBreadcrumbMutation,
+                                    ),
+                                );
+                                scheduleEnsureUI(50);
+                            },
+                            { multiple: true },
+                        );
+                        if (crumbObs) globalObservers.push(crumbObs);
+                    }
+
+                    function initObserver() {
+                        if (observerBootstrapped) {
+                            ensureUIInActiveTab();
+                            return;
+                        }
+                        observerBootstrapped = true;
+
+                        injectStyles();
+                        window.addEventListener('hashchange', () => {
+                            fullStateReset();
+                            scheduleEnsureUI();
+                        });
+                        window.addEventListener('popstate', () =>
+                            scheduleEnsureUI(),
+                        );
+
+                        initBreadcrumbMonitor();
+
+                        const tabContent = document.querySelector(
+                            '.tab-content.rbx-tab-content',
+                        );
+                        if (tabContent) {
+                            const tabObs = observeElement(
+                                '.tab-pane',
+                                (pane) => {
+                                    const attrObserver = observeAttributes(
+                                        pane,
+                                        (mutation) => {
+                                            if (
+                                                mutation.attributeName ===
+                                                    'class' &&
+                                                pane.classList.contains(
+                                                    'active',
+                                                )
+                                            ) {
+                                                ensureUIInActiveTab();
+                                            }
+                                        },
+                                        ['class'],
+                                    );
+                                    globalObservers.push(attrObserver);
+                                },
+                                { multiple: true, scope: tabContent },
+                            );
+
+                            if (tabObs) {
+                                globalObservers.push(tabObs);
                             }
-                        }, ['class']);
-                        activeObservers.push(attrObserver);
-                    }, { multiple: true, scope: tabContent });
-            
-                    if (tabObs) {
-                        activeObservers.push(tabObs);
+
+                            ensureUIInActiveTab();
+                        } else {
+                            scheduleEnsureUI(250);
+                        }
+
+                        const refreshObs = observeElement(
+                            'ul.item-cards-stackable, li.list-item, .tab-pane, [role="tabpanel"]',
+                            (element) => {
+                                if (getAvatarRoot().contains(element))
+                                    scheduleEnsureUI(50);
+                            },
+                            { multiple: true },
+                        );
+                        if (refreshObs) globalObservers.push(refreshObs);
+
+                        const paneObs = observeElement(
+                            '.tab-pane, [role="tabpanel"]',
+                            (pane) => {
+                                const attrObserver = observeAttributes(
+                                    pane,
+                                    () => scheduleEnsureUI(50),
+                                    ['class', 'style'],
+                                );
+                                globalObservers.push(attrObserver);
+                            },
+                            { multiple: true },
+                        );
+                        if (paneObs) globalObservers.push(paneObs);
                     }
-            
-                    ensureUIInActiveTab();
-                } else {
-                    scheduleEnsureUI(250);
-                }
 
-                const refreshObs = observeElement('ul.item-cards-stackable, li.list-item, .tab-pane, [role="tabpanel"]', (element) => {
-                    if (getAvatarRoot().contains(element)) scheduleEnsureUI(50);
-                }, { multiple: true });
-                if (refreshObs) activeObservers.push(refreshObs);
-
-                const paneObs = observeElement('.tab-pane, [role="tabpanel"]', (pane) => {
-                    const attrObserver = observeAttributes(pane, () => scheduleEnsureUI(50), ['class', 'style']);
-                    activeObservers.push(attrObserver);
-                }, { multiple: true });
-                if (paneObs) activeObservers.push(paneObs);
+                    observeElement(
+                        '#horizontal-tabs, #avatar-react-container, .tab-content.rbx-tab-content, ul.item-cards-stackable',
+                        initObserver,
+                        { onRemove: cleanupFeature },
+                    );
+                })();
             }
-
-            observeElement('#horizontal-tabs, #avatar-react-container, .tab-content.rbx-tab-content, ul.item-cards-stackable', initObserver, { onRemove: cleanupFeature });
-
-        })();
-    }
-    });
+        },
+    );
 }

@@ -1965,10 +1965,10 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             let layeredCount = 0;
 
             const assetToAddIsAccessory = AccessoryAssetTypes.includes(
-                assetToAdd.assetType.id,
+                assetToAdd?.assetType?.id,
             );
             const assetToAddIsLayered = LayeredAssetTypes.includes(
-                assetToAdd.assetType.id,
+                assetToAdd?.assetType?.id,
             );
 
             const newAssetArr = [];
@@ -1977,14 +1977,14 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 let canAdd = true;
 
                 //enforce accessory limit (10)
-                if (AccessoryAssetTypes.includes(asset.assetType.id)) {
+                if (AccessoryAssetTypes.includes(asset?.assetType?.id)) {
                     accessoryCount++;
                     if (accessoryCount >= 10 && assetToAddIsAccessory)
                         canAdd = false;
                 }
 
                 //enforce layered limit (10, also includes hair)
-                if (LayeredAssetTypes.includes(asset.assetType.id)) {
+                if (LayeredAssetTypes.includes(asset?.assetType?.id)) {
                     layeredCount++;
                     if (layeredCount >= 10 && assetToAddIsLayered)
                         canAdd = false;
@@ -1994,7 +1994,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 if (
                     !assetToAddIsAccessory &&
                     !assetToAddIsLayered &&
-                    assetToAdd.assetType.id === asset.assetType.id
+                    assetToAdd?.assetType?.id === asset?.assetType?.id
                 ) {
                     canAdd = false;
                 }
@@ -2008,57 +2008,47 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             return newAssetArr;
         };
 
+        const wrappedAddAsset = new WeakMap();
+        const wrapAddAssetToAvatar = (original) => {
+            if (typeof original !== 'function') return original;
+            if (wrappedAddAsset.has(original)) {
+                return wrappedAddAsset.get(original);
+            }
+
+            const wrapped = function (...args) {
+                const [asset, assetArr] = args;
+                const typeId = asset?.assetType?.id;
+                const needsHijack =
+                    Array.isArray(assetArr) &&
+                    (AccessoryAssetTypes.includes(typeId) ||
+                        LayeredAssetTypes.includes(typeId));
+
+                if (window.rovalraMultiEquipEnabled && needsHijack) {
+                    return customEquipAsset(...args);
+                }
+                return original.apply(this, args);
+            };
+            wrappedAddAsset.set(original, wrapped);
+            return wrapped;
+        };
+
         const originalDefineProperty = Object.defineProperty;
         Object.defineProperty = function (obj, prop, descriptor) {
-            //find modules
-            if (prop === '__esModule') {
-                setTimeout(() => {
-                    //if module includes addAssetToAvatar
-                    if (Object.keys(obj).includes('addAssetToAvatar')) {
-                        const originalDescriptor =
-                            Object.getOwnPropertyDescriptor(
-                                obj,
-                                'addAssetToAvatar',
-                            );
-                        const originalGetter = originalDescriptor.get;
-                        const originalAddAssetToAvatar = originalGetter();
-
-                        //hijack addAssetToAvatar when needed
-                        Object.defineProperty(obj, 'addAssetToAvatar', {
-                            get() {
-                                return (...args) => {
-                                    const [asset] = args;
-
-                                    const isAccessory =
-                                        AccessoryAssetTypes.includes(
-                                            asset.assetType.id,
-                                        );
-                                    const isLayered =
-                                        LayeredAssetTypes.includes(
-                                            asset.assetType.id,
-                                        );
-                                    const needsHijack =
-                                        isAccessory || isLayered;
-
-                                    if (
-                                        window.rovalraMultiEquipEnabled &&
-                                        needsHijack
-                                    ) {
-                                        return customEquipAsset(...args);
-                                    } else {
-                                        return originalAddAssetToAvatar(
-                                            ...args,
-                                        );
-                                    }
-                                };
-                            },
-                            configurable: true,
-                        });
-                    }
-                }, 1);
-            }
-            if (prop === 'addAssetToAvatar') {
-                descriptor.configurable = true;
+            if (prop === 'addAssetToAvatar' && descriptor) {
+                if (typeof descriptor.get === 'function') {
+                    const originalGet = descriptor.get;
+                    descriptor = {
+                        ...descriptor,
+                        get() {
+                            return wrapAddAssetToAvatar(originalGet.call(this));
+                        },
+                    };
+                } else if ('value' in descriptor) {
+                    descriptor = {
+                        ...descriptor,
+                        value: wrapAddAssetToAvatar(descriptor.value),
+                    };
+                }
             }
 
             return originalDefineProperty.call(Object, obj, prop, descriptor);
