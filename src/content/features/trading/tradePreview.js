@@ -15,19 +15,45 @@ let observer = null;
 let initialized = false;
 let featureSettings = { tradePreviewEnabled: true };
 
+const rowPreviewState = new WeakMap();
+
+function clearRowPreviewState(row) {
+    const state = rowPreviewState.get(row);
+    if (state) {
+        clearTimeout(state.debounceTimer);
+        state.observerHandle?.unobserve();
+        rowPreviewState.delete(row);
+    }
+}
+
+function isRowForTrade(row, tradeId) {
+    return row.isConnected && row.dataset.tradeId === String(tradeId);
+}
+
 async function fetchAndRenderTradePreview(tradeId, row) {
-    if (row.querySelector('.rovalra-trade-summary')) return;
+    const existing = row.querySelector('.rovalra-trade-summary');
+    if (existing) {
+        if (existing.dataset.tradeId === String(tradeId)) return;
+        existing.remove();
+    }
 
     const myUserId = await getAuthenticatedUserId();
-    if (!myUserId) return;
+    if (!myUserId || !isRowForTrade(row, tradeId)) return;
 
     const analysis = await getTradeAnalysis(tradeId, { myUserId }).catch(
         () => null,
     );
-    if (!analysis || !row.isConnected) return;
+    if (!analysis || !isRowForTrade(row, tradeId)) return;
+
+    const current = row.querySelector('.rovalra-trade-summary');
+    if (current) {
+        if (current.dataset.tradeId === String(tradeId)) return;
+        current.remove();
+    }
 
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'rovalra-trade-summary';
+    summaryDiv.dataset.tradeId = String(tradeId);
     Object.assign(summaryDiv.style, {
         display: 'flex',
         flexDirection: 'column',
@@ -99,8 +125,14 @@ async function processTradeRow(row) {
     const dateSpan = row.querySelector('.trade-sent-date');
 
     if (trade) {
+        clearRowPreviewState(row);
         row.dataset.tradeId = trade.id;
         row.dataset.createdDate = trade.created;
+
+        const staleSummary = row.querySelector('.rovalra-trade-summary');
+        if (staleSummary && staleSummary.dataset.tradeId !== String(trade.id)) {
+            staleSummary.remove();
+        }
 
         const userDiv = row.querySelector('.text-lead');
         if (
@@ -130,18 +162,17 @@ async function processTradeRow(row) {
         }
 
         if (featureSettings.tradePreviewEnabled) {
-            let debounceTimer;
-            const observerHandle = observeIntersection(row, (entry) => {
-                if (entry.isIntersecting) {
-                    debounceTimer = setTimeout(() => {
-                        if (row.isConnected) {
-                            fetchAndRenderTradePreview(trade.id, row);
-                            observerHandle.unobserve();
-                        }
-                    }, 500);
-                } else {
-                    clearTimeout(debounceTimer);
-                }
+            const state = { debounceTimer: null, observerHandle: null };
+            rowPreviewState.set(row, state);
+            state.observerHandle = observeIntersection(row, (entry) => {
+                clearTimeout(state.debounceTimer);
+                if (!entry.isIntersecting) return;
+                state.debounceTimer = setTimeout(() => {
+                    if (rowPreviewState.get(row) !== state) return;
+                    if (!isRowForTrade(row, trade.id)) return;
+                    clearRowPreviewState(row);
+                    fetchAndRenderTradePreview(trade.id, row);
+                }, 500);
             });
         }
     }
