@@ -108,7 +108,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 new URL(url, window.location.origin).hostname ===
                 THUMBNAILS_API_HOST
             );
-        } catch (e) {
+        } catch {
             return false;
         }
     }
@@ -141,7 +141,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             }
 
             return JSON.stringify(data);
-        } catch (e) {
+        } catch {
             return body;
         }
     }
@@ -163,7 +163,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 rewrittenUrl.searchParams.set('includeProfileFrame', 'false');
             }
             return rewrittenUrl.toString();
-        } catch (e) {
+        } catch {
             return url;
         }
     }
@@ -210,7 +210,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 }),
                 init,
             ];
-        } catch (e) {
+        } catch {
             return args;
         }
     }
@@ -218,7 +218,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
     try {
         freeRobloxPlusThemesEnabled =
             sessionStorage.getItem('rovalra_freeRobloxPlusThemes') === 'true';
-    } catch (e) {}
+    } catch {}
 
     document.addEventListener('rovalra:settingSaved', (event) => {
         if (event.detail?.name === 'robloxGroupFeaturesEnabled') {
@@ -260,7 +260,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 'rovalra_freeRobloxPlusThemes',
                 String(freeRobloxPlusThemesEnabled),
             );
-        } catch (e) {}
+        } catch {}
     });
 
     try {
@@ -276,7 +276,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         homeLayoutHidden = JSON.parse(
             sessionStorage.getItem('rovalra_homeLayoutHidden') || '[]',
         );
-    } catch (e) {}
+    } catch {}
 
     document.addEventListener('rovalra-streamer-mode', (e) => {
         if (typeof e.detail === 'object') {
@@ -315,7 +315,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 'rovalra_homeLayoutHidden',
                 JSON.stringify(homeLayoutHidden),
             );
-        } catch (error) {}
+        } catch {}
     });
 
     document.addEventListener('rovalra-home-extra-sorts', (e) => {
@@ -454,7 +454,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/(?:games|catalog|bundles|hidden-catalog|looks|library|game-pass|private-games)\/(\d+)/i,
             );
             if (match && match[1]) return match[1];
-        } catch (e) {}
+        } catch {}
 
         const match = window.location.href.match(
             /\/(?:games|catalog|bundles|hidden-catalog|looks|library|game-pass|private-games)\/(\d+)/,
@@ -480,7 +480,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             pathParts[3] = gameId;
             requestUrl.pathname = pathParts.join('/');
             return requestUrl.toString();
-        } catch (e) {
+        } catch {
             return url;
         }
     }
@@ -488,7 +488,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
     function getChannelOverride() {
         try {
             return localStorage.getItem(CHANNEL_OVERRIDE_KEY)?.trim() || null;
-        } catch (e) {
+        } catch {
             return null;
         }
     }
@@ -496,7 +496,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
     function reportChannel(channel) {
         try {
             sessionStorage.setItem(CHANNEL_CURRENT_KEY, channel);
-        } catch (e) {}
+        } catch {}
         document.dispatchEvent(
             new CustomEvent('rovalra-channel-detected', {
                 detail: { channel },
@@ -566,7 +566,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 }),
                 init,
             ];
-        } catch (e) {
+        } catch {
             return args;
         }
     }
@@ -610,7 +610,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 parsedUrl.origin === endpointUrl.origin &&
                 parsedUrl.pathname === endpointUrl.pathname
             );
-        } catch (e) {
+        } catch {
             return false;
         }
     }
@@ -623,7 +623,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 parsedUrl.origin === endpointUrl.origin &&
                 parsedUrl.pathname === endpointUrl.pathname
             );
-        } catch (e) {
+        } catch {
             return false;
         }
     }
@@ -673,7 +673,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             }
 
             return pathMatch[1];
-        } catch (error) {
+        } catch {
             return null;
         }
     }
@@ -989,7 +989,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 parsedUrl.origin === endpointUrl.origin &&
                 parsedUrl.pathname === endpointUrl.pathname
             );
-        } catch (e) {
+        } catch {
             return false;
         }
     }
@@ -1071,7 +1071,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             return (
                 parsedUrl.pathname.match(TOOLBOX_ASSET_API_PATH)?.[1] ?? null
             );
-        } catch (e) {
+        } catch {
             return null;
         }
     }
@@ -1208,7 +1208,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 statusText: response.statusText,
                 headers: newHeaders,
             });
-        } catch (error) {
+        } catch {
             return response;
         }
     }
@@ -1256,7 +1256,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 if (applyAccountSettingsUiOverrides(data)) {
                     response = responseWithJson(response, data);
                 }
-            } catch (e) {}
+            } catch {}
         }
 
         if (
@@ -1329,7 +1329,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                         statusText: response.statusText,
                         headers: newHeaders,
                     });
-                } catch (e) {}
+                } catch {}
             }
         }
 
@@ -1342,7 +1342,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 if (applyMarketplaceAds(data)) {
                     response = responseWithJson(response, data);
                 }
-            } catch (error) {}
+            } catch {}
         }
 
         if (requestUrl.includes(PROFILE_API_URL)) {
@@ -1353,7 +1353,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                 if (changed) {
                     response = responseWithJson(response, data);
                 }
-            } catch (error) {}
+            } catch {}
         }
 
         if (typeof requestUrl === 'string') {
@@ -1692,7 +1692,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                         }
                         xhr._rovalra_cached_response = JSON.stringify(data);
                         return xhr._rovalra_cached_response;
-                    } catch (e) {
+                    } catch {
                         return original;
                     }
                 },
@@ -1704,7 +1704,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                     if (this.responseType === 'json') {
                         try {
                             return JSON.parse(this.responseText);
-                        } catch (e) {
+                        } catch {
                             return Object.getOwnPropertyDescriptor(
                                 XMLHttpRequest.prototype,
                                 'response',
@@ -1836,7 +1836,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                         dispatchUserSettingsResponse(
                             JSON.parse(xhr.responseText),
                         );
-                } catch (e) {}
+                } catch {}
             }
         });
 

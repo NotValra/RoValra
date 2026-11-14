@@ -14,12 +14,7 @@ export {
     TRANSACTION_FIAT_CURRENCY_OPTIONS,
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from './fiatConfig.js';
-import {
-    DEVEX_USD_RATE,
-    ROBUX_FIAT_RATE_MODE_DEVEX,
-    ROBUX_FIAT_RATE_MODE_NORMAL,
-    ROBUX_FIAT_SETTINGS_DEFAULTS,
-} from './fiatConfig.js';
+import { ROBUX_FIAT_SETTINGS_DEFAULTS } from './fiatConfig.js';
 
 let fiatSettingsPromise = null;
 let currencyRatesPromise = null;
