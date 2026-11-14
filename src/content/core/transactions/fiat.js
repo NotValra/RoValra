@@ -1,6 +1,7 @@
 import { callRobloxApiJson } from '../api.js';
 import { get as getCache, set as setCache } from '../storage/cacheHandler.js';
 export {
+    DEVEX_O18_USD_RATE,
     DEVEX_USD_RATE,
     ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
     ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,

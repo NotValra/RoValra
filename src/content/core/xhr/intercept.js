@@ -38,6 +38,8 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         'https://apis.roblox.com/marketplace-widgets/v1/widgets/web';
     const MARKETPLACE_RFY_WIDGET_TYPE = 'AvatarItemRfyWidget';
     const MARKETPLACE_AD_SLOT_COUNT = 14;
+    const ANALYTICS_QUERY_API_URL =
+        'https://apis.roblox.com/analytics-query-gateway/v1/metrics/resource/';
     const TOOLBOX_ASSET_API_HOST = 'apis.roblox.com';
     const TOOLBOX_ASSET_API_PATH = /^\/toolbox-service\/v2\/assets\/(\d+)\/?$/;
     const STORE_ASSET_DETAILS_TIMEOUT_MS = 3000;
@@ -406,6 +408,34 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         }
 
         return homeLayoutReadyPromise;
+    }
+
+    function dispatchDailyRevenueQuery(requestBody, response) {
+        let request;
+        try {
+            request = JSON.parse(requestBody);
+        } catch {
+            return;
+        }
+        const query = request?.query;
+        if (query?.metric !== 'DailyRevenue' || query.breakdown?.length) return;
+
+        response
+            .clone()
+            .json()
+            .then((data) => {
+                if (!data?.operation?.done) return;
+                document.dispatchEvent(
+                    new CustomEvent('rovalra-daily-revenue-query', {
+                        detail: {
+                            universeId: request.resourceId,
+                            query,
+                            values: data.operation.queryResult?.values || [],
+                        },
+                    }),
+                );
+            })
+            .catch(() => {});
     }
 
     function getRequestUrl(url) {
@@ -1327,6 +1357,12 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         }
 
         if (typeof requestUrl === 'string') {
+            if (
+                requestUrl.startsWith(ANALYTICS_QUERY_API_URL) &&
+                typeof args[1]?.body === 'string'
+            ) {
+                dispatchDailyRevenueQuery(args[1].body, response);
+            }
             if (isUserSettingsRequest(requestUrl)) {
                 response
                     .clone()

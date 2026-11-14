@@ -1,6 +1,7 @@
 export const ROBUX_FIAT_RATE_MODE_NORMAL = 'normal';
 export const ROBUX_FIAT_RATE_MODE_DEVEX = 'devex';
 export const DEVEX_USD_RATE = 0.0038;
+export const DEVEX_O18_USD_RATE = 0.0054;
 
 export const ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR = '#7a7d81';
 

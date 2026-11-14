@@ -2079,6 +2079,13 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    devexEstimateEnabled: {
+                        label: 'DevEx Earnings Estimate',
+                        description:
+                            'Shows your estimated DevEx earnings on the Monetization overview and next to Robux in its charts.',
+                        type: 'checkbox',
+                        default: true,
+                    },
                 },
             },
             totalspentEnabled: {
