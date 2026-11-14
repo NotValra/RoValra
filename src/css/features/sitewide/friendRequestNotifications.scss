@@ -1,0 +1,91 @@
+#notification-stream-container {
+    .rovalra-friend-request-notifications {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        margin: 0;
+        padding: 0 0 8px;
+        box-sizing: border-box;
+        list-style: none;
+    }
+
+    .rovalra-friend-request-notification {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr);
+        column-gap: 10px;
+        row-gap: 8px;
+        align-items: center;
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border-radius: 8px;
+        background: var(--rovalra-container-background-color, #262830);
+        color: var(--rovalra-primary-text-color, #f7f7f8);
+    }
+
+    .rovalra-friend-request-avatar {
+        grid-column: 1;
+        grid-row: 1;
+        width: 40px;
+        height: 40px;
+        overflow: hidden;
+        border-radius: 50%;
+        background: var(--rovalra-secondary-background-color, #393b40);
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .rovalra-friend-request-details {
+        display: contents;
+    }
+
+    .rovalra-friend-request-message {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 500;
+        overflow-wrap: anywhere;
+
+        strong {
+            font-weight: 700;
+        }
+    }
+
+    .rovalra-friend-request-action {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 32px;
+        padding: 6px 10px;
+        box-sizing: border-box;
+        border: 0;
+        border-radius: 8px;
+        background: var(--rovalra-primary-color, #335fff);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.3;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            color: #fff;
+            filter: brightness(1.1);
+            text-decoration: none;
+        }
+    }
+}
