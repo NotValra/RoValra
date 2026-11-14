@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact",
+        
+        "allowJs": true,
+        "checkJs": false,
+
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "lib": ["DOM", "DOM.Iterable", "ES2022"],
+        "esModuleInterop": true,
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
+}

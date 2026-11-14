@@ -83,6 +83,12 @@ export const OTHER_CONTRIBUTIONS: ContributionsType = {
             new Contribution(650766686, "displayAppThemeUserProfile.addedToWebsite", "https://github.com/NotValra/RoValra-Website/pull/7"),  // @auggeeo
         ]
     },
+    UI: {
+        label: "User Interfaces",
+        contributors: [
+            new Contribution(1564574922, "ui.addedPreact", "https://github.com/NotValra/RoValra/pull/419"),  // @BossBoss2021
+        ]
+    },
     Locales: {
         label: "RoValra Languages",
         contributors: [
