@@ -2543,7 +2543,9 @@
         "members": "Members",
         "ccuTooltip": "Current players across public experiences created by this user.",
         "visitsTooltip": "Lifetime visits across public experiences created by this user.",
-        "membersTooltip": "Members across communities owned by this user."
+        "membersTooltip": "Members across communities owned by this user.",
+        "groupVisits": "Group Visits",
+        "groupVisitsTooltip": "Lifetime visits across public experiences of communities owned by this user."
     },
     "plus": {
         "stats": {

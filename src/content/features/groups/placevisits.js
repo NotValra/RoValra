@@ -4,7 +4,7 @@ import { getGroupIdFromUrl } from '../../core/idExtractor.js';
 import { createPill } from '../../core/ui/general/pill.js';
 import { t } from '../../core/locale/i18n.js';
 
-async function fetchTotalVisits(groupId) {
+export async function fetchTotalVisits(groupId) {
     let totalVisits = 0;
     let cursor = '';
 
