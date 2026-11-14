@@ -1,5 +1,7 @@
 # Contributing to RoValra
 
+# PRs are very likely not gonna get merged or reviewed until Roblox is fully done migrating their site to next.js.
+
 This is a guide on how to contribute to RoValra
 
 ## Getting Started
