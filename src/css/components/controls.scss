@@ -1,0 +1,71 @@
+$rovalra-font-stack:
+    'Builder Sans', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande',
+    sans-serif;
+
+.rovalra-input-field {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 38px;
+    margin: 0;
+    padding: 5px 12px;
+    font-family: $rovalra-font-stack;
+    font-size: 16px;
+    font-weight: var(--font-weight-400);
+    line-height: 1.4em;
+    color: var(--color-content-default);
+    background-color: var(--color-shift-200);
+    background-image: none;
+    border: 1px solid var(--color-stroke-default);
+    border-radius: 8px;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
+    letter-spacing: normal;
+    text-transform: none;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    &::placeholder {
+        color: var(--color-content-default);
+        opacity: 1;
+        font-weight: 400;
+    }
+
+    &:focus {
+        outline: 0;
+        box-shadow: none;
+        background-color: var(--color-shift-200);
+        border-color: light-dark(
+            var(--color-extended-black-30),
+            var(--color-extended-white-30)
+        );
+    }
+
+    &[disabled],
+    &[readonly] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.rovalra-radio-icon {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    border-radius: 50%;
+    background-color: var(--color-stroke-default);
+    border: 2px solid var(--color-stroke-default);
+
+    &.is-checked {
+        background-color: var(--color-extended-white-100);
+        border: 6px solid var(--color-action-emphasis-background);
+    }
+}
+
+.rovalra-btn-full-width {
+    width: 100%;
+}

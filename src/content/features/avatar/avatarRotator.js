@@ -8,7 +8,7 @@ import {
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { ts } from '../../core/locale/i18n.js';
-import { createFoundationButton } from '../../core/ui/buttons.js';
+import { createButton, createFoundationButton } from '../../core/ui/buttons.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -272,11 +272,11 @@ export function init() {
                             avatarListContainer.style.cssText =
                                 'display: flex; flex-wrap: wrap; justify-content: center; width: 100%; overflow-y: auto; flex: 1;';
 
-                            const loadMoreBtn =
-                                document.createElement('button');
-                            loadMoreBtn.id = 'rovalra-avatar-load-more';
-                            loadMoreBtn.className = 'btn-control-sm';
-                            loadMoreBtn.textContent = ts('avatarRotator.loadMore');
+                            const loadMoreBtn = createButton(
+                                ts('avatarRotator.loadMore'),
+                                'secondary',
+                                { id: 'rovalra-avatar-load-more' },
+                            );
                             loadMoreBtn.style.cssText =
                                 'display: none; margin: 10px auto; flex-shrink: 0;';
                             loadMoreBtn.onclick = () => fetchAndRenderAvatars();
@@ -324,11 +324,11 @@ export function init() {
                             wrapper.appendChild(avatarListContainer);
                             wrapper.appendChild(loadMoreBtn);
 
-                            setRotatorsBtn = document.createElement('button');
-                            setRotatorsBtn.className = 'btn-primary-md';
-                            setRotatorsBtn.textContent =
-                                ts('avatarRotator.selectMinimum');
-                            setRotatorsBtn.disabled = true;
+                            setRotatorsBtn = createButton(
+                                ts('avatarRotator.selectMinimum'),
+                                'primary',
+                                { disabled: true },
+                            );
                             setRotatorsBtn.onclick = () => {
                                 const avatars = Array.from(selectedAvatars);
                                 const interval =
@@ -385,10 +385,10 @@ export function init() {
                                     });
                             };
 
-                            disableRotatorBtn =
-                                document.createElement('button');
-                            disableRotatorBtn.className = 'btn-control-md';
-                            disableRotatorBtn.textContent = ts('avatarRotator.disable');
+                            disableRotatorBtn = createButton(
+                                ts('avatarRotator.disable'),
+                                'secondary',
+                            );
                             disableRotatorBtn.style.display =
                                 data.rovalra_avatar_rotator_enabled
                                     ? 'inline-block'
@@ -400,9 +400,10 @@ export function init() {
                                 disableRotatorBtn.style.display = 'none';
                             };
 
-                            const clearBtn = document.createElement('button');
-                            clearBtn.className = 'btn-control-md';
-                            clearBtn.textContent = ts('avatarRotator.clearSelection');
+                            const clearBtn = createButton(
+                                ts('avatarRotator.clearSelection'),
+                                'secondary',
+                            );
                             clearBtn.onclick = () => {
                                 selectedAvatars.clear();
                                 chrome.storage.local.set({

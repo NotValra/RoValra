@@ -2828,7 +2828,9 @@ export const SETTINGS_CONFIG = {
                     "Shows the verified badge next to your name in the sidebar and top bar if you're verified.",
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
+                isPermanent: true,
+                locked: 'Roblox is adding an official version of this.',
             },
             disableThumbnailBackground: {
                 label: 'Disable Thumbnail Backgrounds',

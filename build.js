@@ -13,6 +13,9 @@ const dracoPath = path.join(
     'node_modules',
     'roavatar-renderer',
     'dist',
+    'thirdparty',
+    'draco',
+    'javascript',
     'draco_decoder.js',
 );
 const backgroundEntryPath = path.join(

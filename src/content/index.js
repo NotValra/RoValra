@@ -61,7 +61,6 @@ import { init as initServerLocationOverlay } from './features/play/serverLocatio
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
 import { init as initRobloxAdminBadges } from './features/sitewide/robloxAdminBadges.js';
-import { init as initSidebarVerifiedBadge } from './features/sitewide/sidebarVerifiedBadge.js';
 import { init as initWideTilePlayerCounts } from './features/sitewide/wideTilePlayerCounts.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initBackgroundImage } from './features/sitewide/backgroundImage.js';
@@ -331,7 +330,6 @@ const featureRoutes = [
             initTopbarLayout,
             initFriendUsernames,
             initRobloxAdminBadges,
-            initSidebarVerifiedBadge,
             initWideTilePlayerCounts,
             initBackgroundImage,
             initFreeRobloxPlusThemes,
