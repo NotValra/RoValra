@@ -717,33 +717,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            serverControlsEnabled: {
-                label: 'Server Controls',
-                description: [
-                    'Adds server actions to the menu on experience pages you manage.',
-                ],
-                type: 'checkbox',
-                default: true,
-                contributors: ['4975603156'],
-                childSettings: {
-                    serverControlsRestartEnabled: {
-                        label: 'Restart servers for updates',
-                        description: [
-                            'Closes servers running an old version and moves players to the latest version.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    serverControlsShutdownEnabled: {
-                        label: 'Shut down all servers',
-                        description: [
-                            'Closes every server of the experience, including servers on the latest version.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                },
-            },
             TotalSpentGamesEnabled: {
                 label: 'Total Spent on Experience',
                 description: [
@@ -3776,6 +3749,33 @@ export const SETTINGS_CONFIG = {
                             'Adds an API Docs link below Communities in the Roblox sidebar.',
                         type: 'checkbox',
                         default: false,
+                    },
+                },
+            },
+            serverControlsEnabled: {
+                label: 'Server Controls',
+                description: [
+                    'Adds server actions to the menu on experience pages you manage.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4975603156'],
+                childSettings: {
+                    serverControlsRestartEnabled: {
+                        label: 'Restart servers for updates',
+                        description: [
+                            'Closes servers running an old version and moves players to the latest version.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    serverControlsShutdownEnabled: {
+                        label: 'Shut down all servers',
+                        description: [
+                            'Closes every server of the experience, including servers on the latest version.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
                     },
                 },
             },
