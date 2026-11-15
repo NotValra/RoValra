@@ -132,6 +132,7 @@ import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
 import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
+import { init as initServerControls } from './features/games/serverControls.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initSpending } from './features/transactions/spending.js';
@@ -431,6 +432,7 @@ const featureRoutes = [
             initAutoFriendsAllowed,
             initCatalogExplorer,
             initUnderReviewPill,
+            initServerControls,
             initGameStatTimestamps,
         ],
     },

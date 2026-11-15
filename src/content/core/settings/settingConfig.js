@@ -3752,6 +3752,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            serverControlsEnabled: {
+                label: 'Server Controls',
+                description: [
+                    'Adds Restart servers for updates and Shut down all servers to the menu on experience pages you manage.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4975603156'],
+            },
             viewIdEnabled: {
                 label: 'View Bundled IDs',
                 description:
