@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeResize } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { launchGame } from '../../core/utils/launcher.js';
@@ -74,6 +74,14 @@ async function processContainer(container) {
     });
 
     container.append(button);
+    const playButton = container.querySelector(PLAY_BUTTON_SELECTOR);
+    const syncSize = () => {
+        const { height } = playButton.getBoundingClientRect();
+        if (height > 0)
+            button.style.width = button.style.height = `${height}px`;
+    };
+    syncSize();
+    observeResize(playButton, syncSize);
     addTooltip(button, ts('rejoinServer.tooltip'), { position: 'top' });
 }
 
