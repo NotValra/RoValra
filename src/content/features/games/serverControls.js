@@ -82,11 +82,22 @@ async function addMenuItems(menu) {
     }
 
     try {
+        const [restartEnabled, shutdownEnabled] = await Promise.all([
+            settings.serverControlsRestartEnabled,
+            settings.serverControlsShutdownEnabled,
+        ]);
+        const keys = Object.keys(ACTIONS).filter((key) =>
+            key === 'restart'
+                ? restartEnabled !== false
+                : shutdownEnabled !== false,
+        );
+        if (!keys.length) return;
+
         if (!(await canManage(universeId))) return;
         if (menu.querySelector(`.${ITEM_CLASS}`)) return;
 
         state = { universeId };
-        const items = Object.keys(ACTIONS).map((key) => {
+        const items = keys.map((key) => {
             const item = document.createElement('li');
             item.className = ITEM_CLASS;
             const button = document.createElement('button');
