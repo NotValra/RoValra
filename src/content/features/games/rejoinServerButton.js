@@ -14,6 +14,7 @@ const ICON_PATH =
     'M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18m-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8z';
 
 let listening = false;
+let processing = false;
 
 async function getLastServer(placeId) {
     const { rovalra_server_history: history = {} } =
@@ -53,7 +54,17 @@ async function rejoin(button, placeId) {
 async function processContainer(container) {
     const placeId = getPlaceIdFromUrl();
     if (!placeId || !container.querySelector(PLAY_BUTTON_SELECTOR)) return;
+    if (processing) return;
 
+    processing = true;
+    try {
+        await renderButton(container, placeId);
+    } finally {
+        processing = false;
+    }
+}
+
+async function renderButton(container, placeId) {
     const server = await getLastServer(placeId);
     const existing = document.getElementById(BUTTON_ID);
     if (!server?.gameId) {
@@ -94,6 +105,14 @@ export async function init() {
     }
 
     observeElement(CONTAINER_SELECTOR, processContainer);
+    observeElement(
+        `${CONTAINER_SELECTOR} button`,
+        (button) => {
+            const container = button.closest(CONTAINER_SELECTOR);
+            if (container) processContainer(container);
+        },
+        { multiple: true },
+    );
 
     if (listening) return;
     listening = true;
