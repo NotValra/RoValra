@@ -165,6 +165,20 @@ a.game-tile-styles.game-card-link,
         transform: none;
         transition: none;
     }
+
+    &.quick-play-wide-tile {
+        &:hover,
+        &.quick-play-hover-active {
+            [data-testid='sdui-tile-footer-content'] {
+                transform: none;
+                visibility: hidden;
+            }
+        }
+
+        &.quick-play-hover-superseded [data-testid='sdui-tile-footer-content'] {
+            visibility: visible;
+        }
+    }
 }
 
 .rovalra-paid-access-price-badge {

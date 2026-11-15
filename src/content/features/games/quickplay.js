@@ -1160,6 +1160,7 @@ function performCardCleanup(gameLink) {
     gameLink.classList.remove(
         'quick-play-hover-active',
         'quick-play-hover-superseded',
+        'quick-play-wide-tile',
     );
     gameLink.querySelector('.hover-background')?.remove();
     gameLink.querySelector('.play-button-overlay')?.remove();
@@ -1248,6 +1249,29 @@ function makeRoomForSduiHover(gameLink) {
         }
         el = el.parentElement;
     }
+}
+
+const SDUI_WIDE_TILE_MIN_RATIO = 1.2;
+
+function isWideSduiTileLink(gameLink) {
+    if (!gameLink.classList.contains('sdui-game-tile-wrapper')) return false;
+
+    const imageContainer = gameLink.querySelector(
+        '[data-testid="sdui-tile-image-container"]',
+    );
+    if (!imageContainer) return false;
+
+    const { width, height } = imageContainer.getBoundingClientRect();
+    let ratio = height > 0 ? width / height : 0;
+
+    if (!ratio) {
+        const [w, h = 1] = (imageContainer.style.aspectRatio || '')
+            .split('/')
+            .map((part) => parseFloat(part));
+        ratio = w && h ? w / h : 0;
+    }
+
+    return ratio >= SDUI_WIDE_TILE_MIN_RATIO;
 }
 
 function setupHoverCard(gameLink, settings) {
@@ -1352,11 +1376,15 @@ function setupHoverCard(gameLink, settings) {
     }
 
     overlay.appendChild(wrapper);
+
     gameLink.appendChild(overlay);
+
+    const isWideSduiTile = !isSpecialLayout && isWideSduiTileLink(gameLink);
+    if (isWideSduiTile) gameLink.classList.add('quick-play-wide-tile');
 
     if (isSpecialLayout) lockSpecialLayoutOverlayPosition(overlay);
 
-    if (!isSpecialLayout) {
+    if (!isSpecialLayout && !isWideSduiTile) {
         gameLink
             .querySelectorAll(
                 '.game-card-info, .game-card-friend-info, [data-testid="sdui-tile-footer-content"]',
