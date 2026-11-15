@@ -232,6 +232,7 @@
         "loading": "Loading...",
         "loadFailed": "Couldn't load the DevEx estimate.",
         "earnings": "Estimated earnings",
+        "payout": "You'd receive",
         "eligibleRobux": "US 18+ Robux",
         "standardRobux": "Other Robux"
     },

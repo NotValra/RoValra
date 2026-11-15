@@ -9,6 +9,7 @@ import {
     DEVEX_USD_RATE,
     convertCurrencyAmount,
     formatDisplayCurrency,
+    getDevexPayoutUsd,
     getRobuxFiatSettings,
 } from '../../core/transactions/fiat.js';
 
@@ -207,6 +208,14 @@ async function renderEstimate(stats) {
             'USD',
             currency,
         );
+        const payoutUsd = await getDevexPayoutUsd(
+            estimate.revenueUsd,
+            currency,
+        );
+        const payout =
+            payoutUsd === null
+                ? null
+                : await convertCurrencyAmount(payoutUsd, 'USD', currency);
         if (id !== renderId) return;
         if (!Number.isFinite(earnings)) throw new Error('No conversion rate');
 
@@ -215,20 +224,27 @@ async function renderEstimate(stats) {
             : null;
 
         stats.replaceChildren(
-            createStat(
-                ts('devexEstimate.earnings'),
-                formatDisplayCurrency(earnings, currency),
-            ),
-            createStat(
-                ts('devexEstimate.eligibleRobux'),
-                formatRobux(estimate.premiumRobux),
-                true,
-            ),
-            createStat(
-                ts('devexEstimate.standardRobux'),
-                formatRobux(estimate.regularRobux),
-                true,
-            ),
+            ...[
+                createStat(
+                    ts('devexEstimate.earnings'),
+                    formatDisplayCurrency(earnings, currency),
+                ),
+                Number.isFinite(payout) &&
+                    createStat(
+                        ts('devexEstimate.payout'),
+                        formatDisplayCurrency(payout, currency),
+                    ),
+                createStat(
+                    ts('devexEstimate.eligibleRobux'),
+                    formatRobux(estimate.premiumRobux),
+                    true,
+                ),
+                createStat(
+                    ts('devexEstimate.standardRobux'),
+                    formatRobux(estimate.regularRobux),
+                    true,
+                ),
+            ].filter(Boolean),
         );
     } catch (error) {
         if (id !== renderId) return;

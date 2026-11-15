@@ -2,6 +2,24 @@ export const ROBUX_FIAT_RATE_MODE_NORMAL = 'normal';
 export const ROBUX_FIAT_RATE_MODE_DEVEX = 'devex';
 export const DEVEX_USD_RATE = 0.0038;
 export const DEVEX_O18_USD_RATE = 0.0054;
+export const DEVEX_EXCHANGE_FEE_PERCENT = 2.5;
+export const DEVEX_PAYOUT_FEES = {
+    paypalDomestic: { flat: 0.1, percent: 2, cap: 1 },
+    paypalInternational: { flat: 1, percent: 2, cap: 21 },
+    ach: { flat: 0 },
+    echeck: { flat: 5 },
+    wire: { flat: 26 },
+    check: { flat: 6 },
+};
+
+export const DEVEX_PAYOUT_METHOD_OPTIONS = [
+    { value: 'none', label: 'Do not include fees' },
+    { value: 'paypal', label: 'PayPal' },
+    { value: 'ach', label: 'ACH' },
+    { value: 'echeck', label: 'eCheck / bank transfer' },
+    { value: 'wire', label: 'Wire transfer' },
+    { value: 'check', label: 'Check' },
+];
 
 export const ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR = '#7a7d81';
 
@@ -20,6 +38,7 @@ export const ROBUX_FIAT_SETTINGS_DEFAULTS = {
     robuxFiatEstimatesEnabled: false,
     robuxFiatDisplayCurrency: 'USD',
     robuxFiatRateMode: ROBUX_FIAT_RATE_MODE_NORMAL,
+    devexPayoutMethod: 'paypal',
     robuxFiatEstimateColor: ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
     robuxFiatEstimateStyleMode: ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
     robuxFiatEstimateGradient: ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
