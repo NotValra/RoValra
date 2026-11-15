@@ -5,7 +5,9 @@ import { launchGame } from '../../core/utils/launcher.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
 import { ts } from '../../core/locale/i18n.js';
-import { checkServerIsActive } from './serverlist/recentservers.js';
+import { callRobloxApiJson } from '../../core/api.js';
+import { createUUID } from '../../core/games/servers/serverdetails.js';
+import DOMPurify from 'dompurify';
 
 const CONTAINER_SELECTOR = '#game-details-play-button-container';
 const PLAY_BUTTON_SELECTOR = 'button[data-testid="play-button"]';
@@ -22,15 +24,28 @@ async function getLastServer(placeId) {
     return history[placeId]?.[0]?.presence || null;
 }
 
+async function checkServerIsActive(placeId, gameId) {
+    const info = await callRobloxApiJson({
+        subdomain: 'gamejoin',
+        endpoint: '/v2/join-game-instance',
+        method: 'POST',
+        body: {
+            placeId: parseInt(placeId, 10),
+            gameId,
+            isTeleport: false,
+            gameJoinAttemptId: createUUID(),
+        },
+        noCache: true,
+    }).catch(() => null);
+    return Boolean(info?.joinScript || info?.status === 2);
+}
+
 function createIcon() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '26');
-    svg.setAttribute('height', '26');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', ICON_PATH);
-    svg.append(path);
-    return svg;
+    const wrapper = document.createElement('span');
+    wrapper.innerHTML = DOMPurify.sanitize(
+        `<svg width="26" height="26" viewBox="0 0 24 24"><path d="${ICON_PATH}"></path></svg>`,
+    );
+    return wrapper.firstElementChild;
 }
 
 async function rejoin(button, placeId) {
