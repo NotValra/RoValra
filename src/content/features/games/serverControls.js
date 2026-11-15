@@ -1,6 +1,5 @@
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
-import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { ts } from '../../core/locale/i18n.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
@@ -10,7 +9,7 @@ const ITEM_CLASS = 'rovalra-server-control';
 
 let observer = null;
 let listening = false;
-let state = { universeId: null, placeId: null };
+let state = { universeId: null };
 
 const ACTIONS = {
     restart: {
@@ -22,8 +21,11 @@ const ACTIONS = {
         confirmType: 'primary',
     },
     shutdown: {
-        endpoint: '/matchmaking-api/v1/game-instances/shutdown',
-        body: () => ({ placeId: Number(state.placeId) }),
+        endpoint: '/matchmaking-api/v1/game-instances/launch-update',
+        body: () => ({
+            universeId: Number(state.universeId),
+            closeOldVersionsOnly: false,
+        }),
         confirmType: 'alert',
     },
 };
@@ -72,10 +74,8 @@ function onClick(event) {
 async function addMenuItems(menu) {
     const universeId = document.querySelector('#game-detail-meta-data')?.dataset
         .universeId;
-    const placeId = getPlaceIdFromUrl();
     if (
         !/^\d+$/.test(universeId || '') ||
-        !placeId ||
         menu.querySelector(`.${ITEM_CLASS}`)
     ) {
         return;
@@ -85,7 +85,7 @@ async function addMenuItems(menu) {
         if (!(await canManage(universeId))) return;
         if (menu.querySelector(`.${ITEM_CLASS}`)) return;
 
-        state = { universeId, placeId };
+        state = { universeId };
         const items = Object.keys(ACTIONS).map((key) => {
             const item = document.createElement('li');
             item.className = ITEM_CLASS;
@@ -114,7 +114,7 @@ async function addMenuItems(menu) {
 export async function init() {
     observer?.disconnect();
     observer = null;
-    state = { universeId: null, placeId: null };
+    state = { universeId: null };
 
     if (
         !window.location.pathname.startsWith('/games/') ||

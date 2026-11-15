@@ -938,7 +938,7 @@
         "restartDone": "Servers on old versions are restarting.",
         "shutdown": "Shut down all servers",
         "shutdownTitle": "Shut down all servers?",
-        "shutdownMessage": "Every server of this place will close and all players will be kicked.",
+        "shutdownMessage": "Every server of this experience will close, including servers on the latest version.",
         "shutdownDone": "All servers are shutting down.",
         "failed": "Couldn't update the servers."
     },
