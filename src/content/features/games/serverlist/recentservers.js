@@ -159,7 +159,7 @@ function createModernServerItem(serverData, userThumbnailUrl, userId) {
     return serverItem;
 }
 
-async function checkServerIsActive(placeId, gameId) {
+export async function checkServerIsActive(placeId, gameId) {
     try {
         const info = await callRobloxApiJson({
             subdomain: 'gamejoin',
