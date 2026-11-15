@@ -73,6 +73,9 @@ function sumRevenue(values, since = null) {
 }
 
 function getSelectedPeriodStart(query) {
+    const rangeType = new URLSearchParams(location.search).get('rangeType');
+    if (rangeType === 'Custom') return new Date(query.startTime);
+
     const end = new Date(query.endTime);
     const days = Math.round((end - new Date(query.startTime)) / DAY_MS) + 1;
     return new Date(end - (Math.floor(days / 2) - 1) * DAY_MS);
@@ -97,6 +100,7 @@ async function getEligibleRobux(universeId, query, periodStart) {
             ...filters.filter((f) => f !== countryFilter && f !== ageFilter),
             { dimension: 'Country', values: [ELIGIBLE_COUNTRY] },
         ],
+        granularity: query.granularity,
         startTime: periodStart.toISOString(),
         endTime: query.endTime,
     });
