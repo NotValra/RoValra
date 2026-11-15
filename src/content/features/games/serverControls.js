@@ -70,8 +70,8 @@ function onClick(event) {
 }
 
 async function addMenuItems(menu) {
-    const universeId = document.querySelector('#game-detail-meta-data')
-        ?.dataset.universeId;
+    const universeId = document.querySelector('#game-detail-meta-data')?.dataset
+        .universeId;
     const placeId = getPlaceIdFromUrl();
     if (
         !/^\d+$/.test(universeId || '') ||
