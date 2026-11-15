@@ -1,4 +1,5 @@
 import { observeElement } from '../../core/observer.js';
+import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -34,6 +35,7 @@ const PRESENCE_BATCH_SIZE = 100;
 const THUMBNAIL_BATCH_DELAY_MS = 50;
 
 let enabled = false;
+let showUsernames = false;
 let observersRegistered = false;
 let storageListenerRegistered = false;
 let populateToken = 0;
@@ -158,6 +160,45 @@ function updateArrows(scrollEl, prevBtn, nextBtn) {
     const maxScroll = scrollEl.scrollWidth - scrollEl.clientWidth;
     prevBtn.disabled = scrollEl.scrollLeft <= 4;
     nextBtn.disabled = scrollEl.scrollLeft >= maxScroll - 4;
+}
+
+function getRobloxOrder() {
+    const order = new Map();
+    const originalList = document.querySelector(
+        `${ORIGINAL_LIST_SELECTOR}:not(.${SCROLL_CLASS})`,
+    );
+    for (const link of originalList?.querySelectorAll('a[href*="/users/"]') ||
+        []) {
+        const id = Number(getUserIdFromUrl(link.href));
+        if (id && !order.has(id)) order.set(id, order.size);
+    }
+    return order;
+}
+
+function compareRobloxOrder(order, aId, bId) {
+    const aIndex = order.get(aId) ?? Infinity;
+    const bIndex = order.get(bId) ?? Infinity;
+    if (aIndex === bIndex) return 0;
+    return aIndex < bIndex ? -1 : 1;
+}
+
+function syncSublabel(tile) {
+    const sublabel = tile.querySelector('.user-card-subname');
+    if (!sublabel) return;
+
+    const presence = tile.rovalraPresence;
+    if (
+        !showUsernames &&
+        presence?.userPresenceType === 2 &&
+        presence.lastLocation
+    ) {
+        return;
+    }
+
+    sublabel.textContent = showUsernames
+        ? tile.dataset.rovalraUsername || ''
+        : '';
+    sublabel.style.fontSize = '12px';
 }
 
 function hideOriginalList(originalList) {
@@ -290,9 +331,17 @@ async function loadFriends() {
         3: 1, // In studio
         1: 2, // Online
     };
+    const robloxOrder = getRobloxOrder();
     const orderedFriends = friends
         .filter((friend) => friendsById.has(friend.id))
         .sort((a, b) => {
+            const robloxDifference = compareRobloxOrder(
+                robloxOrder,
+                a.id,
+                b.id,
+            );
+            if (robloxDifference !== 0) return robloxDifference;
+
             const priorityDifference =
                 (presencePriority[onlinePresence.get(a.id)?.userPresenceType] ??
                     3) -
@@ -332,7 +381,9 @@ function createLazyThumbnailLoader() {
             'AvatarHeadshot',
             '150x150',
         ).catch(() => []);
-        const byId = new Map((thumbs || []).map((t) => [Number(t.targetId), t]));
+        const byId = new Map(
+            (thumbs || []).map((t) => [Number(t.targetId), t]),
+        );
 
         for (const tile of tiles) {
             if (!tile.isConnected) continue;
@@ -408,23 +459,26 @@ async function refreshCarouselPresence(scrollEl, token) {
             updateUserCardPresence(
                 tile,
                 presence.userPresenceType ?? 0,
-                presence.userPresenceType === 2
+                presence.userPresenceType === 2 && !showUsernames
                     ? presence.lastLocation || null
                     : null,
                 presence,
             );
-            if (presence.userPresenceType !== 2 || !presence.lastLocation) {
-                const sublabel = tile.querySelector('.user-card-subname');
-                if (sublabel) {
-                    sublabel.textContent = tile.dataset.rovalraUsername || '';
-                }
-            }
+            syncSublabel(tile);
         }
 
         const presencePriority = { 2: 0, 3: 1, 1: 2 };
+        const robloxOrder = getRobloxOrder();
         const orderedTiles = tiles
             .map((tile, index) => ({ tile, index }))
             .sort((a, b) => {
+                const robloxDifference = compareRobloxOrder(
+                    robloxOrder,
+                    Number(a.tile.dataset.rovalraUserId),
+                    Number(b.tile.dataset.rovalraUserId),
+                );
+                if (robloxDifference !== 0) return robloxDifference;
+
                 const aType = a.tile.rovalraPresence?.userPresenceType ?? 0;
                 const bType = b.tile.rovalraPresence?.userPresenceType ?? 0;
                 return (
@@ -451,8 +505,9 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
 
     for (let i = 0; i < friends.length; i += RENDER_CHUNK) {
         const chunk = friends.slice(i, i + RENDER_CHUNK);
-                for (const friend of chunk) {
+        for (const friend of chunk) {
             const id = friend.id;
+            const presence = onlinePresence.get(id) || null;
             const displayName =
                 (!friend.isDeleted && friend.combinedName) ||
                 friend.displayName ||
@@ -467,7 +522,10 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
                     isHidden: false,
                     isVerified: friend.isVerified || false,
                     isSubscribed: friend.hasRobloxSubscription === true,
-                    presence: onlinePresence.get(id) || null,
+                    presence:
+                        presence && showUsernames
+                            ? { ...presence, lastLocation: '' }
+                            : presence,
                     showTooltip: true,
                 },
             );
@@ -475,6 +533,7 @@ async function populateCarousel(scrollEl, refresh, token, originalList) {
             tile.dataset.rovalraUsername = friend.username
                 ? `@${friend.username}`
                 : '';
+            syncSublabel(tile);
             scrollEl.appendChild(tile);
             thumbnailObserver.observe(tile);
         }
@@ -568,6 +627,7 @@ function registerStorageListener() {
 export async function init() {
     registerStorageListener();
 
+    showUsernames = (await settings.friendUsernamesEnabled) === true;
     enabled = (await settings[SETTING_NAME]) === true;
     if (!enabled) return;
 
