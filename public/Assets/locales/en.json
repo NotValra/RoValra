@@ -362,7 +362,8 @@
         "notFound": "Not Found",
         "failedToLoad": "Failed to load",
         "onHold": "On Hold",
-        "faeItem": "FAE item"
+        "faeItem": "FAE item",
+        "licensed": "Licensed"
     },
     "inventory": {
         "openRolimons": "Open in Rolimon's",

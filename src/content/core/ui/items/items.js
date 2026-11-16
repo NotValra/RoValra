@@ -268,6 +268,9 @@ async function processBatch() {
                         recentAveragePrice: rawPrice || 0,
                         itemRestrictions: restrictions,
                         isFAE: isFAEItem(catalogItemData),
+                        license: catalogItemData.license?.licenseType
+                            ? catalogItemData.license
+                            : null,
                         itemType: catalogItemData.itemType,
                         isOnHold: false,
                         bundleId: null,
@@ -539,6 +542,29 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
             justifyContent: 'center',
         });
         thumbContainer.appendChild(faeIconElement);
+    }
+
+    if (item.license?.licenseType) {
+        const licensedPill = document.createElement('div');
+        licensedPill.className =
+            'rovalra-licensed-pill foundation-web-badge flex items-center select-none gap-[var(--size-150)] radius-circle height-600 width-[fit-content] padding-x-small bg-shift-200 content-emphasis stroke-none';
+        const licensedText = document.createElement('span');
+        licensedText.className =
+            'text-no-wrap text-truncate-split text-label-small padding-y-xsmall padding-x-xxsmall content-emphasis';
+        licensedText.textContent = ts('items.licensed');
+        licensedPill.appendChild(licensedText);
+        Object.assign(licensedPill.style, {
+            position: 'absolute',
+            top: '8px',
+            left: isFAEItem(item) ? '48px' : '8px',
+            zIndex: '3',
+        });
+        if (item.license.licenseDisplayName) {
+            addTooltip(licensedPill, item.license.licenseDisplayName, {
+                position: 'top',
+            });
+        }
+        thumbContainer.appendChild(licensedPill);
     }
 
     let showLimitedIcon = false;
