@@ -68,6 +68,9 @@ function createRow(price, originalPrice, isOffSale) {
     } else if (price === 0) {
         const freeText = document.createElement('span');
         freeText.className = 'text-robux-lg';
+        freeText.style.fontSize = '16px';
+        freeText.style.color = 'var(--rovalra-secondary-text-color)';
+        freeText.style.fontWeight = '400';
         freeText.textContent = ts('ownedItemPrice.free');
         priceValue.appendChild(freeText);
     } else {
@@ -128,9 +131,7 @@ async function updateOwnedPriceRow(priceRow) {
     }
 
     const originalPrice = isOffSale ? null : getOriginalPrice(details, price);
-    const priceKey = isOffSale
-        ? 'offsale'
-        : `${price}|${originalPrice ?? ''}`;
+    const priceKey = isOffSale ? 'offsale' : `${price}|${originalPrice ?? ''}`;
 
     if (existingRow?.dataset.rovalraOwnedPrice === priceKey) {
         removeRoSealPriceRows(parent);
@@ -155,7 +156,9 @@ async function updateOwnedPriceRow(priceRow) {
 }
 
 function updateCurrentItemPage() {
-    const priceRow = document.querySelector('#item-details .price-row-container');
+    const priceRow = document.querySelector(
+        '#item-details .price-row-container',
+    );
     if (priceRow) updateOwnedPriceRow(priceRow);
 }
 
