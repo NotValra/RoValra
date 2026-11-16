@@ -148,6 +148,18 @@ export const BADGE_CONFIG = {
         sparkles: false,
         size: '22px',
     },
+    protected_user: {
+        type: 'header',
+        userIds: [],
+        builderIcon: 'shield-lock',
+        builderIconFilled: true,
+        themeColorIcon: true,
+        tooltip:
+            'This user is a Protected User. Some protected users may not show this badge.',
+        shiny: false,
+        sparkles: false,
+        size: '22px',
+    },
     translator: {
         type: 'header',
         userIds: TRANSLATOR_USER_IDS,
@@ -194,7 +206,8 @@ export const BADGE_CONFIG = {
         userIds: [GILBERT_USER_ID],
         icon: assets.oldRovalraIcon,
         name: 'Gilbert',
-        tooltip: 'Maker of Fisch, where Gilbert (an older icon of RoValra) comes from',
+        tooltip:
+            'Maker of Fisch, where Gilbert (an older icon of RoValra) comes from',
         confetti: assets.oldRovalraIcon,
     },
     rat: {

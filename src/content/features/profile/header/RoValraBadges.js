@@ -11,8 +11,17 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import { createButton } from '../../../core/ui/buttons.js';
 import { createFileUpload } from '../../../core/ui/fileupload.js';
 import { ts } from '../../../core/locale/i18n.js';
+import { callRobloxApi } from '../../../core/api.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
+import {
+    getUserName,
+    getUserVerifiedBadgeStatus,
+} from '../../../core/apis/users.js';
 const badgeCache = new Map();
 const groupRuntimeBadgeCache = new Map();
+const protectedUserCache = new Map();
+const PROTECTED_USER_BADGE_NAME = 'protected_user';
+const DISPLAY_NAME_NOT_AVAILABLE_CODE = 9;
 const VIDEO_STAR_GROUP_ID = 4199740;
 const VIDEO_STAR_BADGE_NAME = 'video_star';
 const COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID = 12051064;
@@ -110,7 +119,48 @@ function isQaTesterGroupMember(item) {
 }
 
 function getRuntimeGroupBadges(userId) {
-    return groupRuntimeBadgeCache.get(String(userId)) || [];
+    const badges = groupRuntimeBadgeCache.get(String(userId)) || [];
+    return protectedUserCache.get(String(userId)) === true
+        ? [...badges, PROTECTED_USER_BADGE_NAME]
+        : badges;
+}
+
+async function checkProtectedUser(userId) {
+    const [isVerified, username, authedUserId] = await Promise.all([
+        getUserVerifiedBadgeStatus(userId),
+        getUserName(userId),
+        getAuthenticatedUserId(),
+    ]);
+    if (isVerified || !username || !authedUserId) return false;
+    if (String(authedUserId) === String(userId)) return false;
+
+    const response = await callRobloxApi({
+        subdomain: 'users',
+        endpoint: `/v1/users/${authedUserId}/display-names/validate?displayName=${encodeURIComponent(username)}`,
+        method: 'GET',
+    });
+    if (response.ok) return false;
+
+    const body = await response.json().catch(() => null);
+    return (
+        Array.isArray(body?.errors) &&
+        body.errors.some((e) => e?.code === DISPLAY_NAME_NOT_AVAILABLE_CODE)
+    );
+}
+
+async function updateProtectedUserBadge(userId) {
+    if (protectedUserCache.has(userId)) return;
+    protectedUserCache.set(userId, false);
+
+    let isProtected = false;
+    try {
+        isProtected = await checkProtectedUser(userId);
+    } catch {}
+    protectedUserCache.set(userId, isProtected);
+
+    if (isProtected && userId === String(getUserIdFromUrl() || '')) {
+        rerenderCurrentProfileBadges();
+    }
 }
 
 function mergeRuntimeBadges(userId, badges, options = {}) {
@@ -641,6 +691,8 @@ export function init() {
                 }
             }
             groupRuntimeBadgeCache.set(userId, runtimeBadges);
+
+            updateProtectedUserBadge(userId);
 
             if (userId !== String(getUserIdFromUrl() || '')) return;
 
