@@ -76,6 +76,15 @@ function getItemRawPrice(...sources) {
     return null;
 }
 
+// Matches Roblox's catalog URL format instead of using unnamed. Done to prevent rate limits with some VPNs widely by Roblox Players
+function slugifyItemName(name) {
+    const slug = String(name ?? '')
+        .replace(/['’]/g, '')
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    return slug || 'unnamed';
+}
+
 function isBundleAssetProxy(looksItemData, assetId) {
     return looksItemData?.itemType === 'Bundle' && looksItemData.id !== assetId;
 }
@@ -286,15 +295,13 @@ async function processBatch() {
             });
         });
 
-        const developAssetMap = await fetchDevelopAssetDetails(
-            [
-                ...new Set(
-                    currentBatch
-                        .filter((request) => !catalogDetailsMap.has(request.id))
-                        .map((request) => request.id),
-                ),
-            ],
-        );
+        const developAssetMap = await fetchDevelopAssetDetails([
+            ...new Set(
+                currentBatch
+                    .filter((request) => !catalogDetailsMap.has(request.id))
+                    .map((request) => request.id),
+            ),
+        ]);
 
         await Promise.all(
             currentBatch.map(async (request) => {
@@ -452,8 +459,7 @@ async function processBatch() {
                             );
                         }
                     } else {
-                        request.placeholder.innerHTML =
-                            `<div style="padding: 10px;">${ts('items.notFound')}</div>`;
+                        request.placeholder.innerHTML = `<div style="padding: 10px;">${ts('items.notFound')}</div>`;
                     }
                 }
             }),
@@ -461,8 +467,7 @@ async function processBatch() {
     } catch (e) {
         console.warn('RoValra: Batch request failed', e);
         currentBatch.forEach((request) => {
-            request.placeholder.innerHTML =
-                `<div style="padding: 10px;">${ts('items.failedToLoad')}</div>`;
+            request.placeholder.innerHTML = `<div style="padding: 10px;">${ts('items.failedToLoad')}</div>`;
         });
     }
 }
@@ -532,10 +537,11 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         ? thumbnailCache.get(item.assetId)
         : null;
     const itemType = item.itemType || 'Asset';
+    const itemSlug = slugifyItemName(item.name);
     const itemUrl =
         itemType === 'Bundle'
-            ? `https://www.roblox.com/bundles/${item.assetId}/unnamed`
-            : `https://www.roblox.com/catalog/${item.assetId}/unnamed`;
+            ? `https://www.roblox.com/bundles/${item.assetId}/${itemSlug}`
+            : `https://www.roblox.com/catalog/${item.assetId}/${itemSlug}`;
 
     let priceHtml;
     if (item.priceText) {
