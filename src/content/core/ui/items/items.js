@@ -53,7 +53,6 @@ async function fetchDevelopAssetDetails(assetIds) {
 
 function getCollectibleLowestResalePrice(data) {
     const resalePrice =
-        data?.CollectiblesItemDetails?.CollectibleLowestResalePrice ??
         data?.collectiblesItemDetails?.collectibleLowestResalePrice ??
         data?.lowestResalePrice;
 
@@ -67,8 +66,7 @@ function getItemRawPrice(...sources) {
         const price =
             source?.lowestPrice ??
             source?.priceInRobux ??
-            source?.price ??
-            source?.PriceInRobux;
+            source?.price;
 
         if (typeof price === 'number') return price;
     }
@@ -106,88 +104,6 @@ function isFAEItem(item) {
                 ['IsFAE', 'IsFae'].includes(status),
             ))
     );
-}
-
-async function fetchEconomyItemDetails(
-    assetId,
-    looksItemData = null,
-    catalogItemData = null,
-) {
-    try {
-        const economyRes = await callRobloxApi({
-            subdomain: 'economy',
-            endpoint: `/v2/assets/${assetId}/details`,
-            method: 'GET',
-        });
-
-        if (!economyRes.ok) return null;
-
-        const data = await economyRes.json();
-        const restrictions = [];
-        if (data.IsLimited) restrictions.push('Limited');
-        if (data.IsLimitedUnique) restrictions.push('LimitedUnique');
-        if (
-            data.CollectiblesItemDetails?.IsLimited &&
-            !restrictions.includes('Collectible')
-        ) {
-            restrictions.push('Collectible');
-        }
-        catalogItemData?.itemRestrictions?.forEach((restriction) => {
-            if (!restrictions.includes(restriction)) {
-                restrictions.push(restriction);
-            }
-        });
-        if (!isBundleAssetProxy(looksItemData, assetId)) {
-            looksItemData?.itemRestrictions?.forEach((restriction) => {
-                if (!restrictions.includes(restriction)) {
-                    restrictions.push(restriction);
-                }
-            });
-        }
-
-        const resalePrice = getCollectibleLowestResalePrice(data);
-        const priceSources = isBundleAssetProxy(looksItemData, assetId)
-            ? [catalogItemData, data]
-            : [looksItemData, catalogItemData, data];
-        const rawPrice = resalePrice ?? getItemRawPrice(...priceSources);
-
-        const item = {
-            assetId,
-            name: data.Name || catalogItemData?.name || 'Unknown Item',
-            recentAveragePrice: rawPrice || 0,
-            itemRestrictions: restrictions,
-            isFAE: isFAEItem(catalogItemData),
-            itemType: catalogItemData?.itemType || 'Asset',
-            isOnHold: false,
-            bundleId: null,
-        };
-
-        if (
-            looksItemData?.itemType === 'Bundle' &&
-            looksItemData.id !== assetId
-        ) {
-            item.bundleId = looksItemData.id;
-        }
-
-        const saleSource = isBundleAssetProxy(looksItemData, assetId)
-            ? catalogItemData
-            : looksItemData;
-        const isForSale = saleSource
-            ? !isItemOffSale(saleSource)
-            : (data.IsForSale ?? !isItemOffSale(catalogItemData));
-
-        if (!isForSale && resalePrice == null) {
-            item.priceText = 'Off Sale';
-        } else {
-            item.price = rawPrice;
-            if (rawPrice === 0) item.priceText = 'Free';
-        }
-
-        return item;
-    } catch (e) {
-        console.warn(`RoValra: Economy fallback failed for item ${assetId}`, e);
-        return null;
-    }
 }
 
 async function processBatch() {
@@ -310,24 +226,6 @@ async function processBatch() {
                 const itemData = looksItemData || catalogItemData;
 
                 if (catalogItemData) {
-                    if (!looksItemData) {
-                        const economyItem = await fetchEconomyItemDetails(
-                            request.id,
-                            null,
-                            catalogItemData,
-                        );
-
-                        if (economyItem) {
-                            const realCard = createItemCard(
-                                economyItem,
-                                thumbMap,
-                                request.config,
-                            );
-                            request.placeholder.replaceWith(realCard);
-                            return;
-                        }
-                    }
-
                     // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
                     const isLooksBundleProxy = isBundleAssetProxy(
                         looksItemData,
@@ -355,18 +253,11 @@ async function processBatch() {
                         ? [catalogItemData]
                         : [saleItemData, looksItemData];
                     let rawPrice = getItemRawPrice(...priceSources);
-                    let economyItem = null;
 
                     if (isLimited && (isOffSale || rawPrice == null)) {
-                        economyItem = await fetchEconomyItemDetails(
-                            request.id,
-                            looksItemData,
-                            catalogItemData,
-                        );
-
-                        if (economyItem?.price != null) {
-                            rawPrice = economyItem.price;
-                        }
+                        const resalePrice =
+                            getCollectibleLowestResalePrice(catalogItemData);
+                        if (resalePrice != null) rawPrice = resalePrice;
                     }
 
                     const item = {
@@ -410,30 +301,23 @@ async function processBatch() {
                     );
                     request.placeholder.replaceWith(realCard);
                 } else {
-                    let item = await fetchEconomyItemDetails(
-                        request.id,
-                        looksItemData,
-                        catalogItemData,
-                    );
-
-                    if (!item) {
-                        const assetInfo = developAssetMap.get(request.id);
-                        if (assetInfo) {
-                            item = {
-                                assetId: request.id,
-                                name: assetInfo.name,
-                                assetType: {
-                                    id: assetInfo.typeId,
-                                    name: assetInfo.type,
-                                },
-                                recentAveragePrice: 0,
-                                itemRestrictions: [],
-                                itemType: 'Asset',
-                                isOnHold: false,
-                                bundleId: null,
-                                priceText: 'Off Sale',
-                            };
-                        }
+                    let item = null;
+                    const assetInfo = developAssetMap.get(request.id);
+                    if (assetInfo) {
+                        item = {
+                            assetId: request.id,
+                            name: assetInfo.name,
+                            assetType: {
+                                id: assetInfo.typeId,
+                                name: assetInfo.type,
+                            },
+                            recentAveragePrice: 0,
+                            itemRestrictions: [],
+                            itemType: 'Asset',
+                            isOnHold: false,
+                            bundleId: null,
+                            priceText: 'Off Sale',
+                        };
                     }
 
                     if (item) {
