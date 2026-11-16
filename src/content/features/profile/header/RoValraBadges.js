@@ -523,6 +523,9 @@ async function addHeaderBadges(container) {
 
         const robloxGroupFeaturesEnabled =
             (await settings.robloxGroupFeaturesEnabled) !== false;
+        if (robloxGroupFeaturesEnabled) {
+            updateProtectedUserBadge(String(currentUserId));
+        }
         const disabledRuntimeBadges = new Set();
         if ((await settings.videoStarBadgeEnabled) === false) {
             disabledRuntimeBadges.add(VIDEO_STAR_BADGE_NAME);
