@@ -65,6 +65,7 @@ export const TRANSLATOR_USER_IDS = [
     '587930109', // hnguyen1910
     '11841995204', // Pheedel
     '2490953439', // xMrReks
+    '682147525', // CarBluGStudio
 ];
 
 export const ARTIST_USER_IDS = [
