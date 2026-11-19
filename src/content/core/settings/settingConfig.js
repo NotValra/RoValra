@@ -2773,6 +2773,56 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
+            aprilFoolsSettings: {
+                label: 'April Fools',
+                description: [
+                    'A bundle of April Fools features'
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['1564574922'],
+                childSettings: {
+                    aprilFools_tiltElements: {
+                        label: 'Slippery Site',
+                        description: 'Tilt all elements on the webpage',
+                        type: 'select',
+                        contributors: ['1564574922'],
+                        options: [
+                            { label: 'Always Off', value: 'off' },
+                            { label: 'Only on April Fools', value: 'auto' },
+                            { label: 'Always On', value: 'on' },
+                        ],
+                        default: 'off',
+                    },
+                    aprilFools_renameRobloxPlus: {
+                        label: 'Rename Roblox Plus',
+                        description: 'Rename it for what it really is',
+                        type: 'select',
+                        contributors: ['1564574922'],
+                        options: [
+                            { label: 'Always Off', value: 'off' },
+                            { label: 'Only on April Fools', value: 'auto' },
+                            { label: 'Always On', value: 'on' },
+                        ],
+                        default: 'auto',
+                    },
+                    aprilFools_renameFriendsTab: {
+                        label: 'Rename Friend tab',
+                        description: [
+                            '"Who are these people?"',
+                            'Seriously, you can\'t tell me you\'ve never friended someone and then forgot about them'
+                        ],
+                        type: 'select',
+                        contributors: ['1564574922'],
+                        options: [
+                            { label: 'Always Off', value: 'off' },
+                            { label: 'Only on April Fools', value: 'auto' },
+                            { label: 'Always On', value: 'on' },
+                        ],
+                        default: 'auto',
+                    }
+                }
+            },
             browserNotificationsEnabled: {
                 label: 'Browser Notifications',
                 description:
