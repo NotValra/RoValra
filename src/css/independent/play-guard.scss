@@ -1,0 +1,138 @@
+$border: #393b3d;
+$muted: #bdbebe;
+$blue: #335fff;
+
+.rovalra-pg-hidden {
+    display: none !important;
+}
+
+.rovalra-pg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    font-family: 'Builder Sans', 'Gotham SSm', Arial, sans-serif;
+    animation: rovalra-pg-fade 0.2s ease-out;
+}
+
+@keyframes rovalra-pg-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+.rovalra-pg-popup {
+    width: min(92vw, 400px);
+    box-sizing: border-box;
+    padding: 16px 20px 20px;
+    color: #fff;
+    background: #1f2125;
+    border: 1px solid $border;
+    border-radius: 12px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+
+    hr {
+        margin: 0 0 14px;
+        border: 0;
+        border-top: 1px solid $border;
+    }
+
+    p {
+        margin: 0 0 20px;
+        font-size: 14px;
+        line-height: 1.45;
+        color: $muted;
+    }
+}
+
+.rovalra-pg-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+
+    img {
+        width: 28px;
+        height: 28px;
+    }
+
+    h2 {
+        flex: 1;
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+    }
+}
+
+.rovalra-pg-close {
+    display: flex;
+    padding: 4px;
+    border: 0;
+    background: none;
+    color: $muted;
+    cursor: pointer;
+
+    &:hover {
+        color: #fff;
+    }
+}
+
+.rovalra-pg-label {
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.rovalra-pg-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.rovalra-pg-btn {
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid $muted;
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.primary {
+        background: $blue;
+        border-color: $blue;
+
+        &:hover {
+            background: #2a4fd6;
+        }
+    }
+}
+
+.rovalra-pg-link {
+    display: block;
+    margin: 14px auto 0;
+    padding: 4px 8px;
+    border: 0;
+    background: none;
+    color: #8a8c8e;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+
+    &:hover {
+        color: #fff;
+    }
+}
