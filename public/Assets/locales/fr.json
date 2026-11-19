@@ -2081,7 +2081,9 @@
         "members": "Membres",
         "ccuTooltip": "Joueurs actuels sur les expériences publiques créées par cet utilisateur.",
         "visitsTooltip": "Visites totales des expériences publiques créées par cet utilisateur.",
-        "membersTooltip": "Membres des communautés dont cet utilisateur est propriétaire."
+        "membersTooltip": "Membres des communautés dont cet utilisateur est propriétaire.",
+        "groupVisits": "Visites de groupe",
+        "groupVisitsTooltip": "Visites totales des expériences publiques des communautés dont cet utilisateur est propriétaire."
     },
     "plus": {
         "stats": {
