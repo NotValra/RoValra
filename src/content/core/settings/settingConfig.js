@@ -699,6 +699,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_server_history',
+                childSettings: {
+                    rejoinServerButtonEnabled: {
+                        label: 'Rejoin Previous Server Button',
+                        description: [
+                            'Adds a button next to the Play button that joins the last server you were in for that experience.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['4975603156'],
+                    },
+                },
             },
             TotalServersEnabled: {
                 label: 'Total Servers',

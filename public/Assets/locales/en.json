@@ -1681,6 +1681,10 @@
         "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
         "playerCountUnknownLabel": "Player count unknown"
     },
+    "rejoinServer": {
+        "tooltip": "Rejoin previous server",
+        "closed": "Your previous server is no longer available."
+    },
     "recentServers": {
         "title": "Recent Servers",
         "refresh": "Refresh",

@@ -1,0 +1,23 @@
+.rovalra-rejoin-server-button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: 5px !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 12px;
+    background-color: var(--rovalra-playbutton-color) !important;
+    color: white !important;
+    cursor: pointer;
+    order: 6 !important;
+
+    svg path {
+        fill: white;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}

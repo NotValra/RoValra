@@ -117,6 +117,7 @@ import { init as initFreeBadgeQuota } from './features/games/freeBadgeQuota.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
+import { init as initRejoinServerButton } from './features/games/rejoinServerButton.js';
 import { init as initSubplaces } from './features/games/tab/Subplaces.js';
 import { initServerIdExtraction } from './core/games/servers/serverids.js';
 import { init as initGameTrailers } from './features/games/thumbnails/gametrailers.js';
@@ -419,6 +420,7 @@ const featureRoutes = [
             initBotDetector,
             initServerList,
             initRegionPlayButton,
+            initRejoinServerButton,
             bannertest,
             initGameTrailers,
             quickOutfits,
