@@ -56,6 +56,19 @@ export function getUniverseIdFromUrl(url = window.location.href) {
     }
 }
 
+export function getCreatorHubUniverseIdFromUrl(url = window.location.href) {
+    try {
+        return (
+            new URL(url, window.location.origin).pathname.match(
+                /\/dashboard\/creations\/experiences\/(\d+)/i,
+            )?.[1] || null
+        );
+    } catch (e) {
+        console.warn('RoValra: URL parsing failed', e);
+        return null;
+    }
+}
+
 export function getGamePassIdFromUrl(url = window.location.href) {
     try {
         const urlObj = new URL(url, window.location.origin);

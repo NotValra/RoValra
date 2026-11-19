@@ -226,6 +226,16 @@
         "description": "Check out the changelog to see what changed in this version.",
         "viewChangelog": "See what's new"
     },
+    "devexEstimate": {
+        "title": "Estimated DevEx earnings",
+        "tooltip": "Estimated DevEx earnings for the selected period, with Robux from US players aged 18+ at the higher rate.",
+        "loading": "Loading...",
+        "loadFailed": "Couldn't load the DevEx estimate.",
+        "earnings": "Estimated earnings",
+        "payout": "You'd receive",
+        "eligibleRobux": "US 18+ Robux",
+        "standardRobux": "Other Robux"
+    },
     "onboarding": {
         "title": "Welcome to RoValra!",
         "thankYou": "Thank you for installing <strong>RoValra</strong>!",

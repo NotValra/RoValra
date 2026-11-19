@@ -1,0 +1,30 @@
+.rovalra-devex-estimate {
+    margin-bottom: 24px;
+}
+
+.rovalra-devex-estimate-tooltip-popup {
+    position: fixed;
+    box-sizing: border-box;
+    max-width: min(300px, calc(100vw - 32px));
+}
+
+.rovalra-devex-estimate-tooltip-arrow {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 0;
+    margin-top: -6px;
+    border-right: 6.5px solid transparent;
+    border-bottom: 6px solid var(--inverse-surface-0, #fff);
+    border-left: 6.5px solid transparent;
+}
+
+.rovalra-devex-estimate-logo {
+    flex-shrink: 0;
+    margin-right: 8px;
+    border-radius: 6px;
+}
+
+.rovalra-devex-estimate-tooltip {
+    opacity: 0.75;
+}
