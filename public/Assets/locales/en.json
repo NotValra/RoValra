@@ -372,6 +372,10 @@
     "games": {
         "failedToLoad": "Failed to load game"
     },
+    "rolimonsGameLink": {
+        "label": "Rolimons",
+        "tooltip": "View this game's analytics on Rolimon's."
+    },
     "gameBookmarks": {
         "bookmark": "Bookmark",
         "saved": "Bookmarked",
