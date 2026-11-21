@@ -3,6 +3,11 @@
 const settingDeprecations: Record<string, ((value: any, gets: (key: string) => Promise<any>, sets: (key: string, value: any) => void) => void) | undefined> = {
     "EnableGameTrailer": undefined,
     "currencyTransferEnabled": undefined,
+    "viewIdEnabled": async (value, gets, sets) => {
+        if (await gets("viewIdEnabled2") === undefined) {
+            sets("viewIdEnabled2", value);
+        }
+    },
 };
 
 
