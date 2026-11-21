@@ -97,6 +97,23 @@ body:where(.dark-theme),
     color: inherit;
 }
 
+:where(.rovalra-profile-username-spacing-fix)
+    .user-profile-header-info
+    > .flex.gap-medium.items-center.min-width-0
+    > .flex.flex-col.min-width-0:where(
+        :has(
+            .rovalra-profile-views-pill,
+            .rovalra-profile-customization-pill,
+            .rovalra-profile-subplace-legacy-chip.rovalra-profile-subplace-ready,
+            .rovalra-profile-subplace-legacy-row.rovalra-profile-subplace-row-ready,
+            #reputationDiv
+        )
+    ) {
+    align-self: stretch;
+    box-sizing: border-box;
+    padding-block: 20px;
+}
+
 .rovalra-canvas > canvas {
     border-radius: var(--radius-medium, 8px) !important;
 }
