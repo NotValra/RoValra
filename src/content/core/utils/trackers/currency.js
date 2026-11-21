@@ -9,6 +9,17 @@ let authenticatedUserCurrency = null;
 let authenticatedUserCurrencyUserId = null;
 let currencyTrackingInitialized = false;
 
+function parseRobuxBalance(value) {
+    if (
+        typeof value !== 'number' &&
+        (typeof value !== 'string' || !value.trim())
+    ) {
+        return null;
+    }
+    const balance = Number(value);
+    return Number.isFinite(balance) ? balance : null;
+}
+
 function emitCurrencyChange(userId, currencyData) {
     document.dispatchEvent(
         new CustomEvent(USER_CURRENCY_CHANGED_EVENT, {
@@ -25,8 +36,8 @@ export async function setCachedUserCurrency(userId, currencyData) {
     const targetId = userId || (await getAuthenticatedUserId());
     if (!targetId || !currencyData) return null;
 
-    const robux = Number(currencyData.robux);
-    if (!Number.isFinite(robux)) return null;
+    const robux = parseRobuxBalance(currencyData.robux);
+    if (robux === null) return null;
 
     const data = {
         robux,
@@ -74,8 +85,8 @@ export async function updateUserCurrency(userId) {
                 noCache: true,
             });
 
-            const robux = Number(response?.robux);
-            if (!Number.isFinite(robux)) return null;
+            const robux = parseRobuxBalance(response?.robux);
+            if (robux === null) return null;
 
             const currencyData = {
                 robux,
