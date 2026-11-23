@@ -20,7 +20,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '3602693727', //nxvixz
     '422540285', //RRedshift
     '4866259395', //cam
-    '650766686', // auggeeoF
+    '650766686', // auggeeo
     '146089324', // WoozyNate
     '2974594300', // AGENT700PRODS (im not spending 1k robux to change it, ok?)
     '476449201', //IYoLsa
