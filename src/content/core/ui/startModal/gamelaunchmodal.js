@@ -1,12 +1,33 @@
 // Creates a launch modal made to look like robloxs launchmodal
 import { createOverlay } from '../overlay.js';
 import { createSpinner } from '../spinner.js';
-import { getAssets } from '../../assets.js';
 import { parseMarkdown } from '../../utils/markdown.js';
+import { createFoundationButton } from '../buttons.js';
 import DOMPurify from 'dompurify';
 
 let activeInstance = null;
 let keepOverlayOpen = false;
+
+function createActionSpinner() {
+    return createSpinner({ size: '24px', color: '#FFFFFF' });
+}
+
+function createLaunchLogo(customLogo) {
+    if (customLogo) {
+        const logoImg = document.createElement('img');
+        logoImg.src = customLogo;
+        logoImg.alt = '';
+        logoImg.className = 'rovalra-gamelaunch-logo';
+        return logoImg;
+    }
+
+    const appIcon = document.createElement('div');
+    appIcon.className = 'app-icon-bluebg app-icon-windows size-1600';
+    appIcon.setAttribute('role', 'img');
+    appIcon.setAttribute('aria-label', 'App Icon');
+    appIcon.title = 'App Icon';
+    return appIcon;
+}
 
 export function showLoadingOverlay(
     onCancel,
@@ -24,19 +45,7 @@ export function showLoadingOverlay(
     bodyWrapper.className =
         'rovalra-modal-content rovalra-gamelaunch-modal-body';
 
-    const logoImg = document.createElement('img');
-
-    if (customLogo) {
-        logoImg.src = customLogo;
-    } else {
-        try {
-            logoImg.dataset.rovalraAsset = 'rovalraIcon';
-            logoImg.src = getAssets().rovalraIcon;
-        } catch (e) {}
-    }
-
-    logoImg.className = 'rovalra-gamelaunch-logo';
-    bodyWrapper.appendChild(logoImg);
+    bodyWrapper.appendChild(createLaunchLogo(customLogo));
 
     const textElement = document.createElement('div');
     textElement.className = 'text-heading-medium rovalra-gamelaunch-text';
@@ -55,8 +64,7 @@ export function showLoadingOverlay(
 
     const actionContainer = document.createElement('div');
     actionContainer.className = 'rovalra-gamelaunch-action-container';
-    const spinner = createSpinner({ size: '24px', color: '#FFFFFF' });
-    actionContainer.appendChild(spinner);
+    actionContainer.appendChild(createActionSpinner());
     bodyWrapper.appendChild(actionContainer);
 
     const { overlay, close } = createOverlay({
@@ -120,7 +128,7 @@ export function updateLoadingOverlayText(text) {
     }
 }
 
-export function updateServerInfo(gameName, iconUrl, detailsHtml) {
+export function updateServerInfo(gameName, iconUrl, details) {
     if (!activeInstance?.infoContainer) return;
     const container = activeInstance.infoContainer;
     container.classList.remove('is-visible');
@@ -145,10 +153,14 @@ export function updateServerInfo(gameName, iconUrl, detailsHtml) {
     headerDiv.appendChild(textDiv);
     container.appendChild(headerDiv);
 
-    if (detailsHtml) {
+    if (details) {
         const detailsList = document.createElement('ul');
         detailsList.className = 'rovalra-details-list';
-        detailsList.innerHTML = DOMPurify.sanitize(detailsHtml);
+        if (typeof details === 'string') {
+            detailsList.innerHTML = DOMPurify.sanitize(details);
+        } else {
+            detailsList.append(...[details].flat());
+        }
         container.appendChild(detailsList);
     }
 
@@ -171,16 +183,27 @@ export function updateServerInfo(gameName, iconUrl, detailsHtml) {
         });
     });
 }
+
 export function showLoadingOverlayResult(message, buttonOptions) {
     if (!activeInstance) return;
     keepOverlayOpen = true;
     updateLoadingOverlayText(message);
     const container = activeInstance.actionContainer;
     container.innerHTML = '';
+    container.onclick = null;
     if (buttonOptions) {
-        const btn = document.createElement('button');
-        btn.textContent = buttonOptions.text;
-        btn.className = 'rovalra-gamelaunch-action-button';
+        let btn;
+        if (buttonOptions.emphasis) {
+            btn = createFoundationButton(buttonOptions.text, {
+                variant: 'emphasis',
+                size: 'large',
+                classList: ['grow'],
+            });
+        } else {
+            btn = document.createElement('button');
+            btn.textContent = buttonOptions.text;
+            btn.className = 'rovalra-gamelaunch-action-button';
+        }
         container.appendChild(btn);
         container.onclick = (e) => {
             e.stopPropagation();
@@ -188,5 +211,13 @@ export function showLoadingOverlayResult(message, buttonOptions) {
             buttonOptions.onClick();
         };
     }
+}
+
+export function showLoadingOverlaySpinner() {
+    if (!activeInstance) return;
+    keepOverlayOpen = false;
+    const container = activeInstance.actionContainer;
+    container.onclick = null;
+    container.replaceChildren(createActionSpinner());
 }
 import { ts } from '../../locale/i18n.js';
