@@ -1458,6 +1458,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['1388867949', '447170745'],
                 childSettings: {
                     robloxGroupFeaturesEnabled: {
                         label: 'Roblox Group Badges',

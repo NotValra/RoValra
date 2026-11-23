@@ -2313,7 +2313,8 @@
         "joinedDate": "Joined",
         "store": "Store",
         "members": "Members",
-        "accountForgotten": "Account Forgotten"
+        "accountForgotten": "Account Forgotten",
+        "likelyDeactivated": "This user has likely deactivated their account and may not be banned"
     },
     "copyId": {
         "copyId": "Copy {{type}} ID",

@@ -462,25 +462,12 @@ async function renderBannedUserProfile(user, settings) {
         'profile-header-title-container-name',
     );
     if (nameHeader) {
-        const lockIcon = document.createElement('div');
         const tooltipText = user.isAccountForgotten
             ? ts('bannedUsers.accountForgotten')
-            : ts('quickSearch.permanentlyBanned');
-        addTooltip(lockIcon, tooltipText, {
-            position: 'bottom',
-        });
-        Object.assign(lockIcon.style, {
-            width: '20px',
-            height: '20px',
-            display: 'inline-block',
-            verticalAlign: 'middle',
-            marginLeft: '8px',
-            flexShrink: '0',
-            backgroundColor: 'var(--rovalra-secondary-text-color)',
-            webkitMask: `url("${assets.lock}") no-repeat center / contain`,
-            mask: `url("${assets.lock}") no-repeat center / contain`,
-        });
-        nameHeader.appendChild(lockIcon);
+            : ts('bannedUsers.bannedStatus');
+        nameHeader.appendChild(
+            createBannedStatusIcon('lock-closed', tooltipText),
+        );
     }
 
     const headshotPlaceholder = document.getElementById(
@@ -504,7 +491,7 @@ async function renderBannedUserProfile(user, settings) {
         joinDatePlaceholder.appendChild(timestamp);
     }
 
-    loadStats(user.id);
+    loadStats(user);
     loadCurrentlyWearing(user.id);
     loadStore(user.id, user.name);
     loadFavorites(user.id);
@@ -516,7 +503,22 @@ async function renderBannedUserProfile(user, settings) {
     document.dispatchEvent(new CustomEvent('rovalra-theme-update'));
 }
 
-async function loadStats(userId) {
+function createBannedStatusIcon(iconName, tooltipText) {
+    const icon = document.createElement('span');
+    icon.id = 'rovalra-banned-status-icon';
+    icon.className = `grow-0 shrink-0 basis-auto icon icon-filled-${iconName} size-[var(--icon-size-medium)]`;
+    Object.assign(icon.style, {
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        marginLeft: '8px',
+        color: 'var(--rovalra-secondary-text-color)',
+    });
+    addTooltip(icon, tooltipText, { position: 'bottom' });
+    return icon;
+}
+
+async function loadStats(user) {
+    const userId = user.id;
     try {
         const [friendsRes, followersRes, followingsRes] = await Promise.all([
             callRobloxApiJson({
@@ -553,6 +555,17 @@ async function loadStats(userId) {
             'rovalra-banned-following-count',
             followingsRes?.count || 0,
         );
+
+        if (!user.isAccountForgotten && (followingsRes?.count || 0) > 0) {
+            document
+                .getElementById('rovalra-banned-status-icon')
+                ?.replaceWith(
+                    createBannedStatusIcon(
+                        'circle-slash',
+                        ts('bannedUsers.likelyDeactivated'),
+                    ),
+                );
+        }
     } catch (e) {}
 }
 
