@@ -117,20 +117,9 @@ const applyGameTitleFix = () => {
 
 const applyProfileUsernameSpacingFix = (enabled) => {
     if (!enabled) return;
-
-    const styleId = 'rovalra-profile-username-spacing-fix';
-    if (document.getElementById(styleId)) return;
-
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-        .user-profile-header-info > .flex.gap-medium.items-center.min-width-0 > .flex.flex-col.min-width-0 {
-            align-self: stretch;
-            box-sizing: border-box;
-            padding-block: 20px;
-        }
-    `;
-    (document.head || document.documentElement).appendChild(style);
+    document.documentElement.classList.add(
+        'rovalra-profile-username-spacing-fix',
+    );
 };
 
 const applyThemeScrollbarFix = (enabled) => {
