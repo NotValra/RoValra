@@ -45,6 +45,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '74884', // awkward222
     '3774777796', // hhhhhhhf334
     '1388867949',
+    '4975603156', // KyoMarketing
 ];
 
 export const TESTER_USER_IDS = [
