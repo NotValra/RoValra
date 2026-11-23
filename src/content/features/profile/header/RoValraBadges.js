@@ -36,6 +36,7 @@ const QA_TESTER_GROUP_ID = 3055661;
 const QA_TESTER_BADGE_NAME = 'qa_tester';
 const QA_TESTER_VALIANT_ROLE_ID = 20990035;
 const qaBadgeVariantCache = new Map();
+const userGroupRolesCache = new Map();
 const COMMUNITY_SAFETY_COUNCIL_GROUP_ID = 309577991;
 const COMMUNITY_SAFETY_COUNCIL_BADGE_NAME = 'community_safety_council';
 const DONATOR_BADGE_KEYS = [
@@ -617,7 +618,9 @@ async function addHeaderBadges(container) {
                             ? { tooltip: qaBadge.programsTooltip }
                             : {}),
                         onClick: () =>
-                            openEarlyAccessProgramsOverlay(currentUserId),
+                            openEarlyAccessProgramsOverlay(
+                                userGroupRolesCache.get(String(currentUserId)),
+                            ),
                     },
                 });
                 return;
@@ -736,6 +739,7 @@ export function init() {
                 if (groups.some(isCreatorEventsGroupMember)) {
                     runtimeBadges.push(CREATOR_EVENTS_BADGE_NAME);
                 }
+                userGroupRolesCache.set(userId, groups);
                 const qaTesterMembership = groups.find(isQaTesterGroupMember);
 
                 const inAnyProgram = groups.some(

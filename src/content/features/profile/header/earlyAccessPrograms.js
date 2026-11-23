@@ -1,4 +1,3 @@
-import { callRobloxApiJson } from '../../../core/api.js';
 import { getAssets } from '../../../core/assets.js';
 import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
@@ -70,23 +69,6 @@ const PROGRAM_GROUP_IDS = new Set(EARLY_ACCESS_PROGRAMS.map((p) => p.groupId));
 
 export function isEarlyAccessProgramGroup(groupId) {
     return PROGRAM_GROUP_IDS.has(groupId);
-}
-
-const userGroupsCache = new Map();
-
-async function fetchUserGroups(userId) {
-    const key = String(userId);
-    if (userGroupsCache.has(key)) return userGroupsCache.get(key);
-
-    const response = await callRobloxApiJson({
-        subdomain: 'groups',
-        endpoint: `/v1/users/${key}/groups/roles?includeLocked=true`,
-        method: 'GET',
-    });
-
-    const groups = Array.isArray(response?.data) ? response.data : null;
-    if (groups) userGroupsCache.set(key, groups);
-    return groups;
 }
 
 function createNotice() {
@@ -209,7 +191,7 @@ function renderPrograms(list, memberships) {
     list.replaceChildren(...sections);
 }
 
-export async function openEarlyAccessProgramsOverlay(userId) {
+export function openEarlyAccessProgramsOverlay(groups) {
     const body = document.createElement('div');
     body.className = 'rovalra-group-list-body';
 
@@ -230,12 +212,7 @@ export async function openEarlyAccessProgramsOverlay(userId) {
         showLogo: true,
     });
 
-    let groups = null;
-    try {
-        groups = await fetchUserGroups(userId);
-    } catch {}
-
-    if (!groups) {
+    if (!Array.isArray(groups)) {
         const error = document.createElement('p');
         error.className = 'rovalra-group-list-status';
         error.textContent = ts('earlyAccessPrograms.error');
