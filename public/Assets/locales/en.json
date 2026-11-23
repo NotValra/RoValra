@@ -1934,6 +1934,16 @@
         "userNotAgeVerified": "User is not age checked.",
         "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
     },
+    "earlyAccessPrograms": {
+        "title": "Early Access Programs",
+        "description": "Roblox runs some of its development, early access and testing programs through communities. Past early access programs refer to features/programs that have ended or launched.",
+        "developmentTitle": "Development Groups",
+        "currentTitle": "Current Early Access",
+        "currentEmpty": "This user is not a part of any current early access programs.",
+        "pastTitle": "Past Early Access",
+        "rowMeta": "{{role}} · {{members}} members",
+        "error": "Couldn't load this user's programs!"
+    },
     "friendRequestFilters": {
         "title": "Request Filters",
         "filters": "Filters",
