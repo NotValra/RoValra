@@ -11,7 +11,7 @@ export async function getDecal(decalId) {
             fullUrl: `https://apis.roblox.com/toolbox-service/v2/assets/${id}`,
             method: 'GET',
         });
-        if (!asset?.asset) return null;
+        if (!asset?.asset || asset.asset.assetTypeId !== 13) return null;
         const textureId = Number(asset.asset.textureId) || id;
 
         const thumbnails = await fetchThumbnails(
