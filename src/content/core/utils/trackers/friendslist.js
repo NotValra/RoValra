@@ -1,5 +1,5 @@
 // This script fetches a user's friends list and stores information about it,
-// like last online, mutual friends, chat eligibility, trusted friends, last location, and friends since.
+// like last online, mutual friends, trusted friends, last location, and friends since.
 import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 import { ts } from '../../locale/i18n.js';
@@ -51,33 +51,6 @@ export function getFriendRequestOriginText(originId) {
         default:
             return `${fromText} ${ts('friendsSince.originUnknown')}`;
     }
-}
-
-async function fetchChatConversationsPage(cursor = null) {
-    try {
-        let endpoint =
-            '/platform-chat-api/v1/get-user-conversations?include_cards=true&include_user_data=true&include_messages=true&check_for_group_up=true';
-        if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
-        return await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: endpoint,
-            useBackground: true,
-        });
-    } catch (error) {
-        return null;
-    }
-}
-
-async function fetchAllConversations() {
-    let allConversations = [];
-    let cursor = null;
-    do {
-        const data = await fetchChatConversationsPage(cursor);
-        if (!data || !data.conversations) break;
-        allConversations = allConversations.concat(data.conversations);
-        cursor = data.next_cursor;
-    } while (cursor);
-    return allConversations;
 }
 
 export async function fetchFriendsPage(userId, cursor = null) {
@@ -184,18 +157,34 @@ export async function updateFriendsList(userId) {
         chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
     );
     const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
+    const existingData = allUsersFriendsData[userId];
     const existingMap = new Map(
-        (allUsersFriendsData[userId]?.friendsList || []).map((f) => [f.id, f]),
+        (existingData?.friendsList || []).map((f) => [f.id, f]),
     );
 
     try {
-        const [friendsCount, conversations, onlineData, allTrustedFriendsSet] =
-            await Promise.all([
-                fetchFriendsCount(userId),
-                fetchAllConversations(),
-                fetchFriendsOnlineStatus(userId),
-                fetchAllTrustedFriends(userId),
-            ]);
+        const friendsCount = await fetchFriendsCount(userId);
+
+        if (
+            friendsCount !== null &&
+            existingData?.friendsList &&
+            existingData.dataVersion === FRIENDS_DATA_VERSION &&
+            existingData.friendsCount === friendsCount &&
+            existingData.friendsList.length === friendsCount
+        ) {
+            let friendsList = await updateOnlineStatusOnly(
+                userId,
+                existingData.friendsList,
+            );
+            friendsList = await updateTrustedFriendsOnly(userId, friendsList);
+            await markFriendsListChecked(userId);
+            return friendsList;
+        }
+
+        const [onlineData, allTrustedFriendsSet] = await Promise.all([
+            fetchFriendsOnlineStatus(userId),
+            fetchAllTrustedFriends(userId),
+        ]);
 
         const onlineMap = new Map();
         onlineData.forEach((item) => {
@@ -205,57 +194,6 @@ export async function updateFriendsList(userId) {
                 sortScore: item.sortScore,
             });
         });
-
-        const chatAnalysisMap = new Map();
-
-        if (conversations) {
-            conversations.forEach((conv) => {
-                const friendId = conv.participant_user_ids.find(
-                    (id) => id != userId,
-                );
-                if (!friendId) return;
-
-                const hasRestrictedMsg = conv.messages?.some((message) => {
-                    const content = message.content?.toLowerCase();
-                    return (
-                        content?.includes(
-                            "other users can't see messages in this chat",
-                        ) || content?.includes('due to new chat rules')
-                    );
-                });
-                const needsAgeCheck = conv.messages?.some((message) => {
-                    const content = message.content?.toLowerCase();
-                    return (
-                        content?.includes('needs to complete an age check') ||
-                        content?.includes(
-                            'one or more users need to complete an age check to see your messages',
-                        ) ||
-                        content?.includes('has not completed an age check')
-                    );
-                });
-                const existingStatus = chatAnalysisMap.get(friendId);
-                const canChat = !hasRestrictedMsg;
-                const hasAgeChecked = !needsAgeCheck;
-
-                chatAnalysisMap.set(friendId, {
-                    canChat:
-                        existingStatus?.canChat === false || canChat === false
-                            ? false
-                            : existingStatus?.canChat === true ||
-                                canChat === true
-                              ? true
-                              : null,
-                    hasAgeChecked:
-                        existingStatus?.hasAgeChecked === false ||
-                        hasAgeChecked === false
-                            ? false
-                            : existingStatus?.hasAgeChecked === true ||
-                                hasAgeChecked === true
-                              ? true
-                              : null,
-                });
-            });
-        }
 
         do {
             const page = await fetchFriendsPage(userId, friendsCursor);
@@ -318,7 +256,6 @@ export async function updateFriendsList(userId) {
                     (profile) => {
                         const friendId = profile.userId;
                         const isTrusted = allTrustedFriendsSet.has(friendId);
-                        const chatStatus = chatAnalysisMap.get(friendId);
                         const userInsights = insightMap.get(friendId) || [];
                         const playedTogetherInsights =
                             playedTogetherMap.get(friendId) || [];
@@ -424,8 +361,6 @@ export async function updateFriendsList(userId) {
                                 profile.hasRobloxSubscription,
                             isDeleted: profile.isDeleted,
                             isTrusted: isTrusted,
-                            canChat: chatStatus?.canChat ?? null,
-                            hasAgeChecked: chatStatus?.hasAgeChecked ?? null,
                             mutualFriends: mutualFriends,
                             accountCreated: accountCreated,
                             friendsSince: friendsSince,
@@ -471,6 +406,24 @@ export async function updateFriendsList(userId) {
         console.error('RoValra: Failed to update friends list', error);
         return [];
     }
+}
+
+async function markFriendsListChecked(userId) {
+    const storageResult = await new Promise((resolve) =>
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+    );
+    const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
+    if (!allUsersFriendsData[userId]) return;
+    allUsersFriendsData[userId] = {
+        ...allUsersFriendsData[userId],
+        lastChecked: Date.now(),
+    };
+    await new Promise((resolve) =>
+        chrome.storage.local.set(
+            { [FRIENDS_DATA_KEY]: allUsersFriendsData },
+            resolve,
+        ),
+    );
 }
 
 async function updateOnlineStatusOnly(userId, currentFriendsList) {

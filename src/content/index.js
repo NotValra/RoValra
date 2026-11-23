@@ -214,7 +214,6 @@ import { init as initCurrencyTransfer } from './features/profile/currencytransfe
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
 import { init as initUsernameColor } from './features/profile/header/usernameColor.js';
 import { init as initDisplayNameGradient } from './features/profile/header/displayNameGradient.js';
-import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 import { init as initProfileEditFeatures } from './core/profile/profileEdit.js';
 import './features/profile/profileBadges.js';
@@ -522,7 +521,6 @@ const featureRoutes = [
             initCurrencyTransfer,
             initGroupFilters,
             initAvatarDownload,
-            initChatEligibilityTooltip,
             initProfileCustomization,
             initSocialLinks,
             initSendRobuxProfileButton,

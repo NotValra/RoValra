@@ -1086,14 +1086,6 @@ export const SETTINGS_CONFIG = {
                 },
             },
 
-            chatEligibilityTooltipEnabled: {
-                label: 'Chat Eligibility Tooltip',
-                description: [
-                    "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile.",
-                ],
-                type: 'checkbox',
-                default: true,
-            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [
