@@ -2833,6 +2833,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            deeplinkLaunchOverrideEnabled: {
+                label: 'Launch Roblox Through Deeplinks',
+                description: [
+                    "Overrides Roblox's launching so every join opens the client through roblox:// deeplinks instead.",
+                    'This can be less reliable than the normal launcher.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             disableThumbnailProfileFrame: {
                 label: 'Disable Roblox Thumbnail Profile Frames',
                 description: [

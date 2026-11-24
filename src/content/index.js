@@ -778,6 +778,8 @@ async function initializePage() {
                                 settings.disableThumbnailBackground === true,
                             disableThumbnailProfileFrame:
                                 settings.disableThumbnailProfileFrame === true,
+                            deeplinkLaunchOverrideEnabled:
+                                settings.deeplinkLaunchOverrideEnabled === true,
                         },
                     }),
                 );
