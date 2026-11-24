@@ -79,7 +79,7 @@ jobs:
           for f in ${{ steps.changed.outputs.all_changed_files }}; do
             while read host; do
               [ -z "$host" ] && continue
-              # The game analytics button opens Rolimon's in a new tab.
+              # The game analytics button opens the game page on Rolimons in a new tab.
               [ "$host" = "www.rolimons.com" ] && continue
               if ! echo "$host" | grep -qE '(^|\.)(rovalra|roblox|rbxcdn|eslint|feross|github|opencollective|paulmillr|polar|registry\.npmjs|tidelift|i18next|locize|patreon)\.(com|org|sh)$'; then
                 echo "::error file=$f::Disallowed link host: $host"
