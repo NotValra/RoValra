@@ -3,6 +3,7 @@
 style-test-element.light-theme,
 body:where(.light-theme),
 :root.light-theme,
+:root.color-mode-light,
 :root[color-scheme='light'] {
     --rovalra-main-text-color: #202227;
     --rovalra-secondary-text-color: #494d5a;
@@ -50,6 +51,7 @@ style-test-element.dark-theme,
 .rovalra-hero-unit.dark-theme,
 body:where(.dark-theme),
 :root.dark-theme,
+:root.color-mode-dark,
 :root[color-scheme='dark'] {
     --rovalra-main-text-color: #f7f7f8;
     --rovalra-secondary-text-color: #d5d7dd;

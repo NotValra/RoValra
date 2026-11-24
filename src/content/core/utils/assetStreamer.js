@@ -1,8 +1,11 @@
-
 import { parseRbxm } from './rbxm.js';
 import { callRobloxApi } from '../api.js';
+import { API } from 'roavatar-renderer';
+import { backgroundRendererRequests } from './renderer.js';
 
-const RBXM_SIGNATURE_BYTES = [60, 114, 111, 98, 108, 111, 120, 33]; 
+backgroundRendererRequests();
+
+const RBXM_SIGNATURE_BYTES = [60, 114, 111, 98, 108, 111, 120, 33];
 
 function isBinaryFormat(buffer) {
     if (buffer.byteLength < 8) return false;
@@ -13,12 +16,11 @@ function isBinaryFormat(buffer) {
     return true;
 }
 
-
 function parseRobloxXml(textContent) {
     const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(textContent, "text/xml");
+    const xmlDoc = parser.parseFromString(textContent, 'text/xml');
     const robloxNode = xmlDoc.getElementsByTagName('roblox')[0];
-    
+
     if (!robloxNode) return [];
 
     const resultTree = [];
@@ -78,11 +80,20 @@ function parseRobloxXml(textContent) {
                     z: childNum(prop, 'Z'),
                 };
             case 'UDim':
-                return { Scale: childNum(prop, 'S'), Offset: childNum(prop, 'O') };
+                return {
+                    Scale: childNum(prop, 'S'),
+                    Offset: childNum(prop, 'O'),
+                };
             case 'UDim2':
                 return {
-                    X: { Scale: childNum(prop, 'XS'), Offset: childNum(prop, 'XO') },
-                    Y: { Scale: childNum(prop, 'YS'), Offset: childNum(prop, 'YO') },
+                    X: {
+                        Scale: childNum(prop, 'XS'),
+                        Offset: childNum(prop, 'XO'),
+                    },
+                    Y: {
+                        Scale: childNum(prop, 'YS'),
+                        Offset: childNum(prop, 'YO'),
+                    },
                 };
             case 'NumberRange': {
                 const p = text.split(/\s+/).map(Number);
@@ -90,11 +101,25 @@ function parseRobloxXml(textContent) {
             }
             case 'CoordinateFrame':
             case 'OptionalCoordinateFrame': {
-                const cf = tag === 'OptionalCoordinateFrame'
-                    ? [...prop.children].find((x) => x.tagName === 'CFrame')
-                    : prop;
+                const cf =
+                    tag === 'OptionalCoordinateFrame'
+                        ? [...prop.children].find((x) => x.tagName === 'CFrame')
+                        : prop;
                 if (!cf) return null;
-                const keys = ['X','Y','Z','R00','R01','R02','R10','R11','R12','R20','R21','R22'];
+                const keys = [
+                    'X',
+                    'Y',
+                    'Z',
+                    'R00',
+                    'R01',
+                    'R02',
+                    'R10',
+                    'R11',
+                    'R12',
+                    'R20',
+                    'R21',
+                    'R22',
+                ];
                 return keys.map((k) => cleanNum(childNum(cf, k))).join(', ');
             }
             default:
@@ -105,7 +130,8 @@ function parseRobloxXml(textContent) {
     const parseItem = (node) => {
         const instance = {
             ClassName: node.getAttribute('class'),
-            Reference: node.getAttribute('referent') || node.getAttribute('refer'),
+            Reference:
+                node.getAttribute('referent') || node.getAttribute('refer'),
             Properties: {},
             Children: [],
         };
@@ -133,15 +159,19 @@ function parseRobloxXml(textContent) {
     return resultTree;
 }
 
-
 export async function checkAssetsInBatch(assetIds) {
     if (assetIds.length === 0) return [];
 
-    const createDefaultResult = (id) => ({ assetId: id, root: null, format: null, isValid: false });
-
-    const requestBody = assetIds.map(id => ({
+    const createDefaultResult = (id) => ({
         assetId: id,
-        requestId: id.toString()
+        root: null,
+        format: null,
+        isValid: false,
+    });
+
+    const requestBody = assetIds.map((id) => ({
+        assetId: id,
+        requestId: id.toString(),
     }));
 
     try {
@@ -150,19 +180,28 @@ export async function checkAssetsInBatch(assetIds) {
             endpoint: '/v2/assets/batch',
             method: 'POST',
             body: requestBody,
-            sanitize: false
+            sanitize: false,
         });
 
         if (!batchApiResponse.ok) {
-            console.error(`[Rovalra Asset Parser] AssetDelivery batch API failed: ${batchApiResponse.status}`);
-            return assetIds.map(id => createDefaultResult(id));
+            console.error(
+                `[Rovalra Asset Parser] AssetDelivery batch API failed: ${batchApiResponse.status}`,
+            );
+            return assetIds.map((id) => createDefaultResult(id));
         }
 
         const batchData = await batchApiResponse.json();
         const assetUrlMap = new Map();
-        batchData.forEach(item => {
-            if (item.locations && item.locations[0] && item.locations[0].location) {
-                assetUrlMap.set(parseInt(item.requestId, 10), item.locations[0].location);
+        batchData.forEach((item) => {
+            if (
+                item.locations &&
+                item.locations[0] &&
+                item.locations[0].location
+            ) {
+                assetUrlMap.set(
+                    parseInt(item.requestId, 10),
+                    item.locations[0].location,
+                );
             }
         });
 
@@ -186,7 +225,7 @@ export async function checkAssetsInBatch(assetIds) {
                     format = 'XML';
                     const decoder = new TextDecoder('utf-8');
                     const text = decoder.decode(buffer);
-                    
+
                     if (text.includes('<roblox')) {
                         parsedRoot = parseRobloxXml(text);
                     }
@@ -194,24 +233,25 @@ export async function checkAssetsInBatch(assetIds) {
 
                 if (!parsedRoot) return createDefaultResult(id);
 
-                return { 
-                    assetId: id, 
-                    root: parsedRoot, 
-                    format: format, 
-                    isValid: true 
+                return {
+                    assetId: id,
+                    root: parsedRoot,
+                    format: format,
+                    isValid: true,
                 };
-
             } catch (error) {
-                console.error(`[Rovalra Asset Parser] Error parsing asset ${id}:`, error);
+                console.error(
+                    `[Rovalra Asset Parser] Error parsing asset ${id}:`,
+                    error,
+                );
                 return createDefaultResult(id);
             }
         });
 
         return Promise.all(processingPromises);
-
     } catch (error) {
         console.error('[Rovalra Asset Parser] Critical error:', error);
-        return assetIds.map(id => createDefaultResult(id));
+        return assetIds.map((id) => createDefaultResult(id));
     }
 }
 // Accessory/head asset types — Roblox can serve a richer, avatar-processed
@@ -219,41 +259,20 @@ export async function checkAssetsInBatch(assetIds) {
 const ACCESSORY_TYPE_IDS = new Set([
     8, 41, 42, 43, 44, 45, 46, 47, 57, 58, 64, 65, 66, 67, 68, 69, 70, 71, 72,
 ]);
-const LAYERED_TYPE_IDS = new Set([
-    64, 65, 66, 67, 68, 69, 70, 71, 72
-])
+const LAYERED_TYPE_IDS = new Set([64, 65, 66, 67, 68, 69, 70, 71, 72]);
 const HEAD_TYPE_IDS = new Set([17, 79]);
 
 function avatarFormatFor(assetTypeId) {
     if (HEAD_TYPE_IDS.has(assetTypeId)) return 'avatar_meshpart_head';
-    if (ACCESSORY_TYPE_IDS.has(assetTypeId) && !LAYERED_TYPE_IDS.has(assetTypeId)) return 'avatar_meshpart_accessory';
+    if (
+        ACCESSORY_TYPE_IDS.has(assetTypeId) &&
+        !LAYERED_TYPE_IDS.has(assetTypeId)
+    )
+        return 'avatar_meshpart_accessory';
     return null;
 }
 
-async function resolveAssetLocation(assetId, format) {
-    const headers = format ? { 'Roblox-AssetFormat': format } : {};
-    const response = await callRobloxApi({
-        subdomain: 'assetdelivery',
-        endpoint: `/v2/asset/?id=${assetId}`,
-        method: 'GET',
-        useBackground: true,
-        headers,
-        sanitize: false,
-    });
-    if (!response.ok) return null;
-
-    const json = await response.json();
-    return {
-        location: json?.locations?.[0]?.location || null,
-        assetTypeId: json?.assetTypeId,
-    };
-}
-
-async function parseAssetLocation(location) {
-    const response = await fetch(location); // Verified
-    if (!response.ok) return null;
-
-    const buffer = await response.arrayBuffer();
+function parseAssetBuffer(buffer) {
     if (isBinaryFormat(buffer)) {
         return { format: 'RBXM', root: parseRbxm(buffer) };
     }
@@ -265,12 +284,23 @@ async function parseAssetLocation(location) {
     return null;
 }
 
+async function getAssetBuffer(assetId, format) {
+    const headers = format ? { 'Roblox-AssetFormat': format } : undefined;
+    const buffer = await API.Asset.GetAssetBuffer(
+        `rbxassetid://${assetId}`,
+        headers,
+    );
+    return buffer instanceof ArrayBuffer ? buffer : null;
+}
+
 // Whether the asset is downloadable for the current user (their place / an
 // asset they can access). Used to decide if the explorer button should show.
 export async function canAccessAsset(assetId) {
     try {
-        const meta = await resolveAssetLocation(assetId, null);
-        return !!meta?.location;
+        const location = await API.Misc.assetURLToCDNURL(
+            `rbxassetid://${assetId}`,
+        );
+        return typeof location === 'string' && location.length > 0;
     } catch {
         return false;
     }
@@ -278,26 +308,47 @@ export async function canAccessAsset(assetId) {
 
 // Loads a single asset's instance tree. For accessories/heads it requests the
 // avatar-processed model so the tree matches what Studio/BTRoblox show.
-export async function loadAssetTree(assetId) {
+export async function loadAssetTree(assetId, { legacy = false } = {}) {
     const invalid = { assetId, root: null, format: null, isValid: false };
 
     try {
-        let meta = await resolveAssetLocation(assetId, null);
-        if (!meta?.location) return invalid;
+        const assetTypeId = await API.Asset.GetAssetTypeId(assetId);
+        const avatarFormat =
+            typeof assetTypeId === 'number'
+                ? avatarFormatFor(assetTypeId)
+                : null;
 
-        const format = avatarFormatFor(meta.assetTypeId);
-        if (format) {
-            const rich = await resolveAssetLocation(assetId, format);
-            if (rich?.location) meta = rich;
+        let usedFormat = null;
+        let buffer = null;
+        if (avatarFormat && !legacy) {
+            buffer = await getAssetBuffer(assetId, avatarFormat);
+            if (buffer) usedFormat = avatarFormat;
         }
+        if (!buffer) buffer = await getAssetBuffer(assetId, null);
+        if (!buffer) return invalid;
 
-        const parsed = await parseAssetLocation(meta.location);
+        const parsed = parseAssetBuffer(buffer);
         if (!parsed?.root || parsed.root.length === 0) return invalid;
+
+        const source = {
+            assetId,
+            headers: usedFormat
+                ? { 'Roblox-AssetFormat': usedFormat }
+                : undefined,
+        };
+        for (const instance of parsed.root) {
+            Object.defineProperty(instance, 'rovalraSource', {
+                value: source,
+                enumerable: false,
+            });
+        }
 
         return {
             assetId,
             root: parsed.root,
             format: parsed.format,
+            hasRigFormats: !!avatarFormat,
+            rig: usedFormat ? 'R15' : 'R6',
             isValid: true,
         };
     } catch (error) {

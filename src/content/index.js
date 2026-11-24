@@ -240,6 +240,7 @@ import { init as initHideAddFriendsButton } from './features/home/hideAddFriends
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 import { init as initHomeGreeting } from './features/home/homeGreeting.js';
 import { init as initPinnedFriends } from './features/sitewide/pinnedFriends.js';
+import { loadIconFontsForStrictCsp } from './core/ui/iconFonts.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initOffSaleCreatePage } from './features/create.roblox.com/offSaleCreatePage.js';
@@ -853,6 +854,8 @@ async function initializePage() {
             childList: true,
         });
     }
+
+    loadIconFontsForStrictCsp();
 
     if (document.body) {
         startFeatures().catch((error) =>
