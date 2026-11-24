@@ -44,8 +44,10 @@ export const CONTRIBUTOR_USER_IDS = [
     '519742979', // BBasilio2001
     '74884', // awkward222
     '3774777796', // hhhhhhhf334
+    '1388867949',
     '4975603156', // KyoMarketing
     '1718514709', // BagischandraK
+    '112558831',
 ];
 
 export const TESTER_USER_IDS = [

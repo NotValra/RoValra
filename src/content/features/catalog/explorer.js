@@ -6,12 +6,17 @@ import {
     loadAssetTree,
     canAccessAsset,
 } from '../../core/utils/assetStreamer.js';
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeResize } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { getAssets } from '../../core/assets.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
+import { createButton } from '../../core/ui/buttons.js';
+import { createDropdown } from '../../core/ui/dropdown.js';
+import { createSpinner } from '../../core/ui/spinner.js';
+import { Icon } from '../../core/ui/buildericon.js';
+import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { unzipSync } from 'fflate';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
@@ -20,6 +25,7 @@ import { CLASS_ORDER } from '../../core/utils/vendor/classOrder.js';
 import { PROP_CATEGORY } from '../../core/utils/vendor/propGroups.js';
 import { backgroundRendererRequests } from '../../core/utils/renderer.js';
 import { API, fileMeshToTHREEGeometry } from 'roavatar-renderer';
+import { openAccessoryPreview } from './explorerAccessoryPreview.js';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
@@ -38,9 +44,36 @@ function sortInstances(instances) {
     });
 }
 
-function classIconUrl(className) {
+function classIconEndpoint(className) {
     const folder = isDarkMode() ? 'class_icons_dark' : 'class_icons_light';
-    return `https://www.rovalra.com/static/${folder}/${encodeURIComponent(className)}.png`;
+    return `/static/${folder}/${encodeURIComponent(className)}.png`;
+}
+
+const classIconCache = new Map();
+
+function fetchIconBlobUrl(endpoint) {
+    if (!classIconCache.has(endpoint)) {
+        classIconCache.set(
+            endpoint,
+            callRobloxApi({
+                isRovalraApi: true,
+                subdomain: 'www',
+                endpoint,
+                method: 'GET',
+                credentials: 'omit',
+            })
+                .then((response) => (response.ok ? response.blob() : null))
+                .then((blob) => (blob ? URL.createObjectURL(blob) : null))
+                .catch(() => null),
+        );
+    }
+    return classIconCache.get(endpoint);
+}
+
+async function getClassIcon(className) {
+    const url = await fetchIconBlobUrl(classIconEndpoint(className));
+    if (url || !/Value$/.test(className)) return url;
+    return fetchIconBlobUrl(classIconEndpoint('Value'));
 }
 
 function applyMaskIcon(el, url) {
@@ -67,7 +100,7 @@ function formatValue(value) {
     if (typeof value === 'string') return value;
 
     if (Array.isArray(value)) {
-        return `${value.length} keypoint${value.length === 1 ? '' : 's'}`;
+        return ts('createRoblox.explorer.keypoints', { count: value.length });
     }
 
     if (typeof value === 'object') {
@@ -93,7 +126,7 @@ function formatValue(value) {
             return `${formatValue(value.Min)} .. ${formatValue(value.Max)}`;
         }
         if ('Family' in value) return value.Family;
-        if ('Density' in value) return 'Custom';
+        if ('Density' in value) return ts('createRoblox.explorer.custom');
         try {
             return JSON.stringify(value);
         } catch {
@@ -299,7 +332,26 @@ const LUAU_KEYWORDS = new Set([
     'self',
 ]);
 
+function getScriptSource(props) {
+    let source = props?.Source;
+    if (source instanceof Uint8Array || source instanceof ArrayBuffer) {
+        source = new TextDecoder().decode(source);
+    }
+    return typeof source === 'string' && source.trim().length > 0
+        ? source
+        : null;
+}
+
+const MAX_HIGHLIGHT_LENGTH = 150000;
+
 function highlightLuau(source) {
+    if (source.length > MAX_HIGHLIGHT_LENGTH) {
+        const code = document.createElement('code');
+        code.className = 'rovalra-explorer-code';
+        code.textContent = source;
+        return code;
+    }
+
     const code = document.createElement('code');
     code.className = 'rovalra-explorer-code';
 
@@ -3053,9 +3105,23 @@ async function fetchImageUrls(assetIds, originalAssetIds) {
         }
     }
 
-    for (const id of originalAssetIds) {
-        imageMap.set(id, `https://assetdelivery.roblox.com/v1/asset/?id=${id}`);
-    }
+    await Promise.all(
+        originalAssetIds.map(async (id) => {
+            let url = null;
+            try {
+                const location = await API.Misc.assetURLToCDNURL(
+                    `rbxassetid://${id}`,
+                );
+                if (typeof location === 'string') url = location;
+            } catch (e) {
+                console.warn('[RoValra Explorer] Failed to resolve image', e);
+            }
+            imageMap.set(
+                id,
+                url || `https://assetdelivery.roblox.com/v1/asset/?id=${id}`,
+            );
+        }),
+    );
 
     return imageMap;
 }
@@ -3114,118 +3180,132 @@ async function openGuiViewer(
 
     widenModal(wrapper);
 
+    let currentW = 1280;
+    let currentH = 720;
+    let currentPixelDensity = 96;
+    let isRotated = false;
+    let scaleMode = 'fit';
+    let renderGui = () => {};
+    let updateScale = () => {};
+
     const toolbar = document.createElement('div');
     toolbar.className = 'rovalra-explorer-gui-toolbar';
-    toolbar.style.display = 'flex';
-    toolbar.style.gap = '8px';
-    toolbar.style.padding = '8px';
-    toolbar.style.borderBottom = '1px solid var(--rovalra-exp-border)';
-    toolbar.style.flexShrink = '0';
-    toolbar.style.alignItems = 'center';
-    toolbar.style.background = 'var(--rovalra-exp-header)';
-    toolbar.style.color = 'var(--rovalra-exp-text)';
 
-    const closeBtn = document.createElement('button');
+    const closeBtn = createButton(
+        ts('createRoblox.explorer.closePreview'),
+        'secondary',
+        {
+            classList: ['rovalra-explorer-action-btn'],
+            onClick: () => {
+                resetPreviewPane(previewPane);
+                previewPane.style.display = 'none';
+                restoreModal(wrapper);
+            },
+        },
+    );
     closeBtn.type = 'button';
-    closeBtn.className = 'rovalra-explorer-source-btn';
-    closeBtn.textContent = ts('createRoblox.explorer.closePreview');
-    closeBtn.style.marginRight = 'auto';
-    closeBtn.addEventListener('click', () => {
-        previewPane.replaceChildren();
-        previewPane.style.display = 'none';
-
-        if (registerHighlightCallback) registerHighlightCallback(null);
-        if (registerRerenderCallback) registerRerenderCallback(null);
-
-        restoreModal(wrapper);
-    });
     toolbar.appendChild(closeBtn);
 
-    const select = document.createElement('select');
-    select.className = 'rovalra-explorer-device-select';
+    const spacer = document.createElement('div');
+    spacer.className = 'rovalra-explorer-toolbar-spacer';
+    toolbar.appendChild(spacer);
 
-    const defaultOpt = document.createElement('option');
-    defaultOpt.value = 'default';
-    defaultOpt.textContent = ts('createRoblox.explorer.defaultDevice');
-    select.appendChild(defaultOpt);
-
-    const grouped = {};
-    DEFAULT_DEVICES.forEach((d, i) => {
-        if (!grouped[d.Category]) grouped[d.Category] = [];
-        grouped[d.Category].push({ d, i });
+    const deviceDropdown = createDropdown({
+        items: [
+            {
+                value: 'default',
+                label: ts('createRoblox.explorer.defaultDevice'),
+            },
+            ...DEFAULT_DEVICES.map((d, i) => ({
+                value: String(i),
+                label: `${d.Name} (${d.Width}x${d.Height})`,
+            })),
+        ],
+        initialValue: 'default',
+        placeholder: ts('createRoblox.explorer.defaultDevice'),
+        onValueChange: (value) => {
+            const device = DEFAULT_DEVICES[parseInt(value, 10)];
+            if (String(value) === 'default' || !device) {
+                currentW = 1280;
+                currentH = 720;
+                currentPixelDensity = 96;
+            } else {
+                currentW = device.Width;
+                currentH = device.Height;
+                currentPixelDensity = device.PixelDensity;
+            }
+            deviceDropdown.setValue(value);
+            renderGui();
+        },
     });
+    deviceDropdown.element.classList.add('rovalra-explorer-toolbar-dropdown');
+    toolbar.appendChild(deviceDropdown.element);
 
-    for (const category in grouped) {
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = category;
-        grouped[category].forEach(({ d, i }) => {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = `${d.Name} (${d.Width}x${d.Height})`;
-            optgroup.appendChild(opt);
-        });
-        select.appendChild(optgroup);
-    }
-    toolbar.appendChild(select);
+    const scaleDropdown = createDropdown({
+        items: [
+            { value: 'fit', label: ts('createRoblox.explorer.fitToWindow') },
+            {
+                value: 'actual',
+                label: ts('createRoblox.explorer.actualResolution'),
+            },
+            {
+                value: 'physical',
+                label: ts('createRoblox.explorer.physicalSize'),
+            },
+        ],
+        initialValue: 'fit',
+        placeholder: ts('createRoblox.explorer.fitToWindow'),
+        onValueChange: (value) => {
+            scaleMode = String(value);
+            scaleDropdown.setValue(value);
+            updateScale();
+        },
+    });
+    scaleDropdown.element.classList.add('rovalra-explorer-toolbar-dropdown');
+    toolbar.appendChild(scaleDropdown.element);
 
-    const scaleSelect = document.createElement('select');
-    scaleSelect.className = 'rovalra-explorer-scale-select';
-
-    const fitOpt = document.createElement('option');
-    fitOpt.value = 'fit';
-    fitOpt.textContent = ts('createRoblox.explorer.fitToWindow');
-    scaleSelect.appendChild(fitOpt);
-
-    const actualOpt = document.createElement('option');
-    actualOpt.value = 'actual';
-    actualOpt.textContent = ts('createRoblox.explorer.actualResolution');
-    scaleSelect.appendChild(actualOpt);
-
-    const physicalOpt = document.createElement('option');
-    physicalOpt.value = 'physical';
-    physicalOpt.textContent = ts('createRoblox.explorer.physicalSize');
-    scaleSelect.appendChild(physicalOpt);
-
-    toolbar.appendChild(scaleSelect);
-
-    const rotateBtn = document.createElement('button');
+    const rotateBtn = createButton(
+        ts('createRoblox.explorer.rotate'),
+        'secondary',
+        {
+            classList: ['rovalra-explorer-action-btn'],
+            onClick: () => {
+                isRotated = !isRotated;
+                renderGui();
+            },
+        },
+    );
     rotateBtn.type = 'button';
-    rotateBtn.className = 'rovalra-explorer-source-btn';
-    rotateBtn.textContent = ts('createRoblox.explorer.rotate');
     toolbar.appendChild(rotateBtn);
 
     const previewArea = document.createElement('div');
     previewArea.className = 'rovalra-explorer-gui-preview-area';
 
-    previewArea.style.flex = '1';
-    previewArea.style.position = 'relative';
-    previewArea.style.overflow = 'hidden';
-    previewArea.style.display = 'flex';
-    previewArea.style.alignItems = 'center';
-    previewArea.style.justifyContent = 'center';
-    previewArea.style.backgroundColor = '#000';
-
     const viewportWrapper = document.createElement('div');
     viewportWrapper.className = 'rovalra-explorer-gui-viewport-wrapper';
-    viewportWrapper.style.transformOrigin = 'center center';
     previewArea.appendChild(viewportWrapper);
 
     const viewport = document.createElement('div');
     viewport.className = 'rovalra-explorer-gui-viewport';
-    viewport.style.position = 'relative';
     viewportWrapper.appendChild(viewport);
 
-    const loadingText = document.createElement('div');
-    loadingText.textContent = ts('createRoblox.explorer.loadingPreview');
-    loadingText.style.color = 'var(--rovalra-exp-text)';
-    loadingText.style.display = 'flex';
-    loadingText.style.height = '100%';
-    loadingText.style.alignItems = 'center';
-    loadingText.style.justifyContent = 'center';
-    viewport.appendChild(loadingText);
+    const loadingState = createLoadingState(
+        ts('createRoblox.explorer.loadingPreview'),
+    );
+    previewArea.appendChild(loadingState);
 
     previewPane.appendChild(toolbar);
     previewPane.appendChild(previewArea);
+
+    const resizeHandle = observeResize(previewArea, () => updateScale());
+
+    previewPane.rovalraCleanup = () => {
+        resizeHandle.unobserve();
+        deviceDropdown.destroy();
+        scaleDropdown.destroy();
+        if (registerHighlightCallback) registerHighlightCallback(null);
+        if (registerRerenderCallback) registerRerenderCallback(null);
+    };
 
     const { ids, originalIds } = collectImageIds(instance);
     const imagePromise = fetchImageUrls(ids, originalIds);
@@ -3235,12 +3315,8 @@ async function openGuiViewer(
 
     const imageMap = await imagePromise;
     await fontPromise;
-
-    let currentW = 1280;
-    let currentH = 720;
-    let currentPixelDensity = 96;
-    let isRotated = false;
-    let scaleMode = 'fit';
+    if (!previewArea.isConnected) return;
+    loadingState.remove();
 
     let selectedPreviewInstance = null;
     const instanceToElMap = new Map();
@@ -3270,7 +3346,7 @@ async function openGuiViewer(
         });
     }
 
-    function renderGui() {
+    renderGui = () => {
         const w = isRotated ? currentH : currentW;
         const h = isRotated ? currentW : currentH;
 
@@ -3297,13 +3373,13 @@ async function openGuiViewer(
         }
 
         updateScale();
-    }
+    };
 
     if (registerRerenderCallback) {
         registerRerenderCallback(renderGui);
     }
 
-    function updateScale() {
+    updateScale = () => {
         const w = isRotated ? currentH : currentW;
         const h = isRotated ? currentW : currentH;
 
@@ -3335,44 +3411,25 @@ async function openGuiViewer(
         viewportWrapper.style.width = `${w * safeScale}px`;
         viewportWrapper.style.height = `${h * safeScale}px`;
         viewport.style.transform = `scale(${safeScale})`;
-    }
-
-    select.addEventListener('change', () => {
-        if (select.value === 'default') {
-            currentW = 1280;
-            currentH = 720;
-            currentPixelDensity = 96;
-        } else {
-            const d = DEFAULT_DEVICES[parseInt(select.value, 10)];
-            currentW = d.Width;
-            currentH = d.Height;
-            currentPixelDensity = d.PixelDensity;
-        }
-        renderGui();
-    });
-
-    scaleSelect.addEventListener('change', () => {
-        scaleMode = scaleSelect.value;
-        updateScale();
-    });
-
-    rotateBtn.addEventListener('click', () => {
-        isRotated = !isRotated;
-        renderGui();
-    });
+    };
 
     await new Promise((r) => requestAnimationFrame(r));
     renderGui();
+}
 
-    const resizeObserver = new ResizeObserver(() => updateScale());
-    resizeObserver.observe(previewArea);
+function createLoadingState(text) {
+    const loading = document.createElement('div');
+    loading.className = 'rovalra-explorer-loading-state';
+    loading.appendChild(createSpinner({ size: '32px' }));
+    const label = document.createElement('span');
+    label.textContent = text;
+    loading.appendChild(label);
+    return loading;
 }
 
 // --- END SCREENGUI VIEWER LOGIC ---
 
 // --- BEGIN MESH VIEWER LOGIC ---
-
-const PREVIEW_ICON = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5m0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>')}`;
 
 function getContentAssetId(props, keys) {
     for (const key of keys) {
@@ -3392,55 +3449,15 @@ function getMeshEntry(inst, parent = null) {
     const meshId = getContentAssetId(props, ['MeshId', 'MeshContent']);
     if (!meshId) return null;
 
-    const surface = (inst.Children || []).find(
-        (c) => c.ClassName === 'SurfaceAppearance',
-    );
-    const textureId =
-        getContentAssetId(props, [
-            'TextureID',
-            'TextureId',
-            'TextureContent',
-        ]) ||
-        (surface &&
-            getContentAssetId(surface.Properties || {}, [
-                'ColorMap',
-                'ColorMapContent',
-            ]));
-
-    const colorSource = inst.ClassName === 'SpecialMesh' ? parent : inst;
-
     const name = getInstanceName(inst);
     return {
         meshId,
-        textureId,
-        color: colorSource?.Properties?.Color,
         scale: inst.ClassName === 'SpecialMesh' ? props.Scale : null,
         label:
             inst.ClassName === 'SpecialMesh' && parent
                 ? `${getInstanceName(parent)} / ${name} (${inst.ClassName})`
                 : `${name} (${inst.ClassName})`,
     };
-}
-
-function toThreeColor(value) {
-    if (value && typeof value === 'object' && 'r' in value) {
-        const c = (v) => (v <= 1 ? v : v / 255);
-        return new THREE.Color().setRGB(
-            c(value.r),
-            c(value.g),
-            c(value.b),
-            THREE.SRGBColorSpace,
-        );
-    }
-    if (typeof value === 'number') {
-        return new THREE.Color().setRGB(
-            ((value >>> 16) & 255) / 255,
-            ((value >>> 8) & 255) / 255,
-            (value & 255) / 255,
-            THREE.SRGBColorSpace,
-        );
-    }
-    return new THREE.Color(0xa3a2a5);
 }
 
 function toLocalGeometry(source) {
@@ -3460,32 +3477,6 @@ function toLocalGeometry(source) {
     return geometry;
 }
 
-async function loadMeshTexture(textureId) {
-    const imageMap = await fetchImageUrls([textureId], []);
-    const url = imageMap.get(String(textureId));
-    if (!url) return null;
-
-    const response = await callRobloxApi({
-        fullUrl: url,
-        method: 'GET',
-        credentials: 'omit',
-        useBackground: true,
-        responseType: 'arrayBuffer',
-    });
-    if (!response.ok) return null;
-
-    const blobUrl = URL.createObjectURL(
-        new Blob([await response.arrayBuffer()], { type: 'image/png' }),
-    );
-    try {
-        const texture = await new THREE.TextureLoader().loadAsync(blobUrl);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        return texture;
-    } finally {
-        URL.revokeObjectURL(blobUrl);
-    }
-}
-
 function openPreviewShell(wrapper, previewPane, label, tooltip, loadingText) {
     resetPreviewPane(previewPane);
     previewPane.style.display = 'flex';
@@ -3496,15 +3487,19 @@ function openPreviewShell(wrapper, previewPane, label, tooltip, loadingText) {
     const toolbar = document.createElement('div');
     toolbar.className = 'rovalra-explorer-gui-toolbar';
 
-    const closeBtn = document.createElement('button');
+    const closeBtn = createButton(
+        ts('createRoblox.explorer.closePreview'),
+        'secondary',
+        {
+            classList: ['rovalra-explorer-action-btn'],
+            onClick: () => {
+                resetPreviewPane(previewPane);
+                previewPane.style.display = 'none';
+                restoreModal(wrapper);
+            },
+        },
+    );
     closeBtn.type = 'button';
-    closeBtn.className = 'rovalra-explorer-source-btn';
-    closeBtn.textContent = ts('createRoblox.explorer.closePreview');
-    closeBtn.addEventListener('click', () => {
-        resetPreviewPane(previewPane);
-        previewPane.style.display = 'none';
-        restoreModal(wrapper);
-    });
     toolbar.appendChild(closeBtn);
 
     const title = document.createElement('span');
@@ -3516,15 +3511,14 @@ function openPreviewShell(wrapper, previewPane, label, tooltip, loadingText) {
     const area = document.createElement('div');
     area.className = 'rovalra-explorer-mesh-area';
 
-    const status = document.createElement('div');
-    status.className = 'rovalra-explorer-mesh-status';
-    status.textContent = loadingText;
+    const status = createLoadingState(loadingText);
+    status.classList.add('rovalra-explorer-mesh-status');
     area.appendChild(status);
 
     previewPane.appendChild(toolbar);
     previewPane.appendChild(area);
 
-    return { area, status };
+    return { area, status, toolbar };
 }
 
 async function openImageViewer(imageId, label, wrapper, previewPane) {
@@ -3532,7 +3526,7 @@ async function openImageViewer(imageId, label, wrapper, previewPane) {
         wrapper,
         previewPane,
         label,
-        `Image ${imageId}`,
+        ts('createRoblox.explorer.imageTooltip', { id: imageId }),
         ts('createRoblox.explorer.loadingImage'),
     );
     area.classList.add('rovalra-explorer-image-area');
@@ -3541,7 +3535,7 @@ async function openImageViewer(imageId, label, wrapper, previewPane) {
     const url = imageMap.get(String(imageId));
     if (!area.isConnected) return;
     if (!url) {
-        status.textContent = ts('createRoblox.explorer.imageLoadError');
+        status.replaceChildren(ts('createRoblox.explorer.imageLoadError'));
         return;
     }
 
@@ -3551,18 +3545,20 @@ async function openImageViewer(imageId, label, wrapper, previewPane) {
     img.onload = () => status.remove();
     img.onerror = () => {
         img.remove();
-        status.textContent = ts('createRoblox.explorer.imageLoadError');
+        status.replaceChildren(ts('createRoblox.explorer.imageLoadError'));
     };
     img.src = url;
     area.appendChild(img);
 }
+
+const MESH_PREVIEW_COLOR = 0xa3a2a5;
 
 async function openMeshViewer(entry, wrapper, previewPane) {
     const { area, status } = openPreviewShell(
         wrapper,
         previewPane,
         entry.label,
-        `Mesh ${entry.meshId}`,
+        ts('createRoblox.explorer.meshTooltip', { id: entry.meshId }),
         ts('createRoblox.explorer.loadingMesh'),
     );
 
@@ -3585,7 +3581,6 @@ async function openMeshViewer(entry, wrapper, previewPane) {
     let frame = 0;
     let geometry = null;
     let material = null;
-    let texture = null;
 
     const resize = () => {
         const w = area.clientWidth;
@@ -3595,18 +3590,16 @@ async function openMeshViewer(entry, wrapper, previewPane) {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
     };
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(area);
+    const resizeHandle = observeResize(area, resize);
 
     const cleanup = () => {
         if (disposed) return;
         disposed = true;
         cancelAnimationFrame(frame);
-        resizeObserver.disconnect();
+        resizeHandle.unobserve();
         controls.dispose();
         geometry?.dispose();
         material?.dispose();
-        texture?.dispose();
         renderer.dispose();
         renderer.forceContextLoss();
     };
@@ -3625,15 +3618,7 @@ async function openMeshViewer(entry, wrapper, previewPane) {
     };
 
     try {
-        const [fileMesh, loadedTexture] = await Promise.all([
-            API.Asset.GetMesh(entry.meshId),
-            entry.textureId
-                ? loadMeshTexture(entry.textureId).catch((e) => {
-                      console.warn('[RoValra Explorer] Texture failed:', e);
-                      return null;
-                  })
-                : null,
-        ]);
+        const fileMesh = await API.Asset.GetMesh(entry.meshId);
         if (!fileMesh || fileMesh instanceof Response) {
             throw new Error('Mesh could not be loaded');
         }
@@ -3641,18 +3626,15 @@ async function openMeshViewer(entry, wrapper, previewPane) {
         const sourceGeometry = fileMeshToTHREEGeometry(fileMesh, false);
         geometry = toLocalGeometry(sourceGeometry);
         sourceGeometry.dispose();
-        texture = loadedTexture;
 
         if (disposed) {
             geometry.dispose();
-            texture?.dispose();
             return;
         }
 
         geometry.center();
         material = new THREE.MeshStandardMaterial({
-            color: texture ? 0xffffff : toThreeColor(entry.color),
-            map: texture,
+            color: MESH_PREVIEW_COLOR,
             roughness: 0.8,
             metalness: 0,
             side: THREE.DoubleSide,
@@ -3684,7 +3666,7 @@ async function openMeshViewer(entry, wrapper, previewPane) {
     } catch (e) {
         console.error('[RoValra Explorer] Mesh preview failed:', e);
         if (!disposed) {
-            status.textContent = ts('createRoblox.explorer.meshLoadError');
+            status.replaceChildren(ts('createRoblox.explorer.meshLoadError'));
             cleanup();
         }
     }
@@ -3692,25 +3674,185 @@ async function openMeshViewer(entry, wrapper, previewPane) {
 
 // --- END MESH VIEWER LOGIC ---
 
-function buildExplorer(roots, expandAll) {
+const ACCESSORY_CLASSES = new Set(['Accessory', 'Hat']);
+
+function getSourceRoot(instance, parentMap) {
+    for (let curr = instance; curr; curr = parentMap.get(curr)) {
+        if (curr.rovalraSource) return curr;
+    }
+    return null;
+}
+
+function getInstancePath(instance, parentMap) {
+    const root = getSourceRoot(instance, parentMap);
+    const path = [];
+    for (let curr = instance; curr; curr = parentMap.get(curr)) {
+        path.unshift([curr.ClassName, getInstanceName(curr)]);
+        if (curr === root) break;
+    }
+    return path;
+}
+
+function findAncestorOfClass(instance, parentMap, classNames) {
+    for (let curr = parentMap.get(instance); curr; curr = parentMap.get(curr)) {
+        if (classNames.has(curr.ClassName)) return curr;
+    }
+    return null;
+}
+
+const THUMBNAIL_CAMERA_VALUES = new Set([
+    'ThumbnailCameraTarget',
+    'ThumbnailCameraValue',
+]);
+
+function getThumbnailCameraFocus(instance, parentMap) {
+    if (instance.ClassName === 'Camera') return instance;
+    const name = getInstanceName(instance);
+    if (name === 'ThumbnailConfiguration') return instance;
+    const parent = parentMap.get(instance);
+    if (
+        THUMBNAIL_CAMERA_VALUES.has(name) &&
+        parent &&
+        getInstanceName(parent) === 'ThumbnailConfiguration'
+    ) {
+        return parent;
+    }
+    return null;
+}
+
+function openAccessoryViewer({
+    accessory,
+    focusCamera,
+    parentMap,
+    wrapper,
+    previewPane,
+}) {
+    const source = getSourceRoot(accessory, parentMap)?.rovalraSource;
+    if (!source) return;
+
+    const label = `${getInstanceName(accessory)} (${accessory.ClassName})`;
+    const { area, status, toolbar } = openPreviewShell(
+        wrapper,
+        previewPane,
+        label,
+        label,
+        ts('createRoblox.explorer.loadingAccessory'),
+    );
+
+    previewPane.rovalraCleanup = openAccessoryPreview({
+        area,
+        status,
+        source,
+        rootPath: getInstancePath(accessory, parentMap),
+        focusCameraPath: focusCamera
+            ? getInstancePath(focusCamera, parentMap)
+            : null,
+        onError: () => {
+            status.replaceChildren(
+                ts('createRoblox.explorer.accessoryLoadError'),
+            );
+            if (!status.isConnected) area.appendChild(status);
+        },
+        onCamerasReady: ({ cameras, viewThrough }) => {
+            if (cameras.length === 0 || !toolbar.isConnected) return;
+            const target = cameras.find((c) => c.focused);
+            if (!target) return;
+            let viewing = false;
+
+            const cameraBtn = createActionButton(
+                ts('createRoblox.explorer.viewThroughCamera', {
+                    name: target.name,
+                }),
+                () => {
+                    viewing = !viewing;
+                    viewThrough(viewing ? target : null);
+                    cameraBtn.textContent = viewing
+                        ? ts('createRoblox.explorer.freeCamera')
+                        : ts('createRoblox.explorer.viewThroughCamera', {
+                              name: target.name,
+                          });
+                },
+            );
+            toolbar.appendChild(cameraBtn);
+        },
+    });
+}
+
+function createActionButton(text, onClick) {
+    const button = createButton(text, 'secondary', {
+        classList: ['rovalra-explorer-action-btn'],
+        onClick,
+    });
+    button.type = 'button';
+    return button;
+}
+
+const COPIED_RESET_MS = 1200;
+
+function createCopyButton(text, titleKey) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'rovalra-explorer-copy-btn';
+    button.title = ts(titleKey);
+    button.setAttribute('aria-label', button.title);
+
+    const icon = Icon({ icon: 'content_copy', material: true, size: '14px' });
+    button.appendChild(icon);
+
+    let resetTimer = null;
+    button.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (error) {
+            console.warn('[RoValra Explorer] Copy failed:', error);
+            return;
+        }
+        icon.textContent = 'check';
+        button.title = ts('createRoblox.explorer.copied');
+        button.classList.add('copied');
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+            icon.textContent = 'content_copy';
+            button.title = ts(titleKey);
+            button.classList.remove('copied');
+        }, COPIED_RESET_MS);
+    });
+    return button;
+}
+
+function addCopyButtons(nameCell, valueCell, name, value) {
+    nameCell.classList.add('rovalra-explorer-has-copy');
+    nameCell.appendChild(
+        createCopyButton(name, 'createRoblox.explorer.copyName'),
+    );
+    if (typeof value === 'string' && value.length > 0) {
+        valueCell.classList.add('rovalra-explorer-has-copy');
+        valueCell.appendChild(
+            createCopyButton(value, 'createRoblox.explorer.copyValue'),
+        );
+    }
+}
+
+function createChevron(className) {
+    return Icon({
+        icon: 'chevron-small-right',
+        size: '16px',
+        classes: [className],
+    });
+}
+
+const TREE_PAGE_SIZE = 200;
+const MAX_PROP_VALUE_LENGTH = 300;
+const AUTO_EXPAND_LIMIT = 400;
+
+function buildExplorer(roots, expandAll, options = {}) {
     const wrapper = document.createElement('div');
     wrapper.className = 'rovalra-explorer';
-    wrapper.style.display = 'flex';
-    wrapper.style.flexDirection = 'row';
-
-    wrapper.style.height = '75vh';
-    wrapper.style.maxHeight = '75vh';
-    wrapper.style.minHeight = '400px';
 
     // --- TREE PANE (with search bar) ---
     const treePane = document.createElement('div');
     treePane.className = 'rovalra-explorer-tree';
-    treePane.style.flex = '1 1 250px';
-    treePane.style.height = '100%';
-    treePane.style.display = 'flex';
-    treePane.style.flexDirection = 'column';
-    treePane.style.overflow = 'hidden';
-    treePane.style.borderRight = '1px solid var(--rovalra-exp-border)';
 
     // Search bar container for the explorer tree
     const treeSearchContainer = document.createElement('div');
@@ -3723,6 +3865,24 @@ function buildExplorer(roots, expandAll) {
         });
     treeSearchInput.type = 'search';
     treeSearchWrapper.classList.add('rovalra-explorer-search-input');
+
+    if (options.rig && options.onRigChange) {
+        const rigRow = document.createElement('div');
+        rigRow.className = 'rovalra-explorer-rig-row';
+        rigRow.title = ts('createRoblox.explorer.rigTooltip');
+        rigRow.appendChild(
+            createPillToggle({
+                options: [
+                    { text: ts('createRoblox.explorer.r15'), value: 'R15' },
+                    { text: ts('createRoblox.explorer.r6'), value: 'R6' },
+                ],
+                initialValue: options.rig,
+                onChange: (value) => options.onRigChange(value),
+            }),
+        );
+        treeSearchContainer.appendChild(rigRow);
+    }
+
     treeSearchContainer.appendChild(treeSearchWrapper);
     treePane.appendChild(treeSearchContainer);
 
@@ -3734,19 +3894,9 @@ function buildExplorer(roots, expandAll) {
     const previewPane = document.createElement('div');
     previewPane.className = 'rovalra-explorer-preview';
     previewPane.style.display = 'none';
-    previewPane.style.flexDirection = 'column';
-    previewPane.style.flex = '2 1 50%';
-    previewPane.style.minWidth = '300px';
-    previewPane.style.height = '100%';
-    previewPane.style.borderLeft = '1px solid var(--rovalra-exp-border)';
-    previewPane.style.borderRight = '1px solid var(--rovalra-exp-border)';
-    previewPane.style.overflow = 'hidden';
 
     const propsPane = document.createElement('div');
     propsPane.className = 'rovalra-explorer-props';
-    propsPane.style.flex = '1 1 300px';
-    propsPane.style.height = '100%';
-    propsPane.style.overflowY = 'auto';
 
     const emptyMsg = document.createElement('div');
     emptyMsg.className = 'rovalra-explorer-props-empty';
@@ -3786,21 +3936,49 @@ function buildExplorer(roots, expandAll) {
     }
     populateParents(roots);
 
+    let instanceCount = 0;
+    const countInstances = (list) => {
+        for (const inst of list) {
+            instanceCount++;
+            if (inst.Children) countInstances(inst.Children);
+        }
+    };
+    countInstances(roots);
+    const autoExpandDepth =
+        instanceCount > AUTO_EXPAND_LIMIT ? 1 : Number.POSITIVE_INFINITY;
+
     // --- SEARCH HELPERS ---
-    function instanceMatchesQuery(instance, query) {
-        if (!query) return true;
-        const name = getInstanceName(instance).toLowerCase();
-        const className = (instance.ClassName || '').toLowerCase();
-        return name.includes(query) || className.includes(query);
+    let searchQueryCache = null;
+    let directMatches = new Set();
+    let keptBySearch = new Set();
+
+    function updateSearchMatches(query) {
+        if (searchQueryCache === query) return;
+        searchQueryCache = query;
+        directMatches = new Set();
+        keptBySearch = new Set();
+        if (!query) return;
+
+        const visit = (instance) => {
+            const name = getInstanceName(instance).toLowerCase();
+            const className = (instance.ClassName || '').toLowerCase();
+            let keep = name.includes(query) || className.includes(query);
+            if (keep) directMatches.add(instance);
+            for (const child of instance.Children || []) {
+                if (visit(child)) keep = true;
+            }
+            if (keep) keptBySearch.add(instance);
+            return keep;
+        };
+        for (const root of roots) visit(root);
     }
 
-    function hasMatchingDescendant(instance, query) {
-        if (!instance.Children) return false;
-        for (const child of instance.Children) {
-            if (instanceMatchesQuery(child, query)) return true;
-            if (hasMatchingDescendant(child, query)) return true;
-        }
-        return false;
+    function instanceMatchesQuery(instance, query) {
+        return !query || directMatches.has(instance);
+    }
+
+    function isKeptBySearch(instance, query) {
+        return !query || keptBySearch.has(instance);
     }
 
     function selectInstance(instance, rowEl) {
@@ -3842,6 +4020,18 @@ function buildExplorer(roots, expandAll) {
         openMeshViewer(entry, wrapper, previewPane);
     }
 
+    function triggerAccessoryPreview(accessory, focusCamera) {
+        previewHighlightFn = null;
+        guiViewerRerender = null;
+        openAccessoryViewer({
+            accessory,
+            focusCamera,
+            parentMap,
+            wrapper,
+            previewPane,
+        });
+    }
+
     function triggerImagePreview(imageId, label) {
         previewHighlightFn = null;
         guiViewerRerender = null;
@@ -3880,41 +4070,64 @@ function buildExplorer(roots, expandAll) {
         headerActions.className = 'rovalra-explorer-props-actions';
         header.appendChild(headerActions);
 
-        if (
-            typeof props.Source === 'string' &&
-            props.Source.trim().length > 0
-        ) {
-            const sourceBtn = document.createElement('button');
-            sourceBtn.type = 'button';
-            sourceBtn.className = 'rovalra-explorer-source-btn';
-            sourceBtn.textContent = ts('createRoblox.explorer.viewSource');
-            sourceBtn.addEventListener('click', () => {
-                openSource(`${getInstanceName(instance)}.Source`, props.Source);
-            });
+        const scriptSource = getScriptSource(props);
+        if (scriptSource !== null) {
+            const sourceBtn = createActionButton(
+                ts('createRoblox.explorer.viewSource'),
+                () => {
+                    openSource(
+                        `${getInstanceName(instance)}.Source`,
+                        scriptSource,
+                    );
+                },
+            );
             headerActions.appendChild(sourceBtn);
         }
 
         if (VALID_GUI_CLASSES.has(instance.ClassName)) {
-            const guiBtn = document.createElement('button');
-            guiBtn.type = 'button';
-            guiBtn.className = 'rovalra-explorer-source-btn';
-            guiBtn.textContent = ts('createRoblox.explorer.previewGui');
-            guiBtn.addEventListener('click', () => {
-                triggerGuiPreview(instance);
-            });
+            const guiBtn = createActionButton(
+                ts('createRoblox.explorer.previewGui'),
+                () => {
+                    triggerGuiPreview(instance);
+                },
+            );
             headerActions.appendChild(guiBtn);
         }
 
         const meshEntry = getMeshEntry(instance, parentMap.get(instance));
         if (meshEntry) {
-            const meshBtn = document.createElement('button');
-            meshBtn.type = 'button';
-            meshBtn.className = 'rovalra-explorer-source-btn';
-            meshBtn.textContent = ts('createRoblox.explorer.previewMesh');
-            meshBtn.addEventListener('click', () => {
-                triggerMeshPreview(meshEntry);
-            });
+            const meshBtn = createActionButton(
+                ts('createRoblox.explorer.previewMesh'),
+                () => {
+                    triggerMeshPreview(meshEntry);
+                },
+            );
             headerActions.appendChild(meshBtn);
+        }
+
+        const hasSource = !!getSourceRoot(instance, parentMap);
+        if (hasSource && ACCESSORY_CLASSES.has(instance.ClassName)) {
+            headerActions.appendChild(
+                createActionButton(
+                    ts('createRoblox.explorer.previewAccessory'),
+                    () => triggerAccessoryPreview(instance, null),
+                ),
+            );
+        }
+
+        const cameraFocus = hasSource
+            ? getThumbnailCameraFocus(instance, parentMap)
+            : null;
+        const cameraAccessory = cameraFocus
+            ? findAncestorOfClass(cameraFocus, parentMap, ACCESSORY_CLASSES)
+            : null;
+        if (cameraAccessory) {
+            headerActions.appendChild(
+                createActionButton(
+                    ts('createRoblox.explorer.previewCamera'),
+                    () => triggerAccessoryPreview(cameraAccessory, cameraFocus),
+                ),
+            );
         }
 
         const stickyTop = document.createElement('div');
@@ -3995,12 +4208,16 @@ function buildExplorer(roots, expandAll) {
                     seqBar.style.background =
                         buildColorSequenceGradient(rawValue);
                 } else {
-                    seqBar.style.background = '#1a1a1a';
+                    seqBar.classList.add(
+                        'rovalra-explorer-sequence-bar-number',
+                    );
                     seqBar.appendChild(buildNumberSequenceSvg(rawValue));
                 }
 
                 const countLabel = document.createElement('span');
-                countLabel.textContent = `${rawValue.length} pts`;
+                countLabel.textContent = ts('createRoblox.explorer.points', {
+                    count: rawValue.length,
+                });
                 countLabel.className = 'rovalra-explorer-sequence-count';
 
                 seqWrapper.appendChild(seqBar);
@@ -4020,6 +4237,7 @@ function buildExplorer(roots, expandAll) {
                 });
                 valueCell.title = tipLines.join('\n');
 
+                addCopyButtons(nameCell, valueCell, label, valueCell.title);
                 row.appendChild(nameCell);
                 row.appendChild(valueCell);
                 return row;
@@ -4048,9 +4266,13 @@ function buildExplorer(roots, expandAll) {
                 valueCell.appendChild(dot);
             }
 
+            const shortText =
+                displayText.length > MAX_PROP_VALUE_LENGTH
+                    ? `${displayText.slice(0, MAX_PROP_VALUE_LENGTH)}…`
+                    : displayText;
             const valueText = document.createElement('span');
-            valueText.textContent = displayText;
-            valueText.title = valueText.textContent;
+            valueText.textContent = shortText;
+            valueText.title = shortText;
             valueCell.appendChild(valueText);
 
             let assetLinkId = null;
@@ -4083,10 +4305,14 @@ function buildExplorer(roots, expandAll) {
                         ? 'createRoblox.explorer.previewMesh'
                         : 'createRoblox.explorer.previewImage',
                 );
-                const previewIcon = document.createElement('span');
-                previewIcon.className = 'rovalra-explorer-asset-link-icon';
-                applyMaskIcon(previewIcon, PREVIEW_ICON);
-                previewBtn.appendChild(previewIcon);
+                previewBtn.setAttribute('aria-label', previewBtn.title);
+                previewBtn.appendChild(
+                    Icon({
+                        icon: 'visibility',
+                        material: true,
+                        size: '16px',
+                    }),
+                );
                 previewBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const title = `${getInstanceName(instance)}.${label}`;
@@ -4127,6 +4353,7 @@ function buildExplorer(roots, expandAll) {
                 sel.addRange(range);
             });
 
+            addCopyButtons(nameCell, valueCell, label, displayText);
             row.appendChild(nameCell);
             row.appendChild(valueCell);
             return row;
@@ -4147,9 +4374,7 @@ function buildExplorer(roots, expandAll) {
 
             const groupHeader = document.createElement('div');
             groupHeader.className = 'rovalra-explorer-prop-group open';
-            const arrow = document.createElement('span');
-            arrow.className = 'rovalra-explorer-prop-group-arrow';
-            arrow.textContent = '▾';
+            const arrow = createChevron('rovalra-explorer-prop-group-arrow');
             const groupLabel = document.createElement('span');
             groupLabel.textContent = group;
             groupHeader.appendChild(arrow);
@@ -4157,7 +4382,6 @@ function buildExplorer(roots, expandAll) {
 
             groupHeader.addEventListener('click', () => {
                 const open = groupHeader.classList.toggle('open');
-                arrow.textContent = open ? '▾' : '▸';
                 groupBody.style.display = open ? '' : 'none';
             });
 
@@ -4196,12 +4420,7 @@ function buildExplorer(roots, expandAll) {
                     if (anyVisible) {
                         groupHeader.style.display = '';
                         body.style.display = '';
-                        if (!groupHeader.classList.contains('open')) {
-                            groupHeader.classList.add('open');
-                            groupHeader.querySelector(
-                                '.rovalra-explorer-prop-group-arrow',
-                            ).textContent = 'v';
-                        }
+                        groupHeader.classList.add('open');
                     } else {
                         groupHeader.style.display = 'none';
                         body.style.display = 'none';
@@ -4226,6 +4445,32 @@ function buildExplorer(roots, expandAll) {
         filterProps();
     }
 
+    function appendChildPage(container, children, start, depth, query) {
+        const end = Math.min(start + TREE_PAGE_SIZE, children.length);
+        const frag = document.createDocumentFragment();
+        for (let i = start; i < end; i++) {
+            frag.appendChild(createNode(children[i], depth, query));
+        }
+
+        if (end < children.length) {
+            const moreRow = document.createElement('button');
+            moreRow.type = 'button';
+            moreRow.className = 'rovalra-explorer-show-more';
+            moreRow.style.marginLeft = `${depth * 16 + 24}px`;
+            moreRow.textContent = ts('createRoblox.explorer.showMore', {
+                count: Math.min(TREE_PAGE_SIZE, children.length - end),
+                total: children.length - end,
+            });
+            moreRow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moreRow.remove();
+                appendChildPage(container, children, end, depth, query);
+            });
+            frag.appendChild(moreRow);
+        }
+        container.appendChild(frag);
+    }
+
     // --- TREE NODE CREATION ---
     function createNode(instance, depth, query = '') {
         const node = document.createElement('div');
@@ -4241,35 +4486,28 @@ function buildExplorer(roots, expandAll) {
         let childrenToRender = allChildren;
 
         if (query) {
-            childrenToRender = allChildren.filter(
-                (child) =>
-                    instanceMatchesQuery(child, query) ||
-                    hasMatchingDescendant(child, query),
+            childrenToRender = allChildren.filter((child) =>
+                isKeptBySearch(child, query),
             );
         }
 
         const hasChildren = childrenToRender.length > 0;
         const hasAllChildren = allChildren.length > 0;
 
-        const toggle = document.createElement('span');
-        toggle.className = 'rovalra-explorer-toggle';
-        toggle.textContent = hasChildren ? '▸' : '';
+        const toggle = hasChildren
+            ? createChevron('rovalra-explorer-toggle')
+            : document.createElement('span');
+        if (!hasChildren) toggle.className = 'rovalra-explorer-toggle';
 
         const icon = document.createElement('img');
         icon.className = 'rovalra-explorer-icon';
-        icon.src = classIconUrl(instance.ClassName);
-        icon.onerror = () => {
-            if (/Value$/.test(instance.ClassName)) {
-                icon.onerror = () => {
-                    icon.onerror = null;
-                    icon.style.visibility = 'hidden';
-                };
-                icon.src = classIconUrl('Value');
-            } else {
-                icon.onerror = null;
-                icon.style.visibility = 'hidden';
-            }
-        };
+        icon.alt = '';
+        icon.style.visibility = 'hidden';
+        getClassIcon(instance.ClassName).then((url) => {
+            if (!url) return;
+            icon.src = url;
+            icon.style.visibility = '';
+        });
 
         const label = document.createElement('span');
         label.className = 'rovalra-explorer-label';
@@ -4277,8 +4515,7 @@ function buildExplorer(roots, expandAll) {
         label.title = `${getInstanceName(instance)} — ${instance.ClassName}`;
 
         if (query && instanceMatchesQuery(instance, query)) {
-            label.style.color = '#5dbfff';
-            label.style.fontWeight = '600';
+            label.classList.add('rovalra-explorer-label-match');
         }
 
         row.appendChild(toggle);
@@ -4300,17 +4537,19 @@ function buildExplorer(roots, expandAll) {
             VALID_GUI_CLASSES.has(instance.ClassName) &&
             instance.ClassName !== 'StarterGui'
         ) {
-            const visToggle = document.createElement('span');
+            const visToggle = document.createElement('button');
+            visToggle.type = 'button';
             visToggle.className = 'rovalra-explorer-vis-toggle';
-            visToggle.textContent = 'View';
-            visToggle.style.cursor = 'pointer';
-            visToggle.style.marginLeft = 'auto';
-            visToggle.style.fontSize = '14px';
-            visToggle.style.padding = '0 4px';
-            visToggle.style.userSelect = 'none';
             visToggle.title = ts(
                 'createRoblox.explorer.togglePreviewVisibility',
             );
+            visToggle.setAttribute('aria-label', visToggle.title);
+            const visIcon = Icon({
+                icon: 'visibility',
+                material: true,
+                size: '16px',
+            });
+            visToggle.appendChild(visIcon);
 
             const propToToggle = getVisibilityProp(instance.ClassName);
             const getVisibility = () => {
@@ -4320,10 +4559,11 @@ function buildExplorer(roots, expandAll) {
 
             const updateToggleVisual = () => {
                 const isVisible = getVisibility();
-                visToggle.style.opacity = isVisible ? '1' : '0.3';
-                visToggle.style.textDecoration = isVisible
-                    ? 'none'
-                    : 'line-through';
+                visIcon.textContent = isVisible
+                    ? 'visibility'
+                    : 'visibility_off';
+                visToggle.classList.toggle('hidden-in-preview', !isVisible);
+                visToggle.setAttribute('aria-pressed', String(isVisible));
             };
             updateToggleVisual();
 
@@ -4359,7 +4599,7 @@ function buildExplorer(roots, expandAll) {
             if (shouldExpand === expanded) return;
 
             expanded = shouldExpand;
-            toggle.textContent = expanded ? '▾' : '▸';
+            row.classList.toggle('expanded', expanded);
             childContainer.style.display = expanded ? 'block' : 'none';
 
             // Track expansion state based on context
@@ -4379,11 +4619,13 @@ function buildExplorer(roots, expandAll) {
 
             if (expanded && !built) {
                 built = true;
-                const frag = document.createDocumentFragment();
-                for (const child of sortInstances(childrenToRender)) {
-                    frag.appendChild(createNode(child, depth + 1, query));
-                }
-                childContainer.appendChild(frag);
+                appendChildPage(
+                    childContainer,
+                    sortInstances(childrenToRender),
+                    0,
+                    depth + 1,
+                    query,
+                );
             }
         };
 
@@ -4394,8 +4636,8 @@ function buildExplorer(roots, expandAll) {
             expand();
         });
 
-        const source = instance.Properties?.Source;
-        const isScript = typeof source === 'string' && source.trim().length > 0;
+        const source = getScriptSource(instance.Properties);
+        const isScript = source !== null;
 
         row.addEventListener('click', () => {
             selectInstance(instance, row);
@@ -4435,7 +4677,12 @@ function buildExplorer(roots, expandAll) {
             }
 
             // 3. Initial render expandAll flag
-            if (isInitialRender && expandAll && hasChildren) {
+            if (
+                isInitialRender &&
+                expandAll &&
+                hasChildren &&
+                depth < autoExpandDepth
+            ) {
                 shouldNodeBeExpanded = true;
             }
         }
@@ -4464,30 +4711,19 @@ function buildExplorer(roots, expandAll) {
     function renderTree() {
         treeContent.replaceChildren();
         const query = explorerSearchQuery.toLowerCase().trim();
+        updateSearchMatches(query);
 
-        const frag = document.createDocumentFragment();
-        let matchCount = 0;
+        const shownRoots = query
+            ? visibleRoots.filter((root) => isKeptBySearch(root, query))
+            : visibleRoots;
 
-        for (const root of visibleRoots) {
-            if (query) {
-                if (
-                    !instanceMatchesQuery(root, query) &&
-                    !hasMatchingDescendant(root, query)
-                ) {
-                    continue;
-                }
-            }
-            matchCount++;
-            frag.appendChild(createNode(root, 0, query));
-        }
-
-        if (query && matchCount === 0) {
+        if (query && shownRoots.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'rovalra-explorer-search-empty';
             empty.textContent = ts('createRoblox.explorer.noMatchingInstances');
             treeContent.appendChild(empty);
         } else {
-            treeContent.appendChild(frag);
+            appendChildPage(treeContent, shownRoots, 0, 0, query);
         }
 
         isInitialRender = false;
@@ -4581,7 +4817,7 @@ function openSource(title, source) {
     });
 }
 
-async function loadBundleTree(bundleId) {
+async function loadBundleTree(bundleId, { legacy = false } = {}) {
     const invalid = {
         assetId: bundleId,
         root: null,
@@ -4604,15 +4840,25 @@ async function loadBundleTree(bundleId) {
         );
         if (items.length === 0) return invalid;
 
+        let hasRigFormats = false;
         const folders = await Promise.all(
             items.map(async (item) => {
-                const tree = await loadAssetTree(parseInt(item.id, 10));
+                const tree = await loadAssetTree(parseInt(item.id, 10), {
+                    legacy,
+                });
                 if (!tree?.isValid || !tree.root || tree.root.length === 0) {
                     return null;
                 }
+                if (tree.hasRigFormats) hasRigFormats = true;
                 return {
                     ClassName: 'Folder',
-                    Properties: { Name: item.name || `Asset ${item.id}` },
+                    Properties: {
+                        Name:
+                            item.name ||
+                            ts('createRoblox.explorer.assetFallbackName', {
+                                id: item.id,
+                            }),
+                    },
                     Children: tree.root,
                 };
             }),
@@ -4621,7 +4867,14 @@ async function loadBundleTree(bundleId) {
         const root = folders.filter(Boolean);
         if (root.length === 0) return invalid;
 
-        return { assetId: bundleId, root, format: 'Bundle', isValid: true };
+        return {
+            assetId: bundleId,
+            root,
+            format: 'Bundle',
+            hasRigFormats,
+            rig: legacy ? 'R6' : 'R15',
+            isValid: true,
+        };
     } catch (error) {
         console.error('[RoValra Explorer] loadBundleTree failed:', error);
         return invalid;
@@ -4634,43 +4887,50 @@ async function openExplorer(
     expandAll,
     loadTree = loadAssetTree,
 ) {
-    const loading = document.createElement('div');
-    loading.className = 'rovalra-explorer-loading';
-    loading.textContent = ts('createRoblox.explorer.loading');
+    const host = document.createElement('div');
+    host.className = 'rovalra-explorer-host';
 
     createOverlay({
         title: `${ts('createRoblox.explorer.title')} — ${name || assetId}`,
-        bodyContent: loading,
+        bodyContent: host,
         maxWidth: '900px',
         showLogo: true,
     });
 
-    try {
-        const asset = await loadTree(parseInt(assetId, 10));
+    const load = async (rig) => {
+        const loading = createLoadingState(ts('createRoblox.explorer.loading'));
+        loading.classList.add('rovalra-explorer-loading');
+        restoreModal(host);
+        host.replaceChildren(loading);
 
-        console.log('[RoValra Explorer] result', {
-            assetId,
-            isValid: asset?.isValid,
-            format: asset?.format,
-            roots: asset?.root?.length,
-        });
+        try {
+            const asset = await loadTree(parseInt(assetId, 10), {
+                legacy: rig === 'R6',
+            });
+            if (!loading.isConnected) return;
 
-        if (
-            !asset ||
-            !asset.isValid ||
-            !asset.root ||
-            asset.root.length === 0
-        ) {
-            loading.textContent = ts('createRoblox.explorer.loadError');
-            return;
+            if (
+                !asset ||
+                !asset.isValid ||
+                !asset.root ||
+                asset.root.length === 0
+            ) {
+                loading.replaceChildren(ts('createRoblox.explorer.loadError'));
+                return;
+            }
+
+            const explorer = buildExplorer(asset.root, expandAll, {
+                rig: asset.hasRigFormats ? asset.rig : null,
+                onRigChange: load,
+            });
+            host.replaceChildren(explorer);
+        } catch (e) {
+            console.error('[RoValra Explorer] Failed:', e);
+            loading.replaceChildren(ts('createRoblox.explorer.loadError'));
         }
+    };
 
-        const explorer = buildExplorer(asset.root, expandAll);
-        loading.replaceWith(explorer);
-    } catch (e) {
-        console.error('[RoValra Explorer] Failed:', e);
-        loading.textContent = ts('createRoblox.explorer.loadError');
-    }
+    await load('R15');
 }
 
 async function addCatalogButton(rightToolbar) {
