@@ -34,6 +34,7 @@ const state = {
     initialized: false,
     groupFundsEnabled: false,
     navbarTotalEnabled: false,
+    combinedEnabled: false,
     groupIds: [],
     hideRobux: false,
     renderVersion: 0,
@@ -56,6 +57,7 @@ function getSettings() {
             {
                 GroupFundsEnabled: false,
                 GroupFundsNavbarTotalEnabled: false,
+                GroupFindsCombinedEnabled: false,
                 GroupFundsIds: [],
                 streamermode: false,
                 hideRobux: false,
@@ -554,6 +556,7 @@ async function syncSettingsAndRender() {
 
     state.groupFundsEnabled = settings.GroupFundsEnabled === true;
     state.navbarTotalEnabled = settings.GroupFundsNavbarTotalEnabled === true;
+    state.combinedEnabled = settings.GroupFindsCombinedEnabled === true;
     state.groupIds = sanitizeGroupIds(settings.GroupFundsIds);
     state.hideRobux = settings.streamermode && settings.hideRobux === true;
 
@@ -726,15 +729,17 @@ export function init() {
         }
 
         const groupData = {};
-        const combinedValues = createCombinedSection(
-            section,
-            rowContainer,
-            divider,
-            isFoundation,
-        );
+        const combinedValues = state.combinedEnabled
+            ? createCombinedSection(
+                  section,
+                  rowContainer,
+                  divider,
+                  isFoundation,
+              )
+            : null;
 
         const updateCombined = () => {
-            if (state.renderVersion !== myVersion) return;
+            if (!combinedValues || state.renderVersion !== myVersion) return;
 
             let totalFunds = 0;
             let totalPending = 0;
@@ -999,6 +1004,7 @@ export function init() {
         if (
             changes.GroupFundsEnabled ||
             changes.GroupFundsNavbarTotalEnabled ||
+            changes.GroupFindsCombinedEnabled ||
             changes.GroupFundsIds ||
             changes.streamermode ||
             changes.hideRobux
