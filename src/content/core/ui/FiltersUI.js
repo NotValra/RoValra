@@ -212,7 +212,7 @@ export function createAvatarFilterUI({
                     colorPicker.type = 'color';
                     colorPicker.id = config.colorPickerId;
                     colorPicker.value = config.defaultValue || '#000000';
-                    colorPicker.className = 'input-field';
+                    colorPicker.className = 'rovalra-input-field';
                     Object.assign(colorPicker.style, {
                         width: '40px',
                         height: '30px',
@@ -244,7 +244,8 @@ export function createAvatarFilterUI({
         const applyBtn = document.createElement('button');
         applyBtn.id = 'rovalra-price-apply-btn';
         applyBtn.textContent = ts('common.applyFilter');
-        applyBtn.className = 'apply-button btn-primary-md btn-full-width';
+        applyBtn.className =
+            'apply-button rovalra-ui-btn rovalra-btn-primary rovalra-btn-full-width';
         applyBtn.style.marginTop = '20px';
         applyBtn.style.backgroundColor = 'var(--rovalra-playbutton-color)';
         applyBtn.style.borderWidth = '0px';
@@ -294,7 +295,7 @@ export function createAvatarFilterUI({
     if (searchbarEnabled) {
         const searchInput = document.createElement('input');
         searchInput.id = 'rovalra-fx-search-bar';
-        searchInput.className = 'form-control input-field';
+        searchInput.className = 'rovalra-input-field';
         searchInput.type = 'text';
         searchInput.placeholder = ts('common.search');
         Object.assign(searchInput.style, {

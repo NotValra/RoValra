@@ -641,10 +641,11 @@ function handleQuickPlayCardLeave(event) {
         return;
     }
 
-    if (
-        isQuickPlayCardHovered(gameLink) ||
-        gameLink.contains(document.activeElement)
-    ) {
+    const hasKeyboardFocus =
+        gameLink.contains(document.activeElement) &&
+        document.activeElement.matches(':focus-visible');
+
+    if (isQuickPlayCardHovered(gameLink) || hasKeyboardFocus) {
         return;
     }
 
@@ -1160,7 +1161,12 @@ function performCardCleanup(gameLink) {
     gameLink.classList.remove(
         'quick-play-hover-active',
         'quick-play-hover-superseded',
+        'quick-play-wide-tile',
+        'quick-play-sdui-featured-tile',
     );
+    gameLink
+        .querySelectorAll('.quick-play-covered-description')
+        .forEach((el) => el.classList.remove('quick-play-covered-description'));
     gameLink.querySelector('.hover-background')?.remove();
     gameLink.querySelector('.play-button-overlay')?.remove();
     gameLink.classList.remove('game-tile-styles');
@@ -1250,13 +1256,90 @@ function makeRoomForSduiHover(gameLink) {
     }
 }
 
+const SDUI_WIDE_TILE_MIN_RATIO = 1.2;
+
+function isWideSduiTileLink(gameLink) {
+    if (!gameLink.classList.contains('sdui-game-tile-wrapper')) return false;
+
+    const imageContainer = gameLink.querySelector(
+        '[data-testid="sdui-tile-image-container"]',
+    );
+    if (!imageContainer) return false;
+
+    const { width, height } = imageContainer.getBoundingClientRect();
+    let ratio = height > 0 ? width / height : 0;
+
+    if (!ratio) {
+        const [w, h = 1] = (imageContainer.style.aspectRatio || '')
+            .split('/')
+            .map((part) => parseFloat(part));
+        ratio = w && h ? w / h : 0;
+    }
+
+    return ratio >= SDUI_WIDE_TILE_MIN_RATIO;
+}
+
+function isSduiFeaturedTile(gameLink) {
+    if (!gameLink.classList.contains('sdui-game-tile-wrapper')) return false;
+    return !!gameLink.querySelector(
+        '[data-testid="sdui-tile-footer-content"] .sdui-play-button',
+    );
+}
+
+function getSduiFeaturedDescription(gameLink) {
+    return gameLink.querySelector(
+        '.sdui-game-tile-footer > [data-testid="sdui-view"] > [data-testid="sdui-text"]:last-child',
+    );
+}
+
+function positionSduiFeaturedOverlay(gameLink, overlay) {
+    const description = getSduiFeaturedDescription(gameLink);
+    if (!description) {
+        overlay.style.top = '';
+        overlay.style.bottom = '';
+        overlay.style.height = '';
+        overlay.style.width = '';
+        overlay.style.right = '';
+        lockSpecialLayoutOverlayPosition(overlay);
+        return;
+    }
+
+    const linkRect = gameLink.getBoundingClientRect();
+    const descRect = description.getBoundingClientRect();
+
+    const footerRow = description.closest(
+        '[data-testid="sdui-tile-footer-content"]',
+    );
+    const right = Math.max(
+        descRect.right,
+        footerRow?.getBoundingClientRect().right ?? 0,
+    );
+    Object.assign(overlay.style, {
+        top: `${descRect.top - linkRect.top}px`,
+        left: `${descRect.left - linkRect.left}px`,
+        width: `${right - descRect.left}px`,
+        height: `${descRect.height}px`,
+        right: 'auto',
+        bottom: 'auto',
+    });
+    overlay.style.setProperty(
+        '--rovalra-featured-icon-scale',
+        String(Math.max(1, descRect.height / 28)),
+    );
+    description.classList.add('quick-play-covered-description');
+}
+
 function setupHoverCard(gameLink, settings) {
     hideOtherHoverCards(gameLink);
     cancelCardCleanup(gameLink);
     gameLink.classList.remove('quick-play-hover-superseded');
     gameLink.classList.add('quick-play-hover-active');
 
-    if (gameLink.querySelector('.play-button-overlay')) {
+    const existingOverlay = gameLink.querySelector('.play-button-overlay');
+    if (existingOverlay) {
+        if (gameLink.classList.contains('quick-play-sdui-featured-tile')) {
+            positionSduiFeaturedOverlay(gameLink, existingOverlay);
+        }
         return;
     }
 
@@ -1265,6 +1348,8 @@ function setupHoverCard(gameLink, settings) {
     const isSpecialLayout = gameLink.closest(
         '.featured-game-container, .featured-grid-item-container',
     );
+    const isSduiFeatured = !isSpecialLayout && isSduiFeaturedTile(gameLink);
+    if (isSduiFeatured) gameLink.classList.add('quick-play-sdui-featured-tile');
 
     if (!isSpecialLayout) {
         const hoverBg = document.createElement('div');
@@ -1354,9 +1439,14 @@ function setupHoverCard(gameLink, settings) {
     overlay.appendChild(wrapper);
     gameLink.appendChild(overlay);
 
-    if (isSpecialLayout) lockSpecialLayoutOverlayPosition(overlay);
+    const isWideSduiTile =
+        !isSpecialLayout && !isSduiFeatured && isWideSduiTileLink(gameLink);
+    if (isWideSduiTile) gameLink.classList.add('quick-play-wide-tile');
 
-    if (!isSpecialLayout) {
+    if (isSduiFeatured) positionSduiFeaturedOverlay(gameLink, overlay);
+    else if (isSpecialLayout) lockSpecialLayoutOverlayPosition(overlay);
+
+    if (!isSpecialLayout && !isWideSduiTile && !isSduiFeatured) {
         gameLink
             .querySelectorAll(
                 '.game-card-info, .game-card-friend-info, [data-testid="sdui-tile-footer-content"]',

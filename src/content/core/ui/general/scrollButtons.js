@@ -1,19 +1,30 @@
 // Recreates robloxs carousel controls.
+import { Icon } from '../buildericon.js';
 
-
-export function createScrollButtons({ onLeftClick, onRightClick }) {
+export function createScrollButtons({
+    onLeftClick,
+    onRightClick,
+    builderIcons = false,
+}) {
     const createArrow = (direction) => {
         const button = document.createElement('div');
         button.setAttribute('data-testid', 'carousel-scroll-arrow');
         button.className = `scroll-arrow ${direction}`;
         button.setAttribute('role', 'button');
         button.tabIndex = 0;
-        
+
         button.style.cursor = 'pointer';
 
-        const icon = document.createElement('span');
-        icon.className = `icon-chevron-heavy-${direction}`;
+        const icon = builderIcons
+            ? Icon({
+                  icon: `chevron-small-${direction}`,
+                  filled: false,
+                  size: 'medium',
+              })
+            : document.createElement('span');
+        if (!builderIcons) icon.className = `icon-chevron-heavy-${direction}`;
         icon.setAttribute('data-testid', 'carousel-scroll-arrow-icon');
+        icon.setAttribute('aria-hidden', 'true');
 
         button.appendChild(icon);
         return button;

@@ -1086,14 +1086,6 @@ export const SETTINGS_CONFIG = {
                 },
             },
 
-            chatEligibilityTooltipEnabled: {
-                label: 'Chat Eligibility Tooltip',
-                description: [
-                    "Shows if you can or can't chat with a friend, or if they haven't completed an age check, when hovering over the chat button on their profile.",
-                ],
-                type: 'checkbox',
-                default: true,
-            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [
@@ -1458,6 +1450,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['1388867949', '447170745'],
                 childSettings: {
                     robloxGroupFeaturesEnabled: {
                         label: 'Roblox Group Badges',
@@ -2502,7 +2495,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['2963377564'],
+                contributors: ['2963377564', '3598865306'],
                 storageKey: [
                     'rovalra_sidebar_layout_order',
                     'rovalra_sidebar_layout_hidden',
@@ -2828,12 +2821,23 @@ export const SETTINGS_CONFIG = {
                     "Shows the verified badge next to your name in the sidebar and top bar if you're verified.",
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
+                isPermanent: true,
+                locked: 'Roblox is adding an official version of this.',
             },
             disableThumbnailBackground: {
                 label: 'Disable Thumbnail Backgrounds',
                 description: [
                     'This prevents profile backgrounds from showing in avatar headshots and other places.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            deeplinkLaunchOverrideEnabled: {
+                label: 'Launch Roblox Through Deeplinks',
+                description: [
+                    "Overrides Roblox's launching so every join opens the client through roblox:// deeplinks instead.",
+                    'This can be less reliable than the normal launcher.',
                 ],
                 type: 'checkbox',
                 default: false,

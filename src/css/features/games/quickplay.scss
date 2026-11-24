@@ -165,6 +165,66 @@ a.game-tile-styles.game-card-link,
         transform: none;
         transition: none;
     }
+
+    &.quick-play-wide-tile {
+        &:hover,
+        &.quick-play-hover-active {
+            [data-testid='sdui-tile-footer-content'] {
+                transform: none;
+                visibility: hidden;
+            }
+        }
+
+        &.quick-play-hover-superseded [data-testid='sdui-tile-footer-content'] {
+            visibility: visible;
+        }
+    }
+
+    &.quick-play-sdui-featured-tile {
+        [data-testid='sdui-tile-footer-content'] {
+            transform: none !important;
+        }
+
+        .play-button-overlay {
+            justify-content: center;
+        }
+
+        .play-buttons-wrapper,
+        .play-game-button,
+        .private-servers-button,
+        .server-browser-button {
+            height: 100%;
+        }
+
+        .private-servers-button,
+        .server-browser-button {
+            aspect-ratio: 1;
+            width: auto;
+            padding: 0;
+
+            svg {
+                width: 55%;
+                height: 55%;
+            }
+        }
+
+        .play-game-button .icon-common-play {
+            transform: scale(
+                calc(0.8 * var(--rovalra-featured-icon-scale, 1))
+            );
+        }
+
+        &:hover,
+        &.quick-play-hover-active {
+            .quick-play-covered-description {
+                visibility: hidden;
+            }
+        }
+
+        &.quick-play-hover-superseded .quick-play-covered-description {
+            visibility: visible;
+        }
+    }
 }
 
 .rovalra-paid-access-price-badge {

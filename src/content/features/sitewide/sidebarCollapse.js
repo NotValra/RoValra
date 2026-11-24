@@ -12,6 +12,9 @@ const ROBLOX_LEFT_NAV_BREAKPOINT = 768;
 const ROBLOX_NAV_MENU_SELECTOR =
     'button.menu-button.btn-navigation-nav-menu-md, .icon-nav-menu';
 const CONTENT_ROOT_SELECTOR = 'main.container-main';
+const EXPANDED_SIDEBAR_WIDTH = 289;
+const OFFSET_PROPERTIES = ['margin-left', 'padding-left', 'left'];
+const OFFSET_SEARCH_DEPTH = 3;
 let currentLeftNav = null;
 let currentContentRoot = null;
 let currentRobloxNavButton = null;
@@ -33,7 +36,6 @@ function getToggleLabel(collapsed) {
 function isCollapsed(leftNav) {
     return leftNav?.dataset.rovalraSidebarCollapsed === 'true';
 }
-
 
 function isHoverExpanded(leftNav) {
     return leftNav?.dataset.rovalraSidebarHoverExpanded === 'true';
@@ -59,10 +61,9 @@ function setHoverExpansion(leftNav, expanded) {
         delete leftNav.dataset.rovalraSidebarHoverExpanded;
     }
 
-    const contentRoot =
-        currentContentRoot?.isConnected
-            ? currentContentRoot
-            : document.querySelector(CONTENT_ROOT_SELECTOR);
+    const contentRoot = currentContentRoot?.isConnected
+        ? currentContentRoot
+        : document.querySelector(CONTENT_ROOT_SELECTOR);
 
     if (contentRoot) {
         if (expanded) {
@@ -71,7 +72,6 @@ function setHoverExpansion(leftNav, expanded) {
             delete contentRoot.dataset.rovalraSidebarHoverExpanded;
         }
     }
-
 }
 
 function clearHoverExpansion(leftNav) {
@@ -114,7 +114,6 @@ function attachHoverExpansion(leftNav) {
         handleSidebarPointerLeave(leftNav);
     });
 }
-
 
 function isVisible(element) {
     if (!element) return false;
@@ -192,6 +191,7 @@ function notifyLayoutResize() {
 }
 
 function syncSidebarLayout(leftNav, state = getSidebarState(leftNav)) {
+    ensureContentRoot(leftNav);
     const layoutChanged = updateSidebarState(leftNav, state);
 
     if (layoutChanged) notifyLayoutResize();
@@ -252,6 +252,77 @@ function removeRobloxResponsiveNavButton() {
     );
     currentRobloxNavButton = null;
     scheduleResponsiveSidebarStateSync();
+}
+
+function getOffsetProperty(element) {
+    const style = getComputedStyle(element);
+    return OFFSET_PROPERTIES.find(
+        (property) =>
+            Math.abs(
+                parseFloat(style.getPropertyValue(property)) -
+                    EXPANDED_SIDEBAR_WIDTH,
+            ) <= 1,
+    );
+}
+
+function findOffsetElementIn(element, depth) {
+    const property = getOffsetProperty(element);
+    if (property) return { element, property };
+    if (depth <= 0) return null;
+
+    for (const child of element.children) {
+        const match = findOffsetElementIn(child, depth - 1);
+        if (match) return match;
+    }
+    return null;
+}
+
+function findOffsetContentRoot(leftNav) {
+    for (
+        let node = leftNav;
+        node?.parentElement && node !== document.body;
+        node = node.parentElement
+    ) {
+        for (const sibling of node.parentElement.children) {
+            if (sibling === node || sibling.contains(leftNav)) continue;
+            const match = findOffsetElementIn(sibling, OFFSET_SEARCH_DEPTH);
+            if (match) return match;
+        }
+
+        const parentProperty = getOffsetProperty(node.parentElement);
+        if (parentProperty) {
+            return { element: node.parentElement, property: parentProperty };
+        }
+    }
+    return null;
+}
+
+function ensureContentRoot(leftNav) {
+    if (currentContentRoot?.isConnected) return;
+    if (!leftNav?.isConnected) return;
+
+    const legacyRoot = document.querySelector(CONTENT_ROOT_SELECTOR);
+    if (legacyRoot) {
+        attachContentRoot(legacyRoot);
+        return;
+    }
+
+    const match = findOffsetContentRoot(leftNav);
+    if (!match) return;
+
+    const { element, property } = match;
+    element.dataset.rovalraSidebarOffset = property;
+
+    const parentWidth = element.parentElement?.clientWidth ?? 0;
+    if (
+        property === 'margin-left' &&
+        Math.abs(element.offsetWidth + EXPANDED_SIDEBAR_WIDTH - parentWidth) <=
+            2
+    ) {
+        element.dataset.rovalraSidebarOffsetFill = 'true';
+    }
+
+    attachContentRoot(element);
 }
 
 function attachContentRoot(contentRoot) {
@@ -336,11 +407,9 @@ function createCollapseIcon() {
 function getNavItemText(control) {
     const textElement =
         control.querySelector('.nav-item-text, span.text-truncate-end') ||
-        [
-            ...control.querySelectorAll(
-                'span:not([role="presentation"])',
-            ),
-        ].find((element) => element.textContent.trim());
+        [...control.querySelectorAll('span:not([role="presentation"])')].find(
+            (element) => element.textContent.trim(),
+        );
     const text = textElement?.textContent?.trim() || control.textContent.trim();
 
     return text.replace(/\s+/g, ' ');
@@ -430,9 +499,9 @@ function removeLeftNav() {
 
 async function initSidebarCollapse() {
     const [enabled, collapsed, hoverEnabled] = await Promise.all([
-    settings.sidebarCollapseEnabled,
-    storedCollapsedPromise,
-    settings.sidebarExpandOnHover,
+        settings.sidebarCollapseEnabled,
+        storedCollapsedPromise,
+        settings.sidebarExpandOnHover,
     ]);
 
     if (!enabled) return;
@@ -463,6 +532,12 @@ async function initSidebarCollapse() {
     observeElement(CONTENT_ROOT_SELECTOR, attachContentRoot, {
         onRemove: removeContentRoot,
     });
+
+    observeElement(
+        'main, [role="main"]',
+        () => scheduleResponsiveSidebarStateSync(),
+        { multiple: true },
+    );
     observeElement(
         '.left-nav nav li > a, .left-nav nav li > button, .left-nav .roseal-left-nav-item .nav-item-link',
         addCollapsedNavTooltip,

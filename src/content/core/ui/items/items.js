@@ -53,7 +53,6 @@ async function fetchDevelopAssetDetails(assetIds) {
 
 function getCollectibleLowestResalePrice(data) {
     const resalePrice =
-        data?.CollectiblesItemDetails?.CollectibleLowestResalePrice ??
         data?.collectiblesItemDetails?.collectibleLowestResalePrice ??
         data?.lowestResalePrice;
 
@@ -67,13 +66,21 @@ function getItemRawPrice(...sources) {
         const price =
             source?.lowestPrice ??
             source?.priceInRobux ??
-            source?.price ??
-            source?.PriceInRobux;
+            source?.price;
 
         if (typeof price === 'number') return price;
     }
 
     return null;
+}
+
+// Matches Roblox's catalog URL format instead of using unnamed. Done to prevent rate limits with some VPNs widely by Roblox Players
+function slugifyItemName(name) {
+    const slug = String(name ?? '')
+        .replace(/['’]/g, '')
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    return slug || 'unnamed';
 }
 
 function isBundleAssetProxy(looksItemData, assetId) {
@@ -97,88 +104,6 @@ function isFAEItem(item) {
                 ['IsFAE', 'IsFae'].includes(status),
             ))
     );
-}
-
-async function fetchEconomyItemDetails(
-    assetId,
-    looksItemData = null,
-    catalogItemData = null,
-) {
-    try {
-        const economyRes = await callRobloxApi({
-            subdomain: 'economy',
-            endpoint: `/v2/assets/${assetId}/details`,
-            method: 'GET',
-        });
-
-        if (!economyRes.ok) return null;
-
-        const data = await economyRes.json();
-        const restrictions = [];
-        if (data.IsLimited) restrictions.push('Limited');
-        if (data.IsLimitedUnique) restrictions.push('LimitedUnique');
-        if (
-            data.CollectiblesItemDetails?.IsLimited &&
-            !restrictions.includes('Collectible')
-        ) {
-            restrictions.push('Collectible');
-        }
-        catalogItemData?.itemRestrictions?.forEach((restriction) => {
-            if (!restrictions.includes(restriction)) {
-                restrictions.push(restriction);
-            }
-        });
-        if (!isBundleAssetProxy(looksItemData, assetId)) {
-            looksItemData?.itemRestrictions?.forEach((restriction) => {
-                if (!restrictions.includes(restriction)) {
-                    restrictions.push(restriction);
-                }
-            });
-        }
-
-        const resalePrice = getCollectibleLowestResalePrice(data);
-        const priceSources = isBundleAssetProxy(looksItemData, assetId)
-            ? [catalogItemData, data]
-            : [looksItemData, catalogItemData, data];
-        const rawPrice = resalePrice ?? getItemRawPrice(...priceSources);
-
-        const item = {
-            assetId,
-            name: data.Name || catalogItemData?.name || 'Unknown Item',
-            recentAveragePrice: rawPrice || 0,
-            itemRestrictions: restrictions,
-            isFAE: isFAEItem(catalogItemData),
-            itemType: catalogItemData?.itemType || 'Asset',
-            isOnHold: false,
-            bundleId: null,
-        };
-
-        if (
-            looksItemData?.itemType === 'Bundle' &&
-            looksItemData.id !== assetId
-        ) {
-            item.bundleId = looksItemData.id;
-        }
-
-        const saleSource = isBundleAssetProxy(looksItemData, assetId)
-            ? catalogItemData
-            : looksItemData;
-        const isForSale = saleSource
-            ? !isItemOffSale(saleSource)
-            : (data.IsForSale ?? !isItemOffSale(catalogItemData));
-
-        if (!isForSale && resalePrice == null) {
-            item.priceText = 'Off Sale';
-        } else {
-            item.price = rawPrice;
-            if (rawPrice === 0) item.priceText = 'Free';
-        }
-
-        return item;
-    } catch (e) {
-        console.warn(`RoValra: Economy fallback failed for item ${assetId}`, e);
-        return null;
-    }
 }
 
 async function processBatch() {
@@ -286,15 +211,13 @@ async function processBatch() {
             });
         });
 
-        const developAssetMap = await fetchDevelopAssetDetails(
-            [
-                ...new Set(
-                    currentBatch
-                        .filter((request) => !catalogDetailsMap.has(request.id))
-                        .map((request) => request.id),
-                ),
-            ],
-        );
+        const developAssetMap = await fetchDevelopAssetDetails([
+            ...new Set(
+                currentBatch
+                    .filter((request) => !catalogDetailsMap.has(request.id))
+                    .map((request) => request.id),
+            ),
+        ]);
 
         await Promise.all(
             currentBatch.map(async (request) => {
@@ -303,24 +226,6 @@ async function processBatch() {
                 const itemData = looksItemData || catalogItemData;
 
                 if (catalogItemData) {
-                    if (!looksItemData) {
-                        const economyItem = await fetchEconomyItemDetails(
-                            request.id,
-                            null,
-                            catalogItemData,
-                        );
-
-                        if (economyItem) {
-                            const realCard = createItemCard(
-                                economyItem,
-                                thumbMap,
-                                request.config,
-                            );
-                            request.placeholder.replaceWith(realCard);
-                            return;
-                        }
-                    }
-
                     // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
                     const isLooksBundleProxy = isBundleAssetProxy(
                         looksItemData,
@@ -348,18 +253,11 @@ async function processBatch() {
                         ? [catalogItemData]
                         : [saleItemData, looksItemData];
                     let rawPrice = getItemRawPrice(...priceSources);
-                    let economyItem = null;
 
                     if (isLimited && (isOffSale || rawPrice == null)) {
-                        economyItem = await fetchEconomyItemDetails(
-                            request.id,
-                            looksItemData,
-                            catalogItemData,
-                        );
-
-                        if (economyItem?.price != null) {
-                            rawPrice = economyItem.price;
-                        }
+                        const resalePrice =
+                            getCollectibleLowestResalePrice(catalogItemData);
+                        if (resalePrice != null) rawPrice = resalePrice;
                     }
 
                     const item = {
@@ -370,6 +268,9 @@ async function processBatch() {
                         recentAveragePrice: rawPrice || 0,
                         itemRestrictions: restrictions,
                         isFAE: isFAEItem(catalogItemData),
+                        license: catalogItemData.license?.licenseType
+                            ? catalogItemData.license
+                            : null,
                         itemType: catalogItemData.itemType,
                         isOnHold: false,
                         bundleId: null,
@@ -403,30 +304,23 @@ async function processBatch() {
                     );
                     request.placeholder.replaceWith(realCard);
                 } else {
-                    let item = await fetchEconomyItemDetails(
-                        request.id,
-                        looksItemData,
-                        catalogItemData,
-                    );
-
-                    if (!item) {
-                        const assetInfo = developAssetMap.get(request.id);
-                        if (assetInfo) {
-                            item = {
-                                assetId: request.id,
-                                name: assetInfo.name,
-                                assetType: {
-                                    id: assetInfo.typeId,
-                                    name: assetInfo.type,
-                                },
-                                recentAveragePrice: 0,
-                                itemRestrictions: [],
-                                itemType: 'Asset',
-                                isOnHold: false,
-                                bundleId: null,
-                                priceText: 'Off Sale',
-                            };
-                        }
+                    let item = null;
+                    const assetInfo = developAssetMap.get(request.id);
+                    if (assetInfo) {
+                        item = {
+                            assetId: request.id,
+                            name: assetInfo.name,
+                            assetType: {
+                                id: assetInfo.typeId,
+                                name: assetInfo.type,
+                            },
+                            recentAveragePrice: 0,
+                            itemRestrictions: [],
+                            itemType: 'Asset',
+                            isOnHold: false,
+                            bundleId: null,
+                            priceText: 'Off Sale',
+                        };
                     }
 
                     if (item) {
@@ -452,8 +346,7 @@ async function processBatch() {
                             );
                         }
                     } else {
-                        request.placeholder.innerHTML =
-                            `<div style="padding: 10px;">${ts('items.notFound')}</div>`;
+                        request.placeholder.innerHTML = `<div style="padding: 10px;">${ts('items.notFound')}</div>`;
                     }
                 }
             }),
@@ -461,8 +354,7 @@ async function processBatch() {
     } catch (e) {
         console.warn('RoValra: Batch request failed', e);
         currentBatch.forEach((request) => {
-            request.placeholder.innerHTML =
-                `<div style="padding: 10px;">${ts('items.failedToLoad')}</div>`;
+            request.placeholder.innerHTML = `<div style="padding: 10px;">${ts('items.failedToLoad')}</div>`;
         });
     }
 }
@@ -532,10 +424,11 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         ? thumbnailCache.get(item.assetId)
         : null;
     const itemType = item.itemType || 'Asset';
+    const itemSlug = slugifyItemName(item.name);
     const itemUrl =
         itemType === 'Bundle'
-            ? `https://www.roblox.com/bundles/${item.assetId}/unnamed`
-            : `https://www.roblox.com/catalog/${item.assetId}/unnamed`;
+            ? `https://www.roblox.com/bundles/${item.assetId}/${itemSlug}`
+            : `https://www.roblox.com/catalog/${item.assetId}/${itemSlug}`;
 
     let priceHtml;
     if (item.priceText) {
@@ -649,6 +542,29 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
             justifyContent: 'center',
         });
         thumbContainer.appendChild(faeIconElement);
+    }
+
+    if (item.license?.licenseType) {
+        const licensedPill = document.createElement('div');
+        licensedPill.className =
+            'rovalra-licensed-pill foundation-web-badge flex items-center select-none gap-[var(--size-150)] radius-circle height-600 width-[fit-content] padding-x-small bg-shift-200 content-emphasis stroke-none';
+        const licensedText = document.createElement('span');
+        licensedText.className =
+            'text-no-wrap text-truncate-split text-label-small padding-y-xsmall padding-x-xxsmall content-emphasis';
+        licensedText.textContent = ts('items.licensed');
+        licensedPill.appendChild(licensedText);
+        Object.assign(licensedPill.style, {
+            position: 'absolute',
+            top: '8px',
+            left: isFAEItem(item) ? '48px' : '8px',
+            zIndex: '3',
+        });
+        if (item.license.licenseDisplayName) {
+            addTooltip(licensedPill, item.license.licenseDisplayName, {
+                position: 'top',
+            });
+        }
+        thumbContainer.appendChild(licensedPill);
     }
 
     let showLimitedIcon = false;

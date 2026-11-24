@@ -7,6 +7,7 @@ const SIDEBAR_COMMUNITY_SELECTOR = [
     '#left-navigation-container a[href*="/communities"]',
     '#navigation a[href*="/communities"]',
     '.navigation a[href*="/communities"]',
+    '.left-nav nav a[href*="/communities"]',
 ].join(', ');
 const LINK_CLASS =
     'content-emphasis text-title-large flex items-center gap-small padding-left-xsmall padding-right-xxsmall radius-medium relative clip group/interactable focus-visible:outline-focus disabled:outline-none';

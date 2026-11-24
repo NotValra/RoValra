@@ -10,6 +10,7 @@ const SIDEBAR_COMMUNITY_SELECTOR = [
     '#left-navigation-container a[href*="/communities"]',
     '#navigation a[href*="/communities"]',
     '.navigation a[href*="/communities"]',
+    '.left-nav nav a[href*="/communities"]',
 ].join(', ');
 
 let lastObservedPath = window.location.pathname;

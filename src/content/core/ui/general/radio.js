@@ -20,12 +20,11 @@ export function createRadioButton({ id, checked = false, onChange } = {}) {
     });
 
     const icon = document.createElement('span');
+    icon.className = 'rovalra-radio-icon';
 
     const setChecked = (isChecked) => {
         button.setAttribute('aria-checked', String(isChecked));
-        icon.className = isChecked
-            ? 'icon-radio-check-circle-filled'
-            : 'icon-radio-check-circle';
+        icon.classList.toggle('is-checked', isChecked);
     };
 
     button.addEventListener('click', (e) => {

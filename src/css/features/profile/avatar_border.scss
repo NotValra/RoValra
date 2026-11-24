@@ -24,3 +24,13 @@
         display: block;
     }
 }
+
+:has(> .rovalra-avatar-border)
+    > :is(
+        .rovalra-status-bubble-wrapper,
+        .avatar-status,
+        .avatar-card-label,
+        .icon-label
+    ) {
+    z-index: 4 !important;
+}

@@ -133,6 +133,9 @@ export const BADGE_CONFIG = {
         builderIconFilled: true,
         themeColorIcon: true,
         tooltip: 'Roblox QA Tester',
+        valiantTooltip: 'Roblox Valiant QA Tester',
+        programsTooltip: 'Roblox Early Access & Testing Programs',
+        valiantColor: 'rgb(163 103 205)',
         shiny: false,
         sparkles: false,
         size: '22px',
@@ -144,6 +147,18 @@ export const BADGE_CONFIG = {
         builderIconFilled: false,
         themeColorIcon: true,
         tooltip: 'Roblox Community Safety Council',
+        shiny: false,
+        sparkles: false,
+        size: '22px',
+    },
+    protected_user: {
+        type: 'header',
+        userIds: [],
+        builderIcon: 'shield-lock',
+        builderIconFilled: true,
+        themeColorIcon: true,
+        tooltip:
+            'This user is a Protected User. Protected Users are users who have protections in place making them less likely to get falsely moderated. Some protected users may not show this badge.',
         shiny: false,
         sparkles: false,
         size: '22px',
@@ -194,7 +209,8 @@ export const BADGE_CONFIG = {
         userIds: [GILBERT_USER_ID],
         icon: assets.oldRovalraIcon,
         name: 'Gilbert',
-        tooltip: 'Maker of Fisch, where Gilbert (an older icon of RoValra) comes from',
+        tooltip:
+            'Maker of Fisch, where Gilbert (an older icon of RoValra) comes from',
         confetti: assets.oldRovalraIcon,
     },
     rat: {

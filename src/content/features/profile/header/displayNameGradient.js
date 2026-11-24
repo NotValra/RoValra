@@ -475,8 +475,19 @@ async function applyGradientToNameElementsForUser(nameEls, userId) {
     }
 }
 
+function isSidebarNavLabel(nameEl) {
+    const link = nameEl.closest('a[href="/users/profile"]');
+    return !!link?.querySelector(
+        ':scope > span:first-of-type [data-testid="foundation-web-icon"]',
+    );
+}
+
 async function applyDisplayNameGradient() {
-    const nameEls = [...document.querySelectorAll(DISPLAY_NAME_SELECTOR)];
+    const matchedEls = [...document.querySelectorAll(DISPLAY_NAME_SELECTOR)];
+    matchedEls
+        .filter((el) => isSidebarNavLabel(el) && hasDisplayNameCosmetic(el))
+        .forEach(clearDisplayNameGradient);
+    const nameEls = matchedEls.filter((el) => !isSidebarNavLabel(el));
     if (!nameEls.length) return;
 
     if (!(await settings.displayNameGradientEnabled)) {
@@ -578,7 +589,9 @@ export async function init() {
     };
 
     observeElement(USERNAME_SELECTOR, observeNameElement, { multiple: true });
-    observeElement(DISPLAY_NAME_SELECTOR, observeNameElement, { multiple: true });
+    observeElement(DISPLAY_NAME_SELECTOR, observeNameElement, {
+        multiple: true,
+    });
 
     document.addEventListener('rovalra:settingSaved', (event) => {
         const name = event.detail?.name;

@@ -11,7 +11,7 @@ function getTooltipShell(container) {
     if (shell?.tooltipElement?.isConnected) return shell;
 
     const tooltipElement = document.createElement('div');
-    tooltipElement.style.position = 'absolute';
+    tooltipElement.style.position = 'fixed';
     tooltipElement.style.setProperty('z-index', TOOLTIP_Z_INDEX, 'important');
     tooltipElement.style.pointerEvents = 'none';
     tooltipElement.style.display = 'none';
@@ -19,10 +19,10 @@ function getTooltipShell(container) {
     tooltipElement.setAttribute('data-rovalra-observer-ignore', 'true');
 
     const arrow = document.createElement('div');
-    arrow.className = 'tooltip-arrow';
+    arrow.className = 'rovalra-tooltip-arrow';
 
     const inner = document.createElement('div');
-    inner.className = 'tooltip-inner';
+    inner.className = 'rovalra-tooltip-inner';
 
     tooltipElement.appendChild(arrow);
     tooltipElement.appendChild(inner);
@@ -51,8 +51,9 @@ export function addTooltip(parent, text, options = {}) {
     const getPosition = () =>
         typeof position === 'function' ? position(parent) : position;
     const getText = () => (typeof text === 'function' ? text(parent) : text);
+
     const getTooltipClassName = (currentPosition) =>
-        `tooltip fade ${currentPosition} in${tooltipClassName ? ` ${tooltipClassName}` : ''}`;
+        `rovalra-tooltip rovalra-tooltip-${currentPosition}${tooltipClassName ? ` ${tooltipClassName}` : ''}`;
 
     const showTooltip = () => {
         if (!shouldShow(parent)) return;
@@ -126,11 +127,8 @@ export function addTooltip(parent, text, options = {}) {
                 Math.min(targetTop, window.innerHeight - tooltipHeight - 5),
             );
 
-            const finalTopAbs = finalTop + window.scrollY;
-            const finalLeftAbs = finalLeft + window.scrollX;
-
-            tooltipElement.style.top = `${finalTopAbs}px`;
-            tooltipElement.style.left = `${finalLeftAbs}px`;
+            tooltipElement.style.top = `${finalTop}px`;
+            tooltipElement.style.left = `${finalLeft}px`;
 
             if (!showArrow) {
                 isUpdateScheduled = false;
@@ -138,9 +136,8 @@ export function addTooltip(parent, text, options = {}) {
                 currentPosition === 'top' ||
                 currentPosition === 'bottom'
             ) {
-                const parentCenterX =
-                    parentRect.left + window.scrollX + parentRect.width / 2;
-                const arrowLeft = parentCenterX - finalLeftAbs;
+                const parentCenterX = parentRect.left + parentRect.width / 2;
+                const arrowLeft = parentCenterX - finalLeft;
                 arrow.style.top = 'auto';
                 arrow.style.left = `${arrowLeft}px`;
                 if (currentPosition === 'top') {
@@ -153,9 +150,8 @@ export function addTooltip(parent, text, options = {}) {
                 currentPosition === 'left' ||
                 currentPosition === 'right'
             ) {
-                const parentCenterY =
-                    parentRect.top + window.scrollY + parentRect.height / 2;
-                const arrowTop = parentCenterY - finalTopAbs;
+                const parentCenterY = parentRect.top + parentRect.height / 2;
+                const arrowTop = parentCenterY - finalTop;
                 arrow.style.left = 'auto';
                 arrow.style.top = `${arrowTop}px`;
                 arrow.style.transform = `translateY(-50%) rotate(${currentPosition === 'left' ? 90 : -90}deg)`;

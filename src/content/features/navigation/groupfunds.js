@@ -13,6 +13,7 @@ import {
 import { USER_CURRENCY_CHANGED_EVENT } from '../../core/utils/trackers/currency.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { getUserName } from '../../core/apis/users.js';
+import { Icon } from '../../core/ui/buildericon.js';
 
 const CACHE_KEY = 'rovalra-group-funds-data';
 const NAVBAR_SELECTORS = '#nav-robux-amount, #nav-robux-balance';
@@ -130,6 +131,18 @@ async function fetchAndCacheGroupData(groupId) {
 
     activeGroupRequests.set(groupId, request);
     return request;
+}
+
+function createRobuxGlyph() {
+    const icon = Icon({
+        icon: 'robux',
+        filled: false,
+        size: 'small',
+        classes: 'rovalra-robux-glyph',
+    });
+    icon.setAttribute('aria-hidden', 'true');
+    icon.style.verticalAlign = 'text-bottom';
+    return icon;
 }
 
 function isCreditNavbarElement(element) {
@@ -367,9 +380,7 @@ function upsertFoundationPersonalRow(container, data, personalBalance) {
 
     const amountSpan = document.createElement('span');
     amountSpan.className = 'shrink-0 text-no-wrap content-emphasis';
-    const rbxIcon = document.createElement('span');
-    rbxIcon.className = 'icon-robux-16x16';
-    rbxIcon.style.verticalAlign = 'text-bottom';
+    const rbxIcon = createRobuxGlyph();
     rbxIcon.style.marginRight = '3px';
 
     const amountValue = document.createElement('span');
@@ -437,9 +448,7 @@ function upsertPersonalRow(section, divider, data, isFoundation = false) {
     nameSpan.textContent = data.username || 'User';
 
     const amountSpan = document.createElement('span');
-    const rbxIcon = document.createElement('span');
-    rbxIcon.className = 'icon-robux-16x16';
-    rbxIcon.style.verticalAlign = 'text-bottom';
+    const rbxIcon = createRobuxGlyph();
     rbxIcon.style.marginRight = '3px';
 
     const amountValue = document.createElement('span');
@@ -702,9 +711,7 @@ export function init() {
 
             const renderFunds = (amount) => {
                 amountSpan.innerHTML = '';
-                const rbxIcon = document.createElement('span');
-                rbxIcon.className = 'icon-robux-16x16';
-                rbxIcon.style.verticalAlign = 'text-bottom';
+                const rbxIcon = createRobuxGlyph();
                 rbxIcon.style.marginRight = '3px';
 
                 const value = document.createElement('span');
@@ -720,9 +727,7 @@ export function init() {
                 const label = document.createTextNode(
                     ts('groupFunds.pending') + ' ',
                 );
-                const icon = document.createElement('span');
-                icon.className = 'icon-robux-16x16';
-                icon.style.verticalAlign = 'text-bottom';
+                const icon = createRobuxGlyph();
 
                 icon.style.marginLeft = '3px';
                 icon.style.marginRight = '2px';

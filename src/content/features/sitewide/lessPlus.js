@@ -16,7 +16,7 @@ const ROBLOX_PLUS_NOTE_SELECTOR =
 const BUY_ROBUX_PLUS_SELECTOR =
     "div.buy-robux-content div div div.flex a[href='/plus']";
 const BUY_ROBUX_PLUS_SHOP =
-    ".subscribe-upsell-container.subscribe-upsell-banner";
+    '.subscribe-upsell-container.subscribe-upsell-banner';
 const PRIVATE_SERVER_PLUS_SELECTOR =
     '#game-instances .padding-bottom-large .icon-regular-roblox-plus';
 
@@ -119,10 +119,7 @@ async function asyncInit() {
 
     if (plusType < plusTypeEnum.Reduced) return;
 
-    observeElement(
-        '#left-navigation-container .left-nav',
-        observeRobloxPlusSidebar,
-    );
+    observeElement('.left-nav', observeRobloxPlusSidebar);
     observeElement(BUY_ROBUX_PLUS_SELECTOR, updateBuyRobuxPlus, {
         multiple: true,
     });

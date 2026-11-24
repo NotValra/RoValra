@@ -11,8 +11,21 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import { createButton } from '../../../core/ui/buttons.js';
 import { createFileUpload } from '../../../core/ui/fileupload.js';
 import { ts } from '../../../core/locale/i18n.js';
+import { callRobloxApi } from '../../../core/api.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
+import {
+    isEarlyAccessProgramGroup,
+    openEarlyAccessProgramsOverlay,
+} from './earlyAccessPrograms.js';
+import {
+    getUserName,
+    getUserVerifiedBadgeStatus,
+} from '../../../core/apis/users.js';
 const badgeCache = new Map();
 const groupRuntimeBadgeCache = new Map();
+const protectedUserCache = new Map();
+const PROTECTED_USER_BADGE_NAME = 'protected_user';
+const DISPLAY_NAME_NOT_AVAILABLE_CODE = 9;
 const VIDEO_STAR_GROUP_ID = 4199740;
 const VIDEO_STAR_BADGE_NAME = 'video_star';
 const COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID = 12051064;
@@ -21,6 +34,9 @@ const CREATOR_EVENTS_GROUP_ID = 9420522;
 const CREATOR_EVENTS_BADGE_NAME = 'creator_events';
 const QA_TESTER_GROUP_ID = 3055661;
 const QA_TESTER_BADGE_NAME = 'qa_tester';
+const QA_TESTER_VALIANT_ROLE_ID = 20990035;
+const qaBadgeVariantCache = new Map();
+const userGroupRolesCache = new Map();
 const COMMUNITY_SAFETY_COUNCIL_GROUP_ID = 309577991;
 const COMMUNITY_SAFETY_COUNCIL_BADGE_NAME = 'community_safety_council';
 const DONATOR_BADGE_KEYS = [
@@ -110,7 +126,48 @@ function isQaTesterGroupMember(item) {
 }
 
 function getRuntimeGroupBadges(userId) {
-    return groupRuntimeBadgeCache.get(String(userId)) || [];
+    const badges = groupRuntimeBadgeCache.get(String(userId)) || [];
+    return protectedUserCache.get(String(userId)) === true
+        ? [...badges, PROTECTED_USER_BADGE_NAME]
+        : badges;
+}
+
+async function checkProtectedUser(userId) {
+    const [isVerified, username, authedUserId] = await Promise.all([
+        getUserVerifiedBadgeStatus(userId),
+        getUserName(userId),
+        getAuthenticatedUserId(),
+    ]);
+    if (isVerified || !username || !authedUserId) return false;
+    if (String(authedUserId) === String(userId)) return false;
+
+    const response = await callRobloxApi({
+        subdomain: 'users',
+        endpoint: `/v1/users/${authedUserId}/display-names/validate?displayName=${encodeURIComponent(username)}`,
+        method: 'GET',
+    });
+    if (response.ok) return false;
+
+    const body = await response.json().catch(() => null);
+    return (
+        Array.isArray(body?.errors) &&
+        body.errors.some((e) => e?.code === DISPLAY_NAME_NOT_AVAILABLE_CODE)
+    );
+}
+
+async function updateProtectedUserBadge(userId) {
+    if (protectedUserCache.has(userId)) return;
+    protectedUserCache.set(userId, false);
+
+    let isProtected = false;
+    try {
+        isProtected = await checkProtectedUser(userId);
+    } catch {}
+    protectedUserCache.set(userId, isProtected);
+
+    if (isProtected && userId === String(getUserIdFromUrl() || '')) {
+        rerenderCurrentProfileBadges();
+    }
 }
 
 function mergeRuntimeBadges(userId, badges, options = {}) {
@@ -266,7 +323,9 @@ function createHeaderBadge(parentContainer, badge) {
         marginLeft: '0px',
         verticalAlign: 'middle',
         overflow: 'visible',
-        color: badge.themeColorIcon ? 'var(--rovalra-main-text-color)' : '',
+        color:
+            badge.iconColor ||
+            (badge.themeColorIcon ? 'var(--rovalra-main-text-color)' : ''),
     });
 
     if (badge.id === 'contributor') {
@@ -277,9 +336,26 @@ function createHeaderBadge(parentContainer, badge) {
         const builderIcon = Icon({
             icon: badge.builderIcon,
             filled: badge.builderIconFilled,
+            material: badge.materialIcon,
             size: badge.size || 'var(--icon-size-large)',
         });
         builderIcon.style.cursor = 'pointer';
+        if (typeof badge.onClick === 'function') {
+            builderIcon.setAttribute('role', 'button');
+            builderIcon.tabIndex = 0;
+            if (badge.tooltip) {
+                builderIcon.setAttribute('aria-label', badge.tooltip);
+            }
+            builderIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                badge.onClick();
+            });
+            builderIcon.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                e.preventDefault();
+                badge.onClick();
+            });
+        }
         if (badge.confetti) {
             builderIcon.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -473,6 +549,9 @@ async function addHeaderBadges(container) {
 
         const robloxGroupFeaturesEnabled =
             (await settings.robloxGroupFeaturesEnabled) !== false;
+        if (robloxGroupFeaturesEnabled) {
+            updateProtectedUserBadge(String(currentUserId));
+        }
         const disabledRuntimeBadges = new Set();
         if ((await settings.videoStarBadgeEnabled) === false) {
             disabledRuntimeBadges.add(VIDEO_STAR_BADGE_NAME);
@@ -522,6 +601,30 @@ async function addHeaderBadges(container) {
         }
 
         mergedRuntimeBadges.forEach((name) => {
+            if (name === QA_TESTER_BADGE_NAME) {
+                const qaBadge = BADGE_CONFIG[QA_TESTER_BADGE_NAME];
+                const variant = qaBadgeVariantCache.get(String(currentUserId));
+                badgesToRender.push({
+                    isIcon: true,
+                    config: {
+                        ...qaBadge,
+                        ...(variant === 'valiant'
+                            ? {
+                                  tooltip: qaBadge.valiantTooltip,
+                                  iconColor: qaBadge.valiantColor,
+                              }
+                            : {}),
+                        ...(variant === 'programs'
+                            ? { tooltip: qaBadge.programsTooltip }
+                            : {}),
+                        onClick: () =>
+                            openEarlyAccessProgramsOverlay(
+                                userGroupRolesCache.get(String(currentUserId)),
+                            ),
+                    },
+                });
+                return;
+            }
             if (BADGE_CONFIG[name]) {
                 badgesToRender.push({
                     isIcon: true,
@@ -636,11 +739,32 @@ export function init() {
                 if (groups.some(isCreatorEventsGroupMember)) {
                     runtimeBadges.push(CREATOR_EVENTS_BADGE_NAME);
                 }
-                if (groups.some(isQaTesterGroupMember)) {
+                userGroupRolesCache.set(userId, groups);
+                const qaTesterMembership = groups.find(isQaTesterGroupMember);
+
+                const inAnyProgram = groups.some(
+                    (item) =>
+                        !isCommunityFeedbackProgramGroupMember(item) &&
+                        isEarlyAccessProgramGroup(item?.group?.id),
+                );
+                if (qaTesterMembership || inAnyProgram) {
                     runtimeBadges.push(QA_TESTER_BADGE_NAME);
+                }
+                if (
+                    qaTesterMembership?.role?.id === QA_TESTER_VALIANT_ROLE_ID
+                ) {
+                    qaBadgeVariantCache.set(userId, 'valiant');
+                } else if (qaTesterMembership) {
+                    qaBadgeVariantCache.set(userId, 'qa');
+                } else if (inAnyProgram) {
+                    qaBadgeVariantCache.set(userId, 'programs');
+                } else {
+                    qaBadgeVariantCache.delete(userId);
                 }
             }
             groupRuntimeBadgeCache.set(userId, runtimeBadges);
+
+            updateProtectedUserBadge(userId);
 
             if (userId !== String(getUserIdFromUrl() || '')) return;
 

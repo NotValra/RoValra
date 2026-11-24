@@ -44,7 +44,10 @@ export const CONTRIBUTOR_USER_IDS = [
     '519742979', // BBasilio2001
     '74884', // awkward222
     '3774777796', // hhhhhhhf334
-    '3420105861', // zomop
+    '1388867949',
+    '4975603156', // KyoMarketing
+    '112558831',
+    '3420105861', //zomop
 ];
 
 export const TESTER_USER_IDS = [
@@ -63,7 +66,7 @@ export const TRANSLATOR_USER_IDS = [
     '3733653415', // kurdo3660
     '16147087', // Edward667
     '587930109', // hnguyen1910
-    '11785214974', // DevinHmmm
+    '11841995204', // Pheedel
     '2490953439', // xMrReks
 ];
 
