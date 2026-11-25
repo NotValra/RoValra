@@ -12,6 +12,7 @@ import { settings } from '../../core/settings/getSettings.js';
 
 const TOPIC_ID = 10000013061;
 const SUB_ID = 'rovalra-playtime';
+const SDUI_ROW_CLASS = 'rovalra-sdui-extra-row';
 const PERIOD_KEYS = [
     ['day', 'playtime.today'],
     ['week', 'playtime.thisWeek'],
@@ -33,11 +34,14 @@ function formatPlaytime(seconds) {
         const value = hours >= 10 ? Math.round(hours) : hours.toFixed(1);
         return ts('playtime.hours', { value });
     }
-    return ts('playtime.minutes', { value: Math.max(1, Math.round(seconds / 60)) });
+    return ts('playtime.minutes', {
+        value: Math.max(1, Math.round(seconds / 60)),
+    });
 }
 
 async function publish() {
     const topic = await t('playtime.topic');
+    const emptyTitle = await t('playtime.previewOwnTitle');
     document.dispatchEvent(
         new CustomEvent('rovalra-home-extra-sorts', {
             detail: {
@@ -50,6 +54,8 @@ async function publish() {
                         treatmentType: 'Carousel',
                         numberOfRows: 1,
                         topicLayoutData: { hideSeeAll: 'true', linkPath: '' },
+                        rovalraKeepEmpty: true,
+                        rovalraPlaceholder: { title: emptyTitle },
                         games,
                         recommendationList: games.map((game) => ({
                             contentType: 'Game',
@@ -159,19 +165,55 @@ function decorateCards() {
             label.querySelector('.rovalra-home-playtime-value').textContent =
                 formatPlaytime(seconds);
         });
+    decorateSduiTiles();
+}
+
+function decorateSduiTiles() {
+    document
+        .querySelectorAll(
+            `#HomeContainer .${SDUI_ROW_CLASS}[data-rovalra-sort-sub-id="${SUB_ID}"] [data-testid="sdui-game-tile"]`,
+        )
+        .forEach((tile) => {
+            const seconds = games.find(
+                (game) =>
+                    String(game.universeId) === tile.dataset.rovalraUniverseId,
+            )?.rovalraPlaytime;
+            const footer = tile.querySelector(
+                '[data-testid="tile-footer-right"]',
+            );
+            const text = footer?.querySelector('[data-sdui-text]');
+            if (!seconds || !text) return;
+            if (!footer.dataset.rovalraPlaytime) {
+                footer.dataset.rovalraPlaytime = 'true';
+                const icon = Icon({
+                    icon: 'clock',
+                    size: '16px',
+                    filled: true,
+                });
+                footer
+                    .querySelector('[data-testid="icon-component"]')
+                    ?.replaceWith(icon);
+            }
+            text.textContent = formatPlaytime(seconds);
+        });
 }
 
 function addDropdown() {
     for (const wrapper of document.querySelectorAll(
-        '#HomeContainer .game-sort-carousel-wrapper',
+        `#HomeContainer .game-sort-carousel-wrapper, #HomeContainer .${SDUI_ROW_CLASS}[data-rovalra-sort-sub-id="${SUB_ID}"]`,
     )) {
+        const isSdui = wrapper.classList.contains(SDUI_ROW_CLASS);
         if (
+            !isSdui &&
             !wrapper.querySelector(
                 `a.game-card-link[href*="sortSubId=${SUB_ID}"]`,
             )
-        ) continue;
+        )
+            continue;
         const row = wrapper.querySelector(
-            '.home-sort-header-container [data-testid="text-icon-row"]',
+            isSdui
+                ? '[data-testid="section-header"] [data-testid="text-icon-row"]'
+                : '.home-sort-header-container [data-testid="text-icon-row"]',
         );
         if (!row) continue;
         const existing = row.querySelector('.rovalra-playtime-filter');
@@ -201,16 +243,19 @@ export async function init() {
     initialized = true;
     if ((await settings.homePlaytimeEnabled) !== true) return;
     periods = await Promise.all(
-        PERIOD_KEYS.map(async ([value, key]) => ({ value, label: await t(key) })),
+        PERIOD_KEYS.map(async ([value, key]) => ({
+            value,
+            label: await t(key),
+        })),
     );
     periodAriaLabel = await t('playtime.period');
     observeElement(
-        '#HomeContainer .home-sort-header-container, #HomeContainer .game-sort-header-container, #HomeContainer .container-header',
+        `#HomeContainer .home-sort-header-container, #HomeContainer .game-sort-header-container, #HomeContainer .container-header, #HomeContainer .${SDUI_ROW_CLASS} [data-testid="section-header"]`,
         addDropdown,
         { multiple: true },
     );
     observeElement(
-        `#HomeContainer a.game-card-link[href*="sortSubId=${SUB_ID}"]`,
+        `#HomeContainer a.game-card-link[href*="sortSubId=${SUB_ID}"], #HomeContainer .${SDUI_ROW_CLASS} [data-testid="sdui-game-tile"]`,
         decorateCards,
         { multiple: true },
     );

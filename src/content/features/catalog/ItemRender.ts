@@ -1567,7 +1567,13 @@ async function startRenderer() {
 
     FLAGS.USE_POST_PROCESSING = postProcessingEnabled;
 
-    const success = await RBXRenderer.fullSetup(true, true, false);
+    let success = true;
+    if (RBXRenderer.renderer) {
+        RBXRenderer.setupScene();
+        RBXRenderer.setupControls();
+    } else {
+        success = await RBXRenderer.fullSetup(true, true, false);
+    }
     if (!success) return false;
     startedRenderer = true;
 

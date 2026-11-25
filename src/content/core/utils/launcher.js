@@ -4,10 +4,12 @@ import { callRobloxApiJson } from '../api.js';
 let preLaunchHook = null;
 let followUserHook = null;
 let privateServerLaunchHook = null;
-let followLaunchObserver = null;
-let privateServerLaunchObserver = null;
-let lastObservedFollowLaunch = null;
-let lastObservedPrivateServerLaunch = null;
+let removeFollowLaunchHook = null;
+let removePrivateServerLaunchHook = null;
+
+const gameLaunchHooks = new Set();
+let gameLaunchObserver = null;
+let lastObservedLaunchSrc = null;
 
 // Lets a feature do something right before the client starts, such as changing
 // the avatar. Opt in on purpose: with no hook registered every launch below
@@ -16,65 +18,82 @@ export function setPreLaunchHook(hook) {
     preLaunchHook = typeof hook === 'function' ? hook : null;
 }
 
+export function addGameLaunchHook(hook) {
+    if (typeof hook !== 'function') return () => {};
+
+    gameLaunchHooks.add(hook);
+    if (!gameLaunchObserver) {
+        gameLaunchObserver = observeGameLaunch((frame, launch) => {
+            const src = frame?.src;
+            if (
+                !src ||
+                !src.includes('placelauncherurl:') ||
+                src === lastObservedLaunchSrc
+            ) {
+                return;
+            }
+            lastObservedLaunchSrc = src;
+
+            for (const launchHook of [...gameLaunchHooks]) {
+                Promise.resolve()
+                    .then(() => launchHook(launch))
+                    .catch((error) => {
+                        console.error(
+                            'RoValra Launcher: Game launch hook failed',
+                            error,
+                        );
+                    });
+            }
+        });
+    }
+
+    return () => {
+        gameLaunchHooks.delete(hook);
+        if (gameLaunchHooks.size === 0 && gameLaunchObserver) {
+            gameLaunchObserver.disconnect();
+            gameLaunchObserver = null;
+        }
+    };
+}
+
 export function setFollowUserHook(hook) {
     followUserHook = typeof hook === 'function' ? hook : null;
-    if (followUserHook && !followLaunchObserver) {
-        followLaunchObserver = observeGameLaunch((_frame, launch) => {
+    if (followUserHook && !removeFollowLaunchHook) {
+        removeFollowLaunchHook = addGameLaunchHook(async (launch) => {
             if (
                 !followUserHook ||
-                !launch ||
-                launch.request !== 'RequestFollowUser' ||
-                !launch.userId ||
-                launch.src === lastObservedFollowLaunch
+                launch?.request !== 'RequestFollowUser' ||
+                !launch.userId
             ) {
                 return;
             }
 
-            lastObservedFollowLaunch = launch.src;
-            resolveGameLaunchPlaceId(launch)
-                .then((placeId) => followUserHook?.(placeId))
-                .catch((error) => {
-                    console.error(
-                        'RoValra Launcher: Observed follow hook failed',
-                        error,
-                    );
-                });
+            const placeId = await resolveGameLaunchPlaceId(launch);
+            await followUserHook?.(placeId);
         });
-    } else if (!followUserHook && followLaunchObserver) {
-        followLaunchObserver.disconnect();
-        followLaunchObserver = null;
-        lastObservedFollowLaunch = null;
+    } else if (!followUserHook && removeFollowLaunchHook) {
+        removeFollowLaunchHook();
+        removeFollowLaunchHook = null;
     }
 }
 
 export function setPrivateServerLaunchHook(hook) {
     privateServerLaunchHook = typeof hook === 'function' ? hook : null;
-    if (privateServerLaunchHook && !privateServerLaunchObserver) {
-        privateServerLaunchObserver = observeGameLaunch((_frame, launch) => {
+    if (privateServerLaunchHook && !removePrivateServerLaunchHook) {
+        removePrivateServerLaunchHook = addGameLaunchHook(async (launch) => {
             if (
                 !privateServerLaunchHook ||
-                !launch ||
-                launch.request !== 'RequestPrivateGame' ||
-                !launch.placeId ||
-                launch.src === lastObservedPrivateServerLaunch
+                launch?.request !== 'RequestPrivateGame' ||
+                !launch.placeId
             ) {
                 return;
             }
 
-            lastObservedPrivateServerLaunch = launch.src;
-            Promise.resolve()
-                .then(() => privateServerLaunchHook?.(launch.placeId))
-                .catch((error) => {
-                    console.error(
-                        'RoValra Launcher: Private server launch hook failed',
-                        error,
-                    );
-                });
+            await privateServerLaunchHook?.(launch.placeId);
         });
-    } else if (!privateServerLaunchHook && privateServerLaunchObserver) {
-        privateServerLaunchObserver.disconnect();
-        privateServerLaunchObserver = null;
-        lastObservedPrivateServerLaunch = null;
+    } else if (!privateServerLaunchHook && removePrivateServerLaunchHook) {
+        removePrivateServerLaunchHook();
+        removePrivateServerLaunchHook = null;
     }
 }
 

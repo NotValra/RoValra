@@ -255,3 +255,59 @@
     background-color: #232527;
     flex-shrink: 0;
 }
+
+body.rovalra-hide-roblox-dialogs {
+    .foundation-web-dialog-overlay,
+    .MuiModal-root,
+    .ReactModalPortal,
+    iframe#gamelaunch {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+        z-index: -9999 !important;
+    }
+}
+
+.rovalra-join-info-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    background-color: var(--rovalra-main-text-color);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+.rovalra-details-li .rovalra-join-owner-avatar {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 6px;
+    flex-shrink: 0;
+    background-color: #555;
+}
+
+.rovalra-join-owner-link {
+    text-decoration: underline;
+}
+
+.rovalra-join-nowrap,
+.rovalra-join-nowrap .rovalra-spoiler {
+    white-space: nowrap;
+}
+
+.rovalra-download-dialog-container {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+}

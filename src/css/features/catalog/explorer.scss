@@ -1,67 +1,107 @@
-/* Studio-style explorer, themed to match the RoValra overlay it sits in. */
 .rovalra-explorer {
     display: flex;
-    gap: 8px;
+    flex-direction: row;
+    gap: 12px;
     width: 100%;
-    height: 60vh;
-    min-height: 340px;
-    font-size: 13px;
-    font-family: 'Source Sans Pro', Arial, sans-serif;
+    height: 75vh;
+    max-height: 75vh;
+    min-height: 400px;
+    font-family: 'Builder Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: var(--rovalra-main-text-color);
+}
 
-    --rovalra-exp-bg: var(--rovalra-overlay-bg, #fff);
-    --rovalra-exp-border: var(--rovalra-overlay-border, #d9dadb);
-    --rovalra-exp-text: var(--rovalra-overlay-text, #191b1d);
-    --rovalra-exp-muted: rgba(127, 127, 127, 0.9);
-    --rovalra-exp-hover: rgba(127, 127, 127, 0.14);
-    --rovalra-exp-selected: rgba(0, 132, 255, 0.22);
-    --rovalra-exp-header: rgba(127, 127, 127, 0.12);
+.rovalra-explorer-tree,
+.rovalra-explorer-props,
+.rovalra-explorer-preview {
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
+    background: var(--rovalra-main-background-color);
+    color: var(--rovalra-main-text-color);
+    border: 1px solid var(--rovalra-border-color);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .rovalra-explorer-tree,
 .rovalra-explorer-props {
-    min-width: 0;
-    overflow: auto;
-    background: var(--rovalra-exp-bg);
-    color: var(--rovalra-exp-text);
-    border: 1px solid var(--rovalra-exp-border);
-    border-radius: 4px;
     user-select: none;
 }
 
 .rovalra-explorer-tree {
-    flex: 1 1 55%;
-    padding: 4px 0;
+    flex: 1 1 250px;
+    display: flex;
+    flex-direction: column;
 }
 
 .rovalra-explorer-props {
-    flex: 1 1 45%;
+    flex: 1 1 300px;
+    overflow-y: auto;
+}
+
+.rovalra-explorer-preview {
+    flex: 2 1 50%;
+    flex-direction: column;
+    min-width: 300px;
+}
+
+.rovalra-explorer-tree-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.rovalra-explorer-search-container {
+    flex-shrink: 0;
+    padding: 12px;
+    border-bottom: 1px solid var(--rovalra-border-color);
+}
+
+.rovalra-explorer-search-input {
+    width: 100%;
+}
+
+.rovalra-explorer-search-empty,
+.rovalra-explorer-props-empty {
+    padding: 16px;
+    color: var(--rovalra-gray-text-color);
+    text-align: center;
 }
 
 .rovalra-explorer-row {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 1px 8px 1px 0;
+    min-height: 28px;
+    padding-right: 8px;
+    border-radius: 8px;
     cursor: pointer;
     white-space: nowrap;
 
     &:hover {
-        background: var(--rovalra-exp-hover);
+        background: var(--rovalra-button-background-color);
     }
 
     &.selected {
-        background: var(--rovalra-exp-selected);
+        background: var(--rovalra-container-background-color);
+        color: var(--rovalra-main-text-color);
+    }
+
+    &.expanded > .rovalra-explorer-toggle {
+        transform: rotate(90deg);
     }
 }
 
 .rovalra-explorer-toggle {
-    display: inline-block;
-    width: 18px;
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    font-size: 14px;
-    line-height: 1;
-    color: var(--rovalra-exp-text);
+    width: 16px;
+    height: 16px;
+    color: var(--rovalra-gray-text-color);
+    transition: transform 0.15s ease;
 }
 
 .rovalra-explorer-icon {
@@ -76,16 +116,248 @@
     text-overflow: ellipsis;
 }
 
-.rovalra-explorer-count {
-    margin-left: 6px;
-    font-size: 11px;
-    color: var(--rovalra-exp-muted);
+.rovalra-explorer-label-match {
+    color: var(--rovalra-playbutton-color);
+    font-weight: 600;
 }
 
-.rovalra-explorer-search-container {
+.rovalra-explorer-count {
+    margin-left: 6px;
+    font-size: 12px;
+    color: var(--rovalra-gray-text-color);
+}
+
+.rovalra-explorer-vis-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    padding: 8px;
-    border-bottom: 1px solid var(--rovalra-exp-border);
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--rovalra-gray-text-color);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--rovalra-button-background-color);
+        color: var(--rovalra-main-text-color);
+    }
+
+    &.hidden-in-preview {
+        opacity: 0.5;
+    }
+}
+
+.rovalra-ui-btn.rovalra-explorer-action-btn {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.rovalra-explorer-props-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--rovalra-main-background-color);
+}
+
+.rovalra-explorer-props-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--rovalra-main-text-color);
+    border-bottom: 1px solid var(--rovalra-border-color);
+    word-break: break-word;
+}
+
+.rovalra-explorer-props-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rovalra-explorer-prop-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-weight: 600;
+    color: var(--rovalra-main-text-color);
+    background: var(--rovalra-button-background-color);
+    border-bottom: 1px solid var(--rovalra-border-color);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--rovalra-container-background-color);
+    }
+
+    &.open > .rovalra-explorer-prop-group-arrow {
+        transform: rotate(90deg);
+    }
+}
+
+.rovalra-explorer-prop-group-arrow {
+    flex-shrink: 0;
+    color: var(--rovalra-gray-text-color);
+    transition: transform 0.15s ease;
+}
+
+.rovalra-explorer-prop-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+    padding: 2px 12px 2px 32px;
+    border-bottom: 1px solid var(--rovalra-border-color);
+
+    &:hover {
+        background: var(--rovalra-button-background-color);
+    }
+}
+
+.rovalra-explorer-prop-name {
+    flex: 0 0 42%;
+    color: var(--rovalra-gray-text-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-explorer-prop-value {
+    flex: 1 1 58%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.rovalra-explorer-copyable {
+    cursor: text;
+    border-radius: 4px;
+    user-select: text;
+}
+
+.rovalra-explorer-color-swatch {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--rovalra-border-color);
+}
+
+.rovalra-explorer-sequence {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.rovalra-explorer-sequence-bar {
+    flex: 1;
+    min-width: 80px;
+    max-width: 150px;
+    height: 18px;
+    border: 1px solid var(--rovalra-border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.rovalra-explorer-sequence-bar-number {
+    background: var(--rovalra-container-background-color);
+}
+
+.rovalra-explorer-sequence-count {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--rovalra-gray-text-color);
+    white-space: nowrap;
+}
+
+.rovalra-explorer-asset-link,
+.rovalra-explorer-asset-preview {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: var(--rovalra-gray-text-color);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--rovalra-button-background-color);
+        color: var(--rovalra-main-text-color);
+    }
+}
+
+.rovalra-explorer-asset-link-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: currentColor;
+}
+
+.rovalra-explorer-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--rovalra-gray-text-color);
+}
+
+.rovalra-explorer-loading {
+    width: 100%;
+    height: 60vh;
+    min-height: 340px;
+    box-sizing: border-box;
+    padding: 32px;
+    text-align: center;
+}
+
+.rovalra-explorer-gui-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 12px;
+    background: var(--rovalra-main-background-color);
+    border-bottom: 1px solid var(--rovalra-border-color);
+}
+
+.rovalra-explorer-toolbar-spacer {
+    flex: 1;
+}
+
+.rovalra-explorer-toolbar-dropdown {
+    max-width: 260px;
+
+    .rovalra-dropdown-trigger {
+        min-height: 32px !important;
+        height: 32px;
+    }
 }
 
 .rovalra-explorer-mesh-title {
@@ -94,22 +366,30 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 13px;
-    color: #cdd0d6;
+    font-weight: 600;
+    color: var(--rovalra-main-text-color);
 }
 
-.rovalra-explorer-mesh-area {
+.rovalra-explorer-mesh-area,
+.rovalra-explorer-gui-preview-area {
     flex: 1;
     position: relative;
     min-height: 0;
     overflow: hidden;
     background: #111214;
+}
 
-    canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
+.rovalra-explorer-mesh-area canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.rovalra-explorer-mesh-status {
+    position: absolute;
+    inset: 0;
+    color: #cdd0d6;
+    pointer-events: none;
 }
 
 .rovalra-explorer-image-area {
@@ -118,7 +398,6 @@
     justify-content: center;
     padding: 16px;
     box-sizing: border-box;
-    background-color: #111214;
     background-image:
         linear-gradient(45deg, #1c1d20 25%, transparent 25%),
         linear-gradient(-45deg, #1c1d20 25%, transparent 25%),
@@ -138,105 +417,71 @@
     object-fit: contain;
 }
 
-.rovalra-explorer-mesh-status {
-    position: absolute;
-    inset: 0;
+.rovalra-explorer-gui-preview-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #cdd0d6;
-    pointer-events: none;
-}
+    box-sizing: border-box;
+    padding: 10px;
 
-.rovalra-explorer-props-sticky {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--rovalra-exp-bg);
-}
+    > .rovalra-explorer-loading-state {
+        position: absolute;
+        inset: 0;
+        color: #cdd0d6;
+    }
 
-.rovalra-explorer-search-input {
-    width: 100%;
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
 
-    .rovalra-catalog-input-base {
-        min-height: 34px;
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
         border-radius: 4px;
     }
+}
 
-    .rovalra-catalog-input-field {
-        min-height: 34px;
-        padding: 6px 10px;
-        font-size: 13px !important;
+.rovalra-explorer-gui-viewport-wrapper {
+    margin: auto;
+    position: relative;
+    transform-origin: center center;
+}
+
+.rovalra-explorer-gui-viewport {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #3b3d42;
+    border: 2px solid #2c2e33;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transform-origin: top left;
+}
+
+.rovalra-explorer-scrolling-frame {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
     }
 
-    .rovalra-catalog-input-label {
-        top: 6px;
-        left: 10px;
-        font-size: 13px;
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
     }
 
-    .rovalra-catalog-input-label.MuiInputLabel-shrink {
-        transform: translate(0, -13px) scale(0.75);
-    }
-}
-
-.rovalra-explorer-tree-content {
-    flex: 1;
-    overflow-y: auto;
-}
-
-.rovalra-explorer-search-empty {
-    padding: 16px;
-    color: #888;
-    text-align: center;
-    font-size: 13px;
-}
-
-.rovalra-explorer-props-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-weight: 700;
-    padding: 6px 8px;
-    background: var(--rovalra-exp-header);
-    border-bottom: 1px solid var(--rovalra-exp-border);
-    word-break: break-word;
-}
-
-.rovalra-explorer-props-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.rovalra-explorer-source-btn {
-    flex-shrink: 0;
-    padding: 2px 10px;
-    border: 1px solid var(--rovalra-exp-border);
-    border-radius: 4px;
-    background: rgba(0, 132, 255, 0.15);
-    color: inherit;
-    font-size: 12px;
-    cursor: pointer;
-
-    &:hover {
-        background: rgba(0, 132, 255, 0.3);
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 4px;
     }
 }
 
-.rovalra-explorer-copyable {
-    cursor: text;
-    border-radius: 3px;
-    user-select: text; /* overrides the panel's user-select:none so values select */
-
-    &:hover {
-        background: rgba(127, 127, 127, 0.12);
-    }
+.rovalra-no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 
-/* Code view dark editor look with a line-number gutter and syntax colours. */
 .rovalra-explorer-source {
     display: flex;
     align-items: flex-start;
@@ -244,7 +489,7 @@
     overflow: auto;
     background: #1e1f22;
     color: #cdd0d6;
-    border-radius: 4px;
+    border-radius: 12px;
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: 12.5px;
     line-height: 1.55;
@@ -288,128 +533,6 @@
     }
 }
 
-.rovalra-explorer-props-empty {
-    color: var(--rovalra-exp-muted);
-    padding: 12px;
-}
-
-.rovalra-explorer-prop-group {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    font-weight: 600;
-    background: var(--rovalra-exp-header);
-    border-bottom: 1px solid var(--rovalra-exp-border);
-    cursor: pointer;
-}
-
-.rovalra-explorer-prop-group-arrow {
-    display: inline-block;
-    width: 14px;
-    font-size: 13px;
-    line-height: 1;
-    color: var(--rovalra-exp-text);
-}
-
-.rovalra-explorer-prop-row {
-    display: flex;
-    gap: 8px;
-    padding: 2px 8px 2px 24px;
-    border-bottom: 1px solid rgba(127, 127, 127, 0.12);
-}
-
-.rovalra-explorer-prop-name {
-    flex: 0 0 42%;
-    color: var(--rovalra-exp-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.rovalra-explorer-prop-value {
-    flex: 1 1 58%;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-
-    span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-.rovalra-explorer-color-swatch {
-    flex-shrink: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-}
-
-.rovalra-explorer-sequence {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-}
-
-.rovalra-explorer-sequence-bar {
-    flex: 1;
-    min-width: 80px;
-    max-width: 150px;
-    height: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.rovalra-explorer-sequence-count {
-    flex-shrink: 0;
-    color: #888;
-    font-size: 11px;
-    white-space: nowrap;
-}
-
-/* Link to the asset page for id-like values (textures, sounds, meshes…). */
-.rovalra-explorer-asset-link {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    color: inherit;
-    opacity: 0.7;
-
-    &:hover {
-        opacity: 1;
-    }
-}
-
-.rovalra-explorer-asset-preview {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    padding: 0;
-    border: none;
-    background: none;
-    color: inherit;
-    opacity: 0.7;
-    cursor: pointer;
-
-    &:hover {
-        opacity: 1;
-    }
-}
-
-.rovalra-explorer-asset-link-icon {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    background-color: currentColor;
-}
-
-/* Catalog mirror BTRoblox — buttons row in the item header, left of the cart. */
 .rovalra-explorer-buttons {
     display: flex;
     flex-direction: row;
@@ -439,7 +562,7 @@
     overflow: hidden;
 
     &:hover {
-        background: rgba(127, 127, 127, 0.18);
+        background: var(--rovalra-button-background-color);
     }
 }
 
@@ -481,7 +604,6 @@
     background-color: currentColor;
 }
 
-/* Experience pages icon-only context menu button. */
 .rovalra-explorer-game-btn {
     display: inline-flex !important;
     align-items: center;
@@ -509,127 +631,91 @@
     background-color: currentColor;
 }
 
-.rovalra-explorer-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 60vh;
-    min-height: 340px;
-    box-sizing: border-box;
-    padding: 32px;
-    text-align: center;
-    color: var(--rovalra-exp-muted);
-}
-
-/* === ScreenGui Viewer Styles === */
-.rovalra-explorer-gui-viewer {
+.rovalra-explorer-search-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: 75vh;
-    min-height: 450px;
-    background: #1e1f22;
-    border-radius: 4px;
-    overflow: hidden;
+    gap: 8px;
 }
 
-.rovalra-explorer-gui-toolbar {
+.rovalra-explorer-rig-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: #2b2d31;
-    border-bottom: 1px solid #1e1f22;
-    flex-shrink: 0;
 }
 
-.rovalra-explorer-device-select,
-.rovalra-explorer-scale-select {
-    flex-grow: 1;
-    max-width: 350px;
-    padding: 5px 10px;
-    background: #1e1f22;
-    color: #cdd0d6;
-    border: 1px solid #3b3d42;
-    border-radius: 4px;
+.rovalra-explorer-host {
+    width: 100%;
+}
+
+.rovalra-explorer-accessory-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.rovalra-explorer-show-more {
+    display: block;
+    margin: 2px 0;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--rovalra-playbutton-color);
+    font: inherit;
     font-size: 13px;
     cursor: pointer;
 
-    optgroup {
-        background: #1e1f22;
-        color: #cdd0d6;
-        font-weight: bold;
-        font-style: normal;
-        padding-top: 4px;
-    }
-
-    option {
-        background: #1e1f22;
-        color: #cdd0d6;
-        font-weight: normal;
+    &:hover {
+        background: var(--rovalra-button-background-color);
     }
 }
 
-.rovalra-explorer-scale-select {
-    max-width: 180px;
-    flex-grow: 0;
-}
-
-.rovalra-explorer-gui-preview-area {
-    flex-grow: 1;
-    background: #111214;
-    box-sizing: border-box;
-    padding: 10px;
-    /* display, align, justify, overflow are controlled by JS based on scale mode */
-
-    &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.2);
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 4px;
-    }
-}
-
-.rovalra-explorer-gui-viewport-wrapper {
-    margin: auto; /* Centers when smaller, aligns top-left when larger */
+.rovalra-explorer-has-copy {
     position: relative;
-}
 
-.rovalra-explorer-gui-viewport {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #3b3d42;
-    border: 2px solid #2c2e33;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    transform-origin: top left;
-}
-
-.rovalra-explorer-scrolling-frame {
-    &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+    > .rovalra-explorer-copy-btn {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-50%);
+        background: var(--rovalra-main-background-color);
+        box-shadow: 0 0 0 1px var(--rovalra-border-color);
+        transition: opacity 0.1s ease;
     }
 
-    &::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.2);
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.4);
-        border-radius: 4px;
+    &:hover > .rovalra-explorer-copy-btn,
+    > .rovalra-explorer-copy-btn:focus-visible,
+    > .rovalra-explorer-copy-btn.copied {
+        opacity: 1;
+        pointer-events: auto;
     }
 }
 
-.rovalra-no-scrollbar::-webkit-scrollbar {
-    display: none;
+.rovalra-explorer-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--rovalra-gray-text-color);
+    cursor: pointer;
+
+    &:hover {
+        background: var(--rovalra-button-background-color);
+        color: var(--rovalra-main-text-color);
+    }
+
+    &.copied {
+        color: var(--rovalra-playbutton-color);
+    }
 }

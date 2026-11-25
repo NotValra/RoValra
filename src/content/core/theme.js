@@ -21,7 +21,10 @@ export const THEME_CONFIG = {
 };
 
 export function getCurrentTheme() {
-    return document.body?.classList.contains('dark-theme') ? 'dark' : 'light';
+    if (document.body?.classList.contains('dark-theme')) return 'dark';
+    if (document.documentElement.classList.contains('color-mode-dark'))
+        return 'dark';
+    return 'light';
 }
 
 export function isDarkMode() {
