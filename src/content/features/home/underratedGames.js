@@ -232,7 +232,7 @@ function addCategoryPill(link, game) {
     if (!categories.length) return;
 
     const thumbnailContainer = link.querySelector(
-        '.featured-game-icon-container',
+        '.featured-game-icon-container, [data-testid="sdui-tile-image-container"]',
     );
     if (!thumbnailContainer) return;
 
@@ -255,9 +255,15 @@ function addCategoryPill(link, game) {
 }
 
 function addMaturityRating(link, game) {
-    const ratingLabel = link.querySelector(
-        '[data-testid="game-tile-stats-rating"] .info-label',
-    );
+    const ratingLabel =
+        link.querySelector(
+            '[data-testid="game-tile-stats-rating"] .info-label',
+        ) ||
+        link
+            .closest('[data-testid="sdui-game-tile"]')
+            ?.querySelector(
+                '[data-testid="tile-footer-left"] [data-sdui-text]',
+            );
     if (!ratingLabel || ratingLabel.dataset.rovalraMaturityLoading === 'true') {
         return;
     }
@@ -456,12 +462,12 @@ export async function init() {
             publishUnderratedGamesSort(sort);
             if (document.body) replaceRotationMarker(document.body);
             observeElement(
-                'a[data-testid="section-header-title-subtitle-container"], .game-sort-carousel-wrapper, .container-header, .game-sort-header-container',
+                'a[data-testid="section-header-title-subtitle-container"], .game-sort-carousel-wrapper, .container-header, .game-sort-header-container, .rovalra-sdui-extra-row',
                 replaceRotationMarker,
                 { multiple: true },
             );
             observeElement(
-                `a.game-card-link[href*="sortSubId=${UNDERRATED_GAMES_SUB_ID}"]`,
+                `a.game-card-link[href*="sortSubId=${UNDERRATED_GAMES_SUB_ID}"], .rovalra-sdui-extra-row a[href*="sortSubId=${UNDERRATED_GAMES_SUB_ID}"]`,
                 enhanceUnderratedGameTile,
                 { multiple: true },
             );

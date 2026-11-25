@@ -236,6 +236,7 @@ import { init as initUnderratedGamesHome } from './features/home/underratedGames
 import { init as initGameBookmarks } from './features/games/gameBookmarks.js';
 import { init as initBookmarkedGames } from './features/home/bookmarkedGames.js';
 import { init as initPlaytime } from './features/home/playtime.js';
+import { init as initSduiExtraSorts } from './features/home/sduiExtraSorts.js';
 import { init as initHideAddFriendsButton } from './features/home/hideAddFriendsButton.js';
 import { init as initFriendsCarouselRedesign } from './features/home/friendsCarouselRedesign.js';
 import { init as initHomeGreeting } from './features/home/homeGreeting.js';
@@ -594,6 +595,7 @@ const featureRoutes = [
         paths: ['/home'],
         features: [
             initHomeLayout,
+            initSduiExtraSorts,
             initBookmarkedGames,
             initPlaytime,
             initUnderratedGamesHome,

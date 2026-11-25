@@ -327,6 +327,7 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
             homeExtraSortKeys.add(getHomeSortKey(sort)),
         );
         refreshHomeExtraSorts();
+        scheduleSduiHomeLayout();
     });
 
     document.addEventListener('rovalra-home-rendered', refreshHomeExtraSorts);
@@ -950,6 +951,297 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
 
         return data.sorts.length !== previousLength;
     }
+
+    const SDUI_HOME_PAGE_SELECTOR = '[data-testid="home-sdui-page"]';
+    const SDUI_HIDDEN_ATTR = 'data-rovalra-sdui-hidden';
+    const SDUI_ORDER_ATTR = 'data-rovalra-sdui-order';
+    const SDUI_FEED_LIST_ATTR = 'data-rovalra-sdui-feed-list';
+    const SDUI_EXTRA_KEY_ATTR = 'data-rovalra-sdui-key';
+    const CONTINUE_SORT_TOPIC_ID = 100000003;
+    const SDUI_FIBER_SEARCH_LIMIT = 20000;
+    const SDUI_APPLY_INTERVAL_MS = 150;
+    let sduiLastCategoriesSignature = '';
+    let sduiApplyTimer = null;
+    let sduiLastApplyAt = 0;
+
+    function getReactFiber(element) {
+        if (!element) return null;
+        const fiberKey = Object.keys(element).find((key) =>
+            key.startsWith('__reactFiber$'),
+        );
+        return fiberKey ? element[fiberKey] : null;
+    }
+
+    function findFiberInSubtree(rootFiber, predicate) {
+        const stack = rootFiber ? [rootFiber] : [];
+        let visited = 0;
+        while (stack.length && visited < SDUI_FIBER_SEARCH_LIMIT) {
+            const fiber = stack.pop();
+            visited += 1;
+            if (predicate(fiber)) return fiber;
+            if (fiber.sibling && fiber !== rootFiber) stack.push(fiber.sibling);
+            if (fiber.child) stack.push(fiber.child);
+        }
+        return null;
+    }
+
+    function isSduiFeedFiber(fiber) {
+        return Array.isArray(fiber?.memoizedProps?.config?.props?.feedItems);
+    }
+
+    function getFirstHostElement(fiber) {
+        const host = findFiberInSubtree(
+            fiber,
+            (node) => node.stateNode instanceof Element,
+        );
+        return host?.stateNode || null;
+    }
+
+    function getSduiFeedItemKey(item) {
+        const analyticsData = item?.analyticsContext?.analyticsData || {};
+        const id = analyticsData.collectionId ?? item?.props?.sortId;
+        if (id !== undefined && id !== null && id !== '') {
+            return `topicId:${id}`;
+        }
+        if (!item?.identifier) return '';
+        return `sdui:${String(item.identifier).replace(/-\d+$/, '')}`;
+    }
+
+    function getSduiFeedItemTitle(item) {
+        const candidates = [
+            item?.props?.headerComponent?.props?.titleText,
+            item?.props?.title,
+            item?.props?.titleText,
+        ];
+        const title = candidates.find(
+            (value) => typeof value === 'string' && value.trim(),
+        );
+        return title ? title.trim() : '';
+    }
+
+    function isSduiFriendsEntry(entry) {
+        return (
+            entry.key === `topicId:${FRIEND_CAROUSEL_TOPIC_ID}` ||
+            entry.identifier === 'friends_carousel'
+        );
+    }
+
+    function getSduiHomeEntries(feedItems) {
+        const entries = feedItems.map((item) => ({
+            key: getSduiFeedItemKey(item),
+            topic: getSduiFeedItemTitle(item),
+            identifier: item.identifier,
+            extra: false,
+        }));
+        const feedKeys = new Set(entries.map((entry) => entry.key));
+        const extraEntries = homeExtraSorts
+            .filter(canAdjustHomeSort)
+            .map((sort) => ({
+                key: getHomeSortKey(sort),
+                topic: sort.topic || '',
+                identifier: null,
+                extra: true,
+            }))
+            .filter((entry) => entry.key && !feedKeys.has(entry.key));
+
+        const continueIndex = entries.findLastIndex(
+            (entry) => entry.key === `topicId:${CONTINUE_SORT_TOPIC_ID}`,
+        );
+        const insertionIndex =
+            continueIndex === -1
+                ? Math.min(1, entries.length)
+                : continueIndex + 1;
+        entries.splice(insertionIndex, 0, ...extraEntries);
+        return entries;
+    }
+
+    function dispatchSduiHomeLayoutCategories(entries) {
+        const seenKeys = new Set();
+        const categories = [];
+        for (const entry of entries) {
+            if (!entry.key || seenKeys.has(entry.key)) continue;
+            seenKeys.add(entry.key);
+
+            const topicId = Number(entry.key.split(':')[1]);
+            categories.push({
+                key: entry.key,
+                topic: entry.topic,
+                topicId: Number.isFinite(topicId) ? topicId : null,
+                treatmentType: isSduiFriendsEntry(entry)
+                    ? FRIEND_CAROUSEL_TREATMENT_TYPE
+                    : 'Sdui',
+            });
+        }
+
+        const signature = JSON.stringify(categories);
+        if (!categories.length || signature === sduiLastCategoriesSignature) {
+            return;
+        }
+        sduiLastCategoriesSignature = signature;
+
+        document.dispatchEvent(
+            new CustomEvent('rovalra-home-layout-categories', {
+                detail: { categories },
+            }),
+        );
+    }
+
+    function getSduiFeedItemElements(feedFiber, feedItems) {
+        const identifiers = new Set(feedItems.map((item) => item.identifier));
+        const hostByIdentifier = new Map();
+
+        findFiberInSubtree(feedFiber, (fiber) => {
+            const identifier = fiber.memoizedProps?.config?.identifier;
+            if (
+                identifiers.has(identifier) &&
+                !hostByIdentifier.has(identifier)
+            ) {
+                const host = getFirstHostElement(fiber);
+                if (host) hostByIdentifier.set(identifier, host);
+            }
+            return hostByIdentifier.size === identifiers.size;
+        });
+
+        const hosts = [...hostByIdentifier.values()];
+        if (hosts.length < 2) return { list: null, elements: new Map() };
+
+        let list = hosts[0].parentElement;
+        while (list && !hosts.every((host) => list.contains(host))) {
+            list = list.parentElement;
+        }
+        if (!list) return { list: null, elements: new Map() };
+
+        const elements = new Map();
+        hostByIdentifier.forEach((host, identifier) => {
+            let wrapper = host;
+            while (wrapper && wrapper.parentElement !== list) {
+                wrapper = wrapper.parentElement;
+            }
+            if (wrapper) elements.set(identifier, wrapper);
+        });
+        return { list, elements };
+    }
+
+    function markSduiFeedList(list) {
+        if (list.hasAttribute(SDUI_FEED_LIST_ATTR)) return;
+        list.setAttribute(SDUI_FEED_LIST_ATTR, '');
+        document.dispatchEvent(new CustomEvent('rovalra-sdui-feed-ready'));
+    }
+
+    function getSduiExtraRow(list, key) {
+        return [...list.children].find(
+            (child) => child.getAttribute(SDUI_EXTRA_KEY_ATTR) === key,
+        );
+    }
+
+    function setSduiFeedItemOrder(wrapper, order) {
+        [wrapper, ...wrapper.children].forEach((target) => {
+            if (order === null) {
+                if (target.hasAttribute(SDUI_ORDER_ATTR)) {
+                    target.style.removeProperty('order');
+                    target.removeAttribute(SDUI_ORDER_ATTR);
+                }
+                return;
+            }
+            target.style.setProperty('order', String(order));
+            target.setAttribute(SDUI_ORDER_ATTR, String(order));
+        });
+    }
+
+    function ensureSduiHomeLayoutStyle() {
+        if (document.getElementById('rovalra-sdui-home-layout-style')) return;
+        const style = document.createElement('style');
+        style.id = 'rovalra-sdui-home-layout-style';
+        style.textContent = `[${SDUI_HIDDEN_ATTR}] { display: none !important; }`;
+        (document.head || document.documentElement).appendChild(style);
+    }
+
+    function applySduiHomeLayout() {
+        sduiLastApplyAt = Date.now();
+        const page = document.querySelector(SDUI_HOME_PAGE_SELECTOR);
+        if (!page) return;
+
+        const feedFiber = findFiberInSubtree(
+            getReactFiber(page),
+            isSduiFeedFiber,
+        );
+        const feedItems = feedFiber?.memoizedProps.config.props.feedItems;
+        if (!Array.isArray(feedItems) || !feedItems.length) return;
+
+        const entries = getSduiHomeEntries(feedItems);
+        dispatchSduiHomeLayoutCategories(entries);
+
+        const { list, elements } = getSduiFeedItemElements(
+            feedFiber,
+            feedItems,
+        );
+        if (!list) return;
+        markSduiFeedList(list);
+        ensureSduiHomeLayoutStyle();
+
+        const orderMap = new Map(
+            (Array.isArray(homeLayoutOrder) ? homeLayoutOrder : []).map(
+                (key, index) => [String(key), index],
+            ),
+        );
+        const hiddenKeys = new Set(
+            (Array.isArray(homeLayoutHidden) ? homeLayoutHidden : []).map(
+                String,
+            ),
+        );
+        const placedEntries = entries
+            .map((entry, index) => ({
+                ...entry,
+                index,
+                element: entry.extra
+                    ? getSduiExtraRow(list, entry.key)
+                    : elements.get(entry.identifier),
+            }))
+            .filter((entry) => entry.element);
+        const sortedEntries = [...placedEntries].sort((a, b) => {
+            const aOrder = orderMap.get(a.key);
+            const bOrder = orderMap.get(b.key);
+            if (aOrder !== undefined && bOrder !== undefined) {
+                return aOrder - bOrder || a.index - b.index;
+            }
+            if (aOrder !== undefined) return -1;
+            if (bOrder !== undefined) return 1;
+            return a.index - b.index;
+        });
+        const needsOrder = sortedEntries.some(
+            (entry) => entry.extra || orderMap.has(entry.key),
+        );
+
+        sortedEntries.forEach((entry, position) => {
+            setSduiFeedItemOrder(entry.element, needsOrder ? position : null);
+
+            if (!isSduiFriendsEntry(entry) && hiddenKeys.has(entry.key)) {
+                entry.element.setAttribute(SDUI_HIDDEN_ATTR, '');
+            } else {
+                entry.element.removeAttribute(SDUI_HIDDEN_ATTR);
+            }
+        });
+    }
+
+    function scheduleSduiHomeLayout() {
+        if (sduiApplyTimer) return;
+        const delay = Math.max(
+            0,
+            SDUI_APPLY_INTERVAL_MS - (Date.now() - sduiLastApplyAt),
+        );
+        sduiApplyTimer = setTimeout(() => {
+            sduiApplyTimer = null;
+            try {
+                applySduiHomeLayout();
+            } catch {}
+        }, delay);
+    }
+
+    document.addEventListener(
+        'rovalra-sdui-home-updated',
+        scheduleSduiHomeLayout,
+    );
+    document.addEventListener('rovalra-home-layout', scheduleSduiHomeLayout);
 
     function isMarketplaceWidgetsRequest(url) {
         try {

@@ -390,7 +390,8 @@
         "loading": "Loading game…",
         "all": "All",
         "topic": "Bookmarked Games",
-        "empty": "No bookmarked games in this category."
+        "empty": "No bookmarked games in this category.",
+        "noneYet": "No bookmarked games yet"
     },
     "homeLayout": {
         "untitled": "Untitled",
