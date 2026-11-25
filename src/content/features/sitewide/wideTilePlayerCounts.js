@@ -20,7 +20,12 @@ const CACHE_CLEANUP_INTERVAL = 10 * 60 * 1000;
 const REFRESH_ROOT_MARGIN_PX = 700;
 
 const TILE_SELECTOR = '[data-testid="wide-game-tile"]';
-const GAME_LINK_SELECTOR = `${TILE_SELECTOR} a.game-card-link[href*="/games/"]`;
+const SDUI_TILE_SELECTOR = '[data-testid="sdui-game-tile"]';
+const SDUI_LINK_SELECTOR = 'a.sdui-game-tile-primary[href*="/games/"]';
+const SDUI_FOOTER_LEFT_SELECTOR = '[data-testid="tile-footer-left"]';
+const SDUI_FOOTER_RIGHT_SELECTOR = '[data-testid="tile-footer-right"]';
+const ANY_TILE_SELECTOR = `${TILE_SELECTOR}, ${SDUI_TILE_SELECTOR}`;
+const GAME_LINK_SELECTOR = `${TILE_SELECTOR} a.game-card-link[href*="/games/"], ${SDUI_TILE_SELECTOR} ${SDUI_LINK_SELECTOR}`;
 const BASE_METADATA_SELECTOR = '.wide-game-tile-metadata .base-metadata';
 const RATING_BLOCK_SELECTOR = '[data-testid="game-tile-stats-rating"]';
 const PLAYERS_BLOCK_SELECTOR = '[data-testid="game-tile-stats-player-count"]';
@@ -40,7 +45,7 @@ const MOUNTED_ATTRIBUTE = 'data-rovalra-wide-game-tile-stats';
 const MOUNTED_CLASS = 'rovalra-wide-game-tile-stats';
 const MAX_REASONABLE_PLACE_ID = 1e12;
 const MAX_REASONABLE_UNIVERSE_ID = 1e13;
-const MOUNTED_STATS_SELECTOR = `${TILE_SELECTOR} [${MOUNTED_ATTRIBUTE}]`;
+const MOUNTED_STATS_SELECTOR = `${TILE_SELECTOR} [${MOUNTED_ATTRIBUTE}], ${SDUI_TILE_SELECTOR} [${MOUNTED_ATTRIBUTE}]`;
 
 // Utilities
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -221,7 +226,32 @@ function pruneDisconnectedItems() {
 
 // DOM discovery
 function getTileRoot(anchor) {
-    return anchor?.closest(TILE_SELECTOR) || null;
+    return anchor?.closest(ANY_TILE_SELECTOR) || null;
+}
+
+function isSduiTile(tile) {
+    return Boolean(tile?.matches?.(SDUI_TILE_SELECTOR));
+}
+
+function isWideSduiTile(tile) {
+    const [width, height] = (
+        tile.querySelector('[data-testid="sdui-tile-image-container"]')?.style
+            .aspectRatio || ''
+    )
+        .split('/')
+        .map(Number);
+    return width > 0 && width / (height || 1) > 1.2;
+}
+
+function getSduiRatingFooter(tile) {
+    const left = tile.querySelector(SDUI_FOOTER_LEFT_SELECTOR);
+    return left?.querySelector('.icon-filled-thumb-up') ? left : null;
+}
+
+function isEligibleSduiTile(tile, anchor) {
+    if (anchor.closest(SDUI_TILE_SELECTOR) !== tile) return false;
+    if (!anchor.matches(SDUI_LINK_SELECTOR)) return false;
+    return isWideSduiTile(tile) && Boolean(getSduiRatingFooter(tile));
 }
 
 function normalizeExperienceId(value, upperBound) {
@@ -305,9 +335,9 @@ function getExperienceIdsFromTile(tile, gameLink) {
 }
 
 function isEligibleTile(tile, anchor) {
-    if (!tile?.matches?.(TILE_SELECTOR) || !anchor?.matches?.('a')) {
-        return false;
-    }
+    if (!anchor?.matches?.('a')) return false;
+    if (isSduiTile(tile)) return isEligibleSduiTile(tile, anchor);
+    if (!tile?.matches?.(TILE_SELECTOR)) return false;
     if (anchor.closest(TILE_SELECTOR) !== tile) return false;
     if (tile.matches(EXCLUDED_TILE_SELECTOR)) return false;
     if (tile.querySelector(EXCLUDED_TILE_SELECTOR)) return false;
@@ -320,6 +350,10 @@ function getBaseMeta(tile) {
 }
 
 function hasCompleteNativeStats(tile) {
+    if (isSduiTile(tile)) {
+        const right = tile.querySelector(SDUI_FOOTER_RIGHT_SELECTOR);
+        return Boolean(right && !right.hasAttribute(MOUNTED_ATTRIBUTE));
+    }
     const base = getBaseMeta(tile);
     if (!base || base.querySelector(`[${MOUNTED_ATTRIBUTE}]`)) return false;
     return Boolean(
@@ -641,6 +675,35 @@ function mountStandardStats(base, stats, renderKey) {
     return true;
 }
 
+function mountSduiStats(tile, stats, renderKey) {
+    const left = getSduiRatingFooter(tile);
+    if (!left) return;
+
+    const existing = tile.querySelector(
+        `${SDUI_FOOTER_RIGHT_SELECTOR}[${MOUNTED_ATTRIBUTE}]`,
+    );
+    if (existing?.getAttribute(MOUNTED_ATTRIBUTE) === renderKey) return;
+
+    const right = left.cloneNode(false);
+    right.setAttribute('data-testid', 'tile-footer-right');
+    right.classList.replace('shrink-0', 'shrink');
+    markStatsElement(right, renderKey);
+
+    const icon = left
+        .querySelector('[data-testid="icon-component"]')
+        ?.cloneNode(false);
+    icon?.classList.replace('icon-filled-thumb-up', 'icon-filled-person-play');
+
+    const text = left.querySelector('[data-sdui-text]')?.cloneNode(false);
+    if (!text) return;
+    text.textContent = abbr(stats.playing);
+    text.title = stats.playing.toLocaleString();
+
+    right.append(...[icon, text].filter(Boolean));
+    if (existing) existing.replaceWith(right);
+    else left.after(right);
+}
+
 // Mounting
 function mountInline(item, stats) {
     const { tile, anchor, universeId } = item || {};
@@ -652,15 +715,21 @@ function mountInline(item, stats) {
     if (currentUniverseId !== universeId) return;
     if (hasCompleteNativeStats(tile) || hasNativeOnlineFriends(tile)) return;
 
-    const base = getBaseMeta(tile);
-    if (!base) return;
-
     const renderKey = [
         universeId,
         stats.playing,
         stats.upVotes,
         stats.downVotes,
     ].join(':');
+
+    if (isSduiTile(tile)) {
+        mountSduiStats(tile, stats, renderKey);
+        return;
+    }
+
+    const base = getBaseMeta(tile);
+    if (!base) return;
+
     const mountedStats = base.querySelector(`[${MOUNTED_ATTRIBUTE}]`);
     if (mountedStats?.getAttribute(MOUNTED_ATTRIBUTE) === renderKey) {
         return;

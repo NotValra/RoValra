@@ -992,20 +992,17 @@ function createUserResultHtml(
 
     if (user.isBanned) {
         if (displayNameDiv) {
-            const lockIcon = document.createElement('div');
+            const lockIcon = document.createElement('span');
+            lockIcon.className =
+                'grow-0 shrink-0 basis-auto icon icon-filled-lock-closed size-[var(--icon-size-small)]';
             addTooltip(lockIcon, ts('quickSearch.permanentlyBanned'), {
                 position: 'bottom',
             });
             Object.assign(lockIcon.style, {
-                width: '16px',
-                height: '16px',
                 display: 'inline-block',
                 verticalAlign: 'middle',
                 marginLeft: '5px',
-                flexShrink: '0',
-                backgroundColor: 'var(--rovalra-secondary-text-color)',
-                webkitMask: `url("${assets.lock}") no-repeat center / contain`,
-                mask: `url("${assets.lock}") no-repeat center / contain`,
+                color: 'var(--rovalra-secondary-text-color)',
             });
             displayNameDiv.appendChild(lockIcon);
         }

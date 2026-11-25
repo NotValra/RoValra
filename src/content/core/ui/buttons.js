@@ -24,10 +24,14 @@ export function createButton(text, type = 'secondary', options = {}) {
 
 export function createFoundationButton(text, options = {}) {
     const variant = options.variant || 'standard';
+    const sizeClasses =
+        options.size === 'large'
+            ? 'radius-medium text-label-medium height-1000 padding-x-medium'
+            : 'radius-small text-label-small height-600 padding-x-small';
 
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-small text-label-small height-600 padding-x-small bg-action-${variant} content-action-${variant}`;
+    button.className = `foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none ${sizeClasses} bg-action-${variant} content-action-${variant}`;
     button.style.textDecoration = 'none';
 
     const stateLayer = document.createElement('div');

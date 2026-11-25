@@ -15,6 +15,8 @@ import { DEFAULT_CATEGORY_ID } from '../../../shared/gameBookmarks.js';
 
 const TOPIC_ID = 10000013059;
 const SUB_ID = 'rovalra-bookmarked-games';
+const HEADER_SELECTOR =
+    '#HomeContainer .home-sort-header-container, #HomeContainer .game-sort-header-container, #HomeContainer .container-header, #HomeContainer .rovalra-sdui-extra-row [data-testid="section-header"]';
 let initialized = false;
 let selectedCategory = 'all';
 let generation = 0;
@@ -47,6 +49,9 @@ function publish() {
                         numberOfRows: 1,
                         topicLayoutData: { hideSeeAll: 'true', linkPath: '' },
                         rovalraKeepEmpty: true,
+                        rovalraPlaceholder: {
+                            title: bookmarkLabel('noneYet'),
+                        },
                         games: displayed,
                         recommendationList: displayed.map((game) => ({
                             contentType: 'Game',
@@ -104,11 +109,15 @@ async function refresh() {
 }
 
 function enhanceHeaders() {
-    for (const header of document.querySelectorAll(
-        '#HomeContainer .home-sort-header-container, #HomeContainer .game-sort-header-container, #HomeContainer .container-header',
-    )) {
-        if (!header.textContent.includes(bookmarkLabel('topic'))) continue;
-        const wrapper = header.closest('.game-sort-carousel-wrapper');
+    for (const header of document.querySelectorAll(HEADER_SELECTOR)) {
+        const sduiRow = header.closest('.rovalra-sdui-extra-row');
+        if (sduiRow) {
+            if (sduiRow.dataset.rovalraSortSubId !== SUB_ID) continue;
+        } else if (!header.textContent.includes(bookmarkLabel('topic'))) {
+            continue;
+        }
+        const wrapper =
+            sduiRow || header.closest('.game-sort-carousel-wrapper');
         if (wrapper) {
             wrapper.classList.toggle('rovalra-bookmarks-empty', emptyFilter);
             let empty = wrapper.querySelector(
@@ -173,11 +182,7 @@ export async function init() {
     subscribeBookmarks(() => {
         refresh().catch(console.warn);
     });
-    observeElement(
-        '#HomeContainer .home-sort-header-container, #HomeContainer .game-sort-header-container, #HomeContainer .container-header',
-        enhanceHeaders,
-        { multiple: true },
-    );
+    observeElement(HEADER_SELECTOR, enhanceHeaders, { multiple: true });
     observeElement(
         '#HomeContainer [data-testid="text-icon-row-text"]',
         enhanceHeaders,

@@ -390,7 +390,8 @@
         "loading": "Loading game…",
         "all": "All",
         "topic": "Bookmarked Games",
-        "empty": "No bookmarked games in this category."
+        "empty": "No bookmarked games in this category.",
+        "noneYet": "No bookmarked games yet"
     },
     "homeLayout": {
         "untitled": "Untitled",
@@ -1907,7 +1908,28 @@
             "loadingImage": "Loading image...",
             "imageLoadError": "Failed to load image.",
             "loadingMesh": "Loading mesh...",
-            "meshLoadError": "Failed to load mesh."
+            "meshLoadError": "Failed to load mesh.",
+            "imageTooltip": "Image {{id}}",
+            "meshTooltip": "Mesh {{id}}",
+            "assetFallbackName": "Asset {{id}}",
+            "keypoints_one": "{{count}} keypoint",
+            "keypoints_other": "{{count}} keypoints",
+            "points_one": "{{count}} pt",
+            "points_other": "{{count}} pts",
+            "custom": "Custom",
+            "r15": "R15",
+            "r6": "R6",
+            "rigTooltip": "Switch between the R15 (MeshPart) and R6 (classic) version of this item",
+            "previewAccessory": "Preview Accessory",
+            "previewCamera": "Preview Camera",
+            "loadingAccessory": "Loading accessory...",
+            "accessoryLoadError": "Failed to load accessory.",
+            "viewThroughCamera": "View Through {{name}}",
+            "freeCamera": "Free Camera",
+            "showMore": "Show {{count}} more ({{total}} left)",
+            "copyName": "Copy name",
+            "copyValue": "Copy value",
+            "copied": "Copied!"
         }
     },
     "priceFloor": {
@@ -1933,6 +1955,16 @@
         "userAgeVerified": "User is age checked.",
         "userNotAgeVerified": "User is not age checked.",
         "userAgeVerificationMayBeInaccurate": "This may be inaccurate"
+    },
+    "earlyAccessPrograms": {
+        "title": "Early Access Programs",
+        "description": "Roblox runs some of its development, early access and testing programs through communities. Past early access programs refer to features/programs that have ended or launched.",
+        "developmentTitle": "Development Groups",
+        "currentTitle": "Current Early Access",
+        "currentEmpty": "This user is not a part of any current early access programs.",
+        "pastTitle": "Past Early Access",
+        "rowMeta": "{{role}} · {{members}} members",
+        "error": "Couldn't load this user's programs!"
     },
     "friendRequestFilters": {
         "title": "Request Filters",
@@ -2313,7 +2345,8 @@
         "joinedDate": "Joined",
         "store": "Store",
         "members": "Members",
-        "accountForgotten": "Account Forgotten"
+        "accountForgotten": "Account Forgotten",
+        "likelyDeactivated": "This user has likely deactivated their account and may not be banned"
     },
     "copyId": {
         "copyId": "Copy {{type}} ID",

@@ -46,6 +46,7 @@ const labels = {
     all: ts('gameBookmarks.all'),
     topic: ts('gameBookmarks.topic'),
     empty: ts('gameBookmarks.empty'),
+    noneYet: ts('gameBookmarks.noneYet'),
 };
 
 export function getBookmarkState() {

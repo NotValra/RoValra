@@ -199,7 +199,15 @@ function isFriendCarouselCategory(category) {
 }
 
 function isContinueCategory(category) {
-    return category?.topicId === CONTINUE_TOPIC_ID;
+    return (
+        category?.topicId === CONTINUE_TOPIC_ID &&
+        category?.treatmentType !== 'Sdui'
+    );
+}
+
+function reloadHomeIfNeeded() {
+    if (document.querySelector('[data-testid="home-sdui-page"]')) return;
+    window.location.reload();
 }
 
 function getStoredValue(key, defaultValue) {
@@ -514,7 +522,7 @@ async function openCategorySettingsOverlay(category) {
 
             Promise.all([saveVisibility(), saveAccurateContinue]).then(() => {
                 overlayHandle?.close();
-                window.location.reload();
+                reloadHomeIfNeeded();
             });
         },
     });
@@ -879,7 +887,7 @@ function openHomeLayoutOverlay() {
                 () => {
                     publishHomeLayoutState([], []);
                     overlayHandle?.close();
-                    window.location.reload();
+                    reloadHomeIfNeeded();
                 },
             );
         },
@@ -892,7 +900,7 @@ function openHomeLayoutOverlay() {
 
             saveOrderFromList(list, () => {
                 overlayHandle?.close();
-                window.location.reload();
+                reloadHomeIfNeeded();
             });
         },
     });
@@ -1061,6 +1069,15 @@ export async function init() {
                 const homeContainer =
                     placeListContainer.closest('#HomeContainer');
                 if (homeContainer) attachHomeLayoutButton(homeContainer);
+            },
+            { multiple: true },
+        );
+        observeElement(
+            '[data-testid="home-sdui-page"], [data-testid="home-sdui-page"] [data-testid="section-header"]',
+            () => {
+                document.dispatchEvent(
+                    new CustomEvent('rovalra-sdui-home-updated'),
+                );
             },
             { multiple: true },
         );

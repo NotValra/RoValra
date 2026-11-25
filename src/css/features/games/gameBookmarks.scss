@@ -228,8 +228,12 @@
     }
 }
 
-.rovalra-bookmarks-empty [data-testid='game-carousel'] {
+.rovalra-bookmarks-empty [data-testid='game-carousel'],
+.rovalra-bookmarks-empty [data-testid='collection-carousel-viewport'] {
     display: none;
+}
+.rovalra-sdui-placeholder-slot [data-testid='sdui-tile-image-container'] {
+    background-color: var(--rovalra-container-background-color);
 }
 .rovalra-bookmarks-empty-message {
     padding-block: 12px;
