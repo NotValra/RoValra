@@ -8,7 +8,17 @@ const CLASSIC_CARD = '.game-card-container, .rovalra-game-card';
 const CLASSIC_STATS_ROW = `:is(${CLASSIC_CARD}) .game-card-info`;
 const CLASSIC_LABEL_SELECTOR = `${CLASSIC_STATS_ROW} :is(.vote-percentage-label, .playing-counts-label)`;
 const SDUI_STATS_ROW = '[data-testid="sdui-tile-footer-content"]';
-const SDUI_LABEL_SELECTOR = `.sdui-game-tile ${SDUI_STATS_ROW} :is(.icon-rating-16x16, .icon-current-players-16x16)`;
+const SDUI_RATING_ICONS = ['icon-rating-16x16', 'icon-filled-thumb-up'];
+const SDUI_PLAYING_ICONS = [
+    'icon-current-players-16x16',
+    'icon-filled-person-play',
+];
+const SDUI_LABEL_SELECTOR = `.sdui-game-tile ${SDUI_STATS_ROW} :is(${[
+    ...SDUI_RATING_ICONS,
+    ...SDUI_PLAYING_ICONS,
+]
+    .map((iconClass) => `.${iconClass}`)
+    .join(', ')})`;
 const EVENT_LINK_SELECTOR = 'a[href*="/events/"]';
 
 const HAS_STATS_ATTRIBUTE = 'data-rovalra-2016-has-stats';
@@ -65,17 +75,19 @@ function readClassicStats(info) {
     };
 }
 
-function readSduiStat(footer, iconClass) {
+function readSduiStat(footer, iconClasses) {
     return footer
-        .querySelector(`.${iconClass}`)
+        .querySelector(
+            iconClasses.map((iconClass) => `.${iconClass}`).join(', '),
+        )
         ?.parentElement?.querySelector('[data-sdui-text]')
         ?.textContent?.trim();
 }
 
 function readSduiStats(footer) {
     return {
-        percent: toPercent(readSduiStat(footer, 'icon-rating-16x16')),
-        playing: readSduiStat(footer, 'icon-current-players-16x16') || null,
+        percent: toPercent(readSduiStat(footer, SDUI_RATING_ICONS)),
+        playing: readSduiStat(footer, SDUI_PLAYING_ICONS) || null,
     };
 }
 
