@@ -12,8 +12,6 @@ async function fetchGameData(universeId) {
     try {
         const response = await callRobloxApiJson({
             subdomain: 'games',
-            // The trailing id stops Roblox from redacting a private universe,
-            // which would otherwise answer with "[TITLE UNAVAILABLE]".
             endpoint: `/v1/games?universeIds=${universeId},1`,
             useBackground: true,
         });

@@ -34,8 +34,6 @@ const ENDPOINTS = {
         `/v2/users/${userId}/games?accessFilter=${accessFilter}&limit=50&sortOrder=Asc&cursor=${cursor}`,
 
     VOTES_V1: (ids) => `/v1/games/votes?universeIds=${ids}`,
-    // The callers append a public universe id so Roblox doesn't redact the
-    // private ones these lists are made of.
     GAMES_V1: (ids) => `/v1/games?universeIds=${ids}`,
 };
 

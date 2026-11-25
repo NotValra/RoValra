@@ -694,9 +694,6 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                     ),
                 );
 
-            // Roblox redacts a private universe queried on its own (blank
-            // name, maxPlayers 0, created 0001-01-01); a public universe
-            // appended after the id makes it return the real record.
             callRobloxApiJson({
                 subdomain: 'games',
                 endpoint: `/v1/games?universeIds=${universeId},1`,

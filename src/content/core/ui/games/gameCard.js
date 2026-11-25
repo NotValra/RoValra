@@ -190,8 +190,6 @@ function flushUniverseQueue() {
     for (let i = 0; i < ids.length; i += MAX_BATCH - 1) {
         const chunk = ids.slice(i, i + MAX_BATCH - 1);
 
-        // Padding with a public universe keeps Roblox from redacting a
-        // private one in the same query, so the record stays usable.
         const idsStr = [...chunk, 1].join(',');
 
         fetchWithRetry('games', `/v1/games?universeIds=${idsStr}`)

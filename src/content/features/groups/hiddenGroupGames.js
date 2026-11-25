@@ -104,9 +104,6 @@ const api = {
 
             const [votesData, playersData] = await Promise.all([
                 this.safeGet(`/v1/games/votes?universeIds=${universeIds}`),
-                // The trailing public universe keeps Roblox from redacting
-                // these private universes, which blanks their `updated` and
-                // breaks the default sort.
                 this.safeGet(`/v1/games?universeIds=${universeIds},1`),
             ]);
 
