@@ -1181,6 +1181,23 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     settingContainer.className = 'setting';
     settingContainer.id = `setting-container-${settingName}`;
 
+    if (Array.isArray(setting.allowedUserIds)) {
+        settingContainer.style.display = 'none';
+        getAuthenticatedUserId()
+            .then((userId) => {
+                if (
+                    userId !== null &&
+                    userId !== undefined &&
+                    setting.allowedUserIds.includes(String(userId))
+                ) {
+                    settingContainer.style.display = '';
+                } else {
+                    settingContainer.remove();
+                }
+            })
+            .catch(() => settingContainer.remove());
+    }
+
     const controlsContainer = document.createElement('div');
     controlsContainer.className = 'setting-controls';
 

@@ -5325,25 +5325,125 @@ window.addEventListener('beforeunload', () => {
     document.removeEventListener('roblox-dom-changed', handleGlobalDomChange);
 });
 
+const SPOOF_AS_GAME_ALLOWED_USER_ID = '447170745';
+const TELEPORT_TEMPLATE_STORAGE_KEY = 'rovalra_spoofyTemplate';
+
+async function isSpoofAsGameAllowedUser() {
+    try {
+        const userId = await getAuthenticatedUserId();
+        return String(userId) === SPOOF_AS_GAME_ALLOWED_USER_ID;
+    } catch {
+        return false;
+    }
+}
+
 function initializeHeartbeatSpoofer() {
     const originalFetch = window.fetch;
     let pulseInterval = null;
     let spoofingMode = 'off';
+    let teleportTemplatePromise = null;
+
+    const getTeleportTemplate = () => {
+        if (teleportTemplatePromise) return teleportTemplatePromise;
+        teleportTemplatePromise = (async () => {
+            const stored = await chrome.storage.local.get(
+                TELEPORT_TEMPLATE_STORAGE_KEY,
+            );
+            const cached = stored[TELEPORT_TEMPLATE_STORAGE_KEY];
+            if (cached?.template && cached?.apiKey) {
+                return cached;
+            }
+
+            const response = await callRobloxApi({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: '/v1/internal/teleport-action',
+                method: 'GET',
+                useBackground: true,
+            });
+            if (!response.ok) {
+                throw new Error(
+                    `Teleport template request failed (${response.status}).`,
+                );
+            }
+            let template = await response.text();
+            let apiKey = '';
+
+            const apiKeyLine = template.match(
+                /^[ \t]*"apiKey"[ \t]*:[ \t]*"([^"]*)"[ \t]*,?[ \t]*\r?\n/m,
+            );
+            if (apiKeyLine) {
+                apiKey = apiKey || apiKeyLine[1];
+                template = template.replace(apiKeyLine[0], '');
+            }
+
+            if (!apiKey) {
+                throw new Error('Teleport template response had no API key.');
+            }
+            const result = { template, apiKey };
+            await chrome.storage.local.set({
+                [TELEPORT_TEMPLATE_STORAGE_KEY]: result,
+            });
+            return result;
+        })();
+        teleportTemplatePromise.catch(() => {
+            teleportTemplatePromise = null;
+        });
+        return teleportTemplatePromise;
+    };
 
     const sendSpoofedHeartbeat = async () => {
-        let locationInfoPayload;
+        let spoofedPulseRequest;
 
         if (spoofingMode === 'studio') {
-            locationInfoPayload = { studioLocationInfo: { placeId: 0 } };
+            spoofedPulseRequest = {
+                clientSideTimestampEpochMs: Date.now(),
+                locationInfo: { studioLocationInfo: { placeId: 0 } },
+                sessionInfo: { sessionId: crypto.randomUUID() },
+            };
+        } else if (spoofingMode === 'game') {
+            if (!(await isSpoofAsGameAllowedUser())) return;
+
+            const ids = await chrome.storage.local.get([
+                'spoofAsGamePlaceId',
+                'spoofAsGameUniverseId',
+            ]);
+            const placeId = String(ids.spoofAsGamePlaceId ?? '').trim();
+            const universeId = String(ids.spoofAsGameUniverseId ?? '').trim();
+            if (!/^\d+$/.test(placeId) || !/^\d+$/.test(universeId)) {
+                console.warn(
+                    'RoValra: Spoof as game needs a valid Place ID and Universe ID.',
+                );
+                return;
+            }
+
+            try {
+                const { template, apiKey } = await getTeleportTemplate();
+                const target = new URL(apiKey);
+                if (
+                    target.protocol !== 'https:' ||
+                    !target.hostname.endsWith('.roblox.com')
+                ) {
+                    throw new Error('Unsupported API key.');
+                }
+                await callRobloxApi({
+                    subdomain: target.hostname.slice(0, -'.roblox.com'.length),
+                    endpoint: `${target.pathname}${target.search}`,
+                    method: 'POST',
+                    body: template
+                        .replace('placeidhere', placeId)
+                        .replace('universeidhere', universeId),
+                    headers: { 'Content-Type': 'application/json' },
+                    useBackground: true,
+                });
+                console.log('RoValra: Spoofed status sent. Mode: game');
+            } catch (error) {
+                console.error('RoValra: Failed to send spoofed status.', error);
+            }
+            return;
         } else {
             return;
         }
-
-        const spoofedPulseRequest = {
-            clientSideTimestampEpochMs: Date.now(),
-            locationInfo: locationInfoPayload,
-            sessionInfo: { sessionId: crypto.randomUUID() },
-        };
 
         try {
             await callRobloxApi({
@@ -5351,7 +5451,9 @@ function initializeHeartbeatSpoofer() {
                 endpoint: '/user-heartbeats-api/pulse',
                 method: 'POST',
                 body: spoofedPulseRequest,
-                headers: { 'RoValra-Internal': 'true' },
+                headers: {
+                    'RoValra-Internal': 'true',
+                },
                 useBackground: true,
             });
             console.log(
@@ -5366,10 +5468,10 @@ function initializeHeartbeatSpoofer() {
         if (pulseInterval) return;
         console.log(`RoValra: Starting spoofer timer (${spoofingMode}).`);
         pulseInterval = setInterval(async () => {
-            if (spoofingMode === 'studio') {
+            if (spoofingMode === 'studio' || spoofingMode === 'game') {
                 sendSpoofedHeartbeat();
             }
-        }, 30000);
+        }, 20000);
     };
 
     const stopSpoofingTimer = () => {
@@ -5380,7 +5482,7 @@ function initializeHeartbeatSpoofer() {
         }
     };
 
-    const updateSpoofingMode = (settings) => {
+    const updateSpoofingMode = async (settings) => {
         chrome.runtime.sendMessage({
             action: 'updateOfflineRule',
             enabled: settings.spoofAsOffline,
@@ -5390,17 +5492,28 @@ function initializeHeartbeatSpoofer() {
             enabled: settings.EarlyAccessProgram,
         });
 
+        if (!settings.spoofAsGame) {
+            teleportTemplatePromise = null;
+            chrome.storage.local.remove(TELEPORT_TEMPLATE_STORAGE_KEY);
+        }
+
         if (settings.spoofAsOffline) spoofingMode = 'offline';
         else if (settings.spoofAsStudio) spoofingMode = 'studio';
+        else if (settings.spoofAsGame && (await isSpoofAsGameAllowedUser()))
+            spoofingMode = 'game';
         else spoofingMode = 'off';
 
-        if (spoofingMode === 'studio') startSpoofingTimer();
+        if (spoofingMode === 'studio' || spoofingMode === 'game')
+            startSpoofingTimer();
         else stopSpoofingTimer();
     };
 
     const relevantSettings = [
         'spoofAsStudio',
         'spoofAsOffline',
+        'spoofAsGame',
+        'spoofAsGamePlaceId',
+        'spoofAsGameUniverseId',
         'EarlyAccessProgram',
     ];
     chrome.storage.local.get(relevantSettings, updateSpoofingMode);

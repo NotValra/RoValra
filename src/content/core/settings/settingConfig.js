@@ -3145,7 +3145,11 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                exclusiveWith: ['spoofAsStudio', 'spoofAsOnline'],
+                exclusiveWith: [
+                    'spoofAsStudio',
+                    'spoofAsOnline',
+                    'spoofAsGame',
+                ],
                 contributors: ['447170745', '109176680'],
             },
             spoofAsStudio: {
@@ -3157,7 +3161,11 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                exclusiveWith: ['spoofAsOffline', 'spoofAsOnline'],
+                exclusiveWith: [
+                    'spoofAsOffline',
+                    'spoofAsOnline',
+                    'spoofAsGame',
+                ],
                 contributors: ['447170745', '109176680'],
             },
         },
@@ -3817,6 +3825,32 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            spoofAsGame: {
+                label: 'LARP MODE ACTIVATED!',
+                description: [
+                    'Roblox has been ghosting my report on this silly for MONTHS.......',
+                ],
+                type: 'checkbox',
+                default: false,
+                allowedUserIds: ['447170745'],
+                exclusiveWith: ['spoofAsOffline', 'spoofAsStudio'],
+                childSettings: {
+                    spoofAsGamePlaceId: {
+                        label: 'Place ID',
+                        description: [''],
+                        type: 'input',
+                        default: null,
+                        placeholder: 'Enter Place ID here...',
+                    },
+                    spoofAsGameUniverseId: {
+                        label: 'Universe ID',
+                        description: [''],
+                        type: 'input',
+                        default: null,
+                        placeholder: 'Enter Universe ID here...',
+                    },
+                },
             },
             alwaysShowDeveloperSettings: {
                 label: ['Always show RoValra developer settings tab'],
