@@ -4,6 +4,7 @@ let globalObserver = null;
 let attributeObserver = null;
 let attributeListeners = new Map();
 let childListListeners = new Map();
+const attributeObserveOptions = new WeakMap();
 const characterDataListeners = new WeakMap();
 const trackedRequestsByElement = new WeakMap();
 
@@ -259,10 +260,15 @@ export const observeAttributes = (
     if (!attributeListeners.has(element))
         attributeListeners.set(element, new Set());
     attributeListeners.get(element).add(callback);
+
+    const previous = attributeObserveOptions.get(element);
+    const filter = new Set([...(previous?.filter ?? []), ...attributeFilter]);
+    const subtree = Boolean(previous?.subtree || options.subtree);
+    attributeObserveOptions.set(element, { filter, subtree });
     attributeObserver.observe(element, {
         attributes: true,
-        attributeFilter,
-        subtree: options.subtree || false,
+        attributeFilter: [...filter],
+        subtree,
     });
 
     return {

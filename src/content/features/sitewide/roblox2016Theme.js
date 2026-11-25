@@ -29,6 +29,7 @@ const FONT_FILES = [
 
 const DARK_CLASSES = ['dark-theme', 'color-mode-dark'];
 const LIGHT_CLASSES = ['light-theme', 'color-mode-light'];
+const COLOR_MODE_ATTRIBUTE = 'data-color-mode';
 
 const IMAGE_VARIABLES = {
     '--rovalra-2016-logo': 'roblox2016Logo',
@@ -83,6 +84,8 @@ let fontFaces = [];
 let bodyClassObserver = null;
 let displacedClasses = [];
 let addedClasses = [];
+let originalBodyColorMode;
+let rootObserver = null;
 
 function whenBodyReady(callback) {
     if (document.body) {
@@ -92,8 +95,21 @@ function whenBodyReady(callback) {
     document.addEventListener('DOMContentLoaded', callback, { once: true });
 }
 
+function usesColorModeAttribute() {
+    return document.documentElement.hasAttribute(COLOR_MODE_ATTRIBUTE);
+}
+
 function forceLightMode() {
     const body = document.body;
+    if (usesColorModeAttribute()) {
+        if (body.getAttribute(COLOR_MODE_ATTRIBUTE) === 'light') return;
+        if (originalBodyColorMode === undefined) {
+            originalBodyColorMode = body.getAttribute(COLOR_MODE_ATTRIBUTE);
+        }
+        body.setAttribute(COLOR_MODE_ATTRIBUTE, 'light');
+        return;
+    }
+
     const dark = DARK_CLASSES.filter((className) =>
         body.classList.contains(className),
     );
@@ -105,7 +121,9 @@ function forceLightMode() {
     const missing = LIGHT_CLASSES.filter(
         (className) => !body.classList.contains(className),
     );
-    if (missing.length && displacedClasses.length) {
+
+    const hasNoColorMode = missing.length === LIGHT_CLASSES.length;
+    if (missing.length && (displacedClasses.length || hasNoColorMode)) {
         body.classList.add(...missing);
         addedClasses = [...new Set([...addedClasses, ...missing])];
     }
@@ -116,6 +134,12 @@ function restoreColorMode() {
     bodyClassObserver = null;
     const body = document.body;
     if (!body) return;
+    if (originalBodyColorMode !== undefined) {
+        if (originalBodyColorMode === null)
+            body.removeAttribute(COLOR_MODE_ATTRIBUTE);
+        else body.setAttribute(COLOR_MODE_ATTRIBUTE, originalBodyColorMode);
+        originalBodyColorMode = undefined;
+    }
     if (addedClasses.length) body.classList.remove(...addedClasses);
     if (displacedClasses.length) body.classList.add(...displacedClasses);
     addedClasses = [];
@@ -213,9 +237,26 @@ function removeLayoutMarkers() {
     }
 }
 
+function keepRootApplied() {
+    const root = document.documentElement;
+    if (!root.classList.contains(ROOT_CLASS)) root.classList.add(ROOT_CLASS);
+    const [firstVariable] = Object.keys(IMAGE_VARIABLES);
+    if (!root.style.getPropertyValue(firstVariable)) setImageVariables(true);
+}
+
 function applyTheme(enabled) {
+    rootObserver?.disconnect();
+    rootObserver = null;
     document.documentElement.classList.toggle(ROOT_CLASS, enabled);
     setImageVariables(enabled);
+
+    if (enabled) {
+        rootObserver = observeAttributes(
+            document.documentElement,
+            keepRootApplied,
+            ['class', 'style'],
+        );
+    }
 
     if (!enabled) {
         removeFont();
@@ -237,6 +278,7 @@ function applyTheme(enabled) {
         forceLightMode();
         bodyClassObserver = observeAttributes(document.body, forceLightMode, [
             'class',
+            COLOR_MODE_ATTRIBUTE,
         ]);
     });
 }

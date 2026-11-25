@@ -70,8 +70,8 @@ $r2016-tokens: (
 $r2016-root: ':root.rovalra-theme-2016';
 
 #{$r2016-root},
-#{$r2016-root} [class*='theme-'],
-#{$r2016-root} [class*='-theme'] {
+#{$r2016-root} [class*='theme-']:not(.buy-robux-page),
+#{$r2016-root} [class*='-theme']:not(.buy-robux-page) {
     @each $mode in dark, light {
         @each $key, $value in $r2016-tokens {
             --#{$mode}-mode-#{$key}: #{$value} !important;
@@ -115,6 +115,19 @@ $r2016-root: ':root.rovalra-theme-2016';
     --rovalra-theme-discordLink: #{$r2016-blue} !important;
     --rovalra-theme-githubLink: #{$r2016-green} !important;
     --rovalra-theme-robloxLink: #{$r2016-header} !important;
+}
+
+#{$r2016-root} .buy-robux-page:is(.dark-theme, .color-mode-dark) {
+    --dark-mode-content-emphasis: var(--color-extended-gray-100);
+    --dark-mode-content-default: var(--color-extended-gray-400);
+    --dark-mode-content-muted: var(--color-extended-gray-500);
+    --dark-mode-action-standard-foreground: var(--color-extended-gray-100);
+    --dark-mode-action-subtle-foreground: var(--color-extended-gray-100);
+    --dark-mode-action-utility-foreground: var(--color-extended-gray-100);
+    --dark-mode-action-link-foreground: var(--color-extended-gray-100);
+    --dark-mode-shift-300: rgba(255, 255, 255, 0.12);
+    --dark-mode-action-standard-background: rgba(255, 255, 255, 0.12);
+    color-scheme: dark;
 }
 
 #{$r2016-root} body {
