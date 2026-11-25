@@ -187,10 +187,12 @@ function flushUniverseQueue() {
     const ids = Array.from(currentMap.keys());
     if (ids.length === 0) return;
 
-    for (let i = 0; i < ids.length; i += MAX_BATCH) {
-        const chunk = ids.slice(i, i + MAX_BATCH);
+    for (let i = 0; i < ids.length; i += MAX_BATCH - 1) {
+        const chunk = ids.slice(i, i + MAX_BATCH - 1);
 
-        const idsStr = [1, ...chunk].join(',');
+        // Padding with a public universe keeps Roblox from redacting a
+        // private one in the same query, so the record stays usable.
+        const idsStr = [...chunk, 1].join(',');
 
         fetchWithRetry('games', `/v1/games?universeIds=${idsStr}`)
             .then((gamesData) => {
@@ -440,8 +442,12 @@ export function createGameCard(options) {
                 card.replaceWith(realCard);
             } catch (e) {
                 console.warn('RoValra: Error creating game card from ID', e);
-                card.innerHTML =
-                    `<div style="padding: 10px; color: var(--text-error);">${ts('games.failedToLoad')}</div>`;
+                const message = document.createElement('div');
+                message.style.padding = '10px';
+                message.style.color = 'var(--text-error)';
+                message.textContent = ts('games.failedToLoad');
+                card.textContent = '';
+                card.appendChild(message);
             }
         })();
         return card;

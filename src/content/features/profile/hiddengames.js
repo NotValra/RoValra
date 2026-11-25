@@ -34,6 +34,8 @@ const ENDPOINTS = {
         `/v2/users/${userId}/games?accessFilter=${accessFilter}&limit=50&sortOrder=Asc&cursor=${cursor}`,
 
     VOTES_V1: (ids) => `/v1/games/votes?universeIds=${ids}`,
+    // The callers append a public universe id so Roblox doesn't redact the
+    // private ones these lists are made of.
     GAMES_V1: (ids) => `/v1/games?universeIds=${ids}`,
 };
 
@@ -143,11 +145,11 @@ const Api = {
 
     async resolveGameInfo(universeIds, itemByUniverse) {
         const gameById = new Map();
-        for (let i = 0; i < universeIds.length; i += 50) {
-            const chunk = universeIds.slice(i, i + 50);
+        for (let i = 0; i < universeIds.length; i += 49) {
+            const chunk = universeIds.slice(i, i + 49);
             const res = await this.fetchWithRetry({
                 subdomain: 'games',
-                endpoint: ENDPOINTS.GAMES_V1(chunk.join(',')),
+                endpoint: ENDPOINTS.GAMES_V1(`${chunk.join(',')},1`),
             });
             const data = res ? await res.json().catch(() => null) : null;
             data?.data?.forEach((g) => gameById.set(g.id, g));
@@ -220,8 +222,8 @@ const Api = {
 
         const playerResList = [];
         const voteResList = [];
-        for (let i = 0; i < batch.length; i += 50) {
-            const chunk = batch.slice(i, i + 50);
+        for (let i = 0; i < batch.length; i += 49) {
+            const chunk = batch.slice(i, i + 49);
             const chunkIds = chunk.map((g) => g.id).join(',');
 
             if (i > 0) await new Promise((r) => setTimeout(r, 250));
@@ -229,7 +231,7 @@ const Api = {
             const [gamesRes, votesRes] = await Promise.all([
                 this.fetchWithRetry({
                     subdomain: 'games',
-                    endpoint: ENDPOINTS.GAMES_V1(chunkIds),
+                    endpoint: ENDPOINTS.GAMES_V1(`${chunkIds},1`),
                 }).then((r) => r?.json()),
                 this.fetchWithRetry({
                     subdomain: 'games',
