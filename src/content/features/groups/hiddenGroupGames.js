@@ -97,14 +97,14 @@ const api = {
         const batch = games.filter((g) => g && !cache.likes.has(g.id));
         if (!batch.length) return;
 
-        for (let i = 0; i < batch.length; i += 50) {
-            const chunk = batch.slice(i, i + 50);
+        for (let i = 0; i < batch.length; i += 49) {
+            const chunk = batch.slice(i, i + 49);
             const universeIds = chunk.map((g) => g.id).join(',');
             if (!universeIds) continue;
 
             const [votesData, playersData] = await Promise.all([
                 this.safeGet(`/v1/games/votes?universeIds=${universeIds}`),
-                this.safeGet(`/v1/games?universeIds=${universeIds}`),
+                this.safeGet(`/v1/games?universeIds=${universeIds},1`),
             ]);
 
             if (votesData?.data) {

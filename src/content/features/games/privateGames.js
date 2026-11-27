@@ -390,6 +390,10 @@ function slugifyGameName(name) {
     );
 }
 
+function formatGenreLabel(value) {
+    return value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function renderDisabledNotice() {
     const content = document.getElementById('content');
     if (!content) return;
@@ -692,11 +696,11 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
 
             callRobloxApiJson({
                 subdomain: 'games',
-                endpoint: `/v1/games?universeIds=1,${universeId}`,
+                endpoint: `/v1/games?universeIds=${universeId},1`,
             })
                 .then((gameRes) => {
                     const game = gameRes?.data?.find(
-                        (g) => g.id === universeId,
+                        (g) => String(g.id) === String(universeId),
                     );
                     gameData._existsInGamesApi = !!game;
                     if (game) {
@@ -711,15 +715,24 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                             gameData.visits = game.visits;
                         }
 
-                        if (game.genre_l1) {
-                            gameData.genre = game.genre_l1
-                                .replace(/_/g, ' ')
-                                .replace(/\b\w/g, (c) => c.toUpperCase());
+                        if (game.maxPlayers) {
+                            gameData.maxPlayers = game.maxPlayers;
+                        }
+                        if (game.created) {
+                            gameData.created = game.created;
+                        }
+                        if (game.updated) {
+                            gameData.updated = game.updated;
+                        }
+
+                        const genre = game.genre_l1 || game.genre;
+                        if (genre) {
+                            gameData.genre = formatGenreLabel(genre);
                         }
                         if (game.genre_l2) {
-                            gameData.subgenre = game.genre_l2
-                                .replace(/_/g, ' ')
-                                .replace(/\b\w/g, (c) => c.toUpperCase());
+                            gameData.subgenre = formatGenreLabel(
+                                game.genre_l2,
+                            );
                         }
                         updateGameDataUpdated(gameData);
                     }

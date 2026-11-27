@@ -12,13 +12,17 @@ async function fetchGameData(universeId) {
     try {
         const response = await callRobloxApiJson({
             subdomain: 'games',
-            endpoint: `/v1/games?universeIds=${universeId}`,
+            endpoint: `/v1/games?universeIds=${universeId},1`,
             useBackground: true,
         });
 
-        if (response && response.data && response.data.length > 0) {
-            return response.data[0];
-        }
+        return (
+            response?.data?.find(
+                (game) =>
+                    String(game.id) === String(universeId) &&
+                    game.rootPlaceId > 0,
+            ) || null
+        );
     } catch (error) {
         console.error('RoValra: Failed to fetch game name', error);
     }
