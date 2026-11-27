@@ -47,6 +47,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '1388867949',
     '4975603156', // KyoMarketing
     '112558831',
+    '3420105861', //zomop
 ];
 
 export const TESTER_USER_IDS = [

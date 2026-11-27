@@ -106,7 +106,7 @@ export async function getAuthenticatedUsername() {
 
 const VERIFIED_CACHE_SECTION = 'authed_user_verified';
 
-let verifiedPromise = null;
+const verifiedPromises = new Map();
 
 async function fetchAndCacheVerified(userId) {
     const result = await callRobloxApiJson({
@@ -140,6 +140,8 @@ export async function getAuthenticatedUserVerified(refresh = false) {
         if (typeof cached === 'boolean') return cached;
     }
 
+    const userKey = userId.toString();
+    let verifiedPromise = verifiedPromises.get(userKey);
     if (!verifiedPromise) {
         verifiedPromise = fetchAndCacheVerified(userId)
             .catch((error) => {
@@ -147,8 +149,11 @@ export async function getAuthenticatedUserVerified(refresh = false) {
                 return false;
             })
             .finally(() => {
-                verifiedPromise = null;
+                if (verifiedPromises.get(userKey) === verifiedPromise) {
+                    verifiedPromises.delete(userKey);
+                }
             });
+        verifiedPromises.set(userKey, verifiedPromise);
     }
     return verifiedPromise;
 }
