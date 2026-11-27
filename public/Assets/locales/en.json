@@ -1502,6 +1502,32 @@
         "incidentHideNotice": "You can hide this notice here",
         "rovalraApi": "RoValra API"
     },
+    "cloudPlay": {
+        "title": "Cloud Play",
+        "subtitle": "Stream a Roblox experience from Roblox's cloud servers right in your browser. THIS IS CURRENTLY EXPERIMENTAL AND IS ENABLED BY ROVALRA",
+        "notes": {
+            "experimental": "Roblox cloud gaming is still being worked on, so expect bugs. YOU MAY BE LOGGED OUT AFTER USING THIS DUE TO IT BEING EXPERIMENTAL",
+            "keyboard": "Keyboard controls are limited for now.",
+            "exit": "Use the Exit button in the top right corner to leave the session."
+        },
+        "placeId": "Place ID",
+        "device": "Device type",
+        "play": "Play",
+        "fullscreen": "Fullscreen",
+        "exit": "Exit",
+        "requesting": "Requesting a cloud server...",
+        "connecting": "Connecting...",
+        "disconnected": "The cloud session ended.",
+        "failed": "Couldn't start a cloud session: {{error}}",
+        "invalidPlaceId": "Enter a valid place ID.",
+        "logoutWarning": {
+            "title": "Before you play",
+            "message": "Cloud Play signs in to Roblox on a official Roblox cloud server with your account. When your play session ends, you may be logged out of Roblox and need to log in again. Due to account protections. If you don't trust this DON'T USE THE FEATURE",
+            "agree": "I agree"
+        },
+        "noCandidates": "Your browser didn't provide any network address for the stream. A WebRTC privacy setting (like uBlock Origin's \"Prevent WebRTC from leaking local IP addresses\" or Brave's WebRTC policy) can block it.",
+        "timedOut": "Couldn't connect to the cloud server ({{state}})."
+    },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",
         "expandSidebar": "Expand sidebar"

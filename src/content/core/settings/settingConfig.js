@@ -3718,6 +3718,28 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            cloudPlayEnabled: {
+                label: 'Cloud Play',
+                description: [
+                    "Adds a page at roblox.com/cloudplay that streams an experience from Roblox's cloud gaming servers straight into your browser, with the device type of your choice.",
+                    'Roblox cloud gaming is still being worked on, so keyboard controls are limited and you may run into bugs.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: 'rovalraCloudPlayDevice',
+                contributors: ['477516666', '447170745'],
+                experimental: 'Roblox cloud gaming is unfinished.',
+                childSettings: {
+                    cloudPlaySidebarLinkEnabled: {
+                        label: 'Cloud Play sidebar link',
+                        description: [
+                            'Adds a Cloud Play link below Communities in the Roblox sidebar.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
         },
     },
     PublicDeveloper: {

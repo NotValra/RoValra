@@ -59,6 +59,7 @@ import { init as initHideMessageCount } from './features/sitewide/hideMessageCou
 import { init as initDebugOverlay } from './features/developer/debugOverlay.js';
 import { init as initChannelOverlay } from './features/play/channelOverlay.js';
 import { init as initServerLocationOverlay } from './features/play/serverLocationOverlay.js';
+import { init as initCloudPlay } from './features/play/cloudPlay.js';
 import { init as initTopbarLayout } from './features/sitewide/topbarLayout.js';
 import { init as initFriendUsernames } from './features/sitewide/friendUsernames.js';
 import { init as initRobloxAdminBadges } from './features/sitewide/robloxAdminBadges.js';
@@ -329,6 +330,7 @@ const featureRoutes = [
             initDebugOverlay,
             initChannelOverlay,
             initServerLocationOverlay,
+            initCloudPlay,
             initVoiceBanIndicator,
             initTopbarLayout,
             initFriendUsernames,

@@ -1,0 +1,98 @@
+.rovalra-cloudplay-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-cloudplay-title {
+    margin: 0 0 6px;
+    font-size: 2.2em;
+    font-weight: 800;
+}
+
+.rovalra-cloudplay-subtitle {
+    margin: 0 0 16px;
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-cloudplay-notes {
+    margin: 0 0 24px;
+    padding-left: 20px;
+    list-style: disc;
+    color: var(--rovalra-secondary-text-color);
+
+    li {
+        margin-bottom: 4px;
+    }
+}
+
+.rovalra-cloudplay-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rovalra-cloudplay-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rovalra-cloudplay-label {
+    font-weight: 600;
+}
+
+.rovalra-cloudplay-play {
+    align-self: flex-start;
+    min-width: 140px;
+}
+
+.rovalra-cloudplay-error {
+    color: var(--color-system-alert);
+}
+
+html.rovalra-cloudplay-active,
+html.rovalra-cloudplay-active body {
+    overflow: hidden;
+}
+
+.rovalra-cloudplay-player {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    background: #000;
+    touch-action: none;
+    user-select: none;
+}
+
+.rovalra-cloudplay-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    outline: none;
+}
+
+.rovalra-cloudplay-status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.rovalra-cloudplay-toolbar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    opacity: 0.35;
+    transition: opacity 0.15s;
+
+    &:hover {
+        opacity: 1;
+    }
+}
