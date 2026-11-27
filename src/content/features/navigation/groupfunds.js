@@ -6,10 +6,7 @@ import {
     createThumbnailElement,
     getBatchThumbnails,
 } from '../../core/thumbnail/thumbnails.js';
-import {
-    getCachedUserCurrency,
-    getUserCurrency,
-} from '../../core/user/userCurrency.js';
+import { getUserCurrency } from '../../core/user/userCurrency.js';
 import { USER_CURRENCY_CHANGED_EVENT } from '../../core/utils/trackers/currency.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { getUserName } from '../../core/apis/users.js';
@@ -240,13 +237,7 @@ async function getCurrentUserMenuData() {
 }
 
 async function getPersonalRobuxBalance() {
-    const cachedBalance = Number((await getCachedUserCurrency())?.robux);
-    if (Number.isFinite(cachedBalance)) {
-        return cachedBalance;
-    }
-
-    const freshBalance = Number((await getUserCurrency())?.robux);
-    return Number.isFinite(freshBalance) ? freshBalance : null;
+    return (await getUserCurrency())?.robux ?? null;
 }
 
 function shouldWarmPersonalRowData() {
@@ -268,9 +259,7 @@ async function warmPersonalRowData() {
         const userData =
             userResult.status === 'fulfilled' ? userResult.value : null;
         const personalBalance =
-            balanceResult.status === 'fulfilled'
-                ? Number(balanceResult.value)
-                : NaN;
+            balanceResult.status === 'fulfilled' ? balanceResult.value : null;
 
         personalRowData = {
             userId: userData?.userId || personalRowData?.userId || null,
@@ -279,9 +268,7 @@ async function warmPersonalRowData() {
                 userData?.thumbnailData ||
                 personalRowData?.thumbnailData ||
                 null,
-            personalBalance: Number.isFinite(personalBalance)
-                ? personalBalance
-                : personalRowData?.personalBalance,
+            personalBalance: personalBalance ?? personalRowData?.personalBalance,
         };
 
         return personalRowData;
@@ -399,7 +386,7 @@ function upsertFoundationPersonalRow(container, data, personalBalance) {
 function upsertPersonalRow(section, divider, data, isFoundation = false) {
     if (!data) return;
 
-    const personalBalance = Number(data.personalBalance);
+    const personalBalance = data.personalBalance;
     if (!Number.isFinite(personalBalance)) return;
 
     if (isFoundation) {
