@@ -158,7 +158,7 @@ export const BADGE_CONFIG = {
         builderIconFilled: true,
         themeColorIcon: true,
         tooltip:
-            'This user is a Protected User. Protected Users are users who have protections in place making them less likely to get falsely moderated. Some protected users may not show this badge.',
+            'This user is a Protected User. Protected Users are users who have protections in place making them less likely to get falsely moderated. Some protected users may not show this badge. Previously verified users may falsely show up as a protected user.',
         shiny: false,
         sparkles: false,
         size: '22px',
