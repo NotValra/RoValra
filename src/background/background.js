@@ -727,12 +727,13 @@ function pollUserPresence() {
 
 // --- Avatar Rotator ---
 
-function updateAvatarRotator() {
+function updateAvatarRotator(shouldResetIndex = false) {
     chrome.storage.local.get(
         [
             'rovalra_avatar_rotator_enabled',
             'rovalra_avatar_rotator_ids',
             'rovalra_avatar_rotator_interval',
+            'rovalra_avatar_rotator_index',
         ],
         (data) => {
             if (state.rotatorInterval) {
@@ -745,7 +746,9 @@ function updateAvatarRotator() {
                 data.rovalra_avatar_rotator_ids?.length > 0
             ) {
                 const ids = data.rovalra_avatar_rotator_ids;
-                state.rotatorIndex = 0;
+                state.rotatorIndex = shouldResetIndex
+                    ? 0
+                    : (data.rovalra_avatar_rotator_index || 0) % ids.length;
 
                 let intervalSeconds = Math.max(
                     parseInt(data.rovalra_avatar_rotator_interval, 10) || 5,
@@ -757,6 +760,9 @@ function updateAvatarRotator() {
                     const outfit = ids[state.rotatorIndex];
                     wearOutfit(outfit);
                     state.rotatorIndex = (state.rotatorIndex + 1) % ids.length;
+                    chrome.storage.local.set({
+                        rovalra_avatar_rotator_index: state.rotatorIndex,
+                    });
                 };
 
                 rotate();
@@ -969,7 +975,10 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
             changes.rovalra_avatar_rotator_ids ||
             changes.rovalra_avatar_rotator_interval
         ) {
-            updateAvatarRotator();
+            const shouldResetIndex =
+                changes.rovalra_avatar_rotator_ids ||
+                changes.rovalra_avatar_rotator_enabled?.newValue;
+            updateAvatarRotator(shouldResetIndex);
         }
         if (
             changes.privateGameViewerEnabled ||
