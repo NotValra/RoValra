@@ -6,6 +6,26 @@ const API_KEY_NAME = 'Extension API key';
 const API_KEY_DESCRIPTION =
     'Used by RoValra for local API requests only.\nNever used outside your local device.';
 const OLD_API_KEY_NAME = 'RoValra API key';
+const API_KEY_SCOPES_VERSION = 1;
+const API_KEY_SCOPES = [
+    {
+        scopeType: 'user.inventory-item',
+        targetParts: ['*'],
+        operations: ['read'],
+    },
+];
+
+function keyHasRequiredScopes(key) {
+    const scopes = key.cloudAuthUserConfiguredProperties?.scopes;
+    if (!Array.isArray(scopes)) return false;
+    return API_KEY_SCOPES.every((required) =>
+        scopes.some(
+            (s) =>
+                s.scopeType === required.scopeType &&
+                required.operations.every((op) => s.operations?.includes(op)),
+        ),
+    );
+}
 
 export async function getValidApiKey() {
     const userId = await getAuthenticatedUserId();
@@ -18,7 +38,8 @@ export async function getValidApiKey() {
     if (
         storedData &&
         storedData.apiKey &&
-        storedData.description === API_KEY_DESCRIPTION
+        storedData.description === API_KEY_DESCRIPTION &&
+        storedData.scopesVersion === API_KEY_SCOPES_VERSION
     ) {
         return storedData.apiKey;
     }
@@ -60,12 +81,25 @@ export async function getValidApiKey() {
             }).catch(() => {});
         }
 
-        const existingKey = listData.cloudAuthInfo?.find(
-            (key) =>
-                key.cloudAuthUserConfiguredProperties?.name === API_KEY_NAME &&
-                key.cloudAuthUserConfiguredProperties?.description ===
-                    API_KEY_DESCRIPTION,
-        );
+        const matchingKeys =
+            listData.cloudAuthInfo?.filter(
+                (key) =>
+                    key.cloudAuthUserConfiguredProperties?.name ===
+                        API_KEY_NAME &&
+                    key.cloudAuthUserConfiguredProperties?.description ===
+                        API_KEY_DESCRIPTION,
+            ) || [];
+
+        const existingKey = matchingKeys.find(keyHasRequiredScopes);
+
+        for (const outdatedKey of matchingKeys) {
+            if (outdatedKey === existingKey) continue;
+            await callRobloxApi({
+                subdomain: 'apis',
+                endpoint: `/cloud-authentication/v1/apiKey/${outdatedKey.id}`,
+                method: 'DELETE',
+            }).catch(() => {});
+        }
 
         let resultData;
 
@@ -89,7 +123,7 @@ export async function getValidApiKey() {
                         description: API_KEY_DESCRIPTION,
                         isEnabled: true,
                         allowedCidrs: ['0.0.0.0/0'],
-                        scopes: [],
+                        scopes: API_KEY_SCOPES,
                     },
                 },
             });
@@ -103,6 +137,7 @@ export async function getValidApiKey() {
                 apiKey: apiKey,
                 id: resultData.cloudAuthInfo.id,
                 description: API_KEY_DESCRIPTION,
+                scopesVersion: API_KEY_SCOPES_VERSION,
                 timestamp: Date.now(),
             };
 
