@@ -34,3 +34,18 @@ button#rovalra-viewid-button-main, button#rovalra-viewid-button-sec {
         scale: 0.95;
     }
 }
+
+.rovalra-viewid-copy {
+    cursor: pointer;
+
+    transition: scale 0.1s ease;
+
+    &:hover {
+        scale: 1.01;
+        transition: scale 0.1s ease;
+    }
+
+    &:active {
+        scale: 0.99;
+    }
+}

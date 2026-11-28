@@ -1389,9 +1389,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 } else if (request.feature === 'viewid') {
                     request.ids.forEach((id) => {
                         chrome.storage.local.get(
-                            ['viewIdEnabled'],
+                            ['viewIdEnabled2'],
                             (settings) => {
-                                if (settings.viewIdEnabled) {
+                                if (settings.viewIdEnabled2) {
                                     chrome.contextMenus.create({
                                         id: `rovalra-viewid-${id}`,
                                         title: request.data.title,

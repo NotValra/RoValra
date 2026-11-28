@@ -3784,7 +3784,7 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            viewIdEnabled: {
+            viewIdEnabled2: {
                 label: 'View Bundled IDs',
                 description:
                     'Allows you to view all bundles items and their IDs of any catalog item.',
