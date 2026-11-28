@@ -11,7 +11,7 @@
     display: block;
     pointer-events: none;
     user-select: none;
-    z-index: 3;
+    z-index: 9999 !important;
 }
 
 .rovalra-profile-frame-preview {

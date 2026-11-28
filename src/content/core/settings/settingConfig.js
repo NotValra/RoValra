@@ -1550,7 +1550,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: [48255812],
+                contributors: [48255812, 1564574922],
                 childSettings: {
                     profileFrameChoice: {
                         label: 'Profile Frames',
