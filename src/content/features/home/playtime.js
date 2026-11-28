@@ -1,6 +1,6 @@
 import { callRobloxApiJson } from '../../core/api.js';
 import {
-    getPlaceDetails,
+    getUniverseIdFromPlaceId,
     getUniversesDetails,
     getUniversesVotes,
 } from '../../core/apis/games.js';
@@ -27,6 +27,14 @@ let periodAriaLabel = '';
 let generation = 0;
 let playtimes = new Map();
 let games = [];
+
+function chunk(values, size = 50) {
+    const chunks = [];
+    for (let i = 0; i < values.length; i += size) {
+        chunks.push(values.slice(i, i + size));
+    }
+    return chunks;
+}
 
 function formatPlaytime(seconds) {
     if (seconds >= 3600) {
@@ -87,13 +95,25 @@ async function load() {
     playtimes = new Map(
         entries.map((entry) => [String(entry.placeId), Number(entry.seconds)]),
     );
-    const places = await Promise.all(
-        entries.map(async (entry) => ({
-            entry,
-            detail: await getPlaceDetails(entry.placeId),
-        })),
-    );
-    if (version !== generation) return;
+    const universeIdByPlaceId = new Map();
+    const placeIds = [
+        ...new Set(entries.map((entry) => String(entry.placeId))),
+    ];
+    for (const ids of chunk(placeIds, 10)) {
+        await Promise.all(
+            ids.map(async (placeId) => {
+                const universeId = await getUniverseIdFromPlaceId(placeId);
+                if (universeId) universeIdByPlaceId.set(placeId, universeId);
+            }),
+        );
+        if (version !== generation) return;
+    }
+    const places = entries.map((entry) => ({
+        entry,
+        detail: {
+            universeId: universeIdByPlaceId.get(String(entry.placeId)),
+        },
+    }));
     const universeIds = [
         ...new Set(
             places
@@ -101,10 +121,16 @@ async function load() {
                 .filter(Boolean),
         ),
     ];
+    const universeChunks = chunk(universeIds);
     const [details, votes] = await Promise.all([
-        getUniversesDetails(universeIds),
-        getUniversesVotes(universeIds),
+        Promise.all(universeChunks.map(getUniversesDetails)).then((r) =>
+            r.flat(),
+        ),
+        Promise.all(universeChunks.map(getUniversesVotes)).then((r) =>
+            r.flat(),
+        ),
     ]);
+    if (version !== generation) return;
     const votesById = new Map(
         votes.map((vote) => [Number(vote.universeId), vote]),
     );

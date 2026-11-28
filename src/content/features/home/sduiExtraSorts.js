@@ -101,7 +101,8 @@ function sanitizeClone(root) {
             element !== root &&
             ((tokens.length &&
                 tokens.every((token) => isInjectedToken(token))) ||
-                element.hasAttribute('data-rovalra-wide-game-tile-stats'))
+                (element.hasAttribute('data-rovalra-wide-game-tile-stats') &&
+                    element.dataset.testid !== 'tile-footer-right'))
         ) {
             element.remove();
             continue;
@@ -239,6 +240,11 @@ function buildRow(template, kind, sort) {
 
     const slotTemplate = slot.cloneNode(true);
     sanitizeClone(slotTemplate);
+    slotTemplate
+        .querySelectorAll(
+            '[data-testid="sdui-tile-overlay-container"] [data-testid^="slot-wrapper-"]',
+        )
+        .forEach((badge) => badge.remove());
     const ratingSuffix = getRatingSuffix(slotTemplate);
     const rowTrack = columnClone.querySelector(
         '[data-testid="collection-carousel-track"]',
