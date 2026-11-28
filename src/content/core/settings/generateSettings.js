@@ -1283,6 +1283,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         );
     }
 
+    if (setting.usesRovalraApi) {
+        settingContainer.appendChild(createRovalraApiManager(settingName));
+    }
+
     if (setting.type === 'file') {
         const uploadElement = inputElement;
         const uploadApi =
@@ -1436,6 +1440,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 );
             }
 
+            if (childSetting.usesRovalraApi) {
+                childContainer.appendChild(createRovalraApiManager(childName));
+            }
+
             if (childSetting.type === 'file') {
                 const uploadElement = childInput;
                 const uploadApi =
@@ -1498,6 +1506,33 @@ export function generateSettingsUI(section, REGIONS = {}) {
     }
 
     return fragment;
+}
+
+function createRovalraApiManager(settingName) {
+    const manager = document.createElement('div');
+    manager.className = 'rovalra-api-manager';
+    manager.dataset.rovalraApiFor = settingName;
+
+    const container = document.createElement('div');
+    container.className = 'rovalra-api-manager-row';
+
+    const text = document.createElement('span');
+    text.className = 'rovalra-api-manager-text';
+    text.textContent = ts('settings.ui.rovalraApi.toggle');
+
+    const label = document.createElement('label');
+    label.className = 'toggle-switch';
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.className = 'rovalra-api-toggle';
+    input.checked = true;
+    const slider = document.createElement('span');
+    slider.className = 'slider';
+    label.append(input, slider);
+
+    container.append(text, label);
+    manager.appendChild(container);
+    return manager;
 }
 
 function createPermissionManager(settingName, permissionName) {

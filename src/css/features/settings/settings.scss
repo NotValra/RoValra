@@ -764,3 +764,58 @@ body.rovalra-settings-page {
     color: var(--rovalra-secondary-text-color);
     font-size: 12px;
 }
+
+.rovalra-api-manager {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--rovalra-container-background-color);
+    border-radius: 8px;
+}
+
+.rovalra-api-manager-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.rovalra-api-manager-text {
+    font-size: 15px;
+    color: var(--rovalra-main-text-color);
+    font-weight: 400;
+}
+
+.rovalra-api-disabled > .setting-controls {
+    opacity: 0.5;
+}
+
+.rovalra-api-disabled-notice {
+    margin-top: 6px;
+    opacity: 0.8;
+}
+
+.rovalra-api-list {
+    display: block;
+    max-height: 260px;
+    overflow-y: auto;
+    margin: 10px 0;
+    padding: 4px 12px 10px;
+    border-radius: 8px;
+    background-color: var(--rovalra-container-background-color,);
+}
+
+.rovalra-api-list-category {
+    display: block;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+.rovalra-api-list-item {
+    display: list-item;
+    list-style: disc;
+    margin-left: 18px;
+}
+
+.rovalra-api-list-parent {
+    opacity: 0.7;
+}

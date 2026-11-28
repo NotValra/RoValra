@@ -1,5 +1,6 @@
 import { loadSettings } from './handlesettings.js';
 import { REMOTE_SETTING_LOCKS_KEY } from './remoteSettingLocks.js';
+import { ROVALRA_API_ENABLED_KEY } from '../rovalraApiAccess.js';
 
 let settingsCache = undefined;
 
@@ -18,7 +19,10 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName !== 'local' || settingsCache === undefined) return;
 
-        if (changes[REMOTE_SETTING_LOCKS_KEY]) {
+        if (
+            changes[REMOTE_SETTING_LOCKS_KEY] ||
+            changes[ROVALRA_API_ENABLED_KEY]
+        ) {
             settingsCache = undefined;
             return;
         }

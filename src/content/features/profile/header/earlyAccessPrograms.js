@@ -39,7 +39,6 @@ const EARLY_ACCESS_PROGRAMS = [
     { groupId: 8554431, name: 'Assessment Tools', category: 'development' },
     { groupId: 160690462, name: 'ContentGuardians', category: 'development' },
     { groupId: 142598225, name: 'Roblox Labs', category: 'development' },
-    { groupId: 348838062, name: 'Communities Squad', category: 'development' },
     { groupId: 17134089, name: 'Immersive Ads', category: 'development' },
 
     // current early access

@@ -35,6 +35,10 @@ import {
 } from '../themeVariables.js';
 import { importCustomCosmetic } from '../profile/customCosmeticTest.js';
 import './settingsCompat';
+import {
+    ROVALRA_API_ENABLED_KEY,
+    setRovalraApiEnabled,
+} from '../rovalraApiAccess.js';
 
 let currentUserTierLoaded = false;
 let currentUserTier = 0;
@@ -445,10 +449,14 @@ export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
         const forcedSettings = {};
+        const rovalraApiSettings = [];
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, settingDef] of Object.entries(
                 category.settings,
             )) {
+                if (settingDef.usesRovalraApi) {
+                    rovalraApiSettings.push(settingName);
+                }
                 if (settingDef.default !== undefined) {
                     defaultSettings[settingName] = settingDef.default;
                 }
@@ -462,6 +470,9 @@ export const loadSettings = async () => {
                         if (isUnavailableSetting(childSettingDef)) {
                             forcedSettings[childName] = false;
                         }
+                        if (childSettingDef.usesRovalraApi) {
+                            rovalraApiSettings.push(childName);
+                        }
                         if (childSettingDef.default !== undefined) {
                             defaultSettings[childName] =
                                 childSettingDef.default;
@@ -472,7 +483,11 @@ export const loadSettings = async () => {
         }
 
         chrome.storage.local.get(
-            { ...defaultSettings, [REMOTE_SETTING_LOCKS_KEY]: {} },
+            {
+                ...defaultSettings,
+                [REMOTE_SETTING_LOCKS_KEY]: {},
+                [ROVALRA_API_ENABLED_KEY]: true,
+            },
             async (settings) => {
                 if (chrome.runtime.lastError) {
                     console.error(
@@ -487,6 +502,12 @@ export const loadSettings = async () => {
 
                     if (settings[REMOTE_SETTING_OVERRIDE_KEY] !== true) {
                         for (const key of Object.keys(remoteLocks)) {
+                            forcedSettings[key] = false;
+                        }
+                    }
+
+                    if (settings[ROVALRA_API_ENABLED_KEY] === false) {
+                        for (const key of rovalraApiSettings) {
                             forcedSettings[key] = false;
                         }
                     }
@@ -1348,7 +1369,172 @@ export const initSettings = async (settingsContent) => {
     settingsContent.querySelectorAll('.permission-toggle').forEach((toggle) => {
         toggle.addEventListener('change', handlePermissionToggle);
     });
+
+    settingsContent
+        .querySelectorAll('.rovalra-api-toggle')
+        .forEach((toggle) => {
+            if (toggle.dataset.rovalraApiBound === 'true') return;
+            toggle.dataset.rovalraApiBound = 'true';
+            toggle.addEventListener('change', handleRovalraApiToggle);
+        });
+    if (settings && settingsContent.querySelector('.rovalra-api-manager')) {
+        applyRovalraApiState(
+            settingsContent,
+            settings[ROVALRA_API_ENABLED_KEY] !== false,
+            settings,
+        );
+    }
 };
+
+export function getRovalraApiFeatures() {
+    const features = [];
+    for (const [categoryKey, category] of Object.entries(SETTINGS_CONFIG)) {
+        for (const [name, conf] of Object.entries(category.settings)) {
+            if (conf.usesRovalraApi && !conf.hidden) {
+                features.push({
+                    categoryKey,
+                    name,
+                    label: conf.label,
+                    category: category.title,
+                });
+            }
+            for (const [childName, childConf] of Object.entries(
+                conf.childSettings || {},
+            )) {
+                if (childConf.usesRovalraApi && !childConf.hidden) {
+                    features.push({
+                        categoryKey,
+                        name: childName,
+                        label: childConf.label,
+                        parentLabel: conf.label,
+                        category: category.title,
+                    });
+                }
+            }
+        }
+    }
+    return features;
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(
+        /[&<>"']/g,
+        (c) =>
+            ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+            })[c],
+    );
+}
+
+function applyRovalraApiState(root, enabled, settings) {
+    root.querySelectorAll('.rovalra-api-toggle').forEach((toggle) => {
+        toggle.checked = enabled;
+    });
+
+    for (const { name } of getRovalraApiFeatures()) {
+        const manager = root.querySelector(`[data-rovalra-api-for="${name}"]`);
+        const wrapper = manager?.parentElement;
+        if (!wrapper) continue;
+
+        const input = wrapper.querySelector(`[data-setting-name="${name}"]`);
+        let notice = wrapper.querySelector(
+            ':scope > .rovalra-api-disabled-notice',
+        );
+
+        if (input) {
+            input.disabled = !enabled;
+            if (input.type === 'checkbox')
+                input.checked = settings[name] === true;
+        }
+        wrapper.classList.toggle('rovalra-api-disabled', !enabled);
+
+        if (!enabled && !notice) {
+            notice = document.createElement('div');
+            notice.className =
+                'setting-description rovalra-api-disabled-notice';
+            notice.textContent = ts('settings.ui.rovalraApi.disabledNotice');
+            manager.before(notice);
+        } else if (enabled && notice) {
+            notice.remove();
+        }
+    }
+
+    updateConditionalSettingsVisibility(root, settings);
+}
+
+async function setRovalraApiAndRefresh(enabled) {
+    await setRovalraApiEnabled(enabled);
+    const settings = await loadSettings();
+    applyRovalraApiState(document, enabled, settings);
+}
+
+const HIDDEN_ROVALRA_API_CATEGORIES = new Set(['Developer']);
+
+function buildRovalraApiDisableMessage(allFeatures) {
+    const features = allFeatures.filter(
+        (f) => !HIDDEN_ROVALRA_API_CATEGORIES.has(f.categoryKey),
+    );
+    const byCategory = new Map();
+    for (const feature of features) {
+        if (!byCategory.has(feature.category))
+            byCategory.set(feature.category, []);
+        byCategory.get(feature.category).push(feature);
+    }
+
+    let list = '';
+    for (const [category, items] of byCategory) {
+        list +=
+            `<span class="rovalra-api-list-category">${escapeHtml(category)}</span>` +
+            items
+                .map(
+                    (f) =>
+                        `<span class="rovalra-api-list-item">${escapeHtml(f.label)}${
+                            f.parentLabel
+                                ? ` <span class="rovalra-api-list-parent">(${escapeHtml(f.parentLabel)})</span>`
+                                : ''
+                        }</span>`,
+                )
+                .join('');
+    }
+
+    return (
+        escapeHtml(
+            ts('settings.ui.rovalraApi.disableMessage', {
+                count: features.length,
+            }),
+        ) +
+        `<span class="rovalra-api-list">${list}</span>` +
+        escapeHtml(ts('settings.ui.rovalraApi.disableFooter'))
+    );
+}
+
+export async function handleRovalraApiToggle(event) {
+    const toggle = event.target;
+
+    if (toggle.checked) {
+        await setRovalraApiAndRefresh(true);
+        return;
+    }
+
+    toggle.checked = true;
+
+    showConfirmationPrompt({
+        title: ts('settings.ui.rovalraApi.disableTitle'),
+        message: buildRovalraApiDisableMessage(getRovalraApiFeatures()),
+        confirmText: ts('settings.ui.rovalraApi.disableConfirm'),
+        cancelText: ts('common.cancel'),
+        confirmType: 'primary-destructive',
+        cancelType: 'secondary',
+        onConfirm: () => setRovalraApiAndRefresh(false),
+        onCancel: () => {
+            toggle.checked = true;
+        },
+    });
+}
 
 export const applyLockedState = (
     settingName,

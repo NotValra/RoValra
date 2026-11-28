@@ -2,6 +2,10 @@ import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
 import { updateGameBookmarks } from './gameBookmarks.js';
 import { setupNotifications } from './notifications.js';
+import {
+    createRovalraApiDisabledResponse,
+    isRovalraApiEnabled,
+} from '../content/core/rovalraApiAccess.js';
 import './indexedDb.js';
 
 // --- Constants & State ---
@@ -398,6 +402,10 @@ async function callRobloxApiBackground(options) {
         fullUrl = null,
         isRovalraApi = false,
     } = options;
+
+    if (isRovalraApi && !(await isRovalraApiEnabled())) {
+        return createRovalraApiDisabledResponse();
+    }
 
     let url;
     if (isRovalraApi) {

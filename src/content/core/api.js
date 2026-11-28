@@ -8,6 +8,11 @@ import { getValidApiKey, invalidateApiKey } from './utils/trackers/apiKey.js';
 import { showSystemAlert } from './ui/roblox/alert.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
+import {
+    createRovalraApiDisabledResponse,
+    isRovalraApiEnabled,
+    isRovalraApiRequest,
+} from './rovalraApiAccess.js';
 const activeRequests = new Map();
 const responseCache = new Map();
 const USER_BADGES_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -335,6 +340,10 @@ export function resetGameJoinErrorCount() {
 }
 
 export async function callRobloxApi(options) {
+    if (isRovalraApiRequest(options) && !(await isRovalraApiEnabled())) {
+        return createRovalraApiDisabledResponse();
+    }
+
     if (options.subdomain === 'gamejoin') {
         options = {
             ...options,

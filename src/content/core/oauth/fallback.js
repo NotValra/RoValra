@@ -3,6 +3,7 @@ import {
     getAuthenticatedUserId,
     getAuthenticatedUsername,
 } from '../../core/user.js';
+import { isRovalraApiEnabled } from '../rovalraApiAccess.js';
 
 const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
@@ -120,6 +121,7 @@ async function getFallbackProgress() {
 }
 
 export async function getValidFallbackToken(forceRefresh = false) {
+    if (!(await isRovalraApiEnabled())) return null;
     if (!forceRefresh) {
         const stored = await getStoredFallback();
         if (stored?.accessToken) {
@@ -470,6 +472,7 @@ async function resumeFallbackFlow(userId, progress) {
 }
 
 export async function initFallback() {
+    if (!(await isRovalraApiEnabled())) return null;
     const forceFallback = await shouldForceFallback();
 
     const userId = await getAuthenticatedUserId();

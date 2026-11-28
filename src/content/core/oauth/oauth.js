@@ -7,12 +7,18 @@ import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { shouldUseFallback, getValidFallbackToken } from './fallback.js';
 import { getCurrentUserTierSync } from '../settings/handlesettings.js';
+import { isRovalraApiEnabled } from '../rovalraApiAccess.js';
 import * as cache from '../storage/cacheHandler.js';
 
 let activeOAuthPromise = null;
 
 export async function init() {
     try {
+        if (!(await isRovalraApiEnabled())) {
+            console.log('RoValra: RoValra API disabled, skipped OAuth sync.');
+            return;
+        }
+
         console.log('RoValra: Script loaded. Syncing session...');
 
         const isDonator = getCurrentUserTierSync() >= 1;
@@ -56,6 +62,8 @@ export async function getValidAccessToken(
     forceRefresh = false,
     lazyForNonDonators = true,
 ) {
+    if (!(await isRovalraApiEnabled())) return null;
+
     const userId = await getAuthenticatedUserId();
     if (!userId) return null;
 

@@ -355,6 +355,7 @@ export const SETTINGS_CONFIG = {
                 },
             },
             PreferredRegionEnabled: {
+                usesRovalraApi: true,
                 label: 'Preferred Region Play Button',
                 description: [
                     'This adds a play button that joins your preferred region.',
@@ -426,6 +427,7 @@ export const SETTINGS_CONFIG = {
                         contributors: ['10646979010'],
                     },
                     playbuttonpreferredregionenabled: {
+                        usesRovalraApi: true,
                         label: 'Change the normal Play button to join your preferred region in Quick Play',
                         description: [
                             'This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region.',
@@ -445,6 +447,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['2963377564', '2333236354'],
             },
             whatamIJoiningEnabled: {
+                usesRovalraApi: true,
                 label: 'What Am I Joining',
                 description: [
                     "This shows the server ID, region, if it's a private server, and more info about the server you're joining when joining an experience.",
@@ -617,6 +620,7 @@ export const SETTINGS_CONFIG = {
                 },
             },
             hiddenBadgesEnabled: {
+                usesRovalraApi: true,
                 label: 'Hidden Badges',
                 description: [
                     'Adds a Hidden Badges tab to experience pages.',
@@ -682,6 +686,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             updateHistoryEnabled: {
+                usesRovalraApi: true,
                 label: 'Update History',
                 description: [
                     'This adds a tab to an experience page that has a heatmap showing the update history of an experience.',
@@ -701,6 +706,7 @@ export const SETTINGS_CONFIG = {
                 storageKey: 'rovalra_server_history',
             },
             TotalServersEnabled: {
+                usesRovalraApi: true,
                 label: 'Total Servers',
                 description: [
                     'This shows the total amount of servers RoValra is tracking under that experience.',
@@ -730,6 +736,7 @@ export const SETTINGS_CONFIG = {
                 dependedBy: ['spendingEnabled'],
             },
             OldestVersionEnabled: {
+                usesRovalraApi: true,
                 label: 'Oldest Server Version',
                 description: [
                     'This shows the oldest place version that servers are still running on.',
@@ -748,12 +755,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 childSettings: {
                     RegionFiltersEnabled: {
+                        usesRovalraApi: true,
                         label: 'Region Filters',
                         description: 'Adds Region filters in the server list.',
                         type: 'checkbox',
                         default: true,
                     },
                     UptimeFiltersEnabled: {
+                        usesRovalraApi: true,
                         label: 'Uptime Filters',
                         description:
                             'Adds Server Uptime filters in the server list.',
@@ -761,6 +770,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     VersionFiltersEnabled: {
+                        usesRovalraApi: true,
                         label: 'Place Version Filters',
                         description:
                             'Adds Place Version filters in the server list allowing you to filter by servers running a specific place version.',
@@ -811,6 +821,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     EnableServerUptime: {
+                        usesRovalraApi: true,
                         label: 'Server Uptime',
                         description: [
                             "This shows an estimate of a server's uptime in the server list.",
@@ -820,6 +831,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     EnableServerRegion: {
+                        usesRovalraApi: true,
                         label: 'Server Region',
                         description: [
                             "This shows the server's region or location.",
@@ -828,6 +840,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     EnablePlaceVersion: {
+                        usesRovalraApi: true,
                         label: 'Server Version',
                         description: [
                             'This shows the version of the experience that a specific server is running.',
@@ -945,6 +958,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['9502859424'],
             },
             profilePronouns: {
+                usesRovalraApi: true,
                 label: 'Profile Pronouns',
                 description: [
                     'Displays your pronouns beside your username on your profile for other RoValra users.',
@@ -963,6 +977,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['10646979010'],
             },
             displayAppThemeUserProfile: {
+                usesRovalraApi: true,
                 label: 'Display app theme user profiles',
                 description: ['Displays users app theme on their profile!'],
                 type: 'checkbox',
@@ -1047,6 +1062,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
             },
             profileCustomizationEnabled: {
+                usesRovalraApi: true,
                 label: 'Profile Customization',
                 description: [
                     'Adds a customization button to your own profile for quickly switching avatar borders.',
@@ -1055,6 +1071,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             profileShowcaseEnabled: {
+                usesRovalraApi: true,
                 label: 'Profile Showcase',
                 description: [
                     'Adds a Showcase tab to profiles for featuring a favourite experience and community.',
@@ -1064,6 +1081,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             profilePlaytimeEnabled: {
+                usesRovalraApi: true,
                 label: 'Profile Playtime',
                 description: [
                     'Adds a Playtime section to the bottom of profiles with a heatmap and graph of what the user played and when.',
@@ -1336,6 +1354,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             statusBubbleEnabled: {
+                usesRovalraApi: true,
                 label: 'Status Bubble',
                 description: [
                     'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
@@ -1444,6 +1463,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             RoValraBadgesEnable: {
+                usesRovalraApi: true,
                 label: 'RoValra Badges',
                 description: [
                     'Disabling this will hide any RoValra badges from profiles.',
@@ -1463,6 +1483,7 @@ export const SETTINGS_CONFIG = {
                 },
             },
             profileBackgroundGradientEnabled: {
+                usesRovalraApi: true,
                 label: 'Custom Profile Background Gradient',
                 description: [
                     "Shows a user's selected gradient on their profile.",
@@ -1516,6 +1537,7 @@ export const SETTINGS_CONFIG = {
                 },
             },
             avatarBorderEnabled: {
+                usesRovalraApi: true,
                 label: "Shows a user's Avatar Border",
                 description: [
                     'Shows a decorative border around avatars on friend tiles and profile pages.',
@@ -1542,6 +1564,7 @@ export const SETTINGS_CONFIG = {
                 },
             },
             profileFrameEnabled: {
+                usesRovalraApi: true,
                 label: "Shows a user's Profile Frame",
                 description: [
                     'Draws a frame around the avatar display on profile pages.',
@@ -1582,6 +1605,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['3602693727'],
             },
             displayNameGradientEnabled: {
+                usesRovalraApi: true,
                 label: 'Gradient Display Name',
                 description: [
                     'Shows three-color gradient display names on profiles to all RoValra users.',
@@ -1709,6 +1733,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['4489102289'],
             },
             underratedGamesEnabled: {
+                usesRovalraApi: true,
                 label: 'Underrated Games',
                 description: [
                     'Adds RoValra community-picked underrated games to the Home page.',
@@ -2020,6 +2045,7 @@ export const SETTINGS_CONFIG = {
         title: 'Transactions',
         settings: {
             robuxFiatEstimatesEnabled: {
+                usesRovalraApi: true,
                 label: 'Robux Fiat Estimates',
                 description: [
                     'Shows a money estimate beside Robux values on the transactions page, group revenue pages, and related Robux UI.',
@@ -2132,6 +2158,7 @@ export const SETTINGS_CONFIG = {
         title: 'Trading',
         settings: {
             tradeValuesEnabled: {
+                usesRovalraApi: true,
                 label: 'Trade Values',
                 description: [
                     'This shows a bunch of useful information when trading, stuff like:',
@@ -2785,6 +2812,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['2239549101'],
                 childSettings: {
                     tradeNotificationsEnabled: {
+                        usesRovalraApi: true,
                         label: 'Trades',
                         description: 'Notifies you when you get a new trade.',
                         type: 'checkbox',
@@ -2868,6 +2896,7 @@ export const SETTINGS_CONFIG = {
                 contributors: ['9502859424'],
             },
             ServerdataEnabled: {
+                usesRovalraApi: true,
                 label: "Send Server IDs and Place IDs to RoValra's API",
                 description: [
                     "This feature sends server IDs and place IDs to RoValra's API when you browse the site.",
@@ -2879,6 +2908,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             ServerdataLegacyEnabled: {
+                usesRovalraApi: true,
                 label: 'Use Legacy Server Data Submission',
                 description: [
                     'Sends only server IDs and place IDs.',
@@ -2888,6 +2918,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             playtimeEnabled: {
+                usesRovalraApi: true,
                 label: 'Playtime Tracking',
                 description: [
                     'Allows RoValra to track and store how long you are playing a game for which allows you to view the total playtime on that game.',
@@ -3711,6 +3742,7 @@ export const SETTINGS_CONFIG = {
             },
 
             serverLocationOverlayEnabled: {
+                usesRovalraApi: true,
                 label: 'Server Location Overlay',
                 description: [
                     'Shows a notification on play.roblox.com with the location, version and channel of the server you joined.',
@@ -3849,6 +3881,7 @@ export const SETTINGS_CONFIG = {
                 type: 'yay',
             },
             homePlaytimeEnabled: {
+                usesRovalraApi: true,
                 label: 'Home Playtime Section',
                 description: [
                     'Adds the Playtime carousel and per-game playtime to the home page.',

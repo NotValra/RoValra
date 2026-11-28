@@ -1,8 +1,10 @@
+import { t } from '../content/core/locale/i18n.js';
+
 const CHECK_INTERVAL = 60 * 1000;
 const STATE_KEY = 'rovalra_notifications_state';
 const PINNED_KEY = 'rovalra_pinned_friends';
 const ICON_URL = 'public/Assets/icon-128.png';
-const ROLIMONS_URL = 'https://apis.rovalra.com/v1/rolimons/limiteds';
+const ROLIMONS_ENDPOINT = '/v1/rolimons/limiteds';
 const ROLIMONS_TTL = 10 * 60 * 1000;
 const SETTING_DEFAULTS = {
     browserNotificationsEnabled: false,
@@ -27,26 +29,6 @@ async function getEnabled() {
     };
 }
 
-async function getStrings() {
-    const { rovalraLanguage, rovalra_autolang } =
-        await chrome.storage.local.get(['rovalraLanguage', 'rovalra_autolang']);
-    const lang =
-        rovalraLanguage === 'auto' ? rovalra_autolang : rovalraLanguage;
-    const load = async (code) => {
-        const res = await fetch(
-            chrome.runtime.getURL(`public/Assets/locales/${code}.json`),
-        );
-        return (await res.json()).notifications || {};
-    };
-    const en = await load('en');
-    if (!lang || lang === 'en') return en;
-    return { ...en, ...(await load(lang).catch(() => ({}))) };
-}
-
-function format(text, values) {
-    return text.replace(/\{\{(\w+)\}\}/g, (_, key) => values[key] ?? '');
-}
-
 function notify(id, title, message) {
     chrome.notifications.create(id, {
         type: 'basic',
@@ -63,10 +45,11 @@ async function getJson(options) {
 
 async function getRolimonsItems() {
     if (Date.now() - rolimons.fetchedAt > ROLIMONS_TTL) {
-        const res = await fetch(ROLIMONS_URL, { credentials: 'omit' }).catch(
-            () => null,
-        );
-        const json = res?.ok ? await res.json() : null;
+        const json = await getJson({
+            subdomain: 'apis',
+            endpoint: ROLIMONS_ENDPOINT,
+            isRovalraApi: true,
+        }).catch(() => null);
         if (json?.items)
             rolimons = { items: json.items, fetchedAt: Date.now() };
     }
@@ -112,7 +95,7 @@ function signed(number) {
     return `${number < 0 ? '-' : '+'}${Math.abs(number).toLocaleString('en-US')}`;
 }
 
-async function checkTrades(seen, strings) {
+async function checkTrades(seen) {
     const data = await getJson({
         subdomain: 'trades',
         endpoint: '/v1/trades/Inbound?limit=10&sortOrder=Desc',
@@ -122,21 +105,21 @@ async function checkTrades(seen, strings) {
     if (seen) {
         for (const trade of data.data) {
             if (seen.includes(trade.id)) continue;
-            const from = format(strings.tradeFrom, {
+            const from = await t('notifications.tradeFrom', {
                 name: trade.user.displayName || trade.user.name,
             });
             const diff = await getTradeDiff(trade.id, trade.user.id).catch(
                 () => null,
             );
             const stats = diff
-                ? format(strings.tradeStats, {
+                ? await t('notifications.tradeStats', {
                       value: signed(diff.value),
                       rap: signed(diff.rap),
                   })
                 : '';
             notify(
                 `rovalra-trade-${trade.id}`,
-                strings.newTrade,
+                await t('notifications.newTrade'),
                 stats ? `${from}\n${stats}` : from,
             );
         }
@@ -144,7 +127,7 @@ async function checkTrades(seen, strings) {
     return [...new Set([...ids, ...(seen || [])])].slice(0, 50);
 }
 
-async function checkFriends(previous, strings) {
+async function checkFriends(previous) {
     const { [PINNED_KEY]: pinned = [] } =
         await chrome.storage.local.get(PINNED_KEY);
     if (!pinned.length) return {};
@@ -181,10 +164,10 @@ async function checkFriends(previous, strings) {
     for (const presence of joined) {
         notify(
             `rovalra-game-${presence.rootPlaceId}-${presence.userId}`,
-            format(strings.friendPlaying, {
+            await t('notifications.friendPlaying', {
                 name: names[presence.userId] || presence.userId,
             }),
-            presence.lastLocation || strings.unknownGame,
+            presence.lastLocation || (await t('notifications.unknownGame')),
         );
     }
     return playing;
@@ -194,13 +177,11 @@ async function check() {
     const enabled = await getEnabled();
     const { [STATE_KEY]: state = {} } =
         await chrome.storage.local.get(STATE_KEY);
-    const strings = await getStrings();
 
-    if (enabled.trades) state.trades = await checkTrades(state.trades, strings);
+    if (enabled.trades) state.trades = await checkTrades(state.trades);
     else delete state.trades;
 
-    if (enabled.friends)
-        state.friends = await checkFriends(state.friends, strings);
+    if (enabled.friends) state.friends = await checkFriends(state.friends);
     else delete state.friends;
 
     await chrome.storage.local.set({ [STATE_KEY]: state });

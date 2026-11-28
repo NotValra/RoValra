@@ -1249,6 +1249,14 @@
                 "invalidImageUrl": "Enter a valid http:// or https:// image URL.",
                 "enablePermission": "Enable {{permission}} permission"
             },
+            "rovalraApi": {
+                "toggle": "Use the RoValra API",
+                "disableTitle": "Disable the RoValra API?",
+                "disableMessage": "RoValra will stop sending any requests to apis.rovalra.com and will stop RoValra from doing an OAuth. The following {{count}} features will be disabled:",
+                "disableFooter": "Your choices for these features are kept and come back if you turn the RoValra API on again.",
+                "disableConfirm": "Disable",
+                "disabledNotice": "Disabled because the RoValra API is turned off."
+            },
             "badges": {
                 "visibility": "Toggle your donation badges visibility."
             },
