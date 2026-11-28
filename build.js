@@ -32,6 +32,7 @@ const interceptEntryPath = path.join(
     'xhr',
     'intercept.js',
 );
+
 const contentEntryPath = path.join(__dirname, 'src', 'content', 'index.js');
 
 const manifestPath = path.join(__dirname, 'manifest.json');
@@ -122,7 +123,7 @@ esbuild
         bundle: false,
     })
     .catch(() => process.exit(1));
-    
+
 const cssDir = path.join(__dirname, 'src', 'css');
 
 if (sass && fs.existsSync(cssDir)) {
