@@ -1,7 +1,10 @@
 import { callRobloxApi } from '../../core/api.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { Icon } from '../../core/ui/buildericon.js';
-import { createNavbarButton } from '../../core/ui/navbarButton.js';
+import {
+    createNavbarButton,
+    removeNavbarButton,
+} from '../../core/ui/navbarButton.js';
 import { ts } from '../../core/locale/i18n.js';
 
 const BUTTON_ID = 'rovalra-voice-ban-indicator';
@@ -128,9 +131,7 @@ function getTooltipText() {
 }
 
 function removeButton() {
-    document
-        .getElementById(BUTTON_ID)
-        ?.remove();
+    removeNavbarButton(BUTTON_ID);
 
     clearExpiryTimeout();
 

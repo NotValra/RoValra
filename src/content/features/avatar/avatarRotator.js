@@ -1,4 +1,8 @@
-import { observeElement, observeResize } from '../../core/observer.js';
+import {
+    observeChildren,
+    observeElement,
+    observeResize,
+} from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import {
@@ -112,7 +116,10 @@ export function init() {
                         'rovalra-avatar-status',
                     );
                     if (statusText) {
-                        statusText.textContent = ts('avatarRotator.selectedStatus', { count });
+                        statusText.textContent = ts(
+                            'avatarRotator.selectedStatus',
+                            { count },
+                        );
                         statusText.style.color = '';
                     }
                 }
@@ -130,7 +137,8 @@ export function init() {
                     const loadBtn = document.getElementById(
                         'rovalra-avatar-load-more',
                     );
-                    if (loadBtn) loadBtn.textContent = ts('avatarRotator.loading');
+                    if (loadBtn)
+                        loadBtn.textContent = ts('avatarRotator.loading');
 
                     try {
                         const queryParams = new URLSearchParams({
@@ -284,7 +292,10 @@ export function init() {
                             const placeholderText =
                                 document.createElement('div');
                             placeholderText.id = 'rovalra-avatar-status';
-                            placeholderText.textContent = ts('avatarRotator.selectedStatus', { count: selectedAvatars.size });
+                            placeholderText.textContent = ts(
+                                'avatarRotator.selectedStatus',
+                                { count: selectedAvatars.size },
+                            );
                             placeholderText.style.cssText =
                                 'padding: 0 10px 10px 10px; text-align: center; font-size: 12px; opacity: 0.8; flex-shrink: 0;';
 
@@ -334,8 +345,9 @@ export function init() {
                                 const interval =
                                     parseInt(intervalInput.value, 10) || 5;
                                 setRotatorsBtn.disabled = true;
-                                setRotatorsBtn.textContent =
-                                    ts('avatarRotator.loadingDetails');
+                                setRotatorsBtn.textContent = ts(
+                                    'avatarRotator.loadingDetails',
+                                );
 
                                 Promise.all(
                                     avatars.map(async (outfitId) => {
@@ -366,7 +378,9 @@ export function init() {
                                             rovalra_avatar_rotator_interval:
                                                 interval,
                                         });
-                                        setRotatorsBtn.textContent = ts('avatarRotator.active');
+                                        setRotatorsBtn.textContent = ts(
+                                            'avatarRotator.active',
+                                        );
                                         if (disableRotatorBtn)
                                             disableRotatorBtn.style.display =
                                                 'inline-block';
@@ -442,6 +456,12 @@ export function init() {
                 li.appendChild(stopBtn);
                 li.appendChild(rotatorBtn);
                 container.appendChild(li);
+
+                observeChildren(container, () => {
+                    if (!li.isConnected && container.isConnected) {
+                        container.appendChild(li);
+                    }
+                });
 
                 function updateStopButtonVisibility() {
                     chrome.storage.local.get(

@@ -1,23 +1,28 @@
-import { t } from "../../core/locale/i18n";
-import { settings } from "../../core/settings/getSettings";
-import { createDropdown, createDropdownMenu } from "../../core/ui/dropdown";
-import { createNavbarButton } from "../../core/ui/navbarButton";
-import { callRobloxApi } from "../../core/api";
-import { Icon } from "../../core/ui/buildericon.ts";
+import { t } from '../../core/locale/i18n';
+import { settings } from '../../core/settings/getSettings';
+import { createDropdown, createDropdownMenu } from '../../core/ui/dropdown';
+import {
+    createNavbarButton,
+    removeNavbarButton,
+} from '../../core/ui/navbarButton';
+import { callRobloxApi } from '../../core/api';
+import { Icon } from '../../core/ui/buildericon.ts';
 
 // Privacy Toggles
-import onlineStatus from "./privacyToggles/onlineStatus.js";
-import joinStatus from "./privacyToggles/joinStatus.js";
-import privateServerPrivacy from "./privacyToggles/privateServerPrivacy.js";
-import inventoryPrivacy from "./privacyToggles/inventoryPrivacy.js";
+import onlineStatus from './privacyToggles/onlineStatus.js';
+import joinStatus from './privacyToggles/joinStatus.js';
+import privateServerPrivacy from './privacyToggles/privateServerPrivacy.js';
+import inventoryPrivacy from './privacyToggles/inventoryPrivacy.js';
 
 const SETTING_NAME = 'privacyTogglesEnabled';
+const NAV_ID = 'rovalra-privacy-toggle-navbtn';
 
 const OLD_ICON_SETTING_NAME = 'privacyTogglesOldIconEnabled';
 
 let abortController = new AbortController();
 let togglesEnabled = 0;
 let currentNavItem;
+let navItemPromise = null;
 let toggleChangeSettingFunctions = [];
 let currentlisteners = [];
 
@@ -31,16 +36,33 @@ const DROPDOWNS = [
     inventoryPrivacy,
 ];
 
+function addNavBtn() {
+    if (!navItemPromise) navItemPromise = createNavBtn();
+    return navItemPromise;
+}
 
-async function addNavBtn() {
-    if (currentNavItem) return;
-    console.log("add nav called!")
-    currentNavItem = await createNavbarButton({
-        id: 'rovalra-privacy-toggle-navbtn',
-        iconData: '<icon size="x-large" style="color: var(--rovalra-main-text-color)"' + (await settings[OLD_ICON_SETTING_NAME] ? '>three-bars-horizontal' : ' filled>lock-closed') + '</icon>',
+async function createNavBtn() {
+    const button = await createNavbarButton({
+        id: NAV_ID,
+        iconData:
+            '<icon size="x-large" style="color: var(--rovalra-main-text-color)"' +
+            ((await settings[OLD_ICON_SETTING_NAME])
+                ? '>three-bars-horizontal'
+                : ' filled>lock-closed') +
+            '</icon>',
         tooltipText: await t('privacyToggles.nav.tooltip'),
     });
-    addDropdown(currentNavItem);
+    if (!button || navItemPromise === null) return;
+
+    currentNavItem = button;
+    try {
+        await addDropdown(button);
+    } catch (error) {
+        console.error(
+            'RoValra: Failed to build privacy toggles dropdown',
+            error,
+        );
+    }
 }
 
 function appendInlineControl(row, control) {
@@ -69,26 +91,33 @@ function appendInlineControl(row, control) {
 
 async function dropdownItemsFormat(dropdownItems) {
     const formattedItems = await Promise.all(
-        dropdownItems.map(async option => {
+        dropdownItems.map(async (option) => {
             return { ...option, label: await t(option.label) };
-        })
+        }),
     );
 
     return formattedItems;
 }
 
-async function checkNoToggles(noTogglesEl, togglesEnabledCount = togglesEnabled) {
+async function checkNoToggles(
+    noTogglesEl,
+    togglesEnabledCount = togglesEnabled,
+) {
     noTogglesEl.style.display = togglesEnabledCount > 0 ? 'none' : 'block';
     console.log(togglesEnabledCount);
 }
 
 async function changeToggleElements(dropdown = createDropdown(), currentItems) {
-    const dropdownElement = dropdown.panel.querySelector('div.flex-dropdown-menu');
+    const dropdownElement = dropdown.panel.querySelector(
+        'div.flex-dropdown-menu',
+    );
 
     for (const item of dropdownElement.children) {
-        const connectedItemInfo = currentItems.filter(a => a.value == item.getAttribute('data-value'))[0];
+        const connectedItemInfo = currentItems.filter(
+            (a) => a.value == item.getAttribute('data-value'),
+        )[0];
 
-        item.disabled = connectedItemInfo.disabled
+        item.disabled = connectedItemInfo.disabled;
         item.style.display = connectedItemInfo.hidden ? 'none' : 'block';
     }
 }
@@ -96,10 +125,12 @@ async function changeToggleElements(dropdown = createDropdown(), currentItems) {
 async function addDropdown(navItem = currentNavItem) {
     const dropdownMenu = createDropdownMenu({
         trigger: navItem,
-        items: [{
-            label: 'placeholder',
-            value: 'placeholder',
-        }],
+        items: [
+            {
+                label: 'placeholder',
+                value: 'placeholder',
+            },
+        ],
         position: 'center',
     });
 
@@ -114,7 +145,10 @@ async function addDropdown(navItem = currentNavItem) {
     const btn = dropdownMenu.panel.querySelector('.rovalra-dropdown-item');
 
     const noTogglesEl = document.createElement('div');
-    noTogglesEl.classList.add('rovalra-dropdown-item', 'rovalra-privacysettings-notoggles');
+    noTogglesEl.classList.add(
+        'rovalra-dropdown-item',
+        'rovalra-privacysettings-notoggles',
+    );
     noTogglesEl.textContent = await t('privacyToggles.noTogglesEnabled');
     noTogglesEl.style.textAlign = 'center';
     noTogglesEl.style.padding = '10px';
@@ -123,35 +157,56 @@ async function addDropdown(navItem = currentNavItem) {
     for (const dropdown of DROPDOWNS) {
         const clonedBtn = btn.cloneNode(true);
 
-        let currentItems = await dropdown.getInitialItems(accountSettings)
+        let currentItems = await dropdown.getInitialItems(accountSettings);
 
         const div = document.createElement('div');
         div.className = clonedBtn.className;
         div.setAttribute('role', 'option');
         div.setAttribute('data-value', dropdown.name);
         div.append(...clonedBtn.children);
-        div.style.display = await settings[dropdown.settingAttached] || await settings[dropdown.settingAttached] !== false ? 'block' : 'none';
+        div.style.display =
+            (await settings[dropdown.settingAttached]) ||
+            (await settings[dropdown.settingAttached]) !== false
+                ? 'block'
+                : 'none';
 
-        if (await settings[dropdown.settingAttached] || await settings[dropdown.settingAttached] !== false)
+        if (
+            (await settings[dropdown.settingAttached]) ||
+            (await settings[dropdown.settingAttached]) !== false
+        )
             togglesEnabled += 1;
 
-        console.log(await settings[dropdown.settingAttached] || await settings[dropdown.settingAttached] !== false, await settings[dropdown.settingAttached], await settings[dropdown.settingAttached] !== false)
+        console.log(
+            (await settings[dropdown.settingAttached]) ||
+                (await settings[dropdown.settingAttached]) !== false,
+            await settings[dropdown.settingAttached],
+            (await settings[dropdown.settingAttached]) !== false,
+        );
 
         if (!currentlisteners.includes(dropdown.name)) {
             currentlisteners.push(dropdown.name);
-            document.addEventListener('rovalra:settingSaved', async ({ detail }) => {
-                if (!dropdownEl || !detail.name || detail.name !== dropdown.settingAttached) return;
-                div.style.display = detail.value ? 'block' : 'none';
-                togglesEnabled += detail.value ? 0.5 : -0.5; // had to set this to 0.5 because for some reason this event would fire twice
-                checkNoToggles(noTogglesEl);
-            }, { signal: abortController.signal })
+            document.addEventListener(
+                'rovalra:settingSaved',
+                async ({ detail }) => {
+                    if (
+                        !dropdownEl ||
+                        !detail.name ||
+                        detail.name !== dropdown.settingAttached
+                    )
+                        return;
+                    div.style.display = detail.value ? 'block' : 'none';
+                    togglesEnabled += detail.value ? 0.5 : -0.5; // had to set this to 0.5 because for some reason this event would fire twice
+                    checkNoToggles(noTogglesEl);
+                },
+                { signal: abortController.signal },
+            );
         }
 
         clonedBtn.remove();
 
-        const titleParent = div.querySelector('div > span')
-        const title = document.createElement('span')
-        const settingIcon = Icon(dropdown.icon)
+        const titleParent = div.querySelector('div > span');
+        const title = document.createElement('span');
+        const settingIcon = Icon(dropdown.icon);
         title.innerText = await t(dropdown.title);
         title.style.paddingLeft = '8px';
         titleParent.innerHTML = '';
@@ -159,20 +214,25 @@ async function addDropdown(navItem = currentNavItem) {
 
         const dropdownEl = createDropdown({
             items: await dropdownItemsFormat(currentItems),
-            initialValue: currentItems.filter(i => i.default == true)[0].value,
+            initialValue: currentItems.filter((i) => i.default == true)[0]
+                .value,
             onValueChange: async (newValue) => {
                 dropdown.valueChanged(newValue);
                 toggleChangeSettingFunctions
-                    .filter(a => a.name !== dropdown.name)
-                    .forEach(a => a.callback(dropdown.name, newValue));
+                    .filter((a) => a.name !== dropdown.name)
+                    .forEach((a) => a.callback(dropdown.name, newValue));
             },
         });
 
         dropdownEl.element.rovalraSetValue = dropdownEl.setValue;
         dropdownEl.element.style.marginLeft = 'auto';
-        dropdownEl.element.addEventListener('click', (e) => e.stopPropagation());
+        dropdownEl.element.addEventListener('click', (e) =>
+            e.stopPropagation(),
+        );
 
-        const trigger = dropdownEl.element.querySelector('.rovalra-dropdown-trigger',);
+        const trigger = dropdownEl.element.querySelector(
+            '.rovalra-dropdown-trigger',
+        );
         if (trigger) {
             trigger.style.height = '30px';
             trigger.style.minHeight = '30px';
@@ -181,15 +241,23 @@ async function addDropdown(navItem = currentNavItem) {
         }
 
         if (dropdown.changeSettingsBasedOtherSettings) {
-            async function changeSettingsCallback(otherSettingName, otherSettingValue) {
-                console.log("GOT OTHER CHANGE SETTING", otherSettingName, otherSettingValue);
-                const callbackResult = await dropdown.changeSettingsBasedOtherSettings(
-                    currentItems,
+            async function changeSettingsCallback(
+                otherSettingName,
+                otherSettingValue,
+            ) {
+                console.log(
+                    'GOT OTHER CHANGE SETTING',
                     otherSettingName,
                     otherSettingValue,
-                    dropdownEl.setValue
                 );
-                console.log("got callback result", callbackResult);
+                const callbackResult =
+                    await dropdown.changeSettingsBasedOtherSettings(
+                        currentItems,
+                        otherSettingName,
+                        otherSettingValue,
+                        dropdownEl.setValue,
+                    );
+                console.log('got callback result', callbackResult);
                 currentItems = callbackResult;
                 changeToggleElements(dropdownEl, callbackResult);
             }
@@ -212,10 +280,9 @@ async function addDropdown(navItem = currentNavItem) {
 }
 
 function cleanup() {
-    if (currentNavItem) {
-        currentNavItem.parentNode.remove();
-        currentNavItem = undefined;
-    }
+    removeNavbarButton(NAV_ID);
+    currentNavItem = undefined;
+    navItemPromise = null;
 
     currentlisteners = [];
     abortController.abort();
@@ -237,5 +304,5 @@ export async function init() {
         } else {
             cleanup();
         }
-    })
+    });
 }

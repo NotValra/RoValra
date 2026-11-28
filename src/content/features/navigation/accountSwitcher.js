@@ -2,7 +2,10 @@ import { t } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
-import { createNavbarButton } from '../../core/ui/navbarButton.js';
+import {
+    createNavbarButton,
+    removeNavbarButton,
+} from '../../core/ui/navbarButton.js';
 import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { createSpinner } from '../../core/ui/spinner.js';
@@ -617,7 +620,7 @@ function start() {
 function cleanup() {
     settingsObserver?.disconnect?.();
     settingsObserver = null;
-    document.getElementById(NAV_ID)?.remove();
+    removeNavbarButton(NAV_ID);
     menu?.panel?.remove();
     navButton = null;
     menu = null;
