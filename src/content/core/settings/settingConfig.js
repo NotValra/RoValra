@@ -1037,6 +1037,17 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['4632962611'],
+                childSettings: {
+                    creatorStatsGroupVisitsEnabled: {
+                        label: 'Group Visits',
+                        description: [
+                            'Shows the combined visits of experiences in communities owned by the user.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['4975603156'],
+                    },
+                },
             },
             socialLinksEnabled: {
                 label: 'Profile Social Links',

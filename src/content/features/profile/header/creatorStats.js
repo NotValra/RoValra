@@ -9,6 +9,7 @@ import {
 } from '../../../core/observer.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { createPill } from '../../../core/ui/general/pill.js';
+import { fetchTotalVisits } from '../../groups/placevisits.js';
 
 const GAME_PAGE_SIZE = 50;
 const API_BATCH_SIZE = 50;
@@ -322,9 +323,29 @@ async function getOwnedCommunityStats(userId) {
         };
     }
 
+    const groupVisitsEnabled =
+        (await settings.creatorStatsGroupVisitsEnabled) !== false;
+
+    const visits = groupVisitsEnabled
+        ? await Promise.all(
+              ownedMemberships.map((membership) =>
+                  fetchTotalVisits(membership?.group?.id),
+              ),
+          )
+        : [];
+
+    const validVisits = visits.filter(
+        (count) => count !== null,
+    );
+
     return {
         hasOwnedCommunities: true,
         members: validCounts.reduce(
+            (total, count) => total + count,
+            0,
+        ),
+        hasGroupVisits: validVisits.length > 0,
+        groupVisits: validVisits.reduce(
             (total, count) => total + count,
             0,
         ),
@@ -397,6 +418,10 @@ function getRequiredStats(stats) {
             ?.hasOwnedCommunities
     ) {
         required.push('members');
+    }
+
+    if (stats.communities?.hasGroupVisits) {
+        required.push('groupVisits');
     }
 
     return required;
@@ -488,6 +513,19 @@ function renderStats(
                     'creatorStats.membersTooltip',
                 ),
                 'members',
+            ),
+        );
+    }
+
+    if (stats.communities?.hasGroupVisits) {
+        pills.push(
+            createStatPill(
+                stats.communities.groupVisits,
+                ts('creatorStats.groupVisits'),
+                ts(
+                    'creatorStats.groupVisitsTooltip',
+                ),
+                'groupVisits',
             ),
         );
     }
