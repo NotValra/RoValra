@@ -1,4 +1,31 @@
-import { t } from '../content/core/locale/i18n.js';
+const localeCache = new Map();
+
+async function loadLocale(code) {
+    if (!localeCache.has(code)) {
+        localeCache.set(
+            code,
+            fetch(chrome.runtime.getURL(`public/Assets/locales/${code}.json`))
+                .then((res) => res.json())
+                .catch(() => ({})),
+        );
+    }
+    return localeCache.get(code);
+}
+
+async function t(key, values = {}) {
+    const { rovalraLanguage, rovalra_autolang } =
+        await chrome.storage.local.get(['rovalraLanguage', 'rovalra_autolang']);
+    const lang =
+        rovalraLanguage === 'auto' ? rovalra_autolang : rovalraLanguage;
+    const lookup = (obj) =>
+        key.split('.').reduce((node, part) => node?.[part], obj);
+
+    let text;
+    if (lang && lang !== 'en') text = lookup(await loadLocale(lang));
+    if (typeof text !== 'string') text = lookup(await loadLocale('en'));
+    if (typeof text !== 'string') return key;
+    return text.replace(/\{\{(\w+)\}\}/g, (_, k) => values[k] ?? '');
+}
 
 const CHECK_INTERVAL = 60 * 1000;
 const STATE_KEY = 'rovalra_notifications_state';
