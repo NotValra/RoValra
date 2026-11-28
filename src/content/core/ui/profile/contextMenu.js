@@ -50,7 +50,7 @@ observeElement(
 
         button.addEventListener('click', () => {
             observeElement(
-                'div[data-radix-popper-content-wrapper] div[role="menu"]',
+                'div[data-radix-popper-content-wrapper] div[role="menu"]:not(.nav-foundation-menu)',
                 (menu) => menuCallbacks.forEach((cb) => cb(menu)),
                 { once: true },
             );
