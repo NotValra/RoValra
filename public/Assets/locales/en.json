@@ -902,6 +902,13 @@
     "lastEquipped": {
         "label": "Last Equipped"
     },
+    "ownedSince": {
+        "title": "Ownership",
+        "ownedSince": "Owned since",
+        "copyOf": "{{index}} of {{count}}",
+        "unknown": "Couldn't find when you got this item.",
+        "error": "Couldn't load ownership info."
+    },
     "improvedAttributes": {
         "label": "Attributes",
         "attributes": {
@@ -1592,7 +1599,9 @@
         "pillLabel": "{{count}} Friends own",
         "pillTooltip": "See which friends own this item",
         "overlayTitle": "{{count}} Friends own this item",
-        "unknownUser": "User {{id}}"
+        "unknownUser": "User {{id}}",
+        "copies": "{{count}} copies",
+        "ownedSinceHidden": "Inventory hidden"
     },
     "regionPlayButton": {
         "ariaLabel": "Select or Join Preferred Server Region",

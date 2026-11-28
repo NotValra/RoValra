@@ -1,0 +1,45 @@
+.rovalra-menu-anchor {
+    cursor: pointer;
+    user-select: none;
+}
+
+.rovalra-menu-btn {
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+
+    &.rovalra-menu-btn-open {
+        transform: rotate(180deg);
+    }
+}
+
+.rovalra-menu-popover {
+    position: fixed;
+    z-index: 2147483646 !important;
+    display: none;
+    pointer-events: auto;
+    padding: 5px 0;
+    margin-top: 0;
+
+    &.rovalra-menu-popover-open {
+        display: block;
+        opacity: 1;
+    }
+
+    .rovalra-tooltip-arrow {
+        top: 0;
+        margin-left: -5px;
+        border-width: 0 5px 5px;
+        border-bottom-color: var(--color-surface-200);
+    }
+
+    .rovalra-menu-popover-body {
+        max-width: 280px;
+        padding: 8px 10px;
+        text-align: left;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}

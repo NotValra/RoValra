@@ -21,6 +21,7 @@
 @use 'components/input.scss';
 @use 'components/controls.scss';
 @use 'components/tooltip.scss';
+@use 'components/menu_button.scss';
 @use 'components/item_card.scss';
 @use 'components/serials.scss';
 @use 'components/gamelaunchmodal.scss';
@@ -70,6 +71,7 @@
 @use 'features/catalog/rovalraAds.scss';
 @use 'features/catalog/fortyMethodIndicator.scss';
 @use 'features/catalog/friendOwnership.scss';
+@use 'features/catalog/ownedSince.scss';
 @use 'features/trading/recentTradeItems.scss';
 @use 'features/trading/tradeQuickActions.scss';
 @use 'features/trading/tradeCompletedDate.scss';

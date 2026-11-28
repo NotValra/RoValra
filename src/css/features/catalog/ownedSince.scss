@@ -1,0 +1,58 @@
+.rovalra-owned-since-popover .rovalra-menu-popover-body {
+    min-width: 200px;
+    font-size: 13px;
+}
+
+.rovalra-owned-since-title {
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-content-emphasis, var(--color-content-default));
+}
+
+.rovalra-owned-since-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 18px;
+    max-height: 260px;
+    overflow-y: auto;
+    margin-right: -8px;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+            in srgb,
+            var(--color-content-default) 25%,
+            transparent
+        )
+        transparent;
+    scrollbar-gutter: stable;
+}
+
+.rovalra-owned-since-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+
+    & + & {
+        padding-top: 4px;
+        border-top: 1px solid
+            color-mix(in srgb, var(--color-content-default) 12%, transparent);
+    }
+}
+
+.rovalra-owned-since-row-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    white-space: nowrap;
+}
+
+.rovalra-owned-since-label,
+.rovalra-owned-since-message {
+    color: var(--rovalra-secondary-text-color);
+}
+
+.rovalra-owned-since-message {
+    white-space: normal;
+}

@@ -101,6 +101,7 @@ import { init as initRoValraAdBadge } from './features/catalog/rovalraAdBadge.js
 import { init as initFortyMethodIndicator } from './features/catalog/fortyMethodIndicator.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 import { init as initLastEquipped } from './features/catalog/lastEquipped.js';
+import { init as initOwnedSince } from './features/catalog/ownedSince.js';
 import { init as initImprovedAttributes } from './features/catalog/improvedAttributes.js';
 import { init as initOwnedItemPrice } from './features/catalog/ownedItemPrice.js';
 import { init as initItemRender } from './features/catalog/ItemRender.js';
@@ -376,6 +377,7 @@ const featureRoutes = [
             initParentItem,
             initItemTrading,
             initLastEquipped,
+            initOwnedSince,
             initImprovedAttributes,
             initOwnedItemPrice,
             initItemRender,

@@ -1,7 +1,7 @@
 import { callRobloxApiJson } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { ts } from '../../core/locale/i18n.js';
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeIntersection } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createPill } from '../../core/ui/general/pill.js';
 import { getAssets } from '../../core/assets.js';
@@ -10,12 +10,22 @@ import {
     fetchThumbnails,
 } from '../../core/thumbnail/thumbnails.js';
 import { getCachedFriendsList } from '../../core/utils/trackers/friendslist.js';
+import {
+    getOwnedCopies,
+    SKIPPED_ERROR,
+} from '../../core/catalog/ownedCopies.js';
+import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
+import { createMenuButton } from '../../core/ui/menuButton.js';
+import { createOwnedCopyRows } from '../../core/ui/items/ownedCopiesList.js';
 
 const CONTAINER_SELECTOR = '.item-details-thumbnail-container';
 const assets = getAssets();
 const pillCache = new Map();
 const MAX_PREVIEW_AVATARS = 3;
+const VISIBLE_DELAY_MS = 250;
 let initialized = false;
+let showOwnedSince = true;
+let ownedSinceTracker = null;
 
 function getCatalogItemType() {
     return /\/bundles\//i.test(window.location.pathname) ? 'Bundle' : 'Asset';
@@ -74,9 +84,148 @@ function createPillContent(owners, thumbnailMap, totalCount) {
     return content;
 }
 
-async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
+function renderOwnedSince(line, copies) {
+    if (!copies.length) {
+        line.remove();
+        return;
+    }
+
+    const label = document.createElement('span');
+    label.textContent = `${ts('ownedSince.ownedSince')} `;
+
+    line.replaceChildren(label, createInteractiveTimestamp(copies[0].addTime));
+
+    if (copies.length > 1) {
+        const separator = document.createElement('span');
+        separator.textContent = ' · ';
+
+        const copiesLabel = ts('friendOwnership.copies', {
+            count: copies.length,
+        });
+        const count = document.createElement('span');
+        count.className = 'rovalra-friend-ownership-copies';
+        count.textContent = copiesLabel;
+
+        const menu = createMenuButton({
+            anchor: count,
+            className: 'rovalra-owned-since-popover',
+            ariaLabel: copiesLabel,
+            cacheContent: true,
+            buildContent: (body) => {
+                const title = document.createElement('div');
+                title.className = 'rovalra-owned-since-title';
+                title.textContent = copiesLabel;
+
+                const content = document.createElement('div');
+                content.className = 'rovalra-owned-since-content';
+                content.append(...createOwnedCopyRows(copies));
+
+                body.append(title, content);
+            },
+        });
+        count.appendChild(menu.button);
+
+        line.append(separator, count);
+    }
+    line.dataset.state = 'loaded';
+}
+
+function createOwnedSinceTracker(assetId) {
+    ownedSinceTracker?.stop();
+
+    const visible = new Set();
+    const timers = new Map();
+    const observed = new Map();
+
+    const unobserve = (line) => {
+        observed.get(line)?.unobserve();
+        observed.delete(line);
+        visible.delete(line);
+        clearTimeout(timers.get(line));
+        timers.delete(line);
+    };
+
+    const load = (line) => {
+        line.dataset.state = 'loading';
+        getOwnedCopies(line.dataset.userId, assetId, {
+            shouldRun: () => line.isConnected && visible.has(line),
+        })
+            .then((copies) => {
+                if (!line.isConnected) return;
+                unobserve(line);
+                renderOwnedSince(line, copies);
+            })
+            .catch((error) => {
+                if (!line.isConnected) return;
+                if (error?.message === SKIPPED_ERROR) {
+                    delete line.dataset.state;
+                    if (visible.has(line)) schedule(line);
+                    return;
+                }
+                unobserve(line);
+                if (error?.status === 403 || error?.status === 401) {
+                    line.textContent = ts('friendOwnership.ownedSinceHidden');
+                    line.dataset.state = 'hidden';
+                } else {
+                    line.remove();
+                }
+            });
+    };
+
+    const schedule = (line) => {
+        if (timers.has(line) || line.dataset.state) return;
+        timers.set(
+            line,
+            setTimeout(() => {
+                timers.delete(line);
+                if (visible.has(line) && line.isConnected) load(line);
+            }, VISIBLE_DELAY_MS),
+        );
+    };
+
+    const onIntersection = (entry) => {
+        const line = entry.target;
+        if (!line.isConnected) {
+            unobserve(line);
+            return;
+        }
+        if (entry.isIntersecting) {
+            visible.add(line);
+            schedule(line);
+        } else {
+            visible.delete(line);
+            clearTimeout(timers.get(line));
+            timers.delete(line);
+        }
+    };
+
+    const tracker = {
+        observe: (line) => {
+            observed.set(line, observeIntersection(line, onIntersection));
+        },
+        stop: () => [...observed.keys()].forEach(unobserve),
+    };
+
+    ownedSinceTracker = tracker;
+    return tracker;
+}
+
+async function showOwnersOverlay(
+    owners,
+    friendMap,
+    thumbnailMap,
+    totalCount,
+    itemId,
+    itemType,
+) {
     const body = document.createElement('div');
     body.className = 'rovalra-friend-ownership-list';
+
+    const lineTracker =
+        showOwnedSince && itemType === 'Asset'
+            ? createOwnedSinceTracker(itemId)
+            : null;
+    const ownedSinceLines = [];
 
     owners.forEach((owner) => {
         const friend = friendMap.get(Number(owner.id));
@@ -116,8 +265,17 @@ async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
             name.appendChild(badge);
         }
         const handle = document.createElement('span');
+        handle.className = 'rovalra-friend-ownership-handle';
         handle.textContent = username;
         names.append(name, handle);
+
+        if (lineTracker) {
+            const ownedSince = document.createElement('div');
+            ownedSince.className = 'rovalra-friend-ownership-owned-since';
+            ownedSince.dataset.userId = String(Number(owner.id));
+            names.appendChild(ownedSince);
+            ownedSinceLines.push(ownedSince);
+        }
 
         const profileLink = document.createElement('a');
         profileLink.className = 'rovalra-friend-ownership-profile-link';
@@ -137,6 +295,8 @@ async function showOwnersOverlay(owners, friendMap, thumbnailMap, totalCount) {
         maxHeight: 'calc(100vh - 100px)',
         showLogo: true,
     });
+
+    ownedSinceLines.forEach((line) => lineTracker.observe(line));
 }
 
 async function addOwnershipPill(thumbnail) {
@@ -196,6 +356,8 @@ async function addOwnershipPill(thumbnail) {
                 ownerData.friendMap,
                 ownerData.thumbnailMap,
                 ownerData.totalCount,
+                itemId,
+                itemType,
             ),
         );
 
@@ -212,18 +374,22 @@ async function addOwnershipPill(thumbnail) {
 export function init() {
     if (initialized) return;
     initialized = true;
-    chrome.storage.local.get({ friendOwnershipEnabled: true }, (settings) => {
-        if (!settings.friendOwnershipEnabled) return;
+    chrome.storage.local.get(
+        { friendOwnershipEnabled: true, friendOwnershipOwnedSince: true },
+        (settings) => {
+            if (!settings.friendOwnershipEnabled) return;
+            showOwnedSince = settings.friendOwnershipOwnedSince !== false;
 
-        observeElement(CONTAINER_SELECTOR, addOwnershipPill, {
-            multiple: true,
-        });
-        observeElement(
-            '.item-connections-social-count.roseal-btn',
-            (button) => {
-                button.style.display = 'none';
-            },
-            { multiple: true },
-        );
-    });
+            observeElement(CONTAINER_SELECTOR, addOwnershipPill, {
+                multiple: true,
+            });
+            observeElement(
+                '.item-connections-social-count.roseal-btn',
+                (button) => {
+                    button.style.display = 'none';
+                },
+                { multiple: true },
+            );
+        },
+    );
 }

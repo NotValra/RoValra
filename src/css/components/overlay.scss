@@ -79,10 +79,7 @@
     padding: 6px 0;
 }
 
-.rovalra-overlay-body
-    .rovalra-profile-badge-setting
-    .setting-controls
-    > label {
+.rovalra-overlay-body .rovalra-profile-badge-setting .setting-controls > label {
     flex: 1 1 100%;
     min-width: 0;
     padding: 0 56px;
@@ -238,14 +235,36 @@
     min-width: 0;
 }
 
-.rovalra-friend-ownership-names span:first-child {
+.rovalra-friend-ownership-names > span:first-child {
     display: inline-flex;
     align-items: center;
     font-size: 15px;
     font-weight: 600;
 }
 
-.rovalra-friend-ownership-names span:last-child {
-    color: var(--rovalra-secondary-text-color, #6e6e6e);
+.rovalra-friend-ownership-names > .rovalra-friend-ownership-handle {
+    color: var(--rovalra-secondary-text-color);
     font-size: 13px;
+}
+
+.rovalra-friend-ownership-owned-since {
+    min-height: 16px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+}
+
+.rovalra-friend-ownership-copies {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-content-default);
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    .rovalra-menu-btn {
+        margin-left: 2px;
+        transform-origin: center;
+        scale: 0.85;
+    }
 }

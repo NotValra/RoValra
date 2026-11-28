@@ -272,6 +272,15 @@ export const SETTINGS_CONFIG = {
                 description: 'Shows which of your friends own the item.',
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    friendOwnershipOwnedSince: {
+                        label: 'Show When Friends Got the Item',
+                        description:
+                            'Shows when each friend got the item under their name, only loaded for friends you can see in the list.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             priceFloorEnabled: {
                 label: 'Show Price Floor',
@@ -304,6 +313,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['4866259395', '447170745'],
+            },
+            ownedSinceEnabled: {
+                label: 'Owned Since on Item Pages',
+                description:
+                    'Makes the "Item Owned" label on item pages clickable, showing when you got the item.',
+                type: 'checkbox',
+                default: true,
             },
             improvedAttributesEnabled: {
                 label: 'Improved Attributes',
