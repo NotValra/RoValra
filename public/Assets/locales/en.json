@@ -933,6 +933,17 @@
         "insufficientDataTooltip": "Not enough transaction history to make an accurate estimate. Please wait for more transactions to complete.",
         "label": "Unpending Robux tomorrow"
     },
+    "serverControls": {
+        "restart": "Restart servers for updates",
+        "restartTitle": "Restart servers for updates?",
+        "restartMessage": "Servers running an old version will close and players will be moved to the latest version.",
+        "restartDone": "Servers on old versions are restarting.",
+        "shutdown": "Shut down all servers",
+        "shutdownTitle": "Shut down all servers?",
+        "shutdownMessage": "Every server of this experience will close, including servers on the latest version.",
+        "shutdownDone": "All servers are shutting down.",
+        "failed": "Couldn't update the servers."
+    },
     "totalEarned": {
         "calculateEarnings": "Calculate Earnings",
         "calculateEarned": "Calculate Earned",
