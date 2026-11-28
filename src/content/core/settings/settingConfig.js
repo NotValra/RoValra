@@ -2732,6 +2732,14 @@ export const SETTINGS_CONFIG = {
                         default: false,
                         contributors: ['278039610', '476449201'],
                     },
+                    GroupFindsCombinedEnabled: {
+                        label: 'Show combined tab',
+                        description:
+                            'Shows a combined tab for community funds in the group funds page. This is useful if you have a lot of community funds and want to see them all at once.',
+                        type: 'checkbox',
+                        default: false,
+                        contributors: ['3598865306'],
+                    },
                     GroupFundsIds: {
                         label: 'Community IDs',
                         description:

@@ -1491,6 +1491,7 @@
     "groupFunds": {
         "loading": "Loading...",
         "pending": "Pending:",
+        "combined": "Combined",
         "noPermissions": "No Permission"
     },
     "navigation": {

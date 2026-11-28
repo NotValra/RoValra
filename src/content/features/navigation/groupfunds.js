@@ -31,6 +31,7 @@ const state = {
     initialized: false,
     groupFundsEnabled: false,
     navbarTotalEnabled: false,
+    combinedEnabled: false,
     groupIds: [],
     hideRobux: false,
     renderVersion: 0,
@@ -53,6 +54,7 @@ function getSettings() {
             {
                 GroupFundsEnabled: false,
                 GroupFundsNavbarTotalEnabled: false,
+                GroupFindsCombinedEnabled: false,
                 GroupFundsIds: [],
                 streamermode: false,
                 hideRobux: false,
@@ -339,12 +341,25 @@ function createMenuIconContainer(isFoundation) {
     return iconContainer;
 }
 
+function insertBelowCombined(container, divider, element, isFoundation) {
+    const lastCombinedRow = container.querySelector(
+        '.rovalra-combined-row-last',
+    );
+    if (lastCombinedRow) {
+        lastCombinedRow.after(element);
+    } else if (isFoundation) {
+        container.prepend(element);
+    } else {
+        container.insertBefore(element, divider.nextSibling);
+    }
+}
+
 function upsertFoundationPersonalRow(container, data, personalBalance) {
     let userLink = container.querySelector('.rovalra-personal-robux-row');
     if (!(userLink instanceof HTMLElement)) {
         userLink = createFoundationMenuItem();
         userLink.classList.add('rovalra-personal-robux-row');
-        container.prepend(userLink);
+        insertBelowCombined(container, null, userLink, true);
     }
 
     if (data.userId) {
@@ -398,7 +413,7 @@ function upsertPersonalRow(section, divider, data, isFoundation = false) {
     if (!(userLi instanceof HTMLElement)) {
         userLi = document.createElement('li');
         userLi.className = 'rovalra-personal-robux-row';
-        section.insertBefore(userLi, divider.nextSibling);
+        insertBelowCombined(section, divider, userLi, false);
     }
 
     userLi.textContent = '';
@@ -528,6 +543,7 @@ async function syncSettingsAndRender() {
 
     state.groupFundsEnabled = settings.GroupFundsEnabled === true;
     state.navbarTotalEnabled = settings.GroupFundsNavbarTotalEnabled === true;
+    state.combinedEnabled = settings.GroupFindsCombinedEnabled === true;
     state.groupIds = sanitizeGroupIds(settings.GroupFundsIds);
     state.hideRobux = settings.streamermode && settings.hideRobux === true;
 
@@ -536,6 +552,104 @@ async function syncSettingsAndRender() {
     }
 
     await renderNavbarTotal();
+}
+
+function createStaticFoundationRow() {
+    const row = document.createElement('div');
+    row.className =
+        'flex items-center content-default text-truncate-split text-body-large padding-x-large padding-y-medium gap-x-large';
+    row.style.columnGap = '8px';
+    row.style.cursor = 'default';
+    return row;
+}
+
+function createCombinedSection(section, rowContainer, divider, isFoundation) {
+    const fundsAmount = document.createElement('span');
+    const pendingValue = document.createElement('span');
+    let fundsRow;
+    let pendingRow;
+
+    if (isFoundation) {
+        fundsRow = createStaticFoundationRow();
+        const fundsText = createFoundationTextWrapper();
+        fundsText.title.textContent = ts('groupFunds.combined', { defaultValue: 'Combined' });
+        fundsAmount.className = 'shrink-0 text-no-wrap content-emphasis';
+        fundsRow.append(
+            createMenuIconContainer(true),
+            fundsText.wrapper,
+            fundsAmount,
+        );
+
+        pendingRow = createStaticFoundationRow();
+        const pendingText = createFoundationTextWrapper();
+        pendingText.title.classList.replace(
+            'content-emphasis',
+            'content-default',
+        );
+        pendingText.title.appendChild(pendingValue);
+        pendingRow.append(createMenuIconContainer(true), pendingText.wrapper);
+    } else {
+        fundsRow = document.createElement('li');
+        const fundsLink = document.createElement('div');
+        fundsLink.style.display = 'flex';
+        fundsLink.style.alignItems = 'center';
+        fundsLink.style.justifyContent = 'space-between';
+        fundsLink.style.padding = '8px 15px';
+        const fundsLabel = document.createElement('span');
+        fundsLabel.textContent = ts('groupFunds.combined', { defaultValue: 'Combined' });
+        fundsLink.append(fundsLabel, fundsAmount);
+        fundsRow.appendChild(fundsLink);
+
+        pendingRow = document.createElement('li');
+        const pendingLink = document.createElement('div');
+        pendingLink.style.padding = '0 15px 5px';
+        pendingLink.style.fontSize = '12px';
+        pendingLink.style.color = 'gray';
+        pendingLink.style.textAlign = 'right';
+        pendingLink.appendChild(pendingValue);
+        pendingRow.appendChild(pendingLink);
+    }
+
+    fundsRow.classList.add('rovalra-combined-row');
+    pendingRow.classList.add(
+        'rovalra-combined-row',
+        'rovalra-combined-row-last',
+    );
+
+    fundsAmount.textContent = ts('groupFunds.loading');
+
+    if (isFoundation) {
+        rowContainer.prepend(fundsRow, pendingRow);
+    } else {
+        section.insertBefore(fundsRow, divider.nextSibling);
+        fundsRow.after(pendingRow);
+    }
+
+    return {
+        render(totalFunds, totalPending) {
+            fundsAmount.replaceChildren();
+            const fundsIcon = createRobuxGlyph();
+            fundsIcon.style.marginRight = '3px';
+            const fundsValue = document.createElement('span');
+            fundsValue.className = STREAMER_ROBUX_VALUE_CLASS;
+            fundsValue.textContent = totalFunds.toLocaleString();
+            fundsAmount.append(fundsIcon, fundsValue);
+
+            pendingValue.replaceChildren();
+            const pendingIcon = createRobuxGlyph();
+            pendingIcon.style.marginLeft = '3px';
+            pendingIcon.style.marginRight = '2px';
+            pendingIcon.style.filter = 'grayscale(100%) opacity(0.6)';
+            const pendingAmount = document.createElement('span');
+            pendingAmount.className = STREAMER_ROBUX_VALUE_CLASS;
+            pendingAmount.textContent = totalPending.toLocaleString();
+            pendingValue.append(
+                document.createTextNode(ts('groupFunds.pending') + ' '),
+                pendingIcon,
+                pendingAmount,
+            );
+        },
+    };
 }
 
 const PENDING_ROW_STYLE_ID = 'rovalra-group-funds-pending-row-style';
@@ -601,6 +715,44 @@ export function init() {
             section.appendChild(divider);
         }
 
+        const groupData = {};
+        const combinedValues = state.combinedEnabled
+            ? createCombinedSection(
+                  section,
+                  rowContainer,
+                  divider,
+                  isFoundation,
+              )
+            : null;
+
+        const updateCombined = () => {
+            if (!combinedValues || state.renderVersion !== myVersion) return;
+
+            let totalFunds = 0;
+            let totalPending = 0;
+            let hasData = false;
+
+            state.groupIds.forEach((groupId) => {
+                const data = groupData[groupId];
+                if (!data) return;
+                const funds = Number(data.funds);
+                const pending = Number(data.pending);
+                if (Number.isFinite(funds)) {
+                    totalFunds += funds;
+                    hasData = true;
+                }
+                if (Number.isFinite(pending)) totalPending += pending;
+            });
+
+            const personalBalance = Number(personalRowData?.personalBalance);
+            if (state.navbarTotalEnabled && Number.isFinite(personalBalance)) {
+                totalFunds += personalBalance;
+                hasData = true;
+            }
+
+            if (hasData) combinedValues.render(totalFunds, totalPending);
+        };
+
         if (state.navbarTotalEnabled) {
             upsertPersonalRow(
                 rowContainer,
@@ -612,6 +764,7 @@ export function init() {
             warmPersonalRowData().then((data) => {
                 if (state.renderVersion !== myVersion) return;
                 upsertPersonalRow(rowContainer, divider, data, isFoundation);
+                updateCombined();
             });
         }
 
@@ -727,6 +880,8 @@ export function init() {
             };
 
             const updateFromData = (data) => {
+                groupData[groupId] = data;
+                updateCombined();
                 if (data.icon) renderIcon(data.icon);
                 if (data.funds !== undefined) renderFunds(data.funds);
                 if (data.pending !== undefined) renderPending(data.pending);
@@ -836,6 +991,7 @@ export function init() {
         if (
             changes.GroupFundsEnabled ||
             changes.GroupFundsNavbarTotalEnabled ||
+            changes.GroupFindsCombinedEnabled ||
             changes.GroupFundsIds ||
             changes.streamermode ||
             changes.hideRobux
