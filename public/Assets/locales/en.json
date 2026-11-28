@@ -2022,6 +2022,9 @@
         "rowMeta": "{{role}} · {{members}} members",
         "error": "Couldn't load this user's programs!"
     },
+    "friendRequestCards": {
+        "sent": "Sent"
+    },
     "friendRequestFilters": {
         "title": "Request Filters",
         "filters": "Filters",
@@ -2073,7 +2076,6 @@
             "joined": "Join Date"
         },
         "footer": {
-            "sent": "Sent",
             "joined": "Joined",
             "mutuals": "{{count}} mutual friends",
             "friends": "{{count}} friends",

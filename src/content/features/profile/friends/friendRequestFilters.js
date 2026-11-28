@@ -1,31 +1,35 @@
-import {
-    observeAttributes,
-    observeElement,
-    observeText,
-} from '../../../core/observer.js';
-import { callRobloxApi, callRobloxApiJson } from '../../../core/api.js';
+import { observeElement, observeText } from '../../../core/observer.js';
+import { callRobloxApiJson } from '../../../core/api.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { ts } from '../../../core/locale/i18n.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { createPillToggle } from '../../../core/ui/general/pillToggle.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
-import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { getBatchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../../core/assets.js';
 import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
 import { INSIGHT_CASES, RANKING_STRATEGIES } from '../../../core/apis/users.js';
+import {
+    fetchRateLimited,
+    getAllRequests,
+    loadAllRequests,
+    onRequestsChanged,
+    removeRequest,
+    setLoadProgressListener,
+    trackNativeResponses,
+} from '../../../core/apis/friendRequests.js';
+import {
+    createInlineOriginLabel,
+    createOriginLabel,
+    createSentLabel,
+} from './friendRequestCards.js';
 
 const HEADER_SELECTOR = '.request-tab-header';
-const NATIVE_CAPTION_SELECTOR =
-    '.friends-content .avatar-card:not(.rovalra-filtered-request-card) .avatar-card-caption';
 const HEADER_BATCH_SIZE = 25;
 const INSIGHTS_BATCH_SIZE = 100;
 const MAX_CONCURRENT_BATCHES = 2;
-const MAX_ATTEMPTS = 4;
-const RATE_LIMIT_BUFFER_MS = 500;
-const FALLBACK_RETRY_MS = 5000;
 const PAGE_SIZE = 36;
 const COUNT_API_CAP = 500;
 
@@ -46,9 +50,6 @@ let sort = { key: 'sent', descending: true, native: true };
 let renderedMatches = [];
 let renderedCount = 0;
 let applyToken = 0;
-let requestsPromise = null;
-let cachedRequests = null;
-let loadProgressListener = null;
 let limitsPromise = null;
 let limitsReady = false;
 
@@ -96,114 +97,9 @@ function parseDate(value, endOfDay = false) {
     return Number.isNaN(date.getTime()) ? null : date.getTime();
 }
 
-const rateLimitResets = new Map();
-
-function getRateLimitKey(options) {
-    return `${options.subdomain}${options.endpoint.split('?')[0]}`;
-}
-
-function getResetDelay(response) {
-    const reset = Number(response.headers.get('x-ratelimit-reset'));
-    if (!Number.isFinite(reset) || reset <= 0) return 0;
-    return (
-        (reset > 1e9 ? Math.max(0, reset * 1000 - Date.now()) : reset * 1000) +
-        RATE_LIMIT_BUFFER_MS
-    );
-}
-
-async function waitForRateLimit(key) {
-    const delay = (rateLimitResets.get(key) || 0) - Date.now();
-    if (delay > 0) await new Promise((r) => setTimeout(r, delay));
-}
-
-async function fetchRateLimited(options) {
-    const key = getRateLimitKey(options);
-
-    for (let attempt = 0; ; attempt++) {
-        await waitForRateLimit(key);
-        const response = await callRobloxApi(options);
-
-        const remaining = Number(response.headers.get('x-ratelimit-remaining'));
-        if (
-            response.status === 429 ||
-            (Number.isFinite(remaining) && remaining <= 0)
-        ) {
-            const resetDelay =
-                getResetDelay(response) ||
-                (response.status === 429 ? FALLBACK_RETRY_MS : 0);
-            rateLimitResets.set(
-                key,
-                Math.max(
-                    rateLimitResets.get(key) || 0,
-                    Date.now() + resetDelay,
-                ),
-            );
-        }
-
-        if (response.ok) return response.json();
-
-        const isTransient = response.status === 429 || response.status >= 500;
-        if (!isTransient || attempt + 1 >= MAX_ATTEMPTS) {
-            const error = new Error(
-                `API request failed with status ${response.status}`,
-            );
-            error.status = response.status;
-            throw error;
-        }
-        if (response.status !== 429) {
-            await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
-        }
-    }
-}
-
-async function fetchAllRequests(onProgress) {
-    const requests = [];
-    let cursor = null;
-
-    do {
-        const response = await fetchRateLimited({
-            subdomain: 'friends',
-            endpoint: `/v1/my/friends/requests?limit=100&sortOrder=Desc${
-                cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''
-            }`,
-        });
-        requests.push(...(response?.data || []));
-        cursor = response?.nextPageCursor || null;
-        onProgress?.(requests.length);
-    } while (cursor);
-
-    return requests;
-}
-
-function loadRequests() {
-    if (!requestsPromise) {
-        requestsPromise = fetchAllRequests((count) =>
-            loadProgressListener?.(count),
-        )
-            .then((requests) => {
-                cachedRequests = requests;
-                updateRequestCount();
-                return requests;
-            })
-            .catch((err) => {
-                requestsPromise = null;
-                throw err;
-            });
-    }
-    return requestsPromise;
-}
-
-function removeCachedRequest(userId) {
-    if (!cachedRequests) return;
-    const index = cachedRequests.findIndex(
-        (request) => String(request.id) === String(userId),
-    );
-    if (index !== -1) cachedRequests.splice(index, 1);
-    updateRequestCount();
-}
-
 function updateRequestCount() {
     const title = document.querySelector(`${HEADER_SELECTOR} h2`);
+    const cachedRequests = getAllRequests();
     if (!title || !cachedRequests) return;
 
     for (const node of title.childNodes) {
@@ -227,7 +123,7 @@ async function initRequestCount(header) {
     if (!response || response.count < COUNT_API_CAP) return;
 
     observeText(title, updateRequestCount);
-    await loadRequests().catch(() => null);
+    updateRequestCount();
 }
 
 function getCachedUser(userId) {
@@ -458,7 +354,7 @@ async function respondToRequest(userId, accept, card) {
             method: 'POST',
         });
         card.remove();
-        removeCachedRequest(userId);
+        removeRequest(userId);
         renderedMatches = renderedMatches.filter(
             (request) => String(request.id) !== String(userId),
         );
@@ -509,16 +405,44 @@ function createRequestCard(request, thumbnailUrl) {
     nameLink.href = profileUrl;
     nameLink.textContent = user.displayName || String(request.id);
     nameContainer.appendChild(nameLink);
+    for (const key of ['verified', 'plus', 'admin']) {
+        if (user[key] !== true) continue;
+        const badge = createBadgeIcon(key);
+        badge.classList.add('rovalra-request-card-badge');
+        badge.setAttribute('role', 'img');
+        badge.setAttribute(
+            'aria-label',
+            ts(`friendRequestFilters.badges.${key}`),
+        );
+        if (key === 'admin') badge.dataset.testid = 'roblox-admin-badge';
+        nameContainer.appendChild(badge);
+    }
     const usernameLabel = document.createElement('div');
     usernameLabel.className = 'avatar-card-label';
     usernameLabel.textContent = user.username ? `@${user.username}` : '';
     nameWrapper.append(nameContainer, usernameLabel);
     const sortValueLabel = createSortValueLabel(request);
     if (sortValueLabel) nameWrapper.appendChild(sortValueLabel);
+    if (request.friendRequest?.sentAt) {
+        nameWrapper.appendChild(createSentLabel(request.friendRequest.sentAt));
+    }
 
     caption.appendChild(nameWrapper);
-    if (request.friendRequest?.sentAt) {
-        caption.appendChild(createSentLabel(request.friendRequest.sentAt));
+
+    const mutuals = request.mutualFriendsList?.length ?? 0;
+    const originSourceType = request.friendRequest?.originSourceType;
+    if (mutuals > 0 && sort.key !== 'mutuals') {
+        const footer = document.createElement('div');
+        footer.className = 'avatar-card-footer avatar-card-label';
+        footer.textContent = ts('friendRequestFilters.footer.mutuals', {
+            count: mutuals.toLocaleString(),
+        });
+        if (originSourceType) {
+            footer.prepend(createInlineOriginLabel(originSourceType));
+        }
+        caption.appendChild(footer);
+    } else if (originSourceType) {
+        caption.appendChild(createOriginLabel(originSourceType));
     }
 
     content.append(avatar, caption);
@@ -657,15 +581,15 @@ async function applyView() {
 
     try {
         updateStatus(ts('friendRequestFilters.loadingRequests', { count: 0 }));
-        loadProgressListener = (count) => {
+        setLoadProgressListener((count) => {
             if (token === applyToken) {
                 updateStatus(
                     ts('friendRequestFilters.loadingRequests', { count }),
                 );
             }
-        };
-        const requests = [...(await loadRequests())];
-        loadProgressListener = null;
+        });
+        const requests = [...(await loadAllRequests())];
+        setLoadProgressListener(null);
         if (token !== applyToken) return;
 
         if (limitsPromise) {
@@ -777,6 +701,7 @@ function createBadgeSelector(draft) {
 }
 
 function getAvailableRange(key) {
+    const cachedRequests = getAllRequests();
     if (!cachedRequests?.length) return null;
     if (key !== 'mutuals' && !limitsReady) return null;
 
@@ -919,7 +844,7 @@ function createDateInput(id, labelText, value, onInput) {
 }
 
 async function prefetchLimits(onReady) {
-    const requests = await loadRequests().catch(() => null);
+    const requests = await loadAllRequests().catch(() => null);
     if (!requests) return;
     onReady();
     limitsPromise ??= enrichUsers(
@@ -1193,65 +1118,11 @@ function attachFilters(header) {
     if (hasActiveFilters(filters) || !isDefaultSort(sort)) applyView();
 }
 
-function createSentLabel(sentAt) {
-    const label = document.createElement('div');
-    label.className =
-        'avatar-card-footer avatar-card-label rovalra-request-sent rovalra-request-date';
-    label.append(
-        document.createTextNode(ts('friendRequestFilters.footer.sent')),
-        createInteractiveTimestamp(sentAt),
-    );
-    return label;
-}
-
-function renderNativeSentDate(caption) {
-    if (!caption.closest('.friends-content')?.querySelector(HEADER_SELECTOR)) {
-        return;
-    }
-    const link = caption.querySelector('a.avatar-name[href]');
-    if (!link) return;
-
-    const update = async () => {
-        const userId = getUserIdFromUrl(link.href);
-        const existing = caption.querySelector(
-            ':scope > .rovalra-request-sent',
-        );
-        if (existing?.dataset.userId === String(userId)) return;
-
-        const requests = userId ? await loadRequests().catch(() => null) : null;
-        if (getUserIdFromUrl(link.href) !== userId) return;
-        const sentAt = requests?.find(
-            (request) => String(request.id) === String(userId),
-        )?.friendRequest?.sentAt;
-
-        caption.querySelector(':scope > .rovalra-request-sent')?.remove();
-        caption.classList.toggle('rovalra-has-sent-date', Boolean(sentAt));
-        if (!sentAt) return;
-
-        const label = createSentLabel(sentAt);
-        label.dataset.userId = String(userId);
-        caption.appendChild(label);
-    };
-
-    update();
-    observeAttributes(link, update, ['href']);
-}
-
-function trackNativeResponses(e) {
-    const button = e.target.closest('.accept-friend, .ignore-friend');
-    if (!button || button.closest('.rovalra-filtered-requests')) return;
-    const link = button.closest('.avatar-card')?.querySelector('a[href]');
-    const userId = link ? getUserIdFromUrl(link.href) : null;
-    if (userId) removeCachedRequest(userId);
-}
-
 export async function init() {
     if ((await settings.friendRequestFiltersEnabled) === false) return;
 
-    document.addEventListener('click', trackNativeResponses, true);
-    observeElement(NATIVE_CAPTION_SELECTOR, renderNativeSentDate, {
-        multiple: true,
-    });
+    trackNativeResponses();
+    onRequestsChanged(updateRequestCount);
     observeElement(HEADER_SELECTOR, attachFilters, {
         onRemove: () => {
             applyToken++;

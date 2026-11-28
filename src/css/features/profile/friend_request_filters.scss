@@ -136,6 +136,21 @@
     color: #fff;
 }
 
+.rovalra-filtered-request-card .avatar-name-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+
+    > .avatar-name {
+        min-width: 0;
+    }
+}
+
+.rovalra-request-card-badge {
+    flex-shrink: 0;
+}
+
 .rovalra-request-filters-range {
     display: grid;
     grid-template-columns: 112px minmax(0, 1fr);
@@ -194,13 +209,4 @@
         margin: 0;
         appearance: none;
     }
-}
-
-.rovalra-has-sent-date > .avatar-card-footer:not(.rovalra-request-sent) {
-    display: none !important;
-}
-
-.rovalra-request-date {
-    display: flex;
-    gap: 3px;
 }

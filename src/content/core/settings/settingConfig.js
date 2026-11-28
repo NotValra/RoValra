@@ -1279,11 +1279,19 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Adds a Filters button to your friend requests to filter them by Roblox Plus, verified and Roblox admin badges, mutual friends, friend, follower and following counts, and join date.',
                     'Requests can also be sorted by date sent, mutual friends, friend, follower and following counts, or join date.',
-                    'Shows the real number of friend requests and when each one was sent.',
+                    'Shows the real number of friend requests once the filters are opened.',
                 ],
                 type: 'checkbox',
                 default: true,
                 contributors: ['2239549101'],
+            },
+            friendRequestCardsEnabled: {
+                label: 'Improved Friend Request Cards',
+                description: [
+                    'Shows when each friend request was sent and where it was sent from on its card.',
+                ],
+                type: 'checkbox',
+                default: true,
             },
             groupRoleEnabled: {
                 label: 'Show Community Roles',

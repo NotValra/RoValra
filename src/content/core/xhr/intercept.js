@@ -23,6 +23,8 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
     const TRADE_DETAILS_API_URL = 'https://trades.roblox.com/v2/trades/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
     const GROUP_ROLES_API_HOST = 'groups.roblox.com';
+    const FRIEND_REQUESTS_API_URL =
+        'https://friends.roblox.com/v1/my/friends/requests';
     const GROUP_ROLES_API_PATH = /^\/v1\/users\/(\d+)\/groups\/roles$/;
     const PROFILE_API_URL =
         'https://apis.roblox.com/profile-platform-api/v1/profiles/get';
@@ -656,6 +658,20 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
         document.dispatchEvent(
             new CustomEvent('rovalra-group-roles-response', {
                 detail: { userId, data },
+            }),
+        );
+    }
+
+    function dispatchFriendRequestsResponse(url, data) {
+        if (!Array.isArray(data?.data)) return;
+        let cursor = null;
+        try {
+            cursor = new URL(url).searchParams.get('cursor') || null;
+        } catch (e) {}
+
+        document.dispatchEvent(
+            new CustomEvent('rovalra-friend-requests-response', {
+                detail: { cursor, data },
             }),
         );
     }
@@ -1775,6 +1791,13 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                     .then((d) => dispatchGroupRolesResponse(requestUrl, d))
                     .catch(() => {});
             }
+            if (requestUrl.startsWith(FRIEND_REQUESTS_API_URL)) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) => dispatchFriendRequestsResponse(requestUrl, d))
+                    .catch(() => {});
+            }
         }
 
         return response;
@@ -2081,6 +2104,11 @@ const LayeredAssetTypes = [64, 65, 66, 67, 68, 69, 70, 71, 72, 41];
                         );
                     if (getGroupRolesRequestUserId(url))
                         dispatchGroupRolesResponse(
+                            url,
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (url.startsWith(FRIEND_REQUESTS_API_URL))
+                        dispatchFriendRequestsResponse(
                             url,
                             JSON.parse(xhr.responseText),
                         );

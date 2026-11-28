@@ -202,6 +202,7 @@ import { init as initIdVerificationBadge } from './features/profile/header/idVer
 import { init as initAgeVerificationBadge } from './features/profile/header/ageVerificationBadge.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 import { init as initFriendRequestFilters } from './features/profile/friends/friendRequestFilters.js';
+import { init as initFriendRequestCards } from './features/profile/friends/friendRequestCards.js';
 import { init as initMutualFriends } from './features/profile/friends/mutualFriends.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initUnfriendDetector } from './features/profile/friends/unfriendDetector.js';
@@ -517,6 +518,7 @@ const featureRoutes = [
             initFriendsSince,
             initFriendLabelsFriendsPage,
             initFriendRequestFilters,
+            initFriendRequestCards,
             initMutualFriends,
             initUnfriend,
             initBulkBadgeRemover,

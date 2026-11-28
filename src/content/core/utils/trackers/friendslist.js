@@ -20,6 +20,26 @@ const TRUSTED_FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const UNFRIEND_SNAPSHOT_KEY = 'rovalra_unfriend_detector_snapshot';
 const UNFRIEND_PENDING_KEY = 'rovalra_pending_unfriends';
 
+// Taken from Roseal 100% missing some due to inactivity on RoSeals end
+export const FRIEND_REQUEST_ORIGIN_SOURCE_TYPES = Object.freeze({
+    PlayerSearch: 1,
+    InGame: 2,
+    UserProfile: 3,
+    QqContactImporter: 4,
+    WeChatContactImporter: 5,
+    QrCode: 6,
+    ProfileShare: 7,
+    PhoneContactImporter: 8,
+    OffNetworkFriendLink: 9,
+    FriendRecommendations: 10,
+});
+
+export function getFriendRequestOriginTextFromSourceType(originSourceType) {
+    return getFriendRequestOriginText(
+        FRIEND_REQUEST_ORIGIN_SOURCE_TYPES[originSourceType],
+    );
+}
+
 export function getFriendRequestOriginText(originId) {
     const fromText = ts('friendsSince.originFrom');
     switch (originId) {
@@ -88,7 +108,7 @@ export async function fetchFriendsCustom(
 ) {
     try {
         let endpoint = `/v1/users/${userId}/friends/find`;
-        if (cursor) params.append('cursor', value);
+        if (cursor) params.append('cursor', cursor);
         if (params.size > 0) endpoint += `?${params.toString()}`;
         return await callRobloxApiJson({
             subdomain: 'friends',
