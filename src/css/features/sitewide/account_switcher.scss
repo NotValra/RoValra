@@ -1,0 +1,30 @@
+.rovalra-account-switcher-panel {
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden !important;
+}
+
+.rovalra-account-switcher-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.rovalra-account-switcher-header,
+.rovalra-account-switcher-footer {
+    flex: 0 0 auto;
+}
+
+.rovalra-account-switcher-panel.rovalra-account-switcher-loading {
+    height: 250px !important;
+}
+
+.rovalra-account-switcher-spinner {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

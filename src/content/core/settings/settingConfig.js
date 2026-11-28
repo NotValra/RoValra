@@ -2487,6 +2487,20 @@ export const SETTINGS_CONFIG = {
                 deprecated: 'Replaced by Privacy Toggles in Navigation.',
                 hidden: true,
             },
+            accountSwitcherEnabled: {
+                label: 'Account Switcher',
+                description: [
+                    'Adds a <icon>person-with-smaller-person</icon> button to the top navigation bar, next to the settings icon, or next to the sign up button when logged out.',
+                    'This lets you save multiple Roblox accounts and quickly switch between them.',
+                    'Saved accounts are stored locally in your browser and never leave your device.',
+                    "**Anyone with access to your browser could use the saved accounts, only use this on a device you trust. Don't use this feature on a shared desktop such as a school computer**",
+                ],
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['cookies'],
+                storageKey: 'rovalra_account_switcher_accounts',
+                contributors: ['447170745'],
+            },
             rovalraStoreSidebarLinkEnabled: {
                 label: 'RoValra Store sidebar link',
                 description:

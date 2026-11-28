@@ -294,7 +294,11 @@ export function createDropdownMenu({
         trigger.setAttribute('aria-expanded', 'false');
     };
 
-    const { element: contentPanel, toggleVisibility } = createDropdownContent(
+    const {
+        element: contentPanel,
+        toggleVisibility,
+        reposition,
+    } = createDropdownContent(
         trigger,
         items,
         null,
@@ -371,6 +375,6 @@ export function createDropdownMenu({
         }
     });
 
-    return { panel: contentPanel, toggle };
+    return { panel: contentPanel, toggle, reposition };
 }
 import { ts } from '../locale/i18n.js';

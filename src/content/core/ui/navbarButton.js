@@ -13,10 +13,10 @@ import { addTooltip } from './tooltip.js';
  * @param {function(HTMLElement): void} [options.onClick] - The callback to run when the button is clicked. The button element is passed as an argument.
  * @returns {Promise<HTMLElement|null>} A promise that resolves with the button element when it's created, or null.
  */
-export function createNavbarButton({ id, iconSvgData, iconData, tooltipText, onClick }) {
+export function createNavbarButton({ id, iconSvgData, iconData, tooltipText, onClick, insertAfter, navbarSelector = 'ul.navbar-right.rbx-navbar-icon-group' }) {
     return new Promise((resolve) => {
         const init = () => {
-            observeElement('ul.navbar-right.rbx-navbar-icon-group', (navbar) => {
+            observeElement(navbarSelector, (navbar) => {
                 if (document.getElementById(id)) {
                     resolve(document.getElementById(id).querySelector('button'));
                     return;
@@ -73,8 +73,11 @@ export function createNavbarButton({ id, iconSvgData, iconData, tooltipText, onC
                     button.addEventListener('click', () => onClick(button));
                 }
 
+                const afterEl = insertAfter ? navbar.querySelector(insertAfter) : null;
                 const searchIcon = navbar.querySelector('.rbx-navbar-right-search');
-                if (searchIcon) {
+                if (afterEl) {
+                    navbar.insertBefore(li, afterEl.nextSibling);
+                } else if (searchIcon) {
                     navbar.insertBefore(li, searchIcon.nextSibling);
                 } else {
                     navbar.insertBefore(li, navbar.firstChild);

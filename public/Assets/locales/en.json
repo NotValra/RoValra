@@ -1475,6 +1475,18 @@
             "description": "We do not promise support for {{extensions}}."
         }
     },
+    "accountSwitcher": {
+        "title": "Account Switcher",
+        "currentAccount": "Current account",
+        "remove": "Remove account",
+        "addCurrent": "Add this account",
+        "addAnother": "Add another account",
+        "noAccounts": "No accounts saved yet. Add this account to get started.",
+        "permissionNeeded": "The account switcher needs the cookies permission to save and switch accounts.",
+        "grantPermission": "Grant permission",
+        "expired": "That account's session has expired. Remove it and add it again by logging in.",
+        "switchFailed": "Something went wrong, please try again."
+    },
     "privacyToggles": {
         "nav": {
             "tooltip": "Privacy Settings"

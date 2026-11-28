@@ -7,6 +7,7 @@ import {
     isRovalraApiEnabled,
 } from '../content/core/rovalraApiAccess.js';
 import './indexedDb.js';
+import './accountSwitcher.js';
 
 // --- Constants & State ---
 

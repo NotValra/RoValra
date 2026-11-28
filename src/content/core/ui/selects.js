@@ -315,6 +315,10 @@ export function createDropdownContent(
     return {
         element: contentPanel,
         toggleVisibility: toggleContentVisibility,
+        reposition: () => {
+            if (contentPanel.getAttribute('data-state') === 'open')
+                positionContent();
+        },
         updateSelectedState: updateSelectedState,
         refresh: renderItems,
     };

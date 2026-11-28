@@ -41,7 +41,8 @@
         "webNavigation",
         "contextMenus",
         "webRequest",
-        "notifications"
+        "notifications",
+        "cookies"
     ],
     "declarative_net_request": {
         "rule_resources": [

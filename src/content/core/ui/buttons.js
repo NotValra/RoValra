@@ -22,6 +22,32 @@ export function createButton(text, type = 'secondary', options = {}) {
     return button;
 }
 
+export function createFoundationIconButton(iconElement, options = {}) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className =
+        'foundation-web-icon-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none bg-none radius-circle padding-xsmall content-default';
+
+    const stateLayer = document.createElement('div');
+    stateLayer.setAttribute('role', 'presentation');
+    stateLayer.className =
+        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
+
+    button.append(stateLayer, iconElement);
+
+    if (options.ariaLabel) {
+        button.setAttribute('aria-label', options.ariaLabel);
+    }
+    if (typeof options.onClick === 'function') {
+        button.addEventListener('click', options.onClick);
+    }
+    if (options.classList && Array.isArray(options.classList)) {
+        button.classList.add(...options.classList);
+    }
+
+    return button;
+}
+
 export function createFoundationButton(text, options = {}) {
     const variant = options.variant || 'standard';
     const sizeClasses =
