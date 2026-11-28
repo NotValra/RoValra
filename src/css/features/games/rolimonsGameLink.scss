@@ -1,0 +1,37 @@
+#game-details-about-tab-container
+    ul.game-stat-container[data-rovalra-rolimons-link='true'] {
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+}
+
+#game-details-about-tab-container li.rovalra-rolimons-game-link-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 100%;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 8px 0 0;
+}
+
+#game-details-about-tab-container button.rovalra-rolimons-game-link {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 120px;
+    height: 40px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    white-space: nowrap;
+
+    img {
+        display: block;
+        width: 14px;
+        height: 19px;
+        object-fit: contain;
+        filter: grayscale(1) brightness(0) invert(0.82);
+    }
+}
