@@ -246,6 +246,7 @@ import { loadIconFontsForStrictCsp } from './core/ui/iconFonts.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initOffSaleCreatePage } from './features/create.roblox.com/offSaleCreatePage.js';
+import { init as initDevexEstimate } from './features/create.roblox.com/devexEstimate.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import {
     enforceSettingOverrides,
@@ -585,6 +586,10 @@ const featureRoutes = [
         features: [initModeration],
     },
     // create
+    {
+        paths: ['/dashboard/creations/experiences'],
+        features: [initDevexEstimate],
+    },
     {
         paths: ['/store/asset'],
         features: [

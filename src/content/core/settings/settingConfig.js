@@ -1,4 +1,5 @@
 import {
+    DEVEX_PAYOUT_METHOD_OPTIONS,
     ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
     TRANSACTION_FIAT_CURRENCY_OPTIONS,
     TRANSACTION_FIAT_RATE_OPTIONS,
@@ -2071,6 +2072,21 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: 'checkbox',
                         default: false,
+                    },
+                    devexEstimateEnabled: {
+                        label: 'DevEx Earnings Estimate',
+                        description:
+                            'Shows your estimated DevEx earnings on the Monetization overview and next to Robux in its charts.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    devexPayoutMethod: {
+                        label: 'DevEx Payment Method',
+                        description:
+                            'Your DevEx portal payment method, used to take its fees, US tax withholding and currency exchange out of the DevEx estimate.',
+                        type: 'select',
+                        options: DEVEX_PAYOUT_METHOD_OPTIONS,
+                        default: 'paypal',
                     },
                 },
             },

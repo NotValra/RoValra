@@ -2,12 +2,14 @@ import {
     observeElement,
     observeChildren,
     observeAttributes,
+    observeText,
 } from '../observer.js';
 import { callRobloxApiJson } from '../api.js';
 import { cleanPrice } from '../utils/priceCleaner.js';
 import { addTooltip } from './tooltip.js';
 import {
     convertCurrencyAmount,
+    getDevexPayoutUsd,
     DEVEX_USD_RATE,
     formatDisplayCurrency,
     getRobuxFiatSettings,
@@ -131,7 +133,7 @@ function syncStreamerRobuxSetting() {
                 streamerRobuxRevealed,
             );
         });
-    } catch (error) {}
+    } catch {}
 }
 
 function isTransactionsPage() {
@@ -418,6 +420,14 @@ function isNavbarRobuxBalance(element) {
     );
 }
 
+function isCashOutBalance(element) {
+    return (
+        isNavbarRobuxBalance(element) ||
+        (element instanceof HTMLElement &&
+            element.closest('#transactions-web-app .balance-label') !== null)
+    );
+}
+
 function getDevexUsdAmount(robuxAmount, useEstimateApi) {
     if (!useEstimateApi) return robuxAmount * DEVEX_USD_RATE;
 
@@ -459,12 +469,13 @@ async function getFormattedRobuxEstimate(
     const style = buildEstimateStyle(fiatSettings);
 
     if (fiatSettings.robuxFiatRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
-        const usdAmount = await getDevexUsdAmount(
-            robuxAmount,
-            isNavbarRobuxBalance(element),
-        );
+        const cashOut = isCashOutBalance(element);
+        const usdAmount = await getDevexUsdAmount(robuxAmount, cashOut);
+        const payoutUsd = await getDevexPayoutUsd(usdAmount, targetCurrency, {
+            includeFlatFee: cashOut,
+        });
         const convertedAmount = await convertCurrencyAmount(
-            usdAmount,
+            payoutUsd ?? usdAmount,
             'USD',
             targetCurrency,
         );
@@ -664,7 +675,10 @@ async function attachTransactionsCellEstimate(labelCell) {
     if (!(targetCell instanceof HTMLElement)) return;
 
     const amount = getRobuxAmountFromElement(targetCell);
-    if (!amount) return;
+    if (!amount) {
+        targetCell.querySelector('.rovalra-usd-estimate')?.remove();
+        return;
+    }
 
     try {
         const resolvedAmount = await resolveEstimateRobuxAmount(
@@ -678,13 +692,14 @@ async function attachTransactionsCellEstimate(labelCell) {
             targetCell,
         );
         if (!formattedEstimate) return;
+        if (getRobuxAmountFromElement(targetCell) !== amount) return;
 
         upsertEstimate(targetCell, formattedEstimate, {
             compact: true,
             appendInside: true,
         });
         labelCell.dataset.rovalraUsdAmount = String(resolvedAmount);
-    } catch (error) {
+    } catch {
         /* ignore */
     }
 }
@@ -735,6 +750,14 @@ function processTransactionsTable(summaryRoot) {
             if (!(labelCell instanceof HTMLElement)) return;
             attachTransactionsCellEstimate(labelCell);
         });
+
+    summaryRoot.querySelectorAll('td.amount').forEach((amountCell) => {
+        if (amountCell.dataset.rovalraObserved) return;
+        amountCell.dataset.rovalraObserved = 'true';
+        observeChildren(amountCell, () =>
+            processTransactionsTable(summaryRoot),
+        );
+    });
 }
 
 async function attachGroupRevenueEstimate(amountCell) {
@@ -760,7 +783,7 @@ async function attachGroupRevenueEstimate(amountCell) {
 
         upsertEstimate(amountCell, formattedEstimate, { compact: true });
         amountCell.dataset.rovalraUsdAmount = String(resolvedAmount);
-    } catch (error) {
+    } catch {
         /* ignore */
     }
 }
@@ -857,7 +880,7 @@ async function attachUsdEstimate(icon) {
 
         upsertEstimate(element, formattedEstimate);
         icon.dataset.rovalraUsdAmount = String(resolvedAmount);
-    } catch (error) {
+    } catch {
         /* ignore */
     }
 }
@@ -892,7 +915,7 @@ async function attachUsdEstimateToValueElement(element) {
 
         upsertEstimate(amountElement, formattedEstimate);
         amountElement.dataset.rovalraUsdAmount = String(resolvedAmount);
-    } catch (error) {
+    } catch {
         /* ignore */
     }
 }
@@ -1050,6 +1073,7 @@ export function init() {
             'robuxFiatEstimatesEnabled',
             'robuxFiatDisplayCurrency',
             'robuxFiatRateMode',
+            'devexPayoutMethod',
         ];
 
         if ('streamermode' in changes || 'hideRobux' in changes) {
@@ -1136,6 +1160,7 @@ export function init() {
         (element) => {
             processTransactionsTable(element);
             observeChildren(element, () => processTransactionsTable(element));
+            observeText(element, () => processTransactionsTable(element));
             observeAttributes(
                 element,
                 () => processTransactionsTable(element),

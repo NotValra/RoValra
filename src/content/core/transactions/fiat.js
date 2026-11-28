@@ -1,6 +1,9 @@
 import { callRobloxApiJson } from '../api.js';
 import { get as getCache, set as setCache } from '../storage/cacheHandler.js';
 export {
+    DEVEX_EXCHANGE_FEE_PERCENT,
+    DEVEX_O18_USD_RATE,
+    DEVEX_PAYOUT_FEES,
     DEVEX_USD_RATE,
     ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
     ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
@@ -14,9 +17,8 @@ export {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from './fiatConfig.js';
 import {
-    DEVEX_USD_RATE,
-    ROBUX_FIAT_RATE_MODE_DEVEX,
-    ROBUX_FIAT_RATE_MODE_NORMAL,
+    DEVEX_EXCHANGE_FEE_PERCENT,
+    DEVEX_PAYOUT_FEES,
     ROBUX_FIAT_SETTINGS_DEFAULTS,
 } from './fiatConfig.js';
 
@@ -34,6 +36,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
         changes.robuxFiatEstimatesEnabled ||
         changes.robuxFiatDisplayCurrency ||
         changes.robuxFiatRateMode ||
+        changes.devexPayoutMethod ||
         changes.robuxFiatEstimateColor ||
         changes.robuxFiatEstimateStyleMode ||
         changes.robuxFiatEstimateGradient ||
@@ -155,4 +158,57 @@ export function formatDisplayCurrency(amount, currencyCode = 'USD') {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(roundedValue);
+}
+
+let payoutDetailsPromise = null;
+
+function getPayoutDetails() {
+    payoutDetailsPromise ??= Promise.all([
+        callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint:
+                '/creator-tax/withholding-rate?paymentType=PAYMENT_TYPE_ROYALTY',
+        })
+            .then((data) => (data?.rate?.withholdingRateBps || 0) / 10000)
+            .catch(() => 0),
+        callRobloxApiJson({
+            subdomain: 'users',
+            endpoint: '/v1/users/authenticated/country-code',
+        })
+            .then((data) => data?.countryCode || null)
+            .catch(() => null),
+    ]).then(([withholdingRate, countryCode]) => ({
+        withholdingRate,
+        countryCode,
+    }));
+    return payoutDetailsPromise;
+}
+
+export async function getDevexPayoutUsd(
+    usdAmount,
+    currency,
+    { includeFlatFee = true } = {},
+) {
+    const { devexPayoutMethod: method } = await getRobuxFiatSettings();
+    if (!method || method === 'none') return null;
+
+    const { withholdingRate, countryCode } = await getPayoutDetails();
+    const fees =
+        method === 'paypal'
+            ? DEVEX_PAYOUT_FEES[
+                  countryCode === 'US'
+                      ? 'paypalDomestic'
+                      : 'paypalInternational'
+              ]
+            : DEVEX_PAYOUT_FEES[method];
+    if (!fees) return null;
+
+    const afterTax = usdAmount * (1 - withholdingRate);
+    const percentFee = (afterTax * (fees.percent || 0)) / 100;
+    const fee = includeFlatFee
+        ? Math.min(fees.cap ?? Infinity, fees.flat + percentFee)
+        : percentFee;
+    const exchangeRate =
+        currency === 'USD' ? 1 : 1 - DEVEX_EXCHANGE_FEE_PERCENT / 100;
+    return Math.max(0, afterTax - fee) * exchangeRate;
 }
